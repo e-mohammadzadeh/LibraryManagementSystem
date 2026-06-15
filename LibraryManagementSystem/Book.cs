@@ -2,18 +2,25 @@
 
 public class Book
 {
-	public Book()
+	public Book(string bookName, Author author, string internationalStandardBookNumber, int totalCopies)
 	{
+		BookId = _nextBookId++;
+		BookName = bookName;
+		Author = author;
+		InternationalStandardBookNumber = internationalStandardBookNumber;
+		TotalCopies = totalCopies;
+		AvailableCopies = totalCopies;
 	}
 
-	public int BookId { get; set; }
+	private static int _nextBookId;
+	public int BookId { get; private set; }
 	public string InternationalStandardBookNumber { get; set; }
 	public required string BookName { get; set; }
 	public required Author Author { get; set; }
 	public DateOnly PublishDate { get; set; }
 	public Genre Genre { get; set; }
-	public int TotalCopies { get; set; }
-	public int AvailableCopies { get; set; }
+	private int TotalCopies { get; init; }  //TODO	should check init value to be positive
+	private int AvailableCopies { get; set; }
 	public string? Description { get; set; }
 
 	public void BorrowCopy()
@@ -23,12 +30,13 @@ public class Book
 			throw new InvalidOperationException("No copies are available.");
 		}
 		AvailableCopies--;
+		//TODO	Raise an event: a signal to the rest of the system that says "this book is now out of stock"
 	}
 
 
 	public void ReturnCopy()
 	{
-		if (AvailableCopies == TotalCopies)
+		if (AvailableCopies >= TotalCopies)
 		{
 			throw new InvalidOperationException("Cannot return a copy because all copies are already in the library.");
 		}

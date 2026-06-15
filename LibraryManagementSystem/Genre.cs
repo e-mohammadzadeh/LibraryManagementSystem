@@ -9,5 +9,7 @@ public enum Genre
 	ScienceFiction,
 	Horror,
 	Memoir,
-	Biography
+	Biography,
+	NonFiction,
+	Thriller
 }

@@ -2,10 +2,11 @@
 
 public class Author:Person
 {
-	public Author()
+	public Author(string firstName, string lastName) : base(firstName, lastName)
 	{
-		Books = new List<Book>();
 	}
-	public string? Biograph { get; set; }
-	public List<Book> Books { get; set; }
+
+	public int AuthorId { get; set; }
+	public string? Biography { get; set; }
+	public List<Book> Books { get; init; } = new();
 }
