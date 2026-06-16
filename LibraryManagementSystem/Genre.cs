@@ -11,5 +11,6 @@ public enum Genre
 	Memoir,
 	Biography,
 	NonFiction,
-	Thriller
+	Thriller,
+	Other
 }

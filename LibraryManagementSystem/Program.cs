@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices.JavaScript;
-using LibraryManagementSystem;
+﻿using LibraryManagementSystem;
 
 Console.WriteLine("Hello, World!");
 
@@ -9,5 +8,7 @@ Console.WriteLine("Hello, World!");
  * Inside BorrowBook, you will call book.BorrowCopy() and record a Loan 
  */
 
-var firstAuthor = new Author("J. K.", "Rowling");
-var myBook = new Book("Harry Potter", firstAuthor, "1234-3121", 4);
+//var firstAuthor = new Author("J. K.", "Rowling");
+//var myBook = new Book("Harry Potter", firstAuthor, "1234-3121", 4);
+
+Console.WriteLine(string.IsNullOrWhiteSpace("2456"));
