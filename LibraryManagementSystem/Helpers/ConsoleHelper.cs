@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace LibraryManagementSystem;
+namespace LibraryManagementSystem.Helpers;
 
 // This static class loop until valid input is received.
 public static class ConsoleHelper

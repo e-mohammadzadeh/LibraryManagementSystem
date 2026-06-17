@@ -1,4 +1,7 @@
-﻿namespace LibraryManagementSystem;
+﻿using LibraryManagementSystem.Domain;
+using LibraryManagementSystem.Enums;
+
+namespace LibraryManagementSystem;
 
 public class LibraryUser : Person
 {

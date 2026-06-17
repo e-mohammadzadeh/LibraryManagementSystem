@@ -1,6 +1,7 @@
-﻿using System.Runtime.InteropServices;
+﻿using LibraryManagementSystem.Enums;
+using System.ComponentModel.DataAnnotations;
 
-namespace LibraryManagementSystem;
+namespace LibraryManagementSystem.Domain;
 
 public class Book
 {
@@ -12,12 +13,8 @@ public class Book
 		BookName = bookName;
 		Author = author;
 		PublishDate = publishDate;
-
-		if (totalCopies > 0)
-		{
-			TotalCopies = totalCopies;
-			AvailableCopies = totalCopies;
-		}
+		AvailableCopies = ValidateTotalCopies(totalCopies);
+		TotalCopies = ValidateTotalCopies(totalCopies);
 	}
 
 	//TODO	When switch into SQL Server, IDs will generate by SQL Server itself and should remove static ones
@@ -32,6 +29,12 @@ public class Book
 	public int AvailableCopies { get; set; }
 	public string? Description { get; set; }
 
+
+	private static int ValidateTotalCopies(int totalCopies)
+	{
+		return totalCopies > 0 ? totalCopies : throw new ArgumentException("Invalid total copy value.Please try again");
+	}
+	
 	public void BorrowCopy()
 	{
 		if (AvailableCopies <= 0)

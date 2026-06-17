@@ -1,4 +1,4 @@
-﻿namespace LibraryManagementSystem;
+﻿namespace LibraryManagementSystem.Enums;
 
 public enum Genre
 {

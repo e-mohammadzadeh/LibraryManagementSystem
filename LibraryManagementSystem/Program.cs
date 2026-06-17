@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem;
+using Microsoft.VisualBasic;
 
 Console.WriteLine("Hello, World!");
 
@@ -11,4 +12,5 @@ Console.WriteLine("Hello, World!");
 //var firstAuthor = new Author("J. K.", "Rowling");
 //var myBook = new Book("Harry Potter", firstAuthor, "1234-3121", 4);
 
-Console.WriteLine(string.IsNullOrWhiteSpace("2456"));
+Console.WriteLine(DateOnly.FromDateTime(DateTime.Today));
+Console.WriteLine(DateOnly.FromDateTime(DateTime.Today.AddDays(5)));

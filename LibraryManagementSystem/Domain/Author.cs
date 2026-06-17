@@ -1,4 +1,4 @@
-﻿namespace LibraryManagementSystem;
+﻿namespace LibraryManagementSystem.Domain;
 
 public class Author : Person
 {
