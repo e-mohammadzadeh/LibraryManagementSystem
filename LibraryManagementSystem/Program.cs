@@ -1,16 +1,14 @@
-﻿using LibraryManagementSystem;
-using Microsoft.VisualBasic;
+﻿using LibraryManagementSystem.Presentation;
+using LibraryManagementSystem.Services;
 
-Console.WriteLine("Hello, World!");
+namespace LibraryManagementSystem;
 
-/*
- * TODO	Create Library class contains: private fields List<Book> _books, List<Member> _members, ...
- * public methods AddBook(Book book), RemoveBook(int bookId), FindBookByTitle(string title), RegisterMember(Member member), BorrowBook(int bookId, int memberId), ReturnBook(int bookId, int memberId)
- * Inside BorrowBook, you will call book.BorrowCopy() and record a Loan 
- */
+public static class Program
+{
+	private static void Main()
+	{
+		BookManagementService bookManagementService = new BookManagementService();
+		MainMenu.MainMenuController(bookManagementService);
+	}
+}
 
-//var firstAuthor = new Author("J. K.", "Rowling");
-//var myBook = new Book("Harry Potter", firstAuthor, "1234-3121", 4);
-
-Console.WriteLine(DateOnly.FromDateTime(DateTime.Today));
-Console.WriteLine(DateOnly.FromDateTime(DateTime.Today.AddDays(5)));

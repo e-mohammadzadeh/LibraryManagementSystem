@@ -1,6 +1,4 @@
 ﻿using LibraryManagementSystem.Enums;
-using System.ComponentModel.DataAnnotations;
-
 namespace LibraryManagementSystem.Domain;
 
 public class Book
@@ -21,8 +19,8 @@ public class Book
 	private static int _nextBookId;
 	public int BookId { get; private set; }
 	public string InternationalStandardBookNumber { get; set; }
-	public required string BookName { get; set; }
-	public required Author Author { get; init; }
+	public string BookName { get; set; }
+	public Author Author { get; init; }
 	public DateOnly PublishDate { get; set; }
 	public Genre Genre { get; set; }
 	private int TotalCopies { get; init; }
@@ -42,7 +40,6 @@ public class Book
 			throw new InvalidOperationException("No copies are available.");
 		}
 		AvailableCopies--;
-		Loan loan = new Loan(); // Create Loan
 		//TODO	Raise an event: a signal to the rest of the system that says "this book is now out of stock"
 	}
 

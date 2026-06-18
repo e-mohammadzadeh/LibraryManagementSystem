@@ -1,6 +1,4 @@
-﻿using System.Text.RegularExpressions;
-
-namespace LibraryManagementSystem.Helpers;
+﻿namespace LibraryManagementSystem.Helpers;
 
 // This static class loop until valid input is received.
 public static class ConsoleHelper
@@ -85,28 +83,7 @@ public static class ConsoleHelper
 				Console.WriteLine("Input cannot be empty. Please try again.");
 				continue;
 			}
-
-			if (IsbnValidate(trimmed))
-			{
-				return trimmed;
-			}
-			Console.WriteLine("Invalid ISBN format. Please enter a valid 10 or 13 digit ISBN.");
-		}
-	}
-
-	private static bool IsbnValidate(string isbn)
-	{
-		string cleaned = isbn.Replace("-", "");
-
-		switch (cleaned.Length)
-		{
-			// Check for ISBN-13 (must be exactly 13 digits)
-			case 13 when Regex.IsMatch(cleaned, @"^\d{13}$"):
-			// Check for ISBN-10 (must be 10 characters: 9 digits + optional 'X')
-			case 10 when Regex.IsMatch(cleaned, @"^\d{9}[\dX]$"):
-				return true;
-			default:
-				return false;
+			return trimmed;
 		}
 	}
 }
