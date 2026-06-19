@@ -3,9 +3,10 @@
 public class Author : Person
 {
 	public Author(string firstName, string lastName, string nationalCode, string email, string phoneNumber,
-		DateOnly birthDate) : base(firstName, lastName, nationalCode, email, phoneNumber, birthDate)
+		DateOnly birthDate, string biography) : base(firstName, lastName, nationalCode, email, phoneNumber, birthDate)
 	{
 		AuthorId = _nextAuthorId++;
+		Biography = biography;
 	}
 
 	private static int _nextAuthorId;

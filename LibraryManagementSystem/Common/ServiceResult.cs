@@ -1,27 +1,25 @@
-﻿using LibraryManagementSystem.Domain;
+﻿namespace LibraryManagementSystem.Common;
 
-namespace LibraryManagementSystem.Common;
-
-public class ServiceResult<T>
+public class ServiceResult<T> where T : class
 {
-	private ServiceResult(bool success, T data, string message)
+	private ServiceResult(bool success, T? data, string? message)
 	{
 		Success = success;
 		Data = data;
 		Message = message;
 	}
 
-	public bool Success { get; private set; }
-	public string Message { get; set; }
-	public T? Data { get; set; }
+	public bool Success { get; init; }
+	public string? Message { get; init; }
+	public T? Data { get; init; }
 
-	public static ServiceResult<T> ShowSuccessMessage(T data)
+	public static ServiceResult<T> Ok(T data)
 	{
-		return new ServiceResult<T> { Success = true, Data = data, Message = "Operation completed successfully." };
+		return new ServiceResult<T>(true, data, "Operation completed successfully.");
 	}
 
-	public static ServiceResult<Book> ShowFailMessage(string message)
+	public static ServiceResult<T> Fail(string message)
 	{
-		return new ServiceResult<Book> { Success = false, Data = null, Message = message };
+		return new ServiceResult<T>(false, null, message);
 	}
 }

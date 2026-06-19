@@ -4,7 +4,7 @@ namespace LibraryManagementSystem.Domain;
 public class Book
 {
 	public Book(string internationalStandardBookNumber, string bookName, Author author, DateOnly publishDate,
-		int totalCopies)
+		int totalCopies, Genre genre, string? description)
 	{
 		BookId = _nextBookId++;
 		InternationalStandardBookNumber = internationalStandardBookNumber;
@@ -13,6 +13,8 @@ public class Book
 		PublishDate = publishDate;
 		AvailableCopies = ValidateTotalCopies(totalCopies);
 		TotalCopies = ValidateTotalCopies(totalCopies);
+		Genre = genre;
+		Description = description;
 	}
 
 	//TODO	When switch into SQL Server, IDs will generate by SQL Server itself and should remove static ones

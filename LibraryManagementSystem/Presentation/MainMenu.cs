@@ -4,7 +4,7 @@ namespace LibraryManagementSystem.Presentation;
 
 public class MainMenu
 {
-	public static void MainMenuController(BookManagementService bookManagementService)
+	public static void MainMenuController(UserManagementService userManagementService, BookManagementService bookManagementService)
 	{
 		var continueProgram = true;
 		while (continueProgram)
@@ -13,13 +13,12 @@ public class MainMenu
 			{
 				case 1:
 				{
-					Console.WriteLine("Option 1 selected.");
-					BookMenu.BookMenuController(bookManagementService);
+					AuthorMenu.AuthorMenuController(userManagementService);
 					break;
 				}
 				case 2:
 				{
-					Console.WriteLine("Option 2 selected.");
+					BookMenu.BookMenuController(userManagementService, bookManagementService);
 					break;
 				}
 				case 3:
@@ -50,8 +49,8 @@ public class MainMenu
 		while (true)
 		{
 			Console.WriteLine("============================ MAIN MENU ============================");
-			Console.WriteLine("1. Books");
-			Console.WriteLine("2. Author");
+			Console.WriteLine("1. Author");
+			Console.WriteLine("2. Books");
 			Console.WriteLine("3. Members");
 			Console.WriteLine("4. Loan");
 			Console.WriteLine("5. Exit");

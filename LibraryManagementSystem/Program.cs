@@ -7,8 +7,8 @@ public static class Program
 {
 	private static void Main()
 	{
-		BookManagementService bookManagementService = new BookManagementService();
-		MainMenu.MainMenuController(bookManagementService);
+		var bookManagementService = new BookManagementService();
+		var userManagementService = new UserManagementService();
+		MainMenu.MainMenuController(bookManagementService, userManagementService);
 	}
 }
-
