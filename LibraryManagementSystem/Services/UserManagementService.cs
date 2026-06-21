@@ -10,11 +10,9 @@ public class UserManagementService
 	private List<LibraryUser> _managers = new();
 
 
-
-	public ServiceResult<Author> AddAuthor(string firstName, string lastName, string nationalCode, string email, string phoneNumber,
-		DateOnly birthDate, string biography)
+	public ServiceResult<Author> AddAuthor(string firstName, string lastName, string nationalCode, string email,
+		string phoneNumber, DateOnly birthDate, string? biography)
 	{
-
 		// Check first-last name for duplication author
 		// Check national code for duplication author
 
@@ -24,13 +22,18 @@ public class UserManagementService
 		return ServiceResult<Author>.Ok(newAuthor);
 	}
 
-	public void GetAllAuthors()
+	public List<Author> GetAllAuthors()
 	{
-		// call AuthorMenu.ViewAllAuthors(_authors);
+		return _authors;
+	}
+
+	public Author? FindAuthorById(int? id)
+	{
+		return _authors.FirstOrDefault(a => a.AuthorId == id);
 	}
 
 	public void AddMember()
 	{
 	}
-	// RegisterMember  EditMember  DeactivateMember  FindUser
+	// RegisterMember  EditMember  DeactivateMember  FindUserById
 }

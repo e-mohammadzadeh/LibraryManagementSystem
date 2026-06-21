@@ -9,6 +9,6 @@ public static class Program
 	{
 		var bookManagementService = new BookManagementService();
 		var userManagementService = new UserManagementService();
-		MainMenu.MainMenuController(bookManagementService, userManagementService);
+		MainMenu.MainMenuController(userManagementService, bookManagementService);
 	}
 }

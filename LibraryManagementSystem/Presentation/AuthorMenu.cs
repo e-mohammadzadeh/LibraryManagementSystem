@@ -1,9 +1,10 @@
-﻿using LibraryManagementSystem.Helpers;
+﻿using LibraryManagementSystem.Domain;
+using LibraryManagementSystem.Helpers;
 using LibraryManagementSystem.Services;
 
 namespace LibraryManagementSystem.Presentation;
 
-public class AuthorMenu
+public static class AuthorMenu
 {
 	private static int AuthorMenuList()
 	{
@@ -40,23 +41,28 @@ public class AuthorMenu
 			{
 				case 1:
 				{
+					Console.Clear();
 					AddAuthor(userManagementService);
 					break;
 				}
 				case 2:
 				{
+					Console.Clear();
 					break;
 				}
 				case 3:
 				{
+					Console.Clear();
 					break;
 				}
 				case 4:
 				{
+					Console.Clear();
 					break;
 				}
 				case 5:
 				{
+					Console.Clear();
 					break;
 				}
 				case 6:
@@ -69,6 +75,8 @@ public class AuthorMenu
 					Console.ForegroundColor = ConsoleColor.Red;
 					Console.WriteLine("Backing to main menu...\n");
 					Console.ResetColor();
+					Thread.Sleep(3000);
+					Console.Clear();
 					continueProgram = false;
 					break;
 				}
@@ -142,7 +150,7 @@ public class AuthorMenu
 			if (birthDate == null)
 				return;
 
-			if (Validator.BirthDateValidator(birthDate))
+			if (Validator.BirthDateValidator(birthDate.Value))
 			{
 				break;
 			}
@@ -153,8 +161,8 @@ public class AuthorMenu
 
 		var biography = ConsoleHelper.ReadString("You can add a biography (Optional): ");
 
-		var result = userManagementService.AddAuthor(firstName, lastName, nationalCode, email, phoneNumber, birthDate,
-			biography);
+		var result = userManagementService.AddAuthor(firstName, lastName, nationalCode, email, phoneNumber,
+			birthDate.Value, biography);
 
 		if (result.Success)
 		{
@@ -169,8 +177,24 @@ public class AuthorMenu
 		Console.ResetColor();
 	}
 
-	public static void ViewAllAuthors(UserManagementService userManagementService)
+	private static void ViewAllAuthors(UserManagementService userManagementService)
 	{
-		var a = 2 + 2;
+		var authors = userManagementService.GetAllAuthors();
+		if (authors.Count == 0)
+		{
+			Console.WriteLine("No authors found. First add new author.");
+		}
+		else
+		{
+			Console.WriteLine("{0,3} {1, 15} {2, 20}", "ID", "Author Name", "Email Address");
+			Console.WriteLine("========================================================");
+
+			foreach (var author in authors)
+			{
+				var fullName = author.FirstName + author.LastName;
+				Console.WriteLine("{0,3} {1, 15} {2, 20}", author.AuthorId, fullName, author.Email);
+			}
+			Console.WriteLine("========================================================");
+		}
 	}
 }

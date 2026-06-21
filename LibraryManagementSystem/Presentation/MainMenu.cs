@@ -2,7 +2,7 @@
 
 namespace LibraryManagementSystem.Presentation;
 
-public class MainMenu
+public static class MainMenu
 {
 	public static void MainMenuController(UserManagementService userManagementService, BookManagementService bookManagementService)
 	{
@@ -13,11 +13,13 @@ public class MainMenu
 			{
 				case 1:
 				{
+					Console.Clear();
 					AuthorMenu.AuthorMenuController(userManagementService);
 					break;
 				}
 				case 2:
 				{
+					Console.Clear();
 					BookMenu.BookMenuController(userManagementService, bookManagementService);
 					break;
 				}

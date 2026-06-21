@@ -24,4 +24,31 @@ public static class Validator
 		var today = DateOnly.FromDateTime(DateTime.Now);
 		return birthDate <= today && birthDate >= today.AddYears(-120);
 	}
+
+	public static bool ISBNValidator(string isbn)
+	{
+		var cleaned = isbn.Replace("-", "");
+
+		switch (cleaned.Length)
+		{
+			// Check for ISBN-13 (must be exactly 13 digits)
+			case 13 when Regex.IsMatch(cleaned, @"^\d{13}$"):
+			// Check for ISBN-10 (must be 10 characters: 9 digits + optional 'X')
+			case 10 when Regex.IsMatch(cleaned, @"^\d{9}[\dX]$"):
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	public static bool NameValidator(string name, int minLength, int maxLength)
+	{
+		if (name.Contains("  "))
+			return false;
+
+		if (name.Length < minLength || name.Length > maxLength)
+			return false;
+
+		return Regex.IsMatch(name, @"^[\p{L}\p{N}\s\-'\.,:;!?&()]+$");
+	}
 }
