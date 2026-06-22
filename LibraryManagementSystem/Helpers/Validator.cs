@@ -51,4 +51,11 @@ public static class Validator
 
 		return Regex.IsMatch(name, @"^[\p{L}\p{N}\s\-'\.,:;!?&()]+$");
 	}
+
+	public static bool DateValidator(DateOnly date)
+	{
+		return true;
+	}
+
+
 }

@@ -26,6 +26,7 @@ public static class AuthorMenu
 			{
 				return result;
 			}
+
 			Console.ForegroundColor = ConsoleColor.Red;
 			Console.WriteLine("Invalid selection, Try again.\n");
 			Console.ResetColor();
@@ -37,6 +38,7 @@ public static class AuthorMenu
 		var continueProgram = true;
 		while (continueProgram)
 		{
+			Console.Clear();
 			switch (AuthorMenuList())
 			{
 				case 1:
@@ -48,6 +50,7 @@ public static class AuthorMenu
 				case 2:
 				{
 					Console.Clear();
+					EditAuthor(userManagementService);
 					break;
 				}
 				case 3:
@@ -67,6 +70,7 @@ public static class AuthorMenu
 				}
 				case 6:
 				{
+					Console.Clear();
 					ViewAllAuthors(userManagementService);
 					break;
 				}
@@ -87,13 +91,44 @@ public static class AuthorMenu
 	private static void AddAuthor(UserManagementService userManagementService)
 	{
 		Console.WriteLine("============================ ADDING AUTHOR MENU ============================");
-
-		var firstName = ConsoleHelper.ReadString("Enter author's first name: ");
-		var lastName = ConsoleHelper.ReadString("Enter author's last name: ");
+		string? firstName;
+		string? lastName;
 		string? nationalCode;
 		string? email;
 		string? phoneNumber;
 		DateOnly? birthDate;
+
+		while (true) // Validate First Name
+		{
+			firstName = ConsoleHelper.ReadString("Enter author's first name: ");
+			if (firstName == null)
+				return;
+
+			if (Validator.NameValidator(firstName, 2, 50))
+			{
+				break;
+			}
+
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine("Invalid first name.Please try again.");
+			Console.ResetColor();
+		}
+
+		while (true) // Validate Last Name
+		{
+			lastName = ConsoleHelper.ReadString("Enter author's last name: ");
+			if (lastName == null)
+				return;
+
+			if (Validator.NameValidator(lastName, 2, 50))
+			{
+				break;
+			}
+
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine("Invalid last name.Please try again.");
+			Console.ResetColor();
+		}
 
 		while (true) // Validate National Code
 		{
@@ -106,6 +141,7 @@ public static class AuthorMenu
 			{
 				break;
 			}
+
 			Console.ForegroundColor = ConsoleColor.Red;
 			Console.WriteLine("Invalid national code.Please try again.");
 			Console.ResetColor();
@@ -113,7 +149,7 @@ public static class AuthorMenu
 
 		while (true) // Validate Email
 		{
-			email = ConsoleHelper.ReadString("Enter author email: ");
+			email = ConsoleHelper.ReadString("Enter author's email: ");
 
 			if (email == null)
 				return;
@@ -122,6 +158,7 @@ public static class AuthorMenu
 			{
 				break;
 			}
+
 			Console.ForegroundColor = ConsoleColor.Red;
 			Console.WriteLine("Invalid email address.Please try again.");
 			Console.ResetColor();
@@ -129,7 +166,7 @@ public static class AuthorMenu
 
 		while (true) // Validate Phone Number
 		{
-			phoneNumber = ConsoleHelper.ReadString("Enter author phone number: ");
+			phoneNumber = ConsoleHelper.ReadString("Enter author's phone number: ");
 
 			if (phoneNumber == null)
 				return;
@@ -138,6 +175,7 @@ public static class AuthorMenu
 			{
 				break;
 			}
+
 			Console.ForegroundColor = ConsoleColor.Red;
 			Console.WriteLine("Invalid phone number.Please try again.");
 			Console.ResetColor();
@@ -145,7 +183,7 @@ public static class AuthorMenu
 
 		while (true) // Validate Birth Date
 		{
-			birthDate = ConsoleHelper.ReadDateOnly("Enter author birth date (yyyy-MM-dd): ");
+			birthDate = ConsoleHelper.ReadDateOnly("Enter author's birth date (yyyy-MM-dd): ");
 
 			if (birthDate == null)
 				return;
@@ -154,12 +192,13 @@ public static class AuthorMenu
 			{
 				break;
 			}
+
 			Console.ForegroundColor = ConsoleColor.Red;
 			Console.WriteLine("Invalid birth date. Please try again.");
 			Console.ResetColor();
 		}
 
-		var biography = ConsoleHelper.ReadString("You can add a biography (Optional): ");
+		var biography = ConsoleHelper.ReadString("You can add a biography (Optional): ", true);
 
 		var result = userManagementService.AddAuthor(firstName, lastName, nationalCode, email, phoneNumber,
 			birthDate.Value, biography);
@@ -174,8 +213,301 @@ public static class AuthorMenu
 			Console.ForegroundColor = ConsoleColor.Red;
 			Console.WriteLine("Failed to add author." + result.Message);
 		}
+
 		Console.ResetColor();
 	}
+
+	private static void EditAuthor(UserManagementService userManagementService)
+	{
+		var authorsList = userManagementService.GetAllAuthors();
+		if (authorsList.Count == 0)
+		{
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine("No authors found. First add new author.");
+			Console.ResetColor();
+			return;
+		}
+
+		ViewAllAuthors(userManagementService);
+		var desiredAuthorId = ConsoleHelper.ReadInt("Which Author do you want to edit (Enter just ID)?", 1,
+			authorsList.Count);
+
+		if (desiredAuthorId == null)
+			return;
+
+		var desiredAuthor = userManagementService.FindAuthorById(desiredAuthorId.Value);
+
+		if (desiredAuthor == null)
+			return;
+
+		Console.WriteLine("1. First Name\t\t[{0}]", desiredAuthor.FirstName);
+		Console.WriteLine("2. Last Name\t\t[{0}]", desiredAuthor.LastName);
+		Console.WriteLine("3. National Code\t[{0}]", desiredAuthor.NationalCode);
+		Console.WriteLine("4. Email\t\t[{0}]", desiredAuthor.Email);
+		Console.WriteLine("5. Phone Number\t[{0}]", desiredAuthor.PhoneNumber);
+		Console.WriteLine("6. Birth Date\t\t[{0}]", desiredAuthor.BirthDate);
+		Console.WriteLine("7. Biography\t\t[{0}]", desiredAuthor.Biography);
+		Console.WriteLine("8. Cancel");
+		var editMenuChoice = ConsoleHelper.ReadInt("Which field do you want to edit (Enter a number)?", 1, 8);
+
+		switch (editMenuChoice)
+		{
+			case 1:
+			{
+				string? authorNewFirstName;
+				while (true) // Validate First Name
+				{
+					authorNewFirstName = ConsoleHelper.ReadString("Enter new first name: ");
+					if (authorNewFirstName == null)
+						return;
+
+					if (Validator.NameValidator(authorNewFirstName, 2, 50))
+					{
+						break;
+					}
+
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine("Invalid first name.Please try again.");
+					Console.ResetColor();
+				}
+
+				var result = userManagementService.UpdateAuthor(desiredAuthor, authorNewFirstName, null, null, null,
+					null, null, null);
+
+				if (result.Success)
+				{
+					Console.ForegroundColor = ConsoleColor.Green;
+					Console.WriteLine("Author updated successfully.");
+				}
+				else
+				{
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine("Failed to update author.");
+				}
+
+				Console.ResetColor();
+				break;
+			}
+			case 2:
+			{
+				string? authorNewLastName;
+				while (true) // Validate Last Name
+				{
+					authorNewLastName = ConsoleHelper.ReadString("Enter new last name: ");
+					if (authorNewLastName == null)
+						return;
+
+					if (Validator.NameValidator(authorNewLastName, 2, 50))
+					{
+						break;
+					}
+
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine("Invalid last name.Please try again.");
+					Console.ResetColor();
+				}
+
+				var result = userManagementService.UpdateAuthor(desiredAuthor, null, authorNewLastName, null, null,
+					null,
+					null, null);
+
+				if (result.Success)
+				{
+					Console.ForegroundColor = ConsoleColor.Green;
+					Console.WriteLine("Author updated successfully.");
+				}
+				else
+				{
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine("Failed to update author.");
+				}
+
+				Console.ResetColor();
+				break;
+			}
+			case 3:
+			{
+				string? authorNewNationalCode;
+				while (true) // Validate National Code
+				{
+					authorNewNationalCode = ConsoleHelper.ReadString("Enter new national code: ");
+
+					if (authorNewNationalCode == null)
+						return;
+
+					if (Validator.NationalCodeValidator(authorNewNationalCode))
+					{
+						break;
+					}
+
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine("Invalid national code.Please try again.");
+					Console.ResetColor();
+				}
+
+				var result = userManagementService.UpdateAuthor(desiredAuthor, null, null, authorNewNationalCode,
+					null,
+					null, null, null);
+
+				if (result.Success)
+				{
+					Console.ForegroundColor = ConsoleColor.Green;
+					Console.WriteLine("Author updated successfully.");
+				}
+				else
+				{
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine("Failed to update author.");
+				}
+
+				Console.ResetColor();
+				break;
+			}
+			case 4:
+			{
+				string? authorNewEmail;
+				while (true) // Validate Email
+				{
+					authorNewEmail = ConsoleHelper.ReadString("Enter new email: ");
+
+					if (authorNewEmail == null)
+						return;
+
+					if (Validator.EmailValidator(authorNewEmail))
+					{
+						break;
+					}
+
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine("Invalid email address.Please try again.");
+					Console.ResetColor();
+				}
+
+				var result = userManagementService.UpdateAuthor(desiredAuthor, null, null, null, authorNewEmail,
+					null,
+					null, null);
+
+				if (result.Success)
+				{
+					Console.ForegroundColor = ConsoleColor.Green;
+					Console.WriteLine("Author updated successfully.");
+				}
+				else
+				{
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine("Failed to update author.");
+				}
+
+				Console.ResetColor();
+				break;
+			}
+			case 5:
+			{
+				string? authorNewPhoneNumber;
+				while (true) // Validate Phone Number
+				{
+					authorNewPhoneNumber = ConsoleHelper.ReadString("Enter new phone number: ");
+
+					if (authorNewPhoneNumber == null)
+						return;
+
+					if (Validator.PhoneNumberValidator(authorNewPhoneNumber))
+					{
+						break;
+					}
+
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine("Invalid phone number.Please try again.");
+					Console.ResetColor();
+				}
+
+				var result = userManagementService.UpdateAuthor(desiredAuthor, null, null, null, null,
+					authorNewPhoneNumber,
+					null, null);
+
+				if (result.Success)
+				{
+					Console.ForegroundColor = ConsoleColor.Green;
+					Console.WriteLine("Author updated successfully.");
+				}
+				else
+				{
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine("Failed to update author.");
+				}
+
+				Console.ResetColor();
+				break;
+			}
+			case 6:
+			{
+				DateOnly? authorNewBirthDate;
+				while (true) // Validate Birth Date
+				{
+					authorNewBirthDate = ConsoleHelper.ReadDateOnly("Enter new birth date (yyyy-MM-dd): ");
+
+					if (authorNewBirthDate == null)
+						return;
+
+					if (Validator.BirthDateValidator(authorNewBirthDate.Value))
+					{
+						break;
+					}
+
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine("Invalid birth date. Please try again.");
+					Console.ResetColor();
+				}
+
+				var result = userManagementService.UpdateAuthor(desiredAuthor, null, null, null, null, null,
+					authorNewBirthDate, null);
+
+				if (result.Success)
+				{
+					Console.ForegroundColor = ConsoleColor.Green;
+					Console.WriteLine("Author updated successfully.");
+				}
+				else
+				{
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine("Failed to update author.");
+				}
+
+				Console.ResetColor();
+				break;
+			}
+			case 7:
+			{
+				var authorNewBiography = ConsoleHelper.ReadString("Enter new biography: ");
+				var result = userManagementService.UpdateAuthor(desiredAuthor, null, null, null, null, null,
+					null, authorNewBiography);
+
+				if (result.Success)
+				{
+					Console.ForegroundColor = ConsoleColor.Green;
+					Console.WriteLine("Author updated successfully.");
+				}
+				else
+				{
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine("Failed to update author.");
+				}
+
+				Console.ResetColor();
+				break;
+			}
+			case 8:
+			{
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.WriteLine("Edit cancelled. Returning to Author Menu...");
+				Console.ResetColor();
+				Thread.Sleep(3000);
+				Console.Clear();
+				return;
+			}
+		}
+	}
+
 
 	private static void ViewAllAuthors(UserManagementService userManagementService)
 	{
@@ -191,9 +523,10 @@ public static class AuthorMenu
 
 			foreach (var author in authors)
 			{
-				var fullName = author.FirstName + author.LastName;
+				var fullName = author.FirstName + " " + author.LastName;
 				Console.WriteLine("{0,3} {1, 15} {2, 20}", author.AuthorId, fullName, author.Email);
 			}
+
 			Console.WriteLine("========================================================");
 		}
 	}

@@ -27,6 +27,7 @@ public static class BookMenu
 			{
 				return result;
 			}
+
 			Console.ForegroundColor = ConsoleColor.Red;
 			Console.WriteLine("Invalid selection, Try again.\n");
 			Console.ResetColor();
@@ -39,6 +40,7 @@ public static class BookMenu
 		var continueProgram = true;
 		while (continueProgram)
 		{
+			Console.Clear();
 			switch (BookMenuList())
 			{
 				case 1:
@@ -60,9 +62,11 @@ public static class BookMenu
 				case 4:
 				{
 					Console.Clear();
+
 					break;
 				}
-				case 5: {
+				case 5:
+				{
 					Console.Clear();
 					break;
 				}
@@ -98,24 +102,35 @@ public static class BookMenu
 		int? genreId;
 
 
-		while (true)  // Validate ISBN
+		while (true) // Validate ISBN
 		{
 			isbn = ConsoleHelper.ReadISBN("Enter ISBN for new book:");
 			if (isbn == null)
 				return;
-			break;
+
+			if (Validator.ISBNValidator(isbn))
+			{
+				break;
+			}
+
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine("Invalid ISBN.Please try again.");
+			Console.ResetColor();
 		}
 
-		while (true)  // Validate Book Name
+		while (true) // Validate Book Name
 		{
 			bookName = ConsoleHelper.ReadString("Enter new book's fullname: ");
 			if (bookName == null)
 				return;
 
-			if (Validator.EmailValidator(isbn)) {
+			if (Validator.NameValidator(bookName, 2, 100))
+			{
 				break;
 			}
-			Console.WriteLine("Invalid ISBN.Please try again.");
+
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine("Invalid book name.Please try again.");
 			Console.ResetColor();
 		}
 
@@ -128,22 +143,22 @@ public static class BookMenu
 				Console.WriteLine("No authors found. First add new author.");
 				return;
 			}
-			else
+
+			Console.WriteLine("\n{0,3} {1, 15} {2, 20}", "ID", "Author Name", "Email Address");
+			Console.WriteLine("========================================================");
+
+			foreach (var a in allAuthors)
 			{
-				Console.WriteLine("{0,3} {1, 15} {2, 20}", "ID", "Author Name", "Email Address");
-				Console.WriteLine("========================================================");
-
-				foreach (var a in allAuthors) {
-					var fullName = a.FirstName + a.LastName;
-					Console.WriteLine("{0,3} {1, 15} {2, 20}", a.AuthorId, fullName, a.Email);
-				}
-				Console.WriteLine("========================================================");
-				var authorId = ConsoleHelper.ReadInt("Enter your desired author's ID: ", 1, allAuthors.Count);
-
-				author = userManagementService.FindAuthorById(authorId);
-
-				break;
+				var fullName = a.FirstName + a.LastName;
+				Console.WriteLine("{0,3} {1, 15} {2, 20}", a.AuthorId, fullName, a.Email);
 			}
+
+			Console.WriteLine("========================================================");
+			var authorId = ConsoleHelper.ReadInt("Enter your desired author's ID: ", 1, allAuthors.Count);
+
+			author = userManagementService.FindAuthorById(authorId);
+
+			break;
 		}
 
 		while (true)
@@ -152,11 +167,7 @@ public static class BookMenu
 			if (publishDate == null)
 				return;
 
-			if (Validator.EmailValidator(isbn)) {
-				break;
-			}
-			Console.WriteLine("Invalid ISBN.Please try again.");
-			Console.ResetColor();
+			break;
 		}
 
 		while (true)
@@ -165,26 +176,25 @@ public static class BookMenu
 			if (totalCopies == null)
 				return;
 
-			if (Validator.EmailValidator(isbn)) {
-				break;
-			}
-			Console.WriteLine("Invalid ISBN.Please try again.");
-			Console.ResetColor();
+			break;
 		}
+
 		while (true)
 		{
-			Console.WriteLine("{0,3} {1, 15}", "ID", "Genre Name");
+			Console.WriteLine("\n{0,3} {1, 15}", "ID", "Genre Name");
 			Console.WriteLine("============================");
 			var values = Enum.GetValues(typeof(Genre));
 			for (var i = 0; i < values.Length; i++)
 			{
 				Console.WriteLine("{0,3} {1, 15}", i + 1, values.GetValue(i));
 			}
+
 			Console.WriteLine("============================");
 
-			genreId = ConsoleHelper.ReadInt("Select your desired genre by entering its ID: ", 1, 11);
+			genreId = ConsoleHelper.ReadInt("Select your desired genre by entering its ID: ", 1, values.Length);
 			if (genreId == null)
 				return;
+
 			break;
 		}
 
@@ -204,6 +214,7 @@ public static class BookMenu
 			Console.ForegroundColor = ConsoleColor.Red;
 			Console.WriteLine("Failed to add book." + result.Message);
 		}
+
 		Console.ResetColor();
 	}
 }
