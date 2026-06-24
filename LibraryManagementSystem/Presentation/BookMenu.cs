@@ -96,7 +96,7 @@ public static class BookMenu
 		Console.WriteLine("============================ ADDING BOOK MENU ============================");
 		string? isbn;
 		string? bookName;
-		Author? author;
+		Author? author = null;
 		DateOnly? publishDate;
 		int? totalCopies;
 		int? genreId;
@@ -156,7 +156,8 @@ public static class BookMenu
 			Console.WriteLine("========================================================");
 			var authorId = ConsoleHelper.ReadInt("Enter your desired author's ID: ", 1, allAuthors.Count);
 
-			author = userManagementService.FindAuthorById(authorId);
+			if (authorId != null)
+				author = userManagementService.FindAuthorById(authorId.Value);
 
 			break;
 		}
@@ -183,7 +184,7 @@ public static class BookMenu
 		{
 			Console.WriteLine("\n{0,3} {1, 15}", "ID", "Genre Name");
 			Console.WriteLine("============================");
-			var values = Enum.GetValues(typeof(Genre));
+			var values = Enum.GetValues<Genre>();
 			for (var i = 0; i < values.Length; i++)
 			{
 				Console.WriteLine("{0,3} {1, 15}", i + 1, values.GetValue(i));
@@ -201,7 +202,7 @@ public static class BookMenu
 		var description = ConsoleHelper.ReadString("You can add any descriptions about this book (Optional): ");
 
 
-		var result = bookManagementService.AddBook(isbn, bookName, author, publishDate.Value, totalCopies.Value,
+		var result = bookManagementService.AddBook(isbn, bookName, author!, publishDate.Value, totalCopies.Value,
 			genreId.Value, description);
 
 		if (result.Success)
@@ -212,7 +213,7 @@ public static class BookMenu
 		else
 		{
 			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine("Failed to add book." + result.Message);
+			Console.WriteLine($"Failed to add book. {result.Message}");
 		}
 
 		Console.ResetColor();

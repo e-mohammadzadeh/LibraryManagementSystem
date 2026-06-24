@@ -36,9 +36,10 @@ public class UserManagementService
 		return _authors.FirstOrDefault(a => a.AuthorId == id);
 	}
 
-	public ServiceResult<Author> UpdateAuthor(Author? author, string? firstName, string? lastName, string? nationalCode,
+	public ServiceResult<Author> UpdateAuthor(int authorId, string? firstName, string? lastName, string? nationalCode,
 		string? email, string? phoneNumber, DateOnly? birthDate, string? biography)
 	{
+		var author = FindAuthorById(authorId);
 		if (author == null)
 			return ServiceResult<Author>.Fail("Problem occurred while updating the author.");
 
