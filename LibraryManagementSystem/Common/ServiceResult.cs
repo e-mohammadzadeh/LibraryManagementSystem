@@ -13,9 +13,9 @@ public class ServiceResult<T> where T : class
 	public string? Message { get; init; }
 	public T? Data { get; init; }
 
-	public static ServiceResult<T> Ok(T data)
+	public static ServiceResult<T> Ok(T data, string message)
 	{
-		return new ServiceResult<T>(true, data, "Operation completed successfully.");
+		return new ServiceResult<T>(true, data, message);
 	}
 
 	public static ServiceResult<T> Fail(string message)

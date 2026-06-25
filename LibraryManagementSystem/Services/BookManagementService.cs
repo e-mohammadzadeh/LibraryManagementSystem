@@ -6,7 +6,7 @@ namespace LibraryManagementSystem.Services;
 
 public class BookManagementService
 {
-	private List<Book> _listOfBooks = new();
+	private readonly List<Book> _listOfBooks = new();
 
 	public ServiceResult<Book> AddBook(string isbn, string bookName, Author author, DateOnly publishDate,
 		int totalCopies, int genreId, string? description)
@@ -20,8 +20,9 @@ public class BookManagementService
 		var newBook = new Book(isbn, bookName, author, publishDate, totalCopies, genreName, description);
 
 		_listOfBooks.Add(newBook);
+		author.Books.Add(newBook);
 
-		return ServiceResult<Book>.Ok(newBook);
+		return ServiceResult<Book>.Ok(newBook, "Book added successfully.");
 	}
 
 

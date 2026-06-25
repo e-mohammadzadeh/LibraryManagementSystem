@@ -1,7 +1,11 @@
-﻿using LibraryManagementSystem.Common;
+﻿using System.ComponentModel.DataAnnotations;
+using LibraryManagementSystem.Common;
 using LibraryManagementSystem.Domain;
 using LibraryManagementSystem.Helpers;
 using LibraryManagementSystem.Services;
+using System.Numerics;
+using System.Xml.Linq;
+using Validator = LibraryManagementSystem.Helpers.Validator;
 
 namespace LibraryManagementSystem.Presentation;
 
@@ -57,6 +61,7 @@ public static class AuthorMenu
 				case 3:
 				{
 					Console.Clear();
+					RemoveAuthor(userManagementService);
 					break;
 				}
 				case 4:
@@ -67,6 +72,7 @@ public static class AuthorMenu
 				case 5:
 				{
 					Console.Clear();
+					ViewAuthorDetails(Author author);
 					break;
 				}
 				case 6:
@@ -95,11 +101,11 @@ public static class AuthorMenu
 	{
 		Console.WriteLine("============================ ADDING AUTHOR MENU ============================");
 
-		var firstName = ConsoleHelper.GetValidFirstName("Enter author's first name: ");
+		var firstName = ConsoleHelper.GetValidName("Enter author's first name: ", "first name");
 		if (firstName == null)
 			return;
 
-		var lastName = ConsoleHelper.GetValidLastName("Enter author's last name: ");
+		var lastName = ConsoleHelper.GetValidName("Enter author's last name: ", "last name");
 		if (lastName == null)
 			return;
 
@@ -138,11 +144,11 @@ public static class AuthorMenu
 			Console.ResetColor();
 			return;
 		}
-		
+
 		var desiredAuthor = SelectAuthor(authorsList);
 		if (desiredAuthor == null)
 			return;
-		
+
 		while (true)
 		{
 			Console.WriteLine("{0, -20} [{1}]", "1. First Name", desiredAuthor.FirstName);
@@ -161,7 +167,7 @@ public static class AuthorMenu
 			{
 				case 1:
 				{
-					var authorNewFirstName = ConsoleHelper.GetValidFirstName("Enter new first name: ");
+					var authorNewFirstName = ConsoleHelper.GetValidName("Enter new first name: ", "first name");
 
 					// TODO	UpdateAuthor() method has much more parameters and should be replaced by DTOs
 					var result = userManagementService.UpdateAuthor(desiredAuthor.AuthorId, authorNewFirstName, null,
@@ -172,7 +178,7 @@ public static class AuthorMenu
 				}
 				case 2:
 				{
-					var authorNewLastName = ConsoleHelper.GetValidLastName("Enter new last name: ");
+					var authorNewLastName = ConsoleHelper.GetValidName("Enter new last name: ", "last name");
 					var result = userManagementService.UpdateAuthor(desiredAuthor.AuthorId, null, authorNewLastName,
 						null, null, null, null, null);
 
@@ -209,7 +215,8 @@ public static class AuthorMenu
 				case 6:
 				{
 					var authorNewBirthDate = ConsoleHelper.GetValidBirthDate("Enter new birth date (yyyy-MM-dd): ");
-					var result = userManagementService.UpdateAuthor(desiredAuthor.AuthorId, null, null, null, null, null,
+					var result = userManagementService.UpdateAuthor(desiredAuthor.AuthorId, null, null, null, null,
+						null,
 						authorNewBirthDate, null);
 
 					ShowResult(result, "Author updated successfully.", "Failed to update author.");
@@ -218,7 +225,8 @@ public static class AuthorMenu
 				case 7:
 				{
 					var authorNewBiography = ConsoleHelper.ReadString("Enter new biography: ");
-					var result = userManagementService.UpdateAuthor(desiredAuthor.AuthorId, null, null, null, null, null,
+					var result = userManagementService.UpdateAuthor(desiredAuthor.AuthorId, null, null, null, null,
+						null,
 						null, authorNewBiography);
 
 					ShowResult(result, "Author updated successfully.", "Failed to update author.");
@@ -245,6 +253,34 @@ public static class AuthorMenu
 			Console.Clear();
 			return;
 		}
+	}
+
+	private static void RemoveAuthor(UserManagementService userManagementService)
+	{
+		// TODO	Implement SOFT DELETE system with flags like `IsDeleted = true` or `IsActive = False`
+		Console.WriteLine("============================ REMOVING AUTHOR MENU ============================");
+		var authorsList = userManagementService.GetAllAuthors();
+		if (authorsList.Count == 0)
+		{
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine("No authors found. First add new author.");
+			Console.ResetColor();
+			return;
+		}
+
+		var desiredAuthor = SelectAuthor(authorsList);
+		if (desiredAuthor == null)
+			return;
+
+		ViewAuthorDetails(desiredAuthor);
+		var choice = ConsoleHelper.ReadYesNo(
+			$"Are you sure you want to remove {desiredAuthor.FirstName} {desiredAuthor.LastName}");
+
+		if (choice != true)
+			return;
+
+		var result = userManagementService.RemoveAuthor(desiredAuthor);
+		ShowResult(result, "Author removed successfully.", "Failed to remove author.");
 	}
 
 	private static void ShowResult(ServiceResult<Author> result, string successMessage, string failureMessage)
@@ -298,10 +334,24 @@ public static class AuthorMenu
 
 		var desiredAuthor = authorsList.FirstOrDefault(a => a.AuthorId == desiredAuthorId.Value);
 
-		if (desiredAuthor != null) 
+		if (desiredAuthor != null)
 			return desiredAuthor;
 
 		ServiceResult<Author>.Fail("Author not found. Please try again.");
 		return null;
+	}
+
+
+	private static void ViewAuthorDetails(Author author)
+	{
+		Console.WriteLine("Author Details:");
+
+		Console.WriteLine("{0, -20} [{1} {2}]", "Name:", author.FirstName, author.LastName);
+		Console.WriteLine("{0, -20} [{1}]", "National Code:", author.NationalCode);
+		Console.WriteLine("{0, -20} [{1}]", "Email:", author.Email);
+		Console.WriteLine("{0, -20} [{1}]", "Phone Number:", author.PhoneNumber);
+		Console.WriteLine("{0, -20} [{1}]", "Birth Date:", author.BirthDate);
+		Console.WriteLine("{0, -20} [{1}]", "Biography:", author.Biography);
+		Console.WriteLine("{0, -20} [{1} {2}]", "Books:", author.Books.Count, "associated books");
 	}
 }

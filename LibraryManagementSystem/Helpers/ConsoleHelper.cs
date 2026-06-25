@@ -1,4 +1,6 @@
-﻿namespace LibraryManagementSystem.Helpers;
+﻿using LibraryManagementSystem.Common;
+
+namespace LibraryManagementSystem.Helpers;
 
 // This static class loop until valid input is received.
 public static class ConsoleHelper
@@ -64,7 +66,7 @@ public static class ConsoleHelper
 		}
 	}
 
-	public static string? ReadISBN(string prompt, bool allowEmpty = false)
+	public static string? ReadISBN(string prompt)
 	{
 		while (true)
 		{
@@ -77,7 +79,7 @@ public static class ConsoleHelper
 				return null;
 			}
 
-			if (string.IsNullOrWhiteSpace(trimmed) && !allowEmpty)
+			if (string.IsNullOrWhiteSpace(trimmed))
 			{
 				Console.WriteLine("Input cannot be empty. Please try again.");
 				continue;
@@ -113,122 +115,51 @@ public static class ConsoleHelper
 		}
 	}
 
-	public static string? GetValidFirstName(string prompt, bool allowEmpty = false)
+
+	private static string? GetValidString(string prompt, Func<string, bool> validator, string errorMessage)
 	{
-		string? firstName;
-		const int minNameLength = 2;
-		const int maxNameLength = 50;
+		string? input;
+
 		while (true)
 		{
-			firstName = ReadString(prompt, allowEmpty);
-			if (firstName == null)
+			input = ReadString(prompt);
+
+			if (input == null)
 				return null;
 
-			if (Validator.NameValidator(firstName, minNameLength, maxNameLength))
+			if (validator(input))
 			{
 				break;
 			}
 
 			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine("Invalid first name.Please try again.");
+			Console.WriteLine(errorMessage);
 			Console.ResetColor();
 		}
 
-		return firstName;
+		return input;
 	}
 
-	public static string? GetValidLastName(string prompt, bool allowEmpty = false)
+	public static string? GetValidName(string prompt, string field)
 	{
-		string? lastName;
-		const int minNameLength = 2;
-		const int maxNameLength = 50;
-		while (true)
-		{
-			lastName = ReadString(prompt, allowEmpty);
-			if (lastName == null)
-				return null;
-
-			if (Validator.NameValidator(lastName, minNameLength, maxNameLength))
-			{
-				break;
-			}
-
-			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine("Invalid last name.Please try again.");
-			Console.ResetColor();
-		}
-
-		return lastName;
+		return GetValidString(prompt,
+			input => Validator.NameValidator(input, ValidationConstants.MinNameLength,
+				ValidationConstants.MaxNameLength), $"Invalid {field}. Please try again.");
 	}
 
 	public static string? GetValidNationalCode(string prompt)
 	{
-		string? nationalCode;
-
-		while (true)
-		{
-			nationalCode = ReadString(prompt);
-
-			if (nationalCode == null)
-				return null;
-
-			if (Validator.NationalCodeValidator(nationalCode))
-			{
-				break;
-			}
-
-			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine("Invalid national code.Please try again.");
-			Console.ResetColor();
-		}
-
-		return nationalCode;
+		return GetValidString(prompt, Validator.NationalCodeValidator, "Invalid national code.Please try again.");
 	}
 
 	public static string? GetValidEmail(string prompt)
 	{
-		string? email;
-		while (true)
-		{
-			email = ReadString(prompt);
-
-			if (email == null)
-				return null;
-
-			if (Validator.EmailValidator(email))
-			{
-				break;
-			}
-
-			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine("Invalid email address.Please try again.");
-			Console.ResetColor();
-		}
-
-		return email;
+		return GetValidString(prompt, Validator.EmailValidator, "Invalid email address.Please try again.");
 	}
 
 	public static string? GetValidPhoneNumber(string prompt)
 	{
-		string? phoneNumber;
-		while (true)
-		{
-			phoneNumber = ReadString(prompt);
-
-			if (phoneNumber == null)
-				return null;
-
-			if (Validator.PhoneNumberValidator(phoneNumber))
-			{
-				break;
-			}
-
-			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine("Invalid phone number.Please try again.");
-			Console.ResetColor();
-		}
-
-		return phoneNumber;
+		return GetValidString(prompt, Validator.PhoneNumberValidator, "Invalid phone number.Please try again.");
 	}
 
 	public static DateOnly? GetValidBirthDate(string prompt)
