@@ -1,13 +1,13 @@
 ﻿using LibraryManagementSystem.Common;
 using LibraryManagementSystem.Domain;
+using LibraryManagementSystem.Enums;
 
 namespace LibraryManagementSystem.Services;
 
 public class UserManagementService
 {
 	private List<Author> _authors = new();
-	private List<LibraryUser> _members = new();
-	private List<LibraryUser> _managers = new();
+	private List<LibraryUser> _libraryUsers = new();
 
 
 	public ServiceResult<Author> AddAuthor(string firstName, string lastName, string nationalCode, string email,
@@ -26,15 +26,18 @@ public class UserManagementService
 		return ServiceResult<Author>.Ok(newAuthor, "Author added successfully.");
 	}
 
+
 	public IReadOnlyList<Author> GetAllAuthors()
 	{
 		return _authors;
 	}
 
+
 	public Author? FindAuthorById(int id)
 	{
 		return _authors.FirstOrDefault(a => a.AuthorId == id);
 	}
+
 
 	public ServiceResult<Author> UpdateAuthor(int authorId, string? firstName, string? lastName, string? nationalCode,
 		string? email, string? phoneNumber, DateOnly? birthDate, string? biography)
@@ -43,29 +46,39 @@ public class UserManagementService
 		if (author == null)
 			return ServiceResult<Author>.Fail(ValidationMessages.FailureUpdate);
 
-		if (_authors.Any(aut => aut.AuthorId != authorId && aut.FirstName == firstName))
-			return ServiceResult<Author>.Fail("An author with the same first name already exists.");
+		if (firstName != null || lastName != null)
+		{
+			if (_authors.Any(aut => aut.AuthorId != authorId && aut.FirstName == firstName && aut.LastName == lastName))
+			{
+				return ServiceResult<Author>.Fail("An author with the same first and last name already exists.");
+			}
+		}
 
-		author.FirstName = firstName ?? author.FirstName;
-
-		if (_authors.Any(aut => aut.AuthorId != authorId && aut.LastName == lastName))
-			return ServiceResult<Author>.Fail("An author with the same last name already exists.");
-
-		author.LastName = lastName ?? author.LastName;
-
-		if (_authors.Any(aut => aut.AuthorId != authorId && aut.NationalCode == nationalCode))
+		if (nationalCode != null && _authors.Any(aut => aut.AuthorId != authorId && aut.NationalCode == nationalCode))
+		{
 			return ServiceResult<Author>.Fail("An author with the same national code already exists.");
+		}
+		else
+		{
+			author.FirstName = firstName ?? author.FirstName;
+			author.LastName = lastName ?? author.LastName;
+			author.NationalCode = nationalCode ?? author.NationalCode;
 
-		author.NationalCode = nationalCode ?? author.NationalCode;
-		author.Email = email ?? author.Email;
-		author.PhoneNumber = phoneNumber ?? author.PhoneNumber;
-		author.BirthDate = birthDate ?? author.BirthDate;
-		author.Biography = biography ?? author.Biography;
-		return ServiceResult<Author>.Ok(author, ValidationMessages.SuccessUpdate);
+			author.Email = email ?? author.Email;
+			author.PhoneNumber = phoneNumber ?? author.PhoneNumber;
+			author.BirthDate = birthDate ?? author.BirthDate;
+			author.Biography = biography ?? author.Biography;
+			return ServiceResult<Author>.Ok(author, ValidationMessages.SuccessUpdate);
+		}
 	}
 
-	public ServiceResult<Author> RemoveAuthor(Author author)
+
+	public ServiceResult<Author> RemoveAuthor(int authorId)
 	{
+		var author = FindAuthorById(authorId);
+		if (author == null)
+			return ServiceResult<Author>.Fail(ValidationMessages.FailureUpdate);
+
 		// TODO	After implementing Loan class and service, before deleting author should check that none of books isn't borrowed
 		if (author.Books.Count != 0)
 			return ServiceResult<Author>.Fail("Failed to remove author. The author has associated books.");
@@ -73,6 +86,20 @@ public class UserManagementService
 		_authors.Remove(author);
 		return ServiceResult<Author>.Ok(author, "Author removed successfully.");
 	}
+
+
+	public IReadOnlyList<Author> SearchAuthors(string searchItem, Func<Author, string?> selector)
+	{
+		if (string.IsNullOrWhiteSpace(searchItem))
+			return new List<Author>();
+
+		return _authors.Where(author =>
+		{
+			var value = selector(author);
+			return value != null && value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
+		}).ToList();
+	}
+
 
 	public void AddMember()
 	{

@@ -1,8 +1,4 @@
-﻿using LibraryManagementSystem.Domain;
-using Microsoft.Win32.SafeHandles;
-using static System.Net.WebRequestMethods;
-
-namespace LibraryManagementSystem.Common;
+﻿namespace LibraryManagementSystem.Common;
 
 public static class ValidationMessages
 {
@@ -31,4 +27,8 @@ public static class ValidationMessages
 	public const string SuccessRemove = "Author removed successfully.";
 
 	public const string FailureRemove = "Failed to remove author.";
+
+	public const string NotAvailableAuthor = "No authors found. First add new author.";
+	public const string NotAvailableBook = "";
+	public const string NotAvailableLoan = "";
 }

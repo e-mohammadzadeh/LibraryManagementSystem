@@ -203,7 +203,7 @@ public static class ConsoleHelper
 
 	public static void ShowInfo(string message)
 	{
-		Console.ForegroundColor = ConsoleColor.Blue;
+		Console.ForegroundColor = ConsoleColor.Cyan;
 		Console.WriteLine(message);
 		Console.ResetColor();
 	}
