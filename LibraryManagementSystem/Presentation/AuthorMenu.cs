@@ -3,9 +3,6 @@ using LibraryManagementSystem.Common;
 using LibraryManagementSystem.Domain;
 using LibraryManagementSystem.Helpers;
 using LibraryManagementSystem.Services;
-using System.Numerics;
-using System.Xml.Linq;
-using Validator = LibraryManagementSystem.Helpers.Validator;
 
 namespace LibraryManagementSystem.Presentation;
 
@@ -32,9 +29,7 @@ public static class AuthorMenu
 				return result;
 			}
 
-			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine("Invalid selection, Try again.\n");
-			Console.ResetColor();
+			ConsoleHelper.ShowError("Invalid selection, Try again.\n");
 		}
 	}
 
@@ -85,9 +80,7 @@ public static class AuthorMenu
 				}
 				case 7:
 				{
-					Console.ForegroundColor = ConsoleColor.Red;
-					Console.WriteLine("Backing to main menu...\n");
-					Console.ResetColor();
+					ConsoleHelper.ShowError("Backing to main menu...\n");
 					Thread.Sleep(3000);
 					Console.Clear();
 					continueProgram = false;
@@ -101,11 +94,15 @@ public static class AuthorMenu
 	{
 		Console.WriteLine("============================ ADDING AUTHOR MENU ============================");
 
-		var firstName = ConsoleHelper.GetValidName("Enter author's first name: ", "first name");
+		var firstName = ConsoleHelper.GetValidName("Enter author's first name: ", "first name",
+			ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
+
 		if (firstName == null)
 			return;
 
-		var lastName = ConsoleHelper.GetValidName("Enter author's last name: ", "last name");
+		var lastName = ConsoleHelper.GetValidName("Enter author's last name: ", "last name",
+			ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
+
 		if (lastName == null)
 			return;
 
@@ -139,9 +136,7 @@ public static class AuthorMenu
 		var authorsList = userManagementService.GetAllAuthors();
 		if (authorsList.Count == 0)
 		{
-			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine("No authors found. First add new author.");
-			Console.ResetColor();
+			ConsoleHelper.ShowError("No authors found. First add new author.");
 			return;
 		}
 
@@ -167,22 +162,25 @@ public static class AuthorMenu
 			{
 				case 1:
 				{
-					var authorNewFirstName = ConsoleHelper.GetValidName("Enter new first name: ", "first name");
+					var authorNewFirstName = ConsoleHelper.GetValidName("Enter new first name: ", "first name",
+						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 					// TODO	UpdateAuthor() method has much more parameters and should be replaced by DTOs
 					var result = userManagementService.UpdateAuthor(desiredAuthor.AuthorId, authorNewFirstName, null,
 						null, null, null, null, null);
 
-					ShowResult(result, "Author updated successfully.", "Failed to update author.");
+					ShowResult(result, ValidationMessages.SuccessUpdate, ValidationMessages.FailureUpdate);
 					break;
 				}
 				case 2:
 				{
-					var authorNewLastName = ConsoleHelper.GetValidName("Enter new last name: ", "last name");
+					var authorNewLastName = ConsoleHelper.GetValidName("Enter new last name: ", "last name",
+						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
+
 					var result = userManagementService.UpdateAuthor(desiredAuthor.AuthorId, null, authorNewLastName,
 						null, null, null, null, null);
 
-					ShowResult(result, "Author updated successfully.", "Failed to update author.");
+					ShowResult(result, ValidationMessages.SuccessUpdate, ValidationMessages.FailureUpdate);
 					break;
 				}
 				case 3:
@@ -191,7 +189,7 @@ public static class AuthorMenu
 					var result = userManagementService.UpdateAuthor(desiredAuthor.AuthorId, null, null,
 						authorNewNationalCode, null, null, null, null);
 
-					ShowResult(result, "Author updated successfully.", "Failed to update author.");
+					ShowResult(result, ValidationMessages.SuccessUpdate, ValidationMessages.FailureUpdate);
 					break;
 				}
 				case 4:
@@ -200,7 +198,7 @@ public static class AuthorMenu
 					var result = userManagementService.UpdateAuthor(desiredAuthor.AuthorId, null, null, null,
 						authorNewEmail, null, null, null);
 
-					ShowResult(result, "Author updated successfully.", "Failed to update author.");
+					ShowResult(result, ValidationMessages.SuccessUpdate, ValidationMessages.FailureUpdate);
 					break;
 				}
 				case 5:
@@ -209,7 +207,7 @@ public static class AuthorMenu
 					var result = userManagementService.UpdateAuthor(desiredAuthor.AuthorId, null, null, null, null,
 						authorNewPhoneNumber, null, null);
 
-					ShowResult(result, "Author updated successfully.", "Failed to update author.");
+					ShowResult(result, ValidationMessages.SuccessUpdate, ValidationMessages.FailureUpdate);
 					break;
 				}
 				case 6:
@@ -219,7 +217,7 @@ public static class AuthorMenu
 						null,
 						authorNewBirthDate, null);
 
-					ShowResult(result, "Author updated successfully.", "Failed to update author.");
+					ShowResult(result, ValidationMessages.SuccessUpdate, ValidationMessages.FailureUpdate);
 					break;
 				}
 				case 7:
@@ -229,14 +227,12 @@ public static class AuthorMenu
 						null,
 						null, authorNewBiography);
 
-					ShowResult(result, "Author updated successfully.", "Failed to update author.");
+					ShowResult(result, ValidationMessages.SuccessUpdate, ValidationMessages.FailureUpdate);
 					break;
 				}
 				case 8:
 				{
-					Console.ForegroundColor = ConsoleColor.Red;
-					Console.WriteLine("Edit cancelled. Returning to Author Menu...");
-					Console.ResetColor();
+					ConsoleHelper.ShowError("Edit cancelled. Returning to Author Menu...");
 					Thread.Sleep(3000);
 					Console.Clear();
 					return;
@@ -262,9 +258,7 @@ public static class AuthorMenu
 		var authorsList = userManagementService.GetAllAuthors();
 		if (authorsList.Count == 0)
 		{
-			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine("No authors found. First add new author.");
-			Console.ResetColor();
+			ConsoleHelper.ShowError("No authors found. First add new author.");
 			return;
 		}
 
@@ -280,23 +274,15 @@ public static class AuthorMenu
 			return;
 
 		var result = userManagementService.RemoveAuthor(desiredAuthor);
-		ShowResult(result, "Author removed successfully.", "Failed to remove author.");
+		ShowResult(result, ValidationMessages.SuccessRemove, ValidationMessages.FailureRemove);
 	}
 
 	private static void ShowResult(ServiceResult<Author> result, string successMessage, string failureMessage)
 	{
 		if (result.Success)
-		{
-			Console.ForegroundColor = ConsoleColor.Green;
-			Console.WriteLine(successMessage);
-		}
+			ConsoleHelper.ShowSuccess(successMessage);
 		else
-		{
-			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine($"{failureMessage} {result.Message}");
-		}
-
-		Console.ResetColor();
+			ConsoleHelper.ShowError($"{failureMessage} {result.Message}");
 	}
 
 
@@ -304,7 +290,7 @@ public static class AuthorMenu
 	{
 		if (authors.Count == 0)
 		{
-			Console.WriteLine("No authors found. First add new author.");
+			ConsoleHelper.ShowError("No authors found. First add new author.");
 		}
 		else
 		{

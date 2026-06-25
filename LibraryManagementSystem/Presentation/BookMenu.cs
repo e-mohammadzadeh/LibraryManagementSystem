@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Domain;
+﻿using LibraryManagementSystem.Common;
+using LibraryManagementSystem.Domain;
 using LibraryManagementSystem.Enums;
 using LibraryManagementSystem.Helpers;
 using LibraryManagementSystem.Services;
@@ -28,9 +29,7 @@ public static class BookMenu
 				return result;
 			}
 
-			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine("Invalid selection, Try again.\n");
-			Console.ResetColor();
+			ConsoleHelper.ShowError("Invalid selection, Try again.\n");
 		}
 	}
 
@@ -77,9 +76,7 @@ public static class BookMenu
 				}
 				case 7:
 				{
-					Console.ForegroundColor = ConsoleColor.Red;
-					Console.WriteLine("Backing to main menu...\n");
-					Console.ResetColor();
+					ConsoleHelper.ShowError("Backing to main menu...\n");
 					Thread.Sleep(3000);
 					Console.Clear();
 					continueProgram = false;
@@ -113,26 +110,11 @@ public static class BookMenu
 				break;
 			}
 
-			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine("Invalid ISBN.Please try again.");
-			Console.ResetColor();
+			ConsoleHelper.ShowError("Invalid ISBN.Please try again.");
 		}
 
-		while (true) // Validate Book Name
-		{
-			bookName = ConsoleHelper.ReadString("Enter new book's fullname: ");
-			if (bookName == null)
-				return;
-
-			if (Validator.NameValidator(bookName, 2, 100))
-			{
-				break;
-			}
-
-			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine("Invalid book name.Please try again.");
-			Console.ResetColor();
-		}
+		bookName = ConsoleHelper.GetValidName("Enter new book's fullname: ", "book name",
+			ValidationConstants.MinBookNameLength, ValidationConstants.MaxBookNameLength);
 
 
 		while (true)
@@ -140,7 +122,7 @@ public static class BookMenu
 			var allAuthors = userManagementService.GetAllAuthors();
 			if (allAuthors.Count == 0)
 			{
-				Console.WriteLine("No authors found. First add new author.");
+				ConsoleHelper.ShowError("No authors found. First add new author.");
 				return;
 			}
 
@@ -206,16 +188,8 @@ public static class BookMenu
 			genreId.Value, description);
 
 		if (result.Success)
-		{
-			Console.ForegroundColor = ConsoleColor.Green;
-			Console.WriteLine("Book added successfully.");
-		}
+			ConsoleHelper.ShowSuccess("Book added successfully.");
 		else
-		{
-			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine($"Failed to add book. {result.Message}");
-		}
-
-		Console.ResetColor();
+			ConsoleHelper.ShowError($"Failed to add book. {result.Message}");
 	}
 }

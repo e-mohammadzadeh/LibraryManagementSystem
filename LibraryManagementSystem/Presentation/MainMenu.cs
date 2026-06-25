@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Services;
+﻿using LibraryManagementSystem.Helpers;
+using LibraryManagementSystem.Services;
 
 namespace LibraryManagementSystem.Presentation;
 
@@ -35,9 +36,7 @@ public static class MainMenu
 				}
 				case 5:
 				{
-					Console.ForegroundColor = ConsoleColor.Red;
-					Console.WriteLine("Exiting Program...\n");
-					Console.ResetColor();
+					ConsoleHelper.ShowError("Exiting Program...\n");
 					continueProgram = false;
 					break;
 				}
@@ -64,9 +63,7 @@ public static class MainMenu
 			{
 				return result;
 			}
-			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine("Invalid selection, Try again.\n");
-			Console.ResetColor();
+			ConsoleHelper.ShowError("Invalid selection, Try again.\n");
 		}
 	}
 }

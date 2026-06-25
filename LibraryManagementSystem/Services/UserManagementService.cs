@@ -41,7 +41,7 @@ public class UserManagementService
 	{
 		var author = FindAuthorById(authorId);
 		if (author == null)
-			return ServiceResult<Author>.Fail("Problem occurred while updating the author.");
+			return ServiceResult<Author>.Fail(ValidationMessages.FailureUpdate);
 
 		if (_authors.Any(aut => aut.AuthorId != authorId && aut.FirstName == firstName))
 			return ServiceResult<Author>.Fail("An author with the same first name already exists.");
@@ -61,7 +61,7 @@ public class UserManagementService
 		author.PhoneNumber = phoneNumber ?? author.PhoneNumber;
 		author.BirthDate = birthDate ?? author.BirthDate;
 		author.Biography = biography ?? author.Biography;
-		return ServiceResult<Author>.Ok(author, "Author updated successfully.");
+		return ServiceResult<Author>.Ok(author, ValidationMessages.SuccessUpdate);
 	}
 
 	public ServiceResult<Author> RemoveAuthor(Author author)

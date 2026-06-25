@@ -24,7 +24,7 @@ public static class ConsoleHelper
 			}
 			else
 			{
-				Console.WriteLine("Invalid number. Please try again");
+				ShowError(ValidationMessages.InvalidNumber);
 			}
 		}
 	}
@@ -45,7 +45,7 @@ public static class ConsoleHelper
 			if (!string.IsNullOrWhiteSpace(trimmed) || allowEmpty)
 				return trimmed;
 
-			Console.WriteLine("Input cannot be empty. Please try again.");
+			ShowError(ValidationMessages.EmptyInput);
 		}
 	}
 
@@ -62,7 +62,7 @@ public static class ConsoleHelper
 			if (DateOnly.TryParse(input, out var date))
 				return date;
 
-			Console.WriteLine("Invalid date format. Please use YYYY-MM-DD (e.g., 2026-12-27).");
+			ShowError(ValidationMessages.InvalidBirthDateFormat);
 		}
 	}
 
@@ -81,14 +81,14 @@ public static class ConsoleHelper
 
 			if (string.IsNullOrWhiteSpace(trimmed))
 			{
-				Console.WriteLine("Input cannot be empty. Please try again.");
+				ShowError(ValidationMessages.EmptyInput);
 				continue;
 			}
 
 			if (Validator.ISBNValidator(trimmed))
 				return trimmed;
 
-			Console.WriteLine("Invalid ISBN format. Please enter a valid 10 or 13 digit ISBN.");
+			ShowError(ValidationMessages.InvalidISBN);
 		}
 	}
 
@@ -109,7 +109,7 @@ public static class ConsoleHelper
 				case "n" or "no":
 					return false;
 				default:
-					Console.WriteLine("Invalid input. Please enter 'y' for yes or 'n' for no.");
+					ShowError(ValidationMessages.InvalidYesNo);
 					break;
 			}
 		}
@@ -132,34 +132,31 @@ public static class ConsoleHelper
 				break;
 			}
 
-			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine(errorMessage);
-			Console.ResetColor();
+			ShowError(errorMessage);
 		}
 
 		return input;
 	}
 
-	public static string? GetValidName(string prompt, string field)
+	public static string? GetValidName(string prompt, string field, int minLength, int maxLength)
 	{
-		return GetValidString(prompt,
-			input => Validator.NameValidator(input, ValidationConstants.MinNameLength,
-				ValidationConstants.MaxNameLength), $"Invalid {field}. Please try again.");
+		return GetValidString(prompt, input => Validator.NameValidator(input, minLength, maxLength),
+			$"Invalid {field}. Please try again.");
 	}
 
 	public static string? GetValidNationalCode(string prompt)
 	{
-		return GetValidString(prompt, Validator.NationalCodeValidator, "Invalid national code.Please try again.");
+		return GetValidString(prompt, Validator.NationalCodeValidator, ValidationMessages.InvalidNationalCode);
 	}
 
 	public static string? GetValidEmail(string prompt)
 	{
-		return GetValidString(prompt, Validator.EmailValidator, "Invalid email address.Please try again.");
+		return GetValidString(prompt, Validator.EmailValidator, ValidationMessages.InvalidEmail);
 	}
 
 	public static string? GetValidPhoneNumber(string prompt)
 	{
-		return GetValidString(prompt, Validator.PhoneNumberValidator, "Invalid phone number.Please try again.");
+		return GetValidString(prompt, Validator.PhoneNumberValidator, ValidationMessages.InvalidPhoneNumber);
 	}
 
 	public static DateOnly? GetValidBirthDate(string prompt)
@@ -177,11 +174,37 @@ public static class ConsoleHelper
 				break;
 			}
 
-			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine("Invalid birth date. Please try again.");
-			Console.ResetColor();
+			ShowError(ValidationMessages.InvalidBirthDate);
 		}
 
 		return birthDate;
+	}
+
+	public static void ShowError(string message)
+	{
+		Console.ForegroundColor = ConsoleColor.Red;
+		Console.WriteLine(message);
+		Console.ResetColor();
+	}
+
+	public static void ShowSuccess(string message)
+	{
+		Console.ForegroundColor = ConsoleColor.Green;
+		Console.WriteLine(message);
+		Console.ResetColor();
+	}
+
+	public static void ShowWarning(string message)
+	{
+		Console.ForegroundColor = ConsoleColor.Yellow;
+		Console.WriteLine(message);
+		Console.ResetColor();
+	}
+
+	public static void ShowInfo(string message)
+	{
+		Console.ForegroundColor = ConsoleColor.Blue;
+		Console.WriteLine(message);
+		Console.ResetColor();
 	}
 }
