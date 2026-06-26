@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
-
-namespace LibraryManagementSystem.Domain;
+﻿namespace LibraryManagementSystem.Domain;
 
 public class Person
 {

@@ -5,6 +5,27 @@ namespace LibraryManagementSystem.Presentation;
 
 public static class MainMenu
 {
+	private static int MainMenuList() {
+		while (true)
+		{
+			Console.WriteLine("============================ MAIN MENU ============================");
+			Console.WriteLine("1. Author");
+			Console.WriteLine("2. Books");
+			Console.WriteLine("3. Members");
+			Console.WriteLine("4. Loan");
+			Console.WriteLine("5. Exit");
+			Console.WriteLine("==================================================================");
+			Console.Write("Please Enter a number: ");
+
+			var option = Console.ReadLine();
+			if (int.TryParse(option, out var result) && result is >= 1 and <= 5)
+			{
+				return result;
+			}
+			ConsoleHelper.ShowError("Invalid selection, Try again.\n");
+		}
+	}
+
 	public static void MainMenuController(UserManagementService userManagementService, BookManagementService bookManagementService)
 	{
 		var continueProgram = true;
@@ -44,26 +65,4 @@ public static class MainMenu
 		}
 	}
 
-
-	private static int MainMenuList()
-	{
-		while (true)
-		{
-			Console.WriteLine("============================ MAIN MENU ============================");
-			Console.WriteLine("1. Author");
-			Console.WriteLine("2. Books");
-			Console.WriteLine("3. Members");
-			Console.WriteLine("4. Loan");
-			Console.WriteLine("5. Exit");
-			Console.WriteLine("==================================================================");
-			Console.Write("Please Enter a number: ");
-
-			var option = Console.ReadLine();
-			if (int.TryParse(option, out var result) && result is >= 1 and <= 5)
-			{
-				return result;
-			}
-			ConsoleHelper.ShowError("Invalid selection, Try again.\n");
-		}
-	}
 }
