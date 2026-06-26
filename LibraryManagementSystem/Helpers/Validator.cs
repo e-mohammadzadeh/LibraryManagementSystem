@@ -7,24 +7,38 @@ public static class Validator
 {
 	public static bool NationalCodeValidator(string nationalCode)
 	{
-		return !string.IsNullOrWhiteSpace(nationalCode) && Regex.IsMatch(nationalCode, $@"^\d{{{ValidationConstants.NationalCodeLength}}}$");
+		// 1. Basic format check: non-empty, digits only, exact length
+		if (string.IsNullOrWhiteSpace(nationalCode) ||
+		    !Regex.IsMatch(nationalCode, $@"^\d{{{ValidationConstants.NationalCodeLength}}}$"))
+			return false;
+
+		// 2. Reject codes where every digit is the same (e.g., "0000000000", "1111111111", ..., "9999999999")
+		return nationalCode.Any(c => c != nationalCode[0]);
 	}
+
 
 	public static bool EmailValidator(string email)
 	{
 		return !string.IsNullOrWhiteSpace(email) && Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
 	}
 
+
 	public static bool PhoneNumberValidator(string phoneNumber)
 	{
-		return !string.IsNullOrWhiteSpace(phoneNumber) && Regex.IsMatch(phoneNumber, $@"^\d{{{ValidationConstants.PhoneNumberLength}}}$");
+		if (string.IsNullOrWhiteSpace(phoneNumber) ||
+		    !Regex.IsMatch(phoneNumber, $@"^\d{{{ValidationConstants.PhoneNumberLength}}}$"))
+			return false;
+
+		return phoneNumber.Any(c => c != phoneNumber[0]);
 	}
+
 
 	public static bool BirthDateValidator(DateOnly birthDate)
 	{
 		var today = DateOnly.FromDateTime(DateTime.Today);
 		return birthDate <= today && birthDate >= today.AddYears(-120);
 	}
+
 
 	public static bool ISBNValidator(string isbn)
 	{
@@ -42,6 +56,7 @@ public static class Validator
 		}
 	}
 
+
 	public static bool NameValidator(string name, int minLength, int maxLength)
 	{
 		if (name.Contains("  "))
@@ -50,13 +65,12 @@ public static class Validator
 		if (name.Length < minLength || name.Length > maxLength)
 			return false;
 
-		return Regex.IsMatch(name, @"^[\p{L}\p{N}\s\-'\.,:;!?&()]+$");
+		return Regex.IsMatch(name, @"^(?=.*\p{L})[\p{L}\p{N}\s\-'\.,:;!?&()]+$");
 	}
+
 
 	public static bool DateValidator(DateOnly date)
 	{
 		return true;
 	}
-
-
 }

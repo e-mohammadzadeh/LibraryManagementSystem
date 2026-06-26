@@ -8,31 +8,6 @@ namespace LibraryManagementSystem.Presentation;
 
 public static class BookMenu
 {
-	private static int BookMenuList()
-	{
-		while (true)
-		{
-			Console.WriteLine("============================ BOOK MENU ============================");
-			Console.WriteLine("1. Add Book");
-			Console.WriteLine("2. Edit Book");
-			Console.WriteLine("3. Remove Book");
-			Console.WriteLine("4. Search Book");
-			Console.WriteLine("5. View Book Details");
-			Console.WriteLine("6. View All Books");
-			Console.WriteLine("7. Back");
-			Console.WriteLine("==================================================================");
-			Console.Write("Please Enter a number: ");
-
-			var option = Console.ReadLine();
-			if (int.TryParse(option, out var result) && result is >= 1 and <= 7)
-			{
-				return result;
-			}
-
-			ConsoleHelper.ShowError("Invalid selection, Try again.\n");
-		}
-	}
-
 	public static void BookMenuController(UserManagementService userManagementService,
 		BookManagementService bookManagementService)
 	{
@@ -46,6 +21,8 @@ public static class BookMenu
 				{
 					Console.Clear();
 					AddBook(userManagementService, bookManagementService);
+					ConsoleHelper.ShowInfo("\nPress any key to continue...");
+					Console.ReadKey(true);
 					break;
 				}
 				case 2:
@@ -77,12 +54,36 @@ public static class BookMenu
 				case 7:
 				{
 					ConsoleHelper.ShowError("Backing to main menu...\n");
-					Thread.Sleep(3000);
+					Thread.Sleep(2000);
 					Console.Clear();
 					continueProgram = false;
 					break;
 				}
 			}
+		}
+	}
+
+
+	private static int BookMenuList()
+	{
+		while (true)
+		{
+			Console.WriteLine("============================ BOOK MENU ============================");
+			Console.WriteLine("1. Add Book");
+			Console.WriteLine("2. Edit Book");
+			Console.WriteLine("3. Remove Book");
+			Console.WriteLine("4. Search Book");
+			Console.WriteLine("5. View Book Details");
+			Console.WriteLine("6. View All Books");
+			Console.WriteLine("7. Back");
+			Console.WriteLine("==================================================================");
+			Console.Write("Please Enter a number: ");
+
+			var option = Console.ReadLine();
+			if (int.TryParse(option, out var result) && result is >= 1 and <= 7)
+				return result;
+
+			ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
 		}
 	}
 

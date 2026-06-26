@@ -20,7 +20,7 @@ public static class ConsoleHelper
 				if (value >= min && value <= max)
 					return value;
 
-				Console.WriteLine($"Please enter a number between {min} and {max}.");
+				ShowInfo($"Please enter a number between {min} and {max}.");
 			}
 			else
 			{

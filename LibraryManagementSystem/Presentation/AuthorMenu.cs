@@ -18,16 +18,23 @@ public static class AuthorMenu
 			{
 				case 1:
 				{
+					Console.Clear();
 					AddAuthor(userManagementService);
+					ConsoleHelper.ShowInfo("\nPress any key to continue...");
+					Console.ReadKey(true);
 					break;
 				}
 				case 2:
 				{
+					Console.Clear();
 					EditAuthor(userManagementService);
+					ConsoleHelper.ShowInfo("\nPress any key to continue...");
+					Console.ReadKey(true);
 					break;
 				}
 				case 3:
 				{
+					Console.Clear();
 					RemoveAuthor(userManagementService);
 					break;
 				}
@@ -38,27 +45,33 @@ public static class AuthorMenu
 				}
 				case 5:
 				{
+					Console.Clear();
 					var desiredAuthor = SelectExistingAuthor(userManagementService);
-					if (desiredAuthor == null)
-						return;
+					if (desiredAuthor != null)
+					{
+						DisplayAuthorDetails(desiredAuthor);
+						ConsoleHelper.ShowInfo("\nPress any key to continue...");
+						Console.ReadKey(true);
+					}
 
-					DisplayAuthorDetails(desiredAuthor);
 					break;
 				}
 				case 6:
 				{
+					Console.Clear();
 					if (userManagementService.GetAllAuthors().Count == 0)
-						ConsoleHelper.ShowError(ValidationMessages.NotAvailableAuthor);
+						ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
+					else
+						DisplayAuthors(userManagementService.GetAllAuthors());
 
-					DisplayAuthors(userManagementService.GetAllAuthors());
-					Console.WriteLine("\nPress any key to continue...");
+					ConsoleHelper.ShowInfo("\nPress any key to continue...");
 					Console.ReadKey(true);
 					break;
 				}
 				case 7:
 				{
 					ConsoleHelper.ShowError("Backing to main menu...\n");
-					Thread.Sleep(3000);
+					Thread.Sleep(2000);
 					Console.Clear();
 					continueProgram = false;
 					break;
@@ -85,11 +98,9 @@ public static class AuthorMenu
 
 			var option = Console.ReadLine();
 			if (int.TryParse(option, out var result) && result is >= 1 and <= 7)
-			{
 				return result;
-			}
 
-			ConsoleHelper.ShowError("Invalid selection, Try again.\n");
+			ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
 		}
 	}
 
@@ -98,35 +109,35 @@ public static class AuthorMenu
 	{
 		Console.WriteLine("============================ ADDING AUTHOR MENU ============================");
 
-		var firstName = ConsoleHelper.GetValidName("Enter author's first name: ", "first name",
+		var firstName = ConsoleHelper.GetValidName("Enter author's first name", "first name",
 			ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 		if (firstName == null)
 			return;
 
-		var lastName = ConsoleHelper.GetValidName("Enter author's last name: ", "last name",
+		var lastName = ConsoleHelper.GetValidName("Enter author's last name", "last name",
 			ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 		if (lastName == null)
 			return;
 
-		var nationalCode = ConsoleHelper.GetValidNationalCode("Enter author's national code: ");
+		var nationalCode = ConsoleHelper.GetValidNationalCode("Enter author's national code");
 		if (nationalCode == null)
 			return;
 
-		var email = ConsoleHelper.GetValidEmail("Enter author's email: ");
+		var email = ConsoleHelper.GetValidEmail("Enter author's email");
 		if (email == null)
 			return;
 
-		var phoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter author's phone number: ");
+		var phoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter author's phone number");
 		if (phoneNumber == null)
 			return;
 
-		var birthDate = ConsoleHelper.GetValidBirthDate("Enter author's birth date (yyyy-MM-dd): ");
+		var birthDate = ConsoleHelper.GetValidBirthDate("Enter author's birth date");
 		if (birthDate == null)
 			return;
 
-		var biography = ConsoleHelper.ReadString("You can add a biography (Optional): ", true);
+		var biography = ConsoleHelper.ReadString("You can add a biography (Optional)", true);
 
 		var result = userManagementService.AddAuthor(firstName, lastName, nationalCode, email, phoneNumber,
 			birthDate.Value, biography);
@@ -253,7 +264,11 @@ public static class AuthorMenu
 		Console.WriteLine("============================ REMOVING AUTHOR MENU ============================");
 		var desiredAuthor = SelectExistingAuthor(userManagementService);
 		if (desiredAuthor == null)
+		{
+			ConsoleHelper.ShowInfo("\nPress any key to continue...");
+			Console.ReadKey(true);
 			return;
+		}
 
 		DisplayAuthorDetails(desiredAuthor);
 		var choice = ConsoleHelper.ReadYesNo(
@@ -271,11 +286,14 @@ public static class AuthorMenu
 	{
 		while (true)
 		{
+			Console.Clear();
 			Console.WriteLine("============================ SEARCHING AUTHOR MENU ============================");
 			var authorsList = userManagementService.GetAllAuthors();
 			if (authorsList.Count == 0)
 			{
-				ConsoleHelper.ShowError(ValidationMessages.NotAvailableAuthor);
+				ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
+				ConsoleHelper.ShowInfo("\nPress any key to continue...");
+				Console.ReadKey(true);
 				return;
 			}
 
@@ -326,7 +344,7 @@ public static class AuthorMenu
 				}
 			}
 
-			Console.WriteLine("\nPress any key to continue...");
+			ConsoleHelper.ShowInfo("\nPress any key to continue...");
 			Console.ReadKey(true);
 		}
 	}
@@ -377,13 +395,11 @@ public static class AuthorMenu
 	private static Author? SelectExistingAuthor(UserManagementService userManagementService)
 	{
 		var authorList = userManagementService.GetAllAuthors();
-		if (authorList.Count == 0)
-		{
-			ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
-			return null;
-		}
+		if (authorList.Count != 0)
+			return SelectAuthor(authorList);
 
-		return SelectAuthor(authorList);
+		ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
+		return null;
 	}
 
 
@@ -399,7 +415,7 @@ public static class AuthorMenu
 		{
 			DisplayAuthors(authorsList);
 			// TODO	Max parameter has some logical issues when authors are removed and new authors are added.
-			var desiredAuthorId = ConsoleHelper.ReadInt("Enter the number of the author you wish to edit", 1,
+			var desiredAuthorId = ConsoleHelper.ReadInt("Enter the number of the author you wish", 1,
 				authorsList.Last().AuthorId);
 
 			if (desiredAuthorId == null)
@@ -436,7 +452,7 @@ public static class AuthorMenu
 
 	private static void DisplayAuthorDetails(Author author)
 	{
-		Console.WriteLine("Author Details:");
+		Console.WriteLine("\nAuthor Details:");
 
 		Console.WriteLine("{0, -20} [{1} {2}]", "Name:", author.FirstName, author.LastName);
 		Console.WriteLine("{0, -20} [{1}]", "National Code:", author.NationalCode);
