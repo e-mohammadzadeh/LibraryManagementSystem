@@ -10,7 +10,12 @@ public class Person
 	{
 		FirstName = firstName;
 		LastName = lastName;
+		NationalCode = nationalCode;
+		Email = email;
+		PhoneNumber = phoneNumber;
+		BirthDate = birthDate;
 	}
+
 
 	public string FirstName { get; set; }
 	public string LastName { get; set; }

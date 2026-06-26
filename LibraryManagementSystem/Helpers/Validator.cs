@@ -12,7 +12,7 @@ public static class Validator
 
 	public static bool EmailValidator(string email)
 	{
-		return !string.IsNullOrWhiteSpace(email) && Regex.IsMatch(email, @"^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
+		return !string.IsNullOrWhiteSpace(email) && Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
 	}
 
 	public static bool PhoneNumberValidator(string phoneNumber)

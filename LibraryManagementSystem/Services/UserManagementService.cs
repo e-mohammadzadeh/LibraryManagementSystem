@@ -1,6 +1,6 @@
 ﻿using LibraryManagementSystem.Common;
 using LibraryManagementSystem.Domain;
-using LibraryManagementSystem.Enums;
+using LibraryManagementSystem.DTOs;
 
 namespace LibraryManagementSystem.Services;
 
@@ -14,16 +14,16 @@ public class UserManagementService
 		string phoneNumber, DateOnly birthDate, string? biography)
 	{
 		if (_authors.Any(author => author.FirstName == firstName && author.LastName == lastName))
-			return ServiceResult<Author>.Fail("An author with the same first and last name already exists.");
+			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByName);
 
 
 		if (_authors.Any(author => author.NationalCode == nationalCode))
-			return ServiceResult<Author>.Fail("An author with the same national code already exists.");
+			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByNationalCode);
 
 		var newAuthor = new Author(firstName, lastName, nationalCode, email, phoneNumber, birthDate, biography);
 		_authors.Add(newAuthor);
 
-		return ServiceResult<Author>.Ok(newAuthor, "Author added successfully.");
+		return ServiceResult<Author>.Ok(newAuthor, ValidationMessages.SuccessAdd);
 	}
 
 
@@ -39,52 +39,49 @@ public class UserManagementService
 	}
 
 
-	public ServiceResult<Author> UpdateAuthor(int authorId, string? firstName, string? lastName, string? nationalCode,
-		string? email, string? phoneNumber, DateOnly? birthDate, string? biography)
+	public ServiceResult<Author> UpdateAuthor(int authorId, UpdateAuthorDto dto)
 	{
 		var author = FindAuthorById(authorId);
-		if (author == null)
+		if (author is null)
 			return ServiceResult<Author>.Fail(ValidationMessages.FailureUpdate);
 
-		if (firstName != null || lastName != null)
+		if (dto.FirstName != null || dto.LastName != null)
 		{
-			if (_authors.Any(aut => aut.AuthorId != authorId && aut.FirstName == firstName && aut.LastName == lastName))
+			if (_authors.Any(aut => aut.AuthorId != authorId && aut.FirstName == dto.FirstName && aut.LastName == dto.LastName))
 			{
-				return ServiceResult<Author>.Fail("An author with the same first and last name already exists.");
+				return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByName);
 			}
 		}
-
-		if (nationalCode != null && _authors.Any(aut => aut.AuthorId != authorId && aut.NationalCode == nationalCode))
+		if (dto.NationalCode != null && _authors.Any(aut => aut.AuthorId != authorId && aut.NationalCode == dto.NationalCode))
 		{
-			return ServiceResult<Author>.Fail("An author with the same national code already exists.");
+			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByNationalCode);
 		}
-		else
+		if (dto.Email != null && _authors.Any(aut => aut.AuthorId != authorId && aut.Email == dto.Email))
 		{
-			author.FirstName = firstName ?? author.FirstName;
-			author.LastName = lastName ?? author.LastName;
-			author.NationalCode = nationalCode ?? author.NationalCode;
-
-			author.Email = email ?? author.Email;
-			author.PhoneNumber = phoneNumber ?? author.PhoneNumber;
-			author.BirthDate = birthDate ?? author.BirthDate;
-			author.Biography = biography ?? author.Biography;
-			return ServiceResult<Author>.Ok(author, ValidationMessages.SuccessUpdate);
+			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByEmail);
 		}
+		if (dto.PhoneNumber != null && _authors.Any(aut => aut.AuthorId != authorId && aut.PhoneNumber == dto.PhoneNumber))
+		{
+			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByPhoneNumber);
+		}
+
+		author.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate, dto.Biography);
+		return ServiceResult<Author>.Ok(author, ValidationMessages.SuccessUpdate);
 	}
 
 
 	public ServiceResult<Author> RemoveAuthor(int authorId)
 	{
 		var author = FindAuthorById(authorId);
-		if (author == null)
-			return ServiceResult<Author>.Fail(ValidationMessages.FailureUpdate);
+		if (author is null)
+			return ServiceResult<Author>.Fail(ValidationMessages.FailureRemove);
 
 		// TODO	After implementing Loan class and service, before deleting author should check that none of books isn't borrowed
 		if (author.Books.Count != 0)
 			return ServiceResult<Author>.Fail("Failed to remove author. The author has associated books.");
 
 		_authors.Remove(author);
-		return ServiceResult<Author>.Ok(author, "Author removed successfully.");
+		return ServiceResult<Author>.Ok(author, ValidationMessages.SuccessRemove);
 	}
 
 
@@ -97,7 +94,7 @@ public class UserManagementService
 		{
 			var value = selector(author);
 			return value != null && value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
-		}).ToList();
+		}).ToList().AsReadOnly();
 	}
 
 

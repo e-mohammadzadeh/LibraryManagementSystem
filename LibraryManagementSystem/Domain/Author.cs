@@ -9,8 +9,22 @@ public class Author : Person
 		Biography = biography;
 	}
 
-	private static int _nextAuthorId;
+
+	private static int _nextAuthorId = 1;
 	public int AuthorId { get; private set; }
 	public string? Biography { get; set; }
 	public List<Book> Books { get; init; } = new();
+
+
+	public void Update(string? firstName, string? lastName, string? nationalCode, string? email, string? phoneNumber,
+		DateOnly? birthDate, string? biography)
+	{
+		FirstName = firstName ?? FirstName;
+		LastName = lastName ?? LastName;
+		NationalCode = nationalCode ?? NationalCode;
+		Email = email ?? Email;
+		PhoneNumber = phoneNumber ?? PhoneNumber;
+		BirthDate = birthDate ?? BirthDate;
+		Biography = biography ?? Biography;
+	}
 }

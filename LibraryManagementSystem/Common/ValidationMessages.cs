@@ -20,6 +20,10 @@ public static class ValidationMessages
 
 	public const string InvalidYesNo = "Invalid input. Please enter 'y' or 'n'.";
 
+	public const string SuccessAdd = "Author added successfully.";
+
+	public const string FailureAdd = "Failed to add author.";
+
 	public const string SuccessUpdate = "Author updated successfully.";
 
 	public const string FailureUpdate = "Failed to update author.";
@@ -31,4 +35,11 @@ public static class ValidationMessages
 	public const string NotAvailableAuthor = "No authors found. First add new author.";
 	public const string NotAvailableBook = "";
 	public const string NotAvailableLoan = "";
+
+	public const string FailureDuplicateAuthorByName = "An author with the same first and last name already exists.";
+
+	public const string FailureDuplicateAuthorByNationalCode = "An author with the same national code already exists.";
+
+	public const string FailureDuplicateAuthorByEmail = "An author with the same email already exists.";
+	public const string FailureDuplicateAuthorByPhoneNumber = "An author with the same phone number already exists.";
 }

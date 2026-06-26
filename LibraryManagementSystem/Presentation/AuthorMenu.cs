@@ -1,6 +1,7 @@
 ﻿using System.Security.AccessControl;
 using LibraryManagementSystem.Common;
 using LibraryManagementSystem.Domain;
+using LibraryManagementSystem.DTOs;
 using LibraryManagementSystem.Enums;
 using LibraryManagementSystem.Helpers;
 using LibraryManagementSystem.Services;
@@ -70,7 +71,8 @@ public static class AuthorMenu
 				case 5:
 				{
 					Console.Clear();
-					ViewAuthorDetails(Author author);
+					ViewAuthorDetails());
+
 					break;
 				}
 				case 6:
@@ -170,11 +172,10 @@ public static class AuthorMenu
 					var authorNewFirstName = ConsoleHelper.GetValidName("Enter new first name", "first name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
-					// TODO	UpdateAuthor() method has much more parameters and should be replaced by DTOs
-					var result = userManagementService.UpdateAuthor(desiredAuthor.AuthorId, authorNewFirstName, null,
-						null, null, null, null, null);
+					if (!PerformUpdate<T>(userManagementService, desiredAuthor.AuthorId, authorNewFirstName,
+							v => new UpdateAuthorDto { FirstName = v }))
+						return;
 
-					ShowResult(result, ValidationMessages.SuccessUpdate, ValidationMessages.FailureUpdate);
 					break;
 				}
 				case 2:
@@ -182,57 +183,50 @@ public static class AuthorMenu
 					var authorNewLastName = ConsoleHelper.GetValidName("Enter new last name: ", "last name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
-					var result = userManagementService.UpdateAuthor(desiredAuthor.AuthorId, null, authorNewLastName,
-						null, null, null, null, null);
-
-					ShowResult(result, ValidationMessages.SuccessUpdate, ValidationMessages.FailureUpdate);
+					if (!PerformUpdate<T>(userManagementService, desiredAuthor.AuthorId, authorNewLastName,
+						    v => new UpdateAuthorDto { LastName = v }))
+						return;
 					break;
 				}
 				case 3:
 				{
 					var authorNewNationalCode = ConsoleHelper.GetValidNationalCode("Enter new national code: ");
-					var result = userManagementService.UpdateAuthor(desiredAuthor.AuthorId, null, null,
-						authorNewNationalCode, null, null, null, null);
+					if (!PerformUpdate<T>(userManagementService, desiredAuthor.AuthorId, authorNewNationalCode,
+						    v => new UpdateAuthorDto { NationalCode = v }))
+						return;
 
-					ShowResult(result, ValidationMessages.SuccessUpdate, ValidationMessages.FailureUpdate);
 					break;
 				}
 				case 4:
 				{
 					var authorNewEmail = ConsoleHelper.GetValidEmail("Enter new email: ");
-					var result = userManagementService.UpdateAuthor(desiredAuthor.AuthorId, null, null, null,
-						authorNewEmail, null, null, null);
-
-					ShowResult(result, ValidationMessages.SuccessUpdate, ValidationMessages.FailureUpdate);
+					if (!PerformUpdate<T>(userManagementService, desiredAuthor.AuthorId, authorNewEmail,
+						    v => new UpdateAuthorDto { Email = v }))
+						return;
 					break;
 				}
 				case 5:
 				{
 					var authorNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter new phone number: ");
-					var result = userManagementService.UpdateAuthor(desiredAuthor.AuthorId, null, null, null, null,
-						authorNewPhoneNumber, null, null);
-
-					ShowResult(result, ValidationMessages.SuccessUpdate, ValidationMessages.FailureUpdate);
+					if (!PerformUpdate<T>(userManagementService, desiredAuthor.AuthorId, authorNewPhoneNumber,
+						    v => new UpdateAuthorDto { PhoneNumber = v }))
+						return;
 					break;
 				}
 				case 6:
 				{
 					var authorNewBirthDate = ConsoleHelper.GetValidBirthDate("Enter new birth date (yyyy-MM-dd): ");
-					var result = userManagementService.UpdateAuthor(desiredAuthor.AuthorId, null, null, null, null,
-						null,
-						authorNewBirthDate, null);
-
-					ShowResult(result, ValidationMessages.SuccessUpdate, ValidationMessages.FailureUpdate);
+					if (!PerformUpdate<T>(userManagementService, desiredAuthor.AuthorId, authorNewBirthDate,
+						    v => new UpdateAuthorDto { BirthDate = v }))
+						return;
 					break;
 				}
 				case 7:
 				{
 					var authorNewBiography = ConsoleHelper.ReadString("Enter new biography: ");
-					var result = userManagementService.UpdateAuthor(desiredAuthor.AuthorId, null, null, null, null,
-						null,
-						null, authorNewBiography);
-
-					ShowResult(result, ValidationMessages.SuccessUpdate, ValidationMessages.FailureUpdate);
+					if (!PerformUpdate<T>(userManagementService, desiredAuthor.AuthorId, authorNewBiography,
+						    v => new UpdateAuthorDto { Biography = v }))
+						return;
 					break;
 				}
 				case 8:
@@ -254,6 +248,18 @@ public static class AuthorMenu
 			Console.Clear();
 			return;
 		}
+	}
+
+
+	private static bool PerformUpdate<T>(UserManagementService userManagementService, int desiredAuthorId, string? newValue, Func<T, UpdateAuthorDto> buildDto)
+	{
+		if (newValue is null)
+			return false;
+
+		var dto = buildDto(newValue);
+		var result = userManagementService.UpdateAuthor(desiredAuthorId, dto);
+		ShowResult(result, ValidationMessages.SuccessUpdate, ValidationMessages.FailureUpdate);
+		return true;
 	}
 
 
@@ -301,13 +307,13 @@ public static class AuthorMenu
 		}
 		else
 		{
-			Console.WriteLine("{0,3} {1, 15} {2, 20}", "ID", "Author Name", "Email Address");
+			Console.WriteLine("{0,3} {1, 20} {2, 25}", "ID", "Author Name", "Email Address");
 			Console.WriteLine("========================================================");
 
 			foreach (var author in authors)
 			{
 				var fullName = author.FirstName + " " + author.LastName;
-				Console.WriteLine("{0,3} {1, 15} {2, 20}", author.AuthorId, fullName, author.Email);
+				Console.WriteLine("{0,3} {1, 20} {2, 25}", author.AuthorId, fullName, author.Email);
 			}
 
 			Console.WriteLine("========================================================");
