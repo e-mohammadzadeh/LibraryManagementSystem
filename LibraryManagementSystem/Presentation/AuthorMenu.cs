@@ -62,7 +62,7 @@ public static class AuthorMenu
 					if (userManagementService.GetAllAuthors().Count == 0)
 						ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
 					else
-						DisplayAuthors(userManagementService.GetAllAuthors());
+						MenuHelper.DisplayAuthors(userManagementService.GetAllAuthors());
 
 					ConsoleHelper.ShowInfo("\nPress any key to continue...");
 					Console.ReadKey(true);
@@ -142,7 +142,7 @@ public static class AuthorMenu
 		var result = userManagementService.AddAuthor(firstName, lastName, nationalCode, email, phoneNumber,
 			birthDate.Value, biography);
 
-		ShowResult(result);
+		ConsoleHelper.ShowResult(result);
 	}
 
 
@@ -278,7 +278,7 @@ public static class AuthorMenu
 			return;
 
 		var result = userManagementService.RemoveAuthor(desiredAuthor.AuthorId);
-		ShowResult(result);
+		ConsoleHelper.ShowResult(result);
 	}
 
 
@@ -359,7 +359,7 @@ public static class AuthorMenu
 
 		var dto = buildDto(newValue);
 		var result = userManagementService.UpdateAuthor(desiredAuthorId, dto);
-		ShowResult(result);
+		ConsoleHelper.ShowResult(result);
 		return true;
 	}
 
@@ -379,16 +379,7 @@ public static class AuthorMenu
 			return;
 		}
 
-		DisplayAuthors(result);
-	}
-
-
-	private static void ShowResult(ServiceResult<Author> result)
-	{
-		if (result.Success)
-			ConsoleHelper.ShowSuccess(result.Message ?? "Operation completed successfully.");
-		else
-			ConsoleHelper.ShowError(result.Message ?? "Operation failed.");
+		MenuHelper.DisplayAuthors(result);
 	}
 
 
@@ -396,57 +387,10 @@ public static class AuthorMenu
 	{
 		var authorList = userManagementService.GetAllAuthors();
 		if (authorList.Count != 0)
-			return SelectAuthor(authorList);
+			return MenuHelper.SelectAuthor(authorList);
 
 		ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
 		return null;
-	}
-
-
-	private static Author? SelectAuthor(IReadOnlyList<Author> authorsList)
-	{
-		if (authorsList.Count == 0)
-		{
-			ConsoleHelper.ShowError(ValidationMessages.NotAvailableAuthor);
-			return null;
-		}
-
-		while (true)
-		{
-			DisplayAuthors(authorsList);
-			// TODO	Max parameter has some logical issues when authors are removed and new authors are added.
-			var desiredAuthorId = ConsoleHelper.ReadInt("Enter the number of the author you wish", 1,
-				authorsList.Last().AuthorId);
-
-			if (desiredAuthorId == null)
-				return null;
-
-			var desiredAuthor = authorsList.FirstOrDefault(a => a.AuthorId == desiredAuthorId.Value);
-
-			if (desiredAuthor != null)
-				return desiredAuthor;
-
-			ConsoleHelper.ShowError("Author not found. Please try again.");
-		}
-	}
-
-
-
-	private static void DisplayAuthors(IReadOnlyList<Author> authors)
-	{
-		if (authors.Count == 0)
-			return;
-
-		Console.WriteLine("{0,3} {1, 20} {2, 25}", "ID", "Author Name", "Email Address");
-		Console.WriteLine("========================================================");
-
-		foreach (var author in authors)
-		{
-			var fullName = author.FirstName + " " + author.LastName;
-			Console.WriteLine("{0,3} {1, 20} {2, 25}", author.AuthorId, fullName, author.Email);
-		}
-
-		Console.WriteLine("========================================================");
 	}
 
 

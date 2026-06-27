@@ -1,4 +1,6 @@
 ﻿using LibraryManagementSystem.Common;
+using LibraryManagementSystem.Domain;
+using System.Runtime.InteropServices.JavaScript;
 
 namespace LibraryManagementSystem.Helpers;
 
@@ -29,6 +31,7 @@ public static class ConsoleHelper
 		}
 	}
 
+
 	public static string? ReadString(string prompt, bool allowEmpty = false)
 	{
 		while (true)
@@ -49,6 +52,7 @@ public static class ConsoleHelper
 		}
 	}
 
+
 	public static DateOnly? ReadDateOnly(string prompt)
 	{
 		while (true)
@@ -65,6 +69,7 @@ public static class ConsoleHelper
 			ShowError(ValidationMessages.InvalidBirthDateFormat);
 		}
 	}
+
 
 	public static string? ReadISBN(string prompt)
 	{
@@ -91,6 +96,7 @@ public static class ConsoleHelper
 			ShowError(ValidationMessages.InvalidISBN);
 		}
 	}
+
 
 	public static bool? ReadYesNo(string prompt)
 	{
@@ -138,26 +144,31 @@ public static class ConsoleHelper
 		return input;
 	}
 
+
 	public static string? GetValidName(string prompt, string field, int minLength, int maxLength)
 	{
 		return GetValidString(prompt, input => Validator.NameValidator(input, minLength, maxLength),
 			$"Invalid {field}. Please try again.");
 	}
 
+
 	public static string? GetValidNationalCode(string prompt)
 	{
 		return GetValidString(prompt, Validator.NationalCodeValidator, ValidationMessages.InvalidNationalCode);
 	}
+
 
 	public static string? GetValidEmail(string prompt)
 	{
 		return GetValidString(prompt, Validator.EmailValidator, ValidationMessages.InvalidEmail);
 	}
 
+
 	public static string? GetValidPhoneNumber(string prompt)
 	{
 		return GetValidString(prompt, Validator.PhoneNumberValidator, ValidationMessages.InvalidPhoneNumber);
 	}
+
 
 	public static DateOnly? GetValidBirthDate(string prompt)
 	{
@@ -166,7 +177,7 @@ public static class ConsoleHelper
 		{
 			birthDate = ReadDateOnly(prompt);
 
-			if (birthDate == null)
+			if (birthDate is null)
 				return null;
 
 			if (Validator.BirthDateValidator(birthDate.Value))
@@ -180,12 +191,44 @@ public static class ConsoleHelper
 		return birthDate;
 	}
 
+
+	public static DateOnly? GetValidDate(string prompt)
+	{
+		DateOnly? date;
+		while (true)
+		{
+			date = ReadDateOnly(prompt);
+			if (date is null)
+				return null;
+
+			if (Validator.DateValidator(date))
+			{
+				break;
+			}
+
+			ShowError(ValidationMessages.InvalidDate);
+		}
+
+		return date;
+	}
+
+
+	public static void ShowResult<T>(ServiceResult<T> result) where T : class
+	{
+		if (result.Success)
+			ConsoleHelper.ShowSuccess(result.Message ?? "Operation completed successfully.");
+		else
+			ConsoleHelper.ShowError(result.Message ?? "Operation failed.");
+	}
+
+
 	public static void ShowError(string message)
 	{
 		Console.ForegroundColor = ConsoleColor.Red;
 		Console.WriteLine(message);
 		Console.ResetColor();
 	}
+
 
 	public static void ShowSuccess(string message)
 	{
@@ -194,12 +237,14 @@ public static class ConsoleHelper
 		Console.ResetColor();
 	}
 
+
 	public static void ShowWarning(string message)
 	{
 		Console.ForegroundColor = ConsoleColor.Yellow;
 		Console.WriteLine(message);
 		Console.ResetColor();
 	}
+
 
 	public static void ShowInfo(string message)
 	{

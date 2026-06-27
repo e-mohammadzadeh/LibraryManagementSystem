@@ -69,8 +69,9 @@ public static class Validator
 	}
 
 
-	public static bool DateValidator(DateOnly date)
+	public static bool DateValidator(DateOnly? date)
 	{
-		return true;
+		var today = DateOnly.FromDateTime(DateTime.Today);
+		return date <= today && date >= today.AddYears(-1500);
 	}
 }

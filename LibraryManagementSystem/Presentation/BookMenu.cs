@@ -92,62 +92,30 @@ public static class BookMenu
 		BookManagementService bookManagementService)
 	{
 		Console.WriteLine("============================ ADDING BOOK MENU ============================");
-		string? isbn;
-		string? bookName;
 		Author? author = null;
 		DateOnly? publishDate;
 		int? totalCopies;
 		int? genreId;
 
 
-		while (true) // Validate ISBN
-		{
-			isbn = ConsoleHelper.ReadISBN("Enter ISBN for new book:");
-			if (isbn == null)
-				return;
 
-			if (Validator.ISBNValidator(isbn))
-			{
-				break;
-			}
+		var isbn = ConsoleHelper.ReadISBN("Enter ISBN for new book");
+		if (isbn is null)
+			return;
 
-			ConsoleHelper.ShowError("Invalid ISBN.Please try again.");
-		}
-
-		bookName = ConsoleHelper.GetValidName("Enter new book's fullname: ", "book name",
+		var bookName = ConsoleHelper.GetValidName("Enter new book's fullname", "book name",
 			ValidationConstants.MinBookNameLength, ValidationConstants.MaxBookNameLength);
+		if (bookName is null)
+			return;
 
-
-		while (true)
-		{
-			var allAuthors = userManagementService.GetAllAuthors();
-			if (allAuthors.Count == 0)
-			{
-				ConsoleHelper.ShowError("No authors found. First add new author.");
-				return;
-			}
-
-			Console.WriteLine("\n{0,3} {1, 15} {2, 20}", "ID", "Author Name", "Email Address");
-			Console.WriteLine("========================================================");
-
-			foreach (var a in allAuthors)
-			{
-				var fullName = a.FirstName + a.LastName;
-				Console.WriteLine("{0,3} {1, 15} {2, 20}", a.AuthorId, fullName, a.Email);
-			}
-
-			Console.WriteLine("========================================================");
-			var authorId = ConsoleHelper.ReadInt("Enter your desired author's ID: ", 1, allAuthors.Count);
-
-			if (authorId != null)
-				author = userManagementService.FindAuthorById(authorId.Value);
-
-			break;
-		}
+		var authorList = userManagementService.GetAllAuthors();
+		if (authorList.Count != 0)
+			author = MenuHelper.SelectAuthor(authorList);
+	
 
 		while (true)
 		{
-			publishDate = ConsoleHelper.ReadDateOnly("Enter publish date of this book: ");
+			publishDate = ConsoleHelper.GetValidDate("Enter publish date of this book");
 			if (publishDate == null)
 				return;
 
@@ -156,7 +124,7 @@ public static class BookMenu
 
 		while (true)
 		{
-			totalCopies = ConsoleHelper.ReadInt("Enter total number of copies for this book: ", 1, 10);
+			totalCopies = ConsoleHelper.ReadInt("Enter total number of copies for this book", 1, 10);
 			if (totalCopies == null)
 				return;
 
@@ -165,32 +133,40 @@ public static class BookMenu
 
 		while (true)
 		{
-			Console.WriteLine("\n{0,3} {1, 15}", "ID", "Genre Name");
-			Console.WriteLine("============================");
-			var values = Enum.GetValues<Genre>();
-			for (var i = 0; i < values.Length; i++)
-			{
-				Console.WriteLine("{0,3} {1, 15}", i + 1, values.GetValue(i));
-			}
-
-			Console.WriteLine("============================");
-
-			genreId = ConsoleHelper.ReadInt("Select your desired genre by entering its ID: ", 1, values.Length);
+			DisplayGenres();
+			genreId = ConsoleHelper.ReadInt("Select your desired genre by entering its ID", 1, Enum.GetValues<Genre>().Length);
 			if (genreId == null)
 				return;
 
 			break;
 		}
 
-		var description = ConsoleHelper.ReadString("You can add any descriptions about this book (Optional): ");
+		var description = ConsoleHelper.ReadString("You can add any descriptions about this book (Optional)");
 
 
-		var result = bookManagementService.AddBook(isbn, bookName, author!, publishDate.Value, totalCopies.Value,
+		var result = bookManagementService.AddBook(isbn, bookName, author, publishDate.Value, totalCopies.Value,
 			genreId.Value, description);
+		ConsoleHelper.ShowResult(result);
+
 
 		if (result.Success)
 			ConsoleHelper.ShowSuccess("Book added successfully.");
 		else
 			ConsoleHelper.ShowError($"Failed to add book. {result.Message}");
+	}
+
+
+
+	private static void DisplayGenres()
+	{
+		Console.WriteLine("\n{0,3} {1, 15}", "ID", "Genre Name");
+		Console.WriteLine("============================");
+		var values = Enum.GetValues<Genre>();
+		for (var i = 0; i < values.Length; i++)
+		{
+			Console.WriteLine("{0,3} {1, 15}", i + 1, values.GetValue(i));
+		}
+
+		Console.WriteLine("============================");
 	}
 }

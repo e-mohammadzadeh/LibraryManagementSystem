@@ -6,6 +6,7 @@ public static class ValidationMessages
 	public const string InvalidEmail = "Invalid email address. Please enter a valid email (e.g., name@domain.com).";
 	public const string InvalidPhoneNumber = "Invalid phone number. Please enter exactly 11 digits.";
 	public const string InvalidBirthDate = "Invalid birth date. Please enter a past date that is no more than 120 years ago.";
+	public const string InvalidDate = "Invalid date.  Please enter a date on or before today.";
 	public const string InvalidBirthDateFormat = "Invalid date format. Please use YYYY-MM-DD (e.g., 2026-12-27).";
 
 	public const string InvalidISBN = "Invalid ISBN format. Please enter a valid 10 or 13 digit ISBN.";
