@@ -28,7 +28,7 @@ public static class BookMenu
 				case 2:
 				{
 					Console.Clear();
-					EditBook(bookManagementService);
+					EditBook(userManagementService, bookManagementService);
 					ConsoleHelper.ShowInfo("\nPress any key to continue...");
 					Console.ReadKey(true);
 					break;
@@ -138,7 +138,7 @@ public static class BookMenu
 		{
 			DisplayGenres();
 			genreId = ConsoleHelper.ReadInt("Select your desired genre by entering its ID", 1,
-				Enum.GetValues<Genre>().Length);
+				Enum.GetValues<Genre>().Length + 1) - 1;
 
 			if (genreId == null)
 				return;
@@ -162,7 +162,8 @@ public static class BookMenu
 	}
 
 
-	private static void EditBook(BookManagementService bookManagementService)
+	private static void EditBook(UserManagementService userManagementService,
+		BookManagementService bookManagementService)
 	{
 		Console.WriteLine("============================ EDITING BOOK MENU ============================");
 		var desiredBook = SelectExistingBook(bookManagementService);
@@ -177,8 +178,8 @@ public static class BookMenu
 				desiredBook.Author.FirstName + " " + desiredBook.Author.LastName);
 
 			Console.WriteLine("{0, -30} [{1}]", "4. Publish Date", desiredBook.PublishDate);
-			Console.WriteLine("{0, -30} [{1}]", "5. Genre", desiredBook.Genre);
-			Console.WriteLine("{0, -10} [{1}]", "6. Total Copies", desiredBook.TotalCopies);
+			Console.WriteLine("{0, -10} [{1}]", "5. Total Copies", desiredBook.TotalCopies);
+			Console.WriteLine("{0, -30} [{1}]", "6. Genre", desiredBook.Genre);
 			Console.WriteLine("{0, -30} [{1}]", "7. Description", desiredBook.Description);
 			Console.WriteLine("8. Cancel");
 			var editMenuChoice = ConsoleHelper.ReadInt("Enter the number of the field you wish to edit", 1, 8);
@@ -196,39 +197,145 @@ public static class BookMenu
 						if (bookName is null)
 							return;
 
-						if (Validator.NameValidator(bookName, ValidationConstants.MinBookNameLength, ValidationConstants.MaxBookNameLength))
+						if (Validator.NameValidator(bookName, ValidationConstants.MinBookNameLength,
+							    ValidationConstants.MaxBookNameLength))
+						{
+							ConsoleHelper.ShowError(ValidationMessages.InvalidBookName);
 							break;
-						ConsoleHelper.ShowError(ValidationMessages.InvalidBookName);
+						}
 					}
 
-					if (bookName is null)
-						return;
-					
+					var result = bookManagementService.UpdateBook(desiredBook.BookId, bookName, null, null, null, null,
+						null,
+						null);
 
+					ConsoleHelper.ShowResult(result);
 					break;
 				}
 				case 2:
 				{
+					string? isbn;
+					while (true)
+					{
+						isbn = ConsoleHelper.ReadISBN("Enter the new ISBN");
+						if (isbn is null)
+							return;
+
+						if (!bookManagementService.IsExistIsbn(isbn))
+						{
+							ConsoleHelper.ShowError(ValidationMessages.FailureDuplicateBookByISBN);
+							break;
+						}
+					}
+
+					var result = bookManagementService.UpdateBook(desiredBook.BookId, null, isbn, null, null, null,
+						null, null);
+
+					ConsoleHelper.ShowResult(result);
 					break;
 				}
 				case 3:
 				{
+					Author? author;
+					var authorList = userManagementService.GetAllAuthors();
+					if (authorList.Count != 0)
+					{
+						author = MenuHelper.SelectAuthor(authorList);
+						var result = bookManagementService.UpdateBook(desiredBook.BookId, null, null, author, null,
+							null, null, null);
+
+						ConsoleHelper.ShowResult(result);
+					}
+					else
+					{
+						ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
+						return;
+					}
+
+
 					break;
 				}
 				case 4:
 				{
+					DateOnly? publishDate;
+					while (true)
+					{
+						publishDate = ConsoleHelper.ReadDateOnly("Enter the new publish date");
+						if (publishDate == null)
+							return;
+
+						if (!Validator.DateValidator(publishDate))
+						{
+							ConsoleHelper.ShowError(ValidationMessages.InvalidDate);
+							return;
+						}
+
+						break;
+					}
+
+					var result = bookManagementService.UpdateBook(desiredBook.BookId, null, null, null, publishDate,
+						null,
+						null, null);
+
+					ConsoleHelper.ShowResult(result);
 					break;
 				}
 				case 5:
 				{
+					int? totalCopies;
+					while (true)
+					{
+						totalCopies = ConsoleHelper.ReadInt("Enter the new total copies", 1, 10);
+						if (totalCopies == null)
+							return;
+
+						break;
+					}
+
+					var result = bookManagementService.UpdateBook(desiredBook.BookId, null, null, null, null,
+						totalCopies,
+						null, null);
+
+					ConsoleHelper.ShowResult(result);
 					break;
 				}
 				case 6:
 				{
+					int? genreId;
+					while (true)
+					{
+						DisplayGenres();
+						genreId =
+							ConsoleHelper.ReadInt("Enter the new genre id", 1, Enum.GetValues<Genre>().Length + 1) - 1;
+
+						if (genreId == null)
+							return;
+
+						break;
+					}
+
+					var result = bookManagementService.UpdateBook(desiredBook.BookId, null, null, null, null, null,
+						genreId, null);
+
+					ConsoleHelper.ShowResult(result);
 					break;
 				}
 				case 7:
 				{
+					string? description;
+					while (true)
+					{
+						description = ConsoleHelper.ReadString("Enter the new description");
+						if (description is null)
+							return;
+
+						break;
+					}
+
+					var result = bookManagementService.UpdateBook(desiredBook.BookId, null, null, null, null, null,
+						null, description);
+
+					ConsoleHelper.ShowResult(result);
 					break;
 				}
 				case 8:

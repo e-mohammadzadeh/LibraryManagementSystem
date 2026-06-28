@@ -9,6 +9,7 @@ public static class ValidationMessages
 	public const string InvalidDate = "Invalid date.  Please enter a date on or before today.";
 	public const string InvalidBirthDateFormat = "Invalid date format. Please use YYYY-MM-DD (e.g., 2026-12-27).";
 	public const string InvalidBookName = "Invalid book name. Please enter a name between 3 and 100 characters.";
+	public const string InvalidGenre = "Invalid genre. Please select a valid genre.";
 
 	public const string InvalidISBN = "Invalid ISBN format. Please enter a valid 10 or 13 digit ISBN.";
 	public const string InvalidNumber = "Invalid number. Please try again.";
@@ -38,6 +39,7 @@ public static class ValidationMessages
 	public const string FailureDuplicateAuthorByNationalCode = "An author with the same national code already exists.";
 	public const string FailureDuplicateAuthorByEmail = "An author with the same email already exists.";
 	public const string FailureDuplicateAuthorByPhoneNumber = "An author with the same phone number already exists.";
+	public const string FailureDuplicateBookByName = "A book with the same name already exists.";
 	public const string FailureDuplicateBookByISBN = "A book with the same ISBN already exists.";
 
 	public const string EmptyInput = "Input cannot be empty. Please try again.";
