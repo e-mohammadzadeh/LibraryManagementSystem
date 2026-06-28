@@ -8,29 +8,37 @@ public static class ValidationMessages
 	public const string InvalidBirthDate = "Invalid birth date. Please enter a past date that is no more than 120 years ago.";
 	public const string InvalidDate = "Invalid date.  Please enter a date on or before today.";
 	public const string InvalidBirthDateFormat = "Invalid date format. Please use YYYY-MM-DD (e.g., 2026-12-27).";
+	public const string InvalidBookName = "Invalid book name. Please enter a name between 3 and 100 characters.";
 
 	public const string InvalidISBN = "Invalid ISBN format. Please enter a valid 10 or 13 digit ISBN.";
 	public const string InvalidNumber = "Invalid number. Please try again.";
 	public const string InvalidYesNo = "Invalid input. Please enter 'y' or 'n'.";
 	public const string InvalidMenuChoice = "Invalid selection, Try again.\n";
 
-	public const string SuccessAdd = "Author added successfully.";
-	public const string FailureAdd = "Failed to add author.";
+	public const string AuthorAddedSuccessfully = "Author added successfully.";
+	public const string BookAddedSuccessfully = "Book added successfully.";
+	public const string AuthorAddFailed = "Failed to add author.";
+	public const string BookAddFailed = "Failed to add book.";
 
-	public const string SuccessUpdate = "Author updated successfully.";
-	public const string FailureUpdate = "Failed to update author.";
+	public const string AuthorUpdatedSuccessfully = "Author updated successfully.";
+	public const string BookUpdatedSuccessfully = "Book updated successfully.";
+	public const string AuthorUpdateFailed = "Failed to update author.";
+	public const string BookUpdateFailed = "Failed to update book.";
 
-	public const string SuccessRemove = "Author removed successfully.";
-	public const string FailureRemove = "Failed to remove author.";
+	public const string AuthorRemovedSuccessfully = "Author removed successfully.";
+	public const string BookRemovedSuccessfully = "Book removed successfully.";
+	public const string AuthorRemoveFailed = "Failed to remove author.";
+	public const string BookRemoveFailed = "Failed to remove book.";
 
 	public const string NotAvailableAuthor = "No authors found. First add new author.";
-	public const string NotAvailableBook = "";
-	public const string NotAvailableLoan = "";
+	public const string NotAvailableBook = "No books found. First add new book.";
+	public const string NotAvailableLoan = "No loans found. First add new loan."; // Need help
 
 	public const string FailureDuplicateAuthorByName = "An author with the same first and last name already exists.";
 	public const string FailureDuplicateAuthorByNationalCode = "An author with the same national code already exists.";
 	public const string FailureDuplicateAuthorByEmail = "An author with the same email already exists.";
 	public const string FailureDuplicateAuthorByPhoneNumber = "An author with the same phone number already exists.";
+	public const string FailureDuplicateBookByISBN = "A book with the same ISBN already exists.";
 
 	public const string EmptyInput = "Input cannot be empty. Please try again.";
 }

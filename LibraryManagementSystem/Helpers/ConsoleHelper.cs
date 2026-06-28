@@ -130,7 +130,7 @@ public static class ConsoleHelper
 		{
 			input = ReadString(prompt);
 
-			if (input == null)
+			if (input is null)
 				return null;
 
 			if (validator(input))

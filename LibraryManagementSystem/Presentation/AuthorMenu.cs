@@ -150,7 +150,7 @@ public static class AuthorMenu
 	{
 		Console.WriteLine("============================ EDITING AUTHOR MENU ============================");
 		var desiredAuthor = SelectExistingAuthor(userManagementService);
-		if (desiredAuthor == null)
+		if (desiredAuthor is null)
 			return;
 
 		while (true)
@@ -158,10 +158,10 @@ public static class AuthorMenu
 			Console.WriteLine("{0, -20} [{1}]", "1. First Name", desiredAuthor.FirstName);
 			Console.WriteLine("{0, -20} [{1}]", "2. Last Name", desiredAuthor.LastName);
 			Console.WriteLine("{0, -20} [{1}]", "3. National Code", desiredAuthor.NationalCode);
-			Console.WriteLine("{0, -20} [{1}]", "4. Email", desiredAuthor.Email);
+			Console.WriteLine("{0, -30} [{1}]", "4. Email", desiredAuthor.Email);
 			Console.WriteLine("{0, -20} [{1}]", "5. Phone Number", desiredAuthor.PhoneNumber);
 			Console.WriteLine("{0, -20} [{1}]", "6. Birth Date", desiredAuthor.BirthDate);
-			Console.WriteLine("{0, -20} [{1}]", "7. Biography", desiredAuthor.Biography);
+			Console.WriteLine("{0, -30} [{1}]", "7. Biography", desiredAuthor.Biography);
 			Console.WriteLine("8. Cancel");
 			var editMenuChoice = ConsoleHelper.ReadInt("Enter the number of the field you wish to edit", 1, 8);
 			if (editMenuChoice == null)

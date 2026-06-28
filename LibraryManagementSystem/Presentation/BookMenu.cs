@@ -28,6 +28,9 @@ public static class BookMenu
 				case 2:
 				{
 					Console.Clear();
+					EditBook(bookManagementService);
+					ConsoleHelper.ShowInfo("\nPress any key to continue...");
+					Console.ReadKey(true);
 					break;
 				}
 				case 3:
@@ -98,20 +101,20 @@ public static class BookMenu
 		int? genreId;
 
 
-
 		var isbn = ConsoleHelper.ReadISBN("Enter ISBN for new book");
 		if (isbn is null)
 			return;
 
 		var bookName = ConsoleHelper.GetValidName("Enter new book's fullname", "book name",
 			ValidationConstants.MinBookNameLength, ValidationConstants.MaxBookNameLength);
+
 		if (bookName is null)
 			return;
 
 		var authorList = userManagementService.GetAllAuthors();
 		if (authorList.Count != 0)
 			author = MenuHelper.SelectAuthor(authorList);
-	
+
 
 		while (true)
 		{
@@ -134,7 +137,9 @@ public static class BookMenu
 		while (true)
 		{
 			DisplayGenres();
-			genreId = ConsoleHelper.ReadInt("Select your desired genre by entering its ID", 1, Enum.GetValues<Genre>().Length);
+			genreId = ConsoleHelper.ReadInt("Select your desired genre by entering its ID", 1,
+				Enum.GetValues<Genre>().Length);
+
 			if (genreId == null)
 				return;
 
@@ -144,17 +149,98 @@ public static class BookMenu
 		var description = ConsoleHelper.ReadString("You can add any descriptions about this book (Optional)");
 
 
-		var result = bookManagementService.AddBook(isbn, bookName, author, publishDate.Value, totalCopies.Value,
+		var result = bookManagementService.AddBook(isbn, bookName, author!, publishDate.Value, totalCopies.Value,
 			genreId.Value, description);
+
 		ConsoleHelper.ShowResult(result);
 
 
 		if (result.Success)
-			ConsoleHelper.ShowSuccess("Book added successfully.");
+			ConsoleHelper.ShowSuccess(ValidationMessages.BookAddedSuccessfully);
 		else
-			ConsoleHelper.ShowError($"Failed to add book. {result.Message}");
+			ConsoleHelper.ShowError($"{ValidationMessages.BookAddFailed} {result.Message}");
 	}
 
+
+	private static void EditBook(BookManagementService bookManagementService)
+	{
+		Console.WriteLine("============================ EDITING BOOK MENU ============================");
+		var desiredBook = SelectExistingBook(bookManagementService);
+		if (desiredBook is null)
+			return;
+
+		while (true)
+		{
+			Console.WriteLine("{0, -30} [{1}]", "1. Book Name", desiredBook.BookName);
+			Console.WriteLine("{0, -30} [{1}]", "2. ISBN", desiredBook.InternationalStandardBookNumber);
+			Console.WriteLine("{0, -30} [{1}]", "3. Author",
+				desiredBook.Author.FirstName + " " + desiredBook.Author.LastName);
+
+			Console.WriteLine("{0, -30} [{1}]", "4. Publish Date", desiredBook.PublishDate);
+			Console.WriteLine("{0, -30} [{1}]", "5. Genre", desiredBook.Genre);
+			Console.WriteLine("{0, -10} [{1}]", "6. Total Copies", desiredBook.TotalCopies);
+			Console.WriteLine("{0, -30} [{1}]", "7. Description", desiredBook.Description);
+			Console.WriteLine("8. Cancel");
+			var editMenuChoice = ConsoleHelper.ReadInt("Enter the number of the field you wish to edit", 1, 8);
+			if (editMenuChoice == null)
+				return;
+
+			switch (editMenuChoice)
+			{
+				case 1:
+				{
+					string? bookName;
+					while (true)
+					{
+						bookName = ConsoleHelper.ReadString("Enter the new book name");
+						if (bookName is null)
+							return;
+
+						if (Validator.NameValidator(bookName, ValidationConstants.MinBookNameLength, ValidationConstants.MaxBookNameLength))
+							break;
+						ConsoleHelper.ShowError(ValidationMessages.InvalidBookName);
+					}
+
+					if (bookName is null)
+						return;
+					
+
+					break;
+				}
+				case 2:
+				{
+					break;
+				}
+				case 3:
+				{
+					break;
+				}
+				case 4:
+				{
+					break;
+				}
+				case 5:
+				{
+					break;
+				}
+				case 6:
+				{
+					break;
+				}
+				case 7:
+				{
+					break;
+				}
+				case 8:
+				{
+					ConsoleHelper.ShowError("Edit cancelled. Returning to Author Menu...");
+					Thread.Sleep(3000);
+					Console.Clear();
+					return;
+				}
+			}
+		}
+	}
 
 
 	private static void DisplayGenres()
@@ -168,5 +254,16 @@ public static class BookMenu
 		}
 
 		Console.WriteLine("============================");
+	}
+
+
+	private static Book? SelectExistingBook(BookManagementService bookManagementService)
+	{
+		var bookList = bookManagementService.GetAllBooks();
+		if (bookList.Count != 0)
+			return MenuHelper.SelectBook(bookList);
+
+		ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableBook);
+		return null;
 	}
 }

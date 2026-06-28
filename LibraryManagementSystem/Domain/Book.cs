@@ -25,8 +25,8 @@ public class Book
 	public Author Author { get; init; }
 	public DateOnly PublishDate { get; set; }
 	public Genre Genre { get; set; }
-	private int TotalCopies { get; init; }
-	public int AvailableCopies { get; set; }
+	public int TotalCopies { get; init; }
+	private int AvailableCopies { get; set; }
 	public string? Description { get; set; }
 
 

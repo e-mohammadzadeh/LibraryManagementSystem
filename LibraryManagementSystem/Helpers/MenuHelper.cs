@@ -5,7 +5,8 @@ namespace LibraryManagementSystem.Helpers;
 
 public static class MenuHelper
 {
-	public static Author? SelectAuthor(IReadOnlyList<Author> authorsList) {
+	public static Author? SelectAuthor(IReadOnlyList<Author> authorsList)
+	{
 		if (authorsList.Count == 0)
 		{
 			ConsoleHelper.ShowError(ValidationMessages.NotAvailableAuthor);
@@ -19,7 +20,7 @@ public static class MenuHelper
 			var desiredAuthorId = ConsoleHelper.ReadInt("Enter the number of the author you wish", 1,
 				authorsList.Last().AuthorId);
 
-			if (desiredAuthorId == null)
+			if (desiredAuthorId is null)
 				return null;
 
 			var desiredAuthor = authorsList.FirstOrDefault(a => a.AuthorId == desiredAuthorId.Value);
@@ -32,7 +33,34 @@ public static class MenuHelper
 	}
 
 
-	public static void DisplayAuthors(IReadOnlyList<Author> authors) {
+	public static Book? SelectBook(IReadOnlyList<Book> booksList)
+	{
+		if (booksList.Count == 0)
+		{
+			ConsoleHelper.ShowError(ValidationMessages.NotAvailableBook);
+			return null;
+		}
+
+		while (true)
+		{
+			DisplayBooks(booksList);
+			var desiredBookId = ConsoleHelper.ReadInt("Enter the number of the book you wish", 1,
+				booksList.Last().BookId);
+
+			if (desiredBookId is null)
+				return null;
+
+			var desiredBook = booksList.FirstOrDefault(b => b.BookId == desiredBookId.Value);
+			if (desiredBook != null)
+				return desiredBook;
+
+			ConsoleHelper.ShowError("Book not found. Please try again.");
+		}
+	}
+
+
+	public static void DisplayAuthors(IReadOnlyList<Author> authors)
+	{
 		if (authors.Count == 0)
 			return;
 
@@ -46,5 +74,26 @@ public static class MenuHelper
 		}
 
 		Console.WriteLine("========================================================");
+	}
+
+
+	public static void DisplayBooks(IReadOnlyList<Book> books)
+	{
+		if (books.Count == 0)
+			return;
+
+		Console.WriteLine("{0,3} {1, 30} {2, 30} {3, 30}", "ID", "Book Name", "Author Name", "ISBN");
+		Console.WriteLine(
+			"===========================================================================================================");
+
+		foreach (var book in books)
+		{
+			var authorName = book.Author.FirstName + " " + book.Author.LastName;
+			Console.WriteLine("{0,3} {1, 30} {2, 30} {3, 30}", book.BookId, book.BookName, authorName,
+				book.InternationalStandardBookNumber);
+		}
+
+		Console.WriteLine(
+			"===========================================================================================================");
 	}
 }

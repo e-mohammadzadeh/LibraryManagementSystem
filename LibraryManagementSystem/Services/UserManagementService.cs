@@ -23,7 +23,7 @@ public class UserManagementService
 		var newAuthor = new Author(firstName, lastName, nationalCode, email, phoneNumber, birthDate, biography);
 		_authors.Add(newAuthor);
 
-		return ServiceResult<Author>.Ok(newAuthor, ValidationMessages.SuccessAdd);
+		return ServiceResult<Author>.Ok(newAuthor, ValidationMessages.AuthorAddedSuccessfully);
 	}
 
 
@@ -33,7 +33,7 @@ public class UserManagementService
 	}
 
 
-	public Author? FindAuthorById(int id)
+	private Author? FindAuthorById(int id)
 	{
 		return _authors.FirstOrDefault(a => a.AuthorId == id);
 	}
@@ -43,7 +43,7 @@ public class UserManagementService
 	{
 		var author = FindAuthorById(authorId);
 		if (author is null)
-			return ServiceResult<Author>.Fail(ValidationMessages.FailureUpdate);
+			return ServiceResult<Author>.Fail(ValidationMessages.AuthorUpdateFailed);
 
 		if (dto.FirstName != null || dto.LastName != null)
 		{
@@ -66,7 +66,7 @@ public class UserManagementService
 		}
 
 		author.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate, dto.Biography);
-		return ServiceResult<Author>.Ok(author, ValidationMessages.SuccessUpdate);
+		return ServiceResult<Author>.Ok(author, ValidationMessages.AuthorUpdatedSuccessfully);
 	}
 
 
@@ -74,14 +74,14 @@ public class UserManagementService
 	{
 		var author = FindAuthorById(authorId);
 		if (author is null)
-			return ServiceResult<Author>.Fail(ValidationMessages.FailureRemove);
+			return ServiceResult<Author>.Fail(ValidationMessages.AuthorRemoveFailed);
 
 		// TODO	After implementing Loan class and service, before deleting author should check that none of books isn't borrowed
 		if (author.Books.Count != 0)
 			return ServiceResult<Author>.Fail("Failed to remove author. The author has associated books.");
 
 		_authors.Remove(author);
-		return ServiceResult<Author>.Ok(author, ValidationMessages.SuccessRemove);
+		return ServiceResult<Author>.Ok(author, ValidationMessages.AuthorRemovedSuccessfully);
 	}
 
 
