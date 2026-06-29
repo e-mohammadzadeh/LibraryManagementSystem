@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Common;
 using LibraryManagementSystem.Domain;
+using LibraryManagementSystem.DTOs;
 using LibraryManagementSystem.Enums;
 
 namespace LibraryManagementSystem.Services;
@@ -46,42 +47,46 @@ public class BookManagementService
 	}
 
 
-	public ServiceResult<Book> UpdateBook(int bookId, string? bookName, string? isbn, Author? author,
-		DateOnly? publishDate,
-		int? totalCopies, int? genreId, string? description)
+	public ServiceResult<Book> UpdateBook(int bookId, UpdateBookDto dto)
 	{
 		var book = FindBookById(bookId);
 		if (book is null)
-			return ServiceResult<Book>.Fail(ValidationMessages.BookUpdateFailed);
+			return ServiceResult<Book>.Fail(ValidationMessages.NotAvailableBook);
 
-		if (bookName != null)
+		if (dto.BookName is null)
 		{
-			if (_books.Any(b => b.BookId == bookId && b.BookName == book.BookName))
+			if (_books.Any(b => b.BookId != bookId && b.BookName == dto.BookName))
 			{
 				return ServiceResult<Book>.Fail(ValidationMessages.FailureDuplicateBookByName);
 			}
 		}
 
-		if (isbn != null && _books.Any(b => b.BookId != bookId && b.InternationalStandardBookNumber == isbn))
-			return ServiceResult<Book>.Fail(ValidationMessages.FailureDuplicateBookByISBN);
-
-		if (author != null)
+		if (dto.ISBN is null || _books.Any(b => b.BookId != bookId && b.InternationalStandardBookNumber == dto.ISBN))
 		{
+			return ServiceResult<Book>.Fail(ValidationMessages.FailureDuplicateBookByISBN);
 		}
 
-		if (genreId != null && !Enum.IsDefined(typeof(Genre), genreId))
+		if (dto.GenreId is null || !Enum.IsDefined(typeof(Genre), dto.GenreId))
 			return ServiceResult<Book>.Fail(ValidationMessages.InvalidGenre);
 
-		var genreName = (Genre)genreId;
+		var genreName = (Genre)dto.GenreId;
 
-		var dif = 0;
-		if (totalCopies != null)
+		if (dto.Author != null)
 		{
-			var old = book.TotalCopies;
-			dif = (int)(totalCopies - old);
-		}
+			if (book.Author.AuthorId == dto.Author.AuthorId)
+				return ServiceResult<Book>.Fail(ValidationMessages.FailureDuplicateBookByAuthor);
 
-		book.Update(bookName, isbn, author, publishDate, genreName, totalCopies, dif, description);
-		return ServiceResult<Book>.Ok(book, ValidationMessages.BookUpdatedSuccessfully);
+			var oldAuthor = book.Author;
+			oldAuthor.Books.Remove(book);
+			book.Author = dto.Author;
+			dto.Author.Books.Add(book);
+		}
+		else
+			return ServiceResult<Book>.Fail(ValidationMessages.BookUpdateFailed);
+
+		return book.Update(dto.BookName, dto.ISBN, dto.Author, dto.PublishDate, genreName, dto.TotalCopies,
+			dto.Description)
+			? ServiceResult<Book>.Ok(book, ValidationMessages.BookUpdatedSuccessfully)
+			: ServiceResult<Book>.Fail(ValidationMessages.BookUpdateFailed);
 	}
 }

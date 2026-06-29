@@ -9,7 +9,7 @@ public class UpdateBookDto
 	public string? ISBN { get; set; }
 	public Author? Author { get; set; }
 	public DateOnly? PublishDate { get; set; }
-	public Genre? Genre { get; set; }
+	public int? GenreId { get; set; }
 	public int? TotalCopies { get; set; }
 	public string? Description { get; set; }
 }

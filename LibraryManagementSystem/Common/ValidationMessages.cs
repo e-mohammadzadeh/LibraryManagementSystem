@@ -41,6 +41,7 @@ public static class ValidationMessages
 	public const string FailureDuplicateAuthorByPhoneNumber = "An author with the same phone number already exists.";
 	public const string FailureDuplicateBookByName = "A book with the same name already exists.";
 	public const string FailureDuplicateBookByISBN = "A book with the same ISBN already exists.";
+	public const string FailureDuplicateBookByAuthor = "This is already the book's author";
 
 	public const string EmptyInput = "Input cannot be empty. Please try again.";
 }

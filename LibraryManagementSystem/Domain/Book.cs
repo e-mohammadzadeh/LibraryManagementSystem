@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Enums;
+using LibraryManagementSystem.Helpers;
 
 namespace LibraryManagementSystem.Domain;
 
@@ -24,7 +25,7 @@ public class Book
 	public int BookId { get; private set; }
 	public string BookName { get; set; }
 	public string InternationalStandardBookNumber { get; set; }
-	public Author Author { get; private set; }
+	public Author Author { get; set; }
 	public DateOnly PublishDate { get; set; }
 	public Genre Genre { get; set; }
 	public int TotalCopies { get; private set; }
@@ -32,17 +33,30 @@ public class Book
 	public string? Description { get; set; }
 
 
-	public void Update(string? bookName, string? isbn, Author? author, DateOnly? publishDate, Genre? genreId,
-		int? totalCopies, int dif, string? description)
+	public bool Update(string? bookName, string? isbn, Author? author, DateOnly? publishDate, Genre? genreId,
+		int? totalCopies, string? description)
 	{
+		if (totalCopies != null)
+		{
+			var difference = totalCopies.Value - TotalCopies;
+			TotalCopies = totalCopies.Value;
+			if (AvailableCopies + difference < 0)
+			{
+				ConsoleHelper.ShowError(
+					"Cannot update total copies because it would result in negative available copies.");
+				return false;
+			}
+
+			AvailableCopies += difference;
+		}
+
 		BookName = bookName ?? BookName;
 		InternationalStandardBookNumber = isbn ?? InternationalStandardBookNumber;
 		Author = author ?? Author;
 		PublishDate = publishDate ?? PublishDate;
 		Genre = genreId ?? Genre;
-		TotalCopies = totalCopies ?? TotalCopies;
-		AvailableCopies += dif;
 		Description = description ?? Description;
+		return true;
 	}
 
 

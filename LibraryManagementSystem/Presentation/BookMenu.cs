@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Common;
 using LibraryManagementSystem.Domain;
+using LibraryManagementSystem.DTOs;
 using LibraryManagementSystem.Enums;
 using LibraryManagementSystem.Helpers;
 using LibraryManagementSystem.Services;
@@ -114,51 +115,35 @@ public static class BookMenu
 		var authorList = userManagementService.GetAllAuthors();
 		if (authorList.Count != 0)
 			author = MenuHelper.SelectAuthor(authorList);
+		else
+			return;
 
 
-		while (true)
-		{
-			publishDate = ConsoleHelper.GetValidDate("Enter publish date of this book");
-			if (publishDate == null)
-				return;
+		publishDate = ConsoleHelper.GetValidDate("Enter publish date of this book");
+		if (publishDate == null)
+			return;
 
-			break;
-		}
 
-		while (true)
-		{
-			totalCopies = ConsoleHelper.ReadInt("Enter total number of copies for this book", 1, 10);
-			if (totalCopies == null)
-				return;
+		totalCopies = ConsoleHelper.ReadInt("Enter total number of copies for this book", 1, 10);
+		if (totalCopies == null)
+			return;
 
-			break;
-		}
 
-		while (true)
-		{
-			DisplayGenres();
-			genreId = ConsoleHelper.ReadInt("Select your desired genre by entering its ID", 1,
-				Enum.GetValues<Genre>().Length + 1) - 1;
+		DisplayGenres();
+		genreId = ConsoleHelper.ReadInt("Select your desired genre by entering its ID", 1,
+			Enum.GetValues<Genre>().Length + 1);
 
-			if (genreId == null)
-				return;
+		if (genreId == null)
+			return;
 
-			break;
-		}
 
 		var description = ConsoleHelper.ReadString("You can add any descriptions about this book (Optional)");
 
 
-		var result = bookManagementService.AddBook(isbn, bookName, author!, publishDate.Value, totalCopies.Value,
-			genreId.Value, description);
+		var result = bookManagementService.AddBook(isbn, bookName, author, publishDate.Value, totalCopies.Value,
+			genreId.Value - 1, description);
 
 		ConsoleHelper.ShowResult(result);
-
-
-		if (result.Success)
-			ConsoleHelper.ShowSuccess(ValidationMessages.BookAddedSuccessfully);
-		else
-			ConsoleHelper.ShowError($"{ValidationMessages.BookAddFailed} {result.Message}");
 	}
 
 
@@ -190,61 +175,42 @@ public static class BookMenu
 			{
 				case 1:
 				{
-					string? bookName;
-					while (true)
-					{
-						bookName = ConsoleHelper.ReadString("Enter the new book name");
-						if (bookName is null)
-							return;
+					var bookName = ConsoleHelper.GetValidName("Enter the new book name", "book name",
+						ValidationConstants.MinBookNameLength, ValidationConstants.MaxBookNameLength);
 
-						if (Validator.NameValidator(bookName, ValidationConstants.MinBookNameLength,
-							    ValidationConstants.MaxBookNameLength))
-						{
-							ConsoleHelper.ShowError(ValidationMessages.InvalidBookName);
-							break;
-						}
-					}
+					if (!PerformUpdate(bookManagementService, desiredBook.BookId, bookName,
+						    v => new UpdateBookDto { BookName = v }))
+						return;
 
-					var result = bookManagementService.UpdateBook(desiredBook.BookId, bookName, null, null, null, null,
-						null,
-						null);
-
-					ConsoleHelper.ShowResult(result);
 					break;
 				}
 				case 2:
 				{
-					string? isbn;
-					while (true)
-					{
-						isbn = ConsoleHelper.ReadISBN("Enter the new ISBN");
-						if (isbn is null)
-							return;
+					var isbn = ConsoleHelper.ReadISBN("Enter the new ISBN");
+					if (isbn is null)
+						return;
 
-						if (!bookManagementService.IsExistIsbn(isbn))
-						{
-							ConsoleHelper.ShowError(ValidationMessages.FailureDuplicateBookByISBN);
-							break;
-						}
+					if (bookManagementService.IsExistIsbn(isbn))
+					{
+						ConsoleHelper.ShowError(ValidationMessages.FailureDuplicateBookByISBN);
+						continue;
 					}
 
-					var result = bookManagementService.UpdateBook(desiredBook.BookId, null, isbn, null, null, null,
-						null, null);
+					if (!PerformUpdate(bookManagementService, desiredBook.BookId, isbn,
+						    v => new UpdateBookDto { ISBN = v }))
+						return;
 
-					ConsoleHelper.ShowResult(result);
 					break;
 				}
 				case 3:
 				{
-					Author? author;
 					var authorList = userManagementService.GetAllAuthors();
 					if (authorList.Count != 0)
 					{
-						author = MenuHelper.SelectAuthor(authorList);
-						var result = bookManagementService.UpdateBook(desiredBook.BookId, null, null, author, null,
-							null, null, null);
-
-						ConsoleHelper.ShowResult(result);
+						var author = MenuHelper.SelectAuthor(authorList);
+						if (!PerformUpdate(bookManagementService, desiredBook.BookId, author,
+							    v => new UpdateBookDto { Author = v }))
+							return;
 					}
 					else
 					{
@@ -252,90 +218,45 @@ public static class BookMenu
 						return;
 					}
 
-
 					break;
 				}
 				case 4:
 				{
-					DateOnly? publishDate;
-					while (true)
-					{
-						publishDate = ConsoleHelper.ReadDateOnly("Enter the new publish date");
-						if (publishDate == null)
-							return;
+					var publishDate = ConsoleHelper.GetValidDate("Enter the new publish date");
+					if (!PerformUpdate(bookManagementService, desiredBook.BookId, publishDate,
+						    v => new UpdateBookDto { PublishDate = v }))
+						return;
 
-						if (!Validator.DateValidator(publishDate))
-						{
-							ConsoleHelper.ShowError(ValidationMessages.InvalidDate);
-							return;
-						}
-
-						break;
-					}
-
-					var result = bookManagementService.UpdateBook(desiredBook.BookId, null, null, null, publishDate,
-						null,
-						null, null);
-
-					ConsoleHelper.ShowResult(result);
 					break;
 				}
 				case 5:
 				{
-					int? totalCopies;
-					while (true)
-					{
-						totalCopies = ConsoleHelper.ReadInt("Enter the new total copies", 1, 10);
-						if (totalCopies == null)
-							return;
+					var totalCopies = ConsoleHelper.ReadInt("Enter the new total copies", 1, 10);
+					if (!PerformUpdate(bookManagementService, desiredBook.BookId, totalCopies,
+						    v => new UpdateBookDto { TotalCopies = v }))
+						return;
 
-						break;
-					}
-
-					var result = bookManagementService.UpdateBook(desiredBook.BookId, null, null, null, null,
-						totalCopies,
-						null, null);
-
-					ConsoleHelper.ShowResult(result);
 					break;
 				}
 				case 6:
 				{
-					int? genreId;
-					while (true)
-					{
-						DisplayGenres();
-						genreId =
-							ConsoleHelper.ReadInt("Enter the new genre id", 1, Enum.GetValues<Genre>().Length + 1) - 1;
+					DisplayGenres();
+					var genreId =
+						ConsoleHelper.ReadInt("Enter the new genre id", 1, Enum.GetValues<Genre>().Length + 1);
 
-						if (genreId == null)
-							return;
+					if (!PerformUpdate(bookManagementService, desiredBook.BookId, genreId - 1,
+						    v => new UpdateBookDto { GenreId = v }))
+						return;
 
-						break;
-					}
-
-					var result = bookManagementService.UpdateBook(desiredBook.BookId, null, null, null, null, null,
-						genreId, null);
-
-					ConsoleHelper.ShowResult(result);
 					break;
 				}
 				case 7:
 				{
-					string? description;
-					while (true)
-					{
-						description = ConsoleHelper.ReadString("Enter the new description");
-						if (description is null)
-							return;
+					var description = ConsoleHelper.ReadString("Enter the new description");
+					if (!PerformUpdate(bookManagementService, desiredBook.BookId, description,
+						    v => new UpdateBookDto { Description = v }))
+						return;
 
-						break;
-					}
-
-					var result = bookManagementService.UpdateBook(desiredBook.BookId, null, null, null, null, null,
-						null, description);
-
-					ConsoleHelper.ShowResult(result);
 					break;
 				}
 				case 8:
@@ -346,6 +267,16 @@ public static class BookMenu
 					return;
 				}
 			}
+
+			var choice = ConsoleHelper.ReadYesNo("Do you want to edit another field");
+			if (choice == true)
+			{
+				Console.Clear();
+				continue;
+			}
+
+			Console.Clear();
+			return;
 		}
 	}
 
@@ -372,5 +303,18 @@ public static class BookMenu
 
 		ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableBook);
 		return null;
+	}
+
+
+	private static bool PerformUpdate<T>(BookManagementService bookManagementService, int desiredBookId, T? newValue,
+		Func<T, UpdateBookDto> buildDto)
+	{
+		if (newValue is null)
+			return false;
+
+		var dto = buildDto(newValue);
+		var result = bookManagementService.UpdateBook(desiredBookId, dto);
+		ConsoleHelper.ShowResult(result);
+		return true;
 	}
 }

@@ -45,22 +45,22 @@ public class UserManagementService
 		if (author is null)
 			return ServiceResult<Author>.Fail(ValidationMessages.AuthorUpdateFailed);
 
-		if (dto.FirstName != null || dto.LastName != null)
+		if (dto.FirstName is null || dto.LastName is null)
 		{
 			if (_authors.Any(aut => aut.AuthorId != authorId && aut.FirstName == dto.FirstName && aut.LastName == dto.LastName))
 			{
 				return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByName);
 			}
 		}
-		if (dto.NationalCode != null && _authors.Any(aut => aut.AuthorId != authorId && aut.NationalCode == dto.NationalCode))
+		if (dto.NationalCode is null || _authors.Any(aut => aut.AuthorId != authorId && aut.NationalCode == dto.NationalCode))
 		{
 			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByNationalCode);
 		}
-		if (dto.Email != null && _authors.Any(aut => aut.AuthorId != authorId && aut.Email == dto.Email))
+		if (dto.Email is null || _authors.Any(aut => aut.AuthorId != authorId && aut.Email == dto.Email))
 		{
 			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByEmail);
 		}
-		if (dto.PhoneNumber != null && _authors.Any(aut => aut.AuthorId != authorId && aut.PhoneNumber == dto.PhoneNumber))
+		if (dto.PhoneNumber is null || _authors.Any(aut => aut.AuthorId != authorId && aut.PhoneNumber == dto.PhoneNumber))
 		{
 			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByPhoneNumber);
 		}
