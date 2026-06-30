@@ -44,4 +44,5 @@ public static class ValidationMessages
 	public const string FailureDuplicateBookByAuthor = "This is already the book's author";
 
 	public const string EmptyInput = "Input cannot be empty. Please try again.";
+	public const string WrongTotalCopies = "Total copies must be greater than zero.";
 }

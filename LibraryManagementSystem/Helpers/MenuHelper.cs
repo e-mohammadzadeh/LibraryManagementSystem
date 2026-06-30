@@ -1,5 +1,7 @@
 ﻿using LibraryManagementSystem.Common;
 using LibraryManagementSystem.Domain;
+using LibraryManagementSystem.DTOs;
+using LibraryManagementSystem.Services;
 
 namespace LibraryManagementSystem.Helpers;
 
@@ -62,7 +64,10 @@ public static class MenuHelper
 	public static void DisplayAuthors(IReadOnlyList<Author> authors)
 	{
 		if (authors.Count == 0)
+		{
+			ConsoleHelper.ShowError(ValidationMessages.NotAvailableAuthor);
 			return;
+		}
 
 		Console.WriteLine("{0,3} {1, 20} {2, 25}", "ID", "Author Name", "Email Address");
 		Console.WriteLine("========================================================");
@@ -80,7 +85,10 @@ public static class MenuHelper
 	public static void DisplayBooks(IReadOnlyList<Book> books)
 	{
 		if (books.Count == 0)
+		{
+			ConsoleHelper.ShowError(ValidationMessages.NotAvailableBook);
 			return;
+		}
 
 		Console.WriteLine("{0,3} {1, 30} {2, 30} {3, 30}", "ID", "Book Name", "Author Name", "ISBN");
 		Console.WriteLine(
@@ -95,5 +103,52 @@ public static class MenuHelper
 
 		Console.WriteLine(
 			"===========================================================================================================");
+	}
+
+
+	public static Author? AuthorHelper(UserManagementService userManagementService)
+	{
+		var firstName = ConsoleHelper.GetValidName("Enter author's first name", "first name",
+			ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
+
+		if (firstName == null)
+			return null;
+
+		var lastName = ConsoleHelper.GetValidName("Enter author's last name", "last name",
+			ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
+
+		if (lastName == null)
+			return null;
+
+		var nationalCode = ConsoleHelper.GetValidNationalCode("Enter author's national code");
+		if (nationalCode == null)
+			return null;
+
+		var email = ConsoleHelper.GetValidEmail("Enter author's email");
+		if (email == null)
+			return null;
+
+		var phoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter author's phone number");
+		if (phoneNumber == null)
+			return null;
+
+		var birthDate = ConsoleHelper.GetValidBirthDate("Enter author's birth date");
+		if (birthDate == null)
+			return null;
+
+		var biography = ConsoleHelper.ReadString("You can add a biography (Optional)", true);
+
+		var result = userManagementService.AddAuthor(new CreateAuthorDto
+		{
+			FirstName = firstName,
+			LastName = lastName,
+			NationalCode = nationalCode,
+			Email = email,
+			PhoneNumber = phoneNumber,
+			BirthDate = birthDate.Value,
+			Biography = biography
+		});
+
+		return result.Data;
 	}
 }

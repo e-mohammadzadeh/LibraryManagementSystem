@@ -139,8 +139,16 @@ public static class AuthorMenu
 
 		var biography = ConsoleHelper.ReadString("You can add a biography (Optional)", true);
 
-		var result = userManagementService.AddAuthor(firstName, lastName, nationalCode, email, phoneNumber,
-			birthDate.Value, biography);
+		var result = userManagementService.AddAuthor(new CreateAuthorDto
+		{
+			FirstName = firstName,
+			LastName = lastName,
+			NationalCode = nationalCode,
+			Email = email,
+			PhoneNumber = phoneNumber,
+			BirthDate = birthDate.Value,
+			Biography = biography
+		});
 
 		ConsoleHelper.ShowResult(result);
 	}
@@ -158,10 +166,10 @@ public static class AuthorMenu
 			Console.WriteLine("{0, -20} [{1}]", "1. First Name", desiredAuthor.FirstName);
 			Console.WriteLine("{0, -20} [{1}]", "2. Last Name", desiredAuthor.LastName);
 			Console.WriteLine("{0, -20} [{1}]", "3. National Code", desiredAuthor.NationalCode);
-			Console.WriteLine("{0, -30} [{1}]", "4. Email", desiredAuthor.Email);
+			Console.WriteLine("{0, -20} [{1}]", "4. Email", desiredAuthor.Email);
 			Console.WriteLine("{0, -20} [{1}]", "5. Phone Number", desiredAuthor.PhoneNumber);
 			Console.WriteLine("{0, -20} [{1}]", "6. Birth Date", desiredAuthor.BirthDate);
-			Console.WriteLine("{0, -30} [{1}]", "7. Biography", desiredAuthor.Biography);
+			Console.WriteLine("{0, -20} [{1}]", "7. Biography", desiredAuthor.Biography);
 			Console.WriteLine("8. Cancel");
 			var editMenuChoice = ConsoleHelper.ReadInt("Enter the number of the field you wish to edit", 1, 8);
 			if (editMenuChoice == null)
@@ -246,14 +254,10 @@ public static class AuthorMenu
 			}
 
 			var choice = ConsoleHelper.ReadYesNo("Do you want to edit another field");
-			if (choice == true)
-			{
-				Console.Clear();
-				continue;
-			}
+			if (choice != true)
+				return;
 
 			Console.Clear();
-			return;
 		}
 	}
 
@@ -360,7 +364,7 @@ public static class AuthorMenu
 		var dto = buildDto(newValue);
 		var result = userManagementService.UpdateAuthor(desiredAuthorId, dto);
 		ConsoleHelper.ShowResult(result);
-		return true;
+		return result.Success;
 	}
 
 
