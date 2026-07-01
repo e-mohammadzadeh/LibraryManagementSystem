@@ -1,7 +1,5 @@
 ﻿using LibraryManagementSystem.Common;
 using LibraryManagementSystem.Domain;
-using LibraryManagementSystem.DTOs;
-using LibraryManagementSystem.Services;
 
 namespace LibraryManagementSystem.Helpers;
 
@@ -22,13 +20,11 @@ public static class MenuHelper
 			var desiredAuthorId = ConsoleHelper.ReadInt("Enter the number of the author you wish", 1,
 				authorsList.Last().AuthorId);
 
-			if (desiredAuthorId is null)
-				return null;
+			if (desiredAuthorId is null) return null;
 
 			var desiredAuthor = authorsList.FirstOrDefault(a => a.AuthorId == desiredAuthorId.Value);
 
-			if (desiredAuthor != null)
-				return desiredAuthor;
+			if (desiredAuthor != null) return desiredAuthor;
 
 			ConsoleHelper.ShowError("Author not found. Please try again.");
 		}
@@ -49,12 +45,10 @@ public static class MenuHelper
 			var desiredBookId = ConsoleHelper.ReadInt("Enter the number of the book you wish", 1,
 				booksList.Last().BookId);
 
-			if (desiredBookId is null)
-				return null;
+			if (desiredBookId is null) return null;
 
 			var desiredBook = booksList.FirstOrDefault(b => b.BookId == desiredBookId.Value);
-			if (desiredBook != null)
-				return desiredBook;
+			if (desiredBook != null) return desiredBook;
 
 			ConsoleHelper.ShowError("Book not found. Please try again.");
 		}
@@ -103,52 +97,5 @@ public static class MenuHelper
 
 		Console.WriteLine(
 			"===========================================================================================================");
-	}
-
-
-	public static Author? AuthorHelper(UserManagementService userManagementService)
-	{
-		var firstName = ConsoleHelper.GetValidName("Enter author's first name", "first name",
-			ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
-
-		if (firstName == null)
-			return null;
-
-		var lastName = ConsoleHelper.GetValidName("Enter author's last name", "last name",
-			ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
-
-		if (lastName == null)
-			return null;
-
-		var nationalCode = ConsoleHelper.GetValidNationalCode("Enter author's national code");
-		if (nationalCode == null)
-			return null;
-
-		var email = ConsoleHelper.GetValidEmail("Enter author's email");
-		if (email == null)
-			return null;
-
-		var phoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter author's phone number");
-		if (phoneNumber == null)
-			return null;
-
-		var birthDate = ConsoleHelper.GetValidBirthDate("Enter author's birth date");
-		if (birthDate == null)
-			return null;
-
-		var biography = ConsoleHelper.ReadString("You can add a biography (Optional)", true);
-
-		var result = userManagementService.AddAuthor(new CreateAuthorDto
-		{
-			FirstName = firstName,
-			LastName = lastName,
-			NationalCode = nationalCode,
-			Email = email,
-			PhoneNumber = phoneNumber,
-			BirthDate = birthDate.Value,
-			Biography = biography
-		});
-
-		return result.Data;
 	}
 }

@@ -58,17 +58,11 @@ public class BookManagementService
 			return ServiceResult<Book>.Fail(ValidationMessages.NotAvailableBook);
 
 		if (dto.BookName != null)
-		{
 			if (_books.Any(b => b.BookId != bookId && IsDuplicateBookName(dto.BookName)))
-			{
 				return ServiceResult<Book>.Fail(ValidationMessages.FailureDuplicateBookByName);
-			}
-		}
 
 		if (dto.ISBN != null && (_books.Any(b => b.BookId != bookId) && IsExistIsbn(dto.ISBN)))
-		{
 			return ServiceResult<Book>.Fail(ValidationMessages.FailureDuplicateBookByISBN);
-		}
 
 		if (dto.Author != null)
 			if (book.Author.AuthorId == dto.Author.AuthorId)
@@ -92,7 +86,6 @@ public class BookManagementService
 		{
 			return ServiceResult<Book>.Fail(ValidationMessages.BookUpdateFailed);
 		}
-
 	}
 
 

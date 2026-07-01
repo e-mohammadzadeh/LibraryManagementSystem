@@ -105,51 +105,54 @@ public static class AuthorMenu
 	}
 
 
-	private static void AddAuthor(UserManagementService userManagementService)
+	public static CreateAuthorDto? PromptForAuthorDto()
 	{
-		Console.WriteLine("============================ ADDING AUTHOR MENU ============================");
-
 		var firstName = ConsoleHelper.GetValidName("Enter author's first name", "first name",
 			ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 		if (firstName == null)
-			return;
+			return null;
 
 		var lastName = ConsoleHelper.GetValidName("Enter author's last name", "last name",
 			ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 		if (lastName == null)
-			return;
+			return null;
 
 		var nationalCode = ConsoleHelper.GetValidNationalCode("Enter author's national code");
 		if (nationalCode == null)
-			return;
+			return null;
 
 		var email = ConsoleHelper.GetValidEmail("Enter author's email");
 		if (email == null)
-			return;
+			return null;
 
 		var phoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter author's phone number");
 		if (phoneNumber == null)
-			return;
+			return null;
 
 		var birthDate = ConsoleHelper.GetValidBirthDate("Enter author's birth date");
 		if (birthDate == null)
-			return;
+			return null;
 
 		var biography = ConsoleHelper.ReadString("You can add a biography (Optional)", true);
 
-		var result = userManagementService.AddAuthor(new CreateAuthorDto
+		return new CreateAuthorDto
 		{
-			FirstName = firstName,
-			LastName = lastName,
-			NationalCode = nationalCode,
-			Email = email,
-			PhoneNumber = phoneNumber,
-			BirthDate = birthDate.Value,
-			Biography = biography
-		});
+			FirstName = firstName, LastName = lastName, NationalCode = nationalCode, Email = email,
+			PhoneNumber = phoneNumber, BirthDate = birthDate.Value, Biography = biography
+		};
+	}
 
+
+	private static void AddAuthor(UserManagementService userManagementService)
+	{
+		Console.WriteLine("============================ ADDING AUTHOR MENU ============================");
+		var authorDto = PromptForAuthorDto();
+		if (authorDto == null)
+			return;
+
+		var result = userManagementService.AddAuthor(authorDto);
 		ConsoleHelper.ShowResult(result);
 	}
 
@@ -389,9 +392,9 @@ public static class AuthorMenu
 
 	private static Author? SelectExistingAuthor(UserManagementService userManagementService)
 	{
-		var authorList = userManagementService.GetAllAuthors();
-		if (authorList.Count != 0)
-			return MenuHelper.SelectAuthor(authorList);
+		var authors = userManagementService.GetAllAuthors();
+		if (authors.Count != 0)
+			return MenuHelper.SelectAuthor(authors);
 
 		ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
 		return null;

@@ -14,14 +14,10 @@ public static class ConsoleHelper
 			Console.Write($"{prompt} (or type 'cancel' to abort): ");
 			var input = Console.ReadLine() ?? string.Empty;
 
-			if (input.Trim().Equals("cancel", StringComparison.OrdinalIgnoreCase))
-				return null;
-
+			if (input.Trim().Equals("cancel", StringComparison.OrdinalIgnoreCase)) return null;
 			if (int.TryParse(input, out var value))
 			{
-				if (value >= min && value <= max)
-					return value;
-
+				if (value >= min && value <= max) return value;
 				ShowInfo($"Please enter a number between {min} and {max}.");
 			}
 			else
@@ -40,13 +36,8 @@ public static class ConsoleHelper
 			var input = Console.ReadLine() ?? string.Empty;
 			var trimmed = input.Trim();
 
-			if (trimmed.Equals("cancel", StringComparison.OrdinalIgnoreCase))
-			{
-				return null;
-			}
-
-			if (!string.IsNullOrWhiteSpace(trimmed) || allowEmpty)
-				return trimmed;
+			if (trimmed.Equals("cancel", StringComparison.OrdinalIgnoreCase)) return null;
+			if (!string.IsNullOrWhiteSpace(trimmed) || allowEmpty) return trimmed;
 
 			ShowError(ValidationMessages.EmptyInput);
 		}
@@ -60,11 +51,8 @@ public static class ConsoleHelper
 			Console.Write($"{prompt} (YYYY-MM-DD, or type 'cancel' to abort): ");
 			var input = Console.ReadLine() ?? string.Empty;
 
-			if (input.Trim().Equals("cancel", StringComparison.OrdinalIgnoreCase))
-				return null;
-
-			if (DateOnly.TryParse(input, out var date))
-				return date;
+			if (input.Trim().Equals("cancel", StringComparison.OrdinalIgnoreCase)) return null;
+			if (DateOnly.TryParse(input, out var date)) return date;
 
 			ShowError(ValidationMessages.InvalidBirthDateFormat);
 		}
@@ -79,19 +67,14 @@ public static class ConsoleHelper
 			var input = Console.ReadLine() ?? string.Empty;
 			var trimmed = input.Trim();
 
-			if (trimmed.Equals("cancel", StringComparison.OrdinalIgnoreCase))
-			{
-				return null;
-			}
-
+			if (trimmed.Equals("cancel", StringComparison.OrdinalIgnoreCase)) return null;
 			if (string.IsNullOrWhiteSpace(trimmed))
 			{
 				ShowError(ValidationMessages.EmptyInput);
 				continue;
 			}
 
-			if (Validator.ISBNValidator(trimmed))
-				return trimmed;
+			if (Validator.ISBNValidator(trimmed)) return trimmed;
 
 			ShowError(ValidationMessages.InvalidISBN);
 		}
@@ -105,8 +88,7 @@ public static class ConsoleHelper
 			Console.Write($"{prompt} (y/n, or type 'cancel' to abort): ");
 			var input = Console.ReadLine() ?? string.Empty;
 			var trimmed = input.Trim().ToLower();
-			if (trimmed.Equals("cancel", StringComparison.OrdinalIgnoreCase))
-				return null;
+			if (trimmed.Equals("cancel", StringComparison.OrdinalIgnoreCase)) return null;
 
 			switch (trimmed)
 			{
@@ -130,13 +112,8 @@ public static class ConsoleHelper
 		{
 			input = ReadString(prompt);
 
-			if (input is null)
-				return null;
-
-			if (validator(input))
-			{
-				break;
-			}
+			if (input is null) return null;
+			if (validator(input)) break;
 
 			ShowError(errorMessage);
 		}
@@ -177,13 +154,8 @@ public static class ConsoleHelper
 		{
 			birthDate = ReadDateOnly(prompt);
 
-			if (birthDate is null)
-				return null;
-
-			if (Validator.BirthDateValidator(birthDate.Value))
-			{
-				break;
-			}
+			if (birthDate is null) return null;
+			if (Validator.BirthDateValidator(birthDate.Value)) break;
 
 			ShowError(ValidationMessages.InvalidBirthDate);
 		}
@@ -198,13 +170,8 @@ public static class ConsoleHelper
 		while (true)
 		{
 			date = ReadDateOnly(prompt);
-			if (date is null)
-				return null;
-
-			if (Validator.DateValidator(date))
-			{
-				break;
-			}
+			if (date is null) return null;
+			if (Validator.DateValidator(date)) break;
 
 			ShowError(ValidationMessages.InvalidDate);
 		}

@@ -18,7 +18,9 @@ public class UserManagementService
 		if (IsDuplicateEmail(dto.Email))
 			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByEmail);
 
-		var newAuthor = new Author(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate, dto.Biography);
+		var newAuthor = new Author(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber,
+			dto.BirthDate, dto.Biography);
+
 		_authors.Add(newAuthor);
 
 		return ServiceResult<Author>.Ok(newAuthor, ValidationMessages.AuthorAddedSuccessfully);
@@ -44,30 +46,21 @@ public class UserManagementService
 			return ServiceResult<Author>.Fail(ValidationMessages.AuthorUpdateFailed);
 
 		if (dto.FirstName != null || dto.LastName != null)
-		{
 			if (_authors.Any(aut => aut.AuthorId != authorId) && IsDuplicateFirstName(dto.FirstName) &&
 			    IsDuplicateLastName(dto.LastName))
-			{
 				return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByName);
-			}
-		}
 
 		if (dto.NationalCode != null &&
 		    _authors.Any(aut => aut.AuthorId != authorId && aut.NationalCode == dto.NationalCode))
-		{
 			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByNationalCode);
-		}
 
 		if (dto.Email != null && (_authors.Any(aut => aut.AuthorId != authorId) && IsDuplicateEmail(dto.Email)))
-		{
 			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByEmail);
-		}
 
 		if (dto.PhoneNumber != null &&
 		    _authors.Any(aut => aut.AuthorId != authorId && aut.PhoneNumber == dto.PhoneNumber))
-		{
 			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByPhoneNumber);
-		}
+
 
 		author.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
 			dto.Biography);
