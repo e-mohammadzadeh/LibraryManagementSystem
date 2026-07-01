@@ -97,8 +97,7 @@ public static class AuthorMenu
 			Console.Write("Please Enter a number: ");
 
 			var option = Console.ReadLine();
-			if (int.TryParse(option, out var result) && result is >= 1 and <= 7)
-				return result;
+			if (int.TryParse(option, out var result) && result is >= 1 and <= 7) return result;
 
 			ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
 		}
@@ -110,30 +109,24 @@ public static class AuthorMenu
 		var firstName = ConsoleHelper.GetValidName("Enter author's first name", "first name",
 			ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
-		if (firstName == null)
-			return null;
+		if (firstName == null) return null;
 
 		var lastName = ConsoleHelper.GetValidName("Enter author's last name", "last name",
 			ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
-		if (lastName == null)
-			return null;
+		if (lastName == null) return null;
 
 		var nationalCode = ConsoleHelper.GetValidNationalCode("Enter author's national code");
-		if (nationalCode == null)
-			return null;
+		if (nationalCode == null) return null;
 
 		var email = ConsoleHelper.GetValidEmail("Enter author's email");
-		if (email == null)
-			return null;
+		if (email == null) return null;
 
 		var phoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter author's phone number");
-		if (phoneNumber == null)
-			return null;
+		if (phoneNumber == null) return null;
 
 		var birthDate = ConsoleHelper.GetValidBirthDate("Enter author's birth date");
-		if (birthDate == null)
-			return null;
+		if (birthDate == null) return null;
 
 		var biography = ConsoleHelper.ReadString("You can add a biography (Optional)", true);
 
@@ -149,8 +142,7 @@ public static class AuthorMenu
 	{
 		Console.WriteLine("============================ ADDING AUTHOR MENU ============================");
 		var authorDto = PromptForAuthorDto();
-		if (authorDto == null)
-			return;
+		if (authorDto == null) return;
 
 		var result = userManagementService.AddAuthor(authorDto);
 		ConsoleHelper.ShowResult(result);
@@ -161,8 +153,7 @@ public static class AuthorMenu
 	{
 		Console.WriteLine("============================ EDITING AUTHOR MENU ============================");
 		var desiredAuthor = SelectExistingAuthor(userManagementService);
-		if (desiredAuthor is null)
-			return;
+		if (desiredAuthor is null) return;
 
 		while (true)
 		{
@@ -175,8 +166,7 @@ public static class AuthorMenu
 			Console.WriteLine("{0, -20} [{1}]", "7. Biography", desiredAuthor.Biography);
 			Console.WriteLine("8. Cancel");
 			var editMenuChoice = ConsoleHelper.ReadInt("Enter the number of the field you wish to edit", 1, 8);
-			if (editMenuChoice == null)
-				return;
+			if (editMenuChoice == null) return;
 
 			switch (editMenuChoice)
 			{
@@ -186,8 +176,7 @@ public static class AuthorMenu
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 					if (!PerformUpdate(userManagementService, desiredAuthor.AuthorId, authorNewFirstName,
-						    v => new UpdateAuthorDto { FirstName = v }))
-						return;
+						    v => new UpdateAuthorDto { FirstName = v })) return;
 
 					break;
 				}
@@ -197,8 +186,7 @@ public static class AuthorMenu
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 					if (!PerformUpdate(userManagementService, desiredAuthor.AuthorId, authorNewLastName,
-						    v => new UpdateAuthorDto { LastName = v }))
-						return;
+						    v => new UpdateAuthorDto { LastName = v })) return;
 
 					break;
 				}
@@ -206,8 +194,7 @@ public static class AuthorMenu
 				{
 					var authorNewNationalCode = ConsoleHelper.GetValidNationalCode("Enter new national code: ");
 					if (!PerformUpdate(userManagementService, desiredAuthor.AuthorId, authorNewNationalCode,
-						    v => new UpdateAuthorDto { NationalCode = v }))
-						return;
+						    v => new UpdateAuthorDto { NationalCode = v })) return;
 
 					break;
 				}
@@ -215,8 +202,7 @@ public static class AuthorMenu
 				{
 					var authorNewEmail = ConsoleHelper.GetValidEmail("Enter new email: ");
 					if (!PerformUpdate(userManagementService, desiredAuthor.AuthorId, authorNewEmail,
-						    v => new UpdateAuthorDto { Email = v }))
-						return;
+						    v => new UpdateAuthorDto { Email = v })) return;
 
 					break;
 				}
@@ -224,8 +210,7 @@ public static class AuthorMenu
 				{
 					var authorNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter new phone number: ");
 					if (!PerformUpdate(userManagementService, desiredAuthor.AuthorId, authorNewPhoneNumber,
-						    v => new UpdateAuthorDto { PhoneNumber = v }))
-						return;
+						    v => new UpdateAuthorDto { PhoneNumber = v })) return;
 
 					break;
 				}
@@ -233,8 +218,7 @@ public static class AuthorMenu
 				{
 					var authorNewBirthDate = ConsoleHelper.GetValidBirthDate("Enter new birth date (yyyy-MM-dd): ");
 					if (!PerformUpdate(userManagementService, desiredAuthor.AuthorId, authorNewBirthDate,
-						    v => new UpdateAuthorDto { BirthDate = v }))
-						return;
+						    v => new UpdateAuthorDto { BirthDate = v })) return;
 
 					break;
 				}
@@ -242,8 +226,7 @@ public static class AuthorMenu
 				{
 					var authorNewBiography = ConsoleHelper.ReadString("Enter new biography: ");
 					if (!PerformUpdate(userManagementService, desiredAuthor.AuthorId, authorNewBiography,
-						    v => new UpdateAuthorDto { Biography = v }))
-						return;
+						    v => new UpdateAuthorDto { Biography = v })) return;
 
 					break;
 				}
@@ -257,9 +240,7 @@ public static class AuthorMenu
 			}
 
 			var choice = ConsoleHelper.ReadYesNo("Do you want to edit another field");
-			if (choice != true)
-				return;
-
+			if (choice != true) return;
 			Console.Clear();
 		}
 	}
@@ -281,9 +262,7 @@ public static class AuthorMenu
 		var choice = ConsoleHelper.ReadYesNo(
 			$"Are you sure you want to remove {desiredAuthor.FirstName} {desiredAuthor.LastName}");
 
-		if (choice != true)
-			return;
-
+		if (choice != true) return;
 		var result = userManagementService.RemoveAuthor(desiredAuthor.AuthorId);
 		ConsoleHelper.ShowResult(result);
 	}
@@ -361,8 +340,7 @@ public static class AuthorMenu
 	private static bool PerformUpdate<T>(UserManagementService userManagementService, int desiredAuthorId, T? newValue,
 		Func<T, UpdateAuthorDto> buildDto)
 	{
-		if (newValue is null)
-			return false;
+		if (newValue is null) return false;
 
 		var dto = buildDto(newValue);
 		var result = userManagementService.UpdateAuthor(desiredAuthorId, dto);
@@ -375,8 +353,7 @@ public static class AuthorMenu
 		Func<Author, string?> selector)
 	{
 		var searchItem = ConsoleHelper.ReadString(prompt);
-		if (searchItem == null)
-			return;
+		if (searchItem == null) return;
 
 		var result = userManagementService.SearchAuthors(searchItem, selector);
 
@@ -393,8 +370,7 @@ public static class AuthorMenu
 	private static Author? SelectExistingAuthor(UserManagementService userManagementService)
 	{
 		var authors = userManagementService.GetAllAuthors();
-		if (authors.Count != 0)
-			return MenuHelper.SelectAuthor(authors);
+		if (authors.Count != 0) return MenuHelper.SelectAuthor(authors);
 
 		ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
 		return null;

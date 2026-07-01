@@ -67,24 +67,21 @@ public class Book
 	}
 
 
-	public void ChangeAuthor(Author? newAuthor)
+	public bool ChangeAuthor(Author? newAuthor)
 	{
 		ArgumentNullException.ThrowIfNull(newAuthor);
-		if (ReferenceEquals(Author, newAuthor))
-			return;
-
+		if (ReferenceEquals(Author, newAuthor)) return false;
 		Author.Books.Remove(this);
 		Author = newAuthor;
 		newAuthor.Books.Add(this);
+		return true;
 	}
 
 
 	public void BorrowCopy()
 	{
 		if (AvailableCopies <= 0)
-		{
 			throw new InvalidOperationException("No copies are available.");
-		}
 
 		AvailableCopies--;
 		//TODO	Raise an event: a signal to the rest of the system that says "this book is now out of stock"
@@ -94,9 +91,7 @@ public class Book
 	public void ReturnCopy()
 	{
 		if (AvailableCopies >= TotalCopies)
-		{
 			throw new InvalidOperationException("Cannot return a copy because all copies are already in the library.");
-		}
 
 		AvailableCopies++;
 	}

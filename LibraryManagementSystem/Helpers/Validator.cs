@@ -59,11 +59,8 @@ public static class Validator
 
 	public static bool NameValidator(string name, int minLength, int maxLength)
 	{
-		if (name.Contains("  "))
-			return false;
-
-		if (name.Length < minLength || name.Length > maxLength)
-			return false;
+		if (name.Contains("  ")) return false;
+		if (name.Length < minLength || name.Length > maxLength) return false;
 
 		return Regex.IsMatch(name, @"^(?=.*\p{L})[\p{L}\p{N}\s\-'\.,:;!?&()]+$");
 	}

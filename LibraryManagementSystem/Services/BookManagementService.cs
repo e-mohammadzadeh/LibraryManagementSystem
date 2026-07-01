@@ -2,6 +2,7 @@
 using LibraryManagementSystem.Domain;
 using LibraryManagementSystem.DTOs;
 using LibraryManagementSystem.Enums;
+using System.Xml.Linq;
 
 namespace LibraryManagementSystem.Services;
 
@@ -57,35 +58,31 @@ public class BookManagementService
 		if (book is null)
 			return ServiceResult<Book>.Fail(ValidationMessages.NotAvailableBook);
 
-		if (dto.BookName != null)
-			if (_books.Any(b => b.BookId != bookId && IsDuplicateBookName(dto.BookName)))
-				return ServiceResult<Book>.Fail(ValidationMessages.FailureDuplicateBookByName);
+		if (dto.BookName != null && _books.Any(b =>
+			    b.BookId != bookId && b.BookName.Equals(dto.BookName, StringComparison.OrdinalIgnoreCase)))
+			return ServiceResult<Book>.Fail(ValidationMessages.FailureDuplicateBookByName);
 
-		if (dto.ISBN != null && (_books.Any(b => b.BookId != bookId) && IsExistIsbn(dto.ISBN)))
+		if (dto.ISBN != null && _books.Any(b =>
+			    b.BookId != bookId &&
+			    b.InternationalStandardBookNumber.Equals(dto.ISBN, StringComparison.OrdinalIgnoreCase)))
 			return ServiceResult<Book>.Fail(ValidationMessages.FailureDuplicateBookByISBN);
-
-		if (dto.Author != null)
-			if (book.Author.AuthorId == dto.Author.AuthorId)
-				return ServiceResult<Book>.Fail(ValidationMessages.FailureDuplicateBookByAuthor);
 
 		if (dto.GenreId != null && !Enum.IsDefined(typeof(Genre), dto.GenreId))
 			return ServiceResult<Book>.Fail(ValidationMessages.InvalidGenre);
 
-		Genre? genreName = dto.GenreId.HasValue ? (Genre)dto.GenreId.Value : null;
-
-		if (dto.TotalCopies is <= 0)
+		if (dto.TotalCopies.HasValue && dto.TotalCopies <= 0)
 			return ServiceResult<Book>.Fail(ValidationMessages.WrongTotalCopies);
 
-		if (book.Update(dto.BookName, dto.ISBN, dto.PublishDate, genreName, dto.TotalCopies,
+		Genre? genreName = dto.GenreId.HasValue ? (Genre)dto.GenreId.Value : null;
+
+		if (!book.Update(dto.BookName, dto.ISBN, dto.PublishDate, genreName, dto.TotalCopies,
 			    dto.Description))
-		{
-			book.ChangeAuthor(dto.Author);
-			return ServiceResult<Book>.Ok(book, ValidationMessages.BookUpdatedSuccessfully)
-		}
-		else
-		{
 			return ServiceResult<Book>.Fail(ValidationMessages.BookUpdateFailed);
-		}
+
+		if (dto.Author != null && !book.ChangeAuthor(dto.Author))
+			return ServiceResult<Book>.Fail(ValidationMessages.BookUpdateFailed);
+
+		return ServiceResult<Book>.Ok(book, ValidationMessages.BookUpdatedSuccessfully);
 	}
 
 
