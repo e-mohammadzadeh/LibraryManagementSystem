@@ -23,21 +23,13 @@ public class UserManagementService
 			a.LastName.Equals(dto.LastName, StringComparison.OrdinalIgnoreCase));
 
 		if (existingSameName != null)
-		{
-			// Return a special "warning" result instead of failure
 			return ServiceResult<Author>.Warning(
-				$"An author with the same name already exists (ID: {existingSameName.AuthorId}). " +
-				$"If this is a different person, confirm to continue.",
-				existingSameName // You can include the existing author as reference
-			);
-		}
-
+				$"An author with the same name already exists (ID: {existingSameName.Id}). ");
 
 		var newAuthor = new Author(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber,
 			dto.BirthDate, dto.Biography);
 
 		_authors.Add(newAuthor);
-
 		return ServiceResult<Author>.Ok(newAuthor, ValidationMessages.AuthorAddedSuccessfully);
 	}
 

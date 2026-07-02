@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Common;
+﻿using System.Threading.Channels;
+using LibraryManagementSystem.Common;
 using LibraryManagementSystem.Domain;
 using LibraryManagementSystem.DTOs;
 using LibraryManagementSystem.Enums;
@@ -44,7 +45,7 @@ public static class BookMenu
 				case 4:
 				{
 					Console.Clear();
-
+					SearchBook(bookManagementService);
 					break;
 				}
 				case 5:
@@ -353,5 +354,92 @@ public static class BookMenu
 		if (choice != true) return;
 		var result = bookManagementService.RemoveBook(desiredBook.BookId);
 		ConsoleHelper.ShowResult(result);
+	}
+
+
+	private static void SearchBook(BookManagementService bookManagementService)
+	{
+		while (true)
+		{
+			Console.Clear();
+			Console.WriteLine("============================ SEARCHING BOOK MENU ============================");
+			var booksList = bookManagementService.GetAllBooks();
+			if (booksList.Count == 0)
+			{
+				ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableBook);
+				ConsoleHelper.ShowInfo("\nPress any key to continue...");
+				Console.ReadKey(true);
+				return;
+			}
+
+			Console.WriteLine("{0, -20}", "1. Title");
+			Console.WriteLine("{0, -20}", "2. ISBN");
+			Console.WriteLine("{0, -20}", "3. Author");
+			Console.WriteLine("{0, -20}", "4. Publish Date");
+			Console.WriteLine("{0, -20}", "5. Genre");
+			Console.WriteLine("6. Cancel");
+
+			var searchMenuChoice = ConsoleHelper.ReadInt("Select a search field by entering its number", 1, 6);
+			if (searchMenuChoice == null) return;
+
+			switch (searchMenuChoice)
+			{
+				case 1:
+				{
+					SearchBookAndDisplay(bookManagementService, ConsoleHelper.ReadString, "Enter a title to search",
+						book => book.BookName);
+
+					break;
+				}
+				case 2:
+				{
+					SearchBookAndDisplay(bookManagementService, ReadISBN, "Enter an ISBN to search",
+						book => book.InternationalStandardBookNumber);
+
+					break;
+				}
+				case 3:
+				{
+					SearchBookAndDisplay(bookManagementService, ReadString, "Enter an author name",
+						book => $"{book.Author.FirstName} {book.Author.LastName}");
+				}
+				case 4:
+				{
+					SearchBookAndDisplay(bookManagementService, ReadDateOnly, "Enter a publish date to search", book=>book.PublishDate);
+					break;
+				}
+				case 5:
+				{
+					SearchBookAndDisplay(bookManagementService, ReadString, "Enter a genre to search", book => book.Genre);
+					break;
+				}
+				case 6:
+				{
+					ConsoleHelper.ShowInfo("Search cancelled. Returning to Book Menu...");
+					Thread.Sleep(3000);
+					Console.Clear();
+					return;
+				}
+			}
+		}
+	}
+
+
+	private static void SearchBookAndDisplay<T>(BookManagementService bookManagementService, Func<string, T> reader,
+		string prompt,
+		Func<Book, T> selector)
+	{
+		var searchItem = reader(prompt);
+		if (searchItem == null)
+			return;
+
+		var result = bookManagementService.SearchBooks<T>(searchItem, selector);
+		if (result.Count == 0)
+		{
+			ConsoleHelper.ShowWarning(ValidationMessages.NotBookMatched);
+			return;
+		}
+
+		BookPrinter.PrintTable(result);
 	}
 }

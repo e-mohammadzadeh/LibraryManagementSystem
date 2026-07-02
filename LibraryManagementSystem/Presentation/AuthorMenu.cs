@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Common;
 using LibraryManagementSystem.Domain;
 using LibraryManagementSystem.DTOs;
+using LibraryManagementSystem.Enums;
 using LibraryManagementSystem.Helpers;
 using LibraryManagementSystem.Printers;
 using LibraryManagementSystem.Services;
@@ -291,8 +292,7 @@ public static class AuthorMenu
 			Console.WriteLine("5. Cancel");
 
 			var searchMenuChoice = ConsoleHelper.ReadInt("Select a search field by entering its number", 1, 5);
-			if (searchMenuChoice == null)
-				return;
+			if (searchMenuChoice == null) return;
 
 			switch (searchMenuChoice)
 			{
@@ -324,7 +324,7 @@ public static class AuthorMenu
 				}
 				case 5:
 				{
-					ConsoleHelper.ShowError("Search cancelled. Returning to Author Menu...");
+					ConsoleHelper.ShowInfo("Search cancelled. Returning to Author Menu...");
 					Thread.Sleep(3000);
 					Console.Clear();
 					return;
@@ -360,7 +360,7 @@ public static class AuthorMenu
 
 		if (result.Count == 0)
 		{
-			ConsoleHelper.ShowWarning("No authors matched your search.");
+			ConsoleHelper.ShowWarning(ValidationMessages.NotAuthorMatched);
 			return;
 		}
 

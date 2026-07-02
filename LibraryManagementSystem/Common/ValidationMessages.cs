@@ -37,7 +37,9 @@ public static class ValidationMessages
 	public const string BookRemoveFailed = "Failed to remove book.";
 
 	public const string NotAvailableAuthor = "No authors found. First add new author.";
+	public const string NotAuthorMatched = "No authors matched your search.";
 	public const string NotAvailableBook = "No books found. First add new book.";
+	public const string NotBookMatched = "No books matched your search.";
 	public const string NotAvailableLoan = "No loans found. First add new loan."; // Need help
 
 	public const string FailureDuplicateAuthorByName = "An author with the same first and last name already exists.";

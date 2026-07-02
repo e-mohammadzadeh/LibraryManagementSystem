@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Common;
+﻿using System.Runtime.InteropServices.JavaScript;
+using LibraryManagementSystem.Common;
 using LibraryManagementSystem.Domain;
 using LibraryManagementSystem.DTOs;
 using LibraryManagementSystem.Enums;
@@ -122,5 +123,18 @@ public class BookManagementService
 
 		_books.Remove(book);
 		return ServiceResult<Book>.Ok(book, ValidationMessages.BookRemovedSuccessfully);
+	}
+
+
+	public IReadOnlyList<Book> SearchBooks<T>(T searchItem, Func<Book, T> selector)
+	{
+		if (string.IsNullOrWhiteSpace(searchItem.ToString()))
+			return new List<Book>();
+
+		return _books.Where(book =>
+		{
+			var value = selector(book);
+			return value != null && value.Contains(searchItem);
+		}).ToList();
 	}
 }
