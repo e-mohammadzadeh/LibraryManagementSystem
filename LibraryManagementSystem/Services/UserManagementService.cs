@@ -15,8 +15,23 @@ public class UserManagementService
 		if (_authors.Any(author => author.NationalCode == dto.NationalCode))
 			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByNationalCode);
 
-		if (IsDuplicateEmail(dto.Email))
+		if (_authors.Any(author => author.Email.Equals(dto.Email, StringComparison.OrdinalIgnoreCase)))
 			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByEmail);
+
+		var existingSameName = _authors.FirstOrDefault(a =>
+			a.FirstName.Equals(dto.FirstName, StringComparison.OrdinalIgnoreCase) &&
+			a.LastName.Equals(dto.LastName, StringComparison.OrdinalIgnoreCase));
+
+		if (existingSameName != null)
+		{
+			// Return a special "warning" result instead of failure
+			return ServiceResult<Author>.Warning(
+				$"An author with the same name already exists (ID: {existingSameName.AuthorId}). " +
+				$"If this is a different person, confirm to continue.",
+				existingSameName // You can include the existing author as reference
+			);
+		}
+
 
 		var newAuthor = new Author(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber,
 			dto.BirthDate, dto.Biography);
@@ -45,27 +60,46 @@ public class UserManagementService
 		if (author is null)
 			return ServiceResult<Author>.Fail(ValidationMessages.AuthorUpdateFailed);
 
+		if (IsNoOpUpdate(author, dto))
+			return ServiceResult<Author>.Fail(ValidationMessages.NoChangesDetected);
+
+		var resolvedFirstName = dto.FirstName ?? author.FirstName;
+		var resolvedLastName = dto.LastName ?? author.LastName;
 		if (dto.FirstName != null || dto.LastName != null)
-			if (_authors.Any(aut => aut.Id != authorId) && IsDuplicateFirstName(dto.FirstName) &&
-			    IsDuplicateLastName(dto.LastName))
+		{
+			if (_authors.Any(aut =>
+				    aut.Id != authorId && aut.FirstName == resolvedFirstName && aut.LastName == resolvedLastName))
 				return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByName);
+		}
 
 		if (dto.NationalCode != null &&
 		    _authors.Any(aut => aut.Id != authorId && aut.NationalCode == dto.NationalCode))
 			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByNationalCode);
 
-		if (dto.Email != null && (_authors.Any(aut => aut.Id != authorId) && IsDuplicateEmail(dto.Email)))
+		if (dto.Email != null && _authors.Any(aut =>
+			    aut.Id != authorId && aut.Email.Equals(dto.Email, StringComparison.OrdinalIgnoreCase)))
 			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByEmail);
 
 		if (dto.PhoneNumber != null &&
 		    _authors.Any(aut => aut.Id != authorId && aut.PhoneNumber == dto.PhoneNumber))
 			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByPhoneNumber);
 
-
 		author.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
 			dto.Biography);
 
 		return ServiceResult<Author>.Ok(author, ValidationMessages.AuthorUpdatedSuccessfully);
+	}
+
+
+	private static bool IsNoOpUpdate(Author author, UpdateAuthorDto dto)
+	{
+		return (dto.FirstName == null || dto.FirstName == author.FirstName) &&
+		       (dto.LastName == null || dto.LastName == author.LastName) &&
+		       (dto.NationalCode == null || dto.NationalCode == author.NationalCode) &&
+		       (dto.Email == null || dto.Email == author.Email) &&
+		       (dto.PhoneNumber == null || dto.PhoneNumber == author.PhoneNumber) &&
+		       (dto.BirthDate == null || dto.BirthDate == author.BirthDate) &&
+		       (dto.Biography == null || dto.Biography == author.Biography);
 	}
 
 
@@ -76,7 +110,7 @@ public class UserManagementService
 			return ServiceResult<Author>.Fail(ValidationMessages.AuthorRemoveFailed);
 
 		// TODO	After implementing Loan class and service, before deleting author should check that none of books isn't borrowed
-		if (author.Books.Any())
+		if (author.Books.Count != 0)
 			return ServiceResult<Author>.Fail("Failed to remove author. The author has associated books.");
 
 		_authors.Remove(author);
@@ -94,24 +128,6 @@ public class UserManagementService
 			var value = selector(author);
 			return value != null && value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
 		}).ToList();
-	}
-
-
-	private bool IsDuplicateFirstName(string? name)
-	{
-		return _authors.Any(author => author.FirstName.Equals(name, StringComparison.OrdinalIgnoreCase));
-	}
-
-
-	private bool IsDuplicateLastName(string? name)
-	{
-		return _authors.Any(author => author.LastName.Equals(name, StringComparison.OrdinalIgnoreCase));
-	}
-
-
-	private bool IsDuplicateEmail(string email)
-	{
-		return _authors.Any(author => author.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
 	}
 
 

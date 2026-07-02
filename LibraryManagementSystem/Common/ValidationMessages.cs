@@ -50,4 +50,5 @@ public static class ValidationMessages
 
 	public const string EmptyInput = "Input cannot be empty. Please try again.";
 	public const string WrongTotalCopies = "Total copies must be greater than zero.";
+	public const string NoChangesDetected = "The new value is identical to the current one. No changes were made.";
 }

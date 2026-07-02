@@ -3,6 +3,7 @@ using LibraryManagementSystem.Domain;
 using LibraryManagementSystem.DTOs;
 using LibraryManagementSystem.Enums;
 using LibraryManagementSystem.Helpers;
+using LibraryManagementSystem.Printers;
 using LibraryManagementSystem.Services;
 
 namespace LibraryManagementSystem.Presentation;

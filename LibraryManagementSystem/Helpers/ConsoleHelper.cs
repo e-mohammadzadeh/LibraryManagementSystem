@@ -1,6 +1,5 @@
 ﻿using LibraryManagementSystem.Common;
-using LibraryManagementSystem.Domain;
-using System.Runtime.InteropServices.JavaScript;
+using LibraryManagementSystem.Enums;
 
 namespace LibraryManagementSystem.Helpers;
 
@@ -180,12 +179,18 @@ public static class ConsoleHelper
 	}
 
 
-	public static void ShowResult<T>(ServiceResult<T> result) where T : class
-	{
+	public static void ShowResult<T>(ServiceResult<T> result) where T : class {
 		if (result.Success)
-			ConsoleHelper.ShowSuccess(result.Message ?? "Operation completed successfully.");
+		{
+			if (result.Status == ResultStatus.Warning)
+				ShowWarning(result.Message ?? "Warning.");
+			else
+				ShowSuccess(result.Message ?? "Operation completed successfully.");
+		}
 		else
-			ConsoleHelper.ShowError(result.Message ?? "Operation failed.");
+		{
+			ShowError(result.Message ?? "Operation failed.");
+		}
 	}
 
 
