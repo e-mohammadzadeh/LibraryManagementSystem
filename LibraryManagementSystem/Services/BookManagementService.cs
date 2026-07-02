@@ -79,8 +79,6 @@ public class BookManagementService
 			    dto.Description))
 			return ServiceResult<Book>.Fail(ValidationMessages.BookUpdateFailed);
 
-		if (dto.Author != null && !book.ChangeAuthor(dto.Author))
-			return ServiceResult<Book>.Fail(ValidationMessages.BookUpdateFailed);
 
 		return ServiceResult<Book>.Ok(book, ValidationMessages.BookUpdatedSuccessfully);
 	}
