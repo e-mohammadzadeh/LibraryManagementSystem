@@ -2,13 +2,19 @@
 using LibraryManagementSystem.Domain;
 using LibraryManagementSystem.DTOs;
 using LibraryManagementSystem.Enums;
-using System.Xml.Linq;
 
 namespace LibraryManagementSystem.Services;
 
 public class BookManagementService
 {
 	private readonly List<Book> _books = new();
+	private readonly UserManagementService _authorService;
+
+
+	public BookManagementService(UserManagementService authorService)
+	{
+		_authorService = authorService;
+	}
 
 
 	public ServiceResult<Book> AddBook(CreateBookDto dto)
@@ -23,11 +29,15 @@ public class BookManagementService
 			return ServiceResult<Book>.Fail(ValidationMessages.InvalidGenre);
 
 		var genreName = (Genre)dto.GenreId;
-		var newBook = new Book(dto.ISBN, dto.BookName, dto.Author, dto.PublishDate, dto.TotalCopies, genreName,
+		var author = _authorService.FindAuthorById(dto.AuthorId);
+		if (author == null)
+			return ServiceResult<Book>.Fail(ValidationMessages.BookAddFailed);
+
+		var newBook = new Book(dto.ISBN, dto.BookName, author, dto.PublishDate, dto.TotalCopies, genreName,
 			dto.Description);
 
 		_books.Add(newBook);
-		dto.Author.Books.Add(newBook);
+		author.Books.Add(newBook);
 
 		return ServiceResult<Book>.Ok(newBook, ValidationMessages.BookAddedSuccessfully);
 	}
@@ -77,8 +87,17 @@ public class BookManagementService
 
 		if (!book.Update(dto.BookName, dto.ISBN, dto.PublishDate, genreName, dto.TotalCopies,
 			    dto.Description))
-			return ServiceResult<Book>.Fail(ValidationMessages.BookUpdateFailed);
+			return ServiceResult<Book>.Fail(
+				"Cannot update total copies because it would result in negative available copies.");
 
+		if (dto.AuthorId.HasValue)
+		{
+			var author = _authorService.FindAuthorById(dto.AuthorId.Value);
+			if (author == null)
+				return ServiceResult<Book>.Fail(ValidationMessages.BookUpdateFailed);
+
+			book.ChangeAuthor(author);
+		}
 
 		return ServiceResult<Book>.Ok(book, ValidationMessages.BookUpdatedSuccessfully);
 	}
@@ -87,5 +106,21 @@ public class BookManagementService
 	private bool IsDuplicateBookName(string name)
 	{
 		return _books.Any(book => book.BookName.Equals(name, StringComparison.OrdinalIgnoreCase));
+	}
+
+
+	public ServiceResult<Book> RemoveBook(int bookId)
+	{
+		var book = FindBookById(bookId);
+		if (book is null)
+			return ServiceResult<Book>.Fail(ValidationMessages.BookRemoveFailed);
+
+		if (!book.CanBeRemoved())
+			return ServiceResult<Book>.Fail("Failed to remove Book. It is currently borrowed by a user.");
+
+		//TODO	Missing loan integration: if book has active loans, it cannot be removed. This should be checked with the loan management service.
+
+		_books.Remove(book);
+		return ServiceResult<Book>.Ok(book, ValidationMessages.BookRemovedSuccessfully);
 	}
 }

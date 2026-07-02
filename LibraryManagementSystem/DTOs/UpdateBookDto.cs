@@ -6,7 +6,7 @@ public class UpdateBookDto
 {
 	public string? BookName { get; set; }
 	public string? ISBN { get; set; }
-	public Author? Author { get; set; }
+	public int? AuthorId { get; set; }
 	public DateOnly? PublishDate { get; set; }
 	public int? GenreId { get; set; }
 	public int? TotalCopies { get; set; }

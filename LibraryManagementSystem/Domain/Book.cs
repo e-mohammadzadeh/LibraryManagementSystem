@@ -14,8 +14,9 @@ public class Book
 		BookName = bookName;
 		Author = author;
 		PublishDate = publishDate;
-		AvailableCopies = ValidateTotalCopies(totalCopies);
-		TotalCopies = ValidateTotalCopies(totalCopies);
+		var copies = ValidateTotalCopies(totalCopies);
+		AvailableCopies = copies;
+		TotalCopies = copies;
 		Genre = genre;
 		Description = description;
 	}
@@ -30,7 +31,7 @@ public class Book
 	public DateOnly PublishDate { get; set; }
 	public Genre Genre { get; set; }
 	public int TotalCopies { get; private set; }
-	private int AvailableCopies { get; set; }
+	public int AvailableCopies { get; private set; }
 	public string? Description { get; set; }
 
 
@@ -40,14 +41,7 @@ public class Book
 		if (totalCopies != null)
 		{
 			var difference = totalCopies.Value - TotalCopies;
-			if (AvailableCopies + difference < 0)
-			{
-				ConsoleHelper.ShowError(
-					"Cannot update total copies because it would result in negative available copies.");
-
-				return false;
-			}
-
+			if (AvailableCopies + difference < 0) return false;
 			TotalCopies = totalCopies.Value;
 			AvailableCopies += difference;
 		}
@@ -94,5 +88,11 @@ public class Book
 			throw new InvalidOperationException("Cannot return a copy because all copies are already in the library.");
 
 		AvailableCopies++;
+	}
+
+
+	public bool CanBeRemoved()
+	{
+		return TotalCopies == AvailableCopies;
 	}
 }

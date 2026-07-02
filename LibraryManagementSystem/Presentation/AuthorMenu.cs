@@ -49,7 +49,7 @@ public static class AuthorMenu
 					var desiredAuthor = SelectExistingAuthor(userManagementService);
 					if (desiredAuthor != null)
 					{
-						DisplayAuthorDetails(desiredAuthor);
+						AuthorPrinter.PrintDetails(desiredAuthor);
 						ConsoleHelper.ShowInfo("\nPress any key to continue...");
 						Console.ReadKey(true);
 					}
@@ -62,7 +62,7 @@ public static class AuthorMenu
 					if (userManagementService.GetAllAuthors().Count == 0)
 						ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
 					else
-						MenuHelper.DisplayAuthors(userManagementService.GetAllAuthors());
+						AuthorPrinter.PrintTable(userManagementService.GetAllAuthors());
 
 					ConsoleHelper.ShowInfo("\nPress any key to continue...");
 					Console.ReadKey(true);
@@ -175,7 +175,7 @@ public static class AuthorMenu
 					var authorNewFirstName = ConsoleHelper.GetValidName("Enter new first name", "first name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
-					if (!PerformUpdate(userManagementService, desiredAuthor.AuthorId, authorNewFirstName,
+					if (!PerformUpdate(userManagementService, desiredAuthor.Id, authorNewFirstName,
 						    v => new UpdateAuthorDto { FirstName = v })) return;
 
 					break;
@@ -185,7 +185,7 @@ public static class AuthorMenu
 					var authorNewLastName = ConsoleHelper.GetValidName("Enter new last name: ", "last name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
-					if (!PerformUpdate(userManagementService, desiredAuthor.AuthorId, authorNewLastName,
+					if (!PerformUpdate(userManagementService, desiredAuthor.Id, authorNewLastName,
 						    v => new UpdateAuthorDto { LastName = v })) return;
 
 					break;
@@ -193,7 +193,7 @@ public static class AuthorMenu
 				case 3:
 				{
 					var authorNewNationalCode = ConsoleHelper.GetValidNationalCode("Enter new national code: ");
-					if (!PerformUpdate(userManagementService, desiredAuthor.AuthorId, authorNewNationalCode,
+					if (!PerformUpdate(userManagementService, desiredAuthor.Id, authorNewNationalCode,
 						    v => new UpdateAuthorDto { NationalCode = v })) return;
 
 					break;
@@ -201,7 +201,7 @@ public static class AuthorMenu
 				case 4:
 				{
 					var authorNewEmail = ConsoleHelper.GetValidEmail("Enter new email: ");
-					if (!PerformUpdate(userManagementService, desiredAuthor.AuthorId, authorNewEmail,
+					if (!PerformUpdate(userManagementService, desiredAuthor.Id, authorNewEmail,
 						    v => new UpdateAuthorDto { Email = v })) return;
 
 					break;
@@ -209,7 +209,7 @@ public static class AuthorMenu
 				case 5:
 				{
 					var authorNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter new phone number: ");
-					if (!PerformUpdate(userManagementService, desiredAuthor.AuthorId, authorNewPhoneNumber,
+					if (!PerformUpdate(userManagementService, desiredAuthor.Id, authorNewPhoneNumber,
 						    v => new UpdateAuthorDto { PhoneNumber = v })) return;
 
 					break;
@@ -217,7 +217,7 @@ public static class AuthorMenu
 				case 6:
 				{
 					var authorNewBirthDate = ConsoleHelper.GetValidBirthDate("Enter new birth date (yyyy-MM-dd): ");
-					if (!PerformUpdate(userManagementService, desiredAuthor.AuthorId, authorNewBirthDate,
+					if (!PerformUpdate(userManagementService, desiredAuthor.Id, authorNewBirthDate,
 						    v => new UpdateAuthorDto { BirthDate = v })) return;
 
 					break;
@@ -225,7 +225,7 @@ public static class AuthorMenu
 				case 7:
 				{
 					var authorNewBiography = ConsoleHelper.ReadString("Enter new biography: ");
-					if (!PerformUpdate(userManagementService, desiredAuthor.AuthorId, authorNewBiography,
+					if (!PerformUpdate(userManagementService, desiredAuthor.Id, authorNewBiography,
 						    v => new UpdateAuthorDto { Biography = v })) return;
 
 					break;
@@ -258,12 +258,12 @@ public static class AuthorMenu
 			return;
 		}
 
-		DisplayAuthorDetails(desiredAuthor);
+		AuthorPrinter.PrintDetails(desiredAuthor);
 		var choice = ConsoleHelper.ReadYesNo(
 			$"Are you sure you want to remove {desiredAuthor.FirstName} {desiredAuthor.LastName}");
 
 		if (choice != true) return;
-		var result = userManagementService.RemoveAuthor(desiredAuthor.AuthorId);
+		var result = userManagementService.RemoveAuthor(desiredAuthor.Id);
 		ConsoleHelper.ShowResult(result);
 	}
 
@@ -363,7 +363,7 @@ public static class AuthorMenu
 			return;
 		}
 
-		MenuHelper.DisplayAuthors(result);
+		AuthorPrinter.PrintTable(result);
 	}
 
 
@@ -374,19 +374,5 @@ public static class AuthorMenu
 
 		ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
 		return null;
-	}
-
-
-	private static void DisplayAuthorDetails(Author author)
-	{
-		Console.WriteLine("\nAuthor Details:");
-
-		Console.WriteLine("{0, -20} [{1} {2}]", "Name:", author.FirstName, author.LastName);
-		Console.WriteLine("{0, -20} [{1}]", "National Code:", author.NationalCode);
-		Console.WriteLine("{0, -20} [{1}]", "Email:", author.Email);
-		Console.WriteLine("{0, -20} [{1}]", "Phone Number:", author.PhoneNumber);
-		Console.WriteLine("{0, -20} [{1}]", "Birth Date:", author.BirthDate);
-		Console.WriteLine("{0, -20} [{1}]", "Biography:", author.Biography);
-		Console.WriteLine("{0, -20} [{1} {2}]", "Books:", author.Books.Count, "associated books");
 	}
 }

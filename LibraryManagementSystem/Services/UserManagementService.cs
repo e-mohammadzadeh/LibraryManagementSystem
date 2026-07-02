@@ -33,9 +33,9 @@ public class UserManagementService
 	}
 
 
-	private Author? FindAuthorById(int id)
+	public Author? FindAuthorById(int id)
 	{
-		return _authors.FirstOrDefault(a => a.AuthorId == id);
+		return _authors.FirstOrDefault(a => a.Id == id);
 	}
 
 
@@ -46,19 +46,19 @@ public class UserManagementService
 			return ServiceResult<Author>.Fail(ValidationMessages.AuthorUpdateFailed);
 
 		if (dto.FirstName != null || dto.LastName != null)
-			if (_authors.Any(aut => aut.AuthorId != authorId) && IsDuplicateFirstName(dto.FirstName) &&
+			if (_authors.Any(aut => aut.Id != authorId) && IsDuplicateFirstName(dto.FirstName) &&
 			    IsDuplicateLastName(dto.LastName))
 				return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByName);
 
 		if (dto.NationalCode != null &&
-		    _authors.Any(aut => aut.AuthorId != authorId && aut.NationalCode == dto.NationalCode))
+		    _authors.Any(aut => aut.Id != authorId && aut.NationalCode == dto.NationalCode))
 			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByNationalCode);
 
-		if (dto.Email != null && (_authors.Any(aut => aut.AuthorId != authorId) && IsDuplicateEmail(dto.Email)))
+		if (dto.Email != null && (_authors.Any(aut => aut.Id != authorId) && IsDuplicateEmail(dto.Email)))
 			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByEmail);
 
 		if (dto.PhoneNumber != null &&
-		    _authors.Any(aut => aut.AuthorId != authorId && aut.PhoneNumber == dto.PhoneNumber))
+		    _authors.Any(aut => aut.Id != authorId && aut.PhoneNumber == dto.PhoneNumber))
 			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByPhoneNumber);
 
 

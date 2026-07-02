@@ -13,7 +13,7 @@ public class Person
 		BirthDate = birthDate;
 	}
 
-
+	public int Id { get; protected set; }
 	public string FirstName { get; set; }
 	public string LastName { get; set; }
 	public string NationalCode { get; set; }

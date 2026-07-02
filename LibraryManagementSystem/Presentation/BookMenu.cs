@@ -37,6 +37,7 @@ public static class BookMenu
 				case 3:
 				{
 					Console.Clear();
+					RemoveBook(bookManagementService);
 					break;
 				}
 				case 4:
@@ -162,7 +163,7 @@ public static class BookMenu
 		{
 			ISBN = isbn,
 			BookName = bookName,
-			Author = author,
+			AuthorId = author.Id,
 			PublishDate = publishDate.Value,
 			TotalCopies = totalCopies.Value,
 			GenreId = genreId.Value - 1,
@@ -203,7 +204,8 @@ public static class BookMenu
 						ValidationConstants.MinBookNameLength, ValidationConstants.MaxBookNameLength);
 
 					if (!PerformUpdate(bookManagementService, desiredBook.BookId, bookName,
-						    v => new UpdateBookDto { BookName = v })) break;
+						    v => new UpdateBookDto { BookName = v }))
+						break;
 
 					break;
 				}
@@ -211,7 +213,8 @@ public static class BookMenu
 				{
 					var isbn = ConsoleHelper.ReadISBN("Enter the new ISBN");
 					if (!PerformUpdate(bookManagementService, desiredBook.BookId, isbn,
-						    v => new UpdateBookDto { ISBN = v })) break;
+						    v => new UpdateBookDto { ISBN = v }))
+						break;
 
 					break;
 				}
@@ -222,17 +225,20 @@ public static class BookMenu
 					{
 						var author = MenuHelper.SelectAuthor(authors);
 						if (!PerformUpdate(bookManagementService, desiredBook.BookId, author,
-							    v => new UpdateBookDto { Author = v })) break;
+							    v => new UpdateBookDto { AuthorId = v.Id }))
+							break;
 					}
 					else
 						ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
+
 					break;
 				}
 				case 4:
 				{
 					var publishDate = ConsoleHelper.GetValidDate("Enter the new publish date");
 					if (!PerformUpdate(bookManagementService, desiredBook.BookId, publishDate,
-						    v => new UpdateBookDto { PublishDate = v })) break;
+						    v => new UpdateBookDto { PublishDate = v }))
+						break;
 
 					break;
 				}
@@ -242,7 +248,8 @@ public static class BookMenu
 						ValidationConstants.MinBookCopies, ValidationConstants.MaxBookCopies);
 
 					if (!PerformUpdate(bookManagementService, desiredBook.BookId, totalCopies,
-						    v => new UpdateBookDto { TotalCopies = v })) break;
+						    v => new UpdateBookDto { TotalCopies = v }))
+						break;
 
 					break;
 				}
@@ -255,7 +262,8 @@ public static class BookMenu
 					if (genreId is null) break;
 
 					if (!PerformUpdate(bookManagementService, desiredBook.BookId, genreId - 1,
-						    v => new UpdateBookDto { GenreId = v })) break;
+						    v => new UpdateBookDto { GenreId = v }))
+						break;
 
 					break;
 				}
@@ -263,7 +271,8 @@ public static class BookMenu
 				{
 					var description = ConsoleHelper.ReadString("Enter the new description");
 					if (!PerformUpdate(bookManagementService, desiredBook.BookId, description,
-						    v => new UpdateBookDto { Description = v })) break;
+						    v => new UpdateBookDto { Description = v }))
+						break;
 
 					break;
 				}
@@ -323,5 +332,25 @@ public static class BookMenu
 		var result = bookManagementService.UpdateBook(desiredBookId, dto);
 		ConsoleHelper.ShowResult(result);
 		return result.Success;
+	}
+
+
+	private static void RemoveBook(BookManagementService bookManagementService)
+	{
+		Console.WriteLine("============================ REMOVING BOOK MENU ============================");
+		var desiredBook = SelectExistingBook(bookManagementService);
+		if (desiredBook is null)
+		{
+			ConsoleHelper.ShowInfo("\nPress any key to continue...");
+			Console.ReadKey(true);
+			return;
+		}
+
+		BookPrinter.Print(desiredBook);
+		var choice = ConsoleHelper.ReadYesNo($"Are you sure you want to remove {desiredBook.BookName}");
+
+		if (choice != true) return;
+		var result = bookManagementService.RemoveBook(desiredBook.BookId);
+		ConsoleHelper.ShowResult(result);
 	}
 }

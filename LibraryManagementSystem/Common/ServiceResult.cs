@@ -9,14 +9,17 @@ public class ServiceResult<T> where T : class
 		Message = message;
 	}
 
+
 	public bool Success { get; init; }
 	public string? Message { get; init; }
 	public T? Data { get; init; }
+
 
 	public static ServiceResult<T> Ok(T data, string message)
 	{
 		return new ServiceResult<T>(true, data, message);
 	}
+
 
 	public static ServiceResult<T> Fail(string message)
 	{
