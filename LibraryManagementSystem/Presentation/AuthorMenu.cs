@@ -1,7 +1,6 @@
 ﻿using LibraryManagementSystem.Common;
 using LibraryManagementSystem.Domain;
 using LibraryManagementSystem.DTOs;
-using LibraryManagementSystem.Enums;
 using LibraryManagementSystem.Helpers;
 using LibraryManagementSystem.Printers;
 using LibraryManagementSystem.Services;
@@ -49,7 +48,7 @@ public static class AuthorMenu
 				{
 					Console.Clear();
 					var desiredAuthor = SelectExistingAuthor(userManagementService);
-					if (desiredAuthor != null)
+					if (desiredAuthor is not null)
 					{
 						AuthorPrinter.PrintDetails(desiredAuthor);
 						ConsoleHelper.ShowInfo("\nPress any key to continue...");

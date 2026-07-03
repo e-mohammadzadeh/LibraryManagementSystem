@@ -80,6 +80,15 @@ public static class ConsoleHelper
 	}
 
 
+	public static Genre? ReadGenre(string prompt)
+	{
+		DisplayGenres();
+		var genreId = ConsoleHelper.ReadInt(prompt, 1, Enum.GetValues<Genre>().Length);
+		if (genreId is null) return null;
+		return (Genre)(genreId.Value - 1);
+	}
+
+
 	public static bool? ReadYesNo(string prompt)
 	{
 		while (true)
@@ -179,7 +188,8 @@ public static class ConsoleHelper
 	}
 
 
-	public static void ShowResult<T>(ServiceResult<T> result) where T : class {
+	public static void ShowResult<T>(ServiceResult<T> result) where T : class
+	{
 		if (result.Success)
 		{
 			if (result.Status == ResultStatus.Warning)
@@ -223,5 +233,19 @@ public static class ConsoleHelper
 		Console.ForegroundColor = ConsoleColor.Cyan;
 		Console.WriteLine(message);
 		Console.ResetColor();
+	}
+
+
+	public static void DisplayGenres()
+	{
+		Console.WriteLine("\n{0,3} {1, 15}", "ID", "Genre Name");
+		Console.WriteLine("============================");
+		var values = Enum.GetValues<Genre>();
+		for (var i = 0; i < values.Length; i++)
+		{
+			Console.WriteLine("{0,3} {1, 15}", i + 1, values.GetValue(i));
+		}
+
+		Console.WriteLine("============================");
 	}
 }

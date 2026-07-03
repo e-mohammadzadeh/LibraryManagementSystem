@@ -6,7 +6,7 @@ namespace LibraryManagementSystem.Printers;
 
 public static class BookPrinter
 {
-	public static void Print(Book book)
+	public static void PrintDetails(Book book)
 	{
 		Console.WriteLine("\nBook Details:");
 

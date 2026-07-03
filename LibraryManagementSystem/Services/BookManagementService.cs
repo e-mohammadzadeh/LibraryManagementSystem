@@ -126,15 +126,30 @@ public class BookManagementService
 	}
 
 
-	public IReadOnlyList<Book> SearchBooks<T>(T searchItem, Func<Book, T> selector)
+	public IReadOnlyList<Book> SearchBooks<T>(T? searchItem, Func<Book, T?> selector, Func<T, T, bool> comparer)
+		where T : class
 	{
-		if (string.IsNullOrWhiteSpace(searchItem.ToString()))
+		if (searchItem is null)
 			return new List<Book>();
 
 		return _books.Where(book =>
 		{
 			var value = selector(book);
-			return value != null && value.Contains(searchItem);
-		}).ToList();
+			return value is not null && comparer(searchItem, value);
+		}).ToList().AsReadOnly();
+	}
+
+
+	public IReadOnlyList<Book> SearchBooks<T>(T? searchItem, Func<Book, T?> selector, Func<T, T, bool> comparer)
+		where T : struct
+	{
+		if (!searchItem.HasValue)
+			return new List<Book>();
+
+		return _books.Where(book =>
+		{
+			var value = selector(book);
+			return value.HasValue && comparer(searchItem.Value, value.Value);
+		}).ToList().AsReadOnly();
 	}
 }

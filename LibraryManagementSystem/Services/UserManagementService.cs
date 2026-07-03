@@ -118,7 +118,7 @@ public class UserManagementService
 		return _authors.Where(author =>
 		{
 			var value = selector(author);
-			return value != null && value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
+			return value is not null && value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
 		}).ToList();
 	}
 

@@ -1,5 +1,4 @@
-﻿using System.Threading.Channels;
-using LibraryManagementSystem.Common;
+﻿using LibraryManagementSystem.Common;
 using LibraryManagementSystem.Domain;
 using LibraryManagementSystem.DTOs;
 using LibraryManagementSystem.Enums;
@@ -51,11 +50,26 @@ public static class BookMenu
 				case 5:
 				{
 					Console.Clear();
+					var desiredBook = SelectExistingBook(bookManagementService);
+					if (desiredBook is not null)
+					{
+						BookPrinter.PrintDetails(desiredBook);
+						ConsoleHelper.ShowInfo("\nPress any key to continue...");
+						Console.ReadKey(true);
+					}
+
 					break;
 				}
 				case 6:
 				{
 					Console.Clear();
+					if (bookManagementService.GetAllBooks().Count is 0)
+						ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableBook);
+					else
+						BookPrinter.PrintTable(bookManagementService.GetAllBooks());
+
+					ConsoleHelper.ShowInfo("\nPress any key to continue...");
+					Console.ReadKey(true);
 					break;
 				}
 				case 7:
@@ -151,7 +165,7 @@ public static class BookMenu
 		if (totalCopies == null) return;
 
 
-		DisplayGenres();
+		ConsoleHelper.DisplayGenres();
 		var genreId = ConsoleHelper.ReadInt("Select your desired genre by entering its ID", 1,
 			Enum.GetValues<Genre>().Length + 1);
 
@@ -257,7 +271,7 @@ public static class BookMenu
 				}
 				case 6:
 				{
-					DisplayGenres();
+					ConsoleHelper.DisplayGenres();
 					var genreId =
 						ConsoleHelper.ReadInt("Enter the new genre id", 1, Enum.GetValues<Genre>().Length + 1);
 
@@ -300,25 +314,10 @@ public static class BookMenu
 	}
 
 
-	private static void DisplayGenres()
-	{
-		Console.WriteLine("\n{0,3} {1, 15}", "ID", "Genre Name");
-		Console.WriteLine("============================");
-		var values = Enum.GetValues<Genre>();
-		for (var i = 0; i < values.Length; i++)
-		{
-			Console.WriteLine("{0,3} {1, 15}", i + 1, values.GetValue(i));
-		}
-
-		Console.WriteLine("============================");
-	}
-
-
 	private static Book? SelectExistingBook(BookManagementService bookManagementService)
 	{
 		var bookList = bookManagementService.GetAllBooks();
-		if (bookList.Count != 0)
-			return MenuHelper.SelectBook(bookList);
+		if (bookList.Count != 0) return MenuHelper.SelectBook(bookList);
 
 		ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableBook);
 		return null;
@@ -348,7 +347,7 @@ public static class BookMenu
 			return;
 		}
 
-		BookPrinter.Print(desiredBook);
+		BookPrinter.PrintDetails(desiredBook);
 		var choice = ConsoleHelper.ReadYesNo($"Are you sure you want to remove {desiredBook.BookName}");
 
 		if (choice != true) return;
@@ -386,31 +385,39 @@ public static class BookMenu
 			{
 				case 1:
 				{
-					SearchBookAndDisplay(bookManagementService, ConsoleHelper.ReadString, "Enter a title to search",
-						book => book.BookName);
+					SearchBookAndDisplay(bookManagementService, p => ConsoleHelper.ReadString(p),
+						"Enter a title to search",
+						book => book.BookName, ContainsComparer);
 
 					break;
 				}
 				case 2:
 				{
-					SearchBookAndDisplay(bookManagementService, ReadISBN, "Enter an ISBN to search",
-						book => book.InternationalStandardBookNumber);
+					SearchBookAndDisplay(bookManagementService, ConsoleHelper.ReadISBN, "Enter an ISBN to search",
+						book => book.InternationalStandardBookNumber, ContainsComparer);
 
 					break;
 				}
 				case 3:
 				{
-					SearchBookAndDisplay(bookManagementService, ReadString, "Enter an author name",
-						book => $"{book.Author.FirstName} {book.Author.LastName}");
+					SearchBookAndDisplay(bookManagementService, p => ConsoleHelper.ReadString(p),
+						"Enter an author name",
+						book => $"{book.Author.FirstName} {book.Author.LastName}", ContainsComparer);
+
+					break;
 				}
 				case 4:
 				{
-					SearchBookAndDisplay(bookManagementService, ReadDateOnly, "Enter a publish date to search", book=>book.PublishDate);
+					SearchBookAndDisplay(bookManagementService, ConsoleHelper.ReadDateOnly,
+						"Enter a publish date to search", book => book.PublishDate, DateComparer);
+
 					break;
 				}
 				case 5:
 				{
-					SearchBookAndDisplay(bookManagementService, ReadString, "Enter a genre to search", book => book.Genre);
+					SearchBookAndDisplay(bookManagementService, ConsoleHelper.ReadGenre, "Enter a genre to search",
+						book => book.Genre, GenreComparer);
+
 					break;
 				}
 				case 6:
@@ -421,19 +428,37 @@ public static class BookMenu
 					return;
 				}
 			}
+
+			ConsoleHelper.ShowInfo("\nPress any key to continue...");
+			Console.ReadKey(true);
 		}
 	}
 
 
-	private static void SearchBookAndDisplay<T>(BookManagementService bookManagementService, Func<string, T> reader,
-		string prompt,
-		Func<Book, T> selector)
+	private static void SearchBookAndDisplay<T>(BookManagementService bookManagementService, Func<string, T?> reader,
+		string prompt, Func<Book, T?> selector, Func<T, T, bool> comparer) where T : class
 	{
 		var searchItem = reader(prompt);
-		if (searchItem == null)
-			return;
+		if (searchItem is null) return;
 
-		var result = bookManagementService.SearchBooks<T>(searchItem, selector);
+		var result = bookManagementService.SearchBooks(searchItem, selector, comparer);
+		if (result.Count is 0)
+		{
+			ConsoleHelper.ShowWarning(ValidationMessages.NotBookMatched);
+			return;
+		}
+
+		BookPrinter.PrintTable(result);
+	}
+
+
+	private static void SearchBookAndDisplay<T>(BookManagementService bookManagementService, Func<string, T?> reader,
+		string prompt, Func<Book, T?> selector, Func<T, T, bool> comparer) where T : struct
+	{
+		var searchItem = reader(prompt);
+		if (!searchItem.HasValue) return;
+
+		var result = bookManagementService.SearchBooks(searchItem, selector, comparer);
 		if (result.Count == 0)
 		{
 			ConsoleHelper.ShowWarning(ValidationMessages.NotBookMatched);
@@ -442,4 +467,11 @@ public static class BookMenu
 
 		BookPrinter.PrintTable(result);
 	}
+
+
+	private static readonly Func<string, string, bool> ContainsComparer =
+		(search, value) => value.Contains(search, StringComparison.OrdinalIgnoreCase);
+
+	private static readonly Func<DateOnly, DateOnly, bool> DateComparer = (search, value) => search == value;
+	private static readonly Func<Genre, Genre, bool> GenreComparer = (search, value) => search == value;
 }
