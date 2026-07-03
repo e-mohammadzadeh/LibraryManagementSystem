@@ -7,7 +7,7 @@ namespace LibraryManagementSystem.Services;
 public class UserManagementService
 {
 	private List<Author> _authors = new();
-	private List<LibraryUser> _libraryUsers = new();
+	//private List<LibraryUser> _libraryUsers = new();
 
 
 	public ServiceResult<Author> AddAuthor(CreateAuthorDto dto)

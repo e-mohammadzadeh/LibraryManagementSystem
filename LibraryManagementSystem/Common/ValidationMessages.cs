@@ -18,8 +18,10 @@ public static class ValidationMessages
 
 	public const string InvalidISBN = "Invalid ISBN format. Please enter a valid 10 or 13 digit ISBN.";
 	public const string InvalidNumber = "Invalid number. Please try again.";
+	public const string InvalidInput = "Invalid input. Please try again.";
 	public const string InvalidYesNo = "Invalid input. Please enter 'y' or 'n'.";
 	public const string InvalidMenuChoice = "Invalid selection, Try again.\n";
+	public const string InvalidCharacters = "The name can only contain letters, numbers, spaces, and basic punctuation.";
 
 	public const string AuthorAddedSuccessfully = "Author added successfully.";
 	public const string BookAddedSuccessfully = "Book added successfully.";
@@ -36,11 +38,11 @@ public static class ValidationMessages
 	public const string AuthorRemoveFailed = "Failed to remove author.";
 	public const string BookRemoveFailed = "Failed to remove book.";
 
-	public const string NotAvailableAuthor = "No authors found. First add new author.";
+	public const string NotAvailableAuthor = "No authors found. First add a new author.";
 	public const string NotAuthorMatched = "No authors matched your search.";
-	public const string NotAvailableBook = "No books found. First add new book.";
+	public const string NotAvailableBook = "No books found. First add a new book.";
 	public const string NotBookMatched = "No books matched your search.";
-	public const string NotAvailableLoan = "No loans found. First add new loan."; // Need help
+	public const string NotAvailableLoan = "No loans found. First add a new loan."; // Need help
 
 	public const string FailureDuplicateAuthorByName = "An author with the same first and last name already exists.";
 	public const string FailureDuplicateAuthorByNationalCode = "An author with the same national code already exists.";

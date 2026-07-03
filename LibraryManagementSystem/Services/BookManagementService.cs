@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices.JavaScript;
-using LibraryManagementSystem.Common;
+﻿using LibraryManagementSystem.Common;
 using LibraryManagementSystem.Domain;
 using LibraryManagementSystem.DTOs;
 using LibraryManagementSystem.Enums;
@@ -120,7 +119,7 @@ public class BookManagementService
 			return ServiceResult<Book>.Fail("Failed to remove Book. It is currently borrowed by a user.");
 
 		//TODO	Missing loan integration: if book has active loans, it cannot be removed. This should be checked with the loan management service.
-
+		book.RemoveFromCurrentAuthor();
 		_books.Remove(book);
 		return ServiceResult<Book>.Ok(book, ValidationMessages.BookRemovedSuccessfully);
 	}

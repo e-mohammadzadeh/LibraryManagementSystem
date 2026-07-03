@@ -73,9 +73,10 @@ public static class ConsoleHelper
 				continue;
 			}
 
-			if (Validator.ISBNValidator(trimmed)) return trimmed;
+			var validationResult = Validator.ISBNValidator(trimmed);
+			if (validationResult.IsValid) return trimmed;
 
-			ShowError(ValidationMessages.InvalidISBN);
+			ShowError(validationResult.ErrorMessage ?? ValidationMessages.InvalidISBN);
 		}
 	}
 
@@ -112,79 +113,70 @@ public static class ConsoleHelper
 	}
 
 
-	private static string? GetValidString(string prompt, Func<string, bool> validator, string errorMessage)
+	private static string? GetValidString(string prompt, Func<string, ValidationResult> validator)
 	{
-		string? input;
-
 		while (true)
 		{
-			input = ReadString(prompt);
+			var input = ReadString(prompt);
 
 			if (input is null) return null;
-			if (validator(input)) break;
 
-			ShowError(errorMessage);
+			var validationResult = validator(input);
+			if (validationResult.IsValid) return input;
+
+			ShowError(validationResult.ErrorMessage ?? ValidationMessages.InvalidInput);
 		}
-
-		return input;
 	}
 
 
-	public static string? GetValidName(string prompt, string field, int minLength, int maxLength)
+	public static string? GetValidName(string prompt, int minLength, int maxLength)
 	{
-		return GetValidString(prompt, input => Validator.NameValidator(input, minLength, maxLength),
-			$"Invalid {field}. Please try again.");
+		return GetValidString(prompt, input => Validator.NameValidator(input, minLength, maxLength));
 	}
 
 
 	public static string? GetValidNationalCode(string prompt)
 	{
-		return GetValidString(prompt, Validator.NationalCodeValidator, ValidationMessages.InvalidNationalCode);
+		return GetValidString(prompt, Validator.NationalCodeValidator);
 	}
 
 
 	public static string? GetValidEmail(string prompt)
 	{
-		return GetValidString(prompt, Validator.EmailValidator, ValidationMessages.InvalidEmail);
+		return GetValidString(prompt, Validator.EmailValidator);
 	}
 
 
 	public static string? GetValidPhoneNumber(string prompt)
 	{
-		return GetValidString(prompt, Validator.PhoneNumberValidator, ValidationMessages.InvalidPhoneNumber);
+		return GetValidString(prompt, Validator.PhoneNumberValidator);
+	}
+
+
+	public static DateOnly? GetValidDateOnly(string prompt, Func<DateOnly, ValidationResult> validator)
+	{
+		while (true)
+		{
+			var date = ReadDateOnly(prompt);
+			if (date is null) return null;
+
+			var validationResult = validator(date.Value);
+			if (validationResult.IsValid) return date;
+
+			ShowError(validationResult.ErrorMessage ?? ValidationMessages.InvalidDate);
+		}
 	}
 
 
 	public static DateOnly? GetValidBirthDate(string prompt)
 	{
-		DateOnly? birthDate;
-		while (true)
-		{
-			birthDate = ReadDateOnly(prompt);
-
-			if (birthDate is null) return null;
-			if (Validator.BirthDateValidator(birthDate.Value)) break;
-
-			ShowError(ValidationMessages.InvalidBirthDate);
-		}
-
-		return birthDate;
+		return GetValidDateOnly(prompt, Validator.BirthDateValidator);
 	}
 
 
 	public static DateOnly? GetValidDate(string prompt)
 	{
-		DateOnly? date;
-		while (true)
-		{
-			date = ReadDateOnly(prompt);
-			if (date is null) return null;
-			if (Validator.DateValidator(date)) break;
-
-			ShowError(ValidationMessages.InvalidDate);
-		}
-
-		return date;
+		return GetValidDateOnly(prompt, d => Validator.DateValidator(d));
 	}
 
 

@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using LibraryManagementSystem.Enums;
-using LibraryManagementSystem.Helpers;
+﻿using LibraryManagementSystem.Enums;
 
 namespace LibraryManagementSystem.Domain;
 
@@ -69,6 +67,16 @@ public class Book
 		Author = newAuthor;
 		newAuthor.Books.Add(this);
 		return true;
+	}
+
+
+	public void RemoveFromCurrentAuthor()
+	{
+		if (Author is not null)
+		{
+			Author.Books.Remove(this);
+			Author = null;
+		}
 	}
 
 

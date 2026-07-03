@@ -107,13 +107,13 @@ public static class AuthorMenu
 
 	public static CreateAuthorDto? PromptForAuthorDto()
 	{
-		var firstName = ConsoleHelper.GetValidName("Enter author's first name", "first name",
-			ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
+		var firstName = ConsoleHelper.GetValidName("Enter author's first name", ValidationConstants.MinNameLength,
+			ValidationConstants.MaxNameLength);
 
 		if (firstName == null) return null;
 
-		var lastName = ConsoleHelper.GetValidName("Enter author's last name", "last name",
-			ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
+		var lastName = ConsoleHelper.GetValidName("Enter author's last name", ValidationConstants.MinNameLength,
+			ValidationConstants.MaxNameLength);
 
 		if (lastName == null) return null;
 
@@ -173,7 +173,7 @@ public static class AuthorMenu
 			{
 				case 1:
 				{
-					var authorNewFirstName = ConsoleHelper.GetValidName("Enter new first name", "first name",
+					var authorNewFirstName = ConsoleHelper.GetValidName("Enter new first name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 					if (!PerformUpdate(userManagementService, desiredAuthor.Id, authorNewFirstName,
@@ -183,7 +183,7 @@ public static class AuthorMenu
 				}
 				case 2:
 				{
-					var authorNewLastName = ConsoleHelper.GetValidName("Enter new last name: ", "last name",
+					var authorNewLastName = ConsoleHelper.GetValidName("Enter new last name: ",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 					if (!PerformUpdate(userManagementService, desiredAuthor.Id, authorNewLastName,
@@ -266,6 +266,8 @@ public static class AuthorMenu
 		if (choice != true) return;
 		var result = userManagementService.RemoveAuthor(desiredAuthor.Id);
 		ConsoleHelper.ShowResult(result);
+		ConsoleHelper.ShowInfo("\nPress any key to continue...");
+		Console.ReadKey(true);
 	}
 
 
