@@ -7,7 +7,7 @@ public class Book
 	public Book(string internationalStandardBookNumber, string bookName, Author author, DateOnly publishDate,
 		int totalCopies, Genre genre, string? description)
 	{
-		BookId = _nextBookId++;
+		BookId = ++_nextBookId;
 		InternationalStandardBookNumber = internationalStandardBookNumber;
 		BookName = bookName;
 		Author = author;
@@ -21,7 +21,7 @@ public class Book
 
 
 	//TODO	When switch into SQL Server, IDs will generate by SQL Server itself and should remove static ones
-	private static int _nextBookId = 1;
+	private static int _nextBookId;
 	public int BookId { get; private set; }
 	public string BookName { get; set; }
 	public string InternationalStandardBookNumber { get; set; }
@@ -87,6 +87,13 @@ public class Book
 
 		AvailableCopies--;
 		//TODO	Raise an event: a signal to the rest of the system that says "this book is now out of stock"
+		//LoanService.BorrowBook(memberId, bookId)
+		//	→ find Member → fail if not found
+		//	→ find Book → fail if not found
+		//	→ call book.BorrowCopy() → throws if no copies available
+		//	→ create new Loan(book, member, dueDate)
+		//	→ add Loan to _loans list
+		//	→ return ServiceResult<Loan>.Ok(loan)
 	}
 
 
@@ -96,6 +103,13 @@ public class Book
 			throw new InvalidOperationException("Cannot return a copy because all copies are already in the library.");
 
 		AvailableCopies++;
+		//LoanService.ReturnBook(loanId)
+		//	→ find Loan → fail if not found
+		//	→ check loan not already returned → fail if already closed
+		//	→ call loan.Book.ReturnCopy()
+		//	→ set loan.ReturnDate = today
+		//	→ calculate if overdue
+		//	→ return ServiceResult<Loan>.Ok(loan)
 	}
 
 

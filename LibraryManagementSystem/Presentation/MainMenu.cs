@@ -53,10 +53,10 @@ public static class MainMenu
 		while (true)
 		{
 			Console.WriteLine("============================ MAIN MENU ============================");
-			Console.WriteLine("1. Author");
+			Console.WriteLine("1. Authors");
 			Console.WriteLine("2. Books");
 			Console.WriteLine("3. Members");
-			Console.WriteLine("4. Loan");
+			Console.WriteLine("4. Borrowing");
 			Console.WriteLine("5. Exit");
 			Console.WriteLine("==================================================================");
 			Console.Write("Please Enter a number: ");

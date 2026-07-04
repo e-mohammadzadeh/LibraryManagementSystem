@@ -1,6 +1,6 @@
 ﻿namespace LibraryManagementSystem.Domain;
 
-public class Person
+public abstract class Person
 {
 	protected Person(string firstName, string lastName, string nationalCode, string email, string phoneNumber,
 		DateOnly birthDate)
