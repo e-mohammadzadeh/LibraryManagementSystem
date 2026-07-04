@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Common;
+﻿using System.Xml;
+using LibraryManagementSystem.Common;
 using LibraryManagementSystem.Domain;
 using LibraryManagementSystem.DTOs;
 
@@ -53,27 +54,27 @@ public class UserManagementService
 		if (author is null)
 			return ServiceResult<Author>.Fail(ValidationMessages.AuthorUpdateFailed);
 
-		if (IsNoOpUpdate(author, dto))
+		if (IsNoOpUpdateAuthor(author, dto))
 			return ServiceResult<Author>.Fail(ValidationMessages.NoChangesDetected);
 
 		var resolvedFirstName = dto.FirstName ?? author.FirstName;
 		var resolvedLastName = dto.LastName ?? author.LastName;
-		if (dto.FirstName != null || dto.LastName != null)
+		if (dto.FirstName is not null || dto.LastName is not null)
 		{
 			if (_authors.Any(aut =>
 				    aut.Id != authorId && aut.FirstName == resolvedFirstName && aut.LastName == resolvedLastName))
 				return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByName);
 		}
 
-		if (dto.NationalCode != null &&
+		if (dto.NationalCode is not null &&
 		    _authors.Any(aut => aut.Id != authorId && aut.NationalCode == dto.NationalCode))
 			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByNationalCode);
 
-		if (dto.Email != null && _authors.Any(aut =>
+		if (dto.Email is not null && _authors.Any(aut =>
 			    aut.Id != authorId && aut.Email.Equals(dto.Email, StringComparison.OrdinalIgnoreCase)))
 			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByEmail);
 
-		if (dto.PhoneNumber != null &&
+		if (dto.PhoneNumber is not null &&
 		    _authors.Any(aut => aut.Id != authorId && aut.PhoneNumber == dto.PhoneNumber))
 			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByPhoneNumber);
 
@@ -84,7 +85,7 @@ public class UserManagementService
 	}
 
 
-	private static bool IsNoOpUpdate(Author author, UpdateAuthorDto dto)
+	private static bool IsNoOpUpdateAuthor(Author author, UpdateAuthorDto dto)
 	{
 		return (dto.FirstName == null || dto.FirstName == author.FirstName) &&
 		       (dto.LastName == null || dto.LastName == author.LastName) &&
@@ -124,25 +125,87 @@ public class UserManagementService
 	}
 
 
-	public ServiceResult<Member> AddMember(CreateMemberDto memberDto)
+	public ServiceResult<Member> AddMember(CreateMemberDto dto)
 	{
-		if (_members.Any(member => member.NationalCode == memberDto.NationalCode))
+		if (_members.Any(member => member.NationalCode == dto.NationalCode))
 			return ServiceResult<Member>.Fail(ValidationMessages.FailureDuplicateMemberByNationalCode);
 
-		if (_members.Any(member => member.Email.Equals(memberDto.Email, StringComparison.OrdinalIgnoreCase)))
+		if (_members.Any(member => member.Email.Equals(dto.Email, StringComparison.OrdinalIgnoreCase)))
 			return ServiceResult<Member>.Fail(ValidationMessages.FailureDuplicateMemberByEmail);
 
 		var existingSameName = _members.FirstOrDefault(member =>
-			member.FirstName.Equals(memberDto.FirstName, StringComparison.OrdinalIgnoreCase) &&
-			member.LastName.Equals(memberDto.LastName, StringComparison.OrdinalIgnoreCase));
+			member.FirstName.Equals(dto.FirstName, StringComparison.OrdinalIgnoreCase) &&
+			member.LastName.Equals(dto.LastName, StringComparison.OrdinalIgnoreCase));
 
 		if (existingSameName is not null)
-			return ServiceResult<Member>.Warning($"A member with the same name already exists (ID: {existingSameName.Id}). ");
+			return ServiceResult<Member>.Warning(
+				$"A member with the same name already exists (ID: {existingSameName.Id}). ");
 
-		var newMember = new Member(memberDto.FirstName, memberDto.LastName, memberDto.NationalCode, memberDto.Email,
-			memberDto.PhoneNumber, memberDto.BirthDate);
+		var newMember = new Member(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email,
+			dto.PhoneNumber, dto.BirthDate);
+
 		_members.Add(newMember);
 		return ServiceResult<Member>.Ok(newMember, ValidationMessages.MemberAddedSuccessfully);
 	}
-	// RegisterMember  EditMember  DeactivateMember  FindUserById
+
+
+	public IReadOnlyList<Member> GetAllMembers()
+	{
+		return _members.AsReadOnly();
+	}
+
+
+	public ServiceResult<Member> UpdateMember(int memberId, UpdateMemberDto dto)
+	{
+		var member = FindMemberById(memberId);
+		if (member is null)
+			return ServiceResult<Member>.Fail(ValidationMessages.MemberUpdateFailed);
+
+		if (IsNoOpUpdateMember(member, dto))
+			return ServiceResult<Member>.Fail(ValidationMessages.NoChangesDetected);
+
+		var resolvedFirstName = dto.FirstName ?? member.FirstName;
+		var resolvedLastName = dto.LastName ?? member.LastName;
+		if (dto.FirstName is not null || dto.LastName is not null)
+		{
+			if (_members.Any(member =>
+				    member.Id != memberId && member.FirstName == resolvedFirstName &&
+				    member.LastName == resolvedLastName))
+				return ServiceResult<Member>.Fail(ValidationMessages.FailureDuplicateMemberByName);
+		}
+
+		if (dto.NationalCode is not null &&
+		    _members.Any(member => member.Id != memberId && member.NationalCode == dto.NationalCode))
+			return ServiceResult<Member>.Fail(ValidationMessages.FailureDuplicateMemberByNationalCode);
+
+		if (dto.Email is not null && _members.Any(member =>
+			    member.Id != memberId && member.Email.Equals(dto.Email, StringComparison.OrdinalIgnoreCase)))
+			return ServiceResult<Member>.Fail(ValidationMessages.FailureDuplicateMemberByEmail);
+
+		if (dto.PhoneNumber is not null &&
+		    _members.Any(member => member.Id != memberId && member.PhoneNumber == dto.PhoneNumber))
+			return ServiceResult<Member>.Fail(ValidationMessages.FailureDuplicateMemberByPhoneNumber);
+
+		member.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate);
+		return ServiceResult<Member>.Ok(member, ValidationMessages.MemberUpdatedSuccessfully);
+	}
+
+
+
+	public Member? FindMemberById(int id)
+	{
+		return _members.FirstOrDefault(m => m.Id == id);
+	}
+
+
+	private static bool IsNoOpUpdateMember(Member member, UpdateMemberDto dto)
+	{
+		return (dto.FirstName == null || dto.FirstName == member.FirstName) &&
+		       (dto.LastName == null || dto.LastName == member.LastName) &&
+		       (dto.NationalCode == null || dto.NationalCode == member.NationalCode) &&
+		       (dto.Email == null || dto.Email == member.Email) &&
+		       (dto.PhoneNumber == null || dto.PhoneNumber == member.PhoneNumber) &&
+		       (dto.BirthDate == null || dto.BirthDate == member.BirthDate);
+	}
+	// DeactivateMember  FindUserById
 }

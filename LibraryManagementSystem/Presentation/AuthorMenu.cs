@@ -176,58 +176,58 @@ public static class AuthorMenu
 					var authorNewFirstName = ConsoleHelper.GetValidName("Enter new first name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
-					if (!PerformUpdate(userManagementService, desiredAuthor.Id, authorNewFirstName,
-						    v => new UpdateAuthorDto { FirstName = v })) return;
+					PerformUpdate(userManagementService, desiredAuthor.Id, authorNewFirstName,
+						v => new UpdateAuthorDto { FirstName = v });
 
 					break;
 				}
 				case 2:
 				{
-					var authorNewLastName = ConsoleHelper.GetValidName("Enter new last name: ",
+					var authorNewLastName = ConsoleHelper.GetValidName("Enter new last name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
-					if (!PerformUpdate(userManagementService, desiredAuthor.Id, authorNewLastName,
-						    v => new UpdateAuthorDto { LastName = v })) return;
+					PerformUpdate(userManagementService, desiredAuthor.Id, authorNewLastName,
+						v => new UpdateAuthorDto { LastName = v });
 
 					break;
 				}
 				case 3:
 				{
-					var authorNewNationalCode = ConsoleHelper.GetValidNationalCode("Enter new national code: ");
-					if (!PerformUpdate(userManagementService, desiredAuthor.Id, authorNewNationalCode,
-						    v => new UpdateAuthorDto { NationalCode = v })) return;
+					var authorNewNationalCode = ConsoleHelper.GetValidNationalCode("Enter new national code");
+					PerformUpdate(userManagementService, desiredAuthor.Id, authorNewNationalCode,
+						v => new UpdateAuthorDto { NationalCode = v });
 
 					break;
 				}
 				case 4:
 				{
-					var authorNewEmail = ConsoleHelper.GetValidEmail("Enter new email: ");
-					if (!PerformUpdate(userManagementService, desiredAuthor.Id, authorNewEmail,
-						    v => new UpdateAuthorDto { Email = v })) return;
+					var authorNewEmail = ConsoleHelper.GetValidEmail("Enter new email");
+					PerformUpdate(userManagementService, desiredAuthor.Id, authorNewEmail,
+						v => new UpdateAuthorDto { Email = v });
 
 					break;
 				}
 				case 5:
 				{
-					var authorNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter new phone number: ");
-					if (!PerformUpdate(userManagementService, desiredAuthor.Id, authorNewPhoneNumber,
-						    v => new UpdateAuthorDto { PhoneNumber = v })) return;
+					var authorNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter new phone number");
+					PerformUpdate(userManagementService, desiredAuthor.Id, authorNewPhoneNumber,
+						v => new UpdateAuthorDto { PhoneNumber = v });
 
 					break;
 				}
 				case 6:
 				{
-					var authorNewBirthDate = ConsoleHelper.GetValidBirthDate("Enter new birth date (yyyy-MM-dd): ");
-					if (!PerformUpdate(userManagementService, desiredAuthor.Id, authorNewBirthDate,
-						    v => new UpdateAuthorDto { BirthDate = v })) return;
+					var authorNewBirthDate = ConsoleHelper.GetValidBirthDate("Enter new birth date");
+					PerformUpdate(userManagementService, desiredAuthor.Id, authorNewBirthDate,
+						v => new UpdateAuthorDto { BirthDate = v });
 
 					break;
 				}
 				case 7:
 				{
-					var authorNewBiography = ConsoleHelper.ReadString("Enter new biography: ");
-					if (!PerformUpdate(userManagementService, desiredAuthor.Id, authorNewBiography,
-						    v => new UpdateAuthorDto { Biography = v })) return;
+					var authorNewBiography = ConsoleHelper.ReadString("Enter new biography");
+					PerformUpdate(userManagementService, desiredAuthor.Id, authorNewBiography,
+						v => new UpdateAuthorDto { Biography = v });
 
 					break;
 				}
@@ -339,15 +339,14 @@ public static class AuthorMenu
 
 
 
-	private static bool PerformUpdate<T>(UserManagementService userManagementService, int desiredAuthorId, T? newValue,
+	private static void PerformUpdate<T>(UserManagementService userManagementService, int desiredAuthorId, T? newValue,
 		Func<T, UpdateAuthorDto> buildDto)
 	{
-		if (newValue is null) return false;
+		if (newValue is null) return;
 
 		var dto = buildDto(newValue);
 		var result = userManagementService.UpdateAuthor(desiredAuthorId, dto);
 		ConsoleHelper.ShowResult(result);
-		return result.Success;
 	}
 
 

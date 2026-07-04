@@ -31,8 +31,10 @@ public static class ValidationMessages
 	// Updating Messages
 	public const string AuthorUpdatedSuccessfully = "Author updated successfully.";
 	public const string BookUpdatedSuccessfully = "Book updated successfully.";
+	public const string MemberUpdatedSuccessfully = "Member updated successfully.";
 	public const string AuthorUpdateFailed = "Failed to update author.";
 	public const string BookUpdateFailed = "Failed to update book.";
+	public const string MemberUpdateFailed = "Failed to update member.";
 
 
 	// Removing Messages
@@ -48,6 +50,7 @@ public static class ValidationMessages
 	public const string NotAvailableBook = "No books found. First add a new book.";
 	public const string NotBookMatched = "No books matched your search.";
 	public const string NotAvailableLoan = "No loans found. First add a new loan."; // Need help
+	public const string NotAvailableMember = "No members found. First add a new member.";
 
 
 	// Duplicate Messages
@@ -58,6 +61,7 @@ public static class ValidationMessages
 	public const string FailureDuplicateBookByName = "A book with the same name already exists.";
 	public const string FailureDuplicateBookByISBN = "A book with the same ISBN already exists.";
 	public const string FailureDuplicateBookByAuthor = "This is already the book's author";
+	public const string FailureDuplicateMemberByName = "A member with the same first and last name already exists.";
 	public const string FailureDuplicateMemberByNationalCode = "A member with the same national code already exists.";
 	public const string FailureDuplicateMemberByEmail = "A member with the same email already exists.";
 	public const string FailureDuplicateMemberByPhoneNumber = "A member with the same phone number already exists.";
