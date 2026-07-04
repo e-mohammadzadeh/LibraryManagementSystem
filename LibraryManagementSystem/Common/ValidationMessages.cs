@@ -40,8 +40,10 @@ public static class ValidationMessages
 	// Removing Messages
 	public const string AuthorRemovedSuccessfully = "Author removed successfully.";
 	public const string BookRemovedSuccessfully = "Book removed successfully.";
+	public const string MemberRemovedSuccessfully = "Member removed successfully.";
 	public const string AuthorRemoveFailed = "Failed to remove author.";
 	public const string BookRemoveFailed = "Failed to remove book.";
+	public const string MemberRemoveFailed = "Failed to remove member";
 
 
 	// Searching Messages
@@ -49,8 +51,9 @@ public static class ValidationMessages
 	public const string NotAuthorMatched = "No authors matched your search.";
 	public const string NotAvailableBook = "No books found. First add a new book.";
 	public const string NotBookMatched = "No books matched your search.";
-	public const string NotAvailableLoan = "No loans found. First add a new loan."; // Need help
 	public const string NotAvailableMember = "No members found. First add a new member.";
+	public const string NotMemberMatched = "No members matched your search.";
+	public const string NotAvailableLoan = "No loans found. First add a new loan."; // Need help
 
 
 	// Duplicate Messages

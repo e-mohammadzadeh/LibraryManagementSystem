@@ -2,6 +2,7 @@
 using LibraryManagementSystem.Domain;
 using LibraryManagementSystem.DTOs;
 using LibraryManagementSystem.Helpers;
+using LibraryManagementSystem.Printers;
 using LibraryManagementSystem.Services;
 
 namespace LibraryManagementSystem.Presentation;
@@ -33,20 +34,40 @@ public class MemberMenu
 					break;
 				}
 				case 3:
-					// Remove Member
+					Console.Clear();
+					RemoveMember(userManagementService);
 					break;
 				case 4:
-					// Search Member
+					SearchMember(userManagementService);
 					break;
 				case 5:
-					// View Member Details
+				{
+					Console.Clear();
+					var desiredMember = SelectExistingMember(userManagementService);
+					if (desiredMember is not null)
+					{
+						MemberPrinter.PrintDetails(desiredMember);
+						ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
+						Console.ReadKey(true);
+					}
+
 					break;
+				}
 				case 6:
-					// View All Members
+				{
+					Console.Clear();
+					if (userManagementService.GetAllMembers().Count is 0)
+						ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableMember);
+					else
+						MemberPrinter.PrintTable(userManagementService.GetAllMembers());
+
+					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
+					Console.ReadKey(true);
 					break;
+				}
 				case 7:
 				{
-					ConsoleHelper.ShowError("Backing to main menu...\n");
+					ConsoleHelper.ShowError("Backing to Main Menu...\n");
 					Thread.Sleep(2000);
 					Console.Clear();
 					continueProgram = false;
@@ -240,5 +261,114 @@ public class MemberMenu
 		var dto = buildDto(newValue);
 		var result = userManagementService.UpdateMember(desiredMemberId, dto);
 		ConsoleHelper.ShowResult(result);
+	}
+
+
+	private static void RemoveMember(UserManagementService userManagementService)
+	{
+		Console.WriteLine("============================ REMOVING MEMBER MENU ============================");
+		var desiredMember = SelectExistingMember(userManagementService);
+		if (desiredMember == null)
+		{
+			ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
+			Console.ReadKey(true);
+			return;
+		}
+
+		MemberPrinter.PrintDetails(desiredMember);
+		var choice = ConsoleHelper.ReadYesNo(
+			$"Are you sure you want to remove {desiredMember.FirstName} {desiredMember.LastName}");
+
+		if (choice != true) return;
+
+		var result = userManagementService.RemoveMember(desiredMember.Id);
+		ConsoleHelper.ShowResult(result);
+		ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
+		Console.ReadKey(true);
+	}
+
+
+	private static void SearchMember(UserManagementService userManagementService)
+	{
+		while (true)
+		{
+			Console.Clear();
+			Console.WriteLine("============================ SEARCHING MEMBER MENU ============================");
+			var membersList = userManagementService.GetAllMembers();
+			if (membersList.Count == 0)
+			{
+				ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableMember);
+				ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
+				Console.ReadKey(true);
+				return;
+			}
+
+			Console.WriteLine("{0, -20}", "1. Name");
+			Console.WriteLine("{0, -20}", "2. National Code");
+			Console.WriteLine("{0, -20}", "3. Email");
+			Console.WriteLine("{0, -20}", "4. Phone Number");
+			Console.WriteLine("5. Cancel");
+
+			var searchMenuChoice = ConsoleHelper.ReadInt("Select a search field by entering its number", 1, 5);
+			if (searchMenuChoice is null) return;
+
+			switch (searchMenuChoice)
+			{
+				case 1:
+				{
+					SearchMembersAndDisplay(userManagementService, "Enter a name to search",
+						member => $"{member.FirstName} {member.LastName}");
+
+					break;
+				}
+				case 2:
+				{
+					SearchMembersAndDisplay(userManagementService, "Enter a national code to search",
+						member => member.NationalCode);
+
+					break;
+				}
+				case 3:
+				{
+					SearchMembersAndDisplay(userManagementService, "Enter an email to search", member => member.Email);
+					break;
+				}
+				case 4:
+				{
+					SearchMembersAndDisplay(userManagementService, "Enter a phone number to search",
+						member => member.PhoneNumber);
+
+					break;
+				}
+				case 5:
+				{
+					ConsoleHelper.ShowInfo("Search cancelled. Returning to Member Menu...");
+					Thread.Sleep(3000);
+					Console.Clear();
+					return;
+				}
+			}
+
+			ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
+			Console.ReadKey(true);
+		}
+	}
+
+
+	private static void SearchMembersAndDisplay(UserManagementService userManagementService, string prompt,
+		Func<Member, string?> selector)
+	{
+		var searchItem = ConsoleHelper.ReadString(prompt);
+		if (searchItem == null) return;
+
+		var result = userManagementService.SearchMember(searchItem, selector);
+
+		if (result.Count == 0)
+		{
+			ConsoleHelper.ShowWarning(ValidationMessages.NotMemberMatched);
+			return;
+		}
+
+		MemberPrinter.PrintTable(result);
 	}
 }

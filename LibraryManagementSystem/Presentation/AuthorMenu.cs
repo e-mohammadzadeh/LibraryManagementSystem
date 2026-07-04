@@ -60,7 +60,7 @@ public static class AuthorMenu
 				case 6:
 				{
 					Console.Clear();
-					if (userManagementService.GetAllAuthors().Count == 0)
+					if (userManagementService.GetAllAuthors().Count is 0)
 						ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
 					else
 						AuthorPrinter.PrintTable(userManagementService.GetAllAuthors());
@@ -293,7 +293,7 @@ public static class AuthorMenu
 			Console.WriteLine("5. Cancel");
 
 			var searchMenuChoice = ConsoleHelper.ReadInt("Select a search field by entering its number", 1, 5);
-			if (searchMenuChoice == null) return;
+			if (searchMenuChoice is null) return;
 
 			switch (searchMenuChoice)
 			{

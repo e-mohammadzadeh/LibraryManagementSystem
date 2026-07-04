@@ -207,5 +207,35 @@ public class UserManagementService
 		       (dto.PhoneNumber == null || dto.PhoneNumber == member.PhoneNumber) &&
 		       (dto.BirthDate == null || dto.BirthDate == member.BirthDate);
 	}
+
+
+	public ServiceResult<Member> RemoveMember(int memberId)
+	{
+		var member = FindMemberById(memberId);
+		if (member is null)
+			return ServiceResult<Member>.Fail(ValidationMessages.MemberRemoveFailed);
+
+		// TODO	After implementing Loan class and service, before deleting member should check that none of books isn't borrowed
+		//if (member.Books.Count != 0)
+		//	return ServiceResult<Member>.Fail("Failed to remove author. The author has associated books.");
+
+		_members.Remove(member);
+		return ServiceResult<Member>.Ok(member, ValidationMessages.MemberRemovedSuccessfully);
+	}
+
+
+	public IReadOnlyList<Member> SearchMember(string searchItem, Func<Member, string?> selector)
+	{
+		if (string.IsNullOrWhiteSpace(searchItem))
+			return new List<Member>();
+
+		return _members.Where(member =>
+		{
+			var value = selector(member);
+			return value is not null && value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
+		}).ToList();
+	}
+
+
 	// DeactivateMember  FindUserById
 }
