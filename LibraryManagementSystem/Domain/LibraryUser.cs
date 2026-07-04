@@ -3,12 +3,11 @@
 public abstract class LibraryUser : Person
 {
 	public LibraryUser(string firstName, string lastName, string nationalCode, string email, string phoneNumber,
-		DateOnly birthDate, bool isActive, DateOnly memberShipStartDate, DateOnly memberShipEndDate) : base(firstName,
-		lastName, nationalCode, email, phoneNumber, birthDate)
+		DateOnly birthDate) : base(firstName, lastName, nationalCode, email, phoneNumber, birthDate)
 	{
-		IsActive = isActive;
-		MembershipStartDate = memberShipStartDate;
-		MembershipEndDate = memberShipEndDate;
+		IsActive = true;
+		MembershipStartDate = DateOnly.FromDateTime(DateTime.Today);
+		MembershipEndDate = DateOnly.FromDateTime(DateTime.Today);  // Should set a suitable end date based on business logic
 	}
 
 

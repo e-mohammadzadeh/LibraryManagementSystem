@@ -7,8 +7,9 @@ namespace LibraryManagementSystem.Services;
 public class UserManagementService
 {
 	private List<Author> _authors = new();
-	//private readonly List<Member> _members = new();
+	private List<Member> _members = new();
 	//private readonly List<Manager> _managers = new();
+
 
 	public ServiceResult<Author> AddAuthor(CreateAuthorDto dto)
 	{
@@ -22,7 +23,7 @@ public class UserManagementService
 			a.FirstName.Equals(dto.FirstName, StringComparison.OrdinalIgnoreCase) &&
 			a.LastName.Equals(dto.LastName, StringComparison.OrdinalIgnoreCase));
 
-		if (existingSameName != null)
+		if (existingSameName is not null)
 			return ServiceResult<Author>.Warning(
 				$"An author with the same name already exists (ID: {existingSameName.Id}). ");
 
@@ -123,8 +124,25 @@ public class UserManagementService
 	}
 
 
-	public void AddMember()
+	public ServiceResult<Member> AddMember(CreateMemberDto memberDto)
 	{
+		if (_members.Any(member => member.NationalCode == memberDto.NationalCode))
+			return ServiceResult<Member>.Fail(ValidationMessages.FailureDuplicateMemberByNationalCode);
+
+		if (_members.Any(member => member.Email.Equals(memberDto.Email, StringComparison.OrdinalIgnoreCase)))
+			return ServiceResult<Member>.Fail(ValidationMessages.FailureDuplicateMemberByEmail);
+
+		var existingSameName = _members.FirstOrDefault(member =>
+			member.FirstName.Equals(memberDto.FirstName, StringComparison.OrdinalIgnoreCase) &&
+			member.LastName.Equals(memberDto.LastName, StringComparison.OrdinalIgnoreCase));
+
+		if (existingSameName is not null)
+			return ServiceResult<Member>.Warning($"A member with the same name already exists (ID: {existingSameName.Id}). ");
+
+		var newMember = new Member(memberDto.FirstName, memberDto.LastName, memberDto.NationalCode, memberDto.Email,
+			memberDto.PhoneNumber, memberDto.BirthDate);
+		_members.Add(newMember);
+		return ServiceResult<Member>.Ok(newMember, ValidationMessages.MemberAddedSuccessfully);
 	}
 	// RegisterMember  EditMember  DeactivateMember  FindUserById
 }

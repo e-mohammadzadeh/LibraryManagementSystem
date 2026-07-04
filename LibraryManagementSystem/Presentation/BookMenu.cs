@@ -23,7 +23,7 @@ public static class BookMenu
 				{
 					Console.Clear();
 					AddBook(userManagementService, bookManagementService);
-					ConsoleHelper.ShowInfo("\nPress any key to continue...");
+					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 					Console.ReadKey(true);
 					break;
 				}
@@ -31,7 +31,7 @@ public static class BookMenu
 				{
 					Console.Clear();
 					EditBook(userManagementService, bookManagementService);
-					ConsoleHelper.ShowInfo("\nPress any key to continue...");
+					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 					Console.ReadKey(true);
 					break;
 				}
@@ -54,7 +54,7 @@ public static class BookMenu
 					if (desiredBook is not null)
 					{
 						BookPrinter.PrintDetails(desiredBook);
-						ConsoleHelper.ShowInfo("\nPress any key to continue...");
+						ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 						Console.ReadKey(true);
 					}
 
@@ -68,7 +68,7 @@ public static class BookMenu
 					else
 						BookPrinter.PrintTable(bookManagementService.GetAllBooks());
 
-					ConsoleHelper.ShowInfo("\nPress any key to continue...");
+					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 					Console.ReadKey(true);
 					break;
 				}
@@ -333,7 +333,7 @@ public static class BookMenu
 		var desiredBook = SelectExistingBook(bookManagementService);
 		if (desiredBook is null)
 		{
-			ConsoleHelper.ShowInfo("\nPress any key to continue...");
+			ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 			Console.ReadKey(true);
 			return;
 		}
@@ -357,7 +357,7 @@ public static class BookMenu
 			if (booksList.Count == 0)
 			{
 				ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableBook);
-				ConsoleHelper.ShowInfo("\nPress any key to continue...");
+				ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 				Console.ReadKey(true);
 				return;
 			}
@@ -420,7 +420,7 @@ public static class BookMenu
 				}
 			}
 
-			ConsoleHelper.ShowInfo("\nPress any key to continue...");
+			ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 			Console.ReadKey(true);
 		}
 	}

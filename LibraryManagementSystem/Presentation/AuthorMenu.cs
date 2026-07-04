@@ -21,7 +21,7 @@ public static class AuthorMenu
 				{
 					Console.Clear();
 					AddAuthor(userManagementService);
-					ConsoleHelper.ShowInfo("\nPress any key to continue...");
+					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 					Console.ReadKey(true);
 					break;
 				}
@@ -29,7 +29,7 @@ public static class AuthorMenu
 				{
 					Console.Clear();
 					EditAuthor(userManagementService);
-					ConsoleHelper.ShowInfo("\nPress any key to continue...");
+					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 					Console.ReadKey(true);
 					break;
 				}
@@ -51,7 +51,7 @@ public static class AuthorMenu
 					if (desiredAuthor is not null)
 					{
 						AuthorPrinter.PrintDetails(desiredAuthor);
-						ConsoleHelper.ShowInfo("\nPress any key to continue...");
+						ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 						Console.ReadKey(true);
 					}
 
@@ -65,7 +65,7 @@ public static class AuthorMenu
 					else
 						AuthorPrinter.PrintTable(userManagementService.GetAllAuthors());
 
-					ConsoleHelper.ShowInfo("\nPress any key to continue...");
+					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 					Console.ReadKey(true);
 					break;
 				}
@@ -143,7 +143,7 @@ public static class AuthorMenu
 	{
 		Console.WriteLine("============================ ADDING AUTHOR MENU ============================");
 		var authorDto = PromptForAuthorDto();
-		if (authorDto == null) return;
+		if (authorDto is null) return;
 
 		var result = userManagementService.AddAuthor(authorDto);
 		ConsoleHelper.ShowResult(result);
@@ -254,7 +254,7 @@ public static class AuthorMenu
 		var desiredAuthor = SelectExistingAuthor(userManagementService);
 		if (desiredAuthor == null)
 		{
-			ConsoleHelper.ShowInfo("\nPress any key to continue...");
+			ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 			Console.ReadKey(true);
 			return;
 		}
@@ -266,7 +266,7 @@ public static class AuthorMenu
 		if (choice != true) return;
 		var result = userManagementService.RemoveAuthor(desiredAuthor.Id);
 		ConsoleHelper.ShowResult(result);
-		ConsoleHelper.ShowInfo("\nPress any key to continue...");
+		ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 		Console.ReadKey(true);
 	}
 
@@ -281,7 +281,7 @@ public static class AuthorMenu
 			if (authorsList.Count == 0)
 			{
 				ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
-				ConsoleHelper.ShowInfo("\nPress any key to continue...");
+				ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 				Console.ReadKey(true);
 				return;
 			}
@@ -332,7 +332,7 @@ public static class AuthorMenu
 				}
 			}
 
-			ConsoleHelper.ShowInfo("\nPress any key to continue...");
+			ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 			Console.ReadKey(true);
 		}
 	}
