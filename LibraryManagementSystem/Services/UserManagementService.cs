@@ -1,5 +1,4 @@
-﻿using System.Xml;
-using LibraryManagementSystem.Common;
+﻿using LibraryManagementSystem.Common;
 using LibraryManagementSystem.Domain;
 using LibraryManagementSystem.DTOs;
 
@@ -14,7 +13,9 @@ public class UserManagementService
 
 	public ServiceResult<Author> AddAuthor(CreateAuthorDto dto)
 	{
-		if (_authors.Any(author => author.NationalCode == dto.NationalCode))
+		string? warningMessage = null;
+
+		if (_authors.Any(author => author.NationalCode.Equals(dto.NationalCode)))
 			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByNationalCode);
 
 		if (_authors.Any(author => author.Email.Equals(dto.Email, StringComparison.OrdinalIgnoreCase)))
@@ -25,20 +26,21 @@ public class UserManagementService
 			a.LastName.Equals(dto.LastName, StringComparison.OrdinalIgnoreCase));
 
 		if (existingSameName is not null)
-			return ServiceResult<Author>.Warning(
-				$"An author with the same name already exists (ID: {existingSameName.Id}). ");
+			warningMessage = $"An author with the same name already exists (ID: {existingSameName.Id}).";
 
 		var newAuthor = new Author(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber,
 			dto.BirthDate, dto.Biography);
 
 		_authors.Add(newAuthor);
-		return ServiceResult<Author>.Ok(newAuthor, ValidationMessages.AuthorAddedSuccessfully);
+		return warningMessage is not null
+			? ServiceResult<Author>.Warning(newAuthor, warningMessage)
+			: ServiceResult<Author>.Ok(newAuthor, ValidationMessages.AuthorAddedSuccessfully);
 	}
 
 
 	public IReadOnlyList<Author> GetAllAuthors()
 	{
-		return _authors.AsReadOnly();
+		return _authors.AsReadOnly().AsReadOnly();
 	}
 
 
@@ -62,12 +64,13 @@ public class UserManagementService
 		if (dto.FirstName is not null || dto.LastName is not null)
 		{
 			if (_authors.Any(aut =>
-				    aut.Id != authorId && aut.FirstName == resolvedFirstName && aut.LastName == resolvedLastName))
+				    aut.Id != authorId && aut.FirstName.Equals(resolvedFirstName, StringComparison.OrdinalIgnoreCase) &&
+				    aut.LastName.Equals(resolvedLastName, StringComparison.OrdinalIgnoreCase)))
 				return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByName);
 		}
 
 		if (dto.NationalCode is not null &&
-		    _authors.Any(aut => aut.Id != authorId && aut.NationalCode == dto.NationalCode))
+		    _authors.Any(aut => aut.Id != authorId && aut.NationalCode.Equals(dto.NationalCode)))
 			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByNationalCode);
 
 		if (dto.Email is not null && _authors.Any(aut =>
@@ -75,7 +78,7 @@ public class UserManagementService
 			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByEmail);
 
 		if (dto.PhoneNumber is not null &&
-		    _authors.Any(aut => aut.Id != authorId && aut.PhoneNumber == dto.PhoneNumber))
+		    _authors.Any(aut => aut.Id != authorId && aut.PhoneNumber.Equals(dto.PhoneNumber)))
 			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByPhoneNumber);
 
 		author.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
@@ -112,7 +115,7 @@ public class UserManagementService
 	}
 
 
-	public IReadOnlyList<Author> SearchAuthors(string searchItem, Func<Author, string?> selector)
+	public IReadOnlyList<Author> SearchAuthor(string searchItem, Func<Author, string?> selector)
 	{
 		if (string.IsNullOrWhiteSpace(searchItem))
 			return new List<Author>();
@@ -127,7 +130,9 @@ public class UserManagementService
 
 	public ServiceResult<Member> AddMember(CreateMemberDto dto)
 	{
-		if (_members.Any(member => member.NationalCode == dto.NationalCode))
+		string? warningMessage = null;
+
+		if (_members.Any(member => member.NationalCode.Equals(dto.NationalCode)))
 			return ServiceResult<Member>.Fail(ValidationMessages.FailureDuplicateMemberByNationalCode);
 
 		if (_members.Any(member => member.Email.Equals(dto.Email, StringComparison.OrdinalIgnoreCase)))
@@ -138,20 +143,21 @@ public class UserManagementService
 			member.LastName.Equals(dto.LastName, StringComparison.OrdinalIgnoreCase));
 
 		if (existingSameName is not null)
-			return ServiceResult<Member>.Warning(
-				$"A member with the same name already exists (ID: {existingSameName.Id}). ");
+			warningMessage = $"A member with the same name already exists (ID: {existingSameName.Id}). ";
 
 		var newMember = new Member(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email,
 			dto.PhoneNumber, dto.BirthDate);
 
 		_members.Add(newMember);
-		return ServiceResult<Member>.Ok(newMember, ValidationMessages.MemberAddedSuccessfully);
+		return warningMessage is not null
+			? ServiceResult<Member>.Warning(newMember, warningMessage)
+			: ServiceResult<Member>.Ok(newMember, ValidationMessages.MemberAddedSuccessfully);
 	}
 
 
 	public IReadOnlyList<Member> GetAllMembers()
 	{
-		return _members.AsReadOnly();
+		return _members.AsReadOnly().AsReadOnly();
 	}
 
 
@@ -168,22 +174,22 @@ public class UserManagementService
 		var resolvedLastName = dto.LastName ?? member.LastName;
 		if (dto.FirstName is not null || dto.LastName is not null)
 		{
-			if (_members.Any(member =>
-				    member.Id != memberId && member.FirstName == resolvedFirstName &&
-				    member.LastName == resolvedLastName))
+			if (_members.Any(m => m.Id != memberId &&
+			                      m.FirstName.Equals(resolvedFirstName, StringComparison.OrdinalIgnoreCase) &&
+			                      m.LastName.Equals(resolvedLastName, StringComparison.OrdinalIgnoreCase)))
 				return ServiceResult<Member>.Fail(ValidationMessages.FailureDuplicateMemberByName);
 		}
 
 		if (dto.NationalCode is not null &&
-		    _members.Any(member => member.Id != memberId && member.NationalCode == dto.NationalCode))
+		    _members.Any(m => m.Id != memberId && m.NationalCode.Equals(dto.NationalCode)))
 			return ServiceResult<Member>.Fail(ValidationMessages.FailureDuplicateMemberByNationalCode);
 
-		if (dto.Email is not null && _members.Any(member =>
-			    member.Id != memberId && member.Email.Equals(dto.Email, StringComparison.OrdinalIgnoreCase)))
+		if (dto.Email is not null && _members.Any(m =>
+			    m.Id != memberId && m.Email.Equals(dto.Email, StringComparison.OrdinalIgnoreCase)))
 			return ServiceResult<Member>.Fail(ValidationMessages.FailureDuplicateMemberByEmail);
 
 		if (dto.PhoneNumber is not null &&
-		    _members.Any(member => member.Id != memberId && member.PhoneNumber == dto.PhoneNumber))
+		    _members.Any(m => m.Id != memberId && m.PhoneNumber.Equals(dto.PhoneNumber)))
 			return ServiceResult<Member>.Fail(ValidationMessages.FailureDuplicateMemberByPhoneNumber);
 
 		member.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate);

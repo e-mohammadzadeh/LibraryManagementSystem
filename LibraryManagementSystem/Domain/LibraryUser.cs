@@ -7,11 +7,11 @@ public abstract class LibraryUser : Person
 	{
 		IsActive = true;
 		MembershipStartDate = DateOnly.FromDateTime(DateTime.Today);
-		MembershipEndDate = DateOnly.FromDateTime(DateTime.Today);  // Should set a suitable end date based on business logic
+		MembershipExpiryDate = DateOnly.FromDateTime(DateTime.Today);  // Should set a suitable end date based on business logic
 	}
 
 
 	public bool IsActive { get; private set; }
 	public DateOnly MembershipStartDate { get; private set; }
-	public DateOnly MembershipEndDate { get; private set; }
+	public DateOnly MembershipExpiryDate { get; private set; }
 }

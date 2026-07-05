@@ -18,12 +18,7 @@ public class Author : Person
 	public void Update(string? firstName, string? lastName, string? nationalCode, string? email, string? phoneNumber,
 		DateOnly? birthDate, string? biography)
 	{
-		FirstName = firstName ?? FirstName;
-		LastName = lastName ?? LastName;
-		NationalCode = nationalCode ?? NationalCode;
-		Email = email ?? Email;
-		PhoneNumber = phoneNumber ?? PhoneNumber;
-		BirthDate = birthDate ?? BirthDate;
+		UpdateCore(firstName, lastName, nationalCode, email, phoneNumber, birthDate);
 		Biography = biography ?? Biography;
 	}
 }

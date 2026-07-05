@@ -28,7 +28,7 @@ public static class MainMenu
 				case 3:
 				{
 					Console.Clear();
-					Console.WriteLine("Option 3 selected.");
+					MemberMenu.MemberMenuController(userManagementService);
 					break;
 				}
 				case 4:

@@ -31,7 +31,7 @@ public class ServiceResult<T> where T : class
 	}
 
 
-	public static ServiceResult<T> Warning(string message, T? data = null)
+	public static ServiceResult<T> Warning(T data, string message)
 	{
 		return new ServiceResult<T>(true, data, message, ResultStatus.Warning);
 	}

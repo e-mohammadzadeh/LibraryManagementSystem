@@ -13,6 +13,7 @@ public abstract class Person
 		BirthDate = birthDate;
 	}
 
+
 	public int Id { get; protected set; }
 	public string FirstName { get; set; }
 	public string LastName { get; set; }
@@ -20,4 +21,16 @@ public abstract class Person
 	public string Email { get; set; }
 	public string PhoneNumber { get; set; }
 	public DateOnly BirthDate { get; set; }
+
+
+	protected void UpdateCore(string? firstName, string? lastName, string? nationalCode, string? email,
+		string? phoneNumber, DateOnly? birthDate)
+	{
+		FirstName = firstName ?? FirstName;
+		LastName = lastName ?? LastName;
+		NationalCode = nationalCode ?? NationalCode;
+		Email = email ?? Email;
+		PhoneNumber = phoneNumber ?? PhoneNumber;
+		BirthDate = birthDate ?? BirthDate;
+	}
 }

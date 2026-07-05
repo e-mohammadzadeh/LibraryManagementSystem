@@ -12,13 +12,9 @@ public class Member : LibraryUser
 	private static int _nextMemberId;
 
 
-	public void Update(string? firstName, string? lastName, string? nationalCode, string? email, string? phoneNumber, DateOnly? birthDate)
+	public void Update(string? firstName, string? lastName, string? nationalCode, string? email, string? phoneNumber,
+		DateOnly? birthDate)
 	{
-		FirstName = firstName ?? FirstName;
-		LastName = lastName ?? LastName;
-		NationalCode = nationalCode ?? NationalCode;
-		Email = email ?? Email;
-		PhoneNumber = phoneNumber ?? PhoneNumber;
-		BirthDate = birthDate ?? BirthDate;
+		UpdateCore(firstName, lastName, nationalCode, email, phoneNumber, birthDate);
 	}
 }

@@ -7,7 +7,7 @@ using LibraryManagementSystem.Services;
 
 namespace LibraryManagementSystem.Presentation;
 
-public class MemberMenu
+public static class MemberMenu
 {
 	public static void MemberMenuController(UserManagementService userManagementService)
 	{
@@ -170,7 +170,7 @@ public class MemberMenu
 			Console.WriteLine("{0, -20} [{1}]", "5. Phone Number", desiredMember.PhoneNumber);
 			Console.WriteLine("{0, -20} [{1}]", "6. Birth Date", desiredMember.BirthDate);
 			Console.WriteLine("7. Cancel");
-			var editMenuChoice = ConsoleHelper.ReadInt("Enter the number of the field you wish to edit", 1, 8);
+			var editMenuChoice = ConsoleHelper.ReadInt("Enter the number of the field you wish to edit", 1, 7);
 			if (editMenuChoice == null)
 				return;
 

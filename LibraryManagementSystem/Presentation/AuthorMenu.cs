@@ -356,7 +356,7 @@ public static class AuthorMenu
 		var searchItem = ConsoleHelper.ReadString(prompt);
 		if (searchItem == null) return;
 
-		var result = userManagementService.SearchAuthors(searchItem, selector);
+		var result = userManagementService.SearchAuthor(searchItem, selector);
 
 		if (result.Count == 0)
 		{
