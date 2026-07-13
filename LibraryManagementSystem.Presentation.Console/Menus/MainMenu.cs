@@ -1,7 +1,4 @@
-﻿using LibraryManagementSystem.Helpers;
-using LibraryManagementSystem.Services;
-
-namespace LibraryManagementSystem.Presentation;
+﻿namespace LibraryManagementSystem.Presentation.Console.Menus;
 
 public static class MainMenu
 {
@@ -15,26 +12,26 @@ public static class MainMenu
 			{
 				case 1:
 				{
-					Console.Clear();
+					System.Console.Clear();
 					AuthorMenu.AuthorMenuController(userManagementService);
 					break;
 				}
 				case 2:
 				{
-					Console.Clear();
+					System.Console.Clear();
 					BookMenu.BookMenuController(userManagementService, bookManagementService);
 					break;
 				}
 				case 3:
 				{
-					Console.Clear();
+					System.Console.Clear();
 					UserMenu.UserMenuController(userManagementService);
 					break;
 				}
 				case 4:
 				{
-					Console.Clear();
-					Console.WriteLine("Option 4 selected.");
+					System.Console.Clear();
+					System.Console.WriteLine("Option 4 selected.");
 					break;
 				}
 				case 5:
@@ -52,16 +49,16 @@ public static class MainMenu
 	{
 		while (true)
 		{
-			Console.WriteLine("============================ MAIN MENU ============================");
-			Console.WriteLine("1. Authors");
-			Console.WriteLine("2. Books");
-			Console.WriteLine("3. Members");
-			Console.WriteLine("4. Borrowing");
-			Console.WriteLine("5. Exit");
-			Console.WriteLine("==================================================================");
-			Console.Write("Please Enter a number: ");
+			System.Console.WriteLine("============================ MAIN MENU ============================");
+			System.Console.WriteLine("1. Authors");
+			System.Console.WriteLine("2. Books");
+			System.Console.WriteLine("3. Members");
+			System.Console.WriteLine("4. Borrowing");
+			System.Console.WriteLine("5. Exit");
+			System.Console.WriteLine("==================================================================");
+			System.Console.Write("Please Enter a number: ");
 
-			var option = Console.ReadLine();
+			var option = System.Console.ReadLine();
 			if (int.TryParse(option, out var result) && result is >= 1 and <= 5)
 			{
 				return result;

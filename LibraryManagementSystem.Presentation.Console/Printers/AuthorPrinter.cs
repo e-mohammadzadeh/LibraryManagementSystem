@@ -1,8 +1,4 @@
-﻿using LibraryManagementSystem.Common;
-using LibraryManagementSystem.Domain;
-using LibraryManagementSystem.Helpers;
-
-namespace LibraryManagementSystem.Printers;
+﻿namespace LibraryManagementSystem.Printers;
 
 public static class AuthorPrinter
 {

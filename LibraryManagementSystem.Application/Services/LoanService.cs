@@ -1,6 +1,4 @@
-﻿using LibraryManagementSystem.Domain;
-
-namespace LibraryManagementSystem.Services;
+﻿namespace LibraryManagementSystem.Services;
 
 public class LoanService
 {
