@@ -21,7 +21,7 @@ public abstract class Person
 	public string Email { get; set; }
 	public string PhoneNumber { get; set; }
 	public DateOnly BirthDate { get; set; }
-
+	// TODO	Soft Deletes & Auditing: In real apps, add *IsDeleted*, *CreatedAt*, *UpdatedAt* fields early.
 
 	protected void UpdateCore(string? firstName, string? lastName, string? nationalCode, string? email,
 		string? phoneNumber, DateOnly? birthDate)

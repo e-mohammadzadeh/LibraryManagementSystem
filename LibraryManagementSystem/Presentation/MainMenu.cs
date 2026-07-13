@@ -28,7 +28,7 @@ public static class MainMenu
 				case 3:
 				{
 					Console.Clear();
-					MemberMenu.MemberMenuController(userManagementService);
+					UserMenu.UserMenuController(userManagementService);
 					break;
 				}
 				case 4:

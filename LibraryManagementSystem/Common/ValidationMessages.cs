@@ -51,8 +51,8 @@ public static class ValidationMessages
 	public const string NotAuthorMatched = "No authors matched your search.";
 	public const string NotAvailableBook = "No books found. First add a new book.";
 	public const string NotBookMatched = "No books matched your search.";
-	public const string NotAvailableMember = "No members found. First add a new member.";
-	public const string NotMemberMatched = "No members matched your search.";
+	public const string NotAvailableUser = "No users found. First add a new user.";
+	public const string NotUserMatched = "No users matched your search.";
 	public const string NotAvailableLoan = "No loans found. First add a new loan."; // Need help
 
 

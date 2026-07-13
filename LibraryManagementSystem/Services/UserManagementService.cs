@@ -7,7 +7,7 @@ namespace LibraryManagementSystem.Services;
 public class UserManagementService
 {
 	private List<Author> _authors = new();
-	private List<Member> _members = new();
+	private List<User> _users = new();
 	//private readonly List<Manager> _managers = new();
 
 
@@ -128,114 +128,114 @@ public class UserManagementService
 	}
 
 
-	public ServiceResult<Member> AddMember(CreateMemberDto dto)
+	public ServiceResult<User> AddUser(CreateUserDto dto)
 	{
 		string? warningMessage = null;
 
-		if (_members.Any(member => member.NationalCode.Equals(dto.NationalCode)))
-			return ServiceResult<Member>.Fail(ValidationMessages.FailureDuplicateMemberByNationalCode);
+		if (_users.Any(user => user.NationalCode.Equals(dto.NationalCode)))
+			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateMemberByNationalCode);
 
-		if (_members.Any(member => member.Email.Equals(dto.Email, StringComparison.OrdinalIgnoreCase)))
-			return ServiceResult<Member>.Fail(ValidationMessages.FailureDuplicateMemberByEmail);
+		if (_users.Any(user => user.Email.Equals(dto.Email, StringComparison.OrdinalIgnoreCase)))
+			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateMemberByEmail);
 
-		var existingSameName = _members.FirstOrDefault(member =>
-			member.FirstName.Equals(dto.FirstName, StringComparison.OrdinalIgnoreCase) &&
-			member.LastName.Equals(dto.LastName, StringComparison.OrdinalIgnoreCase));
+		var existingSameName = _users.FirstOrDefault(user =>
+			user.FirstName.Equals(dto.FirstName, StringComparison.OrdinalIgnoreCase) &&
+			user.LastName.Equals(dto.LastName, StringComparison.OrdinalIgnoreCase));
 
 		if (existingSameName is not null)
 			warningMessage = $"A member with the same name already exists (ID: {existingSameName.Id}). ";
 
-		var newMember = new Member(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email,
+		var newMember = new User(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email,
 			dto.PhoneNumber, dto.BirthDate);
 
-		_members.Add(newMember);
+		_users.Add(newMember);
 		return warningMessage is not null
-			? ServiceResult<Member>.Warning(newMember, warningMessage)
-			: ServiceResult<Member>.Ok(newMember, ValidationMessages.MemberAddedSuccessfully);
+			? ServiceResult<User>.Warning(newMember, warningMessage)
+			: ServiceResult<User>.Ok(newMember, ValidationMessages.MemberAddedSuccessfully);
 	}
 
 
-	public IReadOnlyList<Member> GetAllMembers()
+	public IReadOnlyList<User> GetAllUsers()
 	{
-		return _members.AsReadOnly().AsReadOnly();
+		return _users.AsReadOnly().AsReadOnly();
 	}
 
 
-	public ServiceResult<Member> UpdateMember(int memberId, UpdateMemberDto dto)
+	public ServiceResult<User> UpdateUser(int userId, UpdateUserDto dto)
 	{
-		var member = FindMemberById(memberId);
-		if (member is null)
-			return ServiceResult<Member>.Fail(ValidationMessages.MemberUpdateFailed);
+		var user = FindUserById(userId);
+		if (user is null)
+			return ServiceResult<User>.Fail(ValidationMessages.MemberUpdateFailed);
 
-		if (IsNoOpUpdateMember(member, dto))
-			return ServiceResult<Member>.Fail(ValidationMessages.NoChangesDetected);
+		if (IsNoOpUpdateUser(user, dto))
+			return ServiceResult<User>.Fail(ValidationMessages.NoChangesDetected);
 
-		var resolvedFirstName = dto.FirstName ?? member.FirstName;
-		var resolvedLastName = dto.LastName ?? member.LastName;
+		var resolvedFirstName = dto.FirstName ?? user.FirstName;
+		var resolvedLastName = dto.LastName ?? user.LastName;
 		if (dto.FirstName is not null || dto.LastName is not null)
 		{
-			if (_members.Any(m => m.Id != memberId &&
+			if (_users.Any(m => m.Id != userId &&
 			                      m.FirstName.Equals(resolvedFirstName, StringComparison.OrdinalIgnoreCase) &&
 			                      m.LastName.Equals(resolvedLastName, StringComparison.OrdinalIgnoreCase)))
-				return ServiceResult<Member>.Fail(ValidationMessages.FailureDuplicateMemberByName);
+				return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateMemberByName);
 		}
 
 		if (dto.NationalCode is not null &&
-		    _members.Any(m => m.Id != memberId && m.NationalCode.Equals(dto.NationalCode)))
-			return ServiceResult<Member>.Fail(ValidationMessages.FailureDuplicateMemberByNationalCode);
+		    _users.Any(m => m.Id != userId && m.NationalCode.Equals(dto.NationalCode)))
+			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateMemberByNationalCode);
 
-		if (dto.Email is not null && _members.Any(m =>
-			    m.Id != memberId && m.Email.Equals(dto.Email, StringComparison.OrdinalIgnoreCase)))
-			return ServiceResult<Member>.Fail(ValidationMessages.FailureDuplicateMemberByEmail);
+		if (dto.Email is not null && _users.Any(m =>
+			    m.Id != userId && m.Email.Equals(dto.Email, StringComparison.OrdinalIgnoreCase)))
+			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateMemberByEmail);
 
 		if (dto.PhoneNumber is not null &&
-		    _members.Any(m => m.Id != memberId && m.PhoneNumber.Equals(dto.PhoneNumber)))
-			return ServiceResult<Member>.Fail(ValidationMessages.FailureDuplicateMemberByPhoneNumber);
+		    _users.Any(m => m.Id != userId && m.PhoneNumber.Equals(dto.PhoneNumber)))
+			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateMemberByPhoneNumber);
 
-		member.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate);
-		return ServiceResult<Member>.Ok(member, ValidationMessages.MemberUpdatedSuccessfully);
+		user.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate);
+		return ServiceResult<User>.Ok(user, ValidationMessages.MemberUpdatedSuccessfully);
 	}
 
 
 
-	public Member? FindMemberById(int id)
+	public User? FindUserById(int id)
 	{
-		return _members.FirstOrDefault(m => m.Id == id);
+		return _users.FirstOrDefault(m => m.Id == id);
 	}
 
 
-	private static bool IsNoOpUpdateMember(Member member, UpdateMemberDto dto)
+	private static bool IsNoOpUpdateUser(User user, UpdateUserDto dto)
 	{
-		return (dto.FirstName == null || dto.FirstName == member.FirstName) &&
-		       (dto.LastName == null || dto.LastName == member.LastName) &&
-		       (dto.NationalCode == null || dto.NationalCode == member.NationalCode) &&
-		       (dto.Email == null || dto.Email == member.Email) &&
-		       (dto.PhoneNumber == null || dto.PhoneNumber == member.PhoneNumber) &&
-		       (dto.BirthDate == null || dto.BirthDate == member.BirthDate);
+		return (dto.FirstName == null || dto.FirstName == user.FirstName) &&
+		       (dto.LastName == null || dto.LastName == user.LastName) &&
+		       (dto.NationalCode == null || dto.NationalCode == user.NationalCode) &&
+		       (dto.Email == null || dto.Email == user.Email) &&
+		       (dto.PhoneNumber == null || dto.PhoneNumber == user.PhoneNumber) &&
+		       (dto.BirthDate == null || dto.BirthDate == user.BirthDate);
 	}
 
 
-	public ServiceResult<Member> RemoveMember(int memberId)
+	public ServiceResult<User> RemoveUser(int memberId)
 	{
-		var member = FindMemberById(memberId);
+		var member = FindUserById(memberId);
 		if (member is null)
-			return ServiceResult<Member>.Fail(ValidationMessages.MemberRemoveFailed);
+			return ServiceResult<User>.Fail(ValidationMessages.MemberRemoveFailed);
 
 		// TODO	After implementing Loan class and service, before deleting member should check that none of books isn't borrowed
 		//if (member.Books.Count != 0)
 		//	return ServiceResult<Member>.Fail("Failed to remove author. The author has associated books.");
 
-		_members.Remove(member);
-		return ServiceResult<Member>.Ok(member, ValidationMessages.MemberRemovedSuccessfully);
+		_users.Remove(member);
+		return ServiceResult<User>.Ok(member, ValidationMessages.MemberRemovedSuccessfully);
 	}
 
 
-	public IReadOnlyList<Member> SearchMember(string searchItem, Func<Member, string?> selector)
+	public IReadOnlyList<User> SearchUser(string searchItem, Func<User, string?> selector)
 	{
 		if (string.IsNullOrWhiteSpace(searchItem))
-			return new List<Member>();
+			return new List<User>();
 
-		return _members.Where(member =>
+		return _users.Where(member =>
 		{
 			var value = selector(member);
 			return value is not null && value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);

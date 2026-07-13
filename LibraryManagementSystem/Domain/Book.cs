@@ -61,11 +61,14 @@ public class Book
 
 	public bool ChangeAuthor(Author? newAuthor)
 	{
-		ArgumentNullException.ThrowIfNull(newAuthor);
 		if (ReferenceEquals(Author, newAuthor)) return false;
-		Author.Books.Remove(this);
+
+		if (Author != null)
+			Author.Books.Remove(this);
+
 		Author = newAuthor;
-		newAuthor.Books.Add(this);
+		if (newAuthor != null)
+			newAuthor.Books.Add(this);
 		return true;
 	}
 

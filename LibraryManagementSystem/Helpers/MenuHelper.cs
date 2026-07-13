@@ -55,24 +55,24 @@ public static class MenuHelper
 	}
 
 
-	public static Member? SelectMember(IReadOnlyList<Member> membersList) 
+	public static User? SelectUser(IReadOnlyList<User> usersList) 
 	{
-		if (membersList.Count is 0)
+		if (usersList.Count is 0)
 		{
-			ConsoleHelper.ShowError(ValidationMessages.NotAvailableMember);
+			ConsoleHelper.ShowError(ValidationMessages.NotAvailableUser);
 			return null;
 		}
 
 		while (true)
 		{
-			MemberPrinter.PrintTable(membersList);
+			UserPrinter.PrintTable(usersList);
 			// TODO	Max parameter has some logical issues when authors are removed and new authors are added.
 			var desiredMemberId = ConsoleHelper.ReadInt("Enter the number of the member you wish", 1,
-				membersList.Last().Id);
+				usersList.Last().Id);
 
 			if (desiredMemberId is null) return null;
 
-			var desiredMember = membersList.FirstOrDefault(m => m.Id == desiredMemberId.Value);
+			var desiredMember = usersList.FirstOrDefault(m => m.Id == desiredMemberId.Value);
 			if (desiredMember != null) return desiredMember;
 
 			ConsoleHelper.ShowError("Member not found. Please try again.");

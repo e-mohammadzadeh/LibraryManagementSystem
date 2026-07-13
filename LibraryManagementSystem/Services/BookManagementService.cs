@@ -119,7 +119,8 @@ public class BookManagementService
 			return ServiceResult<Book>.Fail("Failed to remove Book. It is currently borrowed by a user.");
 
 		//TODO	Missing loan integration: if book has active loans, it cannot be removed. This should be checked with the loan management service.
-		book.RemoveFromCurrentAuthor();
+		//book.RemoveFromCurrentAuthor();  // If ChangeAuthor is implemented correctly, this line is not needed.
+		book.ChangeAuthor(null);
 		_books.Remove(book);
 		return ServiceResult<Book>.Ok(book, ValidationMessages.BookRemovedSuccessfully);
 	}

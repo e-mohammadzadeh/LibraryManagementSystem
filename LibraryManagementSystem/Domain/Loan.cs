@@ -2,7 +2,7 @@
 
 public class Loan
 {
-	public Loan(Book book, LibraryUser user)
+	public Loan(Book book, User user)
 	{
 		Book = book;
 		User = user;
@@ -15,7 +15,7 @@ public class Loan
 	private static int _nextLoanId;
 	public int LoanId { get; set; }
 	public Book Book { get; set; }
-	public LibraryUser User { get; set; }
+	public User User { get; set; }
 	public DateOnly BorrowDate { get; set; }
 	private DateOnly DueDate { get; set; }
 	public DateOnly? ReturnDate { get; set; }
