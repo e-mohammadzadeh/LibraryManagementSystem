@@ -1,5 +1,6 @@
-﻿using LibraryManagementSystem.Common;
-using LibraryManagementSystem.DTOs;
+﻿using LibraryManagementSystem.Application.DTOs.Authors;
+using LibraryManagementSystem.Application.DTOs.Users;
+using LibraryManagementSystem.Common;
 
 namespace LibraryManagementSystem.Services;
 

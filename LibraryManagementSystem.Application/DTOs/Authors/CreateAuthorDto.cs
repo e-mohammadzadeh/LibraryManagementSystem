@@ -1,6 +1,6 @@
-﻿namespace LibraryManagementSystem.DTOs;
+﻿namespace LibraryManagementSystem.Application.DTOs.Authors;
 
-public class CreateUserDto
+public class CreateAuthorDto
 {
 	public required string FirstName { get; set; }
 	public required string LastName { get; set; }
@@ -8,4 +8,5 @@ public class CreateUserDto
 	public required string Email { get; set; }
 	public required string PhoneNumber { get; set; }
 	public required DateOnly BirthDate { get; set; }
+	public string? Biography { get; set; }
 }

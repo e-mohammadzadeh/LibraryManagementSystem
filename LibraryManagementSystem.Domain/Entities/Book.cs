@@ -1,6 +1,6 @@
-﻿using LibraryManagementSystem.Enums;
+﻿using LibraryManagementSystem.Domain.Enums;
 
-namespace LibraryManagementSystem.Domain;
+namespace LibraryManagementSystem.Domain.Entities;
 
 public class Book
 {

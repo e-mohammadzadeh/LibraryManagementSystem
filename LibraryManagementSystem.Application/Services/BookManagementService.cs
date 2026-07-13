@@ -1,5 +1,5 @@
-﻿using LibraryManagementSystem.Common;
-using LibraryManagementSystem.DTOs;
+﻿using LibraryManagementSystem.Application.DTOs.Books;
+using LibraryManagementSystem.Common;
 
 namespace LibraryManagementSystem.Services;
 

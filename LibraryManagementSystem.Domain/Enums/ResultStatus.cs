@@ -1,4 +1,4 @@
-﻿namespace LibraryManagementSystem.Enums;
+﻿namespace LibraryManagementSystem.Domain.Enums;
 
 public enum ResultStatus
 {

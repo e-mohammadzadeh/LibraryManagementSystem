@@ -1,4 +1,4 @@
-﻿namespace LibraryManagementSystem.DTOs;
+﻿namespace LibraryManagementSystem.Application.DTOs.Authors;
 
 public class UpdateAuthorDto
 {

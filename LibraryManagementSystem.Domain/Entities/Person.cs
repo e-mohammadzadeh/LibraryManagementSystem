@@ -1,4 +1,4 @@
-﻿namespace LibraryManagementSystem.Domain;
+﻿namespace LibraryManagementSystem.Domain.Entities;
 
 public abstract class Person
 {
