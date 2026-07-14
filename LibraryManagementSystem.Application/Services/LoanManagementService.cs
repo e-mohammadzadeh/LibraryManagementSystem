@@ -1,4 +1,4 @@
-﻿namespace LibraryManagementSystem.Services;
+﻿namespace LibraryManagementSystem.Application.Services;
 
 public class LoanManagementService
 {

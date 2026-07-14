@@ -1,7 +1,12 @@
-﻿using LibraryManagementSystem.Helpers;
-using LibraryManagementSystem.Printers;
+﻿using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Application.DTOs.Books;
+using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
+using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
-namespace LibraryManagementSystem.Presentation;
+namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
 public static class BookMenu
 {

@@ -1,6 +1,8 @@
-﻿using LibraryManagementSystem.Printers;
+﻿using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
-namespace LibraryManagementSystem.Helpers;
+namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 public static class MenuHelper
 {

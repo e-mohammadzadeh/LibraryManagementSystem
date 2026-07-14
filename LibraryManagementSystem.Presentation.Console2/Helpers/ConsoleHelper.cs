@@ -1,4 +1,7 @@
-﻿namespace LibraryManagementSystem.Helpers;
+﻿using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Domain.Enums;
+
+namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 // This static class loop until valid input is received.
 public static class ConsoleHelper

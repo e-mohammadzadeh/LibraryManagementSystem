@@ -1,7 +1,9 @@
-﻿using LibraryManagementSystem.Application.DTOs.Books;
-using LibraryManagementSystem.Common;
+﻿using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Application.DTOs.Books;
+using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums;
 
-namespace LibraryManagementSystem.Services;
+namespace LibraryManagementSystem.Application.Services;
 
 public class BookManagementService
 {

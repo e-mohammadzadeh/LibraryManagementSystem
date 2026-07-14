@@ -1,4 +1,7 @@
-﻿namespace LibraryManagementSystem;
+﻿using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Presentation.ConsoleApp.Menus;
+
+namespace LibraryManagementSystem.Presentation.ConsoleApp;
 
 public static class Program
 {

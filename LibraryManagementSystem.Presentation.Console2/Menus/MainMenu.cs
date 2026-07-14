@@ -1,4 +1,6 @@
-﻿namespace LibraryManagementSystem.Presentation.Console.Menus;
+﻿using LibraryManagementSystem.Application.Services;
+
+namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
 public static class MainMenu
 {

@@ -1,8 +1,10 @@
-﻿using LibraryManagementSystem.Application.DTOs.Authors;
+﻿using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Application.DTOs.Users;
-using LibraryManagementSystem.Common;
+using LibraryManagementSystem.Domain.Entities;
 
-namespace LibraryManagementSystem.Services;
+
+namespace LibraryManagementSystem.Application.Services;
 
 public class UserManagementService
 {

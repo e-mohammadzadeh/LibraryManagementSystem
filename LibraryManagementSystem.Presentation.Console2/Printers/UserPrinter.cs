@@ -1,4 +1,8 @@
-﻿namespace LibraryManagementSystem.Printers;
+﻿using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
+
+namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
 public class UserPrinter
 {

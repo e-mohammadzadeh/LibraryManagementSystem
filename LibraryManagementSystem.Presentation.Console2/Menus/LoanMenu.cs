@@ -1,4 +1,4 @@
-﻿namespace LibraryManagementSystem.Presentation.Console.Menus;
+﻿namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
 public class LoanMenu
 {

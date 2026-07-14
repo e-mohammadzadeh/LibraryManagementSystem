@@ -1,4 +1,6 @@
-﻿namespace LibraryManagementSystem.Common;
+﻿using LibraryManagementSystem.Domain.Enums;
+
+namespace LibraryManagementSystem.Application.Common;
 
 public class ServiceResult<T> where T : class
 {
