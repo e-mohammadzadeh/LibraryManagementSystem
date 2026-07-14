@@ -2,27 +2,29 @@
 using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
 
 public class BookManagementService
 {
-	private readonly List<Book> _books = new();
+	private readonly IBookRepository _bookRepository;
 	private readonly UserManagementService _authorService;
 
 
-	public BookManagementService(UserManagementService authorService)
+	public BookManagementService(IBookRepository bookRepository, UserManagementService authorService)
 	{
+		_bookRepository = bookRepository;
 		_authorService = authorService;
 	}
 
 
 	public ServiceResult<Book> AddBook(CreateBookDto dto)
 	{
-		if (IsDuplicateBookName(dto.BookName))
+		if (_bookRepository.ExistsByName(dto.BookName))
 			return ServiceResult<Book>.Fail(ValidationMessages.FailureDuplicateBookByName);
 
-		if (IsExistIsbn(dto.ISBN))
+		if (_bookRepository.ExistsByISBN(dto.ISBN))
 			return ServiceResult<Book>.Fail(ValidationMessages.FailureDuplicateBookByISBN);
 
 		if (!Enum.IsDefined(typeof(Genre), dto.GenreId))
@@ -36,7 +38,7 @@ public class BookManagementService
 		var newBook = new Book(dto.ISBN, dto.BookName, author, dto.PublishDate, dto.TotalCopies, genreName,
 			dto.Description);
 
-		_books.Add(newBook);
+		_bookRepository.Add(newBook);
 		author.Books.Add(newBook);
 
 		return ServiceResult<Book>.Ok(newBook, ValidationMessages.BookAddedSuccessfully);
@@ -45,20 +47,19 @@ public class BookManagementService
 
 	public bool IsExistIsbn(string isbn)
 	{
-		return _books.Any(book =>
-			book.InternationalStandardBookNumber.Equals(isbn, StringComparison.OrdinalIgnoreCase));
+		return _bookRepository.ExistsByISBN(isbn);
 	}
 
 
 	public IReadOnlyList<Book> GetAllBooks()
 	{
-		return _books.AsReadOnly();
+		return _bookRepository.GetAll();
 	}
 
 
 	private Book? FindBookById(int id)
 	{
-		return _books.FirstOrDefault(b => b.BookId == id);
+		return _bookRepository.FindById(id);
 	}
 
 
@@ -68,19 +69,16 @@ public class BookManagementService
 		if (book is null)
 			return ServiceResult<Book>.Fail(ValidationMessages.NotAvailableBook);
 
-		if (dto.BookName != null && _books.Any(b =>
-			    b.BookId != bookId && b.BookName.Equals(dto.BookName, StringComparison.OrdinalIgnoreCase)))
+		if (dto.BookName != null && _bookRepository.ExistsByName(dto.BookName, bookId))
 			return ServiceResult<Book>.Fail(ValidationMessages.FailureDuplicateBookByName);
 
-		if (dto.ISBN != null && _books.Any(b =>
-			    b.BookId != bookId &&
-			    b.InternationalStandardBookNumber.Equals(dto.ISBN, StringComparison.OrdinalIgnoreCase)))
+		if (dto.ISBN != null && _bookRepository.ExistsByISBN(dto.ISBN, bookId))
 			return ServiceResult<Book>.Fail(ValidationMessages.FailureDuplicateBookByISBN);
 
 		if (dto.GenreId != null && !Enum.IsDefined(typeof(Genre), dto.GenreId))
 			return ServiceResult<Book>.Fail(ValidationMessages.InvalidGenre);
 
-		if (dto.TotalCopies.HasValue && dto.TotalCopies <= 0)
+		if (dto.TotalCopies.HasValue && dto.TotalCopies.Value <= 0)
 			return ServiceResult<Book>.Fail(ValidationMessages.WrongTotalCopies);
 
 		Genre? genreName = dto.GenreId.HasValue ? (Genre)dto.GenreId.Value : null;
@@ -103,12 +101,6 @@ public class BookManagementService
 	}
 
 
-	private bool IsDuplicateBookName(string name)
-	{
-		return _books.Any(book => book.BookName.Equals(name, StringComparison.OrdinalIgnoreCase));
-	}
-
-
 	public ServiceResult<Book> RemoveBook(int bookId)
 	{
 		var book = FindBookById(bookId);
@@ -121,35 +113,21 @@ public class BookManagementService
 		//TODO	Missing loan integration: if book has active loans, it cannot be removed. This should be checked with the loan management service.
 		//book.RemoveFromCurrentAuthor();  // If ChangeAuthor is implemented correctly, this line is not needed.
 		book.ChangeAuthor(null);
-		_books.Remove(book);
+		_bookRepository.Remove(book);
 		return ServiceResult<Book>.Ok(book, ValidationMessages.BookRemovedSuccessfully);
 	}
 
 
-	public IReadOnlyList<Book> SearchBooks<T>(T? searchItem, Func<Book, T?> selector, Func<T, T, bool> comparer)
+	public IReadOnlyList<Book> SearchBooks<T>(T searchItem, Func<Book, T?> selector, Func<T, T, bool> comparer)
 		where T : class
 	{
-		if (searchItem is null)
-			return new List<Book>();
-
-		return _books.Where(book =>
-		{
-			var value = selector(book);
-			return value is not null && comparer(searchItem, value);
-		}).ToList().AsReadOnly();
+		return _bookRepository.Search(searchItem, selector, comparer);
 	}
 
 
-	public IReadOnlyList<Book> SearchBooks<T>(T? searchItem, Func<Book, T?> selector, Func<T, T, bool> comparer)
+	public IReadOnlyList<Book> SearchBooks<T>(T? searchItem, Func<Book, T?> selector, Func<T?, T?, bool> comparer)
 		where T : struct
 	{
-		if (!searchItem.HasValue)
-			return new List<Book>();
-
-		return _books.Where(book =>
-		{
-			var value = selector(book);
-			return value.HasValue && comparer(searchItem.Value, value.Value);
-		}).ToList().AsReadOnly();
+		return _bookRepository.Search(searchItem, selector, comparer);
 	}
 }

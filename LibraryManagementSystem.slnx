@@ -2,5 +2,5 @@
   <Project Path="LibraryManagementSystem.Application/LibraryManagementSystem.Application.csproj" Id="a661c3f8-3488-4259-8380-9b27b6243d31" />
   <Project Path="LibraryManagementSystem.Domain/LibraryManagementSystem.Domain.csproj" Id="e3654a5d-5c5f-4791-9371-9683bcfe246d" />
   <Project Path="LibraryManagementSystem.Infrastructure/LibraryManagementSystem.Infrastructure.csproj" Id="d18ef18b-e394-4807-b6b0-7dcbe524ee0f" />
-  <Project Path="LibraryManagementSystem.Presentation.Console2/LibraryManagementSystem.Presentation.ConsoleApp.csproj" Id="f1f6b3d1-b125-4df4-8691-a8710e104de1" />
+  <Project Path="LibraryManagementSystem.Presentation.ConsoleApp/LibraryManagementSystem.Presentation.ConsoleApp.csproj" Id="68d7147a-83a4-4174-aa22-d1329fc101ac" />
 </Solution>

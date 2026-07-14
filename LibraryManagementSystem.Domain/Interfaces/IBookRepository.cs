@@ -1,6 +1,15 @@
-﻿namespace LibraryManagementSystem.Domain.Interfaces;
+﻿using LibraryManagementSystem.Domain.Entities;
 
-public class IBookRepository
+namespace LibraryManagementSystem.Domain.Interfaces;
+
+public interface IBookRepository
 {
-	
+	void Add(Book book);
+	Book? FindById(int id);
+	IReadOnlyList<Book> GetAll();
+	bool ExistsByName(string name, int excludeBookId = -1);
+	bool ExistsByISBN(string isbn, int excludeBookId = -1);
+	void Remove(Book book);
+	IReadOnlyList<Book> Search<T>(T searchItem, Func<Book, T> selector, Func<T, T, bool> comparer) where T : class?;
+	IReadOnlyList<Book> Search<T>(T? searchItem, Func<Book, T?> selector, Func<T?, T?, bool> comparer) where T : struct;
 }
