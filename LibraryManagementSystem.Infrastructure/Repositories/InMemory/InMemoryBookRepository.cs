@@ -7,7 +7,6 @@ public class InMemoryBookRepository : IBookRepository
 {
 	private readonly List<Book> _books = new();
 
-
 	public void Add(Book book)
 	{
 		_books.Add(book);

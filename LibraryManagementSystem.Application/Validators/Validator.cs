@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using LibraryManagementSystem.Application.Common;
 
-namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
+namespace LibraryManagementSystem.Application.Validators;
 
 public static class Validator
 {

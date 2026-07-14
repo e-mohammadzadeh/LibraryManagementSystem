@@ -12,6 +12,7 @@ public class User : Person
 	}
 
 	private static int _nextUserId;
+	public ICollection<UserRole> Roles { get; } = new List<UserRole>();
 	public bool IsActive { get; private set; }
 	public DateOnly MembershipStartDate { get; private set; }
 	public DateOnly MembershipExpiryDate { get; private set; }

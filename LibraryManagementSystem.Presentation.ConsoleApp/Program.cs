@@ -11,9 +11,11 @@ public static class Program
 		var userRepo = new InMemoryUserRepository();
 		var authorRepo = new InMemoryAuthorRepository();
 		var bookRepo = new InMemoryBookRepository();
+		//var loanRepo = new InMemoryLoanRepository();
 
 		var userService = new UserManagementService(authorRepo, userRepo);
-		var bookService = new BookManagementService(bookRepo, userService);
+		var bookService = new BookManagementService(bookRepo, authorRepo);
+		//var loanService = new LoanManagementService(loanRepo, bookRepo, UserRepo);
 
 
 		MainMenu.MainMenuController(userService, bookService);
