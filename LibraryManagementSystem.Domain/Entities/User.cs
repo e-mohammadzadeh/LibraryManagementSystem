@@ -3,13 +3,16 @@
 public class User : Person
 {
 	public User(string firstName, string lastName, string nationalCode, string email, string phoneNumber,
-		DateOnly birthDate, ICollection<UserRole> role) : base(firstName, lastName, nationalCode, email, phoneNumber, birthDate)
+		DateOnly birthDate, ICollection<UserRole> roles) : base(firstName, lastName, nationalCode, email, phoneNumber, birthDate)
 	{
 		Id = ++_nextUserId;
 		IsActive = true;
-		Roles.Add(role);
 		MembershipStartDate = DateOnly.FromDateTime(DateTime.Today);
 		MembershipExpiryDate = MembershipStartDate.AddYears(1);  // Should set a suitable end date based on business logic
+		foreach (var userRole in roles)
+		{
+			Roles.Add(userRole);
+		}
 	}
 
 	private static int _nextUserId;

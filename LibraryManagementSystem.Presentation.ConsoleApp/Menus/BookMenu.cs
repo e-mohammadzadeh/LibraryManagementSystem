@@ -10,7 +10,7 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
 public static class BookMenu
 {
-	public static void BookMenuController(UserManagementService userManagementService,
+	public static void BookMenuController(AuthorManagementService authorManagementService,
 		BookManagementService bookManagementService)
 	{
 		var continueProgram = true;
@@ -22,7 +22,7 @@ public static class BookMenu
 				case 1:
 				{
 					Console.Clear();
-					AddBook(userManagementService, bookManagementService);
+					AddBook(authorManagementService, bookManagementService);
 					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 					Console.ReadKey(true);
 					break;
@@ -30,7 +30,7 @@ public static class BookMenu
 				case 2:
 				{
 					Console.Clear();
-					EditBook(userManagementService, bookManagementService);
+					EditBook(authorManagementService, bookManagementService);
 					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 					Console.ReadKey(true);
 					break;
@@ -108,7 +108,7 @@ public static class BookMenu
 	}
 
 
-	private static void AddBook(UserManagementService userManagementService,
+	private static void AddBook(AuthorManagementService authorManagementService,
 		BookManagementService bookManagementService)
 	{
 		Console.WriteLine("============================ ADDING BOOK MENU ============================");
@@ -123,7 +123,7 @@ public static class BookMenu
 
 		if (bookName is null) return;
 
-		var authors = userManagementService.GetAllAuthors();
+		var authors = authorManagementService.GetAllAuthors();
 		if (authors.Count != 0)
 		{
 			author = MenuHelper.SelectAuthor(authors);
@@ -137,7 +137,7 @@ public static class BookMenu
 				var authorDto = AuthorMenu.PromptForAuthorDto();
 				if (authorDto == null) return;
 
-				var addAuthorResult = userManagementService.AddAuthor(authorDto);
+				var addAuthorResult = authorManagementService.AddAuthor(authorDto);
 				if (!addAuthorResult.Success)
 				{
 					ConsoleHelper.ShowError(ValidationMessages.NotAvailableAuthor);
@@ -189,7 +189,7 @@ public static class BookMenu
 	}
 
 
-	private static void EditBook(UserManagementService userManagementService,
+	private static void EditBook(AuthorManagementService authorManagementService,
 		BookManagementService bookManagementService)
 	{
 		Console.WriteLine("============================ EDITING BOOK MENU ============================");
@@ -233,7 +233,7 @@ public static class BookMenu
 				}
 				case 3:
 				{
-					var authors = userManagementService.GetAllAuthors();
+					var authors = authorManagementService.GetAllAuthors();
 					if (authors.Count != 0)
 					{
 						var author = MenuHelper.SelectAuthor(authors);

@@ -9,7 +9,7 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
 public static class AuthorMenu
 {
-	public static void AuthorMenuController(UserManagementService userManagementService)
+	public static void AuthorMenuController(AuthorManagementService authorManagementService)
 	{
 		var continueProgram = true;
 		while (continueProgram)
@@ -20,7 +20,7 @@ public static class AuthorMenu
 				case 1:
 				{
 					Console.Clear();
-					AddAuthor(userManagementService);
+					AddAuthor(authorManagementService);
 					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 					Console.ReadKey(true);
 					break;
@@ -28,7 +28,7 @@ public static class AuthorMenu
 				case 2:
 				{
 					Console.Clear();
-					EditAuthor(userManagementService);
+					EditAuthor(authorManagementService);
 					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 					Console.ReadKey(true);
 					break;
@@ -36,18 +36,18 @@ public static class AuthorMenu
 				case 3:
 				{
 					Console.Clear();
-					RemoveAuthor(userManagementService);
+					RemoveAuthor(authorManagementService);
 					break;
 				}
 				case 4:
 				{
-					SearchAuthor(userManagementService);
+					SearchAuthor(authorManagementService);
 					break;
 				}
 				case 5:
 				{
 					Console.Clear();
-					var desiredAuthor = SelectExistingAuthor(userManagementService);
+					var desiredAuthor = SelectExistingAuthor(authorManagementService);
 					if (desiredAuthor is not null)
 					{
 						AuthorPrinter.PrintDetails(desiredAuthor);
@@ -60,10 +60,10 @@ public static class AuthorMenu
 				case 6:
 				{
 					Console.Clear();
-					if (userManagementService.GetAllAuthors().Count is 0)
+					if (authorManagementService.GetAllAuthors().Count is 0)
 						ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
 					else
-						AuthorPrinter.PrintTable(userManagementService.GetAllAuthors());
+						AuthorPrinter.PrintTable(authorManagementService.GetAllAuthors());
 
 					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 					Console.ReadKey(true);
@@ -139,21 +139,21 @@ public static class AuthorMenu
 	}
 
 
-	private static void AddAuthor(UserManagementService userManagementService)
+	private static void AddAuthor(AuthorManagementService authorManagementService)
 	{
 		Console.WriteLine("============================ ADDING AUTHOR MENU ============================");
 		var authorDto = PromptForAuthorDto();
 		if (authorDto is null) return;
 
-		var result = userManagementService.AddAuthor(authorDto);
+		var result = authorManagementService.AddAuthor(authorDto);
 		ConsoleHelper.ShowResult(result);
 	}
 
 
-	private static void EditAuthor(UserManagementService userManagementService)
+	private static void EditAuthor(AuthorManagementService authorManagementService)
 	{
 		Console.WriteLine("============================ EDITING AUTHOR MENU ============================");
-		var desiredAuthor = SelectExistingAuthor(userManagementService);
+		var desiredAuthor = SelectExistingAuthor(authorManagementService);
 		if (desiredAuthor is null) return;
 
 		while (true)
@@ -176,7 +176,7 @@ public static class AuthorMenu
 					var authorNewFirstName = ConsoleHelper.GetValidName("Enter new first name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
-					PerformUpdate(userManagementService, desiredAuthor.Id, authorNewFirstName,
+					PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewFirstName,
 						v => new UpdateAuthorDto { FirstName = v });
 
 					break;
@@ -186,7 +186,7 @@ public static class AuthorMenu
 					var authorNewLastName = ConsoleHelper.GetValidName("Enter new last name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
-					PerformUpdate(userManagementService, desiredAuthor.Id, authorNewLastName,
+					PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewLastName,
 						v => new UpdateAuthorDto { LastName = v });
 
 					break;
@@ -194,7 +194,7 @@ public static class AuthorMenu
 				case 3:
 				{
 					var authorNewNationalCode = ConsoleHelper.GetValidNationalCode("Enter new national code");
-					PerformUpdate(userManagementService, desiredAuthor.Id, authorNewNationalCode,
+					PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewNationalCode,
 						v => new UpdateAuthorDto { NationalCode = v });
 
 					break;
@@ -202,7 +202,7 @@ public static class AuthorMenu
 				case 4:
 				{
 					var authorNewEmail = ConsoleHelper.GetValidEmail("Enter new email");
-					PerformUpdate(userManagementService, desiredAuthor.Id, authorNewEmail,
+					PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewEmail,
 						v => new UpdateAuthorDto { Email = v });
 
 					break;
@@ -210,7 +210,7 @@ public static class AuthorMenu
 				case 5:
 				{
 					var authorNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter new phone number");
-					PerformUpdate(userManagementService, desiredAuthor.Id, authorNewPhoneNumber,
+					PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewPhoneNumber,
 						v => new UpdateAuthorDto { PhoneNumber = v });
 
 					break;
@@ -218,7 +218,7 @@ public static class AuthorMenu
 				case 6:
 				{
 					var authorNewBirthDate = ConsoleHelper.GetValidBirthDate("Enter new birth date");
-					PerformUpdate(userManagementService, desiredAuthor.Id, authorNewBirthDate,
+					PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewBirthDate,
 						v => new UpdateAuthorDto { BirthDate = v });
 
 					break;
@@ -226,7 +226,7 @@ public static class AuthorMenu
 				case 7:
 				{
 					var authorNewBiography = ConsoleHelper.ReadString("Enter new biography");
-					PerformUpdate(userManagementService, desiredAuthor.Id, authorNewBiography,
+					PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewBiography,
 						v => new UpdateAuthorDto { Biography = v });
 
 					break;
@@ -247,11 +247,11 @@ public static class AuthorMenu
 	}
 
 
-	private static void RemoveAuthor(UserManagementService userManagementService)
+	private static void RemoveAuthor(AuthorManagementService authorManagementService)
 	{
 		// TODO	Implement SOFT DELETE system with flags like `IsDeleted = true` or `IsActive = False`
 		Console.WriteLine("============================ REMOVING AUTHOR MENU ============================");
-		var desiredAuthor = SelectExistingAuthor(userManagementService);
+		var desiredAuthor = SelectExistingAuthor(authorManagementService);
 		if (desiredAuthor == null)
 		{
 			ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
@@ -264,20 +264,20 @@ public static class AuthorMenu
 			$"Are you sure you want to remove {desiredAuthor.FirstName} {desiredAuthor.LastName}");
 
 		if (choice != true) return;
-		var result = userManagementService.RemoveAuthor(desiredAuthor.Id);
+		var result = authorManagementService.RemoveAuthor(desiredAuthor.Id);
 		ConsoleHelper.ShowResult(result);
 		ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 		Console.ReadKey(true);
 	}
 
 
-	private static void SearchAuthor(UserManagementService userManagementService)
+	private static void SearchAuthor(AuthorManagementService authorManagementService)
 	{
 		while (true)
 		{
 			Console.Clear();
 			Console.WriteLine("============================ SEARCHING AUTHOR MENU ============================");
-			var authorsList = userManagementService.GetAllAuthors();
+			var authorsList = authorManagementService.GetAllAuthors();
 			if (authorsList.Count == 0)
 			{
 				ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
@@ -299,26 +299,28 @@ public static class AuthorMenu
 			{
 				case 1:
 				{
-					SearchAuthorsAndDisplay(userManagementService, "Enter a name to search",
+					SearchAuthorsAndDisplay(authorManagementService, "Enter a name to search",
 						author => $"{author.FirstName} {author.LastName}");
 
 					break;
 				}
 				case 2:
 				{
-					SearchAuthorsAndDisplay(userManagementService, "Enter a national code to search",
+					SearchAuthorsAndDisplay(authorManagementService, "Enter a national code to search",
 						author => author.NationalCode);
 
 					break;
 				}
 				case 3:
 				{
-					SearchAuthorsAndDisplay(userManagementService, "Enter an email to search", author => author.Email);
+					SearchAuthorsAndDisplay(authorManagementService, "Enter an email to search",
+						author => author.Email);
+
 					break;
 				}
 				case 4:
 				{
-					SearchAuthorsAndDisplay(userManagementService, "Enter a phone number to search",
+					SearchAuthorsAndDisplay(authorManagementService, "Enter a phone number to search",
 						author => author.PhoneNumber);
 
 					break;
@@ -339,24 +341,25 @@ public static class AuthorMenu
 
 
 
-	private static void PerformUpdate<T>(UserManagementService userManagementService, int desiredAuthorId, T? newValue,
+	private static void PerformUpdate<T>(AuthorManagementService authorManagementService, int desiredAuthorId,
+		T? newValue,
 		Func<T, UpdateAuthorDto> buildDto)
 	{
 		if (newValue is null) return;
 
 		var dto = buildDto(newValue);
-		var result = userManagementService.UpdateAuthor(desiredAuthorId, dto);
+		var result = authorManagementService.UpdateAuthor(desiredAuthorId, dto);
 		ConsoleHelper.ShowResult(result);
 	}
 
 
-	private static void SearchAuthorsAndDisplay(UserManagementService userManagementService, string prompt,
+	private static void SearchAuthorsAndDisplay(AuthorManagementService authorManagementService, string prompt,
 		Func<Author, string?> selector)
 	{
 		var searchItem = ConsoleHelper.ReadString(prompt);
 		if (searchItem == null) return;
 
-		var result = userManagementService.SearchAuthor(searchItem, selector);
+		var result = authorManagementService.SearchAuthor(searchItem, selector);
 
 		if (result.Count == 0)
 		{
@@ -368,9 +371,9 @@ public static class AuthorMenu
 	}
 
 
-	private static Author? SelectExistingAuthor(UserManagementService userManagementService)
+	private static Author? SelectExistingAuthor(AuthorManagementService authorManagementService)
 	{
-		var authors = userManagementService.GetAllAuthors();
+		var authors = authorManagementService.GetAllAuthors();
 		if (authors.Count is not 0) return MenuHelper.SelectAuthor(authors);
 
 		ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);

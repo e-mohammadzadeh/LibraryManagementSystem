@@ -3,6 +3,6 @@
 public enum LibraryUserRole
 {
 	Admin,
-	Manager,
+	Librarian,
 	Member
 }

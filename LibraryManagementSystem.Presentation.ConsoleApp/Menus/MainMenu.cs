@@ -5,8 +5,8 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
 public static class MainMenu
 {
-	public static void MainMenuController(UserManagementService userManagementService,
-		BookManagementService bookManagementService)
+	public static void MainMenuController(AuthorManagementService authorManagementService,
+		UserManagementService userManagementService, BookManagementService bookManagementService)
 	{
 		var continueProgram = true;
 		while (continueProgram)
@@ -16,13 +16,13 @@ public static class MainMenu
 				case 1:
 				{
 					Console.Clear();
-					AuthorMenu.AuthorMenuController(userManagementService);
+					AuthorMenu.AuthorMenuController(authorManagementService);
 					break;
 				}
 				case 2:
 				{
 					Console.Clear();
-					BookMenu.BookMenuController(userManagementService, bookManagementService);
+					BookMenu.BookMenuController(authorManagementService, bookManagementService);
 					break;
 				}
 				case 3:
