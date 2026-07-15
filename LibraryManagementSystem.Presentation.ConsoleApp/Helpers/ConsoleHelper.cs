@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Validators;
+using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
@@ -111,6 +112,15 @@ public static class ConsoleHelper
 					break;
 			}
 		}
+	}
+
+
+	public static int? ReadRole(string prompt)
+	{
+		Console.WriteLine("1. Member");
+		Console.WriteLine("2. Librarian");
+		Console.WriteLine("3. Admin");
+		return ReadInt(prompt, 1, 3);
 	}
 
 

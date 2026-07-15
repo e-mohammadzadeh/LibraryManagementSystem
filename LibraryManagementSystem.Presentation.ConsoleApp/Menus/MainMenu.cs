@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
@@ -14,26 +15,26 @@ public static class MainMenu
 			{
 				case 1:
 				{
-					System.Console.Clear();
+					Console.Clear();
 					AuthorMenu.AuthorMenuController(userManagementService);
 					break;
 				}
 				case 2:
 				{
-					System.Console.Clear();
+					Console.Clear();
 					BookMenu.BookMenuController(userManagementService, bookManagementService);
 					break;
 				}
 				case 3:
 				{
-					System.Console.Clear();
+					Console.Clear();
 					UserMenu.UserMenuController(userManagementService);
 					break;
 				}
 				case 4:
 				{
-					System.Console.Clear();
-					System.Console.WriteLine("Option 4 selected.");
+					Console.Clear();
+					Console.WriteLine("Option 4 selected.");
 					break;
 				}
 				case 5:
@@ -51,16 +52,16 @@ public static class MainMenu
 	{
 		while (true)
 		{
-			System.Console.WriteLine("============================ MAIN MENU ============================");
-			System.Console.WriteLine("1. Authors");
-			System.Console.WriteLine("2. Books");
-			System.Console.WriteLine("3. Members");
-			System.Console.WriteLine("4. Borrowing");
-			System.Console.WriteLine("5. Exit");
-			System.Console.WriteLine("==================================================================");
-			System.Console.Write("Please Enter a number: ");
+			Console.WriteLine("============================ MAIN MENU ============================");
+			Console.WriteLine("1. Authors");
+			Console.WriteLine("2. Books");
+			Console.WriteLine("3. Members");
+			Console.WriteLine("4. Borrowing");
+			Console.WriteLine("5. Exit");
+			Console.WriteLine("==================================================================");
+			Console.Write("Please Enter a number: ");
 
-			var option = System.Console.ReadLine();
+			var option = Console.ReadLine();
 			if (int.TryParse(option, out var result) && result is >= 1 and <= 5)
 			{
 				return result;

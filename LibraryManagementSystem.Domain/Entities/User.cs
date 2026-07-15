@@ -3,10 +3,11 @@
 public class User : Person
 {
 	public User(string firstName, string lastName, string nationalCode, string email, string phoneNumber,
-		DateOnly birthDate) : base(firstName, lastName, nationalCode, email, phoneNumber, birthDate)
+		DateOnly birthDate, ICollection<UserRole> role) : base(firstName, lastName, nationalCode, email, phoneNumber, birthDate)
 	{
 		Id = ++_nextUserId;
 		IsActive = true;
+		Roles.Add(role);
 		MembershipStartDate = DateOnly.FromDateTime(DateTime.Today);
 		MembershipExpiryDate = MembershipStartDate.AddYears(1);  // Should set a suitable end date based on business logic
 	}
@@ -19,7 +20,7 @@ public class User : Person
 
 
 	public void Update(string? firstName, string? lastName, string? nationalCode, string? email, string? phoneNumber,
-		DateOnly? birthDate) {
+		DateOnly? birthDate, UserRole Role) {
 		UpdateCore(firstName, lastName, nationalCode, email, phoneNumber, birthDate);
 	}
 }

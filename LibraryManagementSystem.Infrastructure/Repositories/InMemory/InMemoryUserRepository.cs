@@ -60,6 +60,12 @@ public class InMemoryUserRepository : IUserRepository
 	}
 
 
+	public bool ExistsByRole(UserRole role, int excludeId = -1)
+	{
+		return _users.Any(user => user.Id == excludeId && user.Roles.Contains(role));
+	}
+
+
 	public void Remove(User user)
 	{
 		_users.Remove(user);

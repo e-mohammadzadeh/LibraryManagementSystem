@@ -12,6 +12,7 @@ public interface IUserRepository
 	bool ExistsByNationalCode(string nationalCode, int excludeId = -1);
 	bool ExistsByEmail(string email, int excludeId = -1);
 	bool ExistsByPhoneNumber(string phoneNumber, int excludeId = -1);
+	bool ExistsByRole(UserRole role, int excludeId = -1);
 	void Remove(User user);
 	IReadOnlyList<User> Search(string searchItem, Func<User, string?> selector);
 }

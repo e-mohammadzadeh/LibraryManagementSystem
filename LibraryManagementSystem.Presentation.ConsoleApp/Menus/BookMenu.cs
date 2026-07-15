@@ -309,7 +309,7 @@ public static class BookMenu
 	private static Book? SelectExistingBook(BookManagementService bookManagementService)
 	{
 		var bookList = bookManagementService.GetAllBooks();
-		if (bookList.Count != 0) return MenuHelper.SelectBook(bookList);
+		if (bookList.Count is not 0) return MenuHelper.SelectBook(bookList);
 
 		ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableBook);
 		return null;

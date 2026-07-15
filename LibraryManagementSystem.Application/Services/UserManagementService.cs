@@ -128,23 +128,28 @@ public class UserManagementService
 		string? warningMessage = null;
 
 		if (_userRepository.ExistsByNationalCode(dto.NationalCode))
-			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateMemberByNationalCode);
+			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateUserByNationalCode);
 
 		if (_userRepository.ExistsByEmail(dto.Email))
-			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateMemberByEmail);
+			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateUserByEmail);
 
 		var existingSameName = _userRepository.FindByName(dto.FirstName, dto.LastName);
 
 		if (existingSameName is not null)
 			warningMessage = $"A member with the same name already exists (ID: {existingSameName.Id}). ";
 
-		var newMember = new User(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email,
-			dto.PhoneNumber, dto.BirthDate);
+		var roles = _userRoles.Where(r => dto.RoleIds.Contains(r.Id)).ToList();
+		if (roles.Count != dto.RoleIds.Count)
+			return ServiceResult<User>.Fail("One or more roles do not exist.");
 
-		_userRepository.Add(newMember);
+
+		var newUser = new User(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email,
+			dto.PhoneNumber, dto.BirthDate, roles);
+
+		_userRepository.Add(newUser);
 		return warningMessage is not null
-			? ServiceResult<User>.Warning(newMember, warningMessage)
-			: ServiceResult<User>.Ok(newMember, ValidationMessages.MemberAddedSuccessfully);
+			? ServiceResult<User>.Warning(newUser, warningMessage)
+			: ServiceResult<User>.Ok(newUser, ValidationMessages.MemberAddedSuccessfully);
 	}
 
 
@@ -168,19 +173,22 @@ public class UserManagementService
 		if (dto.FirstName is not null || dto.LastName is not null)
 		{
 			if (_userRepository.ExistsByName(resolvedFirstName, resolvedLastName, userId))
-				return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateMemberByName);
+				return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateUserByName);
 		}
 
 		if (dto.NationalCode is not null && _userRepository.ExistsByNationalCode(dto.NationalCode, userId))
-			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateMemberByNationalCode);
+			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateUserByNationalCode);
 
 		if (dto.Email is not null && _userRepository.ExistsByEmail(dto.Email, userId))
-			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateMemberByEmail);
+			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateUserByEmail);
 
 		if (dto.PhoneNumber is not null && _userRepository.ExistsByPhoneNumber(dto.PhoneNumber, userId))
-			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateMemberByPhoneNumber);
+			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateUserByPhoneNumber);
 
-		user.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate);
+		if (dto.Role is not null && _userRepository.ExistsByRole(dto.Role, userId))
+			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateUserByRole);
+
+		user.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate, dto.Role);
 		return ServiceResult<User>.Ok(user, ValidationMessages.MemberUpdatedSuccessfully);
 	}
 

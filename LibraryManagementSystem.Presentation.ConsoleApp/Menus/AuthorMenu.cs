@@ -371,7 +371,7 @@ public static class AuthorMenu
 	private static Author? SelectExistingAuthor(UserManagementService userManagementService)
 	{
 		var authors = userManagementService.GetAllAuthors();
-		if (authors.Count != 0) return MenuHelper.SelectAuthor(authors);
+		if (authors.Count is not 0) return MenuHelper.SelectAuthor(authors);
 
 		ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
 		return null;

@@ -52,7 +52,7 @@ public class InMemoryBookRepository : IBookRepository
 	}
 
 
-	public IReadOnlyList<Book> Search<T>(T searchItem, Func<Book, T> selector, Func<T, T, bool> comparer)
+	public IReadOnlyList<Book> Search<T>(T? searchItem, Func<Book, T?> selector, Func<T, T, bool> comparer)
 		where T : class
 	{
 		if (searchItem is null)
@@ -66,7 +66,8 @@ public class InMemoryBookRepository : IBookRepository
 	}
 
 
-	public IReadOnlyList<Book> Search<T>(T? searchItem, Func<Book, T?> selector, Func<T?, T?, bool> comparer)
+
+	public IReadOnlyList<Book> Search<T>(T? searchItem, Func<Book, T?> selector, Func<T, T, bool> comparer)
 		where T : struct
 	{
 		if (!searchItem.HasValue)

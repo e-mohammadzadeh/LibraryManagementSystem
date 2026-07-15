@@ -34,19 +34,23 @@ public static class UserMenu
 					break;
 				}
 				case 3:
+				{
 					Console.Clear();
 					RemoveUser(userManagementService);
 					break;
+				}
 				case 4:
+				{
 					SearchUser(userManagementService);
 					break;
+				}
 				case 5:
 				{
 					Console.Clear();
-					var desiredMember = SelectExistingUser(userManagementService);
-					if (desiredMember is not null)
+					var desiredUser = SelectExistingUser(userManagementService);
+					if (desiredUser is not null)
 					{
-						UserPrinter.PrintDetails(desiredMember);
+						UserPrinter.PrintDetails(desiredUser);
 						ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 						Console.ReadKey(true);
 					}
@@ -117,30 +121,27 @@ public static class UserMenu
 		var firstName = ConsoleHelper.GetValidName("Enter user's first name", ValidationConstants.MinNameLength,
 			ValidationConstants.MaxNameLength);
 
-		if (firstName == null)
-			return null;
+		if (firstName == null) return null;
 
 		var lastName = ConsoleHelper.GetValidName("Enter user's last name", ValidationConstants.MinNameLength,
 			ValidationConstants.MaxNameLength);
 
-		if (lastName == null)
-			return null;
+		if (lastName == null) return null;
 
 		var nationalCode = ConsoleHelper.GetValidNationalCode("Enter user's national code");
-		if (nationalCode == null)
-			return null;
+		if (nationalCode == null) return null;
 
 		var email = ConsoleHelper.GetValidEmail("Enter user's email");
-		if (email == null)
-			return null;
+		if (email == null) return null;
 
 		var phoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter user's phone number");
-		if (phoneNumber == null)
-			return null;
+		if (phoneNumber == null) return null;
 
 		var birthDate = ConsoleHelper.GetValidBirthDate("Enter user's birth date");
-		if (birthDate == null)
-			return null;
+		if (birthDate == null) return null;
+
+		var roleId = ConsoleHelper.ReadRole("Select a role for this user");
+		if (roleId == null) return null;
 
 		return new CreateUserDto()
 		{
@@ -149,13 +150,14 @@ public static class UserMenu
 			NationalCode = nationalCode,
 			Email = email,
 			PhoneNumber = phoneNumber,
-			BirthDate = birthDate.Value
+			BirthDate = birthDate.Value,
+			RoleIds = new List<int> { roleId.Value }
 		};
 	}
 
 
 
-	private static void EditUser(UserManagementService userManagementService)	
+	private static void EditUser(UserManagementService userManagementService)
 	{
 		Console.WriteLine("============================ EDITING USER MENU ============================");
 		var desiredUser = SelectExistingUser(userManagementService);
@@ -169,8 +171,9 @@ public static class UserMenu
 			Console.WriteLine("{0, -20} [{1}]", "4. Email", desiredUser.Email);
 			Console.WriteLine("{0, -20} [{1}]", "5. Phone Number", desiredUser.PhoneNumber);
 			Console.WriteLine("{0, -20} [{1}]", "6. Birth Date", desiredUser.BirthDate);
-			Console.WriteLine("7. Cancel");
-			var editMenuChoice = ConsoleHelper.ReadInt("Enter the number of the field you wish to edit", 1, 7);
+			Console.WriteLine("{0, -20} [{1}]", "7. Role", desiredUser.Roles);
+			Console.WriteLine("8. Cancel");
+			var editMenuChoice = ConsoleHelper.ReadInt("Enter the number of the field you wish to edit", 1, 8);
 			if (editMenuChoice == null)
 				return;
 
@@ -228,6 +231,12 @@ public static class UserMenu
 
 					break;
 				}
+				case 8:
+				{
+					var userNewRole = ConsoleHelper.ReadRole(ValidationMessages.GetRole);
+					PerformUpdate(userManagementService, desiredUser.Id, userNewRole, v=> new UpdateUserDto{Role = v});
+					return;
+				}
 				case 7:
 				{
 					ConsoleHelper.ShowError("Edit cancelled. Returning to User Menu...");
@@ -246,8 +255,8 @@ public static class UserMenu
 
 	private static User? SelectExistingUser(UserManagementService userManagementService)
 	{
-		var member = userManagementService.GetAllUsers();
-		if (member.Count is not 0) return MenuHelper.SelectUser(member);
+		var user = userManagementService.GetAllUsers();
+		if (user.Count is not 0) return MenuHelper.SelectUser(user);
 
 		ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableUser);
 		return null;

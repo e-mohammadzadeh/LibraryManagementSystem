@@ -2,6 +2,10 @@
 
 public static class ValidationMessages
 {
+	// Input Messages
+	public const string GetRole = "Select a role for this user";
+
+
 	// Invalid Messages
 	public const string InvalidNationalCode = "Invalid national code. Please enter exactly 10 digits without dashes or spaces.";
 	public const string InvalidEmail = "Invalid email address. Please enter a valid email (e.g., name@domain.com).";
@@ -64,10 +68,11 @@ public static class ValidationMessages
 	public const string FailureDuplicateBookByName = "A book with the same name already exists.";
 	public const string FailureDuplicateBookByISBN = "A book with the same ISBN already exists.";
 	public const string FailureDuplicateBookByAuthor = "This is already the book's author";
-	public const string FailureDuplicateMemberByName = "A member with the same first and last name already exists.";
-	public const string FailureDuplicateMemberByNationalCode = "A member with the same national code already exists.";
-	public const string FailureDuplicateMemberByEmail = "A member with the same email already exists.";
-	public const string FailureDuplicateMemberByPhoneNumber = "A member with the same phone number already exists.";
+	public const string FailureDuplicateUserByName = "A user with the same first and last name already exists.";
+	public const string FailureDuplicateUserByNationalCode = "A user with the same national code already exists.";
+	public const string FailureDuplicateUserByEmail = "A user with the same email already exists.";
+	public const string FailureDuplicateUserByPhoneNumber = "A user with the same phone number already exists.";
+	public const string FailureDuplicateUserByRole = "This user has the same role.";
 
 
 	// Other Messages
