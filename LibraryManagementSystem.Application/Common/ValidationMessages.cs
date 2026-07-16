@@ -21,6 +21,8 @@ public static class ValidationMessages
 	public const string InvalidYesNo = "Invalid input. Please enter 'y' or 'n'.";
 	public const string InvalidMenuChoice = "Invalid selection, Try again.\n";
 	public const string InvalidCharacters = "The name can only contain letters, numbers, spaces, and basic punctuation.";
+	public const string InvalidRoleSelection = "Please enter at least one role number.";
+
 
 
 	// Adding Messages
@@ -73,6 +75,8 @@ public static class ValidationMessages
 	public const string FailureDuplicateUserByEmail = "A user with the same email already exists.";
 	public const string FailureDuplicateUserByPhoneNumber = "A user with the same phone number already exists.";
 	public const string FailureDuplicateUserByRole = "This user has the same role.";
+	public const string FailureDuplicateRolesSelected = "Duplicate roles selected.";
+	public const string DuplicateRolesRemoved = "Duplicate roles were removed.";
 
 
 	// Other Messages

@@ -19,9 +19,9 @@ public class InMemoryRoleRepository : IRoleRepository
 	}
 
 
-	public Role? GetRoleById(int id)
+	public IReadOnlyList<Role> GetRolesByIds(IEnumerable<int> ids)
 	{
-		return _roles.FirstOrDefault(role => role.Id == id);
+		return _roles.Where(role => ids.Contains(role.Id)).ToList();
 	}
 
 

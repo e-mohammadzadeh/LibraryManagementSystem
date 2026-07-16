@@ -50,7 +50,7 @@ public class InMemoryUserRepository : IUserRepository
 
 	public bool ExistsByEmail(string email, int excludeId = -1)
 	{
-		return _users.Any(user => user.Id != excludeId && user.Email.Equals(email));
+		return _users.Any(user => user.Id != excludeId && user.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
 	}
 
 
@@ -60,9 +60,10 @@ public class InMemoryUserRepository : IUserRepository
 	}
 
 
-	public bool ExistsByRole(UserRole role, int excludeId = -1)
+	public void Update(User user)
 	{
-		return _users.Any(user => user.Id == excludeId && user.Roles.Contains(role));
+		// Nothing to do.
+		// The object reference has already been updated.
 	}
 
 

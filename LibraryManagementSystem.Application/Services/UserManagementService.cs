@@ -33,13 +33,16 @@ public class UserManagementService
 		if (existingSameName is not null)
 			warningMessage = $"A member with the same name already exists (ID: {existingSameName.Id}). ";
 
-		var roles = new List<UserRole>();
+		if (dto.RoleIds.Count != dto.RoleIds.Distinct().Count())
+			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateRolesSelected);
+
+		var roles = new List<Role>();
 		foreach (var roleId in dto.RoleIds)
 		{
-			var role = _roleRepository.GetRoleById(roleId);
+			var role = _roleRepository.GetRolesByIds(roleId);
 			if (role is null)
 				return ServiceResult<User>.Fail($"Role with ID {roleId} does not exist.");
-			roles.Add(new UserRole { RoleId = role.Id });
+			roles.Add(role);
 		}
 
 
@@ -85,10 +88,24 @@ public class UserManagementService
 		if (dto.PhoneNumber is not null && _userRepository.ExistsByPhoneNumber(dto.PhoneNumber, userId))
 			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateUserByPhoneNumber);
 
-		if (dto.Role is not null && _userRepository.ExistsByRole(dto.Role, userId))
-			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateUserByRole);
+		List<Role>? resolvedRoles = null;
+		if (dto.RoleIds.Any())
+		{
+			resolvedRoles = new List<Role>();
+			foreach (var roleId in dto.RoleIds)
+			{
+				var role = _roleRepository.GetRolesByIds(roleId);
+				if (role is null)
+					return ServiceResult<User>.Fail($"Role with ID {roleId} does not exist.");
+				resolvedRoles.Add(role);
+			}
+		}
 
-		user.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate, dto.Role);
+		user.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate);
+		if (resolvedRoles is not null)
+			user.ReplaceRoles(resolvedRoles);
+
+		_userRepository.Update(user);
 		return ServiceResult<User>.Ok(user, ValidationMessages.MemberUpdatedSuccessfully);
 	}
 

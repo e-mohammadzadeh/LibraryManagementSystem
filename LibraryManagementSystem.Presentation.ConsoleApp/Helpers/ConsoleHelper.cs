@@ -115,12 +115,108 @@ public static class ConsoleHelper
 	}
 
 
-	public static int? ReadRole(string prompt)
+	public static List<int>? ReadRoles(string prompt)
 	{
-		Console.WriteLine("1. Member");
-		Console.WriteLine("2. Librarian");
-		Console.WriteLine("3. Admin");
-		return ReadInt(prompt, 1, 3);
+		// Build the menu dynamically from the Enum
+		var roleOptions = GetRoleOptions();
+
+		while (true)
+		{
+			DisplayRoleMenu(roleOptions);
+			Console.Write($"{prompt} (enter numbers separated by commas, e.g., 1,2. Or type 'cancel' to abort): ");
+
+			var input = Console.ReadLine() ?? string.Empty;
+			var trimmed = input.Trim();
+
+			if (trimmed.Equals("cancel", StringComparison.OrdinalIgnoreCase)) return null;
+			if (string.IsNullOrEmpty(trimmed))
+			{
+				ShowError(ValidationMessages.InvalidRoleSelection);
+				continue;
+			}
+
+			// Parse and validate the input
+			var (isValid, roleIds, errorMessage) = ParseRoleInput(trimmed, roleOptions);
+			if (!isValid)
+			{
+				ShowError(errorMessage);
+				continue;
+			}
+
+			// Remove duplicates 
+			var distinctRoles = roleIds.Distinct().ToList();
+			if (distinctRoles.Count != roleIds.Count)
+			{
+				ShowWarning(ValidationMessages.DuplicateRolesRemoved);
+			}
+
+			return distinctRoles;
+		}
+	}
+
+
+	private static List<RoleOption> GetRoleOptions()
+	{
+		return Enum.GetValues<LibraryUserRole>()
+			.Select((role, index) => new RoleOption
+			{
+				Id = index + 1,
+				Name = role.ToString()
+			})
+			.ToList();
+	}
+
+
+	private static void DisplayRoleMenu(List<RoleOption> options)
+	{
+		Console.WriteLine("\nAvailable Roles:");
+		foreach (var option in options)
+		{
+			Console.WriteLine($"  {option.Id}. {option.Name}");
+		}
+	}
+
+
+	private static (bool IsValid, List<int> RoleIds, string ErrorMessage) ParseRoleInput(string trimmedInput,
+		List<RoleOption> validOptions)
+	{
+		var validIds = validOptions.Select(o => o.Id).ToList();
+		var parts = trimmedInput.Split(',', StringSplitOptions.RemoveEmptyEntries);
+		var result = new List<int>();
+
+		foreach (var part in parts)
+		{
+			var cleaned = part.Trim();
+			if (string.IsNullOrEmpty(cleaned))
+				continue;
+
+			if (!int.TryParse(cleaned, out var id))
+			{
+				return (false, null, $"'{cleaned}' is not a valid number.");
+			}
+
+			if (!validIds.Contains(id))
+			{
+				return (false, null, $"'{id}' is not a valid role. Available IDs: {string.Join(", ", validIds)}.");
+			}
+
+			result.Add(id);
+		}
+
+		if (result.Count == 0)
+		{
+			return (false, null, "No valid roles were found. Please enter at least one role.");
+		}
+
+		return (true, result, null);
+	}
+
+
+	// Simple DTO for the menu
+	private class RoleOption
+	{
+		public int Id { get; set; }
+		public string Name { get; set; }
 	}
 
 

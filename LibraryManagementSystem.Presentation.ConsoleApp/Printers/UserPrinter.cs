@@ -15,7 +15,7 @@ public class UserPrinter
 		Console.WriteLine("{0, -20} [{1}]", "Email:", user.Email);
 		Console.WriteLine("{0, -20} [{1}]", "Phone Number:", user.PhoneNumber);
 		Console.WriteLine("{0, -20} [{1}]", "Birth Date:", user.BirthDate);
-		Console.WriteLine("{0, -20} [{1}]", "Role:", user.Roles);
+		Console.WriteLine("{0, -20} [{1}]", "Role:", string.Join(", ", user.UserRoles.Select(ur => ur.Role.Name)));
 		//Console.WriteLine("{0, -20} [{1} {2}]", "Books:", user.Books.Count, "associated books");
 	}
 

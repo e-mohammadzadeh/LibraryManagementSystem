@@ -11,4 +11,6 @@ public static class ValidationConstants
 	public const int NationalCodeLength = 10;
 	public const int PhoneNumberLength = 11;
 	public const int ISBN13Length = 13;
+	public const int MinRoleId = 1;
+	public const int MaxRoleId = 3;
 }

@@ -1,6 +1,4 @@
-﻿using LibraryManagementSystem.Domain.Entities;
-
-namespace LibraryManagementSystem.Application.DTOs.Users;
+﻿namespace LibraryManagementSystem.Application.DTOs.Users;
 
 public class CreateUserDto
 {

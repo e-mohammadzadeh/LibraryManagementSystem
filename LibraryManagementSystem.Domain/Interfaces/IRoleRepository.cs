@@ -5,6 +5,6 @@ namespace LibraryManagementSystem.Domain.Interfaces;
 public interface IRoleRepository
 {
 	IReadOnlyList<Role> GetAllRoles();
-	Role? GetRoleById(int id);
+	IReadOnlyList<Role> GetRolesByIds(IEnumerable<int> ids);
 	bool RoleExists(int id);
 }

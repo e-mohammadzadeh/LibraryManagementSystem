@@ -140,8 +140,8 @@ public static class UserMenu
 		var birthDate = ConsoleHelper.GetValidBirthDate("Enter user's birth date");
 		if (birthDate == null) return null;
 
-		var roleId = ConsoleHelper.ReadRole("Select a role for this user");
-		if (roleId == null) return null;
+		var roleIds = ConsoleHelper.ReadRoles("Select role(s) for this user");
+		if (roleIds == null) return null;
 
 		return new CreateUserDto()
 		{
@@ -151,7 +151,7 @@ public static class UserMenu
 			Email = email,
 			PhoneNumber = phoneNumber,
 			BirthDate = birthDate.Value,
-			RoleIds = new List<int> { roleId.Value }
+			RoleIds = roleIds
 		};
 	}
 
@@ -171,7 +171,7 @@ public static class UserMenu
 			Console.WriteLine("{0, -20} [{1}]", "4. Email", desiredUser.Email);
 			Console.WriteLine("{0, -20} [{1}]", "5. Phone Number", desiredUser.PhoneNumber);
 			Console.WriteLine("{0, -20} [{1}]", "6. Birth Date", desiredUser.BirthDate);
-			Console.WriteLine("{0, -20} [{1}]", "7. Role", desiredUser.Roles);
+			Console.WriteLine("{0, -20} [{1}]", "7. Role", string.Join(", ", desiredUser.UserRoles.Select(ur => ur.Role.Name)));
 			Console.WriteLine("8. Cancel");
 			var editMenuChoice = ConsoleHelper.ReadInt("Enter the number of the field you wish to edit", 1, 8);
 			if (editMenuChoice == null)
@@ -231,13 +231,17 @@ public static class UserMenu
 
 					break;
 				}
-				case 8:
-				{
-					var userNewRole = ConsoleHelper.ReadRole(ValidationMessages.GetRole);
-					PerformUpdate(userManagementService, desiredUser.Id, userNewRole, v=> new UpdateUserDto{Role = v});
-					return;
-				}
 				case 7:
+				{
+					var roleId = ConsoleHelper.ReadRole(ValidationMessages.GetRole);
+					if (roleId is null) break;
+
+					var dto = new UpdateUserDto {RoleIds = new List<int> {roleId.Value}};
+					var result = userManagementService.UpdateUser(desiredUser.Id, dto);
+					ConsoleHelper.ShowResult(result);
+					break;
+				}
+				case 8:
 				{
 					ConsoleHelper.ShowError("Edit cancelled. Returning to User Menu...");
 					Thread.Sleep(3000);
