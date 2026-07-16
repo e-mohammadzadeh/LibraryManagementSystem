@@ -233,10 +233,10 @@ public static class UserMenu
 				}
 				case 7:
 				{
-					var roleId = ConsoleHelper.ReadRole(ValidationMessages.GetRole);
-					if (roleId is null) break;
+					var roleIds = ConsoleHelper.ReadRoles("Select role(s) for this user");
+					if (roleIds is null) break;
 
-					var dto = new UpdateUserDto {RoleIds = new List<int> {roleId.Value}};
+					var dto = new UpdateUserDto {RoleIds = roleIds};
 					var result = userManagementService.UpdateUser(desiredUser.Id, dto);
 					ConsoleHelper.ShowResult(result);
 					break;

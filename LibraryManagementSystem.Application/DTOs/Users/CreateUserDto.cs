@@ -8,5 +8,5 @@ public class CreateUserDto
 	public required string Email { get; set; }
 	public required string PhoneNumber { get; set; }
 	public required DateOnly BirthDate { get; set; }
-	public required List<int> RoleIds { get; set; } = new();
+	public required List<int> RoleIds { get; set; } = [];
 }

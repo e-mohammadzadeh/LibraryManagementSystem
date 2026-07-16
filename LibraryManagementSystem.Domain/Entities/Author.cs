@@ -12,7 +12,7 @@ public class Author : Person
 
 	private static int _nextAuthorId;
 	public string? Biography { get; set; }
-	public List<Book> Books { get; init; } = new();
+	public List<Book> Books { get; init; } = [];
 
 
 	public void Update(string? firstName, string? lastName, string? nationalCode, string? email, string? phoneNumber,

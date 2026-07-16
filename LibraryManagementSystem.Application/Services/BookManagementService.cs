@@ -34,7 +34,7 @@ public class BookManagementService(IBookRepository bookRepository, IAuthorReposi
 	}
 
 
-	public bool IsExistIsbn(string isbn)
+	public bool IsExistISBN(string isbn)
 	{
 		return bookRepository.ExistsByISBN(isbn);
 	}

@@ -8,5 +8,5 @@ public class UpdateUserDto
 	public string? Email { get; set; }
 	public string? PhoneNumber { get; set; }
 	public DateOnly? BirthDate { get; set; }
-	public List<int> RoleIds { get; set; } = new();
+	public List<int> RoleIds { get; set; } = [];
 }

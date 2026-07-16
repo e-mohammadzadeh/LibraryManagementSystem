@@ -1,17 +1,15 @@
-﻿using System.Collections;
-
-namespace LibraryManagementSystem.Domain.Entities;
+﻿namespace LibraryManagementSystem.Domain.Entities;
 
 public class User : Person
 {
 	private static int _nextUserId;
-	private readonly List<UserRole> _userRoles = new();
+	private readonly List<UserRole> _userRoles = [];
 	public bool IsActive { get; private set; }
 	public DateOnly MembershipStartDate { get; private set; }
 	public DateOnly MembershipExpiryDate { get; private set; }
 
 
-	public IReadOnlyList<UserRole> UserRoles => _userRoles.AsReadOnly();
+	public IReadOnlyCollection<UserRole> UserRoles => _userRoles.AsReadOnly();
 
 
 	public User(string firstName, string lastName, string nationalCode, string email, string phoneNumber,
@@ -30,55 +28,78 @@ public class User : Person
 		}
 
 		foreach (var role in roles)
-		{
-			_userRoles.Add(new UserRole
-			{
-				User = this,
-				Role = role
-			});
-		}
+			AssignRole(role);
 	}
 
 
 
 	public void Update(string? firstName, string? lastName, string? nationalCode, string? email, string? phoneNumber,
-		DateOnly? birthDate)
+		DateOnly? birthDate, IEnumerable<Role>? roles)
 	{
 		UpdateCore(firstName, lastName, nationalCode, email, phoneNumber, birthDate);
-		User.ReplaceRoles(IEnumerable<Role> newRoles);
+		if (roles is not null)
+		{
+			ReplaceRoles(roles);
+		}
 	}
 
 
-	public void AssignRole(Role newRole)
+	public void AssignRole(Role role)
 	{
-		if (!_userRoles.Any(ur => ur.RoleId == newRole.Id))
+		if (role is null)
 		{
-			_userRoles.Add(new UserRole { User = this, Role = newRole });
+			throw new ArgumentNullException(nameof(role));
 		}
+
+		// Prevent duplicate roles
+		if (_userRoles.Any(ur => ur.Role.Id == role.Id))
+			return;
+
+		var userRole = new UserRole(this, role);
+
+		_userRoles.Add(userRole);
+		role.AddUserRole(userRole);
 	}
 
 
 	public void RemoveRole(int roleId)
 	{
-		var roleToRemove = _userRoles.FirstOrDefault(ur => ur.RoleId == roleId);
-		if (roleToRemove != null)
-		{
-			_userRoles.Remove(roleToRemove);
-		}
+		if (_userRoles.Count == 1)
+			throw new InvalidOperationException("A user must have at least one role.");
+
+		var userRole = _userRoles.FirstOrDefault(ur => ur.Role.Id == roleId);
+
+		if (userRole is null)
+			return;
+
+		_userRoles.Remove(userRole);
+		userRole.Role.RemoveUserRole(userRole);
 	}
 
 
 	public void ReplaceRoles(IEnumerable<Role> newRoles)
 	{
-		if (newRoles is null || !newRoles.Any())
+		if (newRoles is null)
 		{
-			throw new ArgumentException("A user must have at least one role.");
+			throw new ArgumentNullException(nameof(newRoles));
 		}
 
-		_userRoles.Clear();
-		foreach (var role in newRoles)
+		var roles = newRoles.DistinctBy(r => r.Id).ToList();
+
+		if (roles.Count == 0)
+			throw new ArgumentException("A user must have at least one role.");
+
+		// remove old roles correctly
+		foreach (var userRole in _userRoles.ToList())
 		{
-			_userRoles.Add(new UserRole { User = this, Role = role });
+			_userRoles.Remove(userRole);
+			userRole.Role.RemoveUserRole(userRole);
+		}
+
+		// add new roles correctly
+		foreach (var role in roles)
+		{
+			AssignRole(role);
 		}
 	}
 }

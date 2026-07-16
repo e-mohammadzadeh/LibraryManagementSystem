@@ -14,7 +14,16 @@ public class Role {
 
 	private static int _nextRoleId;
 	public int Id { get; private set; }
-	public ICollection<UserRole> Users { get; } = new List<UserRole>();
+	private readonly List<UserRole> _userRoles = []; 
 	public LibraryUserRole Name { get; set; }
 	public string Description { get; set; }
+
+
+	internal void AddUserRole(UserRole userRole) {
+		_userRoles.Add(userRole);
+	}
+
+	internal void RemoveUserRole(UserRole userRole) {
+		_userRoles.Remove(userRole);
+	}
 }

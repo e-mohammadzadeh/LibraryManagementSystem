@@ -1,6 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Validators;
-using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
@@ -139,13 +138,13 @@ public static class ConsoleHelper
 			var (isValid, roleIds, errorMessage) = ParseRoleInput(trimmed, roleOptions);
 			if (!isValid)
 			{
-				ShowError(errorMessage);
+				ShowError(errorMessage!);
 				continue;
 			}
 
 			// Remove duplicates 
-			var distinctRoles = roleIds.Distinct().ToList();
-			if (distinctRoles.Count != roleIds.Count)
+			var distinctRoles = roleIds?.Distinct().ToList();
+			if (distinctRoles?.Count != roleIds?.Count)
 			{
 				ShowWarning(ValidationMessages.DuplicateRolesRemoved);
 			}
@@ -177,7 +176,7 @@ public static class ConsoleHelper
 	}
 
 
-	private static (bool IsValid, List<int> RoleIds, string ErrorMessage) ParseRoleInput(string trimmedInput,
+	private static (bool IsValid, List<int>? RoleIds, string? ErrorMessage) ParseRoleInput(string trimmedInput,
 		List<RoleOption> validOptions)
 	{
 		var validIds = validOptions.Select(o => o.Id).ToList();
@@ -216,7 +215,7 @@ public static class ConsoleHelper
 	private class RoleOption
 	{
 		public int Id { get; set; }
-		public string Name { get; set; }
+		public string Name { get; set; } = "";
 	}
 
 

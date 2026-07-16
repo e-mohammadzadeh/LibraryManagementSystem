@@ -5,7 +5,7 @@ namespace LibraryManagementSystem.Infrastructure.Repositories.InMemory;
 
 public class InMemoryBookRepository : IBookRepository
 {
-	private readonly List<Book> _books = new();
+	private readonly List<Book> _books = [];
 
 	public void Add(Book book)
 	{
@@ -56,7 +56,7 @@ public class InMemoryBookRepository : IBookRepository
 		where T : class
 	{
 		if (searchItem is null)
-			return new List<Book>();
+			return [];
 
 		return _books.Where(book =>
 		{
@@ -71,7 +71,7 @@ public class InMemoryBookRepository : IBookRepository
 		where T : struct
 	{
 		if (!searchItem.HasValue)
-			return new List<Book>();
+			return [];
 
 		return _books.Where(book =>
 		{

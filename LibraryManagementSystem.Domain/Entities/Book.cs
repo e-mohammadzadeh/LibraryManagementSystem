@@ -25,7 +25,7 @@ public class Book
 	public int BookId { get; private set; }
 	public string BookName { get; set; }
 	public string InternationalStandardBookNumber { get; set; }
-	public Author Author { get; private set; }
+	public Author? Author { get; private set; }
 	public DateOnly PublishDate { get; set; }
 	public Genre Genre { get; set; }
 	public int TotalCopies { get; private set; }
@@ -59,27 +59,14 @@ public class Book
 	}
 
 
-	public bool ChangeAuthor(Author? newAuthor)
+	public void ChangeAuthor(Author? newAuthor)
 	{
-		if (ReferenceEquals(Author, newAuthor)) return false;
+		if (ReferenceEquals(Author, newAuthor)) return;
 
-		if (Author != null)
-			Author.Books.Remove(this);
+		Author?.Books.Remove(this);
 
 		Author = newAuthor;
-		if (newAuthor != null)
-			newAuthor.Books.Add(this);
-		return true;
-	}
-
-
-	public void RemoveFromCurrentAuthor()
-	{
-		if (Author is not null)
-		{
-			Author.Books.Remove(this);
-			Author = null;
-		}
+		newAuthor?.Books.Add(this);
 	}
 
 

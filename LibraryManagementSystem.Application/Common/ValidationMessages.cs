@@ -30,26 +30,26 @@ public static class ValidationMessages
 	public const string BookAddedSuccessfully = "Book added successfully.";
 	public const string AuthorAddFailed = "Failed to add author.";
 	public const string BookAddFailed = "Failed to add book.";
-	public const string MemberAddedSuccessfully = "Member added successfully.";
-	public const string MemberAddFailed = "Failed to add member.";
+	public const string UserAddedSuccessfully = "User added successfully.";
+	public const string UserAddFailed = "Failed to add user.";
 
 
 	// Updating Messages
 	public const string AuthorUpdatedSuccessfully = "Author updated successfully.";
 	public const string BookUpdatedSuccessfully = "Book updated successfully.";
-	public const string MemberUpdatedSuccessfully = "Member updated successfully.";
+	public const string UserUpdatedSuccessfully = "User updated successfully.";
 	public const string AuthorUpdateFailed = "Failed to update author.";
 	public const string BookUpdateFailed = "Failed to update book.";
-	public const string MemberUpdateFailed = "Failed to update member.";
+	public const string UserUpdateFailed = "Failed to update user.";
 
 
 	// Removing Messages
 	public const string AuthorRemovedSuccessfully = "Author removed successfully.";
 	public const string BookRemovedSuccessfully = "Book removed successfully.";
-	public const string MemberRemovedSuccessfully = "Member removed successfully.";
+	public const string UserRemovedSuccessfully = "User removed successfully.";
 	public const string AuthorRemoveFailed = "Failed to remove author.";
 	public const string BookRemoveFailed = "Failed to remove book.";
-	public const string MemberRemoveFailed = "Failed to remove member";
+	public const string UserRemoveFailed = "Failed to remove user";
 
 
 	// Searching Messages

@@ -6,12 +6,12 @@ namespace LibraryManagementSystem.Infrastructure.Repositories.InMemory;
 
 public class InMemoryRoleRepository : IRoleRepository
 {
-	private readonly List<Role> _roles = new()
-	{
+	private readonly List<Role> _roles =
+	[
 		new Role(LibraryUserRole.Member, "Can borrow books"),
 		new Role(LibraryUserRole.Librarian, "Can manage books and members"),
 		new Role(LibraryUserRole.Admin, "Full system access")
-	};
+	];
 
 	public IReadOnlyList<Role> GetAllRoles()
 	{
@@ -19,9 +19,9 @@ public class InMemoryRoleRepository : IRoleRepository
 	}
 
 
-	public IReadOnlyList<Role> GetRolesByIds(IEnumerable<int> ids)
+	public IReadOnlyList<Role> FindByIds(IEnumerable<int> ids)
 	{
-		return _roles.Where(role => ids.Contains(role.Id)).ToList();
+		return [.. _roles.Where(role => ids.Contains(role.Id))];
 	}
 
 

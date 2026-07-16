@@ -5,7 +5,7 @@ namespace LibraryManagementSystem.Infrastructure.Repositories.InMemory;
 
 public class InMemoryAuthorRepository : IAuthorRepository
 {
-	private readonly List<Author> _authors = new();
+	private readonly List<Author> _authors = [];
 
 
 	public void Add(Author author)
@@ -22,9 +22,9 @@ public class InMemoryAuthorRepository : IAuthorRepository
 
 	public Author? FindByName(string firstName, string lastName)
 	{
-		return _authors.FirstOrDefault(authora =>
-			authora.FirstName.Equals(firstName, StringComparison.OrdinalIgnoreCase) &&
-			authora.LastName.Equals(lastName, StringComparison.OrdinalIgnoreCase));
+		return _authors.FirstOrDefault(author =>
+			author.FirstName.Equals(firstName, StringComparison.OrdinalIgnoreCase) &&
+			author.LastName.Equals(lastName, StringComparison.OrdinalIgnoreCase));
 	}
 
 
@@ -69,12 +69,12 @@ public class InMemoryAuthorRepository : IAuthorRepository
 	public IReadOnlyList<Author> Search(string searchItem, Func<Author, string?> selector)
 	{
 		if (string.IsNullOrWhiteSpace(searchItem))
-			return new List<Author>();
+			return [];
 
-		return _authors.Where(author =>
+		return [.. _authors.Where(author =>
 		{
 			var value = selector(author);
 			return value is not null && value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
-		}).ToList();
+		})];
 	}
 }

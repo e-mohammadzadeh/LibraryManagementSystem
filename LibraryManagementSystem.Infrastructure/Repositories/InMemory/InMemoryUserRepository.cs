@@ -5,7 +5,7 @@ namespace LibraryManagementSystem.Infrastructure.Repositories.InMemory;
 
 public class InMemoryUserRepository : IUserRepository
 {
-	private readonly List<User> _users = new();
+	private readonly List<User> _users = [];
 
 
 	public void Add(User user)
@@ -76,12 +76,12 @@ public class InMemoryUserRepository : IUserRepository
 	public IReadOnlyList<User> Search(string searchItem, Func<User, string?> selector)
 	{
 		if (string.IsNullOrWhiteSpace(searchItem))
-			return new List<User>();
+			return [];
 
-		return _users.Where(member =>
+		return [.. _users.Where(member =>
 		{
 			var value = selector(member);
 			return value is not null && value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
-		}).ToList();
+		})];
 	}
 }

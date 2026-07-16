@@ -2,8 +2,18 @@
 
 public class UserRole
 {
-	public int UserId { get; set; }
-	public User User { get; set; } = null!;
-	public int RoleId { get; set; }
-	public Role Role { get; set; } = null!;
+	public UserRole(User user, Role role)
+	{
+		User = user ?? throw new ArgumentNullException(nameof(user));
+		Role = role ?? throw new ArgumentNullException(nameof(role));
+
+		UserId = user.Id;
+		RoleId = role.Id;
+	}
+
+
+	public int UserId { get; }
+	public User User { get; }
+	public int RoleId { get; }
+	public Role Role { get; }
 }
