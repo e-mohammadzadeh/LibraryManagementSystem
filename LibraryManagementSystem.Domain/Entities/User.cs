@@ -27,7 +27,10 @@ public class User : Person
 			throw new ArgumentException("A user must have at least one role.");
 		}
 
-		foreach (var role in roles)
+		var rolesList = roles?.ToList() ?? new List<Role>();
+		if (rolesList.Count == 0)
+			throw new ArgumentException("A user must have at least one role.");
+		foreach (var role in rolesList)
 			AssignRole(role);
 	}
 

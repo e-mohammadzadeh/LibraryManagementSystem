@@ -59,6 +59,12 @@ public class UserManagementService
 	}
 
 
+	public IReadOnlyList<Role> GetAllRoles()
+	{
+		return _roleRepository.GetAllRoles();
+	}
+
+
 	public ServiceResult<User> UpdateUser(int userId, UpdateUserDto dto)
 	{
 		var user = FindUserById(userId);

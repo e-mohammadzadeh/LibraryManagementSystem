@@ -1,6 +1,6 @@
 ﻿namespace LibraryManagementSystem.Domain.Interfaces;
 
-public class ILoanRepository
+public interface ILoanRepository
 {
 	
 }

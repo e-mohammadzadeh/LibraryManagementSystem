@@ -108,7 +108,7 @@ public static class UserMenu
 	private static void AddUser(UserManagementService userManagementService)
 	{
 		Console.WriteLine("============================ ADDING USER MENU ============================");
-		var userDto = PromptForUserDto();
+		var userDto = PromptForUserDto(userManagementService);
 		if (userDto is null) return;
 
 		var result = userManagementService.AddUser(userDto);
@@ -116,7 +116,7 @@ public static class UserMenu
 	}
 
 
-	private static CreateUserDto? PromptForUserDto()
+	private static CreateUserDto? PromptForUserDto(UserManagementService userManagementService)
 	{
 		var firstName = ConsoleHelper.GetValidName("Enter user's first name", ValidationConstants.MinNameLength,
 			ValidationConstants.MaxNameLength);
@@ -140,7 +140,8 @@ public static class UserMenu
 		var birthDate = ConsoleHelper.GetValidBirthDate("Enter user's birth date");
 		if (birthDate == null) return null;
 
-		var roleIds = ConsoleHelper.ReadRoles("Select role(s) for this user");
+		var availableRoles = userManagementService.GetAllRoles();
+		var roleIds = ConsoleHelper.ReadRoles("Select role(s) for this user", availableRoles);
 		if (roleIds == null) return null;
 
 		return new CreateUserDto()
@@ -154,7 +155,6 @@ public static class UserMenu
 			RoleIds = roleIds
 		};
 	}
-
 
 
 	private static void EditUser(UserManagementService userManagementService)
@@ -233,7 +233,8 @@ public static class UserMenu
 				}
 				case 7:
 				{
-					var roleIds = ConsoleHelper.ReadRoles("Select role(s) for this user");
+					var availableRoles = userManagementService.GetAllRoles();
+					var roleIds = ConsoleHelper.ReadRoles("Select role(s) for this user", availableRoles);
 					if (roleIds is null) break;
 
 					var dto = new UpdateUserDto {RoleIds = roleIds};

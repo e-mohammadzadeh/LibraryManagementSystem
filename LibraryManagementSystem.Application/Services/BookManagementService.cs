@@ -6,28 +6,37 @@ using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
 
-public class BookManagementService(IBookRepository bookRepository, IAuthorRepository authorRepository)
+public class BookManagementService
 {
+	private readonly IAuthorRepository _authorRepository;
+	private readonly IBookRepository _bookRepository;
+
+
+	public BookManagementService(IBookRepository bookRepository, IAuthorRepository authorRepository)
+	{
+		_authorRepository = authorRepository;
+		_bookRepository = bookRepository;
+	}
 	public ServiceResult<Book> AddBook(CreateBookDto dto)
 	{
-		if (bookRepository.ExistsByName(dto.BookName))
+		if (_bookRepository.ExistsByName(dto.BookName))
 			return ServiceResult<Book>.Fail(ValidationMessages.FailureDuplicateBookByName);
 
-		if (bookRepository.ExistsByISBN(dto.ISBN))
+		if (_bookRepository.ExistsByISBN(dto.ISBN))
 			return ServiceResult<Book>.Fail(ValidationMessages.FailureDuplicateBookByISBN);
 
 		if (!Enum.IsDefined(typeof(Genre), dto.GenreId))
 			return ServiceResult<Book>.Fail(ValidationMessages.InvalidGenre);
 
 		var genreName = (Genre)dto.GenreId;
-		var author = authorRepository.FindById(dto.AuthorId);
+		var author = _authorRepository.FindById(dto.AuthorId);
 		if (author == null)
 			return ServiceResult<Book>.Fail(ValidationMessages.BookAddFailed);
 
 		var newBook = new Book(dto.ISBN, dto.BookName, author, dto.PublishDate, dto.TotalCopies, genreName,
 			dto.Description);
 
-		bookRepository.Add(newBook);
+		_bookRepository.Add(newBook);
 		author.Books.Add(newBook);
 
 		return ServiceResult<Book>.Ok(newBook, ValidationMessages.BookAddedSuccessfully);
@@ -36,19 +45,19 @@ public class BookManagementService(IBookRepository bookRepository, IAuthorReposi
 
 	public bool IsExistISBN(string isbn)
 	{
-		return bookRepository.ExistsByISBN(isbn);
+		return _bookRepository.ExistsByISBN(isbn);
 	}
 
 
 	public IReadOnlyList<Book> GetAllBooks()
 	{
-		return bookRepository.GetAll();
+		return _bookRepository.GetAll();
 	}
 
 
 	private Book? FindBookById(int id)
 	{
-		return bookRepository.FindById(id);
+		return _bookRepository.FindById(id);
 	}
 
 
@@ -58,10 +67,10 @@ public class BookManagementService(IBookRepository bookRepository, IAuthorReposi
 		if (book is null)
 			return ServiceResult<Book>.Fail(ValidationMessages.NotAvailableBook);
 
-		if (dto.BookName != null && bookRepository.ExistsByName(dto.BookName, bookId))
+		if (dto.BookName != null && _bookRepository.ExistsByName(dto.BookName, bookId))
 			return ServiceResult<Book>.Fail(ValidationMessages.FailureDuplicateBookByName);
 
-		if (dto.ISBN != null && bookRepository.ExistsByISBN(dto.ISBN, bookId))
+		if (dto.ISBN != null && _bookRepository.ExistsByISBN(dto.ISBN, bookId))
 			return ServiceResult<Book>.Fail(ValidationMessages.FailureDuplicateBookByISBN);
 
 		if (dto.GenreId != null && !Enum.IsDefined(typeof(Genre), dto.GenreId))
@@ -79,7 +88,7 @@ public class BookManagementService(IBookRepository bookRepository, IAuthorReposi
 
 		if (dto.AuthorId.HasValue)
 		{
-			var author = authorRepository.FindById(dto.AuthorId.Value);
+			var author = _authorRepository.FindById(dto.AuthorId.Value);
 			if (author == null)
 				return ServiceResult<Book>.Fail(ValidationMessages.BookUpdateFailed);
 
@@ -102,7 +111,7 @@ public class BookManagementService(IBookRepository bookRepository, IAuthorReposi
 		//TODO	Missing loan integration: if book has active loans, it cannot be removed. This should be checked with the loan management service.
 		//book.RemoveFromCurrentAuthor();  // If ChangeAuthor is implemented correctly, this line is not needed.
 		book.ChangeAuthor(null);
-		bookRepository.Remove(book);
+		_bookRepository.Remove(book);
 		return ServiceResult<Book>.Ok(book, ValidationMessages.BookRemovedSuccessfully);
 	}
 
@@ -110,13 +119,13 @@ public class BookManagementService(IBookRepository bookRepository, IAuthorReposi
 	public IReadOnlyList<Book> SearchBooks<T>(T? searchItem, Func<Book, T?> selector, Func<T, T, bool> comparer)
 		where T : class
 	{
-		return bookRepository.Search(searchItem, selector, comparer);
+		return _bookRepository.Search(searchItem, selector, comparer);
 	}
 
 
 	public IReadOnlyList<Book> SearchBooks<T>(T? searchItem, Func<Book, T?> selector, Func<T, T, bool> comparer)
 		where T : struct
 	{
-		return bookRepository.Search(searchItem, selector, comparer);
+		return _bookRepository.Search(searchItem, selector, comparer);
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Validators;
+using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
@@ -114,10 +115,10 @@ public static class ConsoleHelper
 	}
 
 
-	public static List<int>? ReadRoles(string prompt)
+	public static List<int>? ReadRoles(string prompt, IReadOnlyList<Role> availableRoles)
 	{
 		// Build the menu dynamically from the Enum
-		var roleOptions = GetRoleOptions();
+		var roleOptions = GetRoleOptions(availableRoles);
 
 		while (true)
 		{
@@ -154,15 +155,9 @@ public static class ConsoleHelper
 	}
 
 
-	private static List<RoleOption> GetRoleOptions()
+	private static List<RoleOption> GetRoleOptions(IReadOnlyList<Role> availableRoles)
 	{
-		return Enum.GetValues<LibraryUserRole>()
-			.Select((role, index) => new RoleOption
-			{
-				Id = index + 1,
-				Name = role.ToString()
-			})
-			.ToList();
+		return [.. availableRoles.Select(role => new RoleOption { Id = role.Id, Name = role.Name.ToString() })];
 	}
 
 
