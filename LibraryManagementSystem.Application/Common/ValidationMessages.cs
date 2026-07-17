@@ -80,6 +80,15 @@ public static class ValidationMessages
 	public const string DuplicateRolesRemoved = "Duplicate roles were removed.";
 
 
+	// Loan Messages
+	public const string BorrowedSuccessfully = "Book borrowed successfully.";
+	public const string ReturnedSuccessfully = "Book returned successfully.";
+	public const string MaximumLoansReached = "Borrowing failed. The user has reached the maximum number of active loans.";
+
+	public const string BookAlreadyBorrowed =
+		"Borrowing failed. The user has already borrowed this book and must return it before borrowing another copy.";
+
+
 	// Other Messages
 	public const string EmptyInput = "Input cannot be empty. Please try again.";
 	public const string WrongTotalCopies = "Total copies must be greater than zero.";

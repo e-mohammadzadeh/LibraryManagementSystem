@@ -1,7 +1,10 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
+using System.Drawing;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
@@ -26,7 +29,7 @@ public class LoanMenu
 				case 2:
 				{
 					Console.Clear();
-
+					ReturnBook();
 					break;
 				}
 				case 3:
@@ -106,7 +109,7 @@ public class LoanMenu
 	private static void BorrowBook(LoanManagementService loanManagementService,
 		BookManagementService bookManagementService)
 	{
-		int fuserValue, fbookValue;
+		int userIntValue, bookIntValue;
 		while (true)
 		{
 			Console.Write("Enter user id: ");
@@ -117,7 +120,7 @@ public class LoanMenu
 				continue;
 			}
 
-			fuserValue = userValue;
+			userIntValue = userValue;
 			break;
 		}
 
@@ -130,7 +133,7 @@ public class LoanMenu
 			}
 
 			BookPrinter.PrintTable(bookManagementService.GetAllBooks());
-			Console.Write("Enter your desired book id: ");
+			Console.Write("Enter your desired book id to borrow: ");
 			var bookId = Console.ReadLine();
 			if (!int.TryParse(bookId, out var bookValue))
 			{
@@ -138,11 +141,56 @@ public class LoanMenu
 				continue;
 			}
 
-			fbookValue = bookValue;
+			bookIntValue = bookValue;
 			break;
 		}
 
-		var result = loanManagementService.BorrowBook(fuserValue, fbookValue);
+		var result = loanManagementService.BorrowBook(userIntValue, bookIntValue);
+		ConsoleHelper.ShowResult(result);
+	}
+
+
+	private static void ReturnBook(LoanManagementService loanManagementService,
+		BookManagementService bookManagementService)
+	{
+		int userIntValue, bookIntValue;
+		while (true)
+		{
+			Console.Write("Enter user id: ");
+			var userId = Console.ReadLine();
+			if (!int.TryParse(userId, out var userValue))
+			{
+				Console.WriteLine("wrong input, please enter user's id.");
+				continue;
+			}
+
+			userIntValue = userValue;
+			break;
+		}
+
+		while (true)
+		{
+			if (bookManagementService.GetAllBooks().Count is 0)
+			{
+				ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableBook);
+				return;
+			}
+
+			var temp = ILoanRepository.GetActiveLoansByUser(userIntValue);
+			BookPrinter.PrintTable(Print borrowed books);
+			Console.Write("Enter your desired book id to return: ");
+			var bookId = Console.ReadLine();
+			if (!int.TryParse(bookId, out var bookValue))
+			{
+				Console.WriteLine("wrong input, please enter book's id.");
+				continue;
+			}
+
+			bookIntValue = bookValue;
+			break;
+		}
+
+		var result = loanManagementService.ReturnBook(userIntValue, bookIntValue);
 		ConsoleHelper.ShowResult(result);
 	}
 }

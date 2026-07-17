@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
+using System.Net;
 
 namespace LibraryManagementSystem.Application.Services;
 
@@ -33,48 +34,40 @@ public class LoanManagementService
 		if (book is null)
 			return ServiceResult<Loan>.Fail(ValidationMessages.NotBookMatched);
 
-	
+		if (book.AvailableCopies <= 0)
+			return ServiceResult<Loan>.Fail("There isn't enough copy of this book to borrow.");
 
-		bookId.
-		// check book availability
-		if (desiredBook.AvailableCopies <= 0)
-		{
-			// No copies available
-			return;
-		}
+		var activeLoans = _loanRepository.GetActiveLoansByUser(userId);
+		if (activeLoans.Count >= ValidationConstants.MaxActiveLoansPerUser)
+			return ServiceResult<Loan>.Fail(ValidationMessages.MaximumLoansReached);
 
-		// checked LibraryManagementSystem rules
-		if (Active Loans > 5)
-		{
-			// cannot borrow another
-			return;
-		}
+		if (_loanRepository.HasActiveLoan(userId, bookId))
+			return ServiceResult<Loan>.Fail(ValidationMessages.BookAlreadyBorrowed);
 
-		// check duplicate borrowing
-		if (bookId is in viewBorrowedBooks())
-		{
-			// you are not allowed to borrow repetitive copy of this book
-			return;
-		}
-		// BorrowDate = today
-		// DueDate = today + 14 days
-		// returnDate = null
-		// Status = Borrowed
-
-		// Update Book
-		bookId.borrowcCopy();
-
-		// save loan
-		LoandRepository.Add();
-
-		// show message
-		Console.WriteLine("Book borrowed successfully.  \t\t\tBorrow Date:\r\n\t\t17 July");
-		Console.WriteLine("\t\t\tDue Date:\r\n\t\t31 July");
+		var loan = new Loan(book, user);
+		book.BorrowCopy();
+		_loanRepository.Add(loan);
+		return ServiceResult<Loan>.Ok(loan, ValidationMessages.BorrowedSuccessfully);
 	}
 
 
-	public void ReturnBook()
+	public ServiceResult<Loan> ReturnBook(int userId, int bookId)
 	{
+		var user = _userRepository.FindById(userId);
+		if (user is null)
+			return ServiceResult<Loan>.Fail(ValidationMessages.NotUserMatched);
+
+		var book = _bookRepository.FindById(bookId);
+		if (book is null)
+			return ServiceResult<Loan>.Fail(ValidationMessages.NotBookMatched);
+
+		var activeLoan = _loanRepository.GetActiveLoan(userId, bookId);
+		if (activeLoan is null)
+			return ServiceResult<Loan>.Fail(ValidationMessages.NotRoleMatched);
+
+		activeLoan.ReturnBook();
+		book.ReturnCopy();
+		return ServiceResult<Loan>.Ok(activeLoan, ValidationMessages.ReturnedSuccessfully);
 	}
 
 
