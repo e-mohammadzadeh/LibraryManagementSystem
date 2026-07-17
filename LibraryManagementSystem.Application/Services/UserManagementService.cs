@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
 
 
@@ -154,6 +155,11 @@ public class UserManagementService
 		return _userRepository.Search(searchItem, selector);
 	}
 
+
+	public IReadOnlyList<User> SearchByRole(List<int> role)
+	{
+		return _userRepository.SearchByRole(role);
+	}
 
 	// DeactivateMember  FindUserById
 }

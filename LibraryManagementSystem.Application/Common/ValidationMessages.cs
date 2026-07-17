@@ -59,6 +59,7 @@ public static class ValidationMessages
 	public const string NotBookMatched = "No books matched your search.";
 	public const string NotAvailableUser = "No users found. First add a new user.";
 	public const string NotUserMatched = "No users matched your search.";
+	public const string NotRoleMatched = "No roles matched your search.";
 	public const string NotAvailableLoan = "No loans found. First add a new loan."; // Need help
 
 
@@ -84,4 +85,5 @@ public static class ValidationMessages
 	public const string WrongTotalCopies = "Total copies must be greater than zero.";
 	public const string NoChangesDetected = "The new value is identical to the current one. No changes were made.";
 	public const string Press2Continue = "\nPress any key to continue...";
+	public const string NotAllowedMultipleRole = "Multiple roles are not allowed. Please enter only a single role ID.";
 }

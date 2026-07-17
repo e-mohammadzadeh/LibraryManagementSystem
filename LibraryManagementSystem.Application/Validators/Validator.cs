@@ -74,7 +74,7 @@ public static class Validator
 		if (name.Length < minLength || name.Length > maxLength)
 			return ValidationResult.Fail(ValidationMessages.InvalidBookName);
 
-		return !Regex.IsMatch(name, @"^(?=.*\p{L})[\p{L}\p{N}\s\-'\.,:;!?&()]+$")
+		return !Regex.IsMatch(name, @"^(?=.*\p{L})[\p{L}\p{N}\s+\-#/'""\.,:;!?&()_]+$")
 			? ValidationResult.Fail(ValidationMessages.InvalidCharacters)
 			: ValidationResult.Success();
 	}

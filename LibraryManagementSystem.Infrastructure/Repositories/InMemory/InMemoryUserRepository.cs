@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Infrastructure.Repositories.InMemory;
@@ -78,10 +79,23 @@ public class InMemoryUserRepository : IUserRepository
 		if (string.IsNullOrWhiteSpace(searchItem))
 			return [];
 
-		return [.. _users.Where(member =>
-		{
-			var value = selector(member);
-			return value is not null && value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
-		})];
+		return
+		[
+			.. _users.Where(member =>
+			{
+				var value = selector(member);
+				return value is not null && value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
+			})
+		];
+	}
+
+
+	public IReadOnlyList<User> SearchByRole(List<int> roleIds)
+	{
+		ArgumentNullException.ThrowIfNull(roleIds);
+
+		return roleIds.Count == 0
+			? []
+			: _users.Where(user => user.UserRoles.Any(ur => roleIds.Contains(ur.RoleId))).ToList();
 	}
 }

@@ -115,15 +115,18 @@ public static class ConsoleHelper
 	}
 
 
-	public static List<int>? ReadRoles(string prompt, IReadOnlyList<Role> availableRoles)
+	public static List<int>? ReadRoles(string prompt, IReadOnlyList<Role> availableRoles, bool allowMultiple = true)
 	{
 		// Build the menu dynamically from the Enum
 		var roleOptions = GetRoleOptions(availableRoles);
+		string instructions = allowMultiple
+			? "(enter numbers separated by commas, e.g., 1,2. Or type 'cancel' to abort)"
+			: "(enter a single number. Or type 'cancel' to abort)";
 
 		while (true)
 		{
 			DisplayRoleMenu(roleOptions);
-			Console.Write($"{prompt} (enter numbers separated by commas, e.g., 1,2. Or type 'cancel' to abort): ");
+			Console.Write($"{prompt} {instructions}: ");
 
 			var input = Console.ReadLine() ?? string.Empty;
 			var trimmed = input.Trim();
@@ -136,7 +139,7 @@ public static class ConsoleHelper
 			}
 
 			// Parse and validate the input
-			var (isValid, roleIds, errorMessage) = ParseRoleInput(trimmed, roleOptions);
+			var (isValid, roleIds, errorMessage) = ParseRoleInput(trimmed, roleOptions, allowMultiple);
 			if (!isValid)
 			{
 				ShowError(errorMessage!);
@@ -145,7 +148,7 @@ public static class ConsoleHelper
 
 			// Remove duplicates 
 			var distinctRoles = roleIds?.Distinct().ToList();
-			if (distinctRoles?.Count != roleIds?.Count)
+			if (allowMultiple && distinctRoles?.Count != roleIds?.Count)
 			{
 				ShowWarning(ValidationMessages.DuplicateRolesRemoved);
 			}
@@ -172,12 +175,17 @@ public static class ConsoleHelper
 
 
 	private static (bool IsValid, List<int>? RoleIds, string? ErrorMessage) ParseRoleInput(string trimmedInput,
-		List<RoleOption> validOptions)
+		List<RoleOption> validOptions, bool allowMultiple)
 	{
 		var validIds = validOptions.Select(o => o.Id).ToList();
 		var parts = trimmedInput.Split(',', StringSplitOptions.RemoveEmptyEntries);
-		var result = new List<int>();
 
+		if (!allowMultiple && parts.Length > 1)
+		{
+			return (false, null, ValidationMessages.NotAllowedMultipleRole);
+		}
+
+		var result = new List<int>();
 		foreach (var part in parts)
 		{
 			var cleaned = part.Trim();
@@ -200,6 +208,11 @@ public static class ConsoleHelper
 		if (result.Count == 0)
 		{
 			return (false, null, "No valid roles were found. Please enter at least one role.");
+		}
+
+		if (!allowMultiple && result.Count > 1)
+		{
+			return (false, null, ValidationMessages.NotAllowedMultipleRole);
 		}
 
 		return (true, result, null);

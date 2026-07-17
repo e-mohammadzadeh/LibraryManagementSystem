@@ -4,6 +4,7 @@ using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
+using System.Data;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
@@ -165,7 +166,7 @@ public static class UserMenu
 
 		while (true)
 		{
-			Console.WriteLine("{0, -20} [{1}]", "1. First Name", desiredUser.FirstName);
+			Console.WriteLine("\n{0, -20} [{1}]", "1. First Name", desiredUser.FirstName);
 			Console.WriteLine("{0, -20} [{1}]", "2. Last Name", desiredUser.LastName);
 			Console.WriteLine("{0, -20} [{1}]", "3. National Code", desiredUser.NationalCode);
 			Console.WriteLine("{0, -20} [{1}]", "4. Email", desiredUser.Email);
@@ -317,13 +318,14 @@ public static class UserMenu
 				return;
 			}
 
-			Console.WriteLine("{0, -20}", "1. Name");
+			Console.WriteLine("\n{0, -20}", "1. Name");
 			Console.WriteLine("{0, -20}", "2. National Code");
 			Console.WriteLine("{0, -20}", "3. Email");
 			Console.WriteLine("{0, -20}", "4. Phone Number");
-			Console.WriteLine("5. Cancel");
+			Console.WriteLine("{0, -20}", "5. Role");
+			Console.WriteLine("6. Cancel");
 
-			var searchMenuChoice = ConsoleHelper.ReadInt("Select a search field by entering its number", 1, 5);
+			var searchMenuChoice = ConsoleHelper.ReadInt("Select a search field by entering its number", 1, 6);
 			if (searchMenuChoice is null) return;
 
 			switch (searchMenuChoice)
@@ -356,6 +358,11 @@ public static class UserMenu
 				}
 				case 5:
 				{
+					SearchRolesAndDisplay(userManagementService, "Enter a role to search");
+					break;
+				}
+				case 6:
+				{
 					ConsoleHelper.ShowInfo("Search cancelled. Returning to User Menu...");
 					Thread.Sleep(3000);
 					Console.Clear();
@@ -373,13 +380,31 @@ public static class UserMenu
 		Func<User, string?> selector)
 	{
 		var searchItem = ConsoleHelper.ReadString(prompt);
-		if (searchItem == null) return;
+		if (searchItem is null) return;
 
 		var result = userManagementService.SearchUser(searchItem, selector);
 
 		if (result.Count == 0)
 		{
 			ConsoleHelper.ShowWarning(ValidationMessages.NotUserMatched);
+			return;
+		}
+
+		UserPrinter.PrintTable(result);
+	}
+
+
+	private static void SearchRolesAndDisplay(UserManagementService userManagementService, string prompt)
+	{
+		var availableRoles = userManagementService.GetAllRoles();
+		var roleId = ConsoleHelper.ReadRoles(prompt, availableRoles, false);
+		if (roleId is null) return;
+
+		var result = userManagementService.SearchByRole(roleId);
+
+		if (result.Count == 0)
+		{
+			ConsoleHelper.ShowWarning(ValidationMessages.NotRoleMatched);
 			return;
 		}
 

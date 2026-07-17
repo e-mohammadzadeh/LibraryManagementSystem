@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums;
 
 namespace LibraryManagementSystem.Domain.Interfaces;
 
@@ -15,4 +16,5 @@ public interface IUserRepository
 	void Update(User user);
 	void Remove(User user);
 	IReadOnlyList<User> Search(string searchItem, Func<User, string?> selector);
+	IReadOnlyList<User> SearchByRole(List<int> roleId);
 }

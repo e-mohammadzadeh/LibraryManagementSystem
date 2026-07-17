@@ -158,7 +158,7 @@ public static class AuthorMenu
 
 		while (true)
 		{
-			Console.WriteLine("{0, -20} [{1}]", "1. First Name", desiredAuthor.FirstName);
+			Console.WriteLine("\n{0, -20} [{1}]", "1. First Name", desiredAuthor.FirstName);
 			Console.WriteLine("{0, -20} [{1}]", "2. Last Name", desiredAuthor.LastName);
 			Console.WriteLine("{0, -20} [{1}]", "3. National Code", desiredAuthor.NationalCode);
 			Console.WriteLine("{0, -20} [{1}]", "4. Email", desiredAuthor.Email);
@@ -286,7 +286,7 @@ public static class AuthorMenu
 				return;
 			}
 
-			Console.WriteLine("{0, -20}", "1. Name");
+			Console.WriteLine("\n{0, -20}", "1. Name");
 			Console.WriteLine("{0, -20}", "2. National Code");
 			Console.WriteLine("{0, -20}", "3. Email");
 			Console.WriteLine("{0, -20}", "4. Phone Number");

@@ -198,7 +198,7 @@ public static class BookMenu
 
 		while (true)
 		{
-			Console.WriteLine("{0, -30} [{1}]", "1. Book Name", desiredBook.BookName);
+			Console.WriteLine("\n{0, -30} [{1}]", "1. Book Name", desiredBook.BookName);
 			Console.WriteLine("{0, -30} [{1}]", "2. ISBN", desiredBook.InternationalStandardBookNumber);
 			Console.WriteLine("{0, -30} [{1}]", "3. Author",
 				desiredBook.Author.FirstName + " " + desiredBook.Author.LastName);
@@ -362,7 +362,7 @@ public static class BookMenu
 				return;
 			}
 
-			Console.WriteLine("{0, -20}", "1. Title");
+			Console.WriteLine("\n{0, -20}", "1. Title");
 			Console.WriteLine("{0, -20}", "2. ISBN");
 			Console.WriteLine("{0, -20}", "3. Author");
 			Console.WriteLine("{0, -20}", "4. Publish Date");
