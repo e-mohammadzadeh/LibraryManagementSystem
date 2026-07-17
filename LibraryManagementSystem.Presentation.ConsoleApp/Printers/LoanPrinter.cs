@@ -4,7 +4,7 @@ using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
-public class LoanPrinter
+public static class LoanPrinter
 {
 	public static void PrintTable(IReadOnlyList<Loan> loans)
 	{
@@ -14,7 +14,7 @@ public class LoanPrinter
 			return;
 		}
 
-		Console.WriteLine("{0,3} {1, 30} {2, 30} {3, 12} {4, 12} {5, 12}", "Loan ID", "Book", "User", "Borrow Date",
+		Console.WriteLine("{0,3} {1, 30} {2, 30} {3, 12} {4, 12} {5, 12}", "ID", "Book", "User", "Borrow Date",
 			"Due Date", "Status");
 
 		Console.WriteLine(

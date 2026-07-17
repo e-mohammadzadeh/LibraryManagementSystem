@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Infrastructure.Repositories.InMemory;
@@ -53,19 +54,19 @@ public class InMemoryLoanRepository : ILoanRepository
 
 	public IReadOnlyList<Loan> GetLoansByBook(int bookId)
 	{
-		throw new NotImplementedException();
+		return _loans.Where(l => l.BookId == bookId).ToList();
 	}
 
 
 	IReadOnlyList<Loan> ILoanRepository.GetReturnedLoans()
 	{
-		throw new NotImplementedException();
+		return _loans.Where(l => l.Status == LoanStatus.Returned).ToList();
 	}
 
 
 	IReadOnlyList<Loan> ILoanRepository.GetOverdueLoans()
 	{
-		throw new NotImplementedException();
+		return _loans.Where(l => l.IsOverdue).ToList();
 	}
 
 

@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -21,42 +22,77 @@ public static class LoanMenu
 				{
 					Console.Clear();
 					BorrowBook(loanManagementService, bookManagementService);
+					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
+					Console.ReadKey(true);
 					break;
 				}
 				case 2:
 				{
 					Console.Clear();
-					ReturnBook(loanManagementService, bookManagementService);
+					ReturnBook(loanManagementService);
+					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
+					Console.ReadKey(true);
 					break;
 				}
 				case 3:
 				{
 					Console.Clear();
-					RenewLoan(loanManagementService, bookManagementService);
+					RenewLoan(loanManagementService);
+					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
+					Console.ReadKey(true);
 					break;
 				}
 				case 4:
 				{
 					Console.Clear();
+					var loans = loanManagementService.GetAllActiveLoans();
+					if (loans.Count is 0)
+					{
+						ConsoleHelper.ShowWarning(ValidationMessages.NoActiveLoans);
+						break;
+					}
 
+					LoanPrinter.PrintTable(loans);
+					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
+					Console.ReadKey(true);
 					break;
 				}
 				case 5:
 				{
 					Console.Clear();
+					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
+					if (user is null)
+					{
+						ConsoleHelper.ShowWarning(ValidationMessages.UserNotFound);
+						break;
+					}
 
+					var loans = loanManagementService.GetLoansByUser(user.Id);
+					LoanPrinter.PrintTable(loans);
+					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
+					Console.ReadKey(true);
 					break;
 				}
 				case 6:
 				{
 					Console.Clear();
-
+					var loans = loanManagementService.GetOverdueLoans();
+					if (loans.Count is 0)
+					{
+						ConsoleHelper.ShowWarning(ValidationMessages.NoOverdueLoans);
+						break;
+					}
+					LoanPrinter.PrintTable(loans);
+					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
+					Console.ReadKey(true);
 					break;
 				}
 				case 7:
 				{
 					Console.Clear();
 
+					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
+					Console.ReadKey(true);
 					break;
 				}
 				case 8:
@@ -125,8 +161,7 @@ public static class LoanMenu
 	}
 
 
-	private static void ReturnBook(LoanManagementService loanManagementService,
-		BookManagementService bookManagementService)
+	private static void ReturnBook(LoanManagementService loanManagementService)
 	{
 		var userId = ConsoleHelper.ReadInt("Enter user id", 1, int.MaxValue);
 		if (userId is null) return;
@@ -152,8 +187,7 @@ public static class LoanMenu
 	}
 
 
-	private static void RenewLoan(LoanManagementService loanManagementService,
-		BookManagementService bookManagementService)
+	private static void RenewLoan(LoanManagementService loanManagementService)
 	{
 		var userId = ConsoleHelper.ReadInt("Enter user id", 1, int.MaxValue);
 		if (userId is null)
@@ -170,6 +204,7 @@ public static class LoanMenu
 		var bookId = ConsoleHelper.ReadInt("Enter your desired book id to return: ", 1, int.MaxValue);
 		if (bookId is null)
 			return;
+
 		if (loans.All(l => l.BookId != bookId))
 		{
 			ConsoleHelper.ShowError("This book is not borrowed by this user.");

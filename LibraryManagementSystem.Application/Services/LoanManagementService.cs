@@ -92,10 +92,25 @@ public class LoanManagementService
 
 		loan.Renew();
 		return ServiceResult<Loan>.Ok(loan, ValidationMessages.RenewedSuccessfully);
-
 	}
 
 
+	public IReadOnlyList<Loan> GetAllLoans()
+	{
+		return _loanRepository.GetAll();
+	}
+
+
+	public IReadOnlyList<Loan> GetOverdueLoans()
+	{
+		return _loanRepository.GetOverdueLoans();
+	}
+
+
+	public IReadOnlyList<Loan> GetLoansByUser(int userId)
+	{
+		return _loanRepository.GetAll().Where(l => l.UserId == userId).ToList().AsReadOnly();
+	}
 
 
 	public void GetLoanByUser()
