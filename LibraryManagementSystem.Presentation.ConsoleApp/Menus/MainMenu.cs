@@ -6,7 +6,8 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 public static class MainMenu
 {
 	public static void MainMenuController(AuthorManagementService authorManagementService,
-		UserManagementService userManagementService, BookManagementService bookManagementService)
+		UserManagementService userManagementService, BookManagementService bookManagementService,
+		LoanManagementService loanManagementService)
 	{
 		var continueProgram = true;
 		while (continueProgram)
@@ -34,7 +35,7 @@ public static class MainMenu
 				case 4:
 				{
 					Console.Clear();
-					Console.WriteLine("Option 4 selected.");
+					LoanMenu.LoanMenuController(loanManagementService, userManagementService, bookManagementService);
 					break;
 				}
 				case 5:
@@ -56,7 +57,7 @@ public static class MainMenu
 			Console.WriteLine("1. Authors");
 			Console.WriteLine("2. Books");
 			Console.WriteLine("3. Members");
-			Console.WriteLine("4. Borrowing");
+			Console.WriteLine("4. Loans");
 			Console.WriteLine("5. Exit");
 			Console.WriteLine("==================================================================");
 			Console.Write("Please Enter a number: ");

@@ -1,27 +1,148 @@
-﻿namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
+﻿using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
+using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
+
+namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
 public class LoanMenu
 {
-	private static int LoanMenuList() {
-		while (true) {
-			System.Console.WriteLine("============================ LOAN MENU ============================");
-			System.Console.WriteLine("1. Borrow Book");
-			System.Console.WriteLine("2. Return Book");
-			System.Console.WriteLine("3. Renew Loan");
-			System.Console.WriteLine("4. View Active Loans");
-			System.Console.WriteLine("5. View Loan History");
-			System.Console.WriteLine("6. View Overdue Loans");
-			System.Console.WriteLine("7. Back");
-			System.Console.WriteLine("==================================================================");
-			System.Console.Write("Please Enter a number: ");
+	public static void LoanMenuController(LoanManagementService loanManagementService,
+		UserManagementService userManagementService,
+		BookManagementService bookManagementService)
+	{
+		var continueProgram = true;
+		while (continueProgram)
+		{
+			Console.Clear();
+			switch (LoanMenuList())
+			{
+				case 1:
+				{
+					Console.Clear();
+					BorrowBook(loanManagementService, bookManagementService);
+					break;
+				}
+				case 2:
+				{
+					Console.Clear();
 
-			var option = System.Console.ReadLine();
-			if (int.TryParse(option, out var result) && result is >= 1 and <= 7) {
-				return result;
+					break;
+				}
+				case 3:
+				{
+					Console.Clear();
+
+					break;
+				}
+				case 4:
+				{
+					Console.Clear();
+
+					break;
+				}
+				case 5:
+				{
+					Console.Clear();
+
+					break;
+				}
+				case 6:
+				{
+					Console.Clear();
+
+					break;
+				}
+				case 7:
+				{
+					Console.Clear();
+
+					break;
+				}
+				case 8:
+				{
+					Console.Clear();
+
+					break;
+				}
+				case 9:
+				{
+					ConsoleHelper.ShowError("Backing to main menu...\n");
+					Thread.Sleep(2000);
+					Console.Clear();
+					continueProgram = false;
+					break;
+				}
 			}
-			System.Console.ForegroundColor = ConsoleColor.Red;
-			System.Console.WriteLine("Invalid selection, Try again.\n");
-			System.Console.ResetColor();
 		}
+	}
+
+
+	private static int LoanMenuList()
+	{
+		while (true)
+		{
+			Console.WriteLine("============================ LOAN MENU ============================");
+			Console.WriteLine("1. Borrow Book");
+			Console.WriteLine("2. Return Book");
+			Console.WriteLine("3. Renew Loan");
+			Console.WriteLine("4. View Borrowed Books");
+			Console.WriteLine("5. View Loan History");
+			Console.WriteLine("6. View Overdue Loans");
+			Console.WriteLine("7. View User Loans");
+			Console.WriteLine("8. Search Loans");
+			Console.WriteLine("9. Back");
+			Console.WriteLine("==================================================================");
+			Console.Write("Please Enter a number: ");
+
+			var option = Console.ReadLine();
+			if (int.TryParse(option, out var result) && result is >= 1 and <= 9) return result;
+
+			ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
+		}
+	}
+
+
+	private static void BorrowBook(LoanManagementService loanManagementService,
+		BookManagementService bookManagementService)
+	{
+		int fuserValue, fbookValue;
+		while (true)
+		{
+			Console.Write("Enter user id: ");
+			var userId = Console.ReadLine();
+			if (!int.TryParse(userId, out var userValue))
+			{
+				Console.WriteLine("wrong input, please enter user's id.");
+				continue;
+			}
+
+			fuserValue = userValue;
+			break;
+		}
+
+		while (true)
+		{
+			if (bookManagementService.GetAllBooks().Count is 0)
+			{
+				ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableBook);
+				return;
+			}
+
+			BookPrinter.PrintTable(bookManagementService.GetAllBooks());
+			Console.Write("Enter your desired book id: ");
+			var bookId = Console.ReadLine();
+			if (!int.TryParse(bookId, out var bookValue))
+			{
+				Console.WriteLine("wrong input, please enter book's id.");
+				continue;
+			}
+
+			fbookValue = bookValue;
+			break;
+		}
+
+		var result = loanManagementService.BorrowBook(fuserValue, fbookValue);
+		ConsoleHelper.ShowResult(result);
 	}
 }

@@ -55,7 +55,7 @@ public class BookManagementService
 	}
 
 
-	private Book? FindBookById(int id)
+	public Book? FindBookById(int id)
 	{
 		return _bookRepository.FindById(id);
 	}
