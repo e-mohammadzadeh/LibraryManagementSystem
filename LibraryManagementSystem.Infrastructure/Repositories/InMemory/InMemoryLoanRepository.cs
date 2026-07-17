@@ -33,6 +33,12 @@ public class InMemoryLoanRepository : ILoanRepository
 	}
 
 
+	public int CountActiveLoansByUser(int userId)
+	{
+		return GetActiveLoansByUser(userId).Count;
+	}
+
+
 	public bool HasActiveLoan(int userId, int bookId)
 	{
 		return _loans.Any(l => l.UserId == userId && l.BookId == bookId && l.ReturnDate == null);
@@ -66,5 +72,11 @@ public class InMemoryLoanRepository : ILoanRepository
 	public void Remove(Loan loan)
 	{
 		_loans.Remove(loan);
+	}
+
+
+	public void Update(Loan loan)
+	{
+		throw new NotImplementedException();
 	}
 }

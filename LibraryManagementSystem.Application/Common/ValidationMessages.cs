@@ -1,4 +1,6 @@
-﻿namespace LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Domain.Entities;
+
+namespace LibraryManagementSystem.Application.Common;
 
 public static class ValidationMessages
 {
@@ -7,10 +9,15 @@ public static class ValidationMessages
 
 
 	// Invalid Messages
-	public const string InvalidNationalCode = "Invalid national code. Please enter exactly 10 digits without dashes or spaces.";
+	public const string InvalidNationalCode =
+		"Invalid national code. Please enter exactly 10 digits without dashes or spaces.";
+
 	public const string InvalidEmail = "Invalid email address. Please enter a valid email (e.g., name@domain.com).";
 	public const string InvalidPhoneNumber = "Invalid phone number. Please enter exactly 11 digits.";
-	public const string InvalidBirthDate = "Invalid birth date. Please enter a past date that is no more than 120 years ago.";
+
+	public const string InvalidBirthDate =
+		"Invalid birth date. Please enter a past date that is no more than 120 years ago.";
+
 	public const string InvalidDate = "Invalid date.  Please enter a date on or before today.";
 	public const string InvalidBirthDateFormat = "Invalid date format. Please use YYYY-MM-DD (e.g., 2026-12-27).";
 	public const string InvalidBookName = "Invalid book name. Please enter a name between 3 and 100 characters.";
@@ -20,7 +27,10 @@ public static class ValidationMessages
 	public const string InvalidInput = "Invalid input. Please try again.";
 	public const string InvalidYesNo = "Invalid input. Please enter 'y' or 'n'.";
 	public const string InvalidMenuChoice = "Invalid selection, Try again.\n";
-	public const string InvalidCharacters = "The name can only contain letters, numbers, spaces, and basic punctuation.";
+
+	public const string InvalidCharacters =
+		"The name can only contain letters, numbers, spaces, and basic punctuation.";
+
 	public const string InvalidRoleSelection = "Please enter at least one role number.";
 
 
@@ -83,10 +93,17 @@ public static class ValidationMessages
 	// Loan Messages
 	public const string BorrowedSuccessfully = "Book borrowed successfully.";
 	public const string ReturnedSuccessfully = "Book returned successfully.";
-	public const string MaximumLoansReached = "Borrowing failed. The user has reached the maximum number of active loans.";
+	public const string RenewedSuccessfully = "Loan renewed successfully.";
+
+	public const string MaximumLoansReached =
+		"Borrowing failed. The user has reached the maximum number of active loans.";
 
 	public const string BookAlreadyBorrowed =
 		"Borrowing failed. The user has already borrowed this book and must return it before borrowing another copy.";
+
+	public const string ActiveLoanNotFound = "No active loan was found for the selected user and book.";
+	public const string UserHasNoBorrowedBooks = "This user has no borrowed books.";
+
 
 
 	// Other Messages

@@ -1,7 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
-using System.Net;
 
 namespace LibraryManagementSystem.Application.Services;
 
@@ -37,8 +36,8 @@ public class LoanManagementService
 		if (book.AvailableCopies <= 0)
 			return ServiceResult<Loan>.Fail("There isn't enough copy of this book to borrow.");
 
-		var activeLoans = _loanRepository.GetActiveLoansByUser(userId);
-		if (activeLoans.Count >= ValidationConstants.MaxActiveLoansPerUser)
+		var countActiveLoans = _loanRepository.CountActiveLoansByUser(userId);
+		if (countActiveLoans >= ValidationConstants.MaxActiveLoansPerUser)
 			return ServiceResult<Loan>.Fail(ValidationMessages.MaximumLoansReached);
 
 		if (_loanRepository.HasActiveLoan(userId, bookId))
@@ -61,22 +60,45 @@ public class LoanManagementService
 		if (book is null)
 			return ServiceResult<Loan>.Fail(ValidationMessages.NotBookMatched);
 
-		var activeLoan = _loanRepository.GetActiveLoan(userId, bookId);
-		if (activeLoan is null)
-			return ServiceResult<Loan>.Fail(ValidationMessages.NotRoleMatched);
+		var loan = _loanRepository.GetActiveLoan(userId, bookId);
+		if (loan is null)
+			return ServiceResult<Loan>.Fail(ValidationMessages.ActiveLoanNotFound);
 
-		activeLoan.ReturnBook();
+		loan.MarkAsReturned();
 		book.ReturnCopy();
-		return ServiceResult<Loan>.Ok(activeLoan, ValidationMessages.ReturnedSuccessfully);
+		return ServiceResult<Loan>.Ok(loan, ValidationMessages.ReturnedSuccessfully);
 	}
 
 
-	public void GetBorrowedBooks()
+	public IReadOnlyList<Loan> GetActiveLoansByUser(int userId)
 	{
+		return _loanRepository.GetActiveLoansByUser(userId);
 	}
 
 
-	public void GetLoandByUser()
+	public ServiceResult<Loan> RenewLoan(int userId, int bookId)
+	{
+		var user = _userRepository.FindById(userId);
+		if (user is null)
+			return ServiceResult<Loan>.Fail(ValidationMessages.NotUserMatched);
+
+		var book = _bookRepository.FindById(bookId);
+		if (book is null)
+			return ServiceResult<Loan>.Fail(ValidationMessages.NotBookMatched);
+
+		var loan = _loanRepository.GetActiveLoan(userId, bookId);
+		if (loan is null)
+			return ServiceResult<Loan>.Fail(ValidationMessages.ActiveLoanNotFound);
+
+		loan.Renew();
+		return ServiceResult<Loan>.Ok(loan, ValidationMessages.RenewedSuccessfully);
+
+	}
+
+
+
+
+	public void GetLoanByUser()
 	{
 	}
 

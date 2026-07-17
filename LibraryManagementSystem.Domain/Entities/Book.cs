@@ -72,9 +72,6 @@ public class Book
 
 	public void BorrowCopy()
 	{
-		if (AvailableCopies <= 0)
-			throw new InvalidOperationException("No copies are available.");
-
 		AvailableCopies--;
 		//TODO	Raise an event: a signal to the rest of the system that says "this book is now out of stock"
 		//LoanService.BorrowBook(memberId, bookId)
