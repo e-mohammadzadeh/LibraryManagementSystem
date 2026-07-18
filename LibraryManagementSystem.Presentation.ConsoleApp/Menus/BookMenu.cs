@@ -200,9 +200,7 @@ public static class BookMenu
 		{
 			Console.WriteLine("\n{0, -30} [{1}]", "1. Book Name", desiredBook.BookName);
 			Console.WriteLine("{0, -30} [{1}]", "2. ISBN", desiredBook.InternationalStandardBookNumber);
-			Console.WriteLine("{0, -30} [{1}]", "3. Author",
-				desiredBook.Author.FirstName + " " + desiredBook.Author.LastName);
-
+			Console.WriteLine("{0, -30} [{1}]", "3. Author", desiredBook.Author?.FirstName + " " + desiredBook.Author?.LastName);
 			Console.WriteLine("{0, -30} [{1}]", "4. Publish Date", desiredBook.PublishDate);
 			Console.WriteLine("{0, -30} [{1}]", "5. Total Copies", desiredBook.TotalCopies);
 			Console.WriteLine("{0, -30} [{1}]", "6. Genre", desiredBook.Genre);
@@ -393,7 +391,7 @@ public static class BookMenu
 				{
 					SearchBookAndDisplay(bookManagementService, p => ConsoleHelper.ReadString(p),
 						"Enter an author name",
-						book => $"{book.Author.FirstName} {book.Author.LastName}", ContainsComparer);
+						book => $"{book.Author?.FirstName} {book.Author?.LastName}", ContainsComparer);
 
 					break;
 				}
@@ -429,10 +427,10 @@ public static class BookMenu
 	private static void SearchBookAndDisplay<T>(BookManagementService bookManagementService, Func<string, T?> reader,
 		string prompt, Func<Book, T?> selector, Func<T, T, bool> comparer) where T : class
 	{
-		var searchItem = reader(prompt);
-		if (searchItem is null) return;
+		var searchTerm = reader(prompt);
+		if (searchTerm is null) return;
 
-		var result = bookManagementService.SearchBooks(searchItem, selector, comparer);
+		var result = bookManagementService.SearchBooks(searchTerm, selector, comparer);
 		if (result.Count is 0)
 		{
 			ConsoleHelper.ShowWarning(ValidationMessages.NotBookMatched);
@@ -446,10 +444,10 @@ public static class BookMenu
 	private static void SearchBookAndDisplay<T>(BookManagementService bookManagementService, Func<string, T?> reader,
 		string prompt, Func<Book, T?> selector, Func<T, T, bool> comparer) where T : struct
 	{
-		var searchItem = reader(prompt);
-		if (!searchItem.HasValue) return;
+		var searchTerm = reader(prompt);
+		if (!searchTerm.HasValue) return;
 
-		var result = bookManagementService.SearchBooks(searchItem, selector, comparer);
+		var result = bookManagementService.SearchBooks(searchTerm, selector, comparer);
 		if (result.Count == 0)
 		{
 			ConsoleHelper.ShowWarning(ValidationMessages.NotBookMatched);

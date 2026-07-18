@@ -12,14 +12,14 @@ public static class Program
 		var authorRepo = new InMemoryAuthorRepository();
 		var bookRepo = new InMemoryBookRepository();
 		var roleRepo = new InMemoryRoleRepository();
-		//var loanRepo = new InMemoryLoanRepository();
+		var loanRepo = new InMemoryLoanRepository();
 
 		var authorService = new AuthorManagementService(authorRepo);
 		var userService = new UserManagementService(userRepo, roleRepo);
 		var bookService = new BookManagementService(bookRepo, authorRepo);
-		//var loanService = new LoanManagementService(loanRepo, bookRepo, UserRepo);
+		var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo);
 
 
-		MainMenu.MainMenuController(authorService, userService, bookService);
+		MainMenu.MainMenuController(authorService, userService, bookService, loanService);
 	}
 }

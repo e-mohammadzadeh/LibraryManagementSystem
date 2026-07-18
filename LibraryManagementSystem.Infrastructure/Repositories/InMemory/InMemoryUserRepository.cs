@@ -74,9 +74,9 @@ public class InMemoryUserRepository : IUserRepository
 	}
 
 
-	public IReadOnlyList<User> Search(string searchItem, Func<User, string?> selector)
+	public IReadOnlyList<User> Search(string searchTerm, Func<User, string?> selector)
 	{
-		if (string.IsNullOrWhiteSpace(searchItem))
+		if (string.IsNullOrWhiteSpace(searchTerm))
 			return [];
 
 		return
@@ -84,7 +84,7 @@ public class InMemoryUserRepository : IUserRepository
 			.. _users.Where(member =>
 			{
 				var value = selector(member);
-				return value is not null && value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
+				return value is not null && value.Contains(searchTerm, StringComparison.OrdinalIgnoreCase);
 			})
 		];
 	}

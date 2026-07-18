@@ -42,7 +42,7 @@ public class InMemoryLoanRepository : ILoanRepository
 
 	public IReadOnlyList<Loan> GetActiveLoansByUser(int userId)
 	{
-		return _loans.Where(l => l.UserId == userId && l.ReturnDate == null).ToList();
+		return [.. _loans.Where(l => l.UserId == userId && l.ReturnDate == null)];
 	}
 
 
@@ -72,19 +72,19 @@ public class InMemoryLoanRepository : ILoanRepository
 
 	public IReadOnlyList<Loan> GetLoansByBook(int bookId)
 	{
-		return _loans.Where(l => l.BookId == bookId).ToList();
+		return [.. _loans.Where(l => l.BookId == bookId)];
 	}
 
 
 	public IReadOnlyList<Loan> GetReturnedLoans()
 	{
-		return _loans.Where(l => l.Status == LoanStatus.Returned).ToList();
+		return [.. _loans.Where(l => l.Status == LoanStatus.Returned)];
 	}
 
 
 	public IReadOnlyList<Loan> GetOverdueLoans()
 	{
-		return _loans.Where(l => l.IsOverdue).ToList();
+		return [.. _loans.Where(l => l.IsOverdue)];
 	}
 
 

@@ -149,9 +149,9 @@ public class UserManagementService
 	}
 
 
-	public IReadOnlyList<User> SearchUser(string searchItem, Func<User, string?> selector)
+	public IReadOnlyList<User> SearchUser(string searchTerm, Func<User, string?> selector)
 	{
-		return _userRepository.Search(searchItem, selector);
+		return _userRepository.Search(searchTerm, selector);
 	}
 
 

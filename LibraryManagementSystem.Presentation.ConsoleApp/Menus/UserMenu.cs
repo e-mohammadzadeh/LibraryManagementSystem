@@ -332,33 +332,33 @@ public static class UserMenu
 			{
 				case 1:
 				{
-					SearchUsersAndDisplay(userManagementService, "Enter a name to search",
+					SearchUserAndDisplay(userManagementService, "Enter a name to search",
 						user => $"{user.FirstName} {user.LastName}");
 
 					break;
 				}
 				case 2:
 				{
-					SearchUsersAndDisplay(userManagementService, "Enter a national code to search",
+					SearchUserAndDisplay(userManagementService, "Enter a national code to search",
 						user => user.NationalCode);
 
 					break;
 				}
 				case 3:
 				{
-					SearchUsersAndDisplay(userManagementService, "Enter an email to search", user => user.Email);
+					SearchUserAndDisplay(userManagementService, "Enter an email to search", user => user.Email);
 					break;
 				}
 				case 4:
 				{
-					SearchUsersAndDisplay(userManagementService, "Enter a phone number to search",
+					SearchUserAndDisplay(userManagementService, "Enter a phone number to search",
 						user => user.PhoneNumber);
 
 					break;
 				}
 				case 5:
 				{
-					SearchRolesAndDisplay(userManagementService, "Enter a role to search");
+					SearchRoleAndDisplay(userManagementService, "Enter a role to search");
 					break;
 				}
 				case 6:
@@ -376,13 +376,13 @@ public static class UserMenu
 	}
 
 
-	private static void SearchUsersAndDisplay(UserManagementService userManagementService, string prompt,
+	private static void SearchUserAndDisplay(UserManagementService userManagementService, string prompt,
 		Func<User, string?> selector)
 	{
-		var searchItem = ConsoleHelper.ReadString(prompt);
-		if (searchItem is null) return;
+		var searchTerm = ConsoleHelper.ReadString(prompt);
+		if (searchTerm is null) return;
 
-		var result = userManagementService.SearchUser(searchItem, selector);
+		var result = userManagementService.SearchUser(searchTerm, selector);
 
 		if (result.Count == 0)
 		{
@@ -394,7 +394,7 @@ public static class UserMenu
 	}
 
 
-	private static void SearchRolesAndDisplay(UserManagementService userManagementService, string prompt)
+	private static void SearchRoleAndDisplay(UserManagementService userManagementService, string prompt)
 	{
 		var availableRoles = userManagementService.GetAllRoles();
 		var roleId = ConsoleHelper.ReadRoles(prompt, availableRoles, false);

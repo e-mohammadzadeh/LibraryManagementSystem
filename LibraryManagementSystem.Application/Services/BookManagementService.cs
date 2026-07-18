@@ -116,17 +116,17 @@ public class BookManagementService
 	}
 
 
-	public IReadOnlyList<Book> SearchBooks<T>(T? searchItem, Func<Book, T?> selector, Func<T, T, bool> comparer)
+	public IReadOnlyList<Book> SearchBooks<T>(T? searchTerm, Func<Book, T?> selector, Func<T, T, bool> comparer)
 		where T : class
 	{
-		return _bookRepository.Search(searchItem, selector, comparer);
+		return _bookRepository.Search(searchTerm, selector, comparer);
 	}
 
 
-	public IReadOnlyList<Book> SearchBooks<T>(T? searchItem, Func<Book, T?> selector, Func<T, T, bool> comparer)
+	public IReadOnlyList<Book> SearchBooks<T>(T? searchTerm, Func<Book, T?> selector, Func<T, T, bool> comparer)
 		where T : struct
 	{
-		return _bookRepository.Search(searchItem, selector, comparer);
+		return _bookRepository.Search(searchTerm, selector, comparer);
 	}
 
 

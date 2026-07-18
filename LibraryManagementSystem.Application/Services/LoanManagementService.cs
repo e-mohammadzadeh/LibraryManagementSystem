@@ -93,15 +93,29 @@ public class LoanManagementService
 	}
 
 
-	public IReadOnlyList<Loan> SearchLoans(string searchTerm)
+	public IReadOnlyList<Loan> SearchLoans<T>(T searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer)
+		where T : class
 	{
-		if (string.IsNullOrWhiteSpace(searchTerm)) return _loanRepository.GetAll();
+		if (searchTerm is null)
+			return [];
 
-		return _loanRepository.GetAll()
-			.Where(l => l.Book.BookName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-			            l.User.LastName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
-			.ToList()
-			.AsReadOnly();
+		return _loanRepository.GetAll().Where(l =>
+		{
+			var value = selector(l);
+			return value != null && comparer(searchTerm, value);
+		}).ToList().AsReadOnly();
+	}
+
+
+	public IReadOnlyList<Loan> SearchActiveLoans<T>(T searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer)
+	{
+		if (searchTerm is null)
+			return [];
+
+		return _loanRepository.GetActiveLoans().Where(l => {
+			var value = selector(l);
+			return value != null && comparer(searchTerm, value);
+		}).ToList().AsReadOnly();
 	}
 
 
@@ -117,7 +131,8 @@ public class LoanManagementService
 		return _loanRepository.GetLoansByBook(bookId);
 	}
 
-	public IReadOnlyList<Loan> GetAllActiveLoans() 
+
+	public IReadOnlyList<Loan> GetAllActiveLoans()
 	{
 		return _loanRepository.GetActiveLoans();
 	}

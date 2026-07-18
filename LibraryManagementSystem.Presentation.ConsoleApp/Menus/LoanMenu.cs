@@ -91,18 +91,7 @@ public static class LoanMenu
 				}
 				case 8:
 				{
-					Console.Clear();
-					var searchTerm = ConsoleHelper.ReadString("Enter book title or user last name to search");
-					if (searchTerm is null) break;
-
-					var searchResults = loanManagementService.SearchLoans(searchTerm);
-					if (searchResults.Count is 0)
-						ConsoleHelper.ShowError(ValidationMessages.NotAvailableLoan);
-					else
-						LoanPrinter.PrintTable(searchResults);
-
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					SearchLoan(loanManagementService);
 					break;
 				}
 				case 9:
@@ -245,5 +234,92 @@ public static class LoanMenu
 		LoanPrinter.PrintTable(loans);
 		ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 		Console.ReadKey(true);
+	}
+
+
+	private static void SearchLoan(LoanManagementService loanManagementService, bool activeOnly = true)
+	{
+		while (true)
+		{
+			Console.Clear();
+			Console.WriteLine("============================ SEARCHING LOAN MENU ============================");
+			var loanList = activeOnly ? loanManagementService.GetAllActiveLoans() : loanManagementService.GetAllLoans();
+			if (loanList.Count is 0)
+			{
+				ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableLoan);
+				ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
+				Console.ReadKey(true);
+				return;
+			}
+
+			Console.WriteLine("\n{0, -20}", "1. Loan ID");
+			Console.WriteLine("{0, -20}", "2. Book Title");
+			Console.WriteLine("{0, -20}", "3. Book ISBN");
+			Console.WriteLine("{0, -20}", "4. Member Name (Last Name)");
+			Console.WriteLine("{0, -20}", "5. Member National Code");
+			Console.WriteLine("{0, -20}", "6. Status (Active/Returned)");
+			Console.WriteLine("7. Cancel");
+
+			var searchMenuChoice = ConsoleHelper.ReadInt("Select a search field by entering its number", 1, 7);
+			if (searchMenuChoice is null) return;
+
+			switch (searchMenuChoice)
+			{
+				case 1:
+				{
+					SearchLoanAndDisplay(loanManagementService, p => ConsoleHelper.ReadInt(p, 1, int.MaxValue), "Enter an ID to search", );
+					break;
+				}
+				case 2:
+				{
+					break;
+				}
+				case 3:
+				{
+					break;
+				}
+				case 4:
+				{
+					break;
+				}
+				case 5:
+				{
+					break;
+				}
+				case 6:
+				{
+					break;
+				}
+				case 7:
+				{
+					ConsoleHelper.ShowInfo("Search cancelled. Returning to Loan Menu...");
+					Thread.Sleep(3000);
+					Console.Clear();
+					return;
+				}
+			}
+		}
+
+
+		//Console.Clear();
+		//var searchTerm = ConsoleHelper.ReadString("Enter book title or user last name to search");
+		//if (searchTerm is null)
+		//	break;
+
+		//var searchResults = loanManagementService.SearchLoans(searchTerm);
+		//if (searchResults.Count is 0)
+		//	ConsoleHelper.ShowError(ValidationMessages.NotAvailableLoan);
+		//else
+		//	LoanPrinter.PrintTable(searchResults);
+
+		//ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
+		//Console.ReadKey(true);
+	}
+
+
+	private static void SearchLoanAndDisplay<T>(LoanManagementService, string prompt, Func<T, T, bool,>
+		comparer)
+	{
+
 	}
 }
