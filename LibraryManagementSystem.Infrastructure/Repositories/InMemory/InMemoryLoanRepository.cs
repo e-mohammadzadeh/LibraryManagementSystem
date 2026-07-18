@@ -27,6 +27,18 @@ public class InMemoryLoanRepository : ILoanRepository
 	}
 
 
+	public IReadOnlyList<Loan> GetAllByUser(int userId)
+	{
+		return _loans.Where(l => l.UserId == userId).ToList().AsReadOnly();
+	}
+
+
+	public Loan? GetActiveLoanById(int loanId)
+	{
+		return _loans.FirstOrDefault(l => l.LoanId == loanId && l.IsActive);
+	}
+
+
 
 	public IReadOnlyList<Loan> GetActiveLoansByUser(int userId)
 	{
@@ -36,7 +48,7 @@ public class InMemoryLoanRepository : ILoanRepository
 
 	public int CountActiveLoansByUser(int userId)
 	{
-		return GetActiveLoansByUser(userId).Count;
+		return _loans.Count(l => l.UserId == userId && l.ReturnDate == null);
 	}
 
 
@@ -52,19 +64,25 @@ public class InMemoryLoanRepository : ILoanRepository
 	}
 
 
+	public IReadOnlyList<Loan> GetActiveLoans()
+	{
+		return _loans.Where(l => l.ReturnDate == null).ToList().AsReadOnly();
+	}
+
+
 	public IReadOnlyList<Loan> GetLoansByBook(int bookId)
 	{
 		return _loans.Where(l => l.BookId == bookId).ToList();
 	}
 
 
-	IReadOnlyList<Loan> ILoanRepository.GetReturnedLoans()
+	public IReadOnlyList<Loan> GetReturnedLoans()
 	{
 		return _loans.Where(l => l.Status == LoanStatus.Returned).ToList();
 	}
 
 
-	IReadOnlyList<Loan> ILoanRepository.GetOverdueLoans()
+	public IReadOnlyList<Loan> GetOverdueLoans()
 	{
 		return _loans.Where(l => l.IsOverdue).ToList();
 	}

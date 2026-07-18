@@ -49,22 +49,14 @@ public class LoanManagementService
 	}
 
 
-	public ServiceResult<Loan> ReturnBook(int userId, int bookId)
+	public ServiceResult<Loan> ReturnBook(int loanId)
 	{
-		var user = _userRepository.FindById(userId);
-		if (user is null)
-			return ServiceResult<Loan>.Fail(ValidationMessages.NotUserMatched);
-
-		var book = _bookRepository.FindById(bookId);
-		if (book is null)
-			return ServiceResult<Loan>.Fail(ValidationMessages.NotBookMatched);
-
-		var loan = _loanRepository.GetActiveLoan(userId, bookId);
+		var loan = _loanRepository.GetActiveLoanById(loanId);
 		if (loan is null)
 			return ServiceResult<Loan>.Fail(ValidationMessages.ActiveLoanNotFound);
 
 		loan.MarkAsReturned();
-		book.ReturnCopy();
+		loan.Book.ReturnCopy();
 		return ServiceResult<Loan>.Ok(loan, ValidationMessages.ReturnedSuccessfully);
 	}
 
@@ -75,17 +67,9 @@ public class LoanManagementService
 	}
 
 
-	public ServiceResult<Loan> RenewLoan(int userId, int bookId)
+	public ServiceResult<Loan> RenewLoan(int loanId)
 	{
-		var user = _userRepository.FindById(userId); // Should I check user existence?
-		if (user is null)
-			return ServiceResult<Loan>.Fail(ValidationMessages.NotUserMatched);
-
-		var book = _bookRepository.FindById(bookId); // Should I check book existence?
-		if (book is null)
-			return ServiceResult<Loan>.Fail(ValidationMessages.NotBookMatched);
-
-		var loan = _loanRepository.GetActiveLoan(userId, bookId);
+		var loan = _loanRepository.GetActiveLoanById(loanId);
 		if (loan is null)
 			return ServiceResult<Loan>.Fail(ValidationMessages.ActiveLoanNotFound);
 
@@ -105,7 +89,7 @@ public class LoanManagementService
 
 	public IReadOnlyList<Loan> GetLoansByUser(int userId)
 	{
-		return _loanRepository.GetAll().Where(l => l.UserId == userId).ToList().AsReadOnly();
+		return _loanRepository.GetAllByUser(userId);
 	}
 
 
@@ -128,25 +112,13 @@ public class LoanManagementService
 
 
 
-	public IReadOnlyList<Loan> GetLoanByUser(int userId)
-	{
-		return _loanRepository.GetAll().Where(l => l.UserId == userId).ToList().AsReadOnly();
-	}
-
-
 	public IReadOnlyList<Loan> GetLoanByBook(int bookId)
 	{
+		return _loanRepository.GetLoansByBook(bookId);
 	}
 
-
-	public bool CanBorrow()
+	public IReadOnlyList<Loan> GetAllActiveLoans() 
 	{
-		return true;
-	}
-
-
-	public bool CanReturn()
-	{
-		return true;
+		return _loanRepository.GetActiveLoans();
 	}
 }

@@ -94,6 +94,7 @@ public static class ValidationMessages
 	public const string NoOverdueLoans = "No overdue loans at the moment.";
 	public const string MembershipExpired = "Membership expired. Please renew your membership to borrow books.";
 	public const string NotEnoughCopiesAvailable = "Not enough copies available.";
+	public const string NoLoanHistoryForUser = "This user has no loan history.";
 
 
 
