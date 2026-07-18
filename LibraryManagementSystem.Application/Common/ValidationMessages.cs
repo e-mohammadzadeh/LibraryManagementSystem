@@ -89,8 +89,11 @@ public static class ValidationMessages
 	public const string BookAlreadyBorrowed = "Borrowing failed. The user has already borrowed this book and must return it before borrowing another copy.";
 	public const string ActiveLoanNotFound = "No active loan was found for the selected user and book.";
 	public const string NoActiveLoans = "No active loans found.";
+	public const string NotAvailableBook2Borrow = "No books are currently available to borrow";
 	public const string UserHasNoBorrowedBooks = "This user has no borrowed books.";
 	public const string NoOverdueLoans = "No overdue loans at the moment.";
+	public const string MembershipExpired = "Membership expired. Please renew your membership to borrow books.";
+	public const string NotEnoughCopiesAvailable = "Not enough copies available.";
 
 
 

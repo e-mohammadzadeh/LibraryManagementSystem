@@ -46,6 +46,12 @@ public class InMemoryBookRepository : IBookRepository
 	}
 
 
+	public IReadOnlyList<Book> GetAvailableBooks()
+	{
+		return _books.Where(b => b.AvailableCopies > 0).ToList().AsReadOnly();
+	}
+
+
 	public void Remove(Book book)
 	{
 		_books.Remove(book);

@@ -41,14 +41,30 @@ public class Loan
 	}
 
 
-	public void Renew()
+	public bool CanRenew(out string errorMessage)
 	{
 		if (ReturnDate != null)
-			throw new InvalidOperationException("Returned books cannot be renewed.");
+		{
+			errorMessage = "Returned books cannot be renewed.";
+			return false;
+		}
 
 		if (RenewalCount >= MaxRenewals)
-			throw new InvalidOperationException("This loan has already reached the maximum number of renewals.");
+		{
+			errorMessage = "This loan has already reached the maximum number of renewals.";
+			return false;
+		}
 
+		errorMessage = string.Empty;
+		return true;
+	}
+
+
+	public void Renew()
+	{
+		if (!CanRenew(out var errorMessage))
+			throw new InvalidOperationException(errorMessage);
+		
 		DueDate = DueDate.AddDays(14);
 		Status = LoanStatus.Borrowed;
 		RenewalCount++;

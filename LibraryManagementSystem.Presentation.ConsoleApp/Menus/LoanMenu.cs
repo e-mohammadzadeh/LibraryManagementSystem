@@ -1,6 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
-using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -90,7 +89,21 @@ public static class LoanMenu
 				case 7:
 				{
 					Console.Clear();
+					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
+					if (user is null)
+					{
+						ConsoleHelper.ShowWarning(ValidationMessages.UserNotFound);
+						break;
+					}
 
+					var activeLoans = loanManagementService.GetActiveLoansByUser(user.Id);
+					if (activeLoans.Count is 0)
+					{
+						ConsoleHelper.ShowWarning(ValidationMessages.UserHasNoBorrowedBooks);
+						break;
+					}
+
+					LoanPrinter.PrintTable(activeLoans);
 					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 					Console.ReadKey(true);
 					break;
@@ -98,7 +111,16 @@ public static class LoanMenu
 				case 8:
 				{
 					Console.Clear();
+					Console.Write("Enter book title or user last name to search: ");
+					var searchTerm = Console.ReadLine() ?? string.Empty;
 
+					var searchResults = loanManagementService.SearchLoans(searchTerm);
+					if (searchResults.Count is 0)
+						ConsoleHelper.ShowError(ValidationMessages.NotAvailableLoan);
+					else
+						LoanPrinter.PrintTable(searchResults);
+					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
+					Console.ReadKey(true);
 					break;
 				}
 				case 9:
@@ -145,16 +167,22 @@ public static class LoanMenu
 		var userId = ConsoleHelper.ReadInt("Enter user id", 1, int.MaxValue);
 		if (userId is null) return;
 
-
-		if (bookManagementService.GetAllBooks().Count is 0)
+		var availableBooks = bookManagementService.GetAvailableBooks();
+		if (availableBooks.Count is 0)
 		{
-			ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableBook);
+			ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableBook2Borrow);
 			return;
 		}
 
-		BookPrinter.PrintTable(bookManagementService.GetAllBooks());
+		BookPrinter.PrintTable(availableBooks);
 		var bookId = ConsoleHelper.ReadInt("Enter your desired book id to borrow: ", 1, int.MaxValue);
 		if (bookId is null) return;
+		var selectedBook = availableBooks.FirstOrDefault(b => b.BookId == bookId);
+		if (selectedBook is null)
+		{
+			ConsoleHelper.ShowError("That book ID is not in the available list. Please select from the list above.");
+			return;
+		}
 
 		var result = loanManagementService.BorrowBook((int)userId, (int)bookId);
 		ConsoleHelper.ShowResult(result);
@@ -201,7 +229,7 @@ public static class LoanMenu
 		}
 
 		LoanPrinter.PrintTable(loans);
-		var bookId = ConsoleHelper.ReadInt("Enter your desired book id to return: ", 1, int.MaxValue);
+		var bookId = ConsoleHelper.ReadInt("Enter your desired book id to renew: ", 1, int.MaxValue);
 		if (bookId is null)
 			return;
 

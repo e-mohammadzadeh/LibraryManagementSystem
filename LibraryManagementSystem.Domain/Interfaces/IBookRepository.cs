@@ -9,6 +9,7 @@ public interface IBookRepository
 	IReadOnlyList<Book> GetAll();
 	bool ExistsByName(string name, int excludeBookId = -1);
 	bool ExistsByISBN(string isbn, int excludeBookId = -1);
+	IReadOnlyList<Book> GetAvailableBooks();
 	void Remove(Book book);
 	IReadOnlyList<Book> Search<T>(T? searchItem, Func<Book, T?> selector, Func<T, T, bool> comparer) where T : class;
 	IReadOnlyList<Book> Search<T>(T? searchItem, Func<Book, T?> selector, Func<T, T, bool> comparer) where T : struct;

@@ -128,4 +128,10 @@ public class BookManagementService
 	{
 		return _bookRepository.Search(searchItem, selector, comparer);
 	}
+
+
+	public IReadOnlyList<Book> GetAvailableBooks()
+	{
+		return _bookRepository.GetAvailableBooks();
+	}
 }
