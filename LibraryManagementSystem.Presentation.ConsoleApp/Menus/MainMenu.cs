@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
+using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
@@ -7,35 +8,36 @@ public static class MainMenu
 {
 	public static void MainMenuController(AuthorManagementService authorManagementService,
 		UserManagementService userManagementService, BookManagementService bookManagementService,
-		LoanManagementService loanManagementService)
+		LoanManagementService loanManagementService, LibraryStatisticsService statisticsService)
 	{
 		var continueProgram = true;
 		while (continueProgram)
 		{
+			StatisticsPrinter.Print(statisticsService.GetLibraryStatistics());
 			switch (MainMenuList())
 			{
 				case 1:
 				{
 					Console.Clear();
-					AuthorMenu.AuthorMenuController(authorManagementService);
+					AuthorMenu.AuthorMenuController(authorManagementService, statisticsService);
 					break;
 				}
 				case 2:
 				{
 					Console.Clear();
-					BookMenu.BookMenuController(authorManagementService, bookManagementService);
+					BookMenu.BookMenuController(authorManagementService, bookManagementService, statisticsService);
 					break;
 				}
 				case 3:
 				{
 					Console.Clear();
-					UserMenu.UserMenuController(userManagementService);
+					UserMenu.UserMenuController(userManagementService, statisticsService);
 					break;
 				}
 				case 4:
 				{
 					Console.Clear();
-					LoanMenu.LoanMenuController(loanManagementService, userManagementService, bookManagementService);
+					LoanMenu.LoanMenuController(loanManagementService, userManagementService, bookManagementService, statisticsService);
 					break;
 				}
 				case 5:

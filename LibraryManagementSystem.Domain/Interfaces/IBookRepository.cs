@@ -13,4 +13,5 @@ public interface IBookRepository
 	void Remove(Book book);
 	IReadOnlyList<Book> Search<T>(T? searchTerm, Func<Book, T?> selector, Func<T, T, bool> comparer) where T : class;
 	IReadOnlyList<Book> Search<T>(T? searchTerm, Func<Book, T?> selector, Func<T, T, bool> comparer) where T : struct;
+	int Count();
 }

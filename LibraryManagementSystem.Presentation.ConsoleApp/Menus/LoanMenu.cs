@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -9,13 +10,14 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 public static class LoanMenu
 {
 	public static void LoanMenuController(LoanManagementService loanManagementService,
-		UserManagementService userManagementService,
-		BookManagementService bookManagementService)
+		UserManagementService userManagementService, BookManagementService bookManagementService,
+		LibraryStatisticsService statisticsService)
 	{
 		var continueProgram = true;
 		while (continueProgram)
 		{
 			Console.Clear();
+			StatisticsPrinter.Print(statisticsService.GetLibraryStatistics());
 			switch (LoanMenuList())
 			{
 				case 1:
@@ -266,57 +268,57 @@ public static class LoanMenu
 			var searchMenuChoice = ConsoleHelper.ReadInt("Select a search field by entering its number", 1, 7);
 			if (searchMenuChoice is null) return;
 
-			var searchMethod = activeOnly
-				? (Action<Func<string, int?>, string, Func<Loan, int?>, Func<int, int, bool>>)SearchLoanAndDisplay
-				: null;
-
-
 			switch (searchMenuChoice)
 			{
 				case 1:
 				{
-					SearchLoanAndDisplay(loanManagementService, p => ConsoleHelper.ReadInt(p, 1, int.MaxValue),
-						"Enter an ID to search", loan => (int)loan.LoanId, (search, value) => search == value);
+					SearchLoanAndDisplay(p => ConsoleHelper.ReadInt(p, 1, int.MaxValue),
+						"Enter an ID to search", loan => loan.LoanId, (search, value) => search == value,
+						activeOnly ? loanManagementService.SearchActiveLoans : loanManagementService.SearchLoans);
 
 					break;
 				}
 				case 2:
 				{
-					SearchLoanAndDisplay(loanManagementService, p => ConsoleHelper.ReadString(p),
-						"Enter a book title to search", loan => loan.Book.BookName,
-						(search, value) => value.Contains(search, StringComparison.OrdinalIgnoreCase));
+					SearchLoanAndDisplay(p => ConsoleHelper.ReadString(p), "Enter a book title to search",
+						loan => loan.Book.BookName, (search, value) => value.Contains(search,
+							StringComparison.OrdinalIgnoreCase),
+						activeOnly ? loanManagementService.SearchActiveLoans : loanManagementService.SearchLoans);
 
 					break;
 				}
 				case 3:
 				{
-					SearchLoanAndDisplay(loanManagementService, p => ConsoleHelper.ReadString(p),
-						"Enter a book ISBN to search", loan => loan.Book.InternationalStandardBookNumber,
-						(search, value) => value.Contains(search, StringComparison.OrdinalIgnoreCase));
+					SearchLoanAndDisplay(p => ConsoleHelper.ReadString(p), "Enter a book ISBN to search",
+						loan => loan.Book.InternationalStandardBookNumber,
+						(search, value) => value.Contains(search, StringComparison.OrdinalIgnoreCase),
+						activeOnly ? loanManagementService.SearchActiveLoans : loanManagementService.SearchLoans);
 
 					break;
 				}
 				case 4:
 				{
-					SearchLoanAndDisplay(loanManagementService, p => ConsoleHelper.ReadString(p),
-						"Enter a member name to search", loan => loan.User.FirstName + " " + loan.User.LastName,
-						(search, value) => value.Contains(search, StringComparison.OrdinalIgnoreCase));
+					SearchLoanAndDisplay(p => ConsoleHelper.ReadString(p), "Enter a member name to search",
+						loan => $"{loan.User.FirstName} {loan.User.LastName}",
+						(search, value) => value.Contains(search, StringComparison.OrdinalIgnoreCase),
+						activeOnly ? loanManagementService.SearchActiveLoans : loanManagementService.SearchLoans);
 
 					break;
 				}
 				case 5:
 				{
-					SearchLoanAndDisplay(loanManagementService, p => ConsoleHelper.ReadString(p),
-						"Enter a member national code to search", loan => loan.User.NationalCode,
-						(search, value) => value.Contains(search));
+					SearchLoanAndDisplay(p => ConsoleHelper.ReadString(p), "Enter a member national code to search",
+						loan => loan.User.NationalCode,
+						(search, value) => value.Contains(search, StringComparison.OrdinalIgnoreCase),
+						activeOnly ? loanManagementService.SearchActiveLoans : loanManagementService.SearchLoans);
 
 					break;
 				}
 				case 6:
 				{
-					SearchLoanAndDisplay(loanManagementService, p => ConsoleHelper.ReadYesNo("Is the loan active"),
-						"Enter loan status", loan => (bool)(loan.ReturnDate is null),
-						(search, value) => search == value);
+					SearchLoanAndDisplay(p => ConsoleHelper.ReadLoanStatus(p), "Enter loan status",
+						loan => (LoanStatus)loan.Status, (search, value) => search == value,
+						activeOnly ? loanManagementService.SearchActiveLoans : loanManagementService.SearchLoans);
 
 					break;
 				}
@@ -335,49 +337,26 @@ public static class LoanMenu
 	}
 
 
-	private static void SearchLoanAndDisplay<T>(LoanManagementService loanManagementService, Func<string, T?> reader,
-		string prompt, Func<Loan, T> selector, Func<T, T, bool> comparer) where T : class
+	private static void SearchLoanAndDisplay<T>(Func<string, T?> reader, string prompt, Func<Loan, T?> selector,
+		Func<T, T, bool> comparer, Func<T?, Func<Loan, T?>, Func<T, T, bool>, IReadOnlyList<Loan>> searchFn)
+		where T : class
 	{
 		var searchTerm = reader(prompt);
 		if (searchTerm is null) return;
 
-		var results = loanManagementService.SearchLoans(searchTerm, selector, comparer);
+		var results = searchFn(searchTerm, selector, comparer);
 		DisplayLoanResults(results);
 	}
 
 
-	private static void SearchLoanAndDisplay<T>(LoanManagementService loanManagementService, Func<string, T?> reader,
-		string prompt, Func<Loan, T> selector, Func<T, T, bool> comparer) where T : struct
+	private static void SearchLoanAndDisplay<T>(Func<string, T?> reader, string prompt, Func<Loan, T?> selector,
+		Func<T, T, bool> comparer, Func<T?, Func<Loan, T?>, Func<T, T, bool>, IReadOnlyList<Loan>> searchFn)
+		where T : struct
 	{
 		var searchTerm = reader(prompt);
-		if (!searchTerm.HasValue)
-			return;
+		if (!searchTerm.HasValue) return;
 
-		var results = loanManagementService.SearchLoans(searchTerm, selector, comparer);
-		DisplayLoanResults(results);
-	}
-
-
-	private static void SearchActiveLoanAndDisplay<T>(LoanManagementService loanManagementService,
-		Func<string, T?> reader, string prompt, Func<Loan, T> selector, Func<T, T, bool> comparer) where T : class
-	{
-		var searchTerm = reader(prompt);
-		if (searchTerm is null)
-			return;
-
-		var results = loanManagementService.SearchActiveLoans(searchTerm, selector, comparer);
-		DisplayLoanResults(results);
-	}
-
-
-	private static void SearchActiveLoanAndDisplay<T>(LoanManagementService loanManagementService,
-		Func<string, T?> reader, string prompt, Func<Loan, T> selector, Func<T, T, bool> comparer) where T : struct
-	{
-		var searchTerm = reader(prompt);
-		if (!searchTerm.HasValue)
-			return;
-
-		var results = loanManagementService.SearchActiveLoans(searchTerm, selector, comparer);
+		var results = searchFn(searchTerm.Value, selector, comparer);
 		DisplayLoanResults(results);
 	}
 

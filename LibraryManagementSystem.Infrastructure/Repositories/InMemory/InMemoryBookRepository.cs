@@ -7,6 +7,7 @@ public class InMemoryBookRepository : IBookRepository
 {
 	private readonly List<Book> _books = [];
 
+
 	public void Add(Book book)
 	{
 		_books.Add(book);
@@ -84,5 +85,11 @@ public class InMemoryBookRepository : IBookRepository
 			var value = selector(book);
 			return value.HasValue && comparer(searchTerm.Value, value.Value);
 		}).ToList().AsReadOnly();
+	}
+
+
+	public int Count()
+	{
+		return _books.Count;
 	}
 }

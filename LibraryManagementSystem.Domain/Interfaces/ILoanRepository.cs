@@ -19,5 +19,6 @@ public interface ILoanRepository
 	IReadOnlyList<Loan> GetOverdueLoans();
 	void Remove(Loan loan);
 	void Update(Loan loan);
+	int CountActiveLoans();
 
 }

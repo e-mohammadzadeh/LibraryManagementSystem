@@ -29,4 +29,10 @@ public class InMemoryRoleRepository : IRoleRepository
 	{
 		return _roles.Any(role => role.Id == id);
 	}
+
+
+	public int Count()
+	{
+		return _roles.Count;
+	}
 }

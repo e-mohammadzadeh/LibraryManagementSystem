@@ -93,9 +93,11 @@ public class LoanManagementService
 	}
 
 
-	public IReadOnlyList<Loan> SearchLoans<T>(T searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer)
+	public IReadOnlyList<Loan> SearchLoans<T>(T? searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer)
 		where T : class
 	{
+		// TODO: When EF is added, move search filtering to ILoanRepository.Search<T>() to allow SQL-level filtering instead of in-memory LINQ.
+
 		if (searchTerm is null) return [];
 
 		return _loanRepository.GetAll().Where(l =>
@@ -106,7 +108,7 @@ public class LoanManagementService
 	}
 
 
-	public IReadOnlyList<Loan> SearchLoans<T>(T searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer)
+	public IReadOnlyList<Loan> SearchLoans<T>(T? searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer)
 		where T : struct
 	{
 		if (!searchTerm.HasValue) return [];
@@ -118,7 +120,7 @@ public class LoanManagementService
 	}
 
 
-	public IReadOnlyList<Loan> SearchActiveLoans<T>(T searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer) where T:class
+	public IReadOnlyList<Loan> SearchActiveLoans<T>(T? searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer) where T:class
 	{
 		if (searchTerm is null) return [];
 
@@ -129,7 +131,7 @@ public class LoanManagementService
 	}
 
 
-	public IReadOnlyList<Loan> SearchActiveLoans<T>(T searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer) where T : struct
+	public IReadOnlyList<Loan> SearchActiveLoans<T>(T? searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer) where T : struct
 	{
 		if (!searchTerm.HasValue) return [];
 

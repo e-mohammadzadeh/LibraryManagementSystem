@@ -11,12 +11,13 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 public static class BookMenu
 {
 	public static void BookMenuController(AuthorManagementService authorManagementService,
-		BookManagementService bookManagementService)
+		BookManagementService bookManagementService, LibraryStatisticsService statisticsService)
 	{
 		var continueProgram = true;
 		while (continueProgram)
 		{
 			Console.Clear();
+			StatisticsPrinter.Print(statisticsService.GetLibraryStatistics());
 			switch (BookMenuList())
 			{
 				case 1:

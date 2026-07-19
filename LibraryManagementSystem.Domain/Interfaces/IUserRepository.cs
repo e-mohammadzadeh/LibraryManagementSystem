@@ -16,4 +16,5 @@ public interface IUserRepository
 	void Remove(User user);
 	IReadOnlyList<User> Search(string searchTerm, Func<User, string?> selector);
 	IReadOnlyList<User> SearchByRole(List<int> roleId);
+	int Count();
 }

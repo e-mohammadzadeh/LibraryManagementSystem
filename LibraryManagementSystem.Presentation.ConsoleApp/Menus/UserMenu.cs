@@ -4,18 +4,18 @@ using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
-using System.Data;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
 public static class UserMenu
 {
-	public static void UserMenuController(UserManagementService userManagementService)
+	public static void UserMenuController(UserManagementService userManagementService, LibraryStatisticsService statisticsService)
 	{
 		var continueProgram = true;
 		while (continueProgram)
 		{
 			Console.Clear();
+			StatisticsPrinter.Print(statisticsService.GetLibraryStatistics());
 			switch (UserMenuList())
 			{
 				case 1:

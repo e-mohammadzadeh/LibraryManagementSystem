@@ -101,4 +101,10 @@ public class InMemoryLoanRepository : ILoanRepository
 		// so that the Service layer can safely call _repository.Update() 
 		// without crashing, simulating a real database save operation.
 	}
+
+
+	public int CountActiveLoans()
+	{
+		return _loans.Count(l=>l.IsActive);
+	}
 }

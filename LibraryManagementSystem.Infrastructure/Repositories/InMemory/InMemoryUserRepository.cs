@@ -98,4 +98,10 @@ public class InMemoryUserRepository : IUserRepository
 			? []
 			: _users.Where(user => user.UserRoles.Any(ur => roleIds.Contains(ur.RoleId))).ToList();
 	}
+
+
+	public int Count()
+	{
+		return _users.Count;
+	}
 }

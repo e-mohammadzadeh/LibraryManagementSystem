@@ -354,4 +354,17 @@ public static class ConsoleHelper
 
 		Console.WriteLine("============================");
 	}
+
+
+	public static LoanStatus? ReadLoanStatus(string prompt)
+	{
+		Console.WriteLine("1. Borrowed");
+		Console.WriteLine("2. Returned");
+		Console.WriteLine("3. Overdue");
+		Console.WriteLine("4. Lost");
+		var choice = ReadInt(prompt, 1, 4);
+		if (choice is null) return null;
+
+		return (LoanStatus)(choice.Value - 1);
+	}
 }

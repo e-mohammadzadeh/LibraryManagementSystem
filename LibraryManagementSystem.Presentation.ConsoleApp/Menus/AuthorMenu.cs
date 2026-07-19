@@ -9,12 +9,13 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
 public static class AuthorMenu
 {
-	public static void AuthorMenuController(AuthorManagementService authorManagementService)
+	public static void AuthorMenuController(AuthorManagementService authorManagementService, LibraryStatisticsService statisticsService)
 	{
 		var continueProgram = true;
 		while (continueProgram)
 		{
 			Console.Clear();
+			StatisticsPrinter.Print(statisticsService.GetLibraryStatistics());
 			switch (AuthorMenuList())
 			{
 				case 1:
