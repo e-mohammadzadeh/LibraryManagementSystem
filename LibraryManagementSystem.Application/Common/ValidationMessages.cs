@@ -62,6 +62,8 @@ public static class ValidationMessages
 	public const string UserNotFound = "User not found.";
 	public const string NotRoleMatched = "No roles matched your search.";
 	public const string NotAvailableLoan = "No loans found. First add a new loan."; // Need help
+	public const string NotAvailableActionLoan = "No action loans found. First add a new loan.";
+	public const string NotLoanMatched = "No loans matched your search.";
 
 
 	// Duplicate Messages

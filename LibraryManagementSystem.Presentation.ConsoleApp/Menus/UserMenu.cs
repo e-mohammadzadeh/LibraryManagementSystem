@@ -383,14 +383,7 @@ public static class UserMenu
 		if (searchTerm is null) return;
 
 		var result = userManagementService.SearchUser(searchTerm, selector);
-
-		if (result.Count == 0)
-		{
-			ConsoleHelper.ShowWarning(ValidationMessages.NotUserMatched);
-			return;
-		}
-
-		UserPrinter.PrintTable(result);
+		DisplayRoleResults(result);
 	}
 
 
@@ -401,7 +394,12 @@ public static class UserMenu
 		if (roleId is null) return;
 
 		var result = userManagementService.SearchByRole(roleId);
+		DisplayRoleResults(result);
+	}
 
+
+	private static void DisplayRoleResults(IReadOnlyList<User> result)
+	{
 		if (result.Count == 0)
 		{
 			ConsoleHelper.ShowWarning(ValidationMessages.NotRoleMatched);

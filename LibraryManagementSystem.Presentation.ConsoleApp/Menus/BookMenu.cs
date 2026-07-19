@@ -431,13 +431,7 @@ public static class BookMenu
 		if (searchTerm is null) return;
 
 		var result = bookManagementService.SearchBooks(searchTerm, selector, comparer);
-		if (result.Count is 0)
-		{
-			ConsoleHelper.ShowWarning(ValidationMessages.NotBookMatched);
-			return;
-		}
-
-		BookPrinter.PrintTable(result);
+		DisplayBookResults(result);
 	}
 
 
@@ -448,13 +442,7 @@ public static class BookMenu
 		if (!searchTerm.HasValue) return;
 
 		var result = bookManagementService.SearchBooks(searchTerm, selector, comparer);
-		if (result.Count == 0)
-		{
-			ConsoleHelper.ShowWarning(ValidationMessages.NotBookMatched);
-			return;
-		}
-
-		BookPrinter.PrintTable(result);
+		DisplayBookResults(result);
 	}
 
 
@@ -463,4 +451,16 @@ public static class BookMenu
 
 	private static readonly Func<DateOnly, DateOnly, bool> DateComparer = (search, value) => search == value;
 	private static readonly Func<Genre, Genre, bool> GenreComparer = (search, value) => search == value;
+
+
+	private static void DisplayBookResults(IReadOnlyList<Book> result)
+	{
+		if (result.Count == 0)
+		{
+			ConsoleHelper.ShowWarning(ValidationMessages.NotBookMatched);
+			return;
+		}
+
+		BookPrinter.PrintTable(result);
+	}
 }

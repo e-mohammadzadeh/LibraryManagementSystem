@@ -246,7 +246,10 @@ public static class LoanMenu
 			var loanList = activeOnly ? loanManagementService.GetAllActiveLoans() : loanManagementService.GetAllLoans();
 			if (loanList.Count is 0)
 			{
-				ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableLoan);
+				ConsoleHelper.ShowWarning(activeOnly
+					? ValidationMessages.NotAvailableActionLoan
+					: ValidationMessages.NotAvailableLoan);
+
 				ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 				Console.ReadKey(true);
 				return;
@@ -255,7 +258,7 @@ public static class LoanMenu
 			Console.WriteLine("\n{0, -20}", "1. Loan ID");
 			Console.WriteLine("{0, -20}", "2. Book Title");
 			Console.WriteLine("{0, -20}", "3. Book ISBN");
-			Console.WriteLine("{0, -20}", "4. Member Name (Last Name)");
+			Console.WriteLine("{0, -20}", "4. Member Name");
 			Console.WriteLine("{0, -20}", "5. Member National Code");
 			Console.WriteLine("{0, -20}", "6. Status (Active/Returned)");
 			Console.WriteLine("7. Cancel");
@@ -263,31 +266,58 @@ public static class LoanMenu
 			var searchMenuChoice = ConsoleHelper.ReadInt("Select a search field by entering its number", 1, 7);
 			if (searchMenuChoice is null) return;
 
+			var searchMethod = activeOnly
+				? (Action<Func<string, int?>, string, Func<Loan, int?>, Func<int, int, bool>>)SearchLoanAndDisplay
+				: null;
+
+
 			switch (searchMenuChoice)
 			{
 				case 1:
 				{
-					SearchLoanAndDisplay(loanManagementService, p => ConsoleHelper.ReadInt(p, 1, int.MaxValue), "Enter an ID to search", );
+					SearchLoanAndDisplay(loanManagementService, p => ConsoleHelper.ReadInt(p, 1, int.MaxValue),
+						"Enter an ID to search", loan => (int)loan.LoanId, (search, value) => search == value);
+
 					break;
 				}
 				case 2:
 				{
+					SearchLoanAndDisplay(loanManagementService, p => ConsoleHelper.ReadString(p),
+						"Enter a book title to search", loan => loan.Book.BookName,
+						(search, value) => value.Contains(search, StringComparison.OrdinalIgnoreCase));
+
 					break;
 				}
 				case 3:
 				{
+					SearchLoanAndDisplay(loanManagementService, p => ConsoleHelper.ReadString(p),
+						"Enter a book ISBN to search", loan => loan.Book.InternationalStandardBookNumber,
+						(search, value) => value.Contains(search, StringComparison.OrdinalIgnoreCase));
+
 					break;
 				}
 				case 4:
 				{
+					SearchLoanAndDisplay(loanManagementService, p => ConsoleHelper.ReadString(p),
+						"Enter a member name to search", loan => loan.User.FirstName + " " + loan.User.LastName,
+						(search, value) => value.Contains(search, StringComparison.OrdinalIgnoreCase));
+
 					break;
 				}
 				case 5:
 				{
+					SearchLoanAndDisplay(loanManagementService, p => ConsoleHelper.ReadString(p),
+						"Enter a member national code to search", loan => loan.User.NationalCode,
+						(search, value) => value.Contains(search));
+
 					break;
 				}
 				case 6:
 				{
+					SearchLoanAndDisplay(loanManagementService, p => ConsoleHelper.ReadYesNo("Is the loan active"),
+						"Enter loan status", loan => (bool)(loan.ReturnDate is null),
+						(search, value) => search == value);
+
 					break;
 				}
 				case 7:
@@ -298,28 +328,68 @@ public static class LoanMenu
 					return;
 				}
 			}
+
+			ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
+			Console.ReadKey(true);
 		}
-
-
-		//Console.Clear();
-		//var searchTerm = ConsoleHelper.ReadString("Enter book title or user last name to search");
-		//if (searchTerm is null)
-		//	break;
-
-		//var searchResults = loanManagementService.SearchLoans(searchTerm);
-		//if (searchResults.Count is 0)
-		//	ConsoleHelper.ShowError(ValidationMessages.NotAvailableLoan);
-		//else
-		//	LoanPrinter.PrintTable(searchResults);
-
-		//ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-		//Console.ReadKey(true);
 	}
 
 
-	private static void SearchLoanAndDisplay<T>(LoanManagementService, string prompt, Func<T, T, bool,>
-		comparer)
+	private static void SearchLoanAndDisplay<T>(LoanManagementService loanManagementService, Func<string, T?> reader,
+		string prompt, Func<Loan, T> selector, Func<T, T, bool> comparer) where T : class
 	{
+		var searchTerm = reader(prompt);
+		if (searchTerm is null) return;
 
+		var results = loanManagementService.SearchLoans(searchTerm, selector, comparer);
+		DisplayLoanResults(results);
+	}
+
+
+	private static void SearchLoanAndDisplay<T>(LoanManagementService loanManagementService, Func<string, T?> reader,
+		string prompt, Func<Loan, T> selector, Func<T, T, bool> comparer) where T : struct
+	{
+		var searchTerm = reader(prompt);
+		if (!searchTerm.HasValue)
+			return;
+
+		var results = loanManagementService.SearchLoans(searchTerm, selector, comparer);
+		DisplayLoanResults(results);
+	}
+
+
+	private static void SearchActiveLoanAndDisplay<T>(LoanManagementService loanManagementService,
+		Func<string, T?> reader, string prompt, Func<Loan, T> selector, Func<T, T, bool> comparer) where T : class
+	{
+		var searchTerm = reader(prompt);
+		if (searchTerm is null)
+			return;
+
+		var results = loanManagementService.SearchActiveLoans(searchTerm, selector, comparer);
+		DisplayLoanResults(results);
+	}
+
+
+	private static void SearchActiveLoanAndDisplay<T>(LoanManagementService loanManagementService,
+		Func<string, T?> reader, string prompt, Func<Loan, T> selector, Func<T, T, bool> comparer) where T : struct
+	{
+		var searchTerm = reader(prompt);
+		if (!searchTerm.HasValue)
+			return;
+
+		var results = loanManagementService.SearchActiveLoans(searchTerm, selector, comparer);
+		DisplayLoanResults(results);
+	}
+
+
+	private static void DisplayLoanResults(IReadOnlyList<Loan> results)
+	{
+		if (results.Count == 0)
+		{
+			ConsoleHelper.ShowWarning(ValidationMessages.NotLoanMatched);
+			return;
+		}
+
+		LoanPrinter.PrintTable(results);
 	}
 }

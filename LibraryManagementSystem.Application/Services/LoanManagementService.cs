@@ -96,8 +96,7 @@ public class LoanManagementService
 	public IReadOnlyList<Loan> SearchLoans<T>(T searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer)
 		where T : class
 	{
-		if (searchTerm is null)
-			return [];
+		if (searchTerm is null) return [];
 
 		return _loanRepository.GetAll().Where(l =>
 		{
@@ -107,14 +106,36 @@ public class LoanManagementService
 	}
 
 
-	public IReadOnlyList<Loan> SearchActiveLoans<T>(T searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer)
+	public IReadOnlyList<Loan> SearchLoans<T>(T searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer)
+		where T : struct
 	{
-		if (searchTerm is null)
-			return [];
+		if (!searchTerm.HasValue) return [];
+
+		return _loanRepository.GetAll().Where(l => {
+			var value = selector(l);
+			return value.HasValue && comparer(searchTerm.Value, value.Value);
+		}).ToList().AsReadOnly();
+	}
+
+
+	public IReadOnlyList<Loan> SearchActiveLoans<T>(T searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer) where T:class
+	{
+		if (searchTerm is null) return [];
 
 		return _loanRepository.GetActiveLoans().Where(l => {
 			var value = selector(l);
 			return value != null && comparer(searchTerm, value);
+		}).ToList().AsReadOnly();
+	}
+
+
+	public IReadOnlyList<Loan> SearchActiveLoans<T>(T searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer) where T : struct
+	{
+		if (!searchTerm.HasValue) return [];
+
+		return _loanRepository.GetActiveLoans().Where(l => {
+			var value = selector(l);
+			return value.HasValue && comparer(searchTerm.Value, value.Value);
 		}).ToList().AsReadOnly();
 	}
 
