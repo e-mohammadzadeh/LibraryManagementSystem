@@ -7,7 +7,7 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 public static class MenuHelper
 {
-	public static void Print(LibraryStatisticsDto statistics) 
+	public static void Print(LibraryStatisticsDto statistics)
 	{
 		Console.WriteLine("======================== LIBRARY DASHBOARD ========================");
 		Console.ForegroundColor = ConsoleColor.Cyan;
@@ -44,6 +44,34 @@ public static class MenuHelper
 	}
 
 
+
+	public static Translator? SelectTranslator(IReadOnlyList<Translator> translatorsList)
+	{
+		if (translatorsList.Count == 0)
+		{
+			ConsoleHelper.ShowError(ValidationMessages.NotAvailableTranslator);
+			return null;
+		}
+
+		while (true)
+		{
+			TranslatorPrinter.PrintTable(translatorsList);
+			// TODO	Max parameter has some logical issues when authors are removed and new authors are added.
+			var desiredTranslatorId = ConsoleHelper.ReadInt("Enter the number of the translator you wish", 1,
+				translatorsList.Last().Id);
+
+			if (desiredTranslatorId is null)
+				return null;
+
+			var desiredTranslator = translatorsList.FirstOrDefault(t => t.Id == desiredTranslatorId.Value);
+			if (desiredTranslator != null)
+				return desiredTranslator;
+
+			ConsoleHelper.ShowError("Translator not found. Please try again.");
+		}
+	}
+
+
 	public static Book? SelectBook(IReadOnlyList<Book> booksList)
 	{
 		if (booksList.Count == 0)
@@ -68,7 +96,7 @@ public static class MenuHelper
 	}
 
 
-	public static User? SelectUser(IReadOnlyList<User> usersList) 
+	public static User? SelectUser(IReadOnlyList<User> usersList)
 	{
 		if (usersList.Count is 0)
 		{

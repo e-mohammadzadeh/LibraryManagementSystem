@@ -59,7 +59,9 @@ public static class ValidationMessages
 
 	// Searching Messages
 	public const string NotAvailableAuthor = "No authors found. First add a new author.";
+	public const string NotAvailableTranslator = "No translators found. First add a new translator.";
 	public const string NotAuthorMatched = "No authors matched your search.";
+	public const string NotTranslatorMatched = "No translators matched your search.";
 	public const string NotAvailableBook = "No books found. First add a new book.";
 	public const string NotBookMatched = "No books matched your search.";
 	public const string NotAvailableUser = "No users found. First add a new user.";

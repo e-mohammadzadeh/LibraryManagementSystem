@@ -7,15 +7,17 @@ public class LibraryStatisticsService
 {
 	private readonly IBookRepository _bookRepository;
 	private readonly IAuthorRepository _authorRepository;
+	private readonly ITranslatorRepository _translatorRepository;
 	private readonly IUserRepository _userRepository;
 	private readonly ILoanRepository _loanRepository;
 
 
-	public LibraryStatisticsService(IBookRepository bookRepository, IAuthorRepository authorRepository,
+	public LibraryStatisticsService(IBookRepository bookRepository, IAuthorRepository authorRepository, ITranslatorRepository translatorRepository,
 		IUserRepository userRepository, ILoanRepository loanRepository)
 	{
 		_bookRepository = bookRepository;
 		_authorRepository = authorRepository;
+		_translatorRepository = translatorRepository;
 		_userRepository = userRepository;
 		_loanRepository = loanRepository;
 	}
@@ -27,6 +29,7 @@ public class LibraryStatisticsService
 		{
 			TotalBooks = _bookRepository.Count(),
 			TotalAuthors = _authorRepository.Count(),
+			TotalTranslators = _translatorRepository.Count(),
 			TotalUsers = _userRepository.Count(),
 			TotalActiveLoans = _loanRepository.CountActiveLoans(),
 		};

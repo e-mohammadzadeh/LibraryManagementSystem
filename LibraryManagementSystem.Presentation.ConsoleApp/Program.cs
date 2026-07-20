@@ -12,21 +12,23 @@ public static class Program
 	{
 		var userRepo = new InMemoryUserRepository();
 		var authorRepo = new InMemoryAuthorRepository();
+		var translatorRepo = new InMemoryTranslatorRepository();
 		var bookRepo = new InMemoryBookRepository();
 		var roleRepo = new InMemoryRoleRepository();
 		var loanRepo = new InMemoryLoanRepository();
 
 		// Seed data for development/testing
-		DataSeeder.Seed(authorRepo, bookRepo, userRepo, loanRepo, roleRepo);
+		DataSeeder.Seed(authorRepo, translatorRepo, bookRepo, userRepo, loanRepo, roleRepo);
 
 		var authorService = new AuthorManagementService(authorRepo);
+		var translatorService = new TranslatorManagementService(translatorRepo);
 		var userService = new UserManagementService(userRepo, roleRepo);
 		var bookService = new BookManagementService(bookRepo, authorRepo);
 		var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo);
 
-		var statisticsService = new LibraryStatisticsService(bookRepo, authorRepo, userRepo, loanRepo);
+		var statisticsService = new LibraryStatisticsService(bookRepo, authorRepo, translatorRepo, userRepo, loanRepo);
 
 
-		MainMenu.MainMenuController(authorService, userService, bookService, loanService, statisticsService);
+		MainMenu.MainMenuController(authorService, translatorService, userService, bookService, loanService, statisticsService);
 	}
 }

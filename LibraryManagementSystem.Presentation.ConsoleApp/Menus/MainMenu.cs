@@ -1,14 +1,14 @@
 ﻿using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
-using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
 public static class MainMenu
 {
 	public static void MainMenuController(AuthorManagementService authorManagementService,
-		UserManagementService userManagementService, BookManagementService bookManagementService,
-		LoanManagementService loanManagementService, LibraryStatisticsService statisticsService)
+		TranslatorManagementService translatorManagementService, UserManagementService userManagementService,
+		BookManagementService bookManagementService, LoanManagementService loanManagementService,
+		LibraryStatisticsService statisticsService)
 	{
 		var continueProgram = true;
 		while (continueProgram)
@@ -25,22 +25,29 @@ public static class MainMenu
 				case 2:
 				{
 					Console.Clear();
-					BookMenu.BookMenuController(authorManagementService, bookManagementService, statisticsService);
-					break;
+					TranslatorMenu.TranslatorMenuController(translatorManagementService, statisticsService);
 				}
 				case 3:
 				{
 					Console.Clear();
-					UserMenu.UserMenuController(userManagementService, statisticsService);
+					BookMenu.BookMenuController(authorManagementService, bookManagementService, statisticsService);
 					break;
 				}
 				case 4:
 				{
 					Console.Clear();
-					LoanMenu.LoanMenuController(loanManagementService, userManagementService, bookManagementService, statisticsService);
+					UserMenu.UserMenuController(userManagementService, statisticsService);
 					break;
 				}
 				case 5:
+				{
+					Console.Clear();
+					LoanMenu.LoanMenuController(loanManagementService, userManagementService, bookManagementService,
+						statisticsService);
+
+					break;
+				}
+				case 6:
 				{
 					ConsoleHelper.ShowError("Exiting Program...\n");
 					continueProgram = false;

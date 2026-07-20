@@ -6,16 +6,18 @@ namespace LibraryManagementSystem.Infrastructure.Seeders;
 
 public static class DataSeeder
 {
-	public static void Seed(IAuthorRepository authorRepository, IBookRepository bookRepository,
-		IUserRepository userRepository, ILoanRepository loanRepository, IRoleRepository roleRepository)
+	public static void Seed(IAuthorRepository authorRepository, ITranslatorRepository translatorRepository,
+		IBookRepository bookRepository, IUserRepository userRepository, ILoanRepository loanRepository,
+		IRoleRepository roleRepository)
 	{
-		SeedAuthors(authorRepository, bookRepository);
+		SeedAuthors(authorRepository, translatorRepository, bookRepository);
 		SeedUsers(userRepository, roleRepository);
 		//SeedRoles(roleRepository);
 	}
 
 
-	private static void SeedAuthors(IAuthorRepository authorRepository, IBookRepository bookRepository)
+	private static void SeedAuthors(IAuthorRepository authorRepository, ITranslatorRepository translatorRepository,
+		IBookRepository bookRepository)
 	{
 		// Seed authors
 		var author1 = new Author("George", "Orwell", "1234567890", "orwell@example.com", "09120000001",
