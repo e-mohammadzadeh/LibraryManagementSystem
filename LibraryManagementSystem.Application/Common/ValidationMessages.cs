@@ -27,6 +27,7 @@ public static class ValidationMessages
 
 	// Adding Messages
 	public const string AuthorAddedSuccessfully = "Author added successfully.";
+	public const string TranslatorAddedSuccessfully = "Translator added successfully.";
 	public const string BookAddedSuccessfully = "Book added successfully.";
 	public const string AuthorAddFailed = "Failed to add author.";
 	public const string BookAddFailed = "Failed to add book.";
@@ -36,18 +37,22 @@ public static class ValidationMessages
 
 	// Updating Messages
 	public const string AuthorUpdatedSuccessfully = "Author updated successfully.";
+	public const string TranslatorUpdatedSuccessfully = "Translator updated successfully.";
 	public const string BookUpdatedSuccessfully = "Book updated successfully.";
 	public const string UserUpdatedSuccessfully = "User updated successfully.";
 	public const string AuthorUpdateFailed = "Failed to update author.";
+	public const string TranslatorUpdateFailed = "Failed to update translator.";
 	public const string BookUpdateFailed = "Failed to update book.";
 	public const string UserUpdateFailed = "Failed to update user.";
 
 
 	// Removing Messages
 	public const string AuthorRemovedSuccessfully = "Author removed successfully.";
+	public const string TranslatorRemovedSuccessfully = "Translator removed successfully.";
 	public const string BookRemovedSuccessfully = "Book removed successfully.";
 	public const string UserRemovedSuccessfully = "User removed successfully.";
 	public const string AuthorRemoveFailed = "Failed to remove author.";
+	public const string TranslatorRemoveFailed = "Failed to remove translator.";
 	public const string BookRemoveFailed = "Failed to remove book.";
 	public const string UserRemoveFailed = "Failed to remove user";
 
@@ -71,6 +76,10 @@ public static class ValidationMessages
 	public const string FailureDuplicateAuthorByNationalCode = "An author with the same national code already exists.";
 	public const string FailureDuplicateAuthorByEmail = "An author with the same email already exists.";
 	public const string FailureDuplicateAuthorByPhoneNumber = "An author with the same phone number already exists.";
+	public const string FailureDuplicateTranslatorByName = "A translator with the same first and last name already exists.";
+	public const string FailureDuplicateTranslatorByNationalCode = "A translator with the same national code already exists.";
+	public const string FailureDuplicateTranslatorByEmail = "A translator with the same email already exists.";
+	public const string FailureDuplicateTranslatorByPhoneNumber = "A translator with the same phone number already exists.";
 	public const string FailureDuplicateBookByName = "A book with the same name already exists.";
 	public const string FailureDuplicateBookByISBN = "A book with the same ISBN already exists.";
 	public const string FailureDuplicateBookByAuthor = "This is already the book's author";
