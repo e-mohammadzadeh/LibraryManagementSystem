@@ -14,20 +14,18 @@ public static class LoanPrinter
 			return;
 		}
 
-		Console.WriteLine("{0,3} {1, 30} {2, 30} {3, 12} {4, 12} {5, 12}", "ID", "Book", "User", "Borrow Date",
-			"Due Date", "Status");
+		Console.WriteLine("{0,-3} {1, -50} {2, -30} {3, -12} {4, -12} {5, -12} {6, -12} {7, -8} {8, -12}", "ID", "Book", "User",
+			"Borrow Date", "Return Date", "Due Date", "Status", "Renewals", "Overdue");
 
-		Console.WriteLine(
-			"===========================================================================================================");
+		Console.WriteLine(new string('=', 170));
 
 		foreach (var loan in loans)
 		{
 			var userName = loan.User.FirstName + " " + loan.User.LastName;
-			Console.WriteLine("{0,3} {1, 30} {2, 30} {3, 12} {4, 12} {5, 12}", loan.LoanId, loan.Book.BookName,
-				userName, loan.BorrowDate, loan.DueDate, loan.Status);
+			Console.WriteLine("{0,-3} {1, -50} {2, -30} {3, -12} {4, -12} {5, -12} {6, -12} {7, -8} {8, -12}", loan.LoanId,
+				loan.Book.BookName, userName, loan.BorrowDate, loan.ReturnDate, loan.DueDate, loan.Status, loan.RenewalCount, loan.IsOverdue? "\u2705": "\u274C");
 		}
 
-		Console.WriteLine(
-			"===========================================================================================================");
+		Console.WriteLine(new string('=', 170));
 	}
 }

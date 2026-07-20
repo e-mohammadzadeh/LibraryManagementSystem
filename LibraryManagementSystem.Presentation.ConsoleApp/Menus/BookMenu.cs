@@ -17,7 +17,7 @@ public static class BookMenu
 		while (continueProgram)
 		{
 			Console.Clear();
-			StatisticsPrinter.Print(statisticsService.GetLibraryStatistics());
+			MenuHelper.Print(statisticsService.GetLibraryStatistics());
 			switch (BookMenuList())
 			{
 				case 1:
@@ -98,7 +98,7 @@ public static class BookMenu
 			Console.WriteLine("5. View Book Details");
 			Console.WriteLine("6. View All Books");
 			Console.WriteLine("7. Back");
-			Console.WriteLine("==================================================================");
+			Console.WriteLine("===================================================================");
 			Console.Write("Please Enter a number: ");
 
 			var option = Console.ReadLine();

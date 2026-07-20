@@ -28,20 +28,16 @@ public static class BookPrinter
 			ConsoleHelper.ShowError(ValidationMessages.NotAvailableBook);
 			return;
 		}
-
-		Console.WriteLine("{0,3} {1, 30} {2, 30} {3, 30} {4, 6}", "ID", "Book Name", "Author Name", "ISBN", "Copies");
-		Console.WriteLine(
-			"===========================================================================================================");
+		Console.WriteLine("{0,-3} {1, -60} {2, -30} {3, -30} {4, -6}", "ID", "Book Name", "Author Name", "ISBN", "Copies");
+		Console.WriteLine(new string('=', 140));
 
 		foreach (var book in books)
 		{
 			var authorName = book.Author.FirstName + " " + book.Author.LastName;
-			Console.WriteLine("{0,3} {1, 30} {2, 30} {3, 30} {4, 6}", book.BookId, book.BookName, authorName,
+			Console.WriteLine("{0,-3} {1, -60} {2, -30} {3, -30} {4, -6}", book.BookId, book.BookName, authorName,
 				book.InternationalStandardBookNumber, $"{book.AvailableCopies}/{book.TotalCopies}");
 		}
-
-		Console.WriteLine(
-			"===========================================================================================================");
+		Console.WriteLine(new string('=', 140));
 	}
 
 

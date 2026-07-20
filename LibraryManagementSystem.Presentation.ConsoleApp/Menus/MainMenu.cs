@@ -13,7 +13,7 @@ public static class MainMenu
 		var continueProgram = true;
 		while (continueProgram)
 		{
-			StatisticsPrinter.Print(statisticsService.GetLibraryStatistics());
+			MenuHelper.Print(statisticsService.GetLibraryStatistics());
 			switch (MainMenuList())
 			{
 				case 1:
@@ -61,7 +61,7 @@ public static class MainMenu
 			Console.WriteLine("3. Members");
 			Console.WriteLine("4. Loans");
 			Console.WriteLine("5. Exit");
-			Console.WriteLine("==================================================================");
+			Console.WriteLine("===================================================================");
 			Console.Write("Please Enter a number: ");
 
 			var option = Console.ReadLine();

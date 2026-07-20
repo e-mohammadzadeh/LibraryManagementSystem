@@ -6,7 +6,7 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
 public class UserPrinter
 {
-	public static void PrintDetails(User user) 
+	public static void PrintDetails(User user)
 	{
 		Console.WriteLine("\nUser Details:");
 
@@ -20,22 +20,27 @@ public class UserPrinter
 	}
 
 
-	public static void PrintTable(IReadOnlyList<User> users) {
+	public static void PrintTable(IReadOnlyList<User> users)
+	{
 		if (users.Count == 0)
 		{
 			ConsoleHelper.ShowError(ValidationMessages.NotAvailableUser);
 			return;
 		}
 
-		Console.WriteLine("{0,3} {1, 20} {2, 25}", "ID", "User Name", "Email Address");
-		Console.WriteLine("========================================================");
+		Console.WriteLine("{0,-3} {1, -30} {2, -12} {3, -40} {4, -15} {5, -12} {6, -9}", "ID", "User Name", "National Code",
+			"Email Address", "Phone Number", "Birth Date", "Role");
+
+		Console.WriteLine(new string('=', 160));
 
 		foreach (var user in users)
 		{
 			var fullName = user.FirstName + " " + user.LastName;
-			Console.WriteLine("{0,3} {1, 20} {2, 25}", user.Id, fullName, user.Email);
+			Console.WriteLine("{0,-3} {1, -30} {2, -12} {3, -40} {4, -15} {5, -12} {6, -9}", user.Id, fullName,
+				user.NationalCode, user.Email, user.PhoneNumber, user.BirthDate,
+				string.Join(", ", user.UserRoles.Select(ur => ur.Role.Name)));
 		}
 
-		Console.WriteLine("========================================================");
+		Console.WriteLine(new string('=', 160));
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Application.DTOs.Library;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -6,6 +7,18 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 public static class MenuHelper
 {
+	public static void Print(LibraryStatisticsDto statistics) 
+	{
+		Console.WriteLine("======================== LIBRARY DASHBOARD ========================");
+		Console.ForegroundColor = ConsoleColor.Cyan;
+		Console.Write($"Books: {statistics.TotalBooks}\t");
+		Console.Write($"Authors: {statistics.TotalAuthors}\t");
+		Console.Write($"Users: {statistics.TotalUsers}\t");
+		Console.WriteLine($"Active Loans: {statistics.TotalActiveLoans}\n");
+		Console.ResetColor();
+	}
+
+
 	public static Author? SelectAuthor(IReadOnlyList<Author> authorsList)
 	{
 		if (authorsList.Count == 0)

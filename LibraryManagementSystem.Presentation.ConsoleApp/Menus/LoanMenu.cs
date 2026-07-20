@@ -17,7 +17,7 @@ public static class LoanMenu
 		while (continueProgram)
 		{
 			Console.Clear();
-			StatisticsPrinter.Print(statisticsService.GetLibraryStatistics());
+			MenuHelper.Print(statisticsService.GetLibraryStatistics());
 			switch (LoanMenuList())
 			{
 				case 1:
@@ -51,6 +51,8 @@ public static class LoanMenu
 					if (loans.Count is 0)
 					{
 						ConsoleHelper.ShowWarning(ValidationMessages.NoActiveLoans);
+						ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
+						Console.ReadKey(true);
 						break;
 					}
 
@@ -65,6 +67,8 @@ public static class LoanMenu
 					DisplayLoansForUsers(userManagementService, loanManagementService.GetLoansByUser,
 						ValidationMessages.NoLoanHistoryForUser);
 
+					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
+					Console.ReadKey(true);
 					break;
 				}
 				case 6:
@@ -74,6 +78,8 @@ public static class LoanMenu
 					if (loans.Count is 0)
 					{
 						ConsoleHelper.ShowWarning(ValidationMessages.NoOverdueLoans);
+						ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
+						Console.ReadKey(true);
 						break;
 					}
 
@@ -85,10 +91,11 @@ public static class LoanMenu
 				case 7:
 				{
 					Console.Clear();
-					DisplayLoansForUsers(userManagementService,
-						loanManagementService.GetActiveLoansByUser,
+					DisplayLoansForUsers(userManagementService, loanManagementService.GetActiveLoansByUser,
 						ValidationMessages.UserHasNoBorrowedBooks);
 
+					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
+					Console.ReadKey(true);
 					break;
 				}
 				case 8:
@@ -123,7 +130,7 @@ public static class LoanMenu
 			Console.WriteLine("7. View User Loans");
 			Console.WriteLine("8. Search Loans");
 			Console.WriteLine("9. Back");
-			Console.WriteLine("==================================================================");
+			Console.WriteLine("===================================================================");
 			Console.Write("Please Enter a number: ");
 
 			var option = Console.ReadLine();
@@ -234,8 +241,6 @@ public static class LoanMenu
 		}
 
 		LoanPrinter.PrintTable(loans);
-		ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-		Console.ReadKey(true);
 	}
 
 
@@ -257,7 +262,7 @@ public static class LoanMenu
 				return;
 			}
 
-			Console.WriteLine("\n{0, -20}", "1. Loan ID");
+			Console.WriteLine("{0, -20}", "1. Loan ID");
 			Console.WriteLine("{0, -20}", "2. Book Title");
 			Console.WriteLine("{0, -20}", "3. Book ISBN");
 			Console.WriteLine("{0, -20}", "4. Member Name");
@@ -280,7 +285,9 @@ public static class LoanMenu
 				}
 				case 2:
 				{
-					SearchLoanAndDisplay(p => ConsoleHelper.ReadString(p), "Enter a book title to search",
+					SearchLoanAndDisplay(
+						p => ConsoleHelper.GetValidName(p, ValidationConstants.MinBookNameLength,
+							ValidationConstants.MaxBookNameLength), "Enter a book title to search",
 						loan => loan.Book.BookName, (search, value) => value.Contains(search,
 							StringComparison.OrdinalIgnoreCase),
 						activeOnly ? loanManagementService.SearchActiveLoans : loanManagementService.SearchLoans);
@@ -298,7 +305,8 @@ public static class LoanMenu
 				}
 				case 4:
 				{
-					SearchLoanAndDisplay(p => ConsoleHelper.ReadString(p), "Enter a member name to search",
+					SearchLoanAndDisplay(p => ConsoleHelper.GetValidName(p, ValidationConstants.MinNameLength,
+						ValidationConstants.MaxNameLength), "Enter a member name to search",
 						loan => $"{loan.User.FirstName} {loan.User.LastName}",
 						(search, value) => value.Contains(search, StringComparison.OrdinalIgnoreCase),
 						activeOnly ? loanManagementService.SearchActiveLoans : loanManagementService.SearchLoans);
@@ -307,7 +315,7 @@ public static class LoanMenu
 				}
 				case 5:
 				{
-					SearchLoanAndDisplay(p => ConsoleHelper.ReadString(p), "Enter a member national code to search",
+					SearchLoanAndDisplay(ConsoleHelper.GetValidNationalCode, "Enter a member national code to search",
 						loan => loan.User.NationalCode,
 						(search, value) => value.Contains(search, StringComparison.OrdinalIgnoreCase),
 						activeOnly ? loanManagementService.SearchActiveLoans : loanManagementService.SearchLoans);
@@ -316,7 +324,7 @@ public static class LoanMenu
 				}
 				case 6:
 				{
-					SearchLoanAndDisplay(p => ConsoleHelper.ReadLoanStatus(p), "Enter loan status",
+					SearchLoanAndDisplay(ConsoleHelper.ReadLoanStatus, "Enter loan status",
 						loan => (LoanStatus)loan.Status, (search, value) => search == value,
 						activeOnly ? loanManagementService.SearchActiveLoans : loanManagementService.SearchLoans);
 

@@ -32,7 +32,7 @@ public class Loan
 	public LoanStatus Status { get; private set; }
 	public int RenewalCount { get; private set; }
 	public bool IsOverdue => !ReturnDate.HasValue && DateOnly.FromDateTime(DateTime.Today) > DueDate;
-	public bool IsActive => ReturnDate is not null;
+	public bool IsActive => ReturnDate is null;
 
 
 	public void MarkAsReturned()

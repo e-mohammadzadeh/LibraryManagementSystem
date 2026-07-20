@@ -88,6 +88,16 @@ public static class DataSeeder
 		bookRepository.Add(book3);
 		bookRepository.Add(book4);
 		bookRepository.Add(book5);
+		bookRepository.Add(book6);
+		bookRepository.Add(book7);
+		bookRepository.Add(book8);
+		bookRepository.Add(book9);
+		bookRepository.Add(book10);
+		bookRepository.Add(book11);
+		bookRepository.Add(book12);
+		bookRepository.Add(book13);
+		bookRepository.Add(book14);
+		bookRepository.Add(book15);
 
 
 		author1.Books.Add(book1);

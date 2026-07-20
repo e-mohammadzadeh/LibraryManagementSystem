@@ -28,15 +28,16 @@ public static class AuthorPrinter
 			return;
 		}
 
-		Console.WriteLine("{0,3} {1, 20} {2, 25}", "ID", "Author Name", "Email Address");
-		Console.WriteLine("========================================================");
+		Console.WriteLine("{0,-3} {1, -30} {2, -40}", "ID", "Author Name", "Email Address");
+		Console.WriteLine(new string('=', 90));
+
 
 		foreach (var author in authors)
 		{
 			var fullName = author.FirstName + " " + author.LastName;
-			Console.WriteLine("{0,3} {1, 20} {2, 25}", author.Id, fullName, author.Email);
+			Console.WriteLine("{0,-3} {1, -30} {2, -40}", author.Id, fullName, author.Email);
 		}
 
-		Console.WriteLine("========================================================");
+		Console.WriteLine(new string('=', 90));
 	}
 }
