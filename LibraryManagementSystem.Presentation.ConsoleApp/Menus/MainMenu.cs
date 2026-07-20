@@ -26,11 +26,12 @@ public static class MainMenu
 				{
 					Console.Clear();
 					TranslatorMenu.TranslatorMenuController(translatorManagementService, statisticsService);
+					break;
 				}
 				case 3:
 				{
 					Console.Clear();
-					BookMenu.BookMenuController(authorManagementService, bookManagementService, statisticsService);
+					BookMenu.BookMenuController(authorManagementService, translatorManagementService, bookManagementService, statisticsService);
 					break;
 				}
 				case 4:
@@ -62,17 +63,18 @@ public static class MainMenu
 	{
 		while (true)
 		{
-			Console.WriteLine("============================ MAIN MENU ============================");
+			Console.WriteLine(new string('=', 36) + " MAIN MENU " + new string('=', 36));
 			Console.WriteLine("1. Authors");
-			Console.WriteLine("2. Books");
-			Console.WriteLine("3. Members");
-			Console.WriteLine("4. Loans");
-			Console.WriteLine("5. Exit");
-			Console.WriteLine("===================================================================");
+			Console.WriteLine("2. Translators");
+			Console.WriteLine("3. Books");
+			Console.WriteLine("4. Members");
+			Console.WriteLine("5. Loans");
+			Console.WriteLine("6. Exit");
+			Console.WriteLine(new string('=', 82));
 			Console.Write("Please Enter a number: ");
 
 			var option = Console.ReadLine();
-			if (int.TryParse(option, out var result) && result is >= 1 and <= 5)
+			if (int.TryParse(option, out var result) && result is >= 1 and <= 6)
 			{
 				return result;
 			}

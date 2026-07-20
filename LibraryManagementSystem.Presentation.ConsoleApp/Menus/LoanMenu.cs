@@ -120,7 +120,7 @@ public static class LoanMenu
 	{
 		while (true)
 		{
-			Console.WriteLine("============================ LOAN MENU ============================");
+			Console.WriteLine(new string('=', 36) + " LOAN MENU " + new string('=', 36));
 			Console.WriteLine("1. Borrow Book");
 			Console.WriteLine("2. Return Book");
 			Console.WriteLine("3. Renew Loan");
@@ -130,7 +130,7 @@ public static class LoanMenu
 			Console.WriteLine("7. View User Loans");
 			Console.WriteLine("8. Search Loans");
 			Console.WriteLine("9. Back");
-			Console.WriteLine("===================================================================");
+			Console.WriteLine(new string('=', 82));
 			Console.Write("Please Enter a number: ");
 
 			var option = Console.ReadLine();

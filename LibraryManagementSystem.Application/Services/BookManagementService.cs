@@ -9,14 +9,19 @@ namespace LibraryManagementSystem.Application.Services;
 public class BookManagementService
 {
 	private readonly IAuthorRepository _authorRepository;
+	private readonly ITranslatorRepository _translatorRepository;
 	private readonly IBookRepository _bookRepository;
 
 
-	public BookManagementService(IBookRepository bookRepository, IAuthorRepository authorRepository)
+	public BookManagementService(IBookRepository bookRepository, ITranslatorRepository translatorRepository,
+		IAuthorRepository authorRepository)
 	{
 		_authorRepository = authorRepository;
+		_translatorRepository = translatorRepository;
 		_bookRepository = bookRepository;
 	}
+
+
 	public ServiceResult<Book> AddBook(CreateBookDto dto)
 	{
 		if (_bookRepository.ExistsByName(dto.BookName))
@@ -30,10 +35,12 @@ public class BookManagementService
 
 		var genreName = (Genre)dto.GenreId;
 		var author = _authorRepository.FindById(dto.AuthorId);
-		if (author == null)
-			return ServiceResult<Book>.Fail(ValidationMessages.BookAddFailed);
+		if (author is null) return ServiceResult<Book>.Fail(ValidationMessages.BookAddFailed);
 
-		var newBook = new Book(dto.ISBN, dto.BookName, author, dto.PublishDate, dto.TotalCopies, genreName,
+		var translator = _translatorRepository.FindById(dto.TranslatorId);
+		if (translator is null) return ServiceResult<Book>.Fail(ValidationMessages.BookAddFailed);
+
+		var newBook = new Book(dto.ISBN, dto.BookName, author, translator, dto.PublishDate, dto.TotalCopies, genreName,
 			dto.Description);
 
 		_bookRepository.Add(newBook);
@@ -43,29 +50,19 @@ public class BookManagementService
 	}
 
 
-	public bool IsExistISBN(string isbn)
-	{
-		return _bookRepository.ExistsByISBN(isbn);
-	}
+	public bool IsExistISBN(string isbn) { return _bookRepository.ExistsByISBN(isbn); }
 
 
-	public IReadOnlyList<Book> GetAllBooks()
-	{
-		return _bookRepository.GetAll();
-	}
+	public IReadOnlyList<Book> GetAllBooks() { return _bookRepository.GetAll(); }
 
 
-	public Book? FindBookById(int id)
-	{
-		return _bookRepository.FindById(id);
-	}
+	public Book? FindBookById(int id) { return _bookRepository.FindById(id); }
 
 
 	public ServiceResult<Book> UpdateBook(int bookId, UpdateBookDto dto)
 	{
 		var book = FindBookById(bookId);
-		if (book is null)
-			return ServiceResult<Book>.Fail(ValidationMessages.NotAvailableBook);
+		if (book is null) return ServiceResult<Book>.Fail(ValidationMessages.NotAvailableBook);
 
 		if (dto.BookName != null && _bookRepository.ExistsByName(dto.BookName, bookId))
 			return ServiceResult<Book>.Fail(ValidationMessages.FailureDuplicateBookByName);
@@ -89,8 +86,7 @@ public class BookManagementService
 		if (dto.AuthorId.HasValue)
 		{
 			var author = _authorRepository.FindById(dto.AuthorId.Value);
-			if (author == null)
-				return ServiceResult<Book>.Fail(ValidationMessages.BookUpdateFailed);
+			if (author == null) return ServiceResult<Book>.Fail(ValidationMessages.BookUpdateFailed);
 
 			book.ChangeAuthor(author);
 		}
@@ -102,8 +98,7 @@ public class BookManagementService
 	public ServiceResult<Book> RemoveBook(int bookId)
 	{
 		var book = FindBookById(bookId);
-		if (book is null)
-			return ServiceResult<Book>.Fail(ValidationMessages.BookRemoveFailed);
+		if (book is null) return ServiceResult<Book>.Fail(ValidationMessages.BookRemoveFailed);
 
 		if (!book.CanBeRemoved())
 			return ServiceResult<Book>.Fail("Failed to remove Book. It is currently borrowed by a user.");
@@ -130,8 +125,5 @@ public class BookManagementService
 	}
 
 
-	public IReadOnlyList<Book> GetAvailableBooks()
-	{
-		return _bookRepository.GetAvailableBooks();
-	}
+	public IReadOnlyList<Book> GetAvailableBooks() { return _bookRepository.GetAvailableBooks(); }
 }

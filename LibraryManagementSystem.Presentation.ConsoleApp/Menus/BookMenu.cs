@@ -11,7 +11,8 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 public static class BookMenu
 {
 	public static void BookMenuController(AuthorManagementService authorManagementService,
-		BookManagementService bookManagementService, LibraryStatisticsService statisticsService)
+		TranslatorManagementService translatorManagementService, BookManagementService bookManagementService,
+		LibraryStatisticsService statisticsService)
 	{
 		var continueProgram = true;
 		while (continueProgram)
@@ -23,7 +24,7 @@ public static class BookMenu
 				case 1:
 				{
 					Console.Clear();
-					AddBook(authorManagementService, bookManagementService);
+					AddBook(authorManagementService, translatorManagementService, bookManagementService);
 					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 					Console.ReadKey(true);
 					break;
@@ -31,7 +32,7 @@ public static class BookMenu
 				case 2:
 				{
 					Console.Clear();
-					EditBook(authorManagementService, bookManagementService);
+					EditBook(authorManagementService, translatorManagementService, bookManagementService);
 					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 					Console.ReadKey(true);
 					break;
@@ -90,7 +91,8 @@ public static class BookMenu
 	{
 		while (true)
 		{
-			Console.WriteLine("============================ BOOK MENU ============================");
+			Console.WriteLine(new string('=', 36) + " BOOK MENU " + new string('=', 36));
+
 			Console.WriteLine("1. Add Book");
 			Console.WriteLine("2. Edit Book");
 			Console.WriteLine("3. Remove Book");
@@ -98,7 +100,7 @@ public static class BookMenu
 			Console.WriteLine("5. View Book Details");
 			Console.WriteLine("6. View All Books");
 			Console.WriteLine("7. Back");
-			Console.WriteLine("===================================================================");
+			Console.WriteLine(new string('=', 82));
 			Console.Write("Please Enter a number: ");
 
 			var option = Console.ReadLine();
@@ -110,10 +112,12 @@ public static class BookMenu
 
 
 	private static void AddBook(AuthorManagementService authorManagementService,
+		TranslatorManagementService translatorManagementService,
 		BookManagementService bookManagementService)
 	{
 		Console.WriteLine("============================ ADDING BOOK MENU ============================");
 		Author? author;
+		Translator? translator;
 
 
 		var isbn = ConsoleHelper.ReadISBN("Enter ISBN for the new book");
@@ -156,6 +160,38 @@ public static class BookMenu
 		}
 
 
+		var translators = translatorManagementService.GetAllTranslators();
+		if (translators.Count != 0)
+		{
+			translator = MenuHelper.SelectTranslator(translators);
+			if (translator == null) return;
+		}
+		else
+		{
+			var choice = ConsoleHelper.ReadYesNo("\nNo translators found. Do you want to create a new translator now");
+			if (choice == true)
+			{
+				var translatorDto = TranslatorMenu.PromptForTranslatorDto();
+				if (translatorDto == null) return;
+
+				var addTranslatorResult = translatorManagementService.AddTranslator(translatorDto);
+				if (!addTranslatorResult.Success)
+				{
+					ConsoleHelper.ShowError(ValidationMessages.NotAvailableTranslator);
+					return;
+				}
+
+				ConsoleHelper.ShowResult(addTranslatorResult);
+				translator = addTranslatorResult.Data;
+			}
+			else
+			{
+				ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableTranslator);
+				return;
+			}
+		}
+
+
 		var publishDate = ConsoleHelper.GetValidDate("Enter the publication date for this book");
 		if (publishDate == null) return;
 
@@ -180,6 +216,7 @@ public static class BookMenu
 			ISBN = isbn,
 			BookName = bookName,
 			AuthorId = author!.Id,
+			TranslatorId = translator!.Id,
 			PublishDate = publishDate.Value,
 			TotalCopies = totalCopies.Value,
 			GenreId = genreId.Value - 1,
@@ -191,7 +228,7 @@ public static class BookMenu
 
 
 	private static void EditBook(AuthorManagementService authorManagementService,
-		BookManagementService bookManagementService)
+		TranslatorManagementService translatorManagementService, BookManagementService bookManagementService)
 	{
 		Console.WriteLine("============================ EDITING BOOK MENU ============================");
 		var desiredBook = SelectExistingBook(bookManagementService);
@@ -201,13 +238,16 @@ public static class BookMenu
 		{
 			Console.WriteLine("\n{0, -30} [{1}]", "1. Book Name", desiredBook.BookName);
 			Console.WriteLine("{0, -30} [{1}]", "2. ISBN", desiredBook.InternationalStandardBookNumber);
-			Console.WriteLine("{0, -30} [{1}]", "3. Author", desiredBook.Author?.FirstName + " " + desiredBook.Author?.LastName);
-			Console.WriteLine("{0, -30} [{1}]", "4. Publish Date", desiredBook.PublishDate);
-			Console.WriteLine("{0, -30} [{1}]", "5. Total Copies", desiredBook.TotalCopies);
-			Console.WriteLine("{0, -30} [{1}]", "6. Genre", desiredBook.Genre);
-			Console.WriteLine("{0, -30} [{1}]", "7. Description", desiredBook.Description);
-			Console.WriteLine("8. Cancel");
-			var editMenuChoice = ConsoleHelper.ReadInt("Enter the number of the field you wish to edit", 1, 8);
+			Console.WriteLine("{0, -30} [{1}]", "3. Author",
+				desiredBook.Author?.FirstName + " " + desiredBook.Author?.LastName);
+			Console.WriteLine("{0, -30} [{1}]", "4. Translator",
+				desiredBook.Translator?.FirstName + " " + desiredBook.Translator?.LastName);
+			Console.WriteLine("{0, -30} [{1}]", "5. Publish Date", desiredBook.PublishDate);
+			Console.WriteLine("{0, -30} [{1}]", "6. Total Copies", desiredBook.TotalCopies);
+			Console.WriteLine("{0, -30} [{1}]", "7. Genre", desiredBook.Genre);
+			Console.WriteLine("{0, -30} [{1}]", "8. Description", desiredBook.Description);
+			Console.WriteLine("9. Cancel");
+			var editMenuChoice = ConsoleHelper.ReadInt("Enter the number of the field you wish to edit", 1, 9);
 			if (editMenuChoice == null) return;
 
 			switch (editMenuChoice)
@@ -246,13 +286,27 @@ public static class BookMenu
 				}
 				case 4:
 				{
+					var translators = translatorManagementService.GetAllTranslators();
+					if (translators.Count != 0)
+					{
+						var translator = MenuHelper.SelectTranslator(translators);
+						PerformUpdate(bookManagementService, desiredBook.BookId, translator,
+							v => new UpdateBookDto { TranslatorId = v.Id });
+					}
+					else
+						ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableTranslator);
+
+					break;
+				}
+				case 5:
+				{
 					var publishDate = ConsoleHelper.GetValidDate("Enter the new publish date");
 					PerformUpdate(bookManagementService, desiredBook.BookId, publishDate,
 						v => new UpdateBookDto { PublishDate = v });
 
 					break;
 				}
-				case 5:
+				case 6:
 				{
 					var totalCopies = ConsoleHelper.ReadInt("Enter the new total copies",
 						ValidationConstants.MinBookCopies, ValidationConstants.MaxBookCopies);
@@ -262,7 +316,7 @@ public static class BookMenu
 
 					break;
 				}
-				case 6:
+				case 7:
 				{
 					ConsoleHelper.DisplayGenres();
 					var genreId =
@@ -275,7 +329,7 @@ public static class BookMenu
 
 					break;
 				}
-				case 7:
+				case 8:
 				{
 					var description = ConsoleHelper.ReadString("Enter the new description");
 					PerformUpdate(bookManagementService, desiredBook.BookId, description,
@@ -283,7 +337,7 @@ public static class BookMenu
 
 					break;
 				}
-				case 8:
+				case 9:
 				{
 					ConsoleHelper.ShowError("Edit cancelled. Returning to Author Menu...");
 					Thread.Sleep(3000);
@@ -364,11 +418,12 @@ public static class BookMenu
 			Console.WriteLine("\n{0, -20}", "1. Title");
 			Console.WriteLine("{0, -20}", "2. ISBN");
 			Console.WriteLine("{0, -20}", "3. Author");
-			Console.WriteLine("{0, -20}", "4. Publish Date");
-			Console.WriteLine("{0, -20}", "5. Genre");
-			Console.WriteLine("6. Cancel");
+			Console.WriteLine("{0, -20}", "4. Translator");
+			Console.WriteLine("{0, -20}", "5. Publish Date");
+			Console.WriteLine("{0, -20}", "6. Genre");
+			Console.WriteLine("7. Cancel");
 
-			var searchMenuChoice = ConsoleHelper.ReadInt("Select a search field by entering its number", 1, 6);
+			var searchMenuChoice = ConsoleHelper.ReadInt("Select a search field by entering its number", 1, 7);
 			if (searchMenuChoice == null) return;
 
 			switch (searchMenuChoice)
@@ -393,24 +448,29 @@ public static class BookMenu
 					SearchBookAndDisplay(bookManagementService, p => ConsoleHelper.ReadString(p),
 						"Enter an author name",
 						book => $"{book.Author?.FirstName} {book.Author?.LastName}", ContainsComparer);
-
 					break;
 				}
 				case 4:
+				{
+					SearchBookAndDisplay(bookManagementService, p => ConsoleHelper.ReadString(p),
+						"Enter a translator name", book => $"{book.Translator?.FirstName} {book.Translator?.LastName}", ContainsComparer);
+					break;
+				}
+				case 5:
 				{
 					SearchBookAndDisplay(bookManagementService, ConsoleHelper.ReadDateOnly,
 						"Enter a publish date to search", book => book.PublishDate, DateComparer);
 
 					break;
 				}
-				case 5:
+				case 6:
 				{
 					SearchBookAndDisplay(bookManagementService, ConsoleHelper.ReadGenre, "Enter a genre to search",
 						book => book.Genre, GenreComparer);
 
 					break;
 				}
-				case 6:
+				case 7:
 				{
 					ConsoleHelper.ShowInfo("Search cancelled. Returning to Book Menu...");
 					Thread.Sleep(3000);

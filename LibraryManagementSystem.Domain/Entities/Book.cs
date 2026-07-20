@@ -4,13 +4,15 @@ namespace LibraryManagementSystem.Domain.Entities;
 
 public class Book
 {
-	public Book(string internationalStandardBookNumber, string bookName, Author author, DateOnly publishDate,
+	public Book(string internationalStandardBookNumber, string bookName, Author author, Translator translator,
+		DateOnly publishDate,
 		int totalCopies, Genre genre, string? description)
 	{
 		BookId = ++_nextBookId;
 		InternationalStandardBookNumber = internationalStandardBookNumber;
 		BookName = bookName;
 		Author = author;
+		Translator = translator;
 		PublishDate = publishDate;
 		var copies = ValidateTotalCopies(totalCopies);
 		AvailableCopies = copies;
@@ -26,6 +28,7 @@ public class Book
 	public string BookName { get; set; }
 	public string InternationalStandardBookNumber { get; set; }
 	public Author? Author { get; private set; }
+	public Translator? Translator { get; set; }
 	public DateOnly PublishDate { get; set; }
 	public Genre Genre { get; set; }
 	public int TotalCopies { get; private set; }
@@ -67,6 +70,17 @@ public class Book
 
 		Author = newAuthor;
 		newAuthor?.Books.Add(this);
+	}
+
+
+	public void ChangeTranslator(Translator? newTranslator)
+	{
+		if (ReferenceEquals(Translator, newTranslator)) return;
+
+		Translator?.Books.Remove(this);
+
+		Translator = newTranslator;
+		newTranslator?.Books.Add(this);
 	}
 
 

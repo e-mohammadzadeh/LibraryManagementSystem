@@ -2,7 +2,6 @@
 using LibraryManagementSystem.Infrastructure.Repositories.InMemory;
 using LibraryManagementSystem.Infrastructure.Seeders;
 using LibraryManagementSystem.Presentation.ConsoleApp.Menus;
-using System.Runtime.InteropServices;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp;
 
@@ -23,7 +22,7 @@ public static class Program
 		var authorService = new AuthorManagementService(authorRepo);
 		var translatorService = new TranslatorManagementService(translatorRepo);
 		var userService = new UserManagementService(userRepo, roleRepo);
-		var bookService = new BookManagementService(bookRepo, authorRepo);
+		var bookService = new BookManagementService(bookRepo, translatorRepo, authorRepo);
 		var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo);
 
 		var statisticsService = new LibraryStatisticsService(bookRepo, authorRepo, translatorRepo, userRepo, loanRepo);

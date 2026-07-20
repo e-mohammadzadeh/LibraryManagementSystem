@@ -9,10 +9,11 @@ public static class MenuHelper
 {
 	public static void Print(LibraryStatisticsDto statistics)
 	{
-		Console.WriteLine("======================== LIBRARY DASHBOARD ========================");
+		Console.WriteLine(new string('=', 32) + " LIBRARY DASHBOARD " + new string('=', 32));
 		Console.ForegroundColor = ConsoleColor.Cyan;
 		Console.Write($"Books: {statistics.TotalBooks}\t");
 		Console.Write($"Authors: {statistics.TotalAuthors}\t");
+		Console.Write($"Translators: {statistics.TotalTranslators}\t");
 		Console.Write($"Users: {statistics.TotalUsers}\t");
 		Console.WriteLine($"Active Loans: {statistics.TotalActiveLoans}\n");
 		Console.ResetColor();

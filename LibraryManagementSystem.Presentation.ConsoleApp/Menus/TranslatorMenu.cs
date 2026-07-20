@@ -84,7 +84,7 @@ public static class TranslatorMenu {
 	private static int TranslatorMenuList() {
 		while (true)
 		{
-			Console.WriteLine("=========================== TRANSLATOR MENU ===========================");
+			Console.WriteLine(new string('=', 33) + " TRANSLATOR MENU " + new string('=', 33));
 			Console.WriteLine("1. Add Translator");
 			Console.WriteLine("2. Edit Translator");
 			Console.WriteLine("3. Remove Translator");
@@ -92,7 +92,7 @@ public static class TranslatorMenu {
 			Console.WriteLine("5. View Translator Details");
 			Console.WriteLine("6. View All Translators");
 			Console.WriteLine("7. Back");
-			Console.WriteLine("===================================================================");
+			Console.WriteLine(new string('=', 82));
 			Console.Write("Please Enter a number: ");
 
 			var option = Console.ReadLine();

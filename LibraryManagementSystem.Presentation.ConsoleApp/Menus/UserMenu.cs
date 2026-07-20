@@ -87,7 +87,7 @@ public static class UserMenu
 	{
 		while (true)
 		{
-			Console.WriteLine("============================ USER MENU ============================");
+			Console.WriteLine(new string('=', 36) + " USER MENU " + new string('=', 36));
 			Console.WriteLine("1. Register User");
 			Console.WriteLine("2. Edit User");
 			Console.WriteLine("3. Remove User");
@@ -95,7 +95,7 @@ public static class UserMenu
 			Console.WriteLine("5. View User Details");
 			Console.WriteLine("6. View All Users");
 			Console.WriteLine("7. Back");
-			Console.WriteLine("===================================================================");
+			Console.WriteLine(new string('=', 82));
 			Console.Write("Please Enter a number: ");
 
 			var option = Console.ReadLine();
