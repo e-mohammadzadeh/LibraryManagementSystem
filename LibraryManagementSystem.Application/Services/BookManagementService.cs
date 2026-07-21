@@ -11,14 +11,16 @@ public class BookManagementService
 	private readonly IAuthorRepository _authorRepository;
 	private readonly ITranslatorRepository _translatorRepository;
 	private readonly IBookRepository _bookRepository;
+	private readonly ILoanRepository _loanRepository;
 
 
 	public BookManagementService(IBookRepository bookRepository, ITranslatorRepository translatorRepository,
-		IAuthorRepository authorRepository)
+		IAuthorRepository authorRepository, ILoanRepository loanRepository)
 	{
 		_authorRepository = authorRepository;
 		_translatorRepository = translatorRepository;
 		_bookRepository = bookRepository;
+		_loanRepository = loanRepository;
 	}
 
 
@@ -32,40 +34,42 @@ public class BookManagementService
 
 		if (!Enum.IsDefined(typeof(Genre), dto.GenreId))
 			return ServiceResult<Book>.Fail(ValidationMessages.InvalidGenre);
-		var genreName = (Genre)dto.GenreId;
+		var genre = (Genre)dto.GenreId;
+
+		var authorIds = dto.AuthorIds.Distinct().ToList();
+		if (authorIds.Count is 0) return ServiceResult<Book>.Fail(ValidationMessages.BookRequiresAtLeastOneAuthor);
+
+		if (dto.AuthorIds.Count != dto.AuthorIds.Distinct().Count())
+			return ServiceResult<Book>.Fail(ValidationMessages.FailureDuplicateAuthor);
 
 		var authors = new List<Author>();
 		foreach (var authorId in dto.AuthorIds)
 		{
 			var author = _authorRepository.FindById(authorId);
 			if (author is null)
-				return ServiceResult<Book>.Fail()
+				return ServiceResult<Book>.Fail(string.Format(ValidationMessages.AuthorNotFoundFormat, authorId));
+			authors.Add(author);
 		}
 
-		var author = _authorRepository.FindById(dto.AuthorId);
-		if (author is null) return ServiceResult<Book>.Fail(ValidationMessages.BookAddFailed);
+		Translator? translator = null;
+		if (dto.TranslatorId.HasValue)
+		{
+			translator = _translatorRepository.FindById(dto.TranslatorId.Value);
+			if (translator is null) return ServiceResult<Book>.Fail(ValidationMessages.BookAddFailed);
+		}
 
-		var translator = _translatorRepository.FindById(dto.TranslatorId);
-		if (translator is null) return ServiceResult<Book>.Fail(ValidationMessages.BookAddFailed);
-
-		var newBook = new Book(dto.ISBN, dto.BookName, author, translator, dto.PublishDate, dto.TotalCopies, genreName,
-			dto.Publisher,
-			dto.Description);
+		var newBook = new Book(dto.ISBN, dto.BookName, authors, translator, dto.PublishDate, dto.TotalCopies, genre,
+			dto.Publisher, dto.Description);
 
 		_bookRepository.Add(newBook);
-		author.Books.Add(newBook);
-
 		return ServiceResult<Book>.Ok(newBook, ValidationMessages.BookAddedSuccessfully);
 	}
-
-
-	public bool IsExistISBN(string isbn) { return _bookRepository.ExistsByISBN(isbn); }
 
 
 	public IReadOnlyList<Book> GetAllBooks() { return _bookRepository.GetAll(); }
 
 
-	public Book? FindBookById(int id) { return _bookRepository.FindById(id); }
+	private Book? FindBookById(int id) { return _bookRepository.FindById(id); }
 
 
 	public ServiceResult<Book> UpdateBook(int bookId, UpdateBookDto dto)
@@ -85,19 +89,33 @@ public class BookManagementService
 		if (dto.TotalCopies.HasValue && dto.TotalCopies.Value <= 0)
 			return ServiceResult<Book>.Fail(ValidationMessages.WrongTotalCopies);
 
-		Genre? genreName = dto.GenreId.HasValue ? (Genre)dto.GenreId.Value : null;
+		Genre? genre = dto.GenreId.HasValue ? (Genre)dto.GenreId.Value : null;
 
-		if (!book.Update(dto.BookName, dto.ISBN, dto.PublishDate, genreName, dto.Publisher, dto.TotalCopies,
+		if (!book.Update(dto.BookName, dto.ISBN, dto.PublishDate, genre, dto.Publisher, dto.TotalCopies,
 			    dto.Description))
-			return ServiceResult<Book>.Fail(
-				"Cannot update total copies because it would result in negative available copies.");
+			return ServiceResult<Book>.Fail(ValidationMessages.TotalCopiesUpdateInvalid);
 
-		if (dto.AuthorId.HasValue)
+		if (dto.AuthorIds is not null && dto.AuthorIds.Count > 0)
 		{
-			var author = _authorRepository.FindById(dto.AuthorId.Value);
-			if (author == null) return ServiceResult<Book>.Fail(ValidationMessages.BookUpdateFailed);
+			var newAuthors = new List<Author>();
+			foreach (var id in dto.AuthorIds.Distinct())
+			{
+				var author = _authorRepository.FindById(id);
+				if (author is null)
+					return ServiceResult<Book>.Fail(string.Format(ValidationMessages.AuthorNotFoundFormat, id));
+				newAuthors.Add(author);
+			}
 
-			book.ChangeAuthor(author);
+			foreach (var oldAuthorLink in book.BookAuthors.ToList()) book.RemoveAuthor(oldAuthorLink.AuthorId);
+
+			foreach (var author in newAuthors) book.AddAuthor(author);
+		}
+
+		if (dto.TranslatorId.HasValue)
+		{
+			var translator = _translatorRepository.FindById(dto.TranslatorId.Value);
+			if (translator is null) return ServiceResult<Book>.Fail(ValidationMessages.NotTranslatorMatched);
+			book.ChangeTranslator(translator);
 		}
 
 		return ServiceResult<Book>.Ok(book, ValidationMessages.BookUpdatedSuccessfully);
@@ -109,12 +127,12 @@ public class BookManagementService
 		var book = FindBookById(bookId);
 		if (book is null) return ServiceResult<Book>.Fail(ValidationMessages.BookRemoveFailed);
 
-		if (!book.CanBeRemoved())
-			return ServiceResult<Book>.Fail("Failed to remove Book. It is currently borrowed by a user.");
+		var activeLoans = _loanRepository.GetActiveLoansByBook(bookId);
+		if (activeLoans.Count > 0 || !book.CanBeRemoved())
+			return ServiceResult<Book>.Fail(ValidationMessages.BookRemoveFailedBorrowed);
 
-		//TODO	Missing loan integration: if book has active loans, it cannot be removed. This should be checked with the loan management service.
-		//book.RemoveFromCurrentAuthor();  // If ChangeAuthor is implemented correctly, this line is not needed.
-		book.ChangeAuthor(null);
+		foreach (var authorLink in book.BookAuthors.ToList()) book.RemoveAuthor(authorLink.AuthorId);
+
 		_bookRepository.Remove(book);
 		return ServiceResult<Book>.Ok(book, ValidationMessages.BookRemovedSuccessfully);
 	}

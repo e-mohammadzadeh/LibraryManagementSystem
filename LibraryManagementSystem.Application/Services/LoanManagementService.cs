@@ -67,6 +67,12 @@ public class LoanManagementService
 	}
 
 
+	public IReadOnlyList<Loan> GetActiveLoansByBook(int bookId)
+	{
+		return _loanRepository.GetActiveLoansByBook(bookId);
+	}
+
+
 	public ServiceResult<Loan> RenewLoan(int loanId)
 	{
 		var loan = _loanRepository.GetActiveLoanById(loanId);

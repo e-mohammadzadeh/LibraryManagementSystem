@@ -1,6 +1,7 @@
 ﻿namespace LibraryManagementSystem.Application.Common;
 
-public static class ValidationMessages {
+public static class ValidationMessages
+{
 	// 1. GENERAL MESSAGES (Cross‑cutting)
 	public const string Press2Continue = "\nPress any key to continue...";
 	public const string NoChangesDetected = "No changes detected. The new value is identical to the current one.";
@@ -16,16 +17,19 @@ public static class ValidationMessages {
 
 
 	// 2. VALIDATION MESSAGES (Format‑specific)
-	public const string InvalidNationalCode = "Invalid national code. Please enter exactly 10 digits without dashes or spaces.";
+	public const string InvalidNationalCode =
+		"Invalid national code. Please enter exactly 10 digits without dashes or spaces.";
+
 	public const string InvalidEmail = "Invalid email address. Please enter a valid email (e.g., name@domain.com).";
 	public const string InvalidPhoneNumber = "Invalid phone number. Please enter exactly 11 digits.";
-	public const string InvalidBirthDate = "Invalid birth date. Please enter a past date that is no more than 120 years ago.";
-	public const string InvalidISBN = "Invalid ISBN format. Please enter a valid 10 or 13 digit ISBN.";
-	public const string InvalidGenre = "Invalid genre. Please select a valid genre.";
-	public const string InvalidBookName = "Invalid book name. Please enter a name between 3 and 100 characters.";
-	public const string InvalidCharacters = "The name can only contain letters, numbers, spaces, and basic punctuation.";
+
+	public const string InvalidBirthDate =
+		"Invalid birth date. Please enter a past date that is no more than 120 years ago.";
+
+	public const string InvalidCharacters =
+		"The name can only contain letters, numbers, spaces, and basic punctuation.";
+
 	public const string InvalidRoleSelection = "Please select at least one role number.";
-	public const string WrongTotalCopies = "Total copies must be greater than zero.";
 	public const string GetRole = "Select a role for this user:";
 
 
@@ -46,12 +50,14 @@ public static class ValidationMessages {
 	// Search
 	public const string NotAvailableAuthor = "No authors found. Please add a new author first.";
 	public const string NotAuthorMatched = "No authors matched your search.";
+	public const string AuthorNotFoundFormat = "Author with ID {0} was not found.";
 
 	// Duplicate
 	public const string FailureDuplicateAuthorByName = "An author with the same first and last name already exists.";
 	public const string FailureDuplicateAuthorByNationalCode = "An author with the same national code already exists.";
 	public const string FailureDuplicateAuthorByEmail = "An author with the same email already exists.";
 	public const string FailureDuplicateAuthorByPhoneNumber = "An author with the same phone number already exists.";
+	public const string FailureDuplicateAuthor = "Duplicate authors are not allowed. Please enter each author only once.";
 
 
 
@@ -88,10 +94,12 @@ public static class ValidationMessages {
 	// Update
 	public const string BookUpdatedSuccessfully = "Book updated successfully.";
 	public const string BookUpdateFailed = "Failed to update book.";
+	public const string TotalCopiesUpdateInvalid = "Cannot update total copies because it would result in negative available copies.";
 
 	// Remove
 	public const string BookRemovedSuccessfully = "Book removed successfully.";
 	public const string BookRemoveFailed = "Failed to remove book.";
+	public const string BookRemoveFailedBorrowed = "Failed to remove Book. It is currently borrowed by user(s).";
 
 	// Search
 	public const string NotAvailableBook = "No books found. Please add a new book first.";
@@ -101,6 +109,13 @@ public static class ValidationMessages {
 	public const string FailureDuplicateBookByName = "A book with the same name already exists.";
 	public const string FailureDuplicateBookByISBN = "A book with the same ISBN already exists.";
 	public const string FailureDuplicateBookByAuthor = "This author is already associated with this book.";
+
+	// Validation
+	public const string InvalidBookName = "Invalid book name. Please enter a name between 3 and 100 characters.";
+	public const string InvalidISBN = "Invalid ISBN format. Please enter a valid 10 or 13 digit ISBN.";
+	public const string InvalidGenre = "Invalid genre. Please select a valid genre.";
+	public const string WrongTotalCopies = "Total copies must be greater than zero.";
+	public const string BookRequiresAtLeastOneAuthor = "A book must have at least one author.";
 
 
 
@@ -151,8 +166,12 @@ public static class ValidationMessages {
 	public const string NotAvailableActionLoan = "No actionable loans found.";
 
 	// User‑specific Loan Errors
-	public const string MaximumLoansReached = "Borrowing failed. This user has reached the maximum number of active loans.";
-	public const string BookAlreadyBorrowed = "This user has already borrowed this book. Please return it before borrowing another copy.";
+	public const string MaximumLoansReached =
+		"Borrowing failed. This user has reached the maximum number of active loans.";
+
+	public const string BookAlreadyBorrowed =
+		"This user has already borrowed this book. Please return it before borrowing another copy.";
+
 	public const string ActiveLoanNotFound = "No active loan found for the selected user and book.";
 	public const string UserHasNoBorrowedBooks = "This user has no borrowed books.";
 	public const string NoLoanHistoryForUser = "This user has no loan history.";

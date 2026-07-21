@@ -45,6 +45,11 @@ public class InMemoryLoanRepository : ILoanRepository
 		return [.. _loans.Where(l => l.UserId == userId && l.ReturnDate == null)];
 	}
 
+	public IReadOnlyList<Loan> GetActiveLoansByBook(int bookId) 
+	{
+		return [.. _loans.Where(l => l.BookId == bookId && l.ReturnDate == null)];
+	}
+
 
 	public int CountActiveLoansByUser(int userId)
 	{

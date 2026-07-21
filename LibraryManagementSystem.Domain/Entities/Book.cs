@@ -5,7 +5,7 @@ namespace LibraryManagementSystem.Domain.Entities;
 public class Book
 {
 	public Book(string internationalStandardBookNumber, string bookName, IEnumerable<Author> authors,
-		Translator translator, DateOnly publishDate, int totalCopies, Genre genre, string publisher,
+		Translator? translator, DateOnly publishDate, int totalCopies, Genre genre, string publisher,
 		string? description)
 	{
 		BookId = ++_nextBookId;
@@ -14,7 +14,7 @@ public class Book
 
 		var authorList = authors.DistinctBy(a => a.Id).ToList();
 		if (authorList.Count is 0 || authorList is null)
-			throw new ArgumentException("A book must have at least one author.");
+			throw new ArgumentException(ValidationMessages.BookRequiresAtLeastOneAuthor);
 		foreach (var author in authorList) AddAuthor(author);
 
 		Translator = translator;

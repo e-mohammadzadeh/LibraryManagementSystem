@@ -10,6 +10,7 @@ public interface ILoanRepository
 	IReadOnlyList<Loan> GetAllByUser(int userId);
 	Loan? GetActiveLoanById(int loanId);
 	IReadOnlyList<Loan> GetActiveLoansByUser(int userId);
+	IReadOnlyList<Loan> GetActiveLoansByBook(int bookId);
 	int CountActiveLoansByUser(int userId);
 	bool HasActiveLoan(int userId, int bookId);
 	Loan? GetActiveLoan(int userId, int bookId);

@@ -60,6 +60,18 @@ public static class ConsoleHelper
 	}
 
 
+	public static string ReadAuthor()
+	{
+		var authorIds = ParseAuthorInput(trimmed, authorOptions);
+
+		if (authorIds.Count is not authorIds.Distinct().Count)
+		{
+			ShowError(ValidationMessages.FailureDuplicateAuthor);
+		}
+
+		return authorIds;
+	}
+
 	public static string? ReadISBN(string prompt)
 	{
 		while (true)
