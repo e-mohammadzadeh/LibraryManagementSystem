@@ -15,6 +15,7 @@ public static class BookPrinter
 		Console.WriteLine("{0, -30} [{1}]", "Author's Email:", book.Author.Email);
 		Console.WriteLine("{0, -30} [{1}]", "Publication Year:", book.PublishDate);
 		Console.WriteLine("{0, -30} [{1}]", "Genre:", book.Genre);
+		Console.WriteLine("{0, -30} [{1}]", "Publisher:", book.Publisher);
 		Console.WriteLine("{0, -30} [{1}]", "Total Copies:", book.TotalCopies);
 		Console.WriteLine("{0, -30} [{1}]", "Available Copies:", book.AvailableCopies);
 		Console.WriteLine("{0, -30} [{1}]", "Description:", book.Description);

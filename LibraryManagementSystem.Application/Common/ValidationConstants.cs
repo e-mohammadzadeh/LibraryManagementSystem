@@ -6,6 +6,8 @@ public static class ValidationConstants
 	public const int MaxNameLength = 50;
 	public const int MinBookNameLength = 3;
 	public const int MaxBookNameLength = 100;
+	public const int MinPublisherNameLength = 4;
+	public const int MaxPublisherNameLength = 100;
 	public const int MaxBookCopies = 10;
 	public const int MinBookCopies = 1;
 	public const int NationalCodeLength = 10;

@@ -9,5 +9,6 @@ public class CreateBookDto
 	public required DateOnly PublishDate { get; init; }
 	public required int TotalCopies { get; init; }
 	public required int GenreId { get; init; }
+	public required string Publisher { get; set; }
 	public string? Description { get; init; }
 }

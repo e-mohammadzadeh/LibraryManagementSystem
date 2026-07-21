@@ -40,7 +40,7 @@ public class BookManagementService
 		var translator = _translatorRepository.FindById(dto.TranslatorId);
 		if (translator is null) return ServiceResult<Book>.Fail(ValidationMessages.BookAddFailed);
 
-		var newBook = new Book(dto.ISBN, dto.BookName, author, translator, dto.PublishDate, dto.TotalCopies, genreName,
+		var newBook = new Book(dto.ISBN, dto.BookName, author, translator, dto.PublishDate, dto.TotalCopies, genreName, dto.Publisher,
 			dto.Description);
 
 		_bookRepository.Add(newBook);
@@ -78,7 +78,7 @@ public class BookManagementService
 
 		Genre? genreName = dto.GenreId.HasValue ? (Genre)dto.GenreId.Value : null;
 
-		if (!book.Update(dto.BookName, dto.ISBN, dto.PublishDate, genreName, dto.TotalCopies,
+		if (!book.Update(dto.BookName, dto.ISBN, dto.PublishDate, genreName, dto.Publisher, dto.TotalCopies,
 			    dto.Description))
 			return ServiceResult<Book>.Fail(
 				"Cannot update total copies because it would result in negative available copies.");

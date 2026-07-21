@@ -132,15 +132,15 @@ public static class BookMenu
 		if (authors.Count != 0)
 		{
 			author = MenuHelper.SelectAuthor(authors);
-			if (author == null) return;
+			if (author is null) return;
 		}
 		else
 		{
 			var choice = ConsoleHelper.ReadYesNo("\nNo authors found. Do you want to create a new author now");
-			if (choice == true)
+			if (choice is true)
 			{
 				var authorDto = AuthorMenu.PromptForAuthorDto();
-				if (authorDto == null) return;
+				if (authorDto is null) return;
 
 				var addAuthorResult = authorManagementService.AddAuthor(authorDto);
 				if (!addAuthorResult.Success)
@@ -164,7 +164,7 @@ public static class BookMenu
 		if (translators.Count != 0)
 		{
 			translator = MenuHelper.SelectTranslator(translators);
-			if (translator == null) return;
+			if (translator is null) return;
 		}
 		else
 		{
@@ -193,20 +193,24 @@ public static class BookMenu
 
 
 		var publishDate = ConsoleHelper.GetValidDate("Enter the publication date for this book");
-		if (publishDate == null) return;
+		if (publishDate is null) return;
 
 
 		var totalCopies = ConsoleHelper.ReadInt("Enter the total number of copies for this book",
 			ValidationConstants.MinBookCopies, ValidationConstants.MaxBookCopies);
 
-		if (totalCopies == null) return;
+		if (totalCopies is null) return;
 
 
 		ConsoleHelper.DisplayGenres();
 		var genreId = ConsoleHelper.ReadInt("Select your desired genre by entering its ID", 1,
 			Enum.GetValues<Genre>().Length);
 
-		if (genreId == null) return;
+		if (genreId is null) return;
+
+		var publisher = ConsoleHelper.GetValidName("Enter the publisher for this book",
+			ValidationConstants.MinPublisherNameLength, ValidationConstants.MaxPublisherNameLength);
+		if (publisher is null) return;
 
 
 		var description = ConsoleHelper.ReadString("You can add any descriptions about this book (Optional)", true);
@@ -220,6 +224,7 @@ public static class BookMenu
 			PublishDate = publishDate.Value,
 			TotalCopies = totalCopies.Value,
 			GenreId = genreId.Value - 1,
+			Publisher = publisher,
 			Description = description
 		});
 
@@ -245,10 +250,11 @@ public static class BookMenu
 			Console.WriteLine("{0, -30} [{1}]", "5. Publish Date", desiredBook.PublishDate);
 			Console.WriteLine("{0, -30} [{1}]", "6. Total Copies", desiredBook.TotalCopies);
 			Console.WriteLine("{0, -30} [{1}]", "7. Genre", desiredBook.Genre);
-			Console.WriteLine("{0, -30} [{1}]", "8. Description", desiredBook.Description);
-			Console.WriteLine("9. Cancel");
-			var editMenuChoice = ConsoleHelper.ReadInt("Enter the number of the field you wish to edit", 1, 9);
-			if (editMenuChoice == null) return;
+			Console.WriteLine("{0, -30} [{1}]", "8. Publisher", desiredBook.Publisher);
+			Console.WriteLine("{0, -30} [{1}]", "9. Description", desiredBook.Description);
+			Console.WriteLine("10. Cancel");
+			var editMenuChoice = ConsoleHelper.ReadInt("Enter the number of the field you wish to edit", 1, 10);
+			if (editMenuChoice is null) return;
 
 			switch (editMenuChoice)
 			{
@@ -331,13 +337,21 @@ public static class BookMenu
 				}
 				case 8:
 				{
+					var publisher = ConsoleHelper.GetValidName("Enter the new publisher",
+						ValidationConstants.MinPublisherNameLength, ValidationConstants.MaxPublisherNameLength);
+					PerformUpdate(bookManagementService, desiredBook.BookId, publisher,
+						v => new UpdateBookDto { Publisher = v });
+					break;
+				}
+				case 9:
+				{
 					var description = ConsoleHelper.ReadString("Enter the new description");
 					PerformUpdate(bookManagementService, desiredBook.BookId, description,
 						v => new UpdateBookDto { Description = v });
 
 					break;
 				}
-				case 9:
+				case 10:
 				{
 					ConsoleHelper.ShowError("Edit cancelled. Returning to Author Menu...");
 					Thread.Sleep(3000);
@@ -421,9 +435,10 @@ public static class BookMenu
 			Console.WriteLine("{0, -20}", "4. Translator");
 			Console.WriteLine("{0, -20}", "5. Publish Date");
 			Console.WriteLine("{0, -20}", "6. Genre");
-			Console.WriteLine("7. Cancel");
+			Console.WriteLine("{0, -20}", "7. Publisher");
+			Console.WriteLine("8. Cancel");
 
-			var searchMenuChoice = ConsoleHelper.ReadInt("Select a search field by entering its number", 1, 7);
+			var searchMenuChoice = ConsoleHelper.ReadInt("Select a search field by entering its number", 1, 8);
 			if (searchMenuChoice == null) return;
 
 			switch (searchMenuChoice)
@@ -447,13 +462,14 @@ public static class BookMenu
 				{
 					SearchBookAndDisplay(bookManagementService, p => ConsoleHelper.ReadString(p),
 						"Enter an author name",
-						book => $"{book.Author?.FirstName} {book.Author?.LastName}", ContainsComparer);
+						book => $"{book.Author.FirstName} {book.Author.LastName}", ContainsComparer);
 					break;
 				}
 				case 4:
 				{
 					SearchBookAndDisplay(bookManagementService, p => ConsoleHelper.ReadString(p),
-						"Enter a translator name", book => $"{book.Translator?.FirstName} {book.Translator?.LastName}", ContainsComparer);
+						"Enter a translator name", book => $"{book.Translator.FirstName} {book.Translator.LastName}",
+						ContainsComparer);
 					break;
 				}
 				case 5:
@@ -471,6 +487,12 @@ public static class BookMenu
 					break;
 				}
 				case 7:
+				{
+					SearchBookAndDisplay(bookManagementService, p => ConsoleHelper.ReadString(p),
+						"Enter a publisher to search", book => book.Publisher, ContainsComparer);
+					break;
+				}
+				case 8:
 				{
 					ConsoleHelper.ShowInfo("Search cancelled. Returning to Book Menu...");
 					Thread.Sleep(3000);

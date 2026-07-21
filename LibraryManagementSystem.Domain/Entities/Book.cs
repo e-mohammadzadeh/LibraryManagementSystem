@@ -5,8 +5,7 @@ namespace LibraryManagementSystem.Domain.Entities;
 public class Book
 {
 	public Book(string internationalStandardBookNumber, string bookName, Author author, Translator translator,
-		DateOnly publishDate,
-		int totalCopies, Genre genre, string? description)
+		DateOnly publishDate, int totalCopies, Genre genre, string publisher, string? description)
 	{
 		BookId = ++_nextBookId;
 		InternationalStandardBookNumber = internationalStandardBookNumber;
@@ -18,6 +17,7 @@ public class Book
 		AvailableCopies = copies;
 		TotalCopies = copies;
 		Genre = genre;
+		Publisher = publisher;
 		Description = description;
 	}
 
@@ -27,16 +27,17 @@ public class Book
 	public int BookId { get; private set; }
 	public string BookName { get; set; }
 	public string InternationalStandardBookNumber { get; set; }
-	public Author? Author { get; private set; }
+	public Author Author { get; private set; }
 	public Translator? Translator { get; set; }
 	public DateOnly PublishDate { get; set; }
 	public Genre Genre { get; set; }
+	public string Publisher { get; set; }
 	public int TotalCopies { get; private set; }
 	public int AvailableCopies { get; private set; }
 	public string? Description { get; set; }
 
 
-	public bool Update(string? bookName, string? isbn, DateOnly? publishDate, Genre? genreId,
+	public bool Update(string? bookName, string? isbn, DateOnly? publishDate, Genre? genreId, string? publisher,
 		int? totalCopies, string? description)
 	{
 		if (totalCopies != null)
@@ -51,6 +52,7 @@ public class Book
 		InternationalStandardBookNumber = isbn ?? InternationalStandardBookNumber;
 		PublishDate = publishDate ?? PublishDate;
 		Genre = genreId ?? Genre;
+		Publisher = publisher ?? Publisher;
 		Description = description ?? Description;
 		return true;
 	}
@@ -114,8 +116,5 @@ public class Book
 	}
 
 
-	public bool CanBeRemoved()
-	{
-		return TotalCopies == AvailableCopies;
-	}
+	public bool CanBeRemoved() { return TotalCopies == AvailableCopies; }
 }
