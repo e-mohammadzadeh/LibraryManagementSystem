@@ -5,7 +5,7 @@ public class User : Person
 	private static int _nextUserId;
 	private readonly List<UserRole> _userRoles = [];
 	public bool IsActive { get; private set; }
-	public DateOnly MembershipStartDate { get; private set; }
+	private DateOnly MembershipStartDate { get; set; }
 	public DateOnly MembershipExpiryDate { get; private set; }
 
 

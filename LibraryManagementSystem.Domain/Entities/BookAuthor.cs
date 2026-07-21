@@ -4,8 +4,8 @@ public class BookAuthor
 {
 	public BookAuthor(Book book, Author author)
 	{
-		Book = book ?? throw new ArgumentException(nameof(book));
-		Author = author ?? throw new ArgumentException(nameof(author));
+		Book = book ?? throw new ArgumentNullException(nameof(book));
+		Author = author ?? throw new ArgumentNullException(nameof(author));
 
 		BookId = book.BookId;
 		AuthorId = author.Id;

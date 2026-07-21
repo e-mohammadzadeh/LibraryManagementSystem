@@ -1,6 +1,4 @@
-﻿using Microsoft.VisualBasic;
-
-namespace LibraryManagementSystem.Domain.Entities;
+﻿namespace LibraryManagementSystem.Domain.Entities;
 
 public class Author : Person
 {
@@ -14,7 +12,7 @@ public class Author : Person
 
 	private static int _nextAuthorId;
 	private readonly List<BookAuthor> _bookAuthors = [];
-	public string? Biography { get; set; }
+	public string? Biography { get; private set; }
 
 
 	internal void AddBookAuthor(BookAuthor bookAuthor)

@@ -12,9 +12,10 @@ public class Book
 		InternationalStandardBookNumber = internationalStandardBookNumber;
 		BookName = bookName;
 
+		if (authors is null) throw new ArgumentNullException(nameof(authors));
 		var authorList = authors.DistinctBy(a => a.Id).ToList();
-		if (authorList.Count is 0 || authorList is null)
-			throw new ArgumentException(ValidationMessages.BookRequiresAtLeastOneAuthor);
+		if (authorList.Count is 0 )
+			throw new ArgumentException("A book must have at least one author.");
 		foreach (var author in authorList) AddAuthor(author);
 
 		Translator = translator;
@@ -31,16 +32,16 @@ public class Book
 	//TODO	When switch into SQL Server, IDs will generate by SQL Server itself and should remove static ones
 	private static int _nextBookId;
 	public int BookId { get; private set; }
-	public string BookName { get; set; }
-	public string InternationalStandardBookNumber { get; set; }
-	private readonly List<BookAuthor> _bookAuthors = new();
-	public Translator? Translator { get; set; }
-	public DateOnly PublishDate { get; set; }
-	public Genre Genre { get; set; }
-	public string Publisher { get; set; }
+	public string BookName { get; private set; }
+	public string InternationalStandardBookNumber { get; private set; }
+	private readonly List<BookAuthor> _bookAuthors = [];
+	public Translator? Translator { get; private set; }
+	public DateOnly PublishDate { get; private set; }
+	public Genre Genre { get; private set; }
+	public string Publisher { get; private set; }
 	public int TotalCopies { get; private set; }
 	public int AvailableCopies { get; private set; }
-	public string? Description { get; set; }
+	public string? Description { get; private set; }
 
 
 	public void AddAuthor(Author author)
@@ -92,17 +93,6 @@ public class Book
 	}
 
 
-	//public void ChangeAuthor(Author? newAuthor)
-	//{
-	//	if (ReferenceEquals(Author, newAuthor)) return;
-
-	//	Author?.Books.Remove(this);
-
-	//	Author = newAuthor;
-	//	newAuthor?.Books.Add(this);
-	//}
-
-
 	public void ChangeTranslator(Translator? newTranslator)
 	{
 		if (ReferenceEquals(Translator, newTranslator)) return;
@@ -118,13 +108,6 @@ public class Book
 	{
 		AvailableCopies--;
 		//TODO	Raise an event: a signal to the rest of the system that says "this book is now out of stock"
-		//LoanService.BorrowBook(memberId, bookId)
-		//	→ find Member → fail if not found
-		//	→ find Book → fail if not found
-		//	→ call book.BorrowCopy() → throws if no copies available
-		//	→ create new Loan(book, member, dueDate)
-		//	→ add Loan to _loans list
-		//	→ return ServiceResult<Loan>.Ok(loan)
 	}
 
 
@@ -134,13 +117,6 @@ public class Book
 			throw new InvalidOperationException("Cannot return a copy because all copies are already in the library.");
 
 		AvailableCopies++;
-		//LoanService.ReturnBook(loanId)
-		//	→ find Loan → fail if not found
-		//	→ check loan not already returned → fail if already closed
-		//	→ call loan.Book.ReturnCopy()
-		//	→ set loan.ReturnDate = today
-		//	→ calculate if overdue
-		//	→ return ServiceResult<Loan>.Ok(loan)
 	}
 
 

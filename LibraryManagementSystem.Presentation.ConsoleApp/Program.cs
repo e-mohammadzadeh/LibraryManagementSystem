@@ -22,12 +22,13 @@ public static class Program
 		var authorService = new AuthorManagementService(authorRepo);
 		var translatorService = new TranslatorManagementService(translatorRepo);
 		var userService = new UserManagementService(userRepo, roleRepo);
-		var bookService = new BookManagementService(bookRepo, translatorRepo, authorRepo);
+		var bookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo);
 		var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo);
 
 		var statisticsService = new LibraryStatisticsService(bookRepo, authorRepo, translatorRepo, userRepo, loanRepo);
 
 
-		MainMenu.MainMenuController(authorService, translatorService, userService, bookService, loanService, statisticsService);
+		MainMenu.MainMenuController(authorService, translatorService, userService, bookService, loanService,
+			statisticsService);
 	}
 }

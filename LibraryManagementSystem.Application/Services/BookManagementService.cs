@@ -14,8 +14,8 @@ public class BookManagementService
 	private readonly ILoanRepository _loanRepository;
 
 
-	public BookManagementService(IBookRepository bookRepository, ITranslatorRepository translatorRepository,
-		IAuthorRepository authorRepository, ILoanRepository loanRepository)
+	public BookManagementService(IAuthorRepository authorRepository, ITranslatorRepository translatorRepository,
+		IBookRepository bookRepository, ILoanRepository loanRepository)
 	{
 		_authorRepository = authorRepository;
 		_translatorRepository = translatorRepository;
@@ -107,7 +107,6 @@ public class BookManagementService
 			}
 
 			foreach (var oldAuthorLink in book.BookAuthors.ToList()) book.RemoveAuthor(oldAuthorLink.AuthorId);
-
 			foreach (var author in newAuthors) book.AddAuthor(author);
 		}
 

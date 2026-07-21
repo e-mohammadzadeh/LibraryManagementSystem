@@ -14,13 +14,13 @@ public abstract class Person
 	}
 
 
-	public int Id { get; protected set; }
-	public string FirstName { get; set; }
-	public string LastName { get; set; }
-	public string NationalCode { get; set; }
-	public string Email { get; set; }
-	public string PhoneNumber { get; set; }
-	public DateOnly BirthDate { get; set; }
+	public int Id { get; protected init; }
+	public string FirstName { get; private set; }
+	public string LastName { get; private set; }
+	public string NationalCode { get; private set; }
+	public string Email { get; private set; }
+	public string PhoneNumber { get; private set; }
+	public DateOnly BirthDate { get; private set; }
 	// TODO	Soft Deletes & Auditing: In real apps, add *IsDeleted*, *CreatedAt*, *UpdatedAt* fields early.
 
 	protected void UpdateCore(string? firstName, string? lastName, string? nationalCode, string? email,
