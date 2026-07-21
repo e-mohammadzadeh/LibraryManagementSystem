@@ -4,13 +4,19 @@ namespace LibraryManagementSystem.Domain.Entities;
 
 public class Book
 {
-	public Book(string internationalStandardBookNumber, string bookName, Author author, Translator translator,
-		DateOnly publishDate, int totalCopies, Genre genre, string publisher, string? description)
+	public Book(string internationalStandardBookNumber, string bookName, IEnumerable<Author> authors,
+		Translator translator, DateOnly publishDate, int totalCopies, Genre genre, string publisher,
+		string? description)
 	{
 		BookId = ++_nextBookId;
 		InternationalStandardBookNumber = internationalStandardBookNumber;
 		BookName = bookName;
-		Author = author;
+
+		var authorList = authors.DistinctBy(a => a.Id).ToList();
+		if (authorList.Count is 0 || authorList is null)
+			throw new ArgumentException("A book must have at least one author.");
+		foreach (var author in authorList) AddAuthor(author);
+
 		Translator = translator;
 		PublishDate = publishDate;
 		var copies = ValidateTotalCopies(totalCopies);
@@ -27,7 +33,7 @@ public class Book
 	public int BookId { get; private set; }
 	public string BookName { get; set; }
 	public string InternationalStandardBookNumber { get; set; }
-	public Author Author { get; private set; }
+	private readonly List<BookAuthor> _bookAuthors = new();
 	public Translator? Translator { get; set; }
 	public DateOnly PublishDate { get; set; }
 	public Genre Genre { get; set; }
@@ -35,6 +41,28 @@ public class Book
 	public int TotalCopies { get; private set; }
 	public int AvailableCopies { get; private set; }
 	public string? Description { get; set; }
+
+
+	public void AddAuthor(Author author)
+	{
+		if (author is null) throw new ArgumentNullException(nameof(author));
+
+		if (_bookAuthors.Any(ba => ba.AuthorId == author.Id)) return;
+
+		var bookAuthor = new BookAuthor(this, author);
+		_bookAuthors.Add(bookAuthor);
+		author.AddBookAuthor(bookAuthor);
+	}
+
+
+	public void RemoveAuthor(int authorId)
+	{
+		var bookAuthor = _bookAuthors.FirstOrDefault(ba => ba.AuthorId == authorId);
+
+		if (bookAuthor is null) return;
+		_bookAuthors.Remove(bookAuthor);
+		bookAuthor.Author.RemoveBookAuthor(bookAuthor);
+	}
 
 
 	public bool Update(string? bookName, string? isbn, DateOnly? publishDate, Genre? genreId, string? publisher,
@@ -64,15 +92,15 @@ public class Book
 	}
 
 
-	public void ChangeAuthor(Author? newAuthor)
-	{
-		if (ReferenceEquals(Author, newAuthor)) return;
+	//public void ChangeAuthor(Author? newAuthor)
+	//{
+	//	if (ReferenceEquals(Author, newAuthor)) return;
 
-		Author?.Books.Remove(this);
+	//	Author?.Books.Remove(this);
 
-		Author = newAuthor;
-		newAuthor?.Books.Add(this);
-	}
+	//	Author = newAuthor;
+	//	newAuthor?.Books.Add(this);
+	//}
 
 
 	public void ChangeTranslator(Translator? newTranslator)
@@ -115,6 +143,8 @@ public class Book
 		//	→ return ServiceResult<Loan>.Ok(loan)
 	}
 
+
+	public IReadOnlyList<BookAuthor> BookAuthors => _bookAuthors.AsReadOnly();
 
 	public bool CanBeRemoved() { return TotalCopies == AvailableCopies; }
 }

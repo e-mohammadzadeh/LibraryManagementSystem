@@ -32,15 +32,24 @@ public class BookManagementService
 
 		if (!Enum.IsDefined(typeof(Genre), dto.GenreId))
 			return ServiceResult<Book>.Fail(ValidationMessages.InvalidGenre);
-
 		var genreName = (Genre)dto.GenreId;
+
+		var authors = new List<Author>();
+		foreach (var authorId in dto.AuthorIds)
+		{
+			var author = _authorRepository.FindById(authorId);
+			if (author is null)
+				return ServiceResult<Book>.Fail()
+		}
+
 		var author = _authorRepository.FindById(dto.AuthorId);
 		if (author is null) return ServiceResult<Book>.Fail(ValidationMessages.BookAddFailed);
 
 		var translator = _translatorRepository.FindById(dto.TranslatorId);
 		if (translator is null) return ServiceResult<Book>.Fail(ValidationMessages.BookAddFailed);
 
-		var newBook = new Book(dto.ISBN, dto.BookName, author, translator, dto.PublishDate, dto.TotalCopies, genreName, dto.Publisher,
+		var newBook = new Book(dto.ISBN, dto.BookName, author, translator, dto.PublishDate, dto.TotalCopies, genreName,
+			dto.Publisher,
 			dto.Description);
 
 		_bookRepository.Add(newBook);

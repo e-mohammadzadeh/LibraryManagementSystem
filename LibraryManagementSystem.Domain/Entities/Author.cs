@@ -1,4 +1,6 @@
-﻿namespace LibraryManagementSystem.Domain.Entities;
+﻿using Microsoft.VisualBasic;
+
+namespace LibraryManagementSystem.Domain.Entities;
 
 public class Author : Person
 {
@@ -11,9 +13,20 @@ public class Author : Person
 
 
 	private static int _nextAuthorId;
+	private readonly List<BookAuthor> _bookAuthors = [];
 	public string? Biography { get; set; }
-	public List<Book> Books { get; init; } = [];
 
+
+	internal void AddBookAuthor(BookAuthor bookAuthor)
+	{
+		if (!_bookAuthors.Contains(bookAuthor)) _bookAuthors.Add(bookAuthor);
+	}
+
+
+	internal void RemoveBookAuthor(BookAuthor bookAuthor)
+	{
+		_bookAuthors.Remove(bookAuthor);
+	}
 
 	public void Update(string? firstName, string? lastName, string? nationalCode, string? email, string? phoneNumber,
 		DateOnly? birthDate, string? biography)
@@ -21,4 +34,7 @@ public class Author : Person
 		UpdateCore(firstName, lastName, nationalCode, email, phoneNumber, birthDate);
 		Biography = biography ?? Biography;
 	}
+
+
+	public IReadOnlyList<BookAuthor> BookAuthors => _bookAuthors.AsReadOnly();
 }
