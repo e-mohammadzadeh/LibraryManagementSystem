@@ -12,19 +12,28 @@ public class Author : Person
 
 	private static int _nextAuthorId;
 	private readonly List<BookAuthor> _bookAuthors = [];
-	public string? Biography { get; private set; }
+	public string? Biography { get; set; }
 
 
 	internal void AddBookAuthor(BookAuthor bookAuthor)
 	{
-		if (!_bookAuthors.Contains(bookAuthor)) _bookAuthors.Add(bookAuthor);
+		if (bookAuthor is null) throw new ArgumentNullException(nameof(bookAuthor));
+
+		if (_bookAuthors.Any(ba => ba.BookId == bookAuthor.BookId)) return;
+
+		_bookAuthors.Add(bookAuthor);
 	}
 
 
 	internal void RemoveBookAuthor(BookAuthor bookAuthor)
 	{
-		_bookAuthors.Remove(bookAuthor);
+		if (bookAuthor is null) throw new ArgumentNullException(nameof(bookAuthor));
+
+		var existing = _bookAuthors.FirstOrDefault(ba => ba.BookId == bookAuthor.BookId);
+
+		if (existing is not null) _bookAuthors.Remove(existing);
 	}
+
 
 	public void Update(string? firstName, string? lastName, string? nationalCode, string? email, string? phoneNumber,
 		DateOnly? birthDate, string? biography)

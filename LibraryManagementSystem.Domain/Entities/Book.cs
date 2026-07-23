@@ -5,7 +5,7 @@ namespace LibraryManagementSystem.Domain.Entities;
 public class Book
 {
 	public Book(string internationalStandardBookNumber, string bookName, IEnumerable<Author> authors,
-		IEnumerable<Translator> translators, DateOnly publishDate, int totalCopies, Genre genre, string publisher,
+		IEnumerable<Translator>? translators, DateOnly publishDate, int totalCopies, Genre genre, string publisher,
 		string? description)
 	{
 		BookId = ++_nextBookId;
@@ -132,10 +132,15 @@ public class Book
 	public bool Update(string? bookName, string? isbn, DateOnly? publishDate, Genre? genreId, string? publisher,
 		int? totalCopies, string? description)
 	{
-		if (totalCopies != null)
+		if (totalCopies.HasValue)
 		{
 			var difference = totalCopies.Value - TotalCopies;
 			if (AvailableCopies + difference < 0) return false;
+		}
+
+		if (totalCopies.HasValue)
+		{
+			var difference = totalCopies.Value - TotalCopies;
 			TotalCopies = totalCopies.Value;
 			AvailableCopies += difference;
 		}

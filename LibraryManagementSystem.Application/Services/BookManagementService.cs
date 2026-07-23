@@ -50,8 +50,14 @@ public class BookManagementService
 			authors.Add(author);
 		}
 
-		var translators = dto.TranslatorId.ToList().Select(translatorId => _translatorRepository.FindById(translatorId))
-			.OfType<Translator>().ToList();
+		var translators = new List<Translator>();
+		foreach (var translatorId in dto.TranslatorIds)
+		{
+			var translator = _translatorRepository.FindById(translatorId);
+			if (translator is null)
+				return ServiceResult<Book>.Fail(ValidationMessages.NotTranslatorMatched);
+			translators.Add(translator);
+		}
 
 		var newBook = new Book(dto.ISBN, dto.BookName, authors, translators, dto.PublishDate, dto.TotalCopies, genre,
 			dto.Publisher, dto.Description);
