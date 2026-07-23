@@ -92,4 +92,13 @@ public class InMemoryBookRepository : IBookRepository
 	{
 		return _books.Count;
 	}
+
+
+	public void Update(Book book)
+	{
+		// In-memory collections update by reference automatically.
+		// However, we leave this method empty rather than throwing an exception 
+		// so that the Service layer can safely call _repository.Update() 
+		// without crashing, simulating a real database save operation.
+	}
 }

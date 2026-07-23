@@ -8,13 +8,23 @@ public class Translator : Person
 		Id = ++_nextTranslatorId;
 	}
 
-	
+
 	private static int _nextTranslatorId;
-	public List<Book> Books { get; set; }
+	private readonly List<BookTranslator> _bookTranslators = [];
+
+
+
+	internal void AddBookTranslator(BookTranslator bookTranslator)
+	{
+		if (!_bookTranslators.Contains(bookTranslator)) _bookTranslators.Add(bookTranslator);
+	}
+
+
+	internal void RemoveBookTranslator(BookTranslator bookTranslator) { _bookTranslators.Remove(bookTranslator); }
 
 
 	public void Update(string? firstName, string? lastName, string? nationalCode, string? email, string? phoneNumber,
-		DateOnly? birthDate) 
+		DateOnly? birthDate)
 	{
 		UpdateCore(firstName, lastName, nationalCode, email, phoneNumber, birthDate);
 	}

@@ -60,18 +60,6 @@ public static class ConsoleHelper
 	}
 
 
-	public static string ReadAuthor()
-	{
-		var authorIds = ParseAuthorInput(trimmed, authorOptions);
-
-		if (authorIds.Count is not authorIds.Distinct().Count)
-		{
-			ShowError(ValidationMessages.FailureDuplicateAuthor);
-		}
-
-		return authorIds;
-	}
-
 	public static string? ReadISBN(string prompt)
 	{
 		while (true)
@@ -170,6 +158,92 @@ public static class ConsoleHelper
 	}
 
 
+
+	public static List<int>? ReadAuthors(string prompt, IReadOnlyList<Author> availableOptions)
+	{
+		// Build the menu dynamically from the Enum
+		var authorOptions = GetAuthorOptions(availableOptions);
+		DisplayAuthorMenu(authorOptions);
+		while (true)
+		{
+			Console.Write($"{prompt} (enter numbers separated by commas, e.g., 1,2. Or type 'cancel' to abort): ");
+
+			var input = Console.ReadLine() ?? string.Empty;
+			var trimmed = input.Trim();
+
+			if (trimmed.Equals("cancel", StringComparison.OrdinalIgnoreCase)) return null;
+			if (string.IsNullOrEmpty(trimmed))
+			{
+				ShowError(ValidationMessages.InvalidRoleSelection);
+				continue;
+			}
+
+			// Parse and validate the input
+			var (isValid, authorIds, errorMessage) = ParseAuthorInput(trimmed, authorOptions);
+			if (!isValid)
+			{
+				ShowError(errorMessage!);
+				continue;
+			}
+
+			// Remove duplicates 
+			var distinctAuthors = authorIds?.Distinct().ToList();
+			if (distinctAuthors?.Count != authorIds?.Count)
+				ShowWarning(ValidationMessages.DuplicateAuthorsRemoved);
+
+			return distinctAuthors;
+		}
+	}
+
+
+
+	private static List<RoleOption> GetAuthorOptions(IReadOnlyList<Author> availableAuthor)
+	{
+		return
+		[
+			.. availableAuthor.Select(author => new RoleOption
+				{ Id = author.Id, Name = author.FirstName + " " + author.LastName })
+		];
+	}
+
+
+	private static void DisplayAuthorMenu(List<RoleOption> options)
+	{
+		Console.WriteLine("\nAvailable Authors:");
+		foreach (var option in options)
+		{
+			Console.WriteLine($"  {option.Id}. {option.Name}");
+		}
+	}
+
+
+	private static (bool IsValid, List<int>? RoleIds, string? ErrorMessage) ParseAuthorInput(string trimmedInput,
+		List<RoleOption> validOptions)
+	{
+		var validIds = validOptions.Select(o => o.Id).ToList();
+		var parts = trimmedInput.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+		var result = new List<int>();
+		foreach (var part in parts)
+		{
+			var cleaned = part.Trim();
+			if (string.IsNullOrEmpty(cleaned)) continue;
+
+			if (!int.TryParse(cleaned, out var id)) return (false, null, $"'{cleaned}' is not a valid number.");
+
+			if (!validIds.Contains(id))
+				return (false, null, $"'{id}' is not a valid author. Available IDs: {string.Join(", ", validIds)}.");
+
+			result.Add(id);
+		}
+
+		if (result.Count == 0) return (false, null, "No valid authors were found. Please enter at least one author.");
+
+		return (true, result, null);
+	}
+
+
+
 	private static List<RoleOption> GetRoleOptions(IReadOnlyList<Role> availableRoles)
 	{
 		return [.. availableRoles.Select(role => new RoleOption { Id = role.Id, Name = role.Name.ToString() })];
@@ -201,8 +275,7 @@ public static class ConsoleHelper
 		foreach (var part in parts)
 		{
 			var cleaned = part.Trim();
-			if (string.IsNullOrEmpty(cleaned))
-				continue;
+			if (string.IsNullOrEmpty(cleaned)) continue;
 
 			if (!int.TryParse(cleaned, out var id))
 			{
@@ -267,10 +340,7 @@ public static class ConsoleHelper
 	}
 
 
-	public static string? GetValidEmail(string prompt)
-	{
-		return GetValidString(prompt, Validator.EmailValidator);
-	}
+	public static string? GetValidEmail(string prompt) { return GetValidString(prompt, Validator.EmailValidator); }
 
 
 	public static string? GetValidPhoneNumber(string prompt)

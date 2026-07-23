@@ -17,18 +17,11 @@ public static class ValidationMessages
 
 
 	// 2. VALIDATION MESSAGES (Format‑specific)
-	public const string InvalidNationalCode =
-		"Invalid national code. Please enter exactly 10 digits without dashes or spaces.";
-
+	public const string InvalidNationalCode = "Invalid national code. Please enter exactly 10 digits without dashes or spaces.";
 	public const string InvalidEmail = "Invalid email address. Please enter a valid email (e.g., name@domain.com).";
 	public const string InvalidPhoneNumber = "Invalid phone number. Please enter exactly 11 digits.";
-
-	public const string InvalidBirthDate =
-		"Invalid birth date. Please enter a past date that is no more than 120 years ago.";
-
-	public const string InvalidCharacters =
-		"The name can only contain letters, numbers, spaces, and basic punctuation.";
-
+	public const string InvalidBirthDate = "Invalid birth date. Please enter a past date that is no more than 120 years ago.";
+	public const string InvalidCharacters = "The name can only contain letters, numbers, spaces, and basic punctuation.";
 	public const string InvalidRoleSelection = "Please select at least one role number.";
 	public const string GetRole = "Select a role for this user:";
 
@@ -53,11 +46,13 @@ public static class ValidationMessages
 	public const string AuthorNotFoundFormat = "Author with ID {0} was not found.";
 
 	// Duplicate
+	public const string FailureDuplicateAuthor = "Duplicate authors are not allowed. Please enter each author only once.";
 	public const string FailureDuplicateAuthorByName = "An author with the same first and last name already exists.";
 	public const string FailureDuplicateAuthorByNationalCode = "An author with the same national code already exists.";
 	public const string FailureDuplicateAuthorByEmail = "An author with the same email already exists.";
 	public const string FailureDuplicateAuthorByPhoneNumber = "An author with the same phone number already exists.";
-	public const string FailureDuplicateAuthor = "Duplicate authors are not allowed. Please enter each author only once.";
+	public const string DuplicateAuthorsRemoved = "Duplicate authors were removed.";
+
 
 
 
@@ -77,8 +72,11 @@ public static class ValidationMessages
 	// Search
 	public const string NotAvailableTranslator = "No translators found. Please add a new translator first.";
 	public const string NotTranslatorMatched = "No translators matched your search.";
+	public const string TranslatorNotFoundFormat = "Translator with ID {0} was not found.";
+
 
 	// Duplicate
+	public const string FailureDuplicateTranslator = "Duplicate translators are not allowed. Please enter each translator only once.";
 	public const string FailureDuplicateTranslatorByName = "A translator with the same first and last name already exists.";
 	public const string FailureDuplicateTranslatorByNationalCode = "A translator with the same national code already exists.";
 	public const string FailureDuplicateTranslatorByEmail = "A translator with the same email already exists.";
@@ -166,12 +164,8 @@ public static class ValidationMessages
 	public const string NotAvailableActionLoan = "No actionable loans found.";
 
 	// User‑specific Loan Errors
-	public const string MaximumLoansReached =
-		"Borrowing failed. This user has reached the maximum number of active loans.";
-
-	public const string BookAlreadyBorrowed =
-		"This user has already borrowed this book. Please return it before borrowing another copy.";
-
+	public const string MaximumLoansReached = "Borrowing failed. This user has reached the maximum number of active loans.";
+	public const string BookAlreadyBorrowed = "This user has already borrowed this book. Please return it before borrowing another copy.";
 	public const string ActiveLoanNotFound = "No active loan found for the selected user and book.";
 	public const string UserHasNoBorrowedBooks = "This user has no borrowed books.";
 	public const string NoLoanHistoryForUser = "This user has no loan history.";

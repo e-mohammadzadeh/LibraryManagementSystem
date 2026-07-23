@@ -5,7 +5,7 @@ namespace LibraryManagementSystem.Domain.Entities;
 public class Book
 {
 	public Book(string internationalStandardBookNumber, string bookName, IEnumerable<Author> authors,
-		Translator? translator, DateOnly publishDate, int totalCopies, Genre genre, string publisher,
+		IEnumerable<Translator> translators, DateOnly publishDate, int totalCopies, Genre genre, string publisher,
 		string? description)
 	{
 		BookId = ++_nextBookId;
@@ -14,11 +14,16 @@ public class Book
 
 		if (authors is null) throw new ArgumentNullException(nameof(authors));
 		var authorList = authors.DistinctBy(a => a.Id).ToList();
-		if (authorList.Count is 0 )
-			throw new ArgumentException("A book must have at least one author.");
+		if (authorList.Count == 0) throw new ArgumentException("A book must have at least one author.");
 		foreach (var author in authorList) AddAuthor(author);
 
-		Translator = translator;
+
+		if (translators is not null)
+		{
+			var translatorList = translators.DistinctBy(t => t.Id).ToList();
+			foreach (var translator in translatorList) AddTranslator(translator);
+		}
+
 		PublishDate = publishDate;
 		var copies = ValidateTotalCopies(totalCopies);
 		AvailableCopies = copies;
@@ -35,7 +40,7 @@ public class Book
 	public string BookName { get; private set; }
 	public string InternationalStandardBookNumber { get; private set; }
 	private readonly List<BookAuthor> _bookAuthors = [];
-	public Translator? Translator { get; private set; }
+	private readonly List<BookTranslator> _bookTranslators = [];
 	public DateOnly PublishDate { get; private set; }
 	public Genre Genre { get; private set; }
 	public string Publisher { get; private set; }
@@ -66,6 +71,64 @@ public class Book
 	}
 
 
+
+	public void ReplaceAuthors(IEnumerable<Author> authors)
+	{
+		if (authors is null) throw new ArgumentNullException(nameof(authors));
+
+		var authorList = authors.DistinctBy(a => a.Id).ToList();
+
+		if (authorList.Count == 0) throw new ArgumentException("A book must have at least one author.");
+
+		foreach (var bookAuthor in _bookAuthors.ToList()) RemoveAuthor(bookAuthor.AuthorId);
+
+
+		foreach (var author in authorList) AddAuthor(author);
+	}
+
+
+
+	public void AddTranslator(Translator translator)
+	{
+		if (translator is null) throw new ArgumentNullException(nameof(translator));
+
+		if (_bookTranslators.Any(ba => ba.TranslatorId == translator.Id)) return;
+
+		var bookTranslator = new BookTranslator(this, translator);
+		_bookTranslators.Add(bookTranslator);
+		translator.AddBookTranslator(bookTranslator);
+	}
+
+
+	public void RemoveTranslator(int translatorId)
+	{
+		var bookTranslator = _bookTranslators.FirstOrDefault(ba => ba.TranslatorId == translatorId);
+
+		if (bookTranslator is null) return;
+		_bookTranslators.Remove(bookTranslator);
+		bookTranslator.Translator.RemoveBookTranslator(bookTranslator);
+	}
+
+
+
+	public void RemoveAllTranslators()
+	{
+		foreach (var bookTranslator in _bookTranslators.ToList()) RemoveTranslator(bookTranslator.TranslatorId);
+	}
+
+
+	public void ReplaceTranslators(IEnumerable<Translator> translators)
+	{
+		if (translators is null) throw new ArgumentNullException(nameof(translators));
+
+		foreach (var bookTranslator in _bookTranslators.ToList()) RemoveTranslator(bookTranslator.TranslatorId);
+
+
+		foreach (var translator in translators.DistinctBy(t => t.Id)) AddTranslator(translator);
+	}
+
+
+
 	public bool Update(string? bookName, string? isbn, DateOnly? publishDate, Genre? genreId, string? publisher,
 		int? totalCopies, string? description)
 	{
@@ -93,19 +156,10 @@ public class Book
 	}
 
 
-	public void ChangeTranslator(Translator? newTranslator)
-	{
-		if (ReferenceEquals(Translator, newTranslator)) return;
-
-		Translator?.Books.Remove(this);
-
-		Translator = newTranslator;
-		newTranslator?.Books.Add(this);
-	}
-
-
 	public void BorrowCopy()
 	{
+		if (AvailableCopies <= 0) throw new InvalidOperationException("No copies are available.");
+
 		AvailableCopies--;
 		//TODO	Raise an event: a signal to the rest of the system that says "this book is now out of stock"
 	}
@@ -121,6 +175,8 @@ public class Book
 
 
 	public IReadOnlyList<BookAuthor> BookAuthors => _bookAuthors.AsReadOnly();
+
+	public IReadOnlyList<BookTranslator> BookTranslators => _bookTranslators.AsReadOnly();
 
 	public bool CanBeRemoved() { return TotalCopies == AvailableCopies; }
 }

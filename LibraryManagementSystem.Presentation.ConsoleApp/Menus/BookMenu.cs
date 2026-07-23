@@ -112,8 +112,7 @@ public static class BookMenu
 
 
 	private static void AddBook(AuthorManagementService authorManagementService,
-		TranslatorManagementService translatorManagementService,
-		BookManagementService bookManagementService)
+		TranslatorManagementService translatorManagementService, BookManagementService bookManagementService)
 	{
 		Console.WriteLine("============================ ADDING BOOK MENU ============================");
 		Author? author;
@@ -243,10 +242,8 @@ public static class BookMenu
 		{
 			Console.WriteLine("\n{0, -30} [{1}]", "1. Book Name", desiredBook.BookName);
 			Console.WriteLine("{0, -30} [{1}]", "2. ISBN", desiredBook.InternationalStandardBookNumber);
-			Console.WriteLine("{0, -30} [{1}]", "3. Author",
-				desiredBook.Author?.FirstName + " " + desiredBook.Author?.LastName);
-			Console.WriteLine("{0, -30} [{1}]", "4. Translator",
-				desiredBook.Translator?.FirstName + " " + desiredBook.Translator?.LastName);
+			Console.WriteLine("{0, -30} [{1}]", "3. Author", desiredBook.Author?.FirstName + " " + desiredBook.Author?.LastName);
+			Console.WriteLine("{0, -30} [{1}]", "4. Translator", desiredBook.Translator?.FirstName + " " + desiredBook.Translator?.LastName);
 			Console.WriteLine("{0, -30} [{1}]", "5. Publish Date", desiredBook.PublishDate);
 			Console.WriteLine("{0, -30} [{1}]", "6. Total Copies", desiredBook.TotalCopies);
 			Console.WriteLine("{0, -30} [{1}]", "7. Genre", desiredBook.Genre);
