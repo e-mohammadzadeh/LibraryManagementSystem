@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Application.DTOs;
 using LibraryManagementSystem.Application.Validators;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
@@ -115,201 +116,97 @@ public static class ConsoleHelper
 	}
 
 
-	public static List<int>? ReadRoles(string prompt, IReadOnlyList<Role> availableRoles, bool allowMultiple = true)
+	public static List<int>? ReadMultiSelect<T>(string prompt, IReadOnlyList<T>? items, Func<T, int> idSelector,
+		Func<T, string> displayNameSelector, bool allowMultiple = true, bool allowEmpty =  false)
 	{
-		// Build the menu dynamically from the Enum
-		var roleOptions = GetRoleOptions(availableRoles);
-		string instructions = allowMultiple
-			? "(enter numbers separated by commas, e.g., 1,2. Or type 'cancel' to abort)"
-			: "(enter a single number. Or type 'cancel' to abort)";
+		if (items == null || items.Count == 0)
+		{
+			ShowWarning("No items available to select.");
+			return null;
+		}
+
+		var options = items.Select(item => new OptionItem
+			{ Id = idSelector(item), DisplayName = displayNameSelector(item) }).ToList();
 
 		while (true)
 		{
-			DisplayRoleMenu(roleOptions);
-			Console.Write($"{prompt} {instructions}: ");
+			Console.WriteLine("\nAvailable options: ");
+			foreach (var opt in options) Console.WriteLine($"	{opt.Id}. {opt.DisplayName}");
 
+			var instruction = allowMultiple
+				? "Enter numbers separated by commas (e.g., 1,3) or type 'cancel' to abort"
+				: "Enter a single number or type 'cancel' to abort";
+
+			Console.WriteLine($"{prompt} ({instruction}): ");
 			var input = Console.ReadLine() ?? string.Empty;
 			var trimmed = input.Trim();
 
-			if (trimmed.Equals("cancel", StringComparison.OrdinalIgnoreCase)) return null;
-			if (string.IsNullOrEmpty(trimmed))
-			{
-				ShowError(ValidationMessages.InvalidRoleSelection);
-				continue;
-			}
-
-			// Parse and validate the input
-			var (isValid, roleIds, errorMessage) = ParseRoleInput(trimmed, roleOptions, allowMultiple);
-			if (!isValid)
-			{
-				ShowError(errorMessage!);
-				continue;
-			}
-
-			// Remove duplicates 
-			var distinctRoles = roleIds?.Distinct().ToList();
-			if (allowMultiple && distinctRoles?.Count != roleIds?.Count)
-			{
-				ShowWarning(ValidationMessages.DuplicateRolesRemoved);
-			}
-
-			return distinctRoles;
-		}
-	}
-
-
-
-	public static List<int>? ReadAuthors(string prompt, IReadOnlyList<Author> availableOptions)
-	{
-		// Build the menu dynamically from the Enum
-		var authorOptions = GetAuthorOptions(availableOptions);
-		DisplayAuthorMenu(authorOptions);
-		while (true)
-		{
-			Console.Write($"{prompt} (enter numbers separated by commas, e.g., 1,2. Or type 'cancel' to abort): ");
-
-			var input = Console.ReadLine() ?? string.Empty;
-			var trimmed = input.Trim();
 
 			if (trimmed.Equals("cancel", StringComparison.OrdinalIgnoreCase)) return null;
-			if (string.IsNullOrEmpty(trimmed))
+
+			if (string.IsNullOrWhiteSpace(trimmed))
 			{
-				ShowError(ValidationMessages.InvalidRoleSelection);
+				if (allowEmpty) return [];
+
+				ShowError(ValidationMessages.EmptyInput);
 				continue;
 			}
 
-			// Parse and validate the input
-			var (isValid, authorIds, errorMessage) = ParseAuthorInput(trimmed, authorOptions);
+			var (isValid, selectedIds, error) = ParseMultiSelect(trimmed, options, allowMultiple);
 			if (!isValid)
 			{
-				ShowError(errorMessage!);
+				ShowWarning(error!);
 				continue;
 			}
 
-			// Remove duplicates 
-			var distinctAuthors = authorIds?.Distinct().ToList();
-			if (distinctAuthors?.Count != authorIds?.Count)
-				ShowWarning(ValidationMessages.DuplicateAuthorsRemoved);
-
-			return distinctAuthors;
+			var distinctIds = selectedIds!.Distinct().ToList();
+			if (distinctIds.Count != selectedIds.Count) ShowWarning(ValidationMessages.DuplicateRemoved);
+			return distinctIds;
 		}
 	}
 
 
-
-	private static List<RoleOption> GetAuthorOptions(IReadOnlyList<Author> availableAuthor)
+	private static (bool isValid, List<int>? SelectedIds, string? error) ParseMultiSelect(string input,
+		List<OptionItem> validOptions, bool allowMultiple)
 	{
-		return
-		[
-			.. availableAuthor.Select(author => new RoleOption
-				{ Id = author.Id, Name = author.FirstName + " " + author.LastName })
-		];
-	}
-
-
-	private static void DisplayAuthorMenu(List<RoleOption> options)
-	{
-		Console.WriteLine("\nAvailable Authors:");
-		foreach (var option in options)
-		{
-			Console.WriteLine($"  {option.Id}. {option.Name}");
-		}
-	}
-
-
-	private static (bool IsValid, List<int>? RoleIds, string? ErrorMessage) ParseAuthorInput(string trimmedInput,
-		List<RoleOption> validOptions)
-	{
-		var validIds = validOptions.Select(o => o.Id).ToList();
-		var parts = trimmedInput.Split(',', StringSplitOptions.RemoveEmptyEntries);
-
+		var parts = input.Split(',', StringSplitOptions.RemoveEmptyEntries);
 		var result = new List<int>();
+
+		if (!allowMultiple && parts.Length > 1) return (false, null, ValidationMessages.NotAllowedMultiSelections);
+
 		foreach (var part in parts)
 		{
 			var cleaned = part.Trim();
-			if (string.IsNullOrEmpty(cleaned)) continue;
-
-			if (!int.TryParse(cleaned, out var id)) return (false, null, $"'{cleaned}' is not a valid number.");
-
-			if (!validIds.Contains(id))
-				return (false, null, $"'{id}' is not a valid author. Available IDs: {string.Join(", ", validIds)}.");
-
+			if (!int.TryParse(cleaned, out var id)) return (false, null, $"{cleaned} is not a valid number.");
+			if (validOptions.All(o => o.Id != id))
+				return (false, null, $"ID '{id}' is not in the list. Please choose from the options above.");
 			result.Add(id);
 		}
 
-		if (result.Count == 0) return (false, null, "No valid authors were found. Please enter at least one author.");
-
+		if (result.Count == 0) return (false, null, ValidationMessages.InvalidOptionSelection);
 		return (true, result, null);
 	}
 
 
-
-	private static List<RoleOption> GetRoleOptions(IReadOnlyList<Role> availableRoles)
+	public static List<int>? ReadAuthors(string prompt, IReadOnlyList<Author> authors)
 	{
-		return [.. availableRoles.Select(role => new RoleOption { Id = role.Id, Name = role.Name.ToString() })];
+		return ReadMultiSelect(prompt, authors, idSelector: a => a.Id,
+			displayNameSelector: a => $"{a.FirstName} {a.LastName}");
 	}
 
 
-	private static void DisplayRoleMenu(List<RoleOption> options)
+	public static List<int>? ReadTranslators(string prompt, IReadOnlyList<Translator> translators)
 	{
-		Console.WriteLine("\nAvailable Roles:");
-		foreach (var option in options)
-		{
-			Console.WriteLine($"  {option.Id}. {option.Name}");
-		}
+		return ReadMultiSelect(prompt, translators, idSelector: t => t.Id,
+			displayNameSelector: t => $"{t.FirstName} {t.LastName}", allowEmpty:true);
 	}
 
 
-	private static (bool IsValid, List<int>? RoleIds, string? ErrorMessage) ParseRoleInput(string trimmedInput,
-		List<RoleOption> validOptions, bool allowMultiple)
+	public static List<int>? ReadRoles(string prompt, IReadOnlyList<Role> roles)
 	{
-		var validIds = validOptions.Select(o => o.Id).ToList();
-		var parts = trimmedInput.Split(',', StringSplitOptions.RemoveEmptyEntries);
-
-		if (!allowMultiple && parts.Length > 1)
-		{
-			return (false, null, ValidationMessages.NotAllowedMultipleRole);
-		}
-
-		var result = new List<int>();
-		foreach (var part in parts)
-		{
-			var cleaned = part.Trim();
-			if (string.IsNullOrEmpty(cleaned)) continue;
-
-			if (!int.TryParse(cleaned, out var id))
-			{
-				return (false, null, $"'{cleaned}' is not a valid number.");
-			}
-
-			if (!validIds.Contains(id))
-			{
-				return (false, null, $"'{id}' is not a valid role. Available IDs: {string.Join(", ", validIds)}.");
-			}
-
-			result.Add(id);
-		}
-
-		if (result.Count == 0)
-		{
-			return (false, null, "No valid roles were found. Please enter at least one role.");
-		}
-
-		if (!allowMultiple && result.Count > 1)
-		{
-			return (false, null, ValidationMessages.NotAllowedMultipleRole);
-		}
-
-		return (true, result, null);
+		return ReadMultiSelect(prompt, roles, idSelector: r => r.Id, displayNameSelector: r => r.Name.ToString());
 	}
 
-
-	// Simple DTO for the menu
-	private class RoleOption
-	{
-		public int Id { get; set; }
-		public string Name { get; set; } = "";
-	}
 
 
 	private static string? GetValidString(string prompt, Func<string, ValidationResult> validator)

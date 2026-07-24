@@ -59,6 +59,7 @@ public static class BookMenu
 						ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 						Console.ReadKey(true);
 					}
+
 					break;
 				}
 				case 6:
@@ -126,51 +127,56 @@ public static class BookMenu
 
 		if (bookName is null) return;
 
-		var authors = authorManagementService.GetAllAuthors();
-		if (authors.Count != 0)
-		{
-			author = MenuHelper.SelectAuthor(authors);
-			if (author is null) return;
-		}
-		else
+		var availableAuthors = authorManagementService.GetAllAuthors();
+		List<int> authorIds;
+		if (availableAuthors.Count == 0)
 		{
 			var choice = ConsoleHelper.ReadYesNo("\nNo authors found. Do you want to create a new author now");
-			if (choice is true)
+			if (choice is not true)
 			{
-				var authorDto = AuthorMenu.PromptForAuthorDto();
-				if (authorDto is null) return;
-
-				var addAuthorResult = authorManagementService.AddAuthor(authorDto);
-				if (!addAuthorResult.Success)
-				{
-					ConsoleHelper.ShowError(ValidationMessages.NotAvailableAuthor);
-					return;
-				}
-
-				ConsoleHelper.ShowResult(addAuthorResult);
-				author = addAuthorResult.Data;
-			}
-			else
-			{
-				ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
+				ConsoleHelper.ShowWarning(ValidationMessages.BookRequiresAtLeastOneAuthor);
 				return;
 			}
-		}
 
+			var authorDto = AuthorMenu.PromptForAuthorDto();
+			if (authorDto is null) return;
 
-		var translators = translatorManagementService.GetAllTranslators();
-		if (translators.Count != 0)
-		{
-			translator = MenuHelper.SelectTranslator(translators);
-			if (translator is null) return;
+			var addAuthorResult = authorManagementService.AddAuthor(authorDto);
+			if (!addAuthorResult.Success)
+			{
+				ConsoleHelper.ShowError(ValidationMessages.NotAvailableAuthor);
+				return;
+			}
+
+			ConsoleHelper.ShowResult(addAuthorResult);
+			authorIds = [addAuthorResult.Data!.Id];
 		}
 		else
 		{
-			var choice = ConsoleHelper.ReadYesNo("\nNo translators found. Do you want to create a new translator now");
+			var selectedIds = ConsoleHelper.ReadAuthors("Select author(s) for this book", availableAuthors);
+			if (selectedIds is null) return;
+			authorIds = selectedIds;
+		}
+
+
+		var availableTranslators = translatorManagementService.GetAllTranslators();
+		List<int> translatorIds = [];
+		if (availableTranslators.Count > 0)
+		{
+			var selectedTranslatorIds =
+				ConsoleHelper.ReadTranslators("Select one or more translators (optional)", availableTranslators);
+			if (selectedTranslatorIds is null) return;
+			translatorIds = selectedTranslatorIds;
+		}
+		else
+		{
+			var choice =
+				ConsoleHelper.ReadYesNo(
+					"\nNo translators found. Do you want to create a new translator now (Optional)");
 			if (choice == true)
 			{
 				var translatorDto = TranslatorMenu.PromptForTranslatorDto();
-				if (translatorDto == null) return;
+				if (translatorDto is null) return;
 
 				var addTranslatorResult = translatorManagementService.AddTranslator(translatorDto);
 				if (!addTranslatorResult.Success)
@@ -180,15 +186,9 @@ public static class BookMenu
 				}
 
 				ConsoleHelper.ShowResult(addTranslatorResult);
-				translator = addTranslatorResult.Data;
-			}
-			else
-			{
-				ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableTranslator);
-				return;
+				translatorIds.Add(addTranslatorResult.Data!.Id);
 			}
 		}
-
 
 		var publishDate = ConsoleHelper.GetValidDate("Enter the publication date for this book");
 		if (publishDate is null) return;
@@ -210,15 +210,14 @@ public static class BookMenu
 			ValidationConstants.MinPublisherNameLength, ValidationConstants.MaxPublisherNameLength);
 		if (publisher is null) return;
 
-
 		var description = ConsoleHelper.ReadString("You can add any descriptions about this book (Optional)", true);
 
 		var result = bookManagementService.AddBook(new CreateBookDto
 		{
 			ISBN = isbn,
 			BookName = bookName,
-			AuthorIds = [author!.Id],
-			TranslatorIds = [translator!.Id],
+			AuthorIds = authorIds,
+			TranslatorIds = translatorIds,
 			PublishDate = publishDate.Value,
 			TotalCopies = totalCopies.Value,
 			GenreId = genreId.Value - 1,
@@ -239,8 +238,10 @@ public static class BookMenu
 
 		while (true)
 		{
-			var authorNames = string.Join(", ", desiredBook.BookAuthors.Select(ba => $"{ba.Author.FirstName} {ba.Author.LastName}"));
-			var translatorNames = string.Join(", ", desiredBook.BookTranslators.Select(bt => $"{bt.Translator.FirstName} {bt.Translator.LastName}"));
+			var authorNames = string.Join(", ",
+				desiredBook.BookAuthors.Select(ba => $"{ba.Author.FirstName} {ba.Author.LastName}"));
+			var translatorNames = string.Join(", ",
+				desiredBook.BookTranslators.Select(bt => $"{bt.Translator.FirstName} {bt.Translator.LastName}"));
 
 			Console.WriteLine("\n{0, -30} [{1}]", "1. Book Name", desiredBook.BookName);
 			Console.WriteLine("{0, -30} [{1}]", "2. ISBN", desiredBook.InternationalStandardBookNumber);
@@ -365,6 +366,7 @@ public static class BookMenu
 				Console.Clear();
 				return;
 			}
+
 			Console.Clear();
 		}
 	}

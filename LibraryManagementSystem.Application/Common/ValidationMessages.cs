@@ -12,7 +12,6 @@ public static class ValidationMessages
 	public const string InvalidMenuChoice = "Invalid selection. Please try again.\n";
 	public const string InvalidDate = "Invalid date. Please enter a date on or before today.";
 	public const string InvalidBirthDateFormat = "Invalid date format. Please use YYYY-MM-DD (e.g., 2026-12-27).";
-	public const string NotAllowedMultipleRole = "Multiple roles are not allowed. Please select a single role ID.";
 
 
 
@@ -22,8 +21,10 @@ public static class ValidationMessages
 	public const string InvalidPhoneNumber = "Invalid phone number. Please enter exactly 11 digits.";
 	public const string InvalidBirthDate = "Invalid birth date. Please enter a past date that is no more than 120 years ago.";
 	public const string InvalidCharacters = "The name can only contain letters, numbers, spaces, and basic punctuation.";
-	public const string InvalidRoleSelection = "Please select at least one role number.";
+	public const string InvalidOptionSelection = "Please select at least one option.";
 	public const string GetRole = "Select a role for this user:";
+	public const string DuplicateRemoved = "Duplicate items were removed.";
+	public const string NotAllowedMultiSelections = "Multiple selections are not allowed. Please enter a single number.";
 
 
 
@@ -51,7 +52,6 @@ public static class ValidationMessages
 	public const string FailureDuplicateAuthorByNationalCode = "An author with the same national code already exists.";
 	public const string FailureDuplicateAuthorByEmail = "An author with the same email already exists.";
 	public const string FailureDuplicateAuthorByPhoneNumber = "An author with the same phone number already exists.";
-	public const string DuplicateAuthorsRemoved = "Duplicate authors were removed.";
 
 
 
@@ -142,7 +142,6 @@ public static class ValidationMessages
 	public const string FailureDuplicateUserByPhoneNumber = "A user with the same phone number already exists.";
 	public const string FailureDuplicateUserByRole = "This user already has this role.";
 	public const string FailureDuplicateRolesSelected = "Duplicate roles selected.";
-	public const string DuplicateRolesRemoved = "Duplicate roles were removed.";
 
 	// Membership
 	public const string MembershipExpired = "Membership expired. Please renew your membership to borrow books.";
