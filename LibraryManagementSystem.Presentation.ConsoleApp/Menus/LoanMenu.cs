@@ -131,7 +131,7 @@ public static class LoanMenu
 			Console.WriteLine("8. Search Loans");
 			Console.WriteLine("9. Back");
 			Console.WriteLine(new string('=', 82));
-			Console.Write("Please Enter a number: ");
+			Console.Write(ValidationMessages.MainMenuQuestion);
 
 			var option = Console.ReadLine();
 			if (int.TryParse(option, out var result) && result is >= 1 and <= 9) return result;
@@ -270,7 +270,7 @@ public static class LoanMenu
 			Console.WriteLine("{0, -20}", "6. Status (Active/Returned)");
 			Console.WriteLine("7. Cancel");
 
-			var searchMenuChoice = ConsoleHelper.ReadInt("Select a search field by entering its number", 1, 7);
+			var searchMenuChoice = ConsoleHelper.ReadInt(ValidationMessages.SearchMenuQuestion, 1, 7);
 			if (searchMenuChoice is null) return;
 
 			switch (searchMenuChoice)

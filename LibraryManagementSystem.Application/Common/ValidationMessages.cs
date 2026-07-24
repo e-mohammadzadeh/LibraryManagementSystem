@@ -32,6 +32,7 @@ public static class ValidationMessages
 	// Add
 	public const string AuthorAddedSuccessfully = "Author added successfully.";
 	public const string AuthorAddFailed = "Failed to add author.";
+	public const string NotEnoughAuthors = "All available authors are already assigned to this book.";
 
 	// Update
 	public const string AuthorUpdatedSuccessfully = "Author updated successfully.";
@@ -40,6 +41,8 @@ public static class ValidationMessages
 	// Remove
 	public const string AuthorRemovedSuccessfully = "Author removed successfully.";
 	public const string AuthorRemoveFailed = "Failed to remove author.";
+	public const string CannotRemove = "Cannot remove the only author. A book must have at least one author.";
+	public const string AuthorSelection4Remove = "Select the author you want to remove";
 
 	// Search
 	public const string NotAvailableAuthor = "No authors found. Please add a new author first.";
@@ -176,4 +179,16 @@ public static class ValidationMessages
 
 	// 8. ROLE MESSAGES
 	public const string NotRoleMatched = "No roles matched your search.";
+
+
+
+
+
+
+	// 9. Questions
+	public const string MainMenuQuestion = "Please Enter a number: ";
+	public const string EditMenuQuestion = "Enter the number of the field you wish to edit";
+	public const string EditContinuesQuestion = "Do you want to edit another field";
+	public const string SearchMenuQuestion = "Select a search field by entering its number";
+	public const string SubMenusQuestion = "what do you want to do?";
 }

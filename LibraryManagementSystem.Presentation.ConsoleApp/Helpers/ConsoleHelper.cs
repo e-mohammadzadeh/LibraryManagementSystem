@@ -121,6 +121,11 @@ public static class ConsoleHelper
 	{
 		if (items == null || items.Count == 0)
 		{
+			if (allowEmpty)
+			{
+				ShowWarning("No items available. Continuing with no selection.");
+				return [];
+			}
 			ShowWarning("No items available to select.");
 			return null;
 		}
@@ -188,23 +193,23 @@ public static class ConsoleHelper
 	}
 
 
-	public static List<int>? ReadAuthors(string prompt, IReadOnlyList<Author> authors)
+	public static List<int>? ReadAuthors(string prompt, IReadOnlyList<Author> authors, bool allowMultiple=true, bool allowEmpty=false)
 	{
 		return ReadMultiSelect(prompt, authors, idSelector: a => a.Id,
-			displayNameSelector: a => $"{a.FirstName} {a.LastName}");
+			displayNameSelector: a => $"{a.FirstName} {a.LastName}", allowMultiple: allowMultiple, allowEmpty: allowEmpty);
 	}
 
 
-	public static List<int>? ReadTranslators(string prompt, IReadOnlyList<Translator> translators)
+	public static List<int>? ReadTranslators(string prompt, IReadOnlyList<Translator> translators, bool allowMultiple = true, bool allowEmpty = true)
 	{
 		return ReadMultiSelect(prompt, translators, idSelector: t => t.Id,
-			displayNameSelector: t => $"{t.FirstName} {t.LastName}", allowEmpty:true);
+			displayNameSelector: t => $"{t.FirstName} {t.LastName}", allowMultiple, allowEmpty);
 	}
 
 
-	public static List<int>? ReadRoles(string prompt, IReadOnlyList<Role> roles)
+	public static List<int>? ReadRoles(string prompt, IReadOnlyList<Role> roles, bool allowMultiple = true, bool allowEmpty = false)
 	{
-		return ReadMultiSelect(prompt, roles, idSelector: r => r.Id, displayNameSelector: r => r.Name.ToString());
+		return ReadMultiSelect(prompt, roles, idSelector: r => r.Id, displayNameSelector: r => r.Name.ToString(), allowMultiple, allowEmpty);
 	}
 
 

@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Application.Services;
+﻿using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
@@ -71,7 +72,7 @@ public static class MainMenu
 			Console.WriteLine("5. Loans");
 			Console.WriteLine("6. Exit");
 			Console.WriteLine(new string('=', 82));
-			Console.Write("Please Enter a number: ");
+			Console.Write(ValidationMessages.MainMenuQuestion);
 
 			var option = Console.ReadLine();
 			if (int.TryParse(option, out var result) && result is >= 1 and <= 6)

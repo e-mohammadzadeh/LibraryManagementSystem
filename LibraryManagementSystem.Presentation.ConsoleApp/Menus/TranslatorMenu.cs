@@ -93,7 +93,7 @@ public static class TranslatorMenu {
 			Console.WriteLine("6. View All Translators");
 			Console.WriteLine("7. Back");
 			Console.WriteLine(new string('=', 82));
-			Console.Write("Please Enter a number: ");
+			Console.Write(ValidationMessages.MainMenuQuestion);
 
 			var option = Console.ReadLine();
 			if (int.TryParse(option, out var result) && result is >= 1 and <= 7)
@@ -171,7 +171,7 @@ public static class TranslatorMenu {
 			Console.WriteLine("{0, -20} [{1}]", "5. Phone Number", desiredTranslator.PhoneNumber);
 			Console.WriteLine("{0, -20} [{1}]", "6. Birth Date", desiredTranslator.BirthDate);
 			Console.WriteLine("7. Cancel");
-			var editMenuChoice = ConsoleHelper.ReadInt("Enter the number of the field you wish to edit", 1, 7);
+			var editMenuChoice = ConsoleHelper.ReadInt(ValidationMessages.EditMenuQuestion, 1, 7);
 			if (editMenuChoice == null)
 				return;
 
@@ -238,7 +238,7 @@ public static class TranslatorMenu {
 				}
 			}
 
-			var choice = ConsoleHelper.ReadYesNo("Do you want to edit another field");
+			var choice = ConsoleHelper.ReadYesNo(ValidationMessages.EditContinuesQuestion);
 			if (choice != true)
 				return;
 			Console.Clear();
@@ -290,7 +290,7 @@ public static class TranslatorMenu {
 			Console.WriteLine("{0, -20}", "4. Phone Number");
 			Console.WriteLine("5. Cancel");
 
-			var searchMenuChoice = ConsoleHelper.ReadInt("Select a search field by entering its number", 1, 5);
+			var searchMenuChoice = ConsoleHelper.ReadInt(ValidationMessages.SearchMenuQuestion, 1, 5);
 			if (searchMenuChoice is null)
 				return;
 

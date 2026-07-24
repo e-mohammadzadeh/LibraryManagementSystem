@@ -96,7 +96,7 @@ public static class UserMenu
 			Console.WriteLine("6. View All Users");
 			Console.WriteLine("7. Back");
 			Console.WriteLine(new string('=', 82));
-			Console.Write("Please Enter a number: ");
+			Console.Write(ValidationMessages.MainMenuQuestion);
 
 			var option = Console.ReadLine();
 			if (int.TryParse(option, out var result) && result is >= 1 and <= 7) return result;
@@ -174,7 +174,7 @@ public static class UserMenu
 			Console.WriteLine("{0, -20} [{1}]", "6. Birth Date", desiredUser.BirthDate);
 			Console.WriteLine("{0, -20} [{1}]", "7. Role", string.Join(", ", desiredUser.UserRoles.Select(ur => ur.Role.Name)));
 			Console.WriteLine("8. Cancel");
-			var editMenuChoice = ConsoleHelper.ReadInt("Enter the number of the field you wish to edit", 1, 8);
+			var editMenuChoice = ConsoleHelper.ReadInt(ValidationMessages.EditMenuQuestion, 1, 8);
 			if (editMenuChoice == null)
 				return;
 
@@ -252,7 +252,7 @@ public static class UserMenu
 				}
 			}
 
-			var choice = ConsoleHelper.ReadYesNo("Do you want to edit another field");
+			var choice = ConsoleHelper.ReadYesNo(ValidationMessages.EditContinuesQuestion);
 			if (choice != true) return;
 			Console.Clear();
 		}
@@ -325,7 +325,7 @@ public static class UserMenu
 			Console.WriteLine("{0, -20}", "5. Role");
 			Console.WriteLine("6. Cancel");
 
-			var searchMenuChoice = ConsoleHelper.ReadInt("Select a search field by entering its number", 1, 6);
+			var searchMenuChoice = ConsoleHelper.ReadInt(ValidationMessages.SearchMenuQuestion, 1, 6);
 			if (searchMenuChoice is null) return;
 
 			switch (searchMenuChoice)

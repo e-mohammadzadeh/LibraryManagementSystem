@@ -101,7 +101,7 @@ public static class BookMenu
 			Console.WriteLine("6. View All Books");
 			Console.WriteLine("7. Back");
 			Console.WriteLine(new string('=', 82));
-			Console.Write("Please Enter a number: ");
+			Console.Write(ValidationMessages.MainMenuQuestion);
 
 			var option = Console.ReadLine();
 			if (int.TryParse(option, out var result) && result is >= 1 and <= 7) return result;
@@ -240,8 +240,10 @@ public static class BookMenu
 		{
 			var authorNames = string.Join(", ",
 				desiredBook.BookAuthors.Select(ba => $"{ba.Author.FirstName} {ba.Author.LastName}"));
-			var translatorNames = string.Join(", ",
-				desiredBook.BookTranslators.Select(bt => $"{bt.Translator.FirstName} {bt.Translator.LastName}"));
+			var translatorNames = desiredBook.BookTranslators.Count == 0
+				? "None"
+				: string.Join(", ",
+					desiredBook.BookTranslators.Select(bt => $"{bt.Translator.FirstName} {bt.Translator.LastName}"));
 
 			Console.WriteLine("\n{0, -30} [{1}]", "1. Book Name", desiredBook.BookName);
 			Console.WriteLine("{0, -30} [{1}]", "2. ISBN", desiredBook.InternationalStandardBookNumber);
@@ -253,7 +255,7 @@ public static class BookMenu
 			Console.WriteLine("{0, -30} [{1}]", "8. Publisher", desiredBook.Publisher);
 			Console.WriteLine("{0, -30} [{1}]", "9. Description", desiredBook.Description);
 			Console.WriteLine("10. Cancel");
-			var editMenuChoice = ConsoleHelper.ReadInt("Enter the number of the field you wish to edit", 1, 10);
+			var editMenuChoice = ConsoleHelper.ReadInt(ValidationMessages.EditMenuQuestion, 1, 10);
 			if (editMenuChoice is null) return;
 
 			switch (editMenuChoice)
@@ -278,16 +280,7 @@ public static class BookMenu
 				}
 				case 3:
 				{
-					var authors = authorManagementService.GetAllAuthors();
-					if (authors.Count != 0)
-					{
-						var author = MenuHelper.SelectAuthor(authors);
-						PerformUpdate(bookManagementService, desiredBook.BookId, author,
-							v => new UpdateBookDto { AuthorIds = [v.Id] });
-					}
-					else
-						ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
-
+					AuthorSubMenu(desiredBook, authorManagementService, bookManagementService);
 					break;
 				}
 				case 4:
@@ -360,7 +353,7 @@ public static class BookMenu
 				}
 			}
 
-			var choice = ConsoleHelper.ReadYesNo("Do you want to edit another field");
+			var choice = ConsoleHelper.ReadYesNo(ValidationMessages.EditContinuesQuestion);
 			if (choice != true)
 			{
 				Console.Clear();
@@ -391,6 +384,88 @@ public static class BookMenu
 		var result = bookManagementService.UpdateBook(desiredBookId, dto);
 		ConsoleHelper.ShowResult(result);
 	}
+
+
+	private static void AuthorSubMenu(Book book, AuthorManagementService authorManagementService,
+		BookManagementService bookManagementService)
+	{
+		var currentAuthorsNames =
+			string.Join(", ", book.BookAuthors.Select(ba => $"{ba.Author.FirstName} {ba.Author.LastName}"));
+		Console.WriteLine($"Current authors: {currentAuthorsNames}");
+		Console.WriteLine(ValidationMessages.SubMenusQuestion);
+		Console.WriteLine("1. Add an author");
+		Console.WriteLine("2. Remove an author");
+		Console.WriteLine("3. Replace all authors");
+		Console.WriteLine("4. Cancel");
+		var editMenuChoice = ConsoleHelper.ReadInt(ValidationMessages.EditMenuQuestion, 1, 4);
+		if (editMenuChoice is null) return;
+
+		switch (editMenuChoice)
+		{
+			case 1:
+			{
+				var allAuthors = authorManagementService.GetAllAuthors();
+				if (allAuthors.Count == 0)
+				{
+					ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
+					break;
+				}
+
+				var currentAuthorIds = book.BookAuthors.Select(ba => ba.AuthorId).ToHashSet();
+				var availableToAdd = allAuthors.Where(a => !currentAuthorIds.Contains(a.Id)).ToList().AsReadOnly();
+				if (availableToAdd.Count == 0)
+				{
+					ConsoleHelper.ShowWarning(ValidationMessages.NotEnoughAuthors);
+					break;
+				}
+
+				var selectedIds = ConsoleHelper.ReadAuthors("Select author(s) for this book", availableToAdd);
+				if (selectedIds is null) return;
+
+				// New list = existing author IDs + newly selected IDs
+				var updatedAuthorIds = currentAuthorIds.Concat(selectedIds).Distinct().ToList();
+				PerformUpdate(bookManagementService, book.BookId, updatedAuthorIds,
+					v => new UpdateBookDto { AuthorIds = v });
+				break;
+			}
+			case 2:
+			{
+				if (book.BookAuthors.Count == 1)
+				{
+					ConsoleHelper.ShowWarning(ValidationMessages.CannotRemove);
+					break;
+				}
+
+				// Use ReadAuthors with allowMultiple = false — pick exactly one to remove
+				var currentAuthors = book.BookAuthors.Select(ba => ba.Author).ToList().AsReadOnly();
+				var selectedIds = ConsoleHelper.ReadAuthors(ValidationMessages.AuthorSelection4Remove, currentAuthors,
+					false);
+				if (selectedIds is null) break;
+
+				var idToRemove = selectedIds[0];
+				var updatedAuthorIds =
+					book.BookAuthors.Select(ba => ba.AuthorId).Where(id => id != idToRemove).ToList();
+
+				PerformUpdate(bookManagementService, book.BookId, updatedAuthorIds,
+					v => new UpdateBookDto { AuthorIds = v });
+				break;
+			}
+			case 3:
+			{
+				//Call ConsoleHelper.ReadAuthors(prompt, allAuthors)
+				//Build UpdateBookDto with entirely new AuthorIds
+				break;
+			}
+			case 4:
+			{
+				ConsoleHelper.ShowError("Author edit cancelled. Returning to Edit Menu...");
+				Thread.Sleep(3000);
+				Console.Clear();
+				break;
+			}
+		}
+	}
+
 
 
 	private static void RemoveBook(BookManagementService bookManagementService)
@@ -437,7 +512,7 @@ public static class BookMenu
 			Console.WriteLine("{0, -20}", "7. Publisher");
 			Console.WriteLine("8. Cancel");
 
-			var searchMenuChoice = ConsoleHelper.ReadInt("Select a search field by entering its number", 1, 8);
+			var searchMenuChoice = ConsoleHelper.ReadInt(ValidationMessages.SearchMenuQuestion, 1, 8);
 			if (searchMenuChoice == null) return;
 
 			switch (searchMenuChoice)
@@ -461,13 +536,20 @@ public static class BookMenu
 				{
 					SearchBookAndDisplay(bookManagementService, p => ConsoleHelper.ReadString(p),
 						"Enter an author name",
-						book => $"{book.Author.FirstName} {book.Author.LastName}", ContainsComparer);
+						book => string.Join(" ",
+							book.BookAuthors.Select(bt => $"{bt.Author.FirstName} {bt.Author.LastName}")),
+						ContainsComparer);
 					break;
 				}
 				case 4:
 				{
 					SearchBookAndDisplay(bookManagementService, p => ConsoleHelper.ReadString(p),
-						"Enter a translator name", book => $"{book.Translator.FirstName} {book.Translator.LastName}",
+						"Enter a translator name",
+						book => book.BookTranslators.Count == 0
+							? null
+							: string.Join(" ",
+								book.BookTranslators.Select(bt =>
+									$"{bt.Translator.FirstName} {bt.Translator.LastName}")),
 						ContainsComparer);
 					break;
 				}
