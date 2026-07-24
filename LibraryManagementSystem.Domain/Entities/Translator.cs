@@ -22,6 +22,8 @@ public class Translator : Person
 
 	internal void RemoveBookTranslator(BookTranslator bookTranslator) { _bookTranslators.Remove(bookTranslator); }
 
+	public IReadOnlyList<BookTranslator> BookTranslators => _bookTranslators.AsReadOnly();
+
 
 	public void Update(string? firstName, string? lastName, string? nationalCode, string? email, string? phoneNumber,
 		DateOnly? birthDate)

@@ -63,6 +63,8 @@ public class Book
 
 	public void RemoveAuthor(int authorId)
 	{
+		if (_bookAuthors.Count <= 1) throw new InvalidOperationException("A book must have at least one author.");
+
 		var bookAuthor = _bookAuthors.FirstOrDefault(ba => ba.AuthorId == authorId);
 
 		if (bookAuthor is null) return;
@@ -77,15 +79,18 @@ public class Book
 		if (authors is null) throw new ArgumentNullException(nameof(authors));
 
 		var authorList = authors.DistinctBy(a => a.Id).ToList();
-
 		if (authorList.Count == 0) throw new ArgumentException("A book must have at least one author.");
 
 		foreach (var bookAuthor in _bookAuthors.ToList()) RemoveAuthor(bookAuthor.AuthorId);
-
-
 		foreach (var author in authorList) AddAuthor(author);
 	}
 
+
+	public void DetachFromAuthors()
+	{
+		foreach (var bookAuthor in _bookAuthors.ToList()) bookAuthor.Author.RemoveBookAuthor(bookAuthor);
+		_bookAuthors.Clear();
+	}
 
 
 	public void AddTranslator(Translator translator)
@@ -111,9 +116,10 @@ public class Book
 
 
 
-	public void RemoveAllTranslators()
+	public void DetachFromTranslators()
 	{
 		foreach (var bookTranslator in _bookTranslators.ToList()) RemoveTranslator(bookTranslator.TranslatorId);
+		_bookTranslators.Clear();
 	}
 
 

@@ -101,7 +101,7 @@ public class TranslatorManagementService
 			return ServiceResult<Translator>.Fail(ValidationMessages.TranslatorRemoveFailed);
 
 		// TODO	After implementing Loan class and service, before deleting translator should check that none of books isn't borrowed
-		if (translator.Books.Count != 0)
+		if (translator.BookTranslators.Count != 0)
 			return ServiceResult<Translator>.Fail("Failed to remove translator. The translator has associated books.");
 
 		_translatorRepository.Remove(translator);

@@ -1,5 +1,4 @@
-﻿
-namespace LibraryManagementSystem.Application.DTOs.Books;
+﻿namespace LibraryManagementSystem.Application.DTOs.Books;
 
 public class UpdateBookDto
 {

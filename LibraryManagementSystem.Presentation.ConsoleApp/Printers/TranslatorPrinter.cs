@@ -14,7 +14,7 @@ public class TranslatorPrinter
 		Console.WriteLine("{0, -20} [{1}]", "Email:", translator.Email);
 		Console.WriteLine("{0, -20} [{1}]", "Phone Number:", translator.PhoneNumber);
 		Console.WriteLine("{0, -20} [{1}]", "Birth Date:", translator.BirthDate);
-		Console.WriteLine("{0, -20} [{1} {2}]", "Books:", translator.Books.Count, "associated books");
+		Console.WriteLine("{0, -20} [{1} {2}]", "Books:", translator.BookTranslators.Count, "associated books");
 	}
 
 

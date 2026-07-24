@@ -42,13 +42,16 @@ public class BookManagementService
 			return ServiceResult<Book>.Fail(ValidationMessages.FailureDuplicateAuthor);
 
 		var authors = new List<Author>();
-		foreach (var authorId in dto.AuthorIds.ToList())
+		foreach (var authorId in dto.AuthorIds)
 		{
 			var author = _authorRepository.FindById(authorId);
 			if (author is null)
 				return ServiceResult<Book>.Fail(string.Format(ValidationMessages.AuthorNotFoundFormat, authorId));
 			authors.Add(author);
 		}
+
+		if (dto.TranslatorIds.Count != dto.TranslatorIds.Distinct().Count())
+			return ServiceResult<Book>.Fail(ValidationMessages.FailureDuplicateTranslator);
 
 		var translators = new List<Translator>();
 		foreach (var translatorId in dto.TranslatorIds)
@@ -69,7 +72,7 @@ public class BookManagementService
 
 	public IReadOnlyList<Book> GetAllBooks() { return _bookRepository.GetAll(); }
 
-
+	//	TODO return a DTO instead of the raw entity in FindBookById()
 	public Book? FindBookById(int id) { return _bookRepository.FindById(id); }
 
 
@@ -111,13 +114,13 @@ public class BookManagementService
 		}
 
 		List<Translator>? resolvedTranslators = null;
-		if (dto.TranslatorId is not null)
+		if (dto.TranslatorIds is not null)
 		{
-			if (dto.TranslatorId.Count != dto.TranslatorId.Distinct().Count())
+			if (dto.TranslatorIds.Count != dto.TranslatorIds.Distinct().Count())
 				return ServiceResult<Book>.Fail(ValidationMessages.FailureDuplicateTranslator);
 
 			resolvedTranslators = new List<Translator>();
-			foreach (var translatorId in dto.TranslatorId)
+			foreach (var translatorId in dto.TranslatorIds)
 			{
 				var translator = _translatorRepository.FindById(translatorId);
 				if (translator is null)
@@ -134,20 +137,10 @@ public class BookManagementService
 			return ServiceResult<Book>.Fail(ValidationMessages.TotalCopiesUpdateInvalid);
 
 		if (resolvedAuthors is not null)
-		{
-			var currentAuthorIds = book.BookAuthors.Select(ba => ba.AuthorId).ToList();
-			foreach (var authorId in currentAuthorIds) book.RemoveAuthor(authorId);
-
-			foreach (var author in resolvedAuthors) book.AddAuthor(author);
-		}
+			book.ReplaceAuthors(resolvedAuthors);
 
 		if (resolvedTranslators is not null)
-		{
-			var currentTranslatorIds = book.BookTranslators.Select(bt => bt.TranslatorId).ToList();
-			foreach (var translatorId in currentTranslatorIds) book.RemoveTranslator(translatorId);
-
-			foreach (var translator in resolvedTranslators) book.AddTranslator(translator);
-		}
+			book.ReplaceTranslators(resolvedTranslators);
 
 		_bookRepository.Update(book);
 		return ServiceResult<Book>.Ok(book, ValidationMessages.BookUpdatedSuccessfully);
@@ -163,7 +156,8 @@ public class BookManagementService
 		if (activeLoans.Count > 0 || !book.CanBeRemoved())
 			return ServiceResult<Book>.Fail(ValidationMessages.BookRemoveFailedBorrowed);
 
-		book.RemoveAllAuthors();
+		book.DetachFromAuthors();
+		book.DetachFromTranslators();
 		_bookRepository.Remove(book);
 		return ServiceResult<Book>.Ok(book, ValidationMessages.BookRemovedSuccessfully);
 	}

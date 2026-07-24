@@ -105,7 +105,7 @@ public class AuthorManagementService
 			return ServiceResult<Author>.Fail(ValidationMessages.AuthorRemoveFailed);
 
 		// TODO	After implementing Loan class and service, before deleting author should check that none of books isn't borrowed
-		if (author.Books.Count != 0)
+		if (author.BookAuthors.Count != 0)
 			return ServiceResult<Author>.Fail("Failed to remove author. The author has associated books.");
 
 		_authorRepository.Remove(author);

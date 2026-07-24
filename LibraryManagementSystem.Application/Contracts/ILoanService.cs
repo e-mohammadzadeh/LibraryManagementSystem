@@ -1,6 +1,6 @@
-﻿namespace LibraryManagementSystem.Application.Interfaces;
+﻿namespace LibraryManagementSystem.Application.Contracts;
 
-public class ILoanService
+public interface ILoanService
 {
 	
 }

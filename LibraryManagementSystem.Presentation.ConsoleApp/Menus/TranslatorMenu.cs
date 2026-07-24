@@ -146,7 +146,7 @@ public static class TranslatorMenu {
 
 
 	private static void AddTranslator(TranslatorManagementService translatorManagementService) {
-		Console.WriteLine("============================ ADDING TRANSLATOR MENU ============================");
+		Console.WriteLine(new string('=', 36) + " ADDING TRANSLATOR MENU " + new string('=', 36));
 		var translatorDto = PromptForTranslatorDto();
 		if (translatorDto is null)
 			return;
@@ -157,7 +157,7 @@ public static class TranslatorMenu {
 
 
 	private static void EditTranslator(TranslatorManagementService translatorManagementService) {
-		Console.WriteLine("============================ EDITING AUTHOR MENU ============================");
+		Console.WriteLine(new string('=', 36) + " EDITING AUTHOR MENU " + new string('=', 36));
 		var desiredTranslator = SelectExistingTranslator(translatorManagementService);
 		if (desiredTranslator is null)
 			return;
@@ -248,7 +248,7 @@ public static class TranslatorMenu {
 
 	private static void RemoveTranslator(TranslatorManagementService translatorManagementService) {
 		// TODO	Implement SOFT DELETE system with flags like `IsDeleted = true` or `IsActive = False`
-		Console.WriteLine("============================ REMOVING TRANSLATOR MENU ============================");
+		Console.WriteLine(new string('=', 36) + " REMOVING TRANSLATOR MENU " + new string('=', 36));
 		var desiredTranslator = SelectExistingTranslator(translatorManagementService);
 		if (desiredTranslator == null)
 		{
@@ -274,7 +274,7 @@ public static class TranslatorMenu {
 		while (true)
 		{
 			Console.Clear();
-			Console.WriteLine("============================ SEARCHING TRANSLATOR MENU ============================");
+			Console.WriteLine(new string('=', 36) + " SEARCHING TRANSLATOR MENU " + new string('=', 36));
 			var translatorsList = translatorManagementService.GetAllTranslators();
 			if (translatorsList.Count == 0)
 			{

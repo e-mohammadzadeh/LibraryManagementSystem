@@ -42,12 +42,12 @@ public class InMemoryLoanRepository : ILoanRepository
 
 	public IReadOnlyList<Loan> GetActiveLoansByUser(int userId)
 	{
-		return [.. _loans.Where(l => l.UserId == userId && l.ReturnDate == null)];
+		return _loans.Where(l => l.UserId == userId && l.ReturnDate == null).ToList().AsReadOnly();
 	}
 
 	public IReadOnlyList<Loan> GetActiveLoansByBook(int bookId) 
 	{
-		return [.. _loans.Where(l => l.BookId == bookId && l.ReturnDate == null)];
+		return _loans.Where(l => l.BookId == bookId && l.ReturnDate == null).ToList().AsReadOnly();
 	}
 
 

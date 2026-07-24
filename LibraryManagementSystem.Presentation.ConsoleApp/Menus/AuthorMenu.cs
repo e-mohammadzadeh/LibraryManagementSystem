@@ -143,7 +143,7 @@ public static class AuthorMenu
 
 	private static void AddAuthor(AuthorManagementService authorManagementService)
 	{
-		Console.WriteLine("============================ ADDING AUTHOR MENU ============================");
+		Console.WriteLine(new string('=', 36) + " ADDING AUTHOR MENU " + new string('=', 36));
 		var authorDto = PromptForAuthorDto();
 		if (authorDto is null) return;
 
@@ -154,7 +154,7 @@ public static class AuthorMenu
 
 	private static void EditAuthor(AuthorManagementService authorManagementService)
 	{
-		Console.WriteLine("============================ EDITING AUTHOR MENU ============================");
+		Console.WriteLine(new string('=', 36) + " EDITING AUTHOR MENU " + new string('=', 36));
 		var desiredAuthor = SelectExistingAuthor(authorManagementService);
 		if (desiredAuthor is null) return;
 
@@ -252,7 +252,7 @@ public static class AuthorMenu
 	private static void RemoveAuthor(AuthorManagementService authorManagementService)
 	{
 		// TODO	Implement SOFT DELETE system with flags like `IsDeleted = true` or `IsActive = False`
-		Console.WriteLine("============================ REMOVING AUTHOR MENU ============================");
+		Console.WriteLine(new string('=', 36) + " REMOVING AUTHOR MENU " + new string('=', 36));
 		var desiredAuthor = SelectExistingAuthor(authorManagementService);
 		if (desiredAuthor == null)
 		{
@@ -278,7 +278,7 @@ public static class AuthorMenu
 		while (true)
 		{
 			Console.Clear();
-			Console.WriteLine("============================ SEARCHING AUTHOR MENU ============================");
+			Console.WriteLine(new string('=', 36) + " SEARCHING AUTHOR MENU " + new string('=', 36));
 			var authorsList = authorManagementService.GetAllAuthors();
 			if (authorsList.Count == 0)
 			{

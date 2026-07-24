@@ -59,52 +59,52 @@ public static class DataSeeder
 		translatorRepository.Add(translator4);
 
 		// Seed books
-		var book1 = new Book("978-0-452-28423-4", "1984", author1, translator1, new DateOnly(1949, 6, 8), 5,
+		var book1 = new Book("978-0-452-28423-4", "1984", [author1], [translator1], new DateOnly(1949, 6, 8), 5,
 			Genre.ScienceFiction, "HarperCollins", "A dystopian novel.");
 
-		var book2 = new Book("9780060850524", "Brave New World", author1, translator2, new DateOnly(1932, 1, 1), 5,
+		var book2 = new Book("9780060850524", "Brave New World", [author1], [translator2], new DateOnly(1932, 1, 1), 5,
 			Genre.ScienceFiction, "Amir Kabir Publishing", "A dystopian novel.");
 
-		var book3 = new Book("9781451673319", "Fahrenheit 451", author2, translator3, new DateOnly(1953, 1, 1), 5,
+		var book3 = new Book("9781451673319", "Fahrenheit 451", [author2], [translator3], new DateOnly(1953, 1, 1), 5,
 			Genre.Horror, "Oxford University Press", "A dystopian novel.");
 
-		var book4 = new Book("978-0-7475-3269-9", "Harry Potter and the Philosopher's Stone", author2, translator4,
+		var book4 = new Book("978-0-7475-3269-9", "Harry Potter and the Philosopher's Stone", [author2], [translator4],
 			new DateOnly(1997, 6, 26), 3, Genre.Fantasy, "HarperCollins",
 			"A young wizard discovers his magical heritage.");
 
-		var book5 = new Book("978-0-452-28424-1", "Animal Farm", author1, translator1, new DateOnly(1945, 8, 17), 4,
+		var book5 = new Book("978-0-452-28424-1", "Animal Farm", [author1], [translator1], new DateOnly(1945, 8, 17), 4,
 			Genre.Historical, "Oxford University Press", "An allegorical novella.");
 
-		var book6 = new Book("9780061120084", "To Kill a Mockingbird", author4, translator2, new DateOnly(1960, 7, 11),
+		var book6 = new Book("9780061120084", "To Kill a Mockingbird", [author4], [translator2], new DateOnly(1960, 7, 11),
 			6, Genre.ScienceFiction, "Amir Kabir Publishing",
 			"A story about racism and justice in the American South.");
 
-		var book7 = new Book("9780743273565", "The Great Gatsby", author4, translator3, new DateOnly(1925, 4, 10), 4,
+		var book7 = new Book("9780743273565", "The Great Gatsby", [author4], [translator3], new DateOnly(1925, 4, 10), 4,
 			Genre.Horror, "Oxford University Press", "A tale of wealth, love, and the American Dream.");
 
-		var book8 = new Book("9780141439518", "Pride and Prejudice", author4, translator4, new DateOnly(1813, 1, 28), 5,
+		var book8 = new Book("9780141439518", "Pride and Prejudice", [author4], [translator4], new DateOnly(1813, 1, 28), 5,
 			Genre.Romance, "Macmillan Publishers", "A witty story about love and social class.");
 
-		var book9 = new Book("9780547928210", "The Hobbit", author4, translator1, new DateOnly(1937, 9, 21), 7,
+		var book9 = new Book("9780547928210", "The Hobbit", [author4], [translator1], new DateOnly(1937, 9, 21), 7,
 			Genre.Fantasy, "Amir Kabir Publishing", "A hobbit embarks on an unexpected journey.");
 
-		var book10 = new Book("9780441172719", "Dune", author4, translator2, new DateOnly(1965, 8, 1), 4,
+		var book10 = new Book("9780441172719", "Dune", [author4], [translator2], new DateOnly(1965, 8, 1), 4,
 			Genre.ScienceFiction, "HarperCollins", "Epic science fiction on a desert planet.");
 
-		var book11 = new Book("9780062315007", "The Alchemist", author4, translator3, new DateOnly(1988, 1, 1), 8,
+		var book11 = new Book("9780062315007", "The Alchemist", [author4], [translator3], new DateOnly(1988, 1, 1), 8,
 			Genre.ScienceFiction, "Macmillan Publishers", "A shepherd's journey to find his personal legend.");
 
-		var book12 = new Book("9780062316097", "Sapiens: A Brief History of Humankind", author4, translator4,
+		var book12 = new Book("9780062316097", "Sapiens: A Brief History of Humankind", [author4], [translator4],
 			new DateOnly(2011, 1, 1), 3, Genre.Historical, "Macmillan Publishers",
 			"A groundbreaking exploration of human history.");
 
-		var book13 = new Book("9780307474278", "The Da Vinci Code", author4, translator1, new DateOnly(2003, 3, 18), 5,
+		var book13 = new Book("9780307474278", "The Da Vinci Code", [author4], [translator1], new DateOnly(2003, 3, 18), 5,
 			Genre.Mystery, "Oxford University Press", "A thrilling mystery involving art and secret societies.");
 
-		var book14 = new Book("9780062420091", "Educated: A Memoir", author4, translator2, new DateOnly(2018, 2, 20), 4,
+		var book14 = new Book("9780062420091", "Educated: A Memoir", [author4], [translator2], new DateOnly(2018, 2, 20), 4,
 			Genre.Biography, "Amir Kabir Publishing", "A story of self-invention and overcoming adversity.");
 
-		var book15 = new Book("9781250301697", "The Silent Patient", author4, translator3, new DateOnly(2019, 2, 5), 6,
+		var book15 = new Book("9781250301697", "The Silent Patient", [author4], [translator3], new DateOnly(2019, 2, 5), 6,
 			Genre.Thriller, "Oxford University Press", "A woman shoots her husband and never speaks again.");
 
 		bookRepository.Add(book1);
@@ -122,23 +122,6 @@ public static class DataSeeder
 		bookRepository.Add(book13);
 		bookRepository.Add(book14);
 		bookRepository.Add(book15);
-
-
-		author1.Books.Add(book1);
-		author1.Books.Add(book2);
-		author1.Books.Add(book5);
-		author2.Books.Add(book3);
-		author2.Books.Add(book4);
-		author4.Books.Add(book6);
-		author4.Books.Add(book7);
-		author4.Books.Add(book8);
-		author4.Books.Add(book9);
-		author4.Books.Add(book10);
-		author4.Books.Add(book11);
-		author4.Books.Add(book12);
-		author4.Books.Add(book13);
-		author4.Books.Add(book14);
-		author4.Books.Add(book15);
 	}
 
 

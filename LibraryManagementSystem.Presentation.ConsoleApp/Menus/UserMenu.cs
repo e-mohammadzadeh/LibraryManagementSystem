@@ -108,7 +108,7 @@ public static class UserMenu
 
 	private static void AddUser(UserManagementService userManagementService)
 	{
-		Console.WriteLine("============================ ADDING USER MENU ============================");
+		Console.WriteLine(new string('=', 36) + " ADDING USER MENU " + new string('=', 36));
 		var userDto = PromptForUserDto(userManagementService);
 		if (userDto is null) return;
 
@@ -160,7 +160,7 @@ public static class UserMenu
 
 	private static void EditUser(UserManagementService userManagementService)
 	{
-		Console.WriteLine("============================ EDITING USER MENU ============================");
+		Console.WriteLine(new string('=', 36) + " EDITING USER MENU " + new string('=', 36));
 		var desiredUser = SelectExistingUser(userManagementService);
 		if (desiredUser == null) return;
 
@@ -281,7 +281,7 @@ public static class UserMenu
 
 	private static void RemoveUser(UserManagementService userManagementService)
 	{
-		Console.WriteLine("============================ REMOVING USER MENU ============================");
+		Console.WriteLine(new string('=', 36) + " REMOVING USER MENU " + new string('=', 36));
 		var desiredUser = SelectExistingUser(userManagementService);
 		if (desiredUser == null)
 		{
@@ -308,7 +308,7 @@ public static class UserMenu
 		while (true)
 		{
 			Console.Clear();
-			Console.WriteLine("============================ SEARCHING USER MENU ============================");
+			Console.WriteLine(new string('=', 36) + " SEARCHING USER MENU " + new string('=', 36));
 			var usersList = userManagementService.GetAllUsers();
 			if (usersList.Count == 0)
 			{
