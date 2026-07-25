@@ -143,7 +143,7 @@ public static class DataSeeder
 			new DateOnly(1985, 3, 15), [adminRole]);
 
 		var librarian1 = new User("Ali", "Librarian", "3780254902", "librarian@library.com", "09120000011",
-			new DateOnly(1990, 5, 20), [librarianRole]);
+			new DateOnly(1990, 5, 20), [librarianRole, memberRole]);
 
 		var librarian2 = new User("Reza", "Karimi", "3780254903", "reza.karimi@library.com", "09120000014",
 			new DateOnly(1988, 11, 5), [librarianRole], membershipStartDate: new DateOnly(2026, 1, 15));

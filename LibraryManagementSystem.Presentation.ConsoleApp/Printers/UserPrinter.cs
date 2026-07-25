@@ -16,7 +16,9 @@ public class UserPrinter
 		Console.WriteLine("{0, -20} [{1}]", "Phone Number:", user.PhoneNumber);
 		Console.WriteLine("{0, -20} [{1}]", "Birth Date:", user.BirthDate);
 		Console.WriteLine("{0, -20} [{1}]", "Role:", string.Join(", ", user.UserRoles.Select(ur => ur.Role.Name)));
-		//Console.WriteLine("{0, -20} [{1} {2}]", "Books:", user.Books.Count, "associated books");
+		Console.WriteLine("{0, -20} [{1}]", "Active From:", user.MembershipStartDate);
+		Console.WriteLine("{0, -20} [{1}]", "Active Until:", user.MembershipExpiryDate);
+		Console.WriteLine("{0, -20} [{1}]", "Is Active: ", user.IsActive);
 	}
 
 
@@ -28,19 +30,19 @@ public class UserPrinter
 			return;
 		}
 
-		Console.WriteLine("{0,-3} {1, -30} {2, -12} {3, -40} {4, -15} {5, -12} {6, -9}", "ID", "User Name", "National Code",
-			"Email Address", "Phone Number", "Birth Date", "Role");
+		Console.WriteLine("{0,-3} {1, -30} {2, -12} {3, -40} {4, -15} {5, -9}", "ID", "User Name", "National Code",
+			"Email Address", "Phone Number", "Role");
 
-		Console.WriteLine(new string('=', 160));
+		Console.WriteLine(new string('=', 130));
 
 		foreach (var user in users)
 		{
 			var fullName = user.FirstName + " " + user.LastName;
-			Console.WriteLine("{0,-3} {1, -30} {2, -12} {3, -40} {4, -15} {5, -12} {6, -9}", user.Id, fullName,
-				user.NationalCode, user.Email, user.PhoneNumber, user.BirthDate,
+			Console.WriteLine("{0,-3} {1, -30} {2, -12} {3, -40} {4, -15} {5, -9}", user.Id, fullName,
+				user.NationalCode, user.Email, user.PhoneNumber,
 				string.Join(", ", user.UserRoles.Select(ur => ur.Role.Name)));
 		}
 
-		Console.WriteLine(new string('=', 160));
+		Console.WriteLine(new string('=', 130));
 	}
 }

@@ -44,7 +44,7 @@ public static class BookPrinter
 
 		Console.WriteLine("{0,-3} {1, -60} {2, -50} {3, -30} {4, -30} {5, -6}", "ID", "Book Name", "Author Name",
 			"ISBN", "Translator Name", "Copies");
-		Console.WriteLine(new string('=', 170));
+		Console.WriteLine(new string('=', 190));
 
 		foreach (var book in books)
 		{
@@ -60,6 +60,6 @@ public static class BookPrinter
 				$"{book.AvailableCopies}/{book.TotalCopies}");
 		}
 
-		Console.WriteLine(new string('=', 170));
+		Console.WriteLine(new string('=', 190));
 	}
 }

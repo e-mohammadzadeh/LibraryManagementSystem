@@ -9,7 +9,8 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
 public static class UserMenu
 {
-	public static void UserMenuController(UserManagementService userManagementService, LibraryStatisticsService statisticsService)
+	public static void UserMenuController(UserManagementService userManagementService,
+		LibraryStatisticsService statisticsService)
 	{
 		var continueProgram = true;
 		while (continueProgram)
@@ -119,27 +120,8 @@ public static class UserMenu
 
 	private static CreateUserDto? PromptForUserDto(UserManagementService userManagementService)
 	{
-		var firstName = ConsoleHelper.GetValidName("Enter user's first name", ValidationConstants.MinNameLength,
-			ValidationConstants.MaxNameLength);
-
-		if (firstName == null) return null;
-
-		var lastName = ConsoleHelper.GetValidName("Enter user's last name", ValidationConstants.MinNameLength,
-			ValidationConstants.MaxNameLength);
-
-		if (lastName == null) return null;
-
-		var nationalCode = ConsoleHelper.GetValidNationalCode("Enter user's national code");
-		if (nationalCode == null) return null;
-
-		var email = ConsoleHelper.GetValidEmail("Enter user's email");
-		if (email == null) return null;
-
-		var phoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter user's phone number");
-		if (phoneNumber == null) return null;
-
-		var birthDate = ConsoleHelper.GetValidBirthDate("Enter user's birth date");
-		if (birthDate == null) return null;
+		var fields = PersonPromptHelper.PromptForPersonFields("user");
+		if (fields is null) return null;
 
 		var availableRoles = userManagementService.GetAllRoles();
 		var roleIds = ConsoleHelper.ReadRoles("Select role(s) for this user", availableRoles);
@@ -147,13 +129,8 @@ public static class UserMenu
 
 		return new CreateUserDto()
 		{
-			FirstName = firstName,
-			LastName = lastName,
-			NationalCode = nationalCode,
-			Email = email,
-			PhoneNumber = phoneNumber,
-			BirthDate = birthDate.Value,
-			RoleIds = roleIds
+			FirstName = fields.FirstName, LastName = fields.LastName, NationalCode = fields.NationalCode,
+			Email = fields.Email, PhoneNumber = fields.PhoneNumber, BirthDate = fields.BirthDate, RoleIds = roleIds
 		};
 	}
 
@@ -172,11 +149,11 @@ public static class UserMenu
 			Console.WriteLine("{0, -20} [{1}]", "4. Email", desiredUser.Email);
 			Console.WriteLine("{0, -20} [{1}]", "5. Phone Number", desiredUser.PhoneNumber);
 			Console.WriteLine("{0, -20} [{1}]", "6. Birth Date", desiredUser.BirthDate);
-			Console.WriteLine("{0, -20} [{1}]", "7. Role", string.Join(", ", desiredUser.UserRoles.Select(ur => ur.Role.Name)));
+			Console.WriteLine("{0, -20} [{1}]", "7. Role",
+				string.Join(", ", desiredUser.UserRoles.Select(ur => ur.Role.Name)));
 			Console.WriteLine("8. Cancel");
 			var editMenuChoice = ConsoleHelper.ReadInt(ValidationMessages.EditMenuQuestion, 1, 8);
-			if (editMenuChoice == null)
-				return;
+			if (editMenuChoice == null) return;
 
 			switch (editMenuChoice)
 			{
@@ -238,7 +215,7 @@ public static class UserMenu
 					var roleIds = ConsoleHelper.ReadRoles("Select role(s) for this user", availableRoles);
 					if (roleIds is null) break;
 
-					var dto = new UpdateUserDto {RoleIds = roleIds};
+					var dto = new UpdateUserDto { RoleIds = roleIds };
 					var result = userManagementService.UpdateUser(desiredUser.Id, dto);
 					ConsoleHelper.ShowResult(result);
 					break;

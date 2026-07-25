@@ -9,7 +9,8 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
 public static class AuthorMenu
 {
-	public static void AuthorMenuController(AuthorManagementService authorManagementService, LibraryStatisticsService statisticsService)
+	public static void AuthorMenuController(AuthorManagementService authorManagementService,
+		LibraryStatisticsService statisticsService)
 	{
 		var continueProgram = true;
 		while (continueProgram)
@@ -109,34 +110,15 @@ public static class AuthorMenu
 
 	public static CreateAuthorDto? PromptForAuthorDto()
 	{
-		var firstName = ConsoleHelper.GetValidName("Enter author's first name", ValidationConstants.MinNameLength,
-			ValidationConstants.MaxNameLength);
-
-		if (firstName == null) return null;
-
-		var lastName = ConsoleHelper.GetValidName("Enter author's last name", ValidationConstants.MinNameLength,
-			ValidationConstants.MaxNameLength);
-
-		if (lastName == null) return null;
-
-		var nationalCode = ConsoleHelper.GetValidNationalCode("Enter author's national code");
-		if (nationalCode == null) return null;
-
-		var email = ConsoleHelper.GetValidEmail("Enter author's email");
-		if (email == null) return null;
-
-		var phoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter author's phone number");
-		if (phoneNumber == null) return null;
-
-		var birthDate = ConsoleHelper.GetValidBirthDate("Enter author's birth date");
-		if (birthDate == null) return null;
+		var fields = PersonPromptHelper.PromptForPersonFields("author");
+		if (fields is null) return null;
 
 		var biography = ConsoleHelper.ReadString("You can add a biography (Optional)", true);
 
 		return new CreateAuthorDto
 		{
-			FirstName = firstName, LastName = lastName, NationalCode = nationalCode, Email = email,
-			PhoneNumber = phoneNumber, BirthDate = birthDate.Value, Biography = biography
+			FirstName = fields.FirstName, LastName = fields.LastName, NationalCode = fields.NationalCode,
+			Email = fields.Email, PhoneNumber = fields.PhoneNumber, BirthDate = fields.BirthDate, Biography = biography
 		};
 	}
 
