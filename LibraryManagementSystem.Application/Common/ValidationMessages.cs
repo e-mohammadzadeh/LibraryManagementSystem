@@ -63,6 +63,8 @@ public static class ValidationMessages
 	// Add
 	public const string TranslatorAddedSuccessfully = "Translator added successfully.";
 	public const string TranslatorAddFailed = "Failed to add translator.";
+	public const string AllTranslatorsAssigned = "All available translators are already assigned to this book.";
+	public const string AddTranslatorInEdit = "Select the new translator(s) for this book";
 
 	// Update
 	public const string TranslatorUpdatedSuccessfully = "Translator updated successfully.";
@@ -71,6 +73,9 @@ public static class ValidationMessages
 	// Remove
 	public const string TranslatorRemovedSuccessfully = "Translator removed successfully.";
 	public const string TranslatorRemoveFailed = "Failed to remove translator.";
+	public const string NoTranslator2Remove = "This book has no translators to remove.";
+	public const string TranslatorSelection4Remove = "Select the translator you want to remove";
+
 
 	// Search
 	public const string NotAvailableTranslator = "No translators found. Please add a new translator first.";
@@ -191,4 +196,5 @@ public static class ValidationMessages
 	public const string EditContinuesQuestion = "Do you want to edit another field";
 	public const string SearchMenuQuestion = "Select a search field by entering its number";
 	public const string SubMenusQuestion = "what do you want to do?";
+	public const string RemoveAllTranslators = "Are you sure you want to remove ALL translators from this book";
 }

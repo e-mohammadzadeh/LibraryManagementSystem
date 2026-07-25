@@ -115,9 +115,6 @@ public static class BookMenu
 		TranslatorManagementService translatorManagementService, BookManagementService bookManagementService)
 	{
 		Console.WriteLine(new string('=', 36) + " ADDING BOOK MENU " + new string('=', 36));
-		Author? author;
-		Translator? translator;
-
 
 		var isbn = ConsoleHelper.ReadISBN("Enter ISBN for the new book");
 		if (isbn is null) return;
@@ -285,16 +282,7 @@ public static class BookMenu
 				}
 				case 4:
 				{
-					var translators = translatorManagementService.GetAllTranslators();
-					if (translators.Count != 0)
-					{
-						var translator = MenuHelper.SelectTranslator(translators);
-						PerformUpdate(bookManagementService, desiredBook.BookId, translator,
-							v => new UpdateBookDto { TranslatorIds = [v.Id] });
-					}
-					else
-						ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableTranslator);
-
+					TranslatorSubMenu(desiredBook, translatorManagementService, bookManagementService);
 					break;
 				}
 				case 5:
@@ -407,7 +395,7 @@ public static class BookMenu
 				var allAuthors = authorManagementService.GetAllAuthors();
 				if (allAuthors.Count == 0)
 				{
-					ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
+					ConsoleHelper.ShowError(ValidationMessages.NotAvailableAuthor);
 					break;
 				}
 
@@ -415,7 +403,7 @@ public static class BookMenu
 				var availableToAdd = allAuthors.Where(a => !currentAuthorIds.Contains(a.Id)).ToList().AsReadOnly();
 				if (availableToAdd.Count == 0)
 				{
-					ConsoleHelper.ShowWarning(ValidationMessages.NotEnoughAuthors);
+					ConsoleHelper.ShowError(ValidationMessages.NotEnoughAuthors);
 					break;
 				}
 
@@ -452,13 +440,129 @@ public static class BookMenu
 			}
 			case 3:
 			{
-				//Call ConsoleHelper.ReadAuthors(prompt, allAuthors)
-				//Build UpdateBookDto with entirely new AuthorIds
+				var allAuthors = authorManagementService.GetAllAuthors();
+				if (allAuthors.Count == 0)
+				{
+					ConsoleHelper.ShowError(ValidationMessages.NotAvailableActionLoan);
+					break;
+				}
+
+				var selectedIds = ConsoleHelper.ReadAuthors("Select the new author(s) for this book", allAuthors);
+				if (selectedIds is null) break;
+
+				PerformUpdate(bookManagementService, book.BookId, selectedIds,
+					v => new UpdateBookDto { AuthorIds = v });
 				break;
 			}
 			case 4:
 			{
 				ConsoleHelper.ShowError("Author edit cancelled. Returning to Edit Menu...");
+				Thread.Sleep(3000);
+				Console.Clear();
+				break;
+			}
+		}
+	}
+
+
+	private static void TranslatorSubMenu(Book book, TranslatorManagementService translatorManagementService,
+		BookManagementService bookManagementService)
+	{
+		var currentTranslatorName = book.BookTranslators.Count == 0
+			? "None"
+			: string.Join(", ",
+				book.BookTranslators.Select(ba => $"{ba.Translator.FirstName} {ba.Translator.LastName}"));
+		Console.WriteLine($"Current translators: {currentTranslatorName}");
+		Console.WriteLine(ValidationMessages.SubMenusQuestion);
+		Console.WriteLine("1. Add a translator");
+		Console.WriteLine("2. Remove a translator");
+		Console.WriteLine("3. Replace all translators");
+		Console.WriteLine("4. Remove all translators");
+		Console.WriteLine("5. Cancel");
+		var editMenuChoice = ConsoleHelper.ReadInt(ValidationMessages.EditMenuQuestion, 1, 5);
+		if (editMenuChoice is null) return;
+
+		switch (editMenuChoice)
+		{
+			case 1:
+			{
+				var allTranslators = translatorManagementService.GetAllTranslators();
+				if (allTranslators.Count == 0)
+				{
+					ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableTranslator);
+					break;
+				}
+
+				var currentTranslatorIds = book.BookTranslators.Select(bt => bt.TranslatorId).ToHashSet();
+				var availableToAdd = allTranslators.Where(t => !currentTranslatorIds.Contains(t.Id)).ToList()
+					.AsReadOnly();
+				if (availableToAdd.Count == 0)
+				{
+					ConsoleHelper.ShowWarning(ValidationMessages.AllTranslatorsAssigned);
+					break;
+				}
+
+				var selectedIds = ConsoleHelper.ReadTranslators("Select translator(s) to add", availableToAdd);
+				if (selectedIds is null) break;
+				if (selectedIds.Count == 0) break;
+				var updatedTranslatorIds = currentTranslatorIds.Concat(selectedIds).Distinct().ToList();
+				PerformUpdate(bookManagementService, book.BookId, updatedTranslatorIds,
+					v => new UpdateBookDto { TranslatorIds = v });
+				break;
+			}
+			case 2:
+			{
+				if (book.BookTranslators.Count == 0)
+				{
+					ConsoleHelper.ShowWarning(ValidationMessages.NoTranslator2Remove);
+					break;
+				}
+
+				var currentTranslators = book.BookTranslators.Select(bt => bt.Translator).ToList().AsReadOnly();
+				var selectedIds = ConsoleHelper.ReadTranslators(ValidationMessages.TranslatorSelection4Remove,
+					currentTranslators, false, false);
+				if (selectedIds is null) break;
+				var idToRemove = selectedIds[0];
+				var updatedTranslatorIds = book.BookTranslators.Select(bt => bt.TranslatorId)
+					.Where(id => id != idToRemove).ToList();
+				PerformUpdate(bookManagementService, book.BookId, updatedTranslatorIds,
+					v => new UpdateBookDto { TranslatorIds = v });
+				break;
+			}
+			case 3:
+			{
+				var allTranslators = translatorManagementService.GetAllTranslators();
+				if (allTranslators.Count == 0)
+				{
+					ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableTranslator);
+					break;
+				}
+
+				var selectedIds = ConsoleHelper.ReadTranslators(ValidationMessages.AddTranslatorInEdit, allTranslators);
+				if (selectedIds is null) break;
+				PerformUpdate(bookManagementService, book.BookId, selectedIds,
+					v => new UpdateBookDto { TranslatorIds = v });
+				break;
+			}
+			case 4:
+			{
+				if (book.BookTranslators.Count == 0)
+				{
+					ConsoleHelper.ShowWarning("This book already has no translators.");
+					break;
+				}
+
+				var confirm = ConsoleHelper.ReadYesNo(ValidationMessages.RemoveAllTranslators);
+				if (confirm != true) break;
+
+				var emptyList = new List<int>();
+				PerformUpdate(bookManagementService, book.BookId, emptyList,
+					v => new UpdateBookDto { TranslatorIds = v });
+				break;
+			}
+			case 5:
+			{
+				ConsoleHelper.ShowError("Translator edit cancelled. Returning to Edit Menu...");
 				Thread.Sleep(3000);
 				Console.Clear();
 				break;
