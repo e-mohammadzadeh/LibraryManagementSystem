@@ -49,7 +49,8 @@ public static class UserMenu
 				case 5:
 				{
 					Console.Clear();
-					var desiredUser = SelectExistingUser(userManagementService);
+					var desiredUser = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
+						MenuHelper.SelectUser, ValidationMessages.NotAvailableUser);
 					if (desiredUser is not null)
 					{
 						UserPrinter.PrintDetails(desiredUser);
@@ -120,7 +121,7 @@ public static class UserMenu
 
 	private static CreateUserDto? PromptForUserDto(UserManagementService userManagementService)
 	{
-		var fields = PersonPromptHelper.PromptForPersonFields("user");
+		var fields = PersonHelper.PromptForPersonFields("user");
 		if (fields is null) return null;
 
 		var availableRoles = userManagementService.GetAllRoles();
@@ -138,7 +139,8 @@ public static class UserMenu
 	private static void EditUser(UserManagementService userManagementService)
 	{
 		Console.WriteLine(new string('=', 36) + " EDITING USER MENU " + new string('=', 36));
-		var desiredUser = SelectExistingUser(userManagementService);
+		var desiredUser = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
+			MenuHelper.SelectUser, ValidationMessages.NotAvailableUser);
 		if (desiredUser == null) return;
 
 		while (true)
@@ -236,16 +238,6 @@ public static class UserMenu
 	}
 
 
-	private static User? SelectExistingUser(UserManagementService userManagementService)
-	{
-		var user = userManagementService.GetAllUsers();
-		if (user.Count is not 0) return MenuHelper.SelectUser(user);
-
-		ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableUser);
-		return null;
-	}
-
-
 	private static void PerformUpdate<T>(UserManagementService userManagementService, int desiredMemberId, T? newValue,
 		Func<T, UpdateUserDto> buildDto)
 	{
@@ -259,24 +251,11 @@ public static class UserMenu
 	private static void RemoveUser(UserManagementService userManagementService)
 	{
 		Console.WriteLine(new string('=', 36) + " REMOVING USER MENU " + new string('=', 36));
-		var desiredUser = SelectExistingUser(userManagementService);
-		if (desiredUser == null)
-		{
-			ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-			Console.ReadKey(true);
-			return;
-		}
+		var desiredUser = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
+			MenuHelper.SelectUser, ValidationMessages.NotAvailableUser);
 
-		UserPrinter.PrintDetails(desiredUser);
-		var choice = ConsoleHelper.ReadYesNo(
-			$"Are you sure you want to remove {desiredUser.FirstName} {desiredUser.LastName}");
-
-		if (choice != true) return;
-
-		var result = userManagementService.RemoveUser(desiredUser.Id);
-		ConsoleHelper.ShowResult(result);
-		ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-		Console.ReadKey(true);
+		PersonHelper.PerformRemove(desiredUser, desiredUser?.FirstName ?? "", desiredUser?.LastName ?? "",
+			UserPrinter.PrintDetails, () => userManagementService.RemoveUser(desiredUser!.Id));
 	}
 
 
@@ -309,27 +288,32 @@ public static class UserMenu
 			{
 				case 1:
 				{
-					SearchUserAndDisplay(userManagementService, "Enter a name to search",
-						user => $"{user.FirstName} {user.LastName}");
+					PersonHelper.SearchAndDisplay("Enter a name to search",
+						term => userManagementService.SearchUser(term, user => $"{user.FirstName} {user.LastName}"),
+						UserPrinter.PrintTable, ValidationMessages.NotUserMatched);
 
 					break;
 				}
 				case 2:
 				{
-					SearchUserAndDisplay(userManagementService, "Enter a national code to search",
-						user => user.NationalCode);
+					PersonHelper.SearchAndDisplay("Enter a national code to search",
+						term => userManagementService.SearchUser(term, user => user.NationalCode),
+						UserPrinter.PrintTable, ValidationMessages.NotUserMatched);
 
 					break;
 				}
 				case 3:
 				{
-					SearchUserAndDisplay(userManagementService, "Enter an email to search", user => user.Email);
+					PersonHelper.SearchAndDisplay("Enter an email to search",
+						term => userManagementService.SearchUser(term, user => user.Email),
+						UserPrinter.PrintTable, ValidationMessages.NotUserMatched);
 					break;
 				}
 				case 4:
 				{
-					SearchUserAndDisplay(userManagementService, "Enter a phone number to search",
-						user => user.PhoneNumber);
+					PersonHelper.SearchAndDisplay("Enter a phone number to search",
+						term => userManagementService.SearchUser(term, user => user.PhoneNumber),
+						UserPrinter.PrintTable, ValidationMessages.NotUserMatched);
 
 					break;
 				}
@@ -353,17 +337,6 @@ public static class UserMenu
 	}
 
 
-	private static void SearchUserAndDisplay(UserManagementService userManagementService, string prompt,
-		Func<User, string?> selector)
-	{
-		var searchTerm = ConsoleHelper.ReadString(prompt);
-		if (searchTerm is null) return;
-
-		var result = userManagementService.SearchUser(searchTerm, selector);
-		DisplayRoleResults(result);
-	}
-
-
 	private static void SearchRoleAndDisplay(UserManagementService userManagementService, string prompt)
 	{
 		var availableRoles = userManagementService.GetAllRoles();
@@ -371,11 +344,11 @@ public static class UserMenu
 		if (roleId is null) return;
 
 		var result = userManagementService.SearchByRole(roleId);
-		DisplayRoleResults(result);
+		DisplayUserResults(result);
 	}
 
 
-	private static void DisplayRoleResults(IReadOnlyList<User> result)
+	private static void DisplayUserResults(IReadOnlyList<User> result)
 	{
 		if (result.Count == 0)
 		{

@@ -1,7 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Translator;
 using LibraryManagementSystem.Application.Services;
-using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -49,7 +48,8 @@ public static class TranslatorMenu
 				case 5:
 				{
 					Console.Clear();
-					var desiredTranslator = SelectExistingTranslator(translatorManagementService);
+					var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
+						MenuHelper.SelectTranslator, ValidationMessages.NotAvailableTranslator);
 					if (desiredTranslator is not null)
 					{
 						TranslatorPrinter.PrintDetails(desiredTranslator);
@@ -120,7 +120,7 @@ public static class TranslatorMenu
 
 	public static CreateTranslatorDto? PromptForTranslatorDto()
 	{
-		var fields = PersonPromptHelper.PromptForPersonFields("translator");
+		var fields = PersonHelper.PromptForPersonFields("translator");
 		if (fields is null) return null;
 
 		return new CreateTranslatorDto
@@ -133,8 +133,9 @@ public static class TranslatorMenu
 
 	private static void EditTranslator(TranslatorManagementService translatorManagementService)
 	{
-		Console.WriteLine(new string('=', 36) + " EDITING AUTHOR MENU " + new string('=', 36));
-		var desiredTranslator = SelectExistingTranslator(translatorManagementService);
+		Console.WriteLine(new string('=', 36) + " EDITING TRANSLATOR MENU " + new string('=', 36));
+		var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
+			MenuHelper.SelectTranslator, ValidationMessages.NotAvailableTranslator);
 		if (desiredTranslator is null) return;
 
 		while (true)
@@ -223,23 +224,12 @@ public static class TranslatorMenu
 	{
 		// TODO	Implement SOFT DELETE system with flags like `IsDeleted = true` or `IsActive = False`
 		Console.WriteLine(new string('=', 36) + " REMOVING TRANSLATOR MENU " + new string('=', 36));
-		var desiredTranslator = SelectExistingTranslator(translatorManagementService);
-		if (desiredTranslator == null)
-		{
-			ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-			Console.ReadKey(true);
-			return;
-		}
+		var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
+			MenuHelper.SelectTranslator, ValidationMessages.NotAvailableTranslator);
 
-		TranslatorPrinter.PrintDetails(desiredTranslator);
-		var choice = ConsoleHelper.ReadYesNo(
-			$"Are you sure you want to remove {desiredTranslator.FirstName} {desiredTranslator.LastName}");
-
-		if (choice != true) return;
-		var result = translatorManagementService.RemoveTranslator(desiredTranslator.Id);
-		ConsoleHelper.ShowResult(result);
-		ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-		Console.ReadKey(true);
+		PersonHelper.PerformRemove(desiredTranslator, desiredTranslator?.FirstName ?? "",
+			desiredTranslator?.LastName ?? "", TranslatorPrinter.PrintDetails,
+			() => translatorManagementService.RemoveTranslator(desiredTranslator!.Id));
 	}
 
 
@@ -271,29 +261,36 @@ public static class TranslatorMenu
 			{
 				case 1:
 				{
-					SearchTranslatorsAndDisplay(translatorManagementService, "Enter a name to search",
-						translator => $"{translator.FirstName} {translator.LastName}");
+					PersonHelper.SearchAndDisplay("Enter a name to search",
+						term => translatorManagementService.SearchTranslator(term,
+							translator => $"{translator.FirstName} {translator.LastName}"),
+						TranslatorPrinter.PrintTable, ValidationMessages.NotTranslatorMatched);
 
 					break;
 				}
 				case 2:
 				{
-					SearchTranslatorsAndDisplay(translatorManagementService, "Enter a national code to search",
-						translator => translator.NationalCode);
+					PersonHelper.SearchAndDisplay("Enter a national code to search",
+						term => translatorManagementService.SearchTranslator(term,
+							translator => translator.NationalCode), TranslatorPrinter.PrintTable,
+						ValidationMessages.NotTranslatorMatched);
 
 					break;
 				}
 				case 3:
 				{
-					SearchTranslatorsAndDisplay(translatorManagementService, "Enter an email to search",
-						translator => translator.Email);
+					PersonHelper.SearchAndDisplay("Enter an email to search",
+						term => translatorManagementService.SearchTranslator(term, translator => translator.Email),
+						TranslatorPrinter.PrintTable, ValidationMessages.NotTranslatorMatched);
 
 					break;
 				}
 				case 4:
 				{
-					SearchTranslatorsAndDisplay(translatorManagementService, "Enter a phone number to search",
-						translator => translator.PhoneNumber);
+					PersonHelper.SearchAndDisplay("Enter a phone number to search",
+						term => translatorManagementService.SearchTranslator(term,
+							translator => translator.PhoneNumber), TranslatorPrinter.PrintTable,
+						ValidationMessages.NotTranslatorMatched);
 
 					break;
 				}
@@ -323,34 +320,5 @@ public static class TranslatorMenu
 		var dto = buildDto(newValue);
 		var result = translatorManagementService.UpdateTranslator(desiredTranslatorId, dto);
 		ConsoleHelper.ShowResult(result);
-	}
-
-
-	private static void SearchTranslatorsAndDisplay(TranslatorManagementService translatorManagementService,
-		string prompt,
-		Func<Translator, string?> selector)
-	{
-		var searchItem = ConsoleHelper.ReadString(prompt);
-		if (searchItem == null) return;
-
-		var result = translatorManagementService.SearchTranslator(searchItem, selector);
-
-		if (result.Count == 0)
-		{
-			ConsoleHelper.ShowWarning(ValidationMessages.NotTranslatorMatched);
-			return;
-		}
-
-		TranslatorPrinter.PrintTable(result);
-	}
-
-
-	private static Translator? SelectExistingTranslator(TranslatorManagementService translatorManagementService)
-	{
-		var translators = translatorManagementService.GetAllTranslators();
-		if (translators.Count is not 0) return MenuHelper.SelectTranslator(translators);
-
-		ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableTranslator);
-		return null;
 	}
 }

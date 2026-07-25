@@ -1,7 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Application.Services;
-using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -49,7 +48,9 @@ public static class AuthorMenu
 				case 5:
 				{
 					Console.Clear();
-					var desiredAuthor = SelectExistingAuthor(authorManagementService);
+					var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
+						MenuHelper.SelectAuthor,
+						ValidationMessages.NotAvailableAuthor);
 					if (desiredAuthor is not null)
 					{
 						AuthorPrinter.PrintDetails(desiredAuthor);
@@ -110,7 +111,7 @@ public static class AuthorMenu
 
 	public static CreateAuthorDto? PromptForAuthorDto()
 	{
-		var fields = PersonPromptHelper.PromptForPersonFields("author");
+		var fields = PersonHelper.PromptForPersonFields("author");
 		if (fields is null) return null;
 
 		var biography = ConsoleHelper.ReadString("You can add a biography (Optional)", true);
@@ -137,7 +138,8 @@ public static class AuthorMenu
 	private static void EditAuthor(AuthorManagementService authorManagementService)
 	{
 		Console.WriteLine(new string('=', 36) + " EDITING AUTHOR MENU " + new string('=', 36));
-		var desiredAuthor = SelectExistingAuthor(authorManagementService);
+		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(), MenuHelper.SelectAuthor,
+			ValidationMessages.NotAvailableAuthor);
 		if (desiredAuthor is null) return;
 
 		while (true)
@@ -235,23 +237,11 @@ public static class AuthorMenu
 	{
 		// TODO	Implement SOFT DELETE system with flags like `IsDeleted = true` or `IsActive = False`
 		Console.WriteLine(new string('=', 36) + " REMOVING AUTHOR MENU " + new string('=', 36));
-		var desiredAuthor = SelectExistingAuthor(authorManagementService);
-		if (desiredAuthor == null)
-		{
-			ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-			Console.ReadKey(true);
-			return;
-		}
+		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(), MenuHelper.SelectAuthor,
+			ValidationMessages.NotAvailableAuthor);
 
-		AuthorPrinter.PrintDetails(desiredAuthor);
-		var choice = ConsoleHelper.ReadYesNo(
-			$"Are you sure you want to remove {desiredAuthor.FirstName} {desiredAuthor.LastName}");
-
-		if (choice != true) return;
-		var result = authorManagementService.RemoveAuthor(desiredAuthor.Id);
-		ConsoleHelper.ShowResult(result);
-		ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-		Console.ReadKey(true);
+		PersonHelper.PerformRemove(desiredAuthor, desiredAuthor?.FirstName ?? "", desiredAuthor?.LastName ?? "",
+			AuthorPrinter.PrintDetails, () => authorManagementService.RemoveAuthor(desiredAuthor!.Id));
 	}
 
 
@@ -283,30 +273,34 @@ public static class AuthorMenu
 			{
 				case 1:
 				{
-					SearchAuthorsAndDisplay(authorManagementService, "Enter a name to search",
-						author => $"{author.FirstName} {author.LastName}");
+					PersonHelper.SearchAndDisplay("Enter a name to search",
+						term => authorManagementService.SearchAuthor(term,
+							author => $"{author.FirstName} {author.LastName}"), AuthorPrinter.PrintTable,
+						ValidationMessages.NotAuthorMatched);
 
 					break;
 				}
 				case 2:
 				{
-					SearchAuthorsAndDisplay(authorManagementService, "Enter a national code to search",
-						author => author.NationalCode);
+					PersonHelper.SearchAndDisplay("Enter a national code to search",
+						term => authorManagementService.SearchAuthor(term, author => author.NationalCode),
+						AuthorPrinter.PrintTable, ValidationMessages.NotAuthorMatched);
 
 					break;
 				}
 				case 3:
 				{
-					SearchAuthorsAndDisplay(authorManagementService, "Enter an email to search",
-						author => author.Email);
+					PersonHelper.SearchAndDisplay("Enter an email to search",
+						term => authorManagementService.SearchAuthor(term, author => author.Email),
+						AuthorPrinter.PrintTable, ValidationMessages.NotAuthorMatched);
 
 					break;
 				}
 				case 4:
 				{
-					SearchAuthorsAndDisplay(authorManagementService, "Enter a phone number to search",
-						author => author.PhoneNumber);
-
+					PersonHelper.SearchAndDisplay("Enter a phone number to search",
+						term => authorManagementService.SearchAuthor(term, author => author.PhoneNumber),
+						AuthorPrinter.PrintTable, ValidationMessages.NotAuthorMatched);
 					break;
 				}
 				case 5:
@@ -324,7 +318,6 @@ public static class AuthorMenu
 	}
 
 
-
 	private static void PerformUpdate<T>(AuthorManagementService authorManagementService, int desiredAuthorId,
 		T? newValue,
 		Func<T, UpdateAuthorDto> buildDto)
@@ -334,33 +327,5 @@ public static class AuthorMenu
 		var dto = buildDto(newValue);
 		var result = authorManagementService.UpdateAuthor(desiredAuthorId, dto);
 		ConsoleHelper.ShowResult(result);
-	}
-
-
-	private static void SearchAuthorsAndDisplay(AuthorManagementService authorManagementService, string prompt,
-		Func<Author, string?> selector)
-	{
-		var searchItem = ConsoleHelper.ReadString(prompt);
-		if (searchItem == null) return;
-
-		var result = authorManagementService.SearchAuthor(searchItem, selector);
-
-		if (result.Count == 0)
-		{
-			ConsoleHelper.ShowWarning(ValidationMessages.NotAuthorMatched);
-			return;
-		}
-
-		AuthorPrinter.PrintTable(result);
-	}
-
-
-	private static Author? SelectExistingAuthor(AuthorManagementService authorManagementService)
-	{
-		var authors = authorManagementService.GetAllAuthors();
-		if (authors.Count is not 0) return MenuHelper.SelectAuthor(authors);
-
-		ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
-		return null;
 	}
 }

@@ -61,12 +61,10 @@ public static class MenuHelper
 			var desiredTranslatorId = ConsoleHelper.ReadInt("Enter the number of the translator you wish", 1,
 				translatorsList.Last().Id);
 
-			if (desiredTranslatorId is null)
-				return null;
+			if (desiredTranslatorId is null) return null;
 
 			var desiredTranslator = translatorsList.FirstOrDefault(t => t.Id == desiredTranslatorId.Value);
-			if (desiredTranslator != null)
-				return desiredTranslator;
+			if (desiredTranslator != null) return desiredTranslator;
 
 			ConsoleHelper.ShowError("Translator not found. Please try again.");
 		}
@@ -119,5 +117,14 @@ public static class MenuHelper
 
 			ConsoleHelper.ShowError("Member not found. Please try again.");
 		}
+	}
+
+
+	public static TEntity? SelectExisting<TEntity>(IReadOnlyList<TEntity> items,
+		Func<IReadOnlyList<TEntity>, TEntity?> selectFn, string emptyMessage) where TEntity : class
+	{
+		if (items.Count != 0) return selectFn(items);
+		ConsoleHelper.ShowWarning(emptyMessage);
+		return null;
 	}
 }
