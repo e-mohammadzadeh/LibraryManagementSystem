@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
+
 // ReSharper disable StringLiteralTypo
 
 namespace LibraryManagementSystem.Infrastructure.Seeders;
@@ -13,7 +14,7 @@ public static class DataSeeder
 	{
 		SeedAuthors(authorRepository, translatorRepository, bookRepository);
 		SeedUsers(userRepository, roleRepository);
-		//SeedRoles(roleRepository);
+		SeedLoans(userRepository, bookRepository, loanRepository);
 	}
 
 
@@ -59,34 +60,37 @@ public static class DataSeeder
 		translatorRepository.Add(translator4);
 
 		// Seed books
-		var book1 = new Book("978-0-452-28423-4", "1984", [author1], [translator1], new DateOnly(1949, 6, 8), 5,
+		var book1 = new Book("978-0-452-28423-4", "1984", [author1],
+			[translator1, translator2, translator3, translator4], new DateOnly(1949, 6, 8), 5,
 			Genre.ScienceFiction, "HarperCollins", "A dystopian novel.");
 
-		var book2 = new Book("9780060850524", "Brave New World", [author1], [translator2], new DateOnly(1932, 1, 1), 5,
-			Genre.ScienceFiction, "Amir Kabir Publishing", "A dystopian novel.");
+		var book2 = new Book("9780060850524", "Brave New World", [author1, author2], [translator2],
+			new DateOnly(1932, 1, 1), 5, Genre.ScienceFiction, "Amir Kabir Publishing", "A dystopian novel.");
 
-		var book3 = new Book("9781451673319", "Fahrenheit 451", [author2], [translator3], new DateOnly(1953, 1, 1), 5,
-			Genre.Horror, "Oxford University Press", "A dystopian novel.");
+		var book3 = new Book("9781451673319", "Fahrenheit 451", [author2, author3, author4], [translator3, translator2],
+			new DateOnly(1953, 1, 1), 5, Genre.Horror, "Oxford University Press", "A dystopian novel.");
 
 		var book4 = new Book("978-0-7475-3269-9", "Harry Potter and the Philosopher's Stone", [author2], [translator4],
 			new DateOnly(1997, 6, 26), 3, Genre.Fantasy, "HarperCollins",
 			"A young wizard discovers his magical heritage.");
 
-		var book5 = new Book("978-0-452-28424-1", "Animal Farm", [author1], [translator1], new DateOnly(1945, 8, 17), 4,
-			Genre.Historical, "Oxford University Press", "An allegorical novella.");
+		var book5 = new Book("978-0-452-28424-1", "Animal Farm", [author1, author2, author3, author4], [translator1],
+			new DateOnly(1945, 8, 17), 4, Genre.Historical, "Oxford University Press", "An allegorical novella.");
 
-		var book6 = new Book("9780061120084", "To Kill a Mockingbird", [author4], [translator2], new DateOnly(1960, 7, 11),
-			6, Genre.ScienceFiction, "Amir Kabir Publishing",
-			"A story about racism and justice in the American South.");
+		var book6 = new Book("9780061120084", "To Kill a Mockingbird", [author4, author1],
+			[translator2, translator3, translator4], new DateOnly(1960, 7, 11), 6, Genre.ScienceFiction,
+			"Amir Kabir Publishing", "A story about racism and justice in the American South.");
 
-		var book7 = new Book("9780743273565", "The Great Gatsby", [author4], [translator3], new DateOnly(1925, 4, 10), 4,
-			Genre.Horror, "Oxford University Press", "A tale of wealth, love, and the American Dream.");
+		var book7 = new Book("9780743273565", "The Great Gatsby", [author4], [translator3], new DateOnly(1925, 4, 10),
+			4, Genre.Horror, "Oxford University Press", "A tale of wealth, love, and the American Dream.");
 
-		var book8 = new Book("9780141439518", "Pride and Prejudice", [author4], [translator4], new DateOnly(1813, 1, 28), 5,
-			Genre.Romance, "Macmillan Publishers", "A witty story about love and social class.");
+		var book8 = new Book("9780141439518", "Pride and Prejudice", [author4], [translator4],
+			new DateOnly(1813, 1, 28), 5, Genre.Romance, "Macmillan Publishers",
+			"A witty story about love and social class.");
 
-		var book9 = new Book("9780547928210", "The Hobbit", [author4], [translator1], new DateOnly(1937, 9, 21), 7,
-			Genre.Fantasy, "Amir Kabir Publishing", "A hobbit embarks on an unexpected journey.");
+		var book9 = new Book("9780547928210", "The Hobbit", [author4, author3], [translator1, translator2],
+			new DateOnly(1937, 9, 21), 7, Genre.Fantasy, "Amir Kabir Publishing",
+			"A hobbit embarks on an unexpected journey.");
 
 		var book10 = new Book("9780441172719", "Dune", [author4], [translator2], new DateOnly(1965, 8, 1), 4,
 			Genre.ScienceFiction, "HarperCollins", "Epic science fiction on a desert planet.");
@@ -98,14 +102,16 @@ public static class DataSeeder
 			new DateOnly(2011, 1, 1), 3, Genre.Historical, "Macmillan Publishers",
 			"A groundbreaking exploration of human history.");
 
-		var book13 = new Book("9780307474278", "The Da Vinci Code", [author4], [translator1], new DateOnly(2003, 3, 18), 5,
-			Genre.Mystery, "Oxford University Press", "A thrilling mystery involving art and secret societies.");
+		var book13 = new Book("9780307474278", "The Da Vinci Code", [author1, author2, author3, author4],
+			[translator1, translator2, translator3, translator4], new DateOnly(2003, 3, 18),
+			5, Genre.Mystery, "Oxford University Press", "A thrilling mystery involving art and secret societies.");
 
-		var book14 = new Book("9780062420091", "Educated: A Memoir", [author4], [translator2], new DateOnly(2018, 2, 20), 4,
+		var book14 = new Book("9780062420091", "Educated: A Memoir", [author4], [translator2],
+			new DateOnly(2018, 2, 20), 4,
 			Genre.Biography, "Amir Kabir Publishing", "A story of self-invention and overcoming adversity.");
 
-		var book15 = new Book("9781250301697", "The Silent Patient", [author4], [translator3], new DateOnly(2019, 2, 5), 6,
-			Genre.Thriller, "Oxford University Press", "A woman shoots her husband and never speaks again.");
+		var book15 = new Book("9781250301697", "The Silent Patient", [author4], [translator3], new DateOnly(2019, 2, 5),
+			6, Genre.Thriller, "Oxford University Press", "A woman shoots her husband and never speaks again.");
 
 		bookRepository.Add(book1);
 		bookRepository.Add(book2);
@@ -136,11 +142,11 @@ public static class DataSeeder
 		var admin = new User("Sara", "Admin", "3780254901", "admin@library.com", "09120000010",
 			new DateOnly(1985, 3, 15), [adminRole]);
 
-		var librarian = new User("Ali", "Librarian", "3780254902", "librarian@library.com", "09120000011",
+		var librarian1 = new User("Ali", "Librarian", "3780254902", "librarian@library.com", "09120000011",
 			new DateOnly(1990, 5, 20), [librarianRole]);
 
 		var librarian2 = new User("Reza", "Karimi", "3780254903", "reza.karimi@library.com", "09120000014",
-			new DateOnly(1988, 11, 5), [librarianRole]);
+			new DateOnly(1988, 11, 5), [librarianRole], membershipStartDate: new DateOnly(2026, 1, 15));
 
 		var librarian3 = new User("Zahra", "Rahimi", "3780254904", "zahra.rahimi@library.com", "09120000015",
 			new DateOnly(1992, 4, 18), [librarianRole]);
@@ -149,40 +155,40 @@ public static class DataSeeder
 			new DateOnly(1998, 1, 10), [memberRole]);
 
 		var member2 = new User("Fateme", "Hosseini", "3780254906", "f.hosseini@example.com", "09120000013",
-			new DateOnly(2000, 7, 25), [memberRole]);
+			new DateOnly(2000, 7, 25), [memberRole], membershipStartDate: new DateOnly(2026, 9, 1));
 
 		var member3 = new User("Hossein", "Moradi", "3780254907", "h.moradi@example.com", "09120000016",
 			new DateOnly(1995, 9, 12), [memberRole]);
 
 		var member4 = new User("Narges", "Salehi", "3780254908", "n.salehi@example.com", "09120000017",
-			new DateOnly(2001, 2, 28), [memberRole]);
+			new DateOnly(2001, 2, 28), [memberRole], membershipStartDate: new DateOnly(2025, 10, 1));
 
 		var member5 = new User("Ali", "Rezaei", "3780254909", "a.rezaei@example.com", "09120000018",
 			new DateOnly(1997, 6, 15), [memberRole]);
 
 		var member6 = new User("Maryam", "Khalili", "3780254910", "maryam.khalili@example.com", "09120000019",
-			new DateOnly(1999, 10, 3), [memberRole]);
+			new DateOnly(1999, 10, 3), [memberRole], membershipStartDate: new DateOnly(2025, 9, 10));
 
 		var member7 = new User("Seyed", "Mousavi", "3780254911", "s.mousavi@example.com", "09120000020",
 			new DateOnly(1987, 12, 22), [memberRole]);
 
 		var member8 = new User("Leila", "Pourahmadi", "3780254912", "leila.pourahmadi@example.com", "09120000021",
-			new DateOnly(2002, 5, 7), [memberRole]);
+			new DateOnly(2002, 5, 7), [memberRole], membershipStartDate: new DateOnly(2026, 10, 1));
 
 		var member9 = new User("Mehdi", "Hashemi", "3780254913", "mehdi.hashemi@example.com", "09120000022",
 			new DateOnly(1996, 8, 19), [memberRole]);
 
 		var member10 = new User("Sara", "Nikoo", "3780254914", "s.nikoo@example.com", "09120000023",
-			new DateOnly(2003, 3, 30), [memberRole]);
+			new DateOnly(2003, 3, 30), [memberRole], membershipStartDate: new DateOnly(2025, 12, 1));
 
 		var member11 = new User("Amir", "Jafari", "3780254915", "amir.jafari@example.com", "09120000024",
 			new DateOnly(1994, 7, 14), [memberRole]);
 
 		var member12 = new User("Fatemeh", "Ebrahimi", "3780254916", "f.ebrahimi@example.com", "09120000025",
-			new DateOnly(1991, 11, 9), [memberRole]);
+			new DateOnly(1991, 11, 9), [memberRole], membershipStartDate: new DateOnly(2026, 1, 1));
 
 		userRepository.Add(admin);
-		userRepository.Add(librarian);
+		userRepository.Add(librarian1);
 		userRepository.Add(librarian2);
 		userRepository.Add(librarian3);
 		userRepository.Add(member1);
@@ -197,5 +203,47 @@ public static class DataSeeder
 		userRepository.Add(member10);
 		userRepository.Add(member11);
 		userRepository.Add(member12);
+	}
+
+	private static void SeedLoans(IUserRepository userRepository, IBookRepository bookRepository, ILoanRepository loanRepository)
+	{
+		var users = userRepository.GetAll();
+		var books = bookRepository.GetAll();
+
+		CreateActiveLoan(GetUser(4), GetBook(0), loanRepository);
+		CreateActiveLoan(GetUser(5), GetBook(1), loanRepository);
+		CreateActiveLoan(GetUser(5), GetBook(5), loanRepository);
+		CreateActiveLoan(GetUser(6), GetBook(2), loanRepository);
+		CreateActiveLoan(GetUser(6), GetBook(8), loanRepository);
+		CreateActiveLoan(GetUser(6), GetBook(10), loanRepository);
+		CreateActiveLoan(GetUser(8), GetBook(3), loanRepository);
+		CreateActiveLoan(GetUser(7), GetBook(4), loanRepository);
+
+		CreateReturnedLoan(GetUser(7), GetBook(6), loanRepository);
+		CreateReturnedLoan(GetUser(7), GetBook(9), loanRepository);
+		CreateReturnedLoan(GetUser(9), GetBook(7), loanRepository);
+		CreateReturnedLoan(GetUser(9), GetBook(11), loanRepository);
+		CreateReturnedLoan(GetUser(1), GetBook(12), loanRepository);
+		return;
+
+
+		// Helper to get user / book by index (safer than hard-coded IDs)
+		User GetUser(int index) => users[index];
+		Book GetBook(int index) => books[index];
+	}
+
+	private static void CreateActiveLoan(User user, Book book, ILoanRepository loanRepository) {
+		if (book.AvailableCopies <= 0)
+			return;
+
+		var loan = new Loan(book, user);
+		book.BorrowCopy();
+		loanRepository.Add(loan);
+	}
+
+	private static void CreateReturnedLoan(User user, Book book, ILoanRepository loanRepository) {
+		var loan = new Loan(book, user);
+		loan.MarkAsReturned();
+		loanRepository.Add(loan);
 	}
 }

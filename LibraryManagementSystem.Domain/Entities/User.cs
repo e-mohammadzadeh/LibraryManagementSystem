@@ -13,21 +13,21 @@ public class User : Person
 
 
 	public User(string firstName, string lastName, string nationalCode, string email, string phoneNumber,
-		DateOnly birthDate, IEnumerable<Role> roles) : base(firstName, lastName, nationalCode, email, phoneNumber,
+		DateOnly birthDate, IEnumerable<Role> roles, DateOnly? membershipStartDate = null) : base(firstName, lastName, nationalCode, email, phoneNumber,
 		birthDate)
 	{
 		Id = ++_nextUserId;
 		IsActive = true;
-		MembershipStartDate = DateOnly.FromDateTime(DateTime.Today);
-		MembershipExpiryDate =
-			MembershipStartDate.AddYears(1); // Should set a suitable end date based on business logic
+		MembershipStartDate = membershipStartDate ?? DateOnly.FromDateTime(DateTime.Today);
+		// Should set a suitable end date based on business logic
+		MembershipExpiryDate = MembershipStartDate.AddYears(1);
 
 		if (roles == null || !roles.Any())
 		{
 			throw new ArgumentException("A user must have at least one role.");
 		}
 
-		var rolesList = roles?.ToList() ?? new List<Role>();
+		var rolesList = roles.ToList();
 		if (rolesList.Count == 0)
 			throw new ArgumentException("A user must have at least one role.");
 		foreach (var role in rolesList)
@@ -50,9 +50,7 @@ public class User : Person
 	public void AssignRole(Role role)
 	{
 		if (role is null)
-		{
 			throw new ArgumentNullException(nameof(role));
-		}
 
 		// Prevent duplicate roles
 		if (_userRoles.Any(ur => ur.Role.Id == role.Id))
@@ -83,9 +81,7 @@ public class User : Person
 	public void ReplaceRoles(IEnumerable<Role> newRoles)
 	{
 		if (newRoles is null)
-		{
 			throw new ArgumentNullException(nameof(newRoles));
-		}
 
 		var roles = newRoles.DistinctBy(r => r.Id).ToList();
 
