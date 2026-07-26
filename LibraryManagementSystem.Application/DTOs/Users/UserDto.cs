@@ -1,4 +1,6 @@
-﻿namespace LibraryManagementSystem.Application.DTOs.Users;
+﻿using LibraryManagementSystem.Domain.Enums;
+
+namespace LibraryManagementSystem.Application.DTOs.Users;
 
 public class UserDto
 {
@@ -10,7 +12,7 @@ public class UserDto
 	public string Email { get; init; } = null!;
 	public string PhoneNumber { get; init; } = null!;
 	public DateOnly BirthDate { get; init; }
-	public string Roles { get; init; } = null!;
+	public IReadOnlyList<LibraryUserRole> Roles { get; init; } = [];
 	public DateOnly MembershipStartDate { get; init; }
 	public DateOnly MembershipExpiryDate { get; init; }
 	public bool IsActive { get; init; }

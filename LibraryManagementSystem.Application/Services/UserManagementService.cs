@@ -175,7 +175,7 @@ public class UserManagementService
 			Email = user.Email,
 			PhoneNumber = user.PhoneNumber,
 			BirthDate = user.BirthDate,
-			Roles = user.,
+			Roles = user.UserRoles.Select(ur => ur.Role.Name).ToList().AsReadOnly(),
 			MembershipStartDate = user.MembershipStartDate,
 			MembershipExpiryDate = user.MembershipExpiryDate,
 			IsActive = user.IsActive,

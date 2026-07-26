@@ -1,12 +1,12 @@
 ﻿using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Application.DTOs.Loans;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
 public static class LoanPrinter
 {
-	public static void PrintTable(IReadOnlyList<Loan> loans)
+	public static void PrintTable(IReadOnlyList<LoanDto> loans)
 	{
 		if (loans.Count == 0)
 		{

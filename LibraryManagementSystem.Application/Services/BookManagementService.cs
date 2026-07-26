@@ -1,5 +1,7 @@
 ﻿using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Application.DTOs.Books;
+using LibraryManagementSystem.Application.DTOs.Translator;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
@@ -210,9 +212,8 @@ public class BookManagementService
 			BookId = book.BookId,
 			BookName = book.BookName,
 			ISBN = book.InternationalStandardBookNumber,
-			Authors = string.Join(", ", book.BookAuthors.Select(ba => $"{ba.Author.FirstName} {ba.Author.LastName}")),
-			Translators = string.Join(", ",
-				book.BookTranslators.Select(bt => $"{bt.Translator.FirstName} {bt.Translator.LastName}")),
+			Authors = book.BookAuthors.Select(ba => MapAuthorToDto(ba.Author)).ToList().AsReadOnly(),
+			Translators = book.BookTranslators.Select(bt => MapTranslatorToDto(bt.Translator)).ToList().AsReadOnly(),
 			PublishDate = book.PublishDate,
 			Genre = book.Genre.ToString(),
 			Publisher = book.Publisher,
@@ -221,6 +222,40 @@ public class BookManagementService
 			Description = book.Description,
 			CreatedAt = book.CreatedAt,
 			UpdatedAt = book.UpdatedAt
+		};
+	}
+
+
+	private static AuthorDto MapAuthorToDto(Author author)
+	{
+		return new AuthorDto
+		{
+			Id = author.Id,
+			FirstName = author.FirstName,
+			LastName = author.LastName,
+			NationalCode = author.NationalCode,
+			Email = author.Email,
+			PhoneNumber = author.PhoneNumber,
+			BirthDate = author.BirthDate,
+			Biography = author.Biography,
+			BookCount = author.BookAuthors.Count,
+			CreatedAt = author.CreatedAt,
+			UpdatedAt = author.UpdatedAt
+		};
+	}
+
+
+	private static TranslatorDto MapTranslatorToDto(Translator translator)
+	{
+		return new TranslatorDto
+		{
+			Id = translator.Id,
+			FirstName = translator.FirstName,
+			LastName = translator.LastName,
+			NationalCode = translator.NationalCode,
+			Email = translator.Email,
+			PhoneNumber = translator.PhoneNumber,
+			BirthDate = translator.BirthDate,
 		};
 	}
 }
