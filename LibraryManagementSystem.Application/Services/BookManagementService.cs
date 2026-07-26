@@ -76,7 +76,6 @@ public class BookManagementService
 	}
 
 
-//	TODO return a DTO instead of the raw entity in FindBookById()
 	public BookDto? FindBookById(int id)
 	{
 		var book = _bookRepository.FindById(id);
@@ -219,7 +218,9 @@ public class BookManagementService
 			Publisher = book.Publisher,
 			TotalCopies = book.TotalCopies,
 			AvailableCopies = book.AvailableCopies,
-			Description = book.Description
+			Description = book.Description,
+			CreatedAt = book.CreatedAt,
+			UpdatedAt = book.UpdatedAt
 		};
 	}
 }

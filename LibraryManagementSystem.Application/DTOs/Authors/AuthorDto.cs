@@ -11,7 +11,7 @@ public class AuthorDto
 	public string PhoneNumber { get; init; } = null!;
 	public DateOnly BirthDate { get; init; }
 	public string? Biography { get; init; }
-	public int BookCound { get; init; }
+	public int BookCount { get; init; }
 	public DateTime CreatedAt { get; init; }
 	public DateTime? UpdatedAt { get; init; }
 }

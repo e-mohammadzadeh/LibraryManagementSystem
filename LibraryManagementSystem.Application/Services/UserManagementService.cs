@@ -19,15 +19,15 @@ public class UserManagementService
 	}
 
 
-	public ServiceResult<User> AddUser(CreateUserDto dto)
+	public ServiceResult<UserDto> AddUser(CreateUserDto dto)
 	{
 		string? warningMessage = null;
 
 		if (_userRepository.ExistsByNationalCode(dto.NationalCode))
-			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateUserByNationalCode);
+			return ServiceResult<UserDto>.Fail(ValidationMessages.FailureDuplicateUserByNationalCode);
 
 		if (_userRepository.ExistsByEmail(dto.Email))
-			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateUserByEmail);
+			return ServiceResult<UserDto>.Fail(ValidationMessages.FailureDuplicateUserByEmail);
 
 		var existingSameName = _userRepository.FindByName(dto.FirstName, dto.LastName);
 
@@ -35,12 +35,12 @@ public class UserManagementService
 			warningMessage = $"A user with the same name already exists (ID: {existingSameName.Id}). ";
 
 		if (dto.RoleIds.Count != dto.RoleIds.Distinct().Count())
-			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateRolesSelected);
+			return ServiceResult<UserDto>.Fail(ValidationMessages.FailureDuplicateRolesSelected);
 
 		var roles = _roleRepository.FindByIds(dto.RoleIds);
 		if (roles.Count != dto.RoleIds.Count)
 		{
-			return ServiceResult<User>.Fail("One or more selected roles do not exist.");
+			return ServiceResult<UserDto>.Fail("One or more selected roles do not exist.");
 		}
 
 		var newUser = new User(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
@@ -48,14 +48,14 @@ public class UserManagementService
 
 		_userRepository.Add(newUser);
 		return warningMessage is not null
-			? ServiceResult<User>.Warning(newUser, warningMessage)
-			: ServiceResult<User>.Ok(newUser, ValidationMessages.UserAddedSuccessfully);
+			? ServiceResult<UserDto>.Warning(MapToDto(newUser), warningMessage)
+			: ServiceResult<UserDto>.Ok(MapToDto(newUser), ValidationMessages.UserAddedSuccessfully);
 	}
 
 
-	public IReadOnlyList<User> GetAllUsers()
+	public IReadOnlyList<UserDto> GetAllUsers()
 	{
-		return _userRepository.GetAll();
+		return _userRepository.GetAll().Select(MapToDto).ToList().AsReadOnly();
 	}
 
 
@@ -65,35 +65,35 @@ public class UserManagementService
 	}
 
 
-	public ServiceResult<User> UpdateUser(int userId, UpdateUserDto dto)
+	public ServiceResult<UserDto> UpdateUser(int userId, UpdateUserDto dto)
 	{
-		var user = FindUserById(userId);
+		var user = _userRepository.FindById(userId);
 		if (user is null)
-			return ServiceResult<User>.Fail(ValidationMessages.UserUpdateFailed);
+			return ServiceResult<UserDto>.Fail(ValidationMessages.UserUpdateFailed);
 
 		if (IsNoOpUpdateUser(user, dto))
-			return ServiceResult<User>.Fail(ValidationMessages.NoChangesDetected);
+			return ServiceResult<UserDto>.Fail(ValidationMessages.NoChangesDetected);
 
 		var resolvedFirstName = dto.FirstName ?? user.FirstName;
 		var resolvedLastName = dto.LastName ?? user.LastName;
 		if (dto.FirstName is not null || dto.LastName is not null)
 		{
 			if (_userRepository.ExistsByName(resolvedFirstName, resolvedLastName, userId))
-				return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateUserByName);
+				return ServiceResult<UserDto>.Fail(ValidationMessages.FailureDuplicateUserByName);
 		}
 
 		if (dto.NationalCode is not null && _userRepository.ExistsByNationalCode(dto.NationalCode, userId))
-			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateUserByNationalCode);
+			return ServiceResult<UserDto>.Fail(ValidationMessages.FailureDuplicateUserByNationalCode);
 
 		if (dto.Email is not null && _userRepository.ExistsByEmail(dto.Email, userId))
-			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateUserByEmail);
+			return ServiceResult<UserDto>.Fail(ValidationMessages.FailureDuplicateUserByEmail);
 
 		if (dto.PhoneNumber is not null && _userRepository.ExistsByPhoneNumber(dto.PhoneNumber, userId))
-			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateUserByPhoneNumber);
+			return ServiceResult<UserDto>.Fail(ValidationMessages.FailureDuplicateUserByPhoneNumber);
 
 		if (dto.RoleIds.Count != dto.RoleIds.Distinct().Count())
 		{
-			return ServiceResult<User>.Fail(ValidationMessages.FailureDuplicateRolesSelected);
+			return ServiceResult<UserDto>.Fail(ValidationMessages.FailureDuplicateRolesSelected);
 		}
 
 		List<Role>? resolvedRoles = null;
@@ -102,7 +102,7 @@ public class UserManagementService
 			resolvedRoles = [.. _roleRepository.FindByIds(dto.RoleIds)];
 			if (resolvedRoles.Count != dto.RoleIds.Count)
 			{
-				return ServiceResult<User>.Fail("One or more selected roles do not exist.");
+				return ServiceResult<UserDto>.Fail("One or more selected roles do not exist.");
 			}
 		}
 
@@ -110,13 +110,14 @@ public class UserManagementService
 		user.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
 			resolvedRoles);
 
-		return ServiceResult<User>.Ok(user, ValidationMessages.UserUpdatedSuccessfully);
+		return ServiceResult<UserDto>.Ok(MapToDto(user), ValidationMessages.UserUpdatedSuccessfully);
 	}
 
 
-	public User? FindUserById(int id)
+	public UserDto? FindUserById(int id)
 	{
-		return _userRepository.FindById(id);
+		var user = _userRepository.FindById(id);
+		return user is null ? null : MapToDto(user);
 	}
 
 
@@ -134,24 +135,24 @@ public class UserManagementService
 	}
 
 
-	public ServiceResult<User> RemoveUser(int userId)
+	public ServiceResult<UserDto> RemoveUser(int userId)
 	{
-		var user = FindUserById(userId);
+		var user = _userRepository.FindById(userId);
 		if (user is null)
-			return ServiceResult<User>.Fail(ValidationMessages.UserRemoveFailed);
+			return ServiceResult<UserDto>.Fail(ValidationMessages.UserRemoveFailed);
 
 		// TODO	After implementing Loan class and service, before deleting member should check that none of books isn't borrowed
 		//if (member.Books.Count != 0)
 		//	return ServiceResult<Member>.Fail("Failed to remove author. The author has associated books.");
 
 		_userRepository.Remove(user);
-		return ServiceResult<User>.Ok(user, ValidationMessages.UserRemovedSuccessfully);
+		return ServiceResult<UserDto>.Ok(MapToDto(user), ValidationMessages.UserRemovedSuccessfully);
 	}
 
 
-	public IReadOnlyList<User> SearchUser(string searchTerm, Func<User, string?> selector)
+	public IReadOnlyList<UserDto> SearchUser(string searchTerm, Func<User, string?> selector)
 	{
-		return _userRepository.Search(searchTerm, selector);
+		return _userRepository.Search(searchTerm, selector).Select(MapToDto).ToList().AsReadOnly();
 	}
 
 
@@ -161,4 +162,25 @@ public class UserManagementService
 	}
 
 	// DeactivateMember  FindUserById
+
+
+	private static UserDto MapToDto(User user)
+	{
+		return new UserDto
+		{
+			Id = user.Id,
+			FirstName = user.FirstName,
+			LastName = user.LastName,
+			NationalCode = user.NationalCode,
+			Email = user.Email,
+			PhoneNumber = user.PhoneNumber,
+			BirthDate = user.BirthDate,
+			Roles = user.,
+			MembershipStartDate = user.MembershipStartDate,
+			MembershipExpiryDate = user.MembershipExpiryDate,
+			IsActive = user.IsActive,
+			CreatedAt = user.CreatedAt,
+			UpdatedAt = user.UpdatedAt
+		};
+	}
 }

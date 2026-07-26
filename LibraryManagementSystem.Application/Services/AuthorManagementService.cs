@@ -16,15 +16,15 @@ public class AuthorManagementService
 	}
 
 
-	public ServiceResult<Author> AddAuthor(CreateAuthorDto dto)
+	public ServiceResult<AuthorDto> AddAuthor(CreateAuthorDto dto)
 	{
 		string? warningMessage = null;
 
 		if (_authorRepository.ExistsByNationalCode(dto.NationalCode))
-			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByNationalCode);
+			return ServiceResult<AuthorDto>.Fail(ValidationMessages.FailureDuplicateAuthorByNationalCode);
 
 		if (_authorRepository.ExistsByEmail(dto.Email))
-			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByEmail);
+			return ServiceResult<AuthorDto>.Fail(ValidationMessages.FailureDuplicateAuthorByEmail);
 
 		var existingSameName = _authorRepository.FindByName(dto.FirstName, dto.LastName);
 
@@ -36,53 +36,54 @@ public class AuthorManagementService
 
 		_authorRepository.Add(newAuthor);
 		return warningMessage is not null
-			? ServiceResult<Author>.Warning(newAuthor, warningMessage)
-			: ServiceResult<Author>.Ok(newAuthor, ValidationMessages.AuthorAddedSuccessfully);
+			? ServiceResult<AuthorDto>.Warning(MapToDto(newAuthor), warningMessage)
+			: ServiceResult<AuthorDto>.Ok(MapToDto(newAuthor), ValidationMessages.AuthorAddedSuccessfully);
 	}
 
 
-	public IReadOnlyList<Author> GetAllAuthors()
+	public IReadOnlyList<AuthorDto> GetAllAuthors()
 	{
-		return _authorRepository.GetAll();
+		return _authorRepository.GetAll().Select(MapToDto).ToList().AsReadOnly();
 	}
 
 
-	public Author? FindAuthorById(int id)
+	public AuthorDto? FindAuthorById(int id)
 	{
-		return _authorRepository.FindById(id);
+		var author = _authorRepository.FindById(id);
+		return author is null ? null : MapToDto(author);
 	}
 
 
-	public ServiceResult<Author> UpdateAuthor(int authorId, UpdateAuthorDto dto)
+	public ServiceResult<AuthorDto> UpdateAuthor(int authorId, UpdateAuthorDto dto)
 	{
-		var author = FindAuthorById(authorId);
+		var author = _authorRepository.FindById(authorId);
 		if (author is null)
-			return ServiceResult<Author>.Fail(ValidationMessages.AuthorUpdateFailed);
+			return ServiceResult<AuthorDto>.Fail(ValidationMessages.AuthorUpdateFailed);
 
 		if (IsNoOpUpdateAuthor(author, dto))
-			return ServiceResult<Author>.Fail(ValidationMessages.NoChangesDetected);
+			return ServiceResult<AuthorDto>.Fail(ValidationMessages.NoChangesDetected);
 
 		var resolvedFirstName = dto.FirstName ?? author.FirstName;
 		var resolvedLastName = dto.LastName ?? author.LastName;
 		if (dto.FirstName is not null || dto.LastName is not null)
 		{
 			if (_authorRepository.ExistsByName(resolvedFirstName, resolvedLastName, authorId))
-				return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByName);
+				return ServiceResult<AuthorDto>.Fail(ValidationMessages.FailureDuplicateAuthorByName);
 		}
 
 		if (dto.NationalCode is not null && _authorRepository.ExistsByNationalCode(dto.NationalCode, authorId))
-			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByNationalCode);
+			return ServiceResult<AuthorDto>.Fail(ValidationMessages.FailureDuplicateAuthorByNationalCode);
 
 		if (dto.Email is not null && _authorRepository.ExistsByEmail(dto.Email, authorId))
-			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByEmail);
+			return ServiceResult<AuthorDto>.Fail(ValidationMessages.FailureDuplicateAuthorByEmail);
 
 		if (dto.PhoneNumber is not null && _authorRepository.ExistsByPhoneNumber(dto.PhoneNumber, authorId))
-			return ServiceResult<Author>.Fail(ValidationMessages.FailureDuplicateAuthorByPhoneNumber);
+			return ServiceResult<AuthorDto>.Fail(ValidationMessages.FailureDuplicateAuthorByPhoneNumber);
 
 		author.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
 			dto.Biography);
 
-		return ServiceResult<Author>.Ok(author, ValidationMessages.AuthorUpdatedSuccessfully);
+		return ServiceResult<AuthorDto>.Ok(MapToDto(author), ValidationMessages.AuthorUpdatedSuccessfully);
 	}
 
 
@@ -98,23 +99,42 @@ public class AuthorManagementService
 	}
 
 
-	public ServiceResult<Author> RemoveAuthor(int authorId)
+	public ServiceResult<AuthorDto> RemoveAuthor(int authorId)
 	{
-		var author = FindAuthorById(authorId);
+		var author = _authorRepository.FindById(authorId);
 		if (author is null)
-			return ServiceResult<Author>.Fail(ValidationMessages.AuthorRemoveFailed);
+			return ServiceResult<AuthorDto>.Fail(ValidationMessages.AuthorRemoveFailed);
 
 		// TODO	After implementing Loan class and service, before deleting author should check that none of books isn't borrowed
 		if (author.BookAuthors.Count != 0)
-			return ServiceResult<Author>.Fail("Failed to remove author. The author has associated books.");
+			return ServiceResult<AuthorDto>.Fail("Failed to remove author. The author has associated books.");
 
 		_authorRepository.Remove(author);
-		return ServiceResult<Author>.Ok(author, ValidationMessages.AuthorRemovedSuccessfully);
+		return ServiceResult<AuthorDto>.Ok(MapToDto(author), ValidationMessages.AuthorRemovedSuccessfully);
 	}
 
 
-	public IReadOnlyList<Author> SearchAuthor(string searchItem, Func<Author, string?> selector)
+	public IReadOnlyList<AuthorDto> SearchAuthor(string searchItem, Func<Author, string?> selector)
 	{
-		return _authorRepository.Search(searchItem, selector);
+		return _authorRepository.Search(searchItem, selector).Select(MapToDto).ToList().AsReadOnly();
+	}
+
+
+	private static AuthorDto MapToDto(Author author)
+	{
+		return new AuthorDto
+		{
+			Id = author.Id,
+			FirstName = author.FirstName,
+			LastName = author.LastName,
+			NationalCode = author.NationalCode,
+			Email = author.Email,
+			PhoneNumber = author.PhoneNumber,
+			BirthDate = author.BirthDate,
+			Biography = author.Biography,
+			BookCount = author.BookAuthors.Count,
+			CreatedAt = author.CreatedAt,
+			UpdatedAt = author.UpdatedAt
+		};
 	}
 }
