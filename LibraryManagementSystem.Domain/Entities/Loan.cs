@@ -15,6 +15,7 @@ public class Loan
 		DueDate = DateOnly.FromDateTime(DateTime.Today.AddDays(LoanPeriodDays));
 		ReturnDate = null;
 		Status = LoanStatus.Borrowed;
+		CreatedAt = DateTime.Now;
 	}
 
 
@@ -33,6 +34,8 @@ public class Loan
 	public int RenewalCount { get; private set; }
 	public bool IsOverdue => !ReturnDate.HasValue && DateOnly.FromDateTime(DateTime.Today) > DueDate;
 	public bool IsActive => ReturnDate is null;
+	public DateTime CreatedAt { get; protected set; }
+	public DateTime? UpdatedAt { get; protected set; }
 
 
 	public void MarkAsReturned()
@@ -65,11 +68,11 @@ public class Loan
 
 	public void Renew()
 	{
-		if (!CanRenew(out var errorMessage))
-			throw new InvalidOperationException(errorMessage);
-		
+		if (!CanRenew(out var errorMessage)) throw new InvalidOperationException(errorMessage);
+
 		DueDate = DueDate.AddDays(LoanPeriodDays);
 		Status = LoanStatus.Borrowed;
 		RenewalCount++;
+		MarkAsReturned();
 	}
 }

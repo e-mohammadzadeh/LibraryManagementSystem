@@ -31,6 +31,7 @@ public class Book
 		Genre = genre;
 		Publisher = publisher;
 		Description = description;
+		CreatedAt = DateTime.Now;
 	}
 
 
@@ -47,6 +48,15 @@ public class Book
 	public int TotalCopies { get; private set; }
 	public int AvailableCopies { get; private set; }
 	public string? Description { get; private set; }
+	public DateTime CreatedAt { get; protected set; }
+	public DateTime? UpdatedAt { get; protected set; }
+
+
+
+	protected void MarkAsUpdated()
+	{
+		UpdatedAt = DateTime.Now;
+	}
 
 
 	public void AddAuthor(Author author)
@@ -58,6 +68,7 @@ public class Book
 		var bookAuthor = new BookAuthor(this, author);
 		_bookAuthors.Add(bookAuthor);
 		author.AddBookAuthor(bookAuthor);
+		MarkAsUpdated();
 	}
 
 
@@ -70,6 +81,7 @@ public class Book
 		if (bookAuthor is null) return;
 		_bookAuthors.Remove(bookAuthor);
 		bookAuthor.Author.RemoveBookAuthor(bookAuthor);
+		MarkAsUpdated();
 	}
 
 
@@ -83,6 +95,7 @@ public class Book
 
 		foreach (var bookAuthor in _bookAuthors.ToList()) RemoveAuthor(bookAuthor.AuthorId);
 		foreach (var author in authorList) AddAuthor(author);
+		MarkAsUpdated();
 	}
 
 
@@ -102,6 +115,7 @@ public class Book
 		var bookTranslator = new BookTranslator(this, translator);
 		_bookTranslators.Add(bookTranslator);
 		translator.AddBookTranslator(bookTranslator);
+		MarkAsUpdated();
 	}
 
 
@@ -112,6 +126,7 @@ public class Book
 		if (bookTranslator is null) return;
 		_bookTranslators.Remove(bookTranslator);
 		bookTranslator.Translator.RemoveBookTranslator(bookTranslator);
+		MarkAsUpdated();
 	}
 
 
@@ -131,6 +146,7 @@ public class Book
 
 
 		foreach (var translator in translators.DistinctBy(t => t.Id)) AddTranslator(translator);
+		MarkAsUpdated();
 	}
 
 
@@ -157,6 +173,7 @@ public class Book
 		Genre = genreId ?? Genre;
 		Publisher = publisher ?? Publisher;
 		Description = description ?? Description;
+		MarkAsUpdated();
 		return true;
 	}
 
@@ -172,7 +189,7 @@ public class Book
 		if (AvailableCopies <= 0) throw new InvalidOperationException("No copies are available.");
 
 		AvailableCopies--;
-		//TODO	Raise an event: a signal to the rest of the system that says "this book is now out of stock"
+		//TODO	(Web API)	Raise an event: a signal to the rest of the system that says "this book is now out of stock"
 	}
 
 

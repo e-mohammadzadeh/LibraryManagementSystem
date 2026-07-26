@@ -235,17 +235,11 @@ public static class BookMenu
 
 		while (true)
 		{
-			var authorNames = string.Join(", ",
-				desiredBook.BookAuthors.Select(ba => $"{ba.Author.FirstName} {ba.Author.LastName}"));
-			var translatorNames = desiredBook.BookTranslators.Count == 0
-				? "None"
-				: string.Join(", ",
-					desiredBook.BookTranslators.Select(bt => $"{bt.Translator.FirstName} {bt.Translator.LastName}"));
-
 			Console.WriteLine("\n{0, -30} [{1}]", "1. Book Name", desiredBook.BookName);
-			Console.WriteLine("{0, -30} [{1}]", "2. ISBN", desiredBook.InternationalStandardBookNumber);
-			Console.WriteLine("{0, -30} [{1}]", "3. Author(s)", authorNames);
-			Console.WriteLine("{0, -30} [{1}]", "4. Translator(s)", translatorNames);
+			Console.WriteLine("{0, -30} [{1}]", "2. ISBN", desiredBook.ISBN);
+			Console.WriteLine("{0, -30} [{1}]", "3. Author(s)", desiredBook.Authors);
+			Console.WriteLine("{0, -30} [{1}]", "4. Translator(s)",
+				desiredBook.Translators == "" ? "None" : desiredBook.Translators);
 			Console.WriteLine("{0, -30} [{1}]", "5. Publish Date", desiredBook.PublishDate);
 			Console.WriteLine("{0, -30} [{1}]", "6. Total Copies", desiredBook.TotalCopies);
 			Console.WriteLine("{0, -30} [{1}]", "7. Genre", desiredBook.Genre);
@@ -277,12 +271,12 @@ public static class BookMenu
 				}
 				case 3:
 				{
-					AuthorSubMenu(desiredBook, authorManagementService, bookManagementService);
+					AuthorSubMenu(desiredBook.BookId, authorManagementService, bookManagementService);
 					break;
 				}
 				case 4:
 				{
-					TranslatorSubMenu(desiredBook, translatorManagementService, bookManagementService);
+					TranslatorSubMenu(desiredBook.BookId, translatorManagementService, bookManagementService);
 					break;
 				}
 				case 5:
@@ -353,7 +347,7 @@ public static class BookMenu
 	}
 
 
-	private static Book? SelectExistingBook(BookManagementService bookManagementService)
+	private static BookDto? SelectExistingBook(BookManagementService bookManagementService)
 	{
 		var bookList = bookManagementService.GetAllBooks();
 		if (bookList.Count is not 0) return MenuHelper.SelectBook(bookList);
@@ -374,11 +368,15 @@ public static class BookMenu
 	}
 
 
-	private static void AuthorSubMenu(Book book, AuthorManagementService authorManagementService,
+	private static void AuthorSubMenu(int bookId, AuthorManagementService authorManagementService,
 		BookManagementService bookManagementService)
 	{
-		var currentAuthorsNames =
-			string.Join(", ", book.BookAuthors.Select(ba => $"{ba.Author.FirstName} {ba.Author.LastName}"));
+		var currentAuthorIds = bookManagementService.GetAuthorIds(bookId).ToHashSet();
+
+		var currentAuthorsNames = string.Join(", ",
+			authorManagementService.GetAllAuthors().Where(a => currentAuthorIds.Contains(a.Id))
+				.Select(a => $"{a.FirstName} {a.LastName}"));
+
 		Console.WriteLine($"Current authors: {currentAuthorsNames}");
 		Console.WriteLine(ValidationMessages.SubMenusQuestion);
 		Console.WriteLine("1. Add an author");
@@ -399,7 +397,6 @@ public static class BookMenu
 					break;
 				}
 
-				var currentAuthorIds = book.BookAuthors.Select(ba => ba.AuthorId).ToHashSet();
 				var availableToAdd = allAuthors.Where(a => !currentAuthorIds.Contains(a.Id)).ToList().AsReadOnly();
 				if (availableToAdd.Count == 0)
 				{
@@ -412,7 +409,7 @@ public static class BookMenu
 
 				// New list = existing author IDs + newly selected IDs
 				var updatedAuthorIds = currentAuthorIds.Concat(selectedIds).Distinct().ToList();
-				PerformUpdate(bookManagementService, book.BookId, updatedAuthorIds,
+				PerformUpdate(bookManagementService, bookId, updatedAuthorIds,
 					v => new UpdateBookDto { AuthorIds = v });
 				break;
 			}
@@ -434,7 +431,7 @@ public static class BookMenu
 				var updatedAuthorIds =
 					book.BookAuthors.Select(ba => ba.AuthorId).Where(id => id != idToRemove).ToList();
 
-				PerformUpdate(bookManagementService, book.BookId, updatedAuthorIds,
+				PerformUpdate(bookManagementService, bookId, updatedAuthorIds,
 					v => new UpdateBookDto { AuthorIds = v });
 				break;
 			}
@@ -450,7 +447,7 @@ public static class BookMenu
 				var selectedIds = ConsoleHelper.ReadAuthors("Select the new author(s) for this book", allAuthors);
 				if (selectedIds is null) break;
 
-				PerformUpdate(bookManagementService, book.BookId, selectedIds,
+				PerformUpdate(bookManagementService, bookId, selectedIds,
 					v => new UpdateBookDto { AuthorIds = v });
 				break;
 			}
@@ -465,7 +462,7 @@ public static class BookMenu
 	}
 
 
-	private static void TranslatorSubMenu(Book book, TranslatorManagementService translatorManagementService,
+	private static void TranslatorSubMenu(int bookId, TranslatorManagementService translatorManagementService,
 		BookManagementService bookManagementService)
 	{
 		var currentTranslatorName = book.BookTranslators.Count == 0
@@ -721,7 +718,7 @@ public static class BookMenu
 	private static readonly Func<Genre, Genre, bool> GenreComparer = (search, value) => search == value;
 
 
-	private static void DisplayBookResults(IReadOnlyList<Book> result)
+	private static void DisplayBookResults(IReadOnlyList<BookDto> result)
 	{
 		if (result.Count == 0)
 		{

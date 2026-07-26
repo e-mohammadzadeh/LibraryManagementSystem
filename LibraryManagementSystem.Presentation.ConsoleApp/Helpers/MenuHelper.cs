@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Application.DTOs.Library;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
@@ -71,7 +72,7 @@ public static class MenuHelper
 	}
 
 
-	public static Book? SelectBook(IReadOnlyList<Book> booksList)
+	public static BookDto? SelectBook(IReadOnlyList<BookDto> booksList)
 	{
 		if (booksList.Count == 0)
 		{
