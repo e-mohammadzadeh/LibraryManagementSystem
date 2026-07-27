@@ -35,7 +35,7 @@ public class Book
 	}
 
 
-	//TODO	When switch into SQL Server, IDs will generate by SQL Server itself and should remove static ones
+	//TODO	(SQL Server)	When switch into SQL Server, IDs will generate by SQL Server itself and should remove static ones
 	private static int _nextBookId;
 	public int BookId { get; private set; }
 	public string BookName { get; private set; }

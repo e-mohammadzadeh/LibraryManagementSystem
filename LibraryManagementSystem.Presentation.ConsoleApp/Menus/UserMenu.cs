@@ -151,8 +151,7 @@ public static class UserMenu
 			Console.WriteLine("{0, -20} [{1}]", "4. Email", desiredUser.Email);
 			Console.WriteLine("{0, -20} [{1}]", "5. Phone Number", desiredUser.PhoneNumber);
 			Console.WriteLine("{0, -20} [{1}]", "6. Birth Date", desiredUser.BirthDate);
-			Console.WriteLine("{0, -20} [{1}]", "7. Role",
-				string.Join(", ", desiredUser.UserRoles.Select(ur => ur.Role.Name)));
+			Console.WriteLine("{0, -20} [{1}]", "7. Role", string.Join(", ", desiredUser.Roles));
 			Console.WriteLine("8. Cancel");
 			var editMenuChoice = ConsoleHelper.ReadInt(ValidationMessages.EditMenuQuestion, 1, 8);
 			if (editMenuChoice == null) return;
@@ -348,7 +347,7 @@ public static class UserMenu
 	}
 
 
-	private static void DisplayUserResults(IReadOnlyList<User> result)
+	private static void DisplayUserResults(IReadOnlyList<UserDto> result)
 	{
 		if (result.Count == 0)
 		{

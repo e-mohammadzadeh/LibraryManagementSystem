@@ -142,8 +142,8 @@ public class UserManagementService
 			return ServiceResult<UserDto>.Fail(ValidationMessages.UserRemoveFailed);
 
 		// TODO	After implementing Loan class and service, before deleting member should check that none of books isn't borrowed
-		//if (member.Books.Count != 0)
-		//	return ServiceResult<Member>.Fail("Failed to remove author. The author has associated books.");
+		if (user.Books.Count != 0)
+			return ServiceResult<user>.Fail("Failed to remove author. The author has associated books.");
 
 		_userRepository.Remove(user);
 		return ServiceResult<UserDto>.Ok(MapToDto(user), ValidationMessages.UserRemovedSuccessfully);
@@ -156,9 +156,9 @@ public class UserManagementService
 	}
 
 
-	public IReadOnlyList<User> SearchByRole(List<int> role)
+	public IReadOnlyList<UserDto> SearchByRole(List<int> role)
 	{
-		return _userRepository.SearchByRole(role);
+		return _userRepository.SearchByRole(role).Select(MapToDto).ToList().AsReadOnly();
 	}
 
 	// DeactivateMember  FindUserById

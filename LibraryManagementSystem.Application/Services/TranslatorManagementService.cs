@@ -91,23 +91,22 @@ public class TranslatorManagementService
 	}
 
 
-	public ServiceResult<Translator> RemoveTranslator(int translatorId)
+	public ServiceResult<TranslatorDto> RemoveTranslator(int translatorId)
 	{
 		var translator = FindTranslatorById(translatorId);
-		if (translator is null) return ServiceResult<Translator>.Fail(ValidationMessages.TranslatorRemoveFailed);
+		if (translator is null) return ServiceResult<TranslatorDto>.Fail(ValidationMessages.TranslatorRemoveFailed);
 
-		// TODO	After implementing Loan class and service, before deleting translator should check that none of books isn't borrowed
 		if (translator.BookTranslators.Count != 0)
-			return ServiceResult<Translator>.Fail("Failed to remove translator. The translator has associated books.");
+			return ServiceResult<TranslatorDto>.Fail("Failed to remove translator. The translator has associated books.");
 
 		_translatorRepository.Remove(translator);
-		return ServiceResult<Translator>.Ok(translator, ValidationMessages.TranslatorRemovedSuccessfully);
+		return ServiceResult<TranslatorDto>.Ok(MapToDto(translator), ValidationMessages.TranslatorRemovedSuccessfully);
 	}
 
 
-	public IReadOnlyList<Translator> SearchTranslator(string searchItem, Func<Translator, string?> selector)
+	public IReadOnlyList<TranslatorDto> SearchTranslator(string searchItem, Func<Translator, string?> selector)
 	{
-		return _translatorRepository.Search(searchItem, selector);
+		return _translatorRepository.Search(searchItem, selector).Select(MapToDto).ToList().AsReadOnly();
 	}
 
 

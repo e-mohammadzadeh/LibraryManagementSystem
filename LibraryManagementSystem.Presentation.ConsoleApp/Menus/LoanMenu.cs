@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Application.DTOs.Loans;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
@@ -179,7 +180,7 @@ public static class LoanMenu
 	}
 
 
-	private static Loan? SelectActiveLoan(LoanManagementService loanManagementService, string purpose)
+	private static LoanDto? SelectActiveLoan(LoanManagementService loanManagementService, string purpose)
 	{
 		var userId = ConsoleHelper.ReadInt("Enter user id", 1, int.MaxValue);
 		if (userId is null) return null;
@@ -224,7 +225,7 @@ public static class LoanMenu
 
 
 	private static void DisplayLoansForUsers(UserManagementService userManagementService,
-		Func<int, IReadOnlyList<Loan>> getLoansFn, string emptyMessage)
+		Func<int, IReadOnlyList<LoanDto>> getLoansFn, string emptyMessage)
 	{
 		var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
 		if (user is null)
@@ -346,7 +347,7 @@ public static class LoanMenu
 
 
 	private static void SearchLoanAndDisplay<T>(Func<string, T?> reader, string prompt, Func<Loan, T?> selector,
-		Func<T, T, bool> comparer, Func<T?, Func<Loan, T?>, Func<T, T, bool>, IReadOnlyList<Loan>> searchFn)
+		Func<T, T, bool> comparer, Func<T?, Func<Loan, T?>, Func<T, T, bool>, IReadOnlyList<LoanDto>> searchFn)
 		where T : class
 	{
 		var searchTerm = reader(prompt);
@@ -358,7 +359,7 @@ public static class LoanMenu
 
 
 	private static void SearchLoanAndDisplay<T>(Func<string, T?> reader, string prompt, Func<Loan, T?> selector,
-		Func<T, T, bool> comparer, Func<T?, Func<Loan, T?>, Func<T, T, bool>, IReadOnlyList<Loan>> searchFn)
+		Func<T, T, bool> comparer, Func<T?, Func<Loan, T?>, Func<T, T, bool>, IReadOnlyList<LoanDto>> searchFn)
 		where T : struct
 	{
 		var searchTerm = reader(prompt);
@@ -369,7 +370,7 @@ public static class LoanMenu
 	}
 
 
-	private static void DisplayLoanResults(IReadOnlyList<Loan> results)
+	private static void DisplayLoanResults(IReadOnlyList<LoanDto> results)
 	{
 		if (results.Count == 0)
 		{
