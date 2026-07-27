@@ -40,7 +40,10 @@ public class TranslatorManagementService
 	}
 
 
-	public IReadOnlyList<Translator> GetAllTranslators() { return _translatorRepository.GetAll(); }
+	public IReadOnlyList<TranslatorDto> GetAllTranslators()
+	{
+		return _translatorRepository.GetAll().Select(MapToDto).ToList().AsReadOnly();
+	}
 
 
 	public Translator? FindTranslatorById(int id) { return _translatorRepository.FindById(id); }
@@ -119,6 +122,7 @@ public class TranslatorManagementService
 			Email = translator.Email,
 			PhoneNumber = translator.PhoneNumber,
 			BirthDate = translator.BirthDate,
+			BookCount = translator.BookTranslators.Count,
 			CreatedAt = translator.CreatedAt,
 			UpdatedAt = translator.UpdatedAt
 		};

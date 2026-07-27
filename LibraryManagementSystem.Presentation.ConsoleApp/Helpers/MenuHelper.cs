@@ -1,7 +1,9 @@
 ﻿using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Application.DTOs.Library;
-using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Application.DTOs.Translator;
+using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
@@ -21,7 +23,7 @@ public static class MenuHelper
 	}
 
 
-	public static Author? SelectAuthor(IReadOnlyList<Author> authorsList)
+	public static AuthorDto? SelectAuthor(IReadOnlyList<AuthorDto> authorsList)
 	{
 		if (authorsList.Count == 0)
 		{
@@ -34,7 +36,7 @@ public static class MenuHelper
 			AuthorPrinter.PrintTable(authorsList);
 			// TODO	Max parameter has some logical issues when authors are removed and new authors are added.
 			var desiredAuthorId = ConsoleHelper.ReadInt("Enter the number of the author you wish", 1,
-				authorsList.Last().Id);
+				authorsList.Max(a => a.Id));
 
 			if (desiredAuthorId is null) return null;
 
@@ -47,7 +49,7 @@ public static class MenuHelper
 
 
 
-	public static Translator? SelectTranslator(IReadOnlyList<Translator> translatorsList)
+	public static TranslatorDto? SelectTranslator(IReadOnlyList<TranslatorDto> translatorsList)
 	{
 		if (translatorsList.Count == 0)
 		{
@@ -60,7 +62,7 @@ public static class MenuHelper
 			TranslatorPrinter.PrintTable(translatorsList);
 			// TODO	Max parameter has some logical issues when authors are removed and new authors are added.
 			var desiredTranslatorId = ConsoleHelper.ReadInt("Enter the number of the translator you wish", 1,
-				translatorsList.Last().Id);
+				translatorsList.Max(t => t.Id));
 
 			if (desiredTranslatorId is null) return null;
 
@@ -84,7 +86,7 @@ public static class MenuHelper
 		{
 			BookPrinter.PrintTable(booksList);
 			var desiredBookId = ConsoleHelper.ReadInt("Enter the number of the book you wish", 1,
-				booksList.Last().BookId);
+				booksList.Max(b => b.BookId));
 
 			if (desiredBookId is null) return null;
 
@@ -96,7 +98,7 @@ public static class MenuHelper
 	}
 
 
-	public static User? SelectUser(IReadOnlyList<User> usersList)
+	public static UserDto? SelectUser(IReadOnlyList<UserDto> usersList)
 	{
 		if (usersList.Count is 0)
 		{
@@ -109,7 +111,7 @@ public static class MenuHelper
 			UserPrinter.PrintTable(usersList);
 			// TODO	Max parameter has some logical issues when authors are removed and new authors are added.
 			var desiredMemberId = ConsoleHelper.ReadInt("Enter the number of the member you wish", 1,
-				usersList.Last().Id);
+				usersList.Max(u => u.Id));
 
 			if (desiredMemberId is null) return null;
 

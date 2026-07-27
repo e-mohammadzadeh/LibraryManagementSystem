@@ -10,6 +10,7 @@ public class TranslatorDto
 	public string Email { get; init; } = null!;
 	public string PhoneNumber { get; init; } = null!;
 	public DateOnly BirthDate { get; init; }
+	public int BookCount { get; init; }
 	public DateTime CreatedAt { get; init; }
 	public DateTime? UpdatedAt { get; init; }
 }

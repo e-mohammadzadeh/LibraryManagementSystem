@@ -1,5 +1,7 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs;
+using LibraryManagementSystem.Application.DTOs.Authors;
+using LibraryManagementSystem.Application.DTOs.Translator;
 using LibraryManagementSystem.Application.Validators;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
@@ -193,14 +195,14 @@ public static class ConsoleHelper
 	}
 
 
-	public static List<int>? ReadAuthors(string prompt, IReadOnlyList<Author> authors, bool allowMultiple=true, bool allowEmpty=false)
+	public static List<int>? ReadAuthors(string prompt, IReadOnlyList<AuthorDto> authors, bool allowMultiple=true, bool allowEmpty=false)
 	{
 		return ReadMultiSelect(prompt, authors, idSelector: a => a.Id,
 			displayNameSelector: a => $"{a.FirstName} {a.LastName}", allowMultiple: allowMultiple, allowEmpty: allowEmpty);
 	}
 
 
-	public static List<int>? ReadTranslators(string prompt, IReadOnlyList<Translator> translators, bool allowMultiple = true, bool allowEmpty = true)
+	public static List<int>? ReadTranslators(string prompt, IReadOnlyList<TranslatorDto> translators, bool allowMultiple = true, bool allowEmpty = true)
 	{
 		return ReadMultiSelect(prompt, translators, idSelector: t => t.Id,
 			displayNameSelector: t => $"{t.FirstName} {t.LastName}", allowMultiple, allowEmpty);

@@ -431,8 +431,7 @@ public static class BookMenu
 				}
 
 				// Use ReadAuthors with allowMultiple = false — pick exactly one to remove
-				var currentAuthors = book.BookAuthors.Select(ba => ba.Author).ToList().AsReadOnly();
-				var selectedIds = ConsoleHelper.ReadAuthors(ValidationMessages.AuthorSelection4Remove, currentAuthors,
+				var selectedIds = ConsoleHelper.ReadAuthors(ValidationMessages.AuthorSelection4Remove, currentBook.Authors,
 					false);
 				if (selectedIds is null) break;
 
@@ -530,9 +529,8 @@ public static class BookMenu
 					break;
 				}
 
-				var currentTranslators = book.BookTranslators.Select(bt => bt.Translator).ToList().AsReadOnly();
 				var selectedIds = ConsoleHelper.ReadTranslators(ValidationMessages.TranslatorSelection4Remove,
-					currentTranslators, false, false);
+					currentBook.Translators, false, false);
 				if (selectedIds is null) break;
 				var idToRemove = selectedIds[0];
 				var updatedTranslatorIds = currentBook.Translators.Select(t => t.Id)

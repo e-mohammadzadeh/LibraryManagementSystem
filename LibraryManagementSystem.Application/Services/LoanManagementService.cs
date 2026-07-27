@@ -104,7 +104,7 @@ public class LoanManagementService
 		{
 			var value = selector(l);
 			return value != null && comparer(searchTerm, value);
-		}).ToList().AsReadOnly();
+		}).Select(MapToDto).ToList().AsReadOnly();
 	}
 
 
@@ -117,7 +117,7 @@ public class LoanManagementService
 		{
 			var value = selector(l);
 			return value.HasValue && comparer(searchTerm.Value, value.Value);
-		}).ToList().AsReadOnly();
+		}).Select(MapToDto).ToList().AsReadOnly();
 	}
 
 
@@ -130,7 +130,7 @@ public class LoanManagementService
 		{
 			var value = selector(l);
 			return value != null && comparer(searchTerm, value);
-		}).ToList().AsReadOnly();
+		}).Select(MapToDto).ToList().AsReadOnly();
 	}
 
 
@@ -143,7 +143,7 @@ public class LoanManagementService
 		{
 			var value = selector(l);
 			return value.HasValue && comparer(searchTerm.Value, value.Value);
-		}).ToList().AsReadOnly();
+		}).Select(MapToDto).ToList().AsReadOnly();
 	}
 
 
