@@ -235,7 +235,7 @@ public static class AuthorMenu
 
 	private static void RemoveAuthor(AuthorManagementService authorManagementService)
 	{
-		// TODO	Implement SOFT DELETE system with flags like `IsDeleted = true` or `IsActive = False`
+		// TODO	(SQL Server)	Implement SOFT DELETE system with flags like `IsDeleted = true` or `IsActive = False`
 		Console.WriteLine(new string('=', 36) + " REMOVING AUTHOR MENU " + new string('=', 36));
 		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(), MenuHelper.SelectAuthor,
 			ValidationMessages.NotAvailableAuthor);

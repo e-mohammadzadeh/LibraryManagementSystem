@@ -222,7 +222,7 @@ public static class TranslatorMenu
 
 	private static void RemoveTranslator(TranslatorManagementService translatorManagementService)
 	{
-		// TODO	Implement SOFT DELETE system with flags like `IsDeleted = true` or `IsActive = False`
+		// TODO	(SQL Server)	Implement SOFT DELETE system with flags like `IsDeleted = true` or `IsActive = False`
 		Console.WriteLine(new string('=', 36) + " REMOVING TRANSLATOR MENU " + new string('=', 36));
 		var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
 			MenuHelper.SelectTranslator, ValidationMessages.NotAvailableTranslator);

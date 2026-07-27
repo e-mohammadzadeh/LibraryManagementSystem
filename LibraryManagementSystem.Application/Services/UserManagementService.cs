@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
 
 
@@ -10,6 +11,7 @@ public class UserManagementService
 {
 	private readonly IUserRepository _userRepository;
 	private readonly IRoleRepository _roleRepository;
+	private readonly ILoanRepository _loanRepository;
 
 
 	public UserManagementService(IUserRepository userRepository, IRoleRepository roleRepository)
@@ -141,9 +143,9 @@ public class UserManagementService
 		if (user is null)
 			return ServiceResult<UserDto>.Fail(ValidationMessages.UserRemoveFailed);
 
-		// TODO	After implementing Loan class and service, before deleting member should check that none of books isn't borrowed
-		if (user.Books.Count != 0)
-			return ServiceResult<user>.Fail("Failed to remove author. The author has associated books.");
+		
+		if (_loanRepository.CountActiveLoansByUser(userId) > 0)
+			return ServiceResult<UserDto>.Fail("Failed to remove author. The author has associated books.");
 
 		_userRepository.Remove(user);
 		return ServiceResult<UserDto>.Ok(MapToDto(user), ValidationMessages.UserRemovedSuccessfully);

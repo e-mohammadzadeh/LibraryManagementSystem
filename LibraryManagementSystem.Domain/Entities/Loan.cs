@@ -73,6 +73,5 @@ public class Loan
 		DueDate = DueDate.AddDays(LoanPeriodDays);
 		Status = LoanStatus.Borrowed;
 		RenewalCount++;
-		MarkAsReturned();
 	}
 }
