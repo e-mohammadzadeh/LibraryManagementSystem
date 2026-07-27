@@ -120,7 +120,7 @@ public class AuthorManagementService
 	}
 
 
-	private static AuthorDto MapToDto(Author author)
+	internal static AuthorDto MapToDto(Author author)
 	{
 		return new AuthorDto
 		{

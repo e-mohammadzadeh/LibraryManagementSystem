@@ -235,11 +235,12 @@ public static class BookMenu
 
 		while (true)
 		{
+			var authorNameDisplay = string.Join(", ", desiredBook.Authors.Select(a => a.FullName));
+			var translatorNameDisplay = string.Join(", ", desiredBook.Translators.Select(t => t.FullName));
 			Console.WriteLine("\n{0, -30} [{1}]", "1. Book Name", desiredBook.BookName);
 			Console.WriteLine("{0, -30} [{1}]", "2. ISBN", desiredBook.ISBN);
-			Console.WriteLine("{0, -30} [{1}]", "3. Author(s)", desiredBook.Authors);
-			Console.WriteLine("{0, -30} [{1}]", "4. Translator(s)",
-				desiredBook.Translators == "" ? "None" : desiredBook.Translators);
+			Console.WriteLine("{0, -30} [{1}]", "3. Author(s)", authorNameDisplay);
+			Console.WriteLine("{0, -30} [{1}]", "4. Translator(s)", string.IsNullOrWhiteSpace(translatorNameDisplay) ? "None" : translatorNameDisplay);
 			Console.WriteLine("{0, -30} [{1}]", "5. Publish Date", desiredBook.PublishDate);
 			Console.WriteLine("{0, -30} [{1}]", "6. Total Copies", desiredBook.TotalCopies);
 			Console.WriteLine("{0, -30} [{1}]", "7. Genre", desiredBook.Genre);
@@ -342,6 +343,10 @@ public static class BookMenu
 				return;
 			}
 
+			// Refresh desiredBook details for subsequent edits in loop
+			var refreshedBook = bookManagementService.FindBookById(desiredBook.BookId);
+			if (refreshedBook is not null) desiredBook = refreshedBook;
+
 			Console.Clear();
 		}
 	}
@@ -371,11 +376,15 @@ public static class BookMenu
 	private static void AuthorSubMenu(int bookId, AuthorManagementService authorManagementService,
 		BookManagementService bookManagementService)
 	{
-		var currentAuthorIds = bookManagementService.GetAuthorIds(bookId).ToHashSet();
+		var currentBook = bookManagementService.FindBookById(bookId);
+		if (currentBook is null)
+		{
+			ConsoleHelper.ShowError(ValidationMessages.NotAvailableBook);
+			return;
+		}
 
-		var currentAuthorsNames = string.Join(", ",
-			authorManagementService.GetAllAuthors().Where(a => currentAuthorIds.Contains(a.Id))
-				.Select(a => $"{a.FirstName} {a.LastName}"));
+		var currentAuthorIds = currentBook.Authors.Select(a => a.Id).ToHashSet();
+		var currentAuthorsNames = string.Join(", ", currentBook.Authors.Select(a => a.FullName));
 
 		Console.WriteLine($"Current authors: {currentAuthorsNames}");
 		Console.WriteLine(ValidationMessages.SubMenusQuestion);
@@ -415,7 +424,7 @@ public static class BookMenu
 			}
 			case 2:
 			{
-				if (book.BookAuthors.Count == 1)
+				if (currentBook.Authors.Count <= 1)
 				{
 					ConsoleHelper.ShowWarning(ValidationMessages.CannotRemove);
 					break;
@@ -428,8 +437,7 @@ public static class BookMenu
 				if (selectedIds is null) break;
 
 				var idToRemove = selectedIds[0];
-				var updatedAuthorIds =
-					book.BookAuthors.Select(ba => ba.AuthorId).Where(id => id != idToRemove).ToList();
+				var updatedAuthorIds = currentBook.Authors.Select(a => a.Id).Where(id => id != idToRemove).ToList();
 
 				PerformUpdate(bookManagementService, bookId, updatedAuthorIds,
 					v => new UpdateBookDto { AuthorIds = v });
@@ -465,10 +473,17 @@ public static class BookMenu
 	private static void TranslatorSubMenu(int bookId, TranslatorManagementService translatorManagementService,
 		BookManagementService bookManagementService)
 	{
-		var currentTranslatorName = book.BookTranslators.Count == 0
+		var currentBook = bookManagementService.FindBookById(bookId);
+		if (currentBook is null)
+		{
+			ConsoleHelper.ShowError(ValidationMessages.NotAvailableBook);
+			return;
+		}
+
+		var currentTranslatorName = currentBook.Translators.Count == 0
 			? "None"
-			: string.Join(", ",
-				book.BookTranslators.Select(ba => $"{ba.Translator.FirstName} {ba.Translator.LastName}"));
+			: string.Join(", ", currentBook.Translators.Select(t => t.FullName));
+
 		Console.WriteLine($"Current translators: {currentTranslatorName}");
 		Console.WriteLine(ValidationMessages.SubMenusQuestion);
 		Console.WriteLine("1. Add a translator");
@@ -490,7 +505,7 @@ public static class BookMenu
 					break;
 				}
 
-				var currentTranslatorIds = book.BookTranslators.Select(bt => bt.TranslatorId).ToHashSet();
+				var currentTranslatorIds = currentBook.Translators.Select(t => t.Id).ToHashSet();
 				var availableToAdd = allTranslators.Where(t => !currentTranslatorIds.Contains(t.Id)).ToList()
 					.AsReadOnly();
 				if (availableToAdd.Count == 0)
@@ -500,16 +515,16 @@ public static class BookMenu
 				}
 
 				var selectedIds = ConsoleHelper.ReadTranslators("Select translator(s) to add", availableToAdd);
-				if (selectedIds is null) break;
-				if (selectedIds.Count == 0) break;
+				if (selectedIds is null || selectedIds.Count == 0) break;
+
 				var updatedTranslatorIds = currentTranslatorIds.Concat(selectedIds).Distinct().ToList();
-				PerformUpdate(bookManagementService, book.BookId, updatedTranslatorIds,
+				PerformUpdate(bookManagementService, bookId, updatedTranslatorIds,
 					v => new UpdateBookDto { TranslatorIds = v });
 				break;
 			}
 			case 2:
 			{
-				if (book.BookTranslators.Count == 0)
+				if (currentBook.Translators.Count == 0)
 				{
 					ConsoleHelper.ShowWarning(ValidationMessages.NoTranslator2Remove);
 					break;
@@ -520,9 +535,10 @@ public static class BookMenu
 					currentTranslators, false, false);
 				if (selectedIds is null) break;
 				var idToRemove = selectedIds[0];
-				var updatedTranslatorIds = book.BookTranslators.Select(bt => bt.TranslatorId)
+				var updatedTranslatorIds = currentBook.Translators.Select(t => t.Id)
 					.Where(id => id != idToRemove).ToList();
-				PerformUpdate(bookManagementService, book.BookId, updatedTranslatorIds,
+
+				PerformUpdate(bookManagementService, bookId, updatedTranslatorIds,
 					v => new UpdateBookDto { TranslatorIds = v });
 				break;
 			}
@@ -537,13 +553,13 @@ public static class BookMenu
 
 				var selectedIds = ConsoleHelper.ReadTranslators(ValidationMessages.AddTranslatorInEdit, allTranslators);
 				if (selectedIds is null) break;
-				PerformUpdate(bookManagementService, book.BookId, selectedIds,
+				PerformUpdate(bookManagementService, bookId, selectedIds,
 					v => new UpdateBookDto { TranslatorIds = v });
 				break;
 			}
 			case 4:
 			{
-				if (book.BookTranslators.Count == 0)
+				if (currentBook.Translators.Count == 0)
 				{
 					ConsoleHelper.ShowWarning("This book already has no translators.");
 					break;
@@ -553,7 +569,7 @@ public static class BookMenu
 				if (confirm != true) break;
 
 				var emptyList = new List<int>();
-				PerformUpdate(bookManagementService, book.BookId, emptyList,
+				PerformUpdate(bookManagementService, bookId, emptyList,
 					v => new UpdateBookDto { TranslatorIds = v });
 				break;
 			}
@@ -638,7 +654,7 @@ public static class BookMenu
 					SearchBookAndDisplay(bookManagementService, p => ConsoleHelper.ReadString(p),
 						"Enter an author name",
 						book => string.Join(" ",
-							book.BookAuthors.Select(bt => $"{bt.Author.FirstName} {bt.Author.LastName}")),
+							book.BookAuthors.Select(ba => $"{ba.Author.FirstName} {ba.Author.LastName}")),
 						ContainsComparer);
 					break;
 				}

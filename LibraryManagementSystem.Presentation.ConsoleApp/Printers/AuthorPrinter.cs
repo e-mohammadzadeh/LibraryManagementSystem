@@ -16,6 +16,8 @@ public static class AuthorPrinter
 		Console.WriteLine("{0, -20} [{1}]", "Birth Date:", author.BirthDate);
 		Console.WriteLine("{0, -20} [{1}]", "Biography:", author.Biography);
 		Console.WriteLine("{0, -20} [{1} {2}]", "Books:", author.BookCount, "associated books");
+		Console.WriteLine("{0, -20} [{1}]", "Created At:", author.CreatedAt);
+		Console.WriteLine("{0, -20} [{1}]", "Updated At:", author.UpdatedAt);
 	}
 
 

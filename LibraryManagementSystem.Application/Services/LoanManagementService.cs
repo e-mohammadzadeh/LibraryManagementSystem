@@ -57,31 +57,43 @@ public class LoanManagementService
 	}
 
 
-	public IReadOnlyList<Loan> GetActiveLoansByUser(int userId) { return _loanRepository.GetActiveLoansByUser(userId); }
-
-
-	public IReadOnlyList<Loan> GetActiveLoansByBook(int bookId) { return _loanRepository.GetActiveLoansByBook(bookId); }
-
-
-	public ServiceResult<Loan> RenewLoan(int loanId)
+	public IReadOnlyList<LoanDto> GetActiveLoansByUser(int userId)
 	{
-		var loan = _loanRepository.GetActiveLoanById(loanId);
-		if (loan is null) return ServiceResult<Loan>.Fail(ValidationMessages.ActiveLoanNotFound);
-
-		if (!loan.CanRenew(out var errorMessage)) return ServiceResult<Loan>.Fail(errorMessage);
-
-		loan.Renew();
-		return ServiceResult<Loan>.Ok(loan, ValidationMessages.RenewedSuccessfully);
+		return _loanRepository.GetActiveLoansByUser(userId).Select(MapToDto).ToList().AsReadOnly();
 	}
 
 
-	public IReadOnlyList<Loan> GetOverdueLoans() { return _loanRepository.GetOverdueLoans(); }
+	public IReadOnlyList<LoanDto> GetActiveLoansByBook(int bookId)
+	{
+		return _loanRepository.GetActiveLoansByBook(bookId).Select(MapToDto).ToList().AsReadOnly();
+	}
 
 
-	public IReadOnlyList<Loan> GetLoansByUser(int userId) { return _loanRepository.GetAllByUser(userId); }
+	public ServiceResult<LoanDto> RenewLoan(int loanId)
+	{
+		var loan = _loanRepository.GetActiveLoanById(loanId);
+		if (loan is null) return ServiceResult<LoanDto>.Fail(ValidationMessages.ActiveLoanNotFound);
+
+		if (!loan.CanRenew(out var errorMessage)) return ServiceResult<LoanDto>.Fail(errorMessage);
+
+		loan.Renew();
+		return ServiceResult<LoanDto>.Ok(MapToDto(loan), ValidationMessages.RenewedSuccessfully);
+	}
 
 
-	public IReadOnlyList<Loan> SearchLoans<T>(T? searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer)
+	public IReadOnlyList<LoanDto> GetOverdueLoans()
+	{
+		return _loanRepository.GetOverdueLoans().Select(MapToDto).ToList().AsReadOnly();
+	}
+
+
+	public IReadOnlyList<LoanDto> GetLoansByUser(int userId)
+	{
+		return _loanRepository.GetAllByUser(userId).Select(MapToDto).ToList().AsReadOnly();
+	}
+
+
+	public IReadOnlyList<LoanDto> SearchLoans<T>(T? searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer)
 		where T : class
 	{
 		// TODO: When EF is added, move search filtering to ILoanRepository.Search<T>() to allow SQL-level filtering instead of in-memory LINQ.
@@ -96,7 +108,7 @@ public class LoanManagementService
 	}
 
 
-	public IReadOnlyList<Loan> SearchLoans<T>(T? searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer)
+	public IReadOnlyList<LoanDto> SearchLoans<T>(T? searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer)
 		where T : struct
 	{
 		if (!searchTerm.HasValue) return [];
@@ -109,7 +121,7 @@ public class LoanManagementService
 	}
 
 
-	public IReadOnlyList<Loan> SearchActiveLoans<T>(T? searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer)
+	public IReadOnlyList<LoanDto> SearchActiveLoans<T>(T? searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer)
 		where T : class
 	{
 		if (searchTerm is null) return [];
@@ -122,7 +134,7 @@ public class LoanManagementService
 	}
 
 
-	public IReadOnlyList<Loan> SearchActiveLoans<T>(T? searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer)
+	public IReadOnlyList<LoanDto> SearchActiveLoans<T>(T? searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer)
 		where T : struct
 	{
 		if (!searchTerm.HasValue) return [];
@@ -157,6 +169,9 @@ public class LoanManagementService
 		{
 			LoanId = loan.LoanId,
 			BookName = loan.Book.BookName,
+			BookId = loan.BookId,
+			UserName = $"{loan.User.FirstName} {loan.User.LastName}",
+			UserId = loan.UserId,
 			BorrowDate = loan.BorrowDate,
 			DueDate = loan.DueDate,
 			ReturnDate = loan.ReturnDate,

@@ -40,23 +40,16 @@ public class TranslatorManagementService
 	}
 
 
-	public IReadOnlyList<Translator> GetAllTranslators()
-	{
-		return _translatorRepository.GetAll();
-	}
+	public IReadOnlyList<Translator> GetAllTranslators() { return _translatorRepository.GetAll(); }
 
 
-	public Translator? FindTranslatorById(int id)
-	{
-		return _translatorRepository.FindById(id);
-	}
+	public Translator? FindTranslatorById(int id) { return _translatorRepository.FindById(id); }
 
 
 	public ServiceResult<Translator> UpdateTranslator(int translatorId, UpdateTranslatorDto dto)
 	{
 		var translator = FindTranslatorById(translatorId);
-		if (translator is null)
-			return ServiceResult<Translator>.Fail(ValidationMessages.TranslatorUpdateFailed);
+		if (translator is null) return ServiceResult<Translator>.Fail(ValidationMessages.TranslatorUpdateFailed);
 
 		if (IsNoOpUpdateTranslator(translator, dto))
 			return ServiceResult<Translator>.Fail(ValidationMessages.NoChangesDetected);
@@ -95,10 +88,10 @@ public class TranslatorManagementService
 	}
 
 
-	public ServiceResult<Translator> RemoveTranslator(int translatorId) {
+	public ServiceResult<Translator> RemoveTranslator(int translatorId)
+	{
 		var translator = FindTranslatorById(translatorId);
-		if (translator is null)
-			return ServiceResult<Translator>.Fail(ValidationMessages.TranslatorRemoveFailed);
+		if (translator is null) return ServiceResult<Translator>.Fail(ValidationMessages.TranslatorRemoveFailed);
 
 		// TODO	After implementing Loan class and service, before deleting translator should check that none of books isn't borrowed
 		if (translator.BookTranslators.Count != 0)
@@ -109,7 +102,25 @@ public class TranslatorManagementService
 	}
 
 
-	public IReadOnlyList<Translator> SearchTranslator(string searchItem, Func<Translator, string?> selector) {
+	public IReadOnlyList<Translator> SearchTranslator(string searchItem, Func<Translator, string?> selector)
+	{
 		return _translatorRepository.Search(searchItem, selector);
+	}
+
+
+	internal static TranslatorDto MapToDto(Translator translator)
+	{
+		return new TranslatorDto
+		{
+			Id = translator.Id,
+			FirstName = translator.FirstName,
+			LastName = translator.LastName,
+			NationalCode = translator.NationalCode,
+			Email = translator.Email,
+			PhoneNumber = translator.PhoneNumber,
+			BirthDate = translator.BirthDate,
+			CreatedAt = translator.CreatedAt,
+			UpdatedAt = translator.UpdatedAt
+		};
 	}
 }

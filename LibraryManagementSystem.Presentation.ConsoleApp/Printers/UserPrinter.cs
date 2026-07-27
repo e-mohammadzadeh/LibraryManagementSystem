@@ -19,6 +19,8 @@ public class UserPrinter
 		Console.WriteLine("{0, -20} [{1}]", "Active From:", user.MembershipStartDate);
 		Console.WriteLine("{0, -20} [{1}]", "Active Until:", user.MembershipExpiryDate);
 		Console.WriteLine("{0, -20} [{1}]", "Is Active: ", user.IsActive);
+		Console.WriteLine("{0, -20} [{1}]", "Created At: ", user.CreatedAt);
+		Console.WriteLine("{0, -20} [{1}]", "Updated At: ", user.UpdatedAt);
 	}
 
 
