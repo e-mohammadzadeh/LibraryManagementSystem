@@ -4,15 +4,20 @@ namespace LibraryManagementSystem.Domain.Entities;
 
 public class Fine
 {
-	public Fine(int loanId, Loan loan, int userId, DateOnly issuedDate, DateOnly paidDate, string reason)
+	public Fine(Loan loan, int overdueDays, string? reason = null)
 	{
+		if (loan is null) throw new ArgumentNullException(nameof(loan));
+		if (overdueDays <= 0) throw new ArgumentException("Overdue days must be greater than zero.");
+
 		FineId = ++_nextFineId;
-		LoanId = loanId;
 		Loan = loan;
-		UserId = userId;
-		IssuedDate = issuedDate;
+		LoanId = loan.LoanId;
+		UserId = loan.UserId;
+		OverdueDays = overdueDays;
+		Amount = CalculateAmount(overdueDays);
+		IssuedDate = DateOnly.FromDateTime(DateTime.Today);
 		Status = FineStatus.Unpaid;
-		Reason = reason;
+		Reason = reason ?? $"Overdue by {overdueDays} day(s)";
 		CreatedAt = DateTime.Now;
 	}
 
@@ -29,6 +34,7 @@ public class Fine
 	public FineStatus Status { get; private set; }
 	public string Reason { get; set; }
 	public DateTime CreatedAt { get; private set; }
+	public DateTime? UpdatedAt { get; set; }
 	public DateOnly? PaidAt { get; set; }
 
 
@@ -41,8 +47,7 @@ public class Fine
 
 		if (overdueDays <= 0) return 0m;
 
-		var flatDays = Math.Min(overdueDays, fixedRateDays);
-		var flatTotal = flatDays * initialDailyRate;
+		var flatTotal = Math.Min(overdueDays, fixedRateDays) * initialDailyRate;
 
 		if (overdueDays <= fixedRateDays) return Math.Min(flatTotal, maxUnpaidFineThreshold);
 
@@ -61,6 +66,7 @@ public class Fine
 		if (Status == FineStatus.Waived) throw new InvalidOperationException("Fine has been waived.");
 		Status = FineStatus.Paid;
 		PaidAt = DateOnly.FromDateTime(DateTime.Today);
+		UpdatedAt = DateTime.Now;
 	}
 
 
@@ -68,5 +74,6 @@ public class Fine
 	{
 		if (Status == FineStatus.Paid) throw new InvalidOperationException("Cannot waive an already paid fine.");
 		Status = FineStatus.Waived;
+		UpdatedAt = DateTime.Now;
 	}
 }

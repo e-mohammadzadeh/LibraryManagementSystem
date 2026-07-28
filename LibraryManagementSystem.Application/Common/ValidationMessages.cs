@@ -161,6 +161,7 @@ public static class ValidationMessages
 	public const string BorrowedSuccessfully = "Book borrowed successfully.";
 	public const string ReturnedSuccessfully = "Book returned successfully.";
 	public const string RenewedSuccessfully = "Loan renewed successfully.";
+	public const string NotReturned = "Loan has not been returned yet.";
 
 	// Search / Availability
 	public const string NotAvailableLoan = "No loans found. Please add a new loan first.";
@@ -187,10 +188,16 @@ public static class ValidationMessages
 
 
 
+	// 9. FINE MESSAGES
+	public const string FineCreatedSuccessfully = "Fine created successfully.";
+	public const string FineNotFound = "Fine not found.";
+	public const string FinePaidSuccessfully = "Fine paid successfully.";
+	public const string FineWaivedSuccessfully = "Fine waived successfully.";
+	public const string NoFine = "Loan is not overdue. No fine needed.";
+	public const string ExistedFine = "An unpaid fine already exists for this loan.";
 
 
-
-	// 9. Questions
+	// 10. Questions
 	public const string MainMenuQuestion = "Please Enter a number: ";
 	public const string EditMenuQuestion = "Enter the number of the field you wish to edit";
 	public const string EditContinuesQuestion = "Do you want to edit another field";
