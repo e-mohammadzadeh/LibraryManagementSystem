@@ -16,4 +16,5 @@ public static class ValidationConstants
 	public const int MinRoleId = 1;
 	public const int MaxRoleId = 3;
 	public const int MaxActiveLoansPerUser = 3;
+	public const int MaxUnpaidFineThreshold = 200;
 }

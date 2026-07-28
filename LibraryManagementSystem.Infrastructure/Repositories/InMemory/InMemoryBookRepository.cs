@@ -22,7 +22,7 @@ public class InMemoryBookRepository : IBookRepository
 
 	public IReadOnlyList<Book> GetAll()
 	{
-		return _books.AsReadOnly();
+		return _books.ToList().AsReadOnly();
 	}
 
 

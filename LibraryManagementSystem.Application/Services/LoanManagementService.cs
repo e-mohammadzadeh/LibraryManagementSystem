@@ -39,6 +39,24 @@ public class LoanManagementService
 		if (_loanRepository.HasActiveLoan(userId, bookId))
 			return ServiceResult<LoanDto>.Fail(ValidationMessages.BookAlreadyBorrowed);
 
+		// should check this because of fine
+		//total unpaid fines for this user > MaxUnpaidFineThreshold → return Fail("Cannot borrow: outstanding fines")
+		// User exists?
+		//         ↓
+		// User active?
+		//         ↓
+		// User.ShouldRemove == false?
+		//         ↓
+		// No unpaid fines?
+		//         ↓
+		// Maximum active loans not reached?
+		//         ↓
+		// Book available?
+		//         ↓
+		// Book not already borrowed?
+		//         ↓
+		// Create Loan
+
 		var loan = new Loan(book, user);
 		book.BorrowCopy();
 		_loanRepository.Add(loan);
@@ -53,6 +71,15 @@ public class LoanManagementService
 
 		loan.MarkAsReturned();
 		loan.Book.ReturnCopy();
+
+		// should check this because of fine
+		// If loan was overdue: 
+		//		calculate overdue days
+		//		create Fine(loan, dailyRate, overdueDays)
+		//		FineRepository.Add(fine)
+		//		return Ok with fine info in the result message
+		// else
+		//		return ok (no fine)
 		return ServiceResult<LoanDto>.Ok(MapToDto(loan), ValidationMessages.ReturnedSuccessfully);
 	}
 
