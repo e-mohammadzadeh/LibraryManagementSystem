@@ -22,19 +22,25 @@ public class InMemoryFineRepository:IFineRepository
 
 	public IReadOnlyList<Fine> GetAll()
 	{
-		return _fines.ToList().AsReadOnly();
+		return _fines.AsReadOnly();
+	}
+
+
+	public IReadOnlyList<Fine> GetAllUnpaid()
+	{
+		return _fines.Where(f => f.Status == FineStatus.Unpaid).ToList().AsReadOnly();
 	}
 
 
 	public IReadOnlyList<Fine> GetByUserId(int userId)
 	{
-		return _fines.Where(f => f.Loan.UserId == userId).ToList().AsReadOnly();
+		return _fines.Where(f => f.UserId == userId).ToList().AsReadOnly();
 	}
 
 
 	public IReadOnlyList<Fine> GetUnpaidByUserId(int userId)
 	{
-		return _fines.Where(f => f.Loan.UserId == userId && f.Status == FineStatus.Unpaid).ToList().AsReadOnly();
+		return _fines.Where(f => f.UserId == userId && f.Status == FineStatus.Unpaid).ToList().AsReadOnly();
 	}
 
 
@@ -46,13 +52,13 @@ public class InMemoryFineRepository:IFineRepository
 
 	public bool HasUnpaidFines(int userId)
 	{
-		return _fines.Any(f => f.Loan.UserId == userId && f.Status == FineStatus.Unpaid);
+		return _fines.Any(f => f.UserId == userId && f.Status == FineStatus.Unpaid);
 	}
 
 
-	public decimal GetTotalUnpaidAmound(int userId)
+	public decimal GetTotalUnpaidAmount(int userId)
 	{
-		return _fines.Where(f => f.Loan.UserId == userId && f.Status == FineStatus.Unpaid).Sum(f => f.Amount);
+		return _fines.Where(f => f.UserId == userId && f.Status == FineStatus.Unpaid).Sum(f => f.Amount);
 	}
 
 
@@ -66,11 +72,5 @@ public class InMemoryFineRepository:IFineRepository
 	{
 		// In-memory implementation:
 		// Fine is already tracked by reference.
-	}
-
-
-	public int Count()
-	{
-		return _fines.Count;
 	}
 }

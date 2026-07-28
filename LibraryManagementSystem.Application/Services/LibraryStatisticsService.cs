@@ -27,10 +27,10 @@ public class LibraryStatisticsService
 	{
 		return new LibraryStatisticsDto
 		{
-			TotalBooks = _bookRepository.Count(),
-			TotalAuthors = _authorRepository.Count(),
-			TotalTranslators = _translatorRepository.Count(),
-			TotalUsers = _userRepository.Count(),
+			TotalBooks = _bookRepository.GetAll().Count,
+			TotalAuthors = _authorRepository.GetAll().Count,
+			TotalTranslators = _translatorRepository.GetAll().Count,
+			TotalUsers = _userRepository.GetAll().Count,
 			TotalActiveLoans = _loanRepository.CountActiveLoans(),
 		};
 	}

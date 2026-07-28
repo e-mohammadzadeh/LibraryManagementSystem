@@ -3,7 +3,6 @@
 public enum FineStatus
 {
 	Unpaid, 
-	Pending,
 	Paid,
 	Waived
 }

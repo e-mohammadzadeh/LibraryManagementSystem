@@ -84,10 +84,4 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 			})
 		];
 	}
-
-
-	public int Count()
-	{
-		return _translators.Count;
-	}
 }

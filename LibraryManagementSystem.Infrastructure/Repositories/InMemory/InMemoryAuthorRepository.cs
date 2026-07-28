@@ -77,10 +77,4 @@ public class InMemoryAuthorRepository : IAuthorRepository
 			return value is not null && value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
 		})];
 	}
-
-
-	public int Count()
-	{
-		return _authors.Count;
-	}
 }

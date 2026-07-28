@@ -7,13 +7,15 @@ public class User : Person
 	public bool IsActive { get; private set; }
 	public DateOnly MembershipStartDate { get; set; }
 	public DateOnly MembershipExpiryDate { get; private set; }
+	public bool ShouldRemove { get; private set; }
 
 
 	public IReadOnlyCollection<UserRole> UserRoles => _userRoles.AsReadOnly();
 
 
 	public User(string firstName, string lastName, string nationalCode, string email, string phoneNumber,
-		DateOnly birthDate, IEnumerable<Role> roles, DateOnly? membershipStartDate = null) : base(firstName, lastName, nationalCode, email, phoneNumber,
+		DateOnly birthDate, IEnumerable<Role> roles, DateOnly? membershipStartDate = null) : base(firstName, lastName,
+		nationalCode, email, phoneNumber,
 		birthDate)
 	{
 		Id = ++_nextUserId;
@@ -21,17 +23,15 @@ public class User : Person
 		MembershipStartDate = membershipStartDate ?? DateOnly.FromDateTime(DateTime.Today);
 		// Should set a suitable end date based on business logic
 		MembershipExpiryDate = MembershipStartDate.AddYears(1);
-
+		ShouldRemove = false;
 		if (roles == null || !roles.Any())
 		{
 			throw new ArgumentException("A user must have at least one role.");
 		}
 
 		var rolesList = roles.ToList();
-		if (rolesList.Count == 0)
-			throw new ArgumentException("A user must have at least one role.");
-		foreach (var role in rolesList)
-			AssignRole(role);
+		if (rolesList.Count == 0) throw new ArgumentException("A user must have at least one role.");
+		foreach (var role in rolesList) AssignRole(role);
 	}
 
 
@@ -49,12 +49,10 @@ public class User : Person
 
 	public void AssignRole(Role role)
 	{
-		if (role is null)
-			throw new ArgumentNullException(nameof(role));
+		if (role is null) throw new ArgumentNullException(nameof(role));
 
 		// Prevent duplicate roles
-		if (_userRoles.Any(ur => ur.Role.Id == role.Id))
-			return;
+		if (_userRoles.Any(ur => ur.Role.Id == role.Id)) return;
 
 		var userRole = new UserRole(this, role);
 
@@ -65,13 +63,11 @@ public class User : Person
 
 	public void RemoveRole(int roleId)
 	{
-		if (_userRoles.Count == 1)
-			throw new InvalidOperationException("A user must have at least one role.");
+		if (_userRoles.Count == 1) throw new InvalidOperationException("A user must have at least one role.");
 
 		var userRole = _userRoles.FirstOrDefault(ur => ur.Role.Id == roleId);
 
-		if (userRole is null)
-			return;
+		if (userRole is null) return;
 
 		_userRoles.Remove(userRole);
 		userRole.Role.RemoveUserRole(userRole);
@@ -80,13 +76,11 @@ public class User : Person
 
 	public void ReplaceRoles(IEnumerable<Role> newRoles)
 	{
-		if (newRoles is null)
-			throw new ArgumentNullException(nameof(newRoles));
+		if (newRoles is null) throw new ArgumentNullException(nameof(newRoles));
 
 		var roles = newRoles.DistinctBy(r => r.Id).ToList();
 
-		if (roles.Count == 0)
-			throw new ArgumentException("A user must have at least one role.");
+		if (roles.Count == 0) throw new ArgumentException("A user must have at least one role.");
 
 		// remove old roles correctly
 		foreach (var userRole in _userRoles.ToList())
@@ -101,4 +95,7 @@ public class User : Person
 			AssignRole(role);
 		}
 	}
+
+
+	public void FlagRorRemoval() { ShouldRemove = true; }
 }

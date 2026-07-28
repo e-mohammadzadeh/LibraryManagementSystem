@@ -22,7 +22,7 @@ public class InMemoryBookRepository : IBookRepository
 
 	public IReadOnlyList<Book> GetAll()
 	{
-		return _books.ToList().AsReadOnly();
+		return _books.AsReadOnly();
 	}
 
 
@@ -86,12 +86,6 @@ public class InMemoryBookRepository : IBookRepository
 			var value = selector(book);
 			return value.HasValue && comparer(searchTerm.Value, value.Value);
 		}).ToList().AsReadOnly();
-	}
-
-
-	public int Count()
-	{
-		return _books.Count;
 	}
 
 
