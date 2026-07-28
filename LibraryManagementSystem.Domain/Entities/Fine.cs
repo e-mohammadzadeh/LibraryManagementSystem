@@ -27,7 +27,6 @@ public class Fine
 	public int LoanId { get; set; }
 	public Loan Loan { get; set; }
 	public int UserId { get; set; }
-	public decimal DailyRate { get; private set; }
 	public int OverdueDays { get; private set; }
 	public decimal Amount { get; private set; }
 	public DateOnly IssuedDate { get; set; }
@@ -53,7 +52,7 @@ public class Fine
 
 		var geometricDays = overdueDays - fixedRateDays;
 		var geometricTotal = initialDailyRate * ((decimal)Math.Pow((double)geometricRatio, geometricDays) - 1m) /
-			geometricRatio - 1m;
+			(geometricRatio - 1m);
 
 		var total = flatTotal + geometricTotal;
 		return Math.Min(total, maxUnpaidFineThreshold);

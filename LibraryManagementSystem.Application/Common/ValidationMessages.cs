@@ -191,6 +191,7 @@ public static class ValidationMessages
 	// 9. FINE MESSAGES
 	public const string FineCreatedSuccessfully = "Fine created successfully.";
 	public const string FineNotFound = "Fine not found.";
+	public const string UnpaidFineNotFound = "No unpaid fines found.";
 	public const string FinePaidSuccessfully = "Fine paid successfully.";
 	public const string FineWaivedSuccessfully = "Fine waived successfully.";
 	public const string NoFine = "Loan is not overdue. No fine needed.";

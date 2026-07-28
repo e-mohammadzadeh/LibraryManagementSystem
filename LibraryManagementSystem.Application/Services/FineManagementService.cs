@@ -83,7 +83,7 @@ public class FineManagementService
 
 
 	public IReadOnlyList<FineDto> GetAllUnpaidFines() =>
-		_fineRepository.GetAll().Select(MapToDto).ToList().AsReadOnly();
+		_fineRepository.GetAllUnpaid().Select(MapToDto).ToList().AsReadOnly();
 
 
 	public IReadOnlyList<FineDto> GetFinesByUser(int userId) =>
@@ -108,7 +108,6 @@ public class FineManagementService
 			UserId = fine.UserId,
 			UserFullName = $"{fine.Loan.User.FirstName} {fine.Loan.User.LastName}",
 			BookName = fine.Loan.Book.BookName,
-			DailyRate = fine.DailyRate,
 			OverdueDays = fine.OverdueDays,
 			Amount = fine.Amount,
 			IssuedDate = fine.IssuedDate,

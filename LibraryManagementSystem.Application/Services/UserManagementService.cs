@@ -1,7 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Domain.Entities;
-using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
 
 
@@ -14,10 +13,11 @@ public class UserManagementService
 	private readonly ILoanRepository _loanRepository;
 
 
-	public UserManagementService(IUserRepository userRepository, IRoleRepository roleRepository)
+	public UserManagementService(IUserRepository userRepository, IRoleRepository roleRepository, ILoanRepository loanRepository)
 	{
 		_userRepository = userRepository;
 		_roleRepository = roleRepository;
+		_loanRepository = loanRepository;
 	}
 
 

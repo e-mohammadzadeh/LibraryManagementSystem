@@ -72,14 +72,12 @@ public class LoanManagementService
 		loan.MarkAsReturned();
 		loan.Book.ReturnCopy();
 
-		// should check this because of fine
-		// If loan was overdue: 
-		//		calculate overdue days
-		//		create Fine(loan, dailyRate, overdueDays)
-		//		FineRepository.Add(fine)
-		//		return Ok with fine info in the result message
-		// else
-		//		return ok (no fine)
+
+		if (loan.IsOverdue || (loan.ReturnDate.HasValue && loan.ReturnDate > loan.DueDate))
+		{
+			// You can inject FineManagementService or call it from the menu layer
+			// fineService.CreateFineForLoan(loan.LoanId);
+		}
 		return ServiceResult<LoanDto>.Ok(MapToDto(loan), ValidationMessages.ReturnedSuccessfully);
 	}
 

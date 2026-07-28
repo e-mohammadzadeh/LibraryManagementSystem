@@ -9,7 +9,6 @@ public class FineDto
 	public int UserId { get; init; }
 	public string UserFullName { get; init; } = null!;
 	public string BookName { get; init; } = null!;
-	public decimal DailyRate { get; init; }
 	public int OverdueDays { get; init; }
 	public decimal Amount { get; init; }
 	public DateOnly IssuedDate { get; init; }
