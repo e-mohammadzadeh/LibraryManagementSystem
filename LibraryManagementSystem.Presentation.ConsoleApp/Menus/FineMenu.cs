@@ -5,10 +5,10 @@ using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
-public class FineMenu
+public static class FineMenu
 {
 	public static void FineMenuController(FineManagementService fineManagementService,
-		LibraryStatisticsService statisticsService)
+		UserManagementService userManagementService, LibraryStatisticsService statisticsService)
 	{
 		var continueProgram = true;
 		while (continueProgram)
@@ -44,7 +44,7 @@ public class FineMenu
 				case 4:
 				{
 					Console.Clear();
-					PayFine(fineManagementService);
+					PayFine(fineManagementService, userManagementService);
 					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 					Console.ReadKey(true);
 					break;
@@ -52,7 +52,7 @@ public class FineMenu
 				case 5:
 				{
 					Console.Clear();
-					WaiveFine(fineManagementService);
+					WaiveFine(fineManagementService, userManagementService);
 					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 					Console.ReadKey(true);
 					break;
@@ -136,7 +136,8 @@ public class FineMenu
 
 
 
-	private static void PayFine(FineManagementService fineManagementService)
+	private static void PayFine(FineManagementService fineManagementService,
+		UserManagementService userManagementService)
 	{
 		var unpaidFines = fineManagementService.GetAllUnpaidFines();
 		if (unpaidFines.Count == 0)
@@ -149,12 +150,17 @@ public class FineMenu
 		var fineId = ConsoleHelper.ReadInt(ValidationMessages.FineId4Pay, 1, int.MaxValue);
 		if (fineId is null) return;
 
-		var result = fineManagementService.PayFine(fineId.Value);
-		ConsoleHelper.ShowResult(result);
+		var payResult = fineManagementService.PayFine(fineId.Value);
+		ConsoleHelper.ShowResult(payResult);
+
+		if (!payResult.Success || payResult.Data is null) return;
+		var removeResult = userManagementService.TryAutoRemove(payResult.Data.UserId);
+		if (removeResult.Success) ConsoleHelper.ShowSuccess(removeResult.Message!);
 	}
 
 
-	private static void WaiveFine(FineManagementService fineManagementService)
+	private static void WaiveFine(FineManagementService fineManagementService,
+		UserManagementService userManagementService)
 	{
 		var unpaidFines = fineManagementService.GetAllUnpaidFines();
 		if (unpaidFines.Count == 0)
@@ -171,7 +177,11 @@ public class FineMenu
 		var confirm = ConsoleHelper.ReadYesNo(ValidationMessages.Confirm2Waive);
 		if (confirm != true) return;
 
-		var result = fineManagementService.WaiveFine(fineId.Value);
-		ConsoleHelper.ShowResult(result);
+		var waiveResult = fineManagementService.WaiveFine(fineId.Value);
+		ConsoleHelper.ShowResult(waiveResult);
+
+		if (!waiveResult.Success || waiveResult.Data is null) return;
+		var removeResult = userManagementService.TryAutoRemove(waiveResult.Data.UserId);
+		if (removeResult.Success) ConsoleHelper.ShowSuccess(removeResult.Message!);
 	}
 }

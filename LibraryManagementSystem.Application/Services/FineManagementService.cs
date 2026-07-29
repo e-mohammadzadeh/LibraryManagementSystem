@@ -38,6 +38,19 @@ public class FineManagementService
 
 		var fine = new Fine(loan, overdueDays);
 		_fineRepository.Add(fine);
+
+		var totalUnpaid = _fineRepository.GetTotalUnpaidAmount(loan.UserId);
+		if (fine.Amount >= ValidationConstants.MaxUnpaidFineThreshold ||
+		    totalUnpaid >= ValidationConstants.MaxUnpaidFineThreshold)
+		{
+			var user = _userRepository.FindById(loan.UserId);
+			if (user is not null && !user.ShouldRemove)
+			{
+				user.FlagForRemoval();
+				_userRepository.Update(user);
+			}
+		}
+
 		return ServiceResult<FineDto>.Ok(MapToDto(fine), ValidationMessages.FineCreatedSuccessfully);
 	}
 

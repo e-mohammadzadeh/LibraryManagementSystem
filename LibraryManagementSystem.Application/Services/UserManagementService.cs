@@ -165,13 +165,8 @@ public class UserManagementService
 	{
 		var user = _userRepository.FindById(userId);
 		if (user is null || !user.ShouldRemove) return false;
-
-		var hasActiveLoans = _loanRepository.GetActiveLoansByUser(userId).Count > 0;
-		if (hasActiveLoans) return false;
-
-		var unpaidTotal = _fineRepository.GetTotalUnpaidAmount(userId);
-		if (unpaidTotal > 0) return false;
-
+		if (_loanRepository.GetActiveLoansByUser(userId).Count > 0) return false;
+		if (_fineRepository.HasUnpaidFines(userId)) return false;
 		return true;
 	}
 

@@ -10,14 +10,16 @@ public class LoanManagementService
 	private readonly ILoanRepository _loanRepository;
 	private readonly IUserRepository _userRepository;
 	private readonly IBookRepository _bookRepository;
+	private readonly IFineRepository _fineRepository;
 
 
 	public LoanManagementService(ILoanRepository loanRepository, IUserRepository userRepository,
-		IBookRepository bookRepository)
+		IBookRepository bookRepository, IFineRepository fineRepository)
 	{
 		_loanRepository = loanRepository;
 		_userRepository = userRepository;
 		_bookRepository = bookRepository;
+		_fineRepository = fineRepository;
 	}
 
 
@@ -28,34 +30,21 @@ public class LoanManagementService
 
 		if (!user.IsActive) return ServiceResult<LoanDto>.Fail(ValidationMessages.MembershipExpired);
 
+		if (user.ShouldRemove) return ServiceResult<LoanDto>.Fail(ValidationMessages.Flagged4Removal);
+
+		if (_fineRepository.HasUnpaidFines(userId))
+			return ServiceResult<LoanDto>.Fail(ValidationMessages.BorrowFailed4Fine);
+
+		if (_loanRepository.CountActiveLoansByUser(userId) >= ValidationConstants.MaxActiveLoansPerUser)
+			return ServiceResult<LoanDto>.Fail(ValidationMessages.MaximumLoansReached);
+
 		var book = _bookRepository.FindById(bookId);
 		if (book is null) return ServiceResult<LoanDto>.Fail(ValidationMessages.NotBookMatched);
 
 		if (book.AvailableCopies <= 0) return ServiceResult<LoanDto>.Fail(ValidationMessages.NotEnoughCopiesAvailable);
 
-		if (_loanRepository.CountActiveLoansByUser(userId) >= ValidationConstants.MaxActiveLoansPerUser)
-			return ServiceResult<LoanDto>.Fail(ValidationMessages.MaximumLoansReached);
-
 		if (_loanRepository.HasActiveLoan(userId, bookId))
 			return ServiceResult<LoanDto>.Fail(ValidationMessages.BookAlreadyBorrowed);
-
-		// should check this because of fine
-		//total unpaid fines for this user > MaxUnpaidFineThreshold → return Fail("Cannot borrow: outstanding fines")
-		// User exists?
-		//         ↓
-		// User active?
-		//         ↓
-		// User.ShouldRemove == false?
-		//         ↓
-		// No unpaid fines?
-		//         ↓
-		// Maximum active loans not reached?
-		//         ↓
-		// Book available?
-		//         ↓
-		// Book not already borrowed?
-		//         ↓
-		// Create Loan
 
 		var loan = new Loan(book, user);
 		book.BorrowCopy();

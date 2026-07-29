@@ -162,6 +162,8 @@ public static class ValidationMessages
 	public const string ReturnedSuccessfully = "Book returned successfully.";
 	public const string RenewedSuccessfully = "Loan renewed successfully.";
 	public const string NotReturned = "Loan has not been returned yet.";
+	public const string Flagged4Removal = "This user is flagged for removal bacause of reaching max fine and cannot borrow books.";
+	public const string BorrowFailed4Fine = "User has unpaid fines. Please pay them first.";
 
 	// Search / Availability
 	public const string NotAvailableLoan = "No loans found. Please add a new loan first.";

@@ -1,7 +1,5 @@
-﻿using System.Reflection.PortableExecutable;
-using LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Fine;
-using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;

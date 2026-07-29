@@ -2,7 +2,6 @@
 using LibraryManagementSystem.Application.DTOs.Loans;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Domain.Entities;
-using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -32,7 +31,7 @@ public static class LoanMenu
 				case 2:
 				{
 					Console.Clear();
-					ReturnBook(loanManagementService);
+					ReturnBook(loanManagementService, userManagementService);
 					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 					Console.ReadKey(true);
 					break;
@@ -204,13 +203,17 @@ public static class LoanMenu
 	}
 
 
-	private static void ReturnBook(LoanManagementService loanManagementService)
+	private static void ReturnBook(LoanManagementService loanManagementService, UserManagementService userManagementService)
 	{
 		var loan = SelectActiveLoan(loanManagementService, "return");
 		if (loan is null) return;
 
 		var result = loanManagementService.ReturnBook(loan.LoanId);
 		ConsoleHelper.ShowResult(result);
+
+		if (!result.Success || result.Data is null) return;
+		var removeResult = userManagementService.TryAutoRemove(result.Data.UserId);
+		if (removeResult.Success) ConsoleHelper.ShowSuccess(removeResult.Message!);
 	}
 
 
@@ -326,7 +329,7 @@ public static class LoanMenu
 				case 6:
 				{
 					SearchLoanAndDisplay(ConsoleHelper.ReadLoanStatus, "Enter loan status",
-						loan => (LoanStatus)loan.Status, (search, value) => search == value,
+						loan => loan.Status, (search, value) => search == value,
 						activeOnly ? loanManagementService.SearchActiveLoans : loanManagementService.SearchLoans);
 
 					break;

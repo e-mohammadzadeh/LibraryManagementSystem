@@ -97,5 +97,5 @@ public class User : Person
 	}
 
 
-	public void FlagRorRemoval() { ShouldRemove = true; }
+	public void FlagForRemoval() { ShouldRemove = true; }
 }

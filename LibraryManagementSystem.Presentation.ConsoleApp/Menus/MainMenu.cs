@@ -54,7 +54,7 @@ public static class MainMenu
 				case 6:
 				{
 					Console.Clear();
-					FineMenu.FineMenuController(fineManagementService, statisticsService);
+					FineMenu.FineMenuController(fineManagementService, userManagementService, statisticsService);
 					break;
 				}
 				case 7:
