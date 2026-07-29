@@ -78,6 +78,7 @@ public class LoanManagementService
 			// You can inject FineManagementService or call it from the menu layer
 			// fineService.CreateFineForLoan(loan.LoanId);
 		}
+
 		return ServiceResult<LoanDto>.Ok(MapToDto(loan), ValidationMessages.ReturnedSuccessfully);
 	}
 

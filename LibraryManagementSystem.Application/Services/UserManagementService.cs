@@ -11,13 +11,16 @@ public class UserManagementService
 	private readonly IUserRepository _userRepository;
 	private readonly IRoleRepository _roleRepository;
 	private readonly ILoanRepository _loanRepository;
+	private readonly IFineRepository _fineRepository;
 
 
-	public UserManagementService(IUserRepository userRepository, IRoleRepository roleRepository, ILoanRepository loanRepository)
+	public UserManagementService(IUserRepository userRepository, IRoleRepository roleRepository,
+		ILoanRepository loanRepository, IFineRepository fineRepository)
 	{
 		_userRepository = userRepository;
 		_roleRepository = roleRepository;
 		_loanRepository = loanRepository;
+		_fineRepository = fineRepository;
 	}
 
 
@@ -61,20 +64,15 @@ public class UserManagementService
 	}
 
 
-	public IReadOnlyList<Role> GetAllRoles()
-	{
-		return _roleRepository.GetAllRoles();
-	}
+	public IReadOnlyList<Role> GetAllRoles() { return _roleRepository.GetAllRoles(); }
 
 
 	public ServiceResult<UserDto> UpdateUser(int userId, UpdateUserDto dto)
 	{
 		var user = _userRepository.FindById(userId);
-		if (user is null)
-			return ServiceResult<UserDto>.Fail(ValidationMessages.UserUpdateFailed);
+		if (user is null) return ServiceResult<UserDto>.Fail(ValidationMessages.UserUpdateFailed);
 
-		if (IsNoOpUpdateUser(user, dto))
-			return ServiceResult<UserDto>.Fail(ValidationMessages.NoChangesDetected);
+		if (IsNoOpUpdateUser(user, dto)) return ServiceResult<UserDto>.Fail(ValidationMessages.NoChangesDetected);
 
 		var resolvedFirstName = dto.FirstName ?? user.FirstName;
 		var resolvedLastName = dto.LastName ?? user.LastName;
@@ -140,10 +138,9 @@ public class UserManagementService
 	public ServiceResult<UserDto> RemoveUser(int userId)
 	{
 		var user = _userRepository.FindById(userId);
-		if (user is null)
-			return ServiceResult<UserDto>.Fail(ValidationMessages.UserRemoveFailed);
+		if (user is null) return ServiceResult<UserDto>.Fail(ValidationMessages.UserRemoveFailed);
 
-		
+
 		if (_loanRepository.CountActiveLoansByUser(userId) > 0)
 			return ServiceResult<UserDto>.Fail("Failed to remove author. The author has associated books.");
 
@@ -162,6 +159,33 @@ public class UserManagementService
 	{
 		return _userRepository.SearchByRole(role).Select(MapToDto).ToList().AsReadOnly();
 	}
+
+
+	public bool CanBeAutoRemoved(int userId)
+	{
+		var user = _userRepository.FindById(userId);
+		if (user is null || !user.ShouldRemove) return false;
+
+		var hasActiveLoans = _loanRepository.GetActiveLoansByUser(userId).Count > 0;
+		if (hasActiveLoans) return false;
+
+		var unpaidTotal = _fineRepository.GetTotalUnpaidAmount(userId);
+		if (unpaidTotal > 0) return false;
+
+		return true;
+	}
+
+
+	public ServiceResult<UserDto> TryAutoRemove(int userId)
+	{
+		if (!CanBeAutoRemoved(userId))
+			return ServiceResult<UserDto>.Fail("User does not meet auto-removal conditions.");
+
+		var user = _userRepository.FindById(userId)!;
+		_userRepository.Remove(user);
+		return ServiceResult<UserDto>.Ok(MapToDto(user), "User automatically removed from the system.");
+	}
+
 
 	// DeactivateMember  FindUserById
 

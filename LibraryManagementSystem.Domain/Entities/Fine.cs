@@ -14,8 +14,7 @@ public class Fine
 		LoanId = loan.LoanId;
 		UserId = loan.UserId;
 		OverdueDays = overdueDays;
-		Amount = CalculateAmount(overdueDays);
-		IssuedDate = DateOnly.FromDateTime(DateTime.Today);
+		Amount = FineCalculator(overdueDays);
 		Status = FineStatus.Unpaid;
 		Reason = reason ?? $"Overdue by {overdueDays} day(s)";
 		CreatedAt = DateTime.Now;
@@ -29,7 +28,6 @@ public class Fine
 	public int UserId { get; set; }
 	public int OverdueDays { get; private set; }
 	public decimal Amount { get; private set; }
-	public DateOnly IssuedDate { get; set; }
 	public FineStatus Status { get; private set; }
 	public string Reason { get; set; }
 	public DateTime CreatedAt { get; private set; }
@@ -37,7 +35,7 @@ public class Fine
 	public DateOnly? PaidAt { get; set; }
 
 
-	public static decimal CalculateAmount(int overdueDays)
+	public static decimal FineCalculator(int overdueDays)
 	{
 		const decimal maxUnpaidFineThreshold = 150m; // 15 days hits cap
 		const decimal initialDailyRate = 1m;

@@ -28,11 +28,10 @@ public class FineManagementService
 
 		if (loan.ReturnDate is null) return ServiceResult<FineDto>.Fail(ValidationMessages.NotReturned);
 
-		if (!loan.IsOverdue && loan.ReturnDate <= loan.DueDate)
+		if (loan.ReturnDate <= loan.DueDate)
 			return ServiceResult<FineDto>.Fail(ValidationMessages.NoFine);
 
 		var overdueDays = loan.ReturnDate.Value.DayNumber - loan.DueDate.DayNumber;
-		if (overdueDays <= 0) overdueDays = 1;
 
 		var existing = _fineRepository.GetUnpaidByLoanId(loanId);
 		if (existing.Count > 0) return ServiceResult<FineDto>.Fail(ValidationMessages.ExistedFine);
@@ -61,9 +60,9 @@ public class FineManagementService
 	}
 
 
-	public ServiceResult<FineDto> WaiveFine(int findId)
+	public ServiceResult<FineDto> WaiveFine(int fineId)
 	{
-		var fine = _fineRepository.FindById(findId);
+		var fine = _fineRepository.FindById(fineId);
 		if (fine is null) return ServiceResult<FineDto>.Fail(ValidationMessages.FineNotFound);
 
 		try
@@ -94,7 +93,7 @@ public class FineManagementService
 		_fineRepository.GetUnpaidByUserId(userId).Select(MapToDto).ToList().AsReadOnly();
 
 
-	public decimal GetTotalUnpaidAmound(int userId) => _fineRepository.GetTotalUnpaidAmount(userId);
+	public decimal GetTotalUnpaidAmount(int userId) => _fineRepository.GetTotalUnpaidAmount(userId);
 
 	public bool HasUnpaidFines(int userId) => _fineRepository.HasUnpaidFines(userId);
 
@@ -110,40 +109,10 @@ public class FineManagementService
 			BookName = fine.Loan.Book.BookName,
 			OverdueDays = fine.OverdueDays,
 			Amount = fine.Amount,
-			IssuedDate = fine.IssuedDate,
 			Status = fine.Status,
 			Reason = fine.Reason,
 			CreatedAt = fine.CreatedAt,
 			PaidAt = fine.PaidAt
 		};
 	}
-
-
-	// check whether loan is overdue
-	// public bool IsOverdue =>!ReturnDate.HasValue && DateOnly.FromDateTime(DateTime.Today) > DueDate;
-
-	// calculate fine
-	// OverdueDays = Today - DueDate(in days, minimum 1)
-	// TotalAmount = OverdueDays × DailyRate
-	// TotalAmount = Math.Min(TotalAmount, MaxFineAmount)  // optional cap
-
-	// create fine
-
-
-	// ===============
-
-	//	GetAllFines() → IReadOnlyList<FineDto>
-	//	GetUnpaidFines() → IReadOnlyList<FineDto>
-	//	GetFinesByUser(int userId) → IReadOnlyList<FineDto>
-	//	GetTotalUnpaidAmount(int userId) → decimal
-	//	PayFine(int fineId) → ServiceResult<FineDto>
-	//	WaiveFine(int fineId) → ServiceResult<FineDto>
-
-	//CreateFine(CreateFineDto dto) → ServiceResult<FineDto>
-	// PayFine(int fineId) → ServiceResult<FineDto>
-	// WaiveFine(int fineId) → ServiceResult<FineDto>
-	// GetAllFines() → IReadOnlyList<FineDto>
-	// GetAllUnpaidFines() → IReadOnlyList<FineDto>
-	// GetFinesByUser(int userId) → IReadOnlyList<FineDto>
-	// GetTotalUnpaidAmount(int userId) → decimal
 }

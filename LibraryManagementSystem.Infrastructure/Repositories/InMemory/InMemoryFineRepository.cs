@@ -4,26 +4,17 @@ using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Infrastructure.Repositories.InMemory;
 
-public class InMemoryFineRepository:IFineRepository
+public class InMemoryFineRepository : IFineRepository
 {
 	private readonly List<Fine> _fines = [];
 
-	public void Add(Fine fine)
-	{
-		_fines.Add(fine);
-	}
+	public void Add(Fine fine) { _fines.Add(fine); }
 
 
-	public Fine? FindById(int findId)
-	{
-		return _fines.FirstOrDefault(f => f.FineId == findId);
-	}
+	public Fine? FindById(int fineId) { return _fines.FirstOrDefault(f => f.FineId == fineId); }
 
 
-	public IReadOnlyList<Fine> GetAll()
-	{
-		return _fines.AsReadOnly();
-	}
+	public IReadOnlyList<Fine> GetAll() { return _fines.AsReadOnly(); }
 
 
 	public IReadOnlyList<Fine> GetAllUnpaid()
@@ -62,10 +53,7 @@ public class InMemoryFineRepository:IFineRepository
 	}
 
 
-	public void Remove(Fine fine)
-	{
-		_fines.Remove(fine);
-	}
+	public void Remove(Fine fine) { _fines.Remove(fine); }
 
 
 	public void Update(Fine fine)

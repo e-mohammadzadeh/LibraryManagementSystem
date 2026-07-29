@@ -5,7 +5,7 @@ namespace LibraryManagementSystem.Domain.Interfaces;
 public interface IFineRepository
 {
 	void Add(Fine fine);
-	Fine? FindById(int findId);
+	Fine? FindById(int fineId);
 	IReadOnlyList<Fine> GetAll();
 	IReadOnlyList<Fine> GetAllUnpaid();
 	IReadOnlyList<Fine> GetByUserId(int userId);
