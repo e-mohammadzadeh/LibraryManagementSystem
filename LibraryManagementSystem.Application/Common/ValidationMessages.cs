@@ -205,4 +205,7 @@ public static class ValidationMessages
 	public const string SearchMenuQuestion = "Select a search field by entering its number";
 	public const string SubMenusQuestion = "what do you want to do?";
 	public const string RemoveAllTranslators = "Are you sure you want to remove ALL translators from this book";
+	public const string FineId4Pay = "Enter Fine ID to pay";
+	public const string FineId4Waive = "Enter Fine ID to waive";
+	public const string Confirm2Waive = "Are you sure you want to waive this fine?";
 }

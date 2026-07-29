@@ -23,16 +23,16 @@ public class Fine
 
 	private static int _nextFineId;
 	public int FineId { get; private set; }
-	public int LoanId { get; set; }
-	public Loan Loan { get; set; }
-	public int UserId { get; set; }
+	public int LoanId { get; private set; }
+	public Loan Loan { get; private set; }
+	public int UserId { get; private set; }
 	public int OverdueDays { get; private set; }
 	public decimal Amount { get; private set; }
 	public FineStatus Status { get; private set; }
-	public string Reason { get; set; }
+	public string Reason { get; private set; }
 	public DateTime CreatedAt { get; private set; }
 	public DateTime? UpdatedAt { get; set; }
-	public DateOnly? PaidAt { get; set; }
+	public DateOnly? PaidAt { get; private set; }
 
 
 	public static decimal FineCalculator(int overdueDays)

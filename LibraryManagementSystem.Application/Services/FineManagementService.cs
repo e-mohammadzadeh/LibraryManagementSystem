@@ -112,6 +112,7 @@ public class FineManagementService
 			Status = fine.Status,
 			Reason = fine.Reason,
 			CreatedAt = fine.CreatedAt,
+			UpdatedAt = fine.UpdatedAt,
 			PaidAt = fine.PaidAt
 		};
 	}

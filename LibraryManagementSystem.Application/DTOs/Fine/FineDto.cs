@@ -14,5 +14,6 @@ public class FineDto
 	public FineStatus Status { get; init; }
 	public string Reason { get; init; } = null!;
 	public DateTime CreatedAt { get; init; }
+	public DateTime? UpdatedAt { get; init; }
 	public DateOnly? PaidAt { get;init; }
 }

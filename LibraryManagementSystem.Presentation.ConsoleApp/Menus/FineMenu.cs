@@ -7,10 +7,8 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
 public class FineMenu
 {
-	private static FineManagementService _fineService = null!;
-
-
-	public static void FineMenuController()
+	public static void FineMenuController(FineManagementService fineManagementService,
+		LibraryStatisticsService statisticsService)
 	{
 		var continueProgram = true;
 		while (continueProgram)
@@ -22,7 +20,7 @@ public class FineMenu
 				case 1:
 				{
 					Console.Clear();
-					ViewAllFines();
+					ViewAllFines(fineManagementService);
 					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 					Console.ReadKey(true);
 					break;
@@ -30,7 +28,7 @@ public class FineMenu
 				case 2:
 				{
 					Console.Clear();
-					ViewUnpaidFines();
+					ViewUnpaidFines(fineManagementService);
 					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 					Console.ReadKey(true);
 					break;
@@ -38,7 +36,7 @@ public class FineMenu
 				case 3:
 				{
 					Console.Clear();
-					ViewUserFines();
+					ViewUserFines(fineManagementService);
 					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 					Console.ReadKey(true);
 					break;
@@ -46,7 +44,7 @@ public class FineMenu
 				case 4:
 				{
 					Console.Clear();
-					PayFine();
+					PayFine(fineManagementService);
 					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 					Console.ReadKey(true);
 					break;
@@ -54,7 +52,7 @@ public class FineMenu
 				case 5:
 				{
 					Console.Clear();
-					WaiveFine();
+					WaiveFine(fineManagementService);
 					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 					Console.ReadKey(true);
 					break;
@@ -88,8 +86,7 @@ public class FineMenu
 			Console.Write(ValidationMessages.MainMenuQuestion);
 
 			var option = Console.ReadLine();
-			if (int.TryParse(option, out var result) && result is >= 1 and <= 6)
-				return result;
+			if (int.TryParse(option, out var result) && result is >= 1 and <= 6) return result;
 
 			ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
 		}
@@ -97,9 +94,9 @@ public class FineMenu
 
 
 
-	private static void ViewAllFines()
+	private static void ViewAllFines(FineManagementService fineManagementService)
 	{
-		var fines = _fineService.GetAllFines();
+		var fines = fineManagementService.GetAllFines();
 		if (fines.Count == 0)
 		{
 			ConsoleHelper.ShowWarning(ValidationMessages.FineNotFound);
@@ -110,9 +107,9 @@ public class FineMenu
 	}
 
 
-	private static void ViewUnpaidFines()
+	private static void ViewUnpaidFines(FineManagementService fineManagementService)
 	{
-		var fines = _fineService.GetAllUnpaidFines();
+		var fines = fineManagementService.GetAllUnpaidFines();
 		if (fines.Count == 0)
 		{
 			ConsoleHelper.ShowWarning(ValidationMessages.UnpaidFineNotFound);
@@ -123,23 +120,58 @@ public class FineMenu
 	}
 
 
-	private static void ViewUserFines()
+	private static void ViewUserFines(FineManagementService fineManagementService)
 	{
 		var userId = ConsoleHelper.ReadInt("Enter User ID to view fines", 1, int.MaxValue);
 		if (userId is null) return;
-		var fines = _fineService.GetFinesByUser(userId.Value);
+		var fines = fineManagementService.GetFinesByUser(userId.Value);
 		if (fines.Count == 0)
 		{
 			ConsoleHelper.ShowWarning(ValidationMessages.FineNotFound);
 			return;
 		}
+
 		FinePrinter.PrintTable(fines);
 	}
 
 
 
-	private static void PayFine()
+	private static void PayFine(FineManagementService fineManagementService)
 	{
+		var unpaidFines = fineManagementService.GetAllUnpaidFines();
+		if (unpaidFines.Count == 0)
+		{
+			ConsoleHelper.ShowWarning(ValidationMessages.UnpaidFineNotFound);
+			return;
+		}
 
+		FinePrinter.PrintTable(unpaidFines);
+		var fineId = ConsoleHelper.ReadInt(ValidationMessages.FineId4Pay, 1, int.MaxValue);
+		if (fineId is null) return;
+
+		var result = fineManagementService.PayFine(fineId.Value);
+		ConsoleHelper.ShowResult(result);
+	}
+
+
+	private static void WaiveFine(FineManagementService fineManagementService)
+	{
+		var unpaidFines = fineManagementService.GetAllUnpaidFines();
+		if (unpaidFines.Count == 0)
+		{
+			ConsoleHelper.ShowWarning(ValidationMessages.UnpaidFineNotFound);
+			return;
+		}
+
+		FinePrinter.PrintTable(unpaidFines);
+
+		var fineId = ConsoleHelper.ReadInt(ValidationMessages.FineId4Waive, 1, int.MaxValue);
+		if (fineId is null) return;
+
+		var confirm = ConsoleHelper.ReadYesNo(ValidationMessages.Confirm2Waive);
+		if (confirm != true) return;
+
+		var result = fineManagementService.WaiveFine(fineId.Value);
+		ConsoleHelper.ShowResult(result);
 	}
 }
