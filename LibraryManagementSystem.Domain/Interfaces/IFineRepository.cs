@@ -8,6 +8,7 @@ public interface IFineRepository
 	Fine? FindById(int fineId);
 	IReadOnlyList<Fine> GetAll();
 	IReadOnlyList<Fine> GetAllUnpaid();
+	IReadOnlyList<Fine> GetByLoanId(int loanId);
 	IReadOnlyList<Fine> GetByUserId(int userId);
 	IReadOnlyList<Fine> GetUnpaidByUserId(int userId);
 	IReadOnlyList<Fine> GetUnpaidByLoanId(int loanId);

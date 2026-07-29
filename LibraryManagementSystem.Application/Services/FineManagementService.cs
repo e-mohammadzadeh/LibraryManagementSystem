@@ -33,7 +33,7 @@ public class FineManagementService
 
 		var overdueDays = loan.ReturnDate.Value.DayNumber - loan.DueDate.DayNumber;
 
-		var existing = _fineRepository.GetUnpaidByLoanId(loanId);
+		var existing = _fineRepository.GetByLoanId(loanId);
 		if (existing.Count > 0) return ServiceResult<FineDto>.Fail(ValidationMessages.ExistedFine);
 
 		var fine = new Fine(loan, overdueDays);
@@ -118,8 +118,8 @@ public class FineManagementService
 			FineId = fine.FineId,
 			LoanId = fine.LoanId,
 			UserId = fine.UserId,
-			UserFullName = $"{fine.Loan.User.FirstName} {fine.Loan.User.LastName}",
-			BookName = fine.Loan.Book.BookName,
+			UserFullName = fine.Loan?.User is not null ? $"{fine.Loan.User.FirstName} {fine.Loan.User.LastName}" : "Unknown",
+			BookName = fine.Loan?.Book?.BookName ?? "Unknown",
 			OverdueDays = fine.OverdueDays,
 			Amount = fine.Amount,
 			Status = fine.Status,

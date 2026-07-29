@@ -61,7 +61,7 @@ public class LoanManagementService
 		loan.MarkAsReturned();
 		loan.Book.ReturnCopy();
 
-
+		//_fineRepository.
 		if (loan.IsOverdue || (loan.ReturnDate.HasValue && loan.ReturnDate > loan.DueDate))
 		{
 			// You can inject FineManagementService or call it from the menu layer

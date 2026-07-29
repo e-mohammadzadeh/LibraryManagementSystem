@@ -23,6 +23,12 @@ public class InMemoryFineRepository : IFineRepository
 	}
 
 
+	public IReadOnlyList<Fine> GetByLoanId(int loanId)
+	{
+		return _fines.Where(f => f.LoanId == loanId).ToList().AsReadOnly();
+	}
+
+
 	public IReadOnlyList<Fine> GetByUserId(int userId)
 	{
 		return _fines.Where(f => f.UserId == userId).ToList().AsReadOnly();

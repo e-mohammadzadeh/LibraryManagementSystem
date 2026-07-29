@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -36,7 +37,7 @@ public static class FineMenu
 				case 3:
 				{
 					Console.Clear();
-					ViewUserFines(fineManagementService);
+					ViewUserFines(fineManagementService, userManagementService);
 					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 					Console.ReadKey(true);
 					break;
@@ -120,11 +121,11 @@ public static class FineMenu
 	}
 
 
-	private static void ViewUserFines(FineManagementService fineManagementService)
+	private static void ViewUserFines(FineManagementService fineManagementService, UserManagementService userManagementService)
 	{
-		var userId = ConsoleHelper.ReadInt("Enter User ID to view fines", 1, int.MaxValue);
-		if (userId is null) return;
-		var fines = fineManagementService.GetFinesByUser(userId.Value);
+		var desiredUser = MenuHelper.SelectUser(userManagementService.GetAllUsers());
+		if (desiredUser is null) return;
+		var fines = fineManagementService.GetFinesByUser(desiredUser.Id);
 		if (fines.Count == 0)
 		{
 			ConsoleHelper.ShowWarning(ValidationMessages.FineNotFound);
@@ -149,6 +150,9 @@ public static class FineMenu
 		FinePrinter.PrintTable(unpaidFines);
 		var fineId = ConsoleHelper.ReadInt(ValidationMessages.FineId4Pay, 1, int.MaxValue);
 		if (fineId is null) return;
+
+		var confirm = ConsoleHelper.ReadYesNo(ValidationMessages.Confirm2Pay);
+		if (confirm != true) return;
 
 		var payResult = fineManagementService.PayFine(fineId.Value);
 		ConsoleHelper.ShowResult(payResult);

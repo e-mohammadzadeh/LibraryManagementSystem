@@ -30,8 +30,9 @@ public class Fine
 	public decimal Amount { get; private set; }
 	public FineStatus Status { get; private set; }
 	public string Reason { get; private set; }
+	public decimal DailyRate { get; private set; }
 	public DateTime CreatedAt { get; private set; }
-	public DateTime? UpdatedAt { get; set; }
+	public DateTime? UpdatedAt { get; private set; }
 	public DateOnly? PaidAt { get; private set; }
 
 
@@ -50,7 +51,7 @@ public class Fine
 
 		var geometricDays = overdueDays - fixedRateDays;
 		var geometricTotal = initialDailyRate * ((decimal)Math.Pow((double)geometricRatio, geometricDays) - 1m) /
-			(geometricRatio - 1m);
+		                     (geometricRatio - 1m);
 
 		var total = flatTotal + geometricTotal;
 		return Math.Min(total, maxUnpaidFineThreshold);
