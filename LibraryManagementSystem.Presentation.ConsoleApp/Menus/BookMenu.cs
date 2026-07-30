@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Application.Contracts;
 using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Domain.Entities;
@@ -12,7 +13,7 @@ public static class BookMenu
 {
 	public static void BookMenuController(AuthorManagementService authorManagementService,
 		TranslatorManagementService translatorManagementService, BookManagementService bookManagementService,
-		LibraryStatisticsService statisticsService)
+		LoanManagementService loanManagementService, LibraryStatisticsService statisticsService)
 	{
 		var continueProgram = true;
 		while (continueProgram)
@@ -52,14 +53,7 @@ public static class BookMenu
 				case 5:
 				{
 					Console.Clear();
-					var desiredBook = SelectExistingBook(bookManagementService);
-					if (desiredBook is not null)
-					{
-						BookPrinter.PrintDetails(desiredBook);
-						ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-						Console.ReadKey(true);
-					}
-
+					ViewBookDetails(bookManagementService, loanManagementService);
 					break;
 				}
 				case 6:
@@ -240,7 +234,8 @@ public static class BookMenu
 			Console.WriteLine("\n{0, -30} [{1}]", "1. Book Name", desiredBook.BookName);
 			Console.WriteLine("{0, -30} [{1}]", "2. ISBN", desiredBook.ISBN);
 			Console.WriteLine("{0, -30} [{1}]", "3. Author(s)", authorNameDisplay);
-			Console.WriteLine("{0, -30} [{1}]", "4. Translator(s)", string.IsNullOrWhiteSpace(translatorNameDisplay) ? "None" : translatorNameDisplay);
+			Console.WriteLine("{0, -30} [{1}]", "4. Translator(s)",
+				string.IsNullOrWhiteSpace(translatorNameDisplay) ? "None" : translatorNameDisplay);
 			Console.WriteLine("{0, -30} [{1}]", "5. Publish Date", desiredBook.PublishDate);
 			Console.WriteLine("{0, -30} [{1}]", "6. Total Copies", desiredBook.TotalCopies);
 			Console.WriteLine("{0, -30} [{1}]", "7. Genre", desiredBook.Genre);
@@ -431,7 +426,8 @@ public static class BookMenu
 				}
 
 				// Use ReadAuthors with allowMultiple = false — pick exactly one to remove
-				var selectedIds = ConsoleHelper.ReadAuthors(ValidationMessages.AuthorSelection4Remove, currentBook.Authors,
+				var selectedIds = ConsoleHelper.ReadAuthors(ValidationMessages.AuthorSelection4Remove,
+					currentBook.Authors,
 					false);
 				if (selectedIds is null) break;
 
@@ -741,5 +737,20 @@ public static class BookMenu
 		}
 
 		BookPrinter.PrintTable(result);
+	}
+
+
+	private static void ViewBookDetails(BookManagementService bookManagementService,
+		LoanManagementService loanManagementService)
+	{
+		var desiredBook = SelectExistingBook(bookManagementService);
+		if (desiredBook is not null)
+		{
+			BookPrinter.PrintDetails(desiredBook);
+			var loans = loanManagementService.GetLoanByBook(desiredBook.BookId);
+			BookPrinter.PrintLoanHistory(loans);
+		}
+		ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
+		Console.ReadKey(true);
 	}
 }

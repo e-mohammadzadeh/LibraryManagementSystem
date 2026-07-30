@@ -34,7 +34,7 @@ public static class MainMenu
 				{
 					Console.Clear();
 					BookMenu.BookMenuController(authorManagementService, translatorManagementService,
-						bookManagementService, statisticsService);
+						bookManagementService, loanManagementService, statisticsService);
 					break;
 				}
 				case 4:

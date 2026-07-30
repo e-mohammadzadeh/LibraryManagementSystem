@@ -174,7 +174,10 @@ public class BookManagementService
 
 		var activeLoans = _loanRepository.GetActiveLoansByBook(bookId);
 		if (activeLoans.Count > 0 || !book.CanBeRemoved())
-			return ServiceResult<BookDto>.Fail(ValidationMessages.BookRemoveFailedBorrowed);
+		{
+			var borrowersId = string.Join(", ", activeLoans.Select(al => al.UserId).ToList());
+			return ServiceResult<BookDto>.Fail(string.Format(ValidationMessages.BookRemoveFailedBorrowed, borrowersId));
+		}
 
 		book.DetachFromAuthors();
 		book.DetachFromTranslators();

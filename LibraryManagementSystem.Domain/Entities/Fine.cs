@@ -17,6 +17,7 @@ public class Fine
 		Amount = FineCalculator(overdueDays);
 		Status = FineStatus.Unpaid;
 		Reason = reason ?? $"Overdue by {overdueDays} day(s)";
+		DailyRate = 1m;
 		CreatedAt = DateTime.Now;
 	}
 

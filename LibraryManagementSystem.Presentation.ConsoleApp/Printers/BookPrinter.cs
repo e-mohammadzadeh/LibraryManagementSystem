@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Books;
+using LibraryManagementSystem.Application.DTOs.Loans;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
@@ -28,6 +29,7 @@ public static class BookPrinter
 		Console.WriteLine("{0, -30} [{1}]", "Description:", book.Description);
 		Console.WriteLine("{0, -30} [{1}]", "Created At:", book.CreatedAt);
 		Console.WriteLine("{0, -30} [{1}]", "Updated At:", book.UpdatedAt);
+		
 	}
 
 
@@ -55,5 +57,16 @@ public static class BookPrinter
 		}
 
 		Console.WriteLine(new string('=', 190));
+	}
+
+
+	public static void PrintLoanHistory(IReadOnlyList<LoanDto> loans) {
+		if (loans.Count == 0)
+		{
+			ConsoleHelper.ShowInfo("No loan history for this book.");
+			return;
+		}
+		Console.WriteLine($"\nLoan History ({loans.Count} loans):");
+		LoanPrinter.PrintTable(loans);
 	}
 }

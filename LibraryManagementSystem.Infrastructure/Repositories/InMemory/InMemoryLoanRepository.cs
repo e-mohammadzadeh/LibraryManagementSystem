@@ -81,21 +81,9 @@ public class InMemoryLoanRepository : ILoanRepository
 	}
 
 
-	public IReadOnlyList<Loan> GetReturnedLoans()
-	{
-		return [.. _loans.Where(l => l.Status == LoanStatus.Returned)];
-	}
-
-
 	public IReadOnlyList<Loan> GetOverdueLoans()
 	{
 		return [.. _loans.Where(l => l.IsOverdue)];
-	}
-
-
-	public void Remove(Loan loan)
-	{
-		_loans.Remove(loan);
 	}
 
 

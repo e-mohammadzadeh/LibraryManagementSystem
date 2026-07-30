@@ -105,7 +105,7 @@ public static class ValidationMessages
 	// Remove
 	public const string BookRemovedSuccessfully = "Book removed successfully.";
 	public const string BookRemoveFailed = "Failed to remove book.";
-	public const string BookRemoveFailedBorrowed = "Failed to remove Book. It is currently borrowed by user(s).";
+	public const string BookRemoveFailedBorrowed = "Failed to remove Book. It is currently borrowed by user(s) with id: {0}";
 
 	// Search
 	public const string NotAvailableBook = "No books found. Please add a new book first.";

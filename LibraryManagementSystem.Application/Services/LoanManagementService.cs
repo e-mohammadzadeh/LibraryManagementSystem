@@ -11,17 +11,17 @@ public class LoanManagementService
 	private readonly IUserRepository _userRepository;
 	private readonly IBookRepository _bookRepository;
 	private readonly IFineRepository _fineRepository;
-	private readonly UserAutoRemovalService _userAutoRemovalService;
+	private readonly FineManagementService _fineService;
 
 
 	public LoanManagementService(ILoanRepository loanRepository, IUserRepository userRepository,
-		IBookRepository bookRepository, IFineRepository fineRepository, UserAutoRemovalService userAutoRemovalService)
+		IBookRepository bookRepository, IFineRepository fineRepository, FineManagementService fineManagementService)
 	{
 		_loanRepository = loanRepository;
 		_userRepository = userRepository;
 		_bookRepository = bookRepository;
 		_fineRepository = fineRepository;
-		_userAutoRemovalService = userAutoRemovalService;
+		_fineService = fineManagementService;
 	}
 
 
@@ -64,50 +64,18 @@ public class LoanManagementService
 		loan.Book.ReturnCopy();
 		_loanRepository.Update(loan);
 
-		if (loan.ReturnDate.HasValue && loan.ReturnDate > loan.DueDate)
-		{
-			var overdueDays = loan.ReturnDate.Value.DayNumber - loan.DueDate.DayNumber;
-			if (overdueDays > 0)
-			{
-				var existingFines = _fineRepository.GetUnpaidByLoanId(loanId);
-				if (existingFines.Count == 0)
-				{
-					var fine = new Fine(loan, overdueDays);
-					_fineRepository.Add(fine);
+		var fineResult = _fineService.CreateFineForLoan(loanId);
+		if (!fineResult.Success && fineResult.Message != ValidationMessages.NoFine)
+			return ServiceResult<LoanDto>.Warning(MapToDto(loan),
+				$"{ValidationMessages.ReturnedSuccessfully} | Note: {fineResult.Message}");
 
-					var totalUnpaid = _fineRepository.GetTotalUnpaidAmount(loan.UserId);
-					if (fine.Amount >= ValidationConstants.MaxUnpaidFineThreshold ||
-					    totalUnpaid >= ValidationConstants.MaxUnpaidFineThreshold)
-					{
-						var user = _userRepository.FindById(loan.UserId);
-						if (user is not null && !user.ShouldRemove)
-						{
-							user.FlagForRemoval();
-							_userRepository.Update(user);
-						}
-					}
-				}
-			}
-		}
-
-		var removalResult = _userAutoRemovalService.TryAutoRemove(loan.UserId);
-		var message = ValidationMessages.ReturnedSuccessfully;
-		if (removalResult.Success)
-			message += $" | {removalResult.Message}";
-
-		return ServiceResult<LoanDto>.Ok(MapToDto(loan), message);
+		return ServiceResult<LoanDto>.Ok(MapToDto(loan), ValidationMessages.ReturnedSuccessfully);
 	}
 
 
 	public IReadOnlyList<LoanDto> GetActiveLoansByUser(int userId)
 	{
 		return _loanRepository.GetActiveLoansByUser(userId).Select(MapToDto).ToList().AsReadOnly();
-	}
-
-
-	public IReadOnlyList<LoanDto> GetActiveLoansByBook(int bookId)
-	{
-		return _loanRepository.GetActiveLoansByBook(bookId).Select(MapToDto).ToList().AsReadOnly();
 	}
 
 
@@ -163,7 +131,8 @@ public class LoanManagementService
 	}
 
 
-	public IReadOnlyList<LoanDto> SearchActiveLoans<T>(T? searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer)
+	public IReadOnlyList<LoanDto> SearchActiveLoans<T>(T? searchTerm, Func<Loan, T?> selector,
+		Func<T, T, bool> comparer)
 		where T : class
 	{
 		if (searchTerm is null) return [];
@@ -176,7 +145,8 @@ public class LoanManagementService
 	}
 
 
-	public IReadOnlyList<LoanDto> SearchActiveLoans<T>(T? searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer)
+	public IReadOnlyList<LoanDto> SearchActiveLoans<T>(T? searchTerm, Func<Loan, T?> selector,
+		Func<T, T, bool> comparer)
 		where T : struct
 	{
 		if (!searchTerm.HasValue) return [];
@@ -195,8 +165,10 @@ public class LoanManagementService
 	}
 
 
-
-	public IReadOnlyList<Loan> GetLoanByBook(int bookId) { return _loanRepository.GetLoansByBook(bookId); }
+	public IReadOnlyList<LoanDto> GetLoanByBook(int bookId)
+	{
+		return _loanRepository.GetLoansByBook(bookId).Select(MapToDto).ToList().AsReadOnly();
+	}
 
 
 	public IReadOnlyList<LoanDto> GetAllActiveLoans()

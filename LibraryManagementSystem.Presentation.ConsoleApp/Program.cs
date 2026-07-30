@@ -25,8 +25,8 @@ public static class Program
 		var userService = new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo);
 		var bookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo);
 		var UARS = new UserAutoRemovalService(userRepo, loanRepo, fineRepo);
-		var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, fineRepo, UARS);
 		var fineService = new FineManagementService(fineRepo, loanRepo, userRepo, UARS);
+		var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, fineRepo, fineService);
 
 		var statisticsService = new LibraryStatisticsService(bookRepo, authorRepo, translatorRepo, userRepo, loanRepo);
 

@@ -13,6 +13,7 @@ public class FineDto
 	public decimal Amount { get; init; }
 	public FineStatus Status { get; init; }
 	public string Reason { get; init; } = null!;
+	public decimal DailyRate { get; init; }
 	public DateTime CreatedAt { get; init; }
 	public DateTime? UpdatedAt { get; init; }
 	public DateOnly? PaidAt { get;init; }

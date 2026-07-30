@@ -13,7 +13,6 @@ public class FineManagementService
 	private readonly UserAutoRemovalService _userAutoRemovalService;
 
 
-
 	public FineManagementService(IFineRepository fineRepository, ILoanRepository loanRepository,
 		IUserRepository userRepository, UserAutoRemovalService userAutoRemovalService)
 	{
@@ -31,8 +30,7 @@ public class FineManagementService
 
 		if (loan.ReturnDate is null) return ServiceResult<FineDto>.Fail(ValidationMessages.NotReturned);
 
-		if (loan.ReturnDate <= loan.DueDate)
-			return ServiceResult<FineDto>.Fail(ValidationMessages.NoFine);
+		if (loan.ReturnDate <= loan.DueDate) return ServiceResult<FineDto>.Fail(ValidationMessages.NoFine);
 
 		var overdueDays = loan.ReturnDate.Value.DayNumber - loan.DueDate.DayNumber;
 
@@ -56,12 +54,13 @@ public class FineManagementService
 
 		return ServiceResult<FineDto>.Ok(MapToDto(fine), ValidationMessages.FineCreatedSuccessfully);
 	}
+	
 
 
-	public ServiceResult<FineDto> PayFine(int fineId) {
+	public ServiceResult<FineDto> PayFine(int fineId)
+	{
 		var fine = _fineRepository.FindById(fineId);
-		if (fine is null)
-			return ServiceResult<FineDto>.Fail(ValidationMessages.FineNotFound);
+		if (fine is null) return ServiceResult<FineDto>.Fail(ValidationMessages.FineNotFound);
 
 		try
 		{
@@ -70,8 +69,7 @@ public class FineManagementService
 
 			var removalResult = _userAutoRemovalService.TryAutoRemove(fine.UserId);
 			var message = ValidationMessages.FinePaidSuccessfully;
-			if (removalResult.Success)
-				message += $" | {removalResult.Message}";
+			if (removalResult.Success) message += $" | {removalResult.Message}";
 
 			return ServiceResult<FineDto>.Ok(MapToDto(fine), message);
 		}
@@ -94,8 +92,7 @@ public class FineManagementService
 
 			var removalResult = _userAutoRemovalService.TryAutoRemove(fine.UserId);
 			var message = ValidationMessages.FineWaivedSuccessfully;
-			if (removalResult.Success)
-				message += $" | {removalResult.Message}";
+			if (removalResult.Success) message += $" | {removalResult.Message}";
 
 			return ServiceResult<FineDto>.Ok(MapToDto(fine), message);
 		}
@@ -126,19 +123,22 @@ public class FineManagementService
 	public bool HasUnpaidFines(int userId) => _fineRepository.HasUnpaidFines(userId);
 
 
-	private static FineDto MapToDto(Fine fine) 
+	private static FineDto MapToDto(Fine fine)
 	{
 		return new FineDto
 		{
 			FineId = fine.FineId,
 			LoanId = fine.LoanId,
 			UserId = fine.UserId,
-			UserFullName = fine.Loan?.User is not null ? $"{fine.Loan.User.FirstName} {fine.Loan.User.LastName}" : "Unknown",
+			UserFullName = fine.Loan?.User is not null
+				? $"{fine.Loan.User.FirstName} {fine.Loan.User.LastName}"
+				: "Unknown",
 			BookName = fine.Loan?.Book?.BookName ?? "Unknown",
 			OverdueDays = fine.OverdueDays,
 			Amount = fine.Amount,
 			Status = fine.Status,
 			Reason = fine.Reason,
+			DailyRate = fine.DailyRate,
 			CreatedAt = fine.CreatedAt,
 			UpdatedAt = fine.UpdatedAt,
 			PaidAt = fine.PaidAt
