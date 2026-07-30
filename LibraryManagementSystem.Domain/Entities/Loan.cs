@@ -4,15 +4,16 @@ namespace LibraryManagementSystem.Domain.Entities;
 
 public class Loan
 {
-	public Loan(Book book, User user)
+	public Loan(Book book, User user, DateOnly? borrowDate)
 	{
 		LoanId = ++_nextLoanId;
 		Book = book;
 		BookId = book.BookId;
 		User = user;
 		UserId = user.Id;
-		BorrowDate = DateOnly.FromDateTime(DateTime.Today);
-		DueDate = DateOnly.FromDateTime(DateTime.Today.AddDays(LoanPeriodDays));
+		BorrowDate = borrowDate ?? DateOnly.FromDateTime(DateTime.Today);
+		//BorrowDate = DateOnly.FromDateTime(DateTime.Today);	// Commented because of DataSeeder
+		DueDate = BorrowDate.AddDays(LoanPeriodDays);
 		ReturnDate = null;
 		Status = LoanStatus.Borrowed;
 		CreatedAt = DateTime.Now;
@@ -34,14 +35,17 @@ public class Loan
 	public int RenewalCount { get; private set; }
 	public bool IsOverdue => !ReturnDate.HasValue && DateOnly.FromDateTime(DateTime.Today) > DueDate;
 	public bool IsActive => ReturnDate is null;
-	public DateTime CreatedAt { get; protected set; }
+	public DateTime CreatedAt { get; }
 	public DateTime? UpdatedAt { get; protected set; }
 
 
-	public void MarkAsReturned()
+	public void MarkAsReturned(DateOnly? returnDate = null)
 	{
-		ReturnDate = DateOnly.FromDateTime(DateTime.Today);
+		if (ReturnDate.HasValue) throw new InvalidOperationException("This loan has already been returned.");
+
+		ReturnDate = returnDate ?? DateOnly.FromDateTime(DateTime.Today);
 		Status = LoanStatus.Returned;
+		UpdatedAt = DateTime.Now;
 	}
 
 

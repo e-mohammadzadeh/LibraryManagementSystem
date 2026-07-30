@@ -40,6 +40,12 @@ public class InMemoryLoanRepository : ILoanRepository
 	}
 
 
+	public IReadOnlyList<Loan> GetReturnedLoans()
+	{
+		return _loans.Where(loan => loan.ReturnDate.HasValue).ToList().AsReadOnly();
+	}
+
+
 	public int CountActiveLoansByUser(int userId)
 	{
 		return _loans.Count(l => l.UserId == userId && l.ReturnDate == null);
@@ -52,7 +58,7 @@ public class InMemoryLoanRepository : ILoanRepository
 	}
 
 
-	public IReadOnlyList<Loan> GetActiveLoans() 
+	public IReadOnlyList<Loan> GetActiveLoans()
 	{
 		return _loans.Where(l => l.ReturnDate == null).ToList().AsReadOnly();
 	}

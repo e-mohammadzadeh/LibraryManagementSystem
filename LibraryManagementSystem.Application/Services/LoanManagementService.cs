@@ -48,7 +48,7 @@ public class LoanManagementService
 		if (_loanRepository.HasActiveLoan(userId, bookId))
 			return ServiceResult<LoanDto>.Fail(ValidationMessages.BookAlreadyBorrowed);
 
-		var loan = new Loan(book, user);
+		var loan = new Loan(book, user, DateOnly.FromDateTime(DateTime.Today));
 		book.BorrowCopy();
 		_loanRepository.Add(loan);
 		return ServiceResult<LoanDto>.Ok(MapToDto(loan), ValidationMessages.BorrowedSuccessfully);

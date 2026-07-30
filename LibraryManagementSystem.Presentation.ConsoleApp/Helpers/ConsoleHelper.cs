@@ -15,7 +15,7 @@ public static class ConsoleHelper
 	{
 		while (true)
 		{
-			Console.Write($"{prompt} (or type 'cancel' to abort): ");
+			Console.Write($"{prompt} (type 'cancel' to abort): ");
 			var input = Console.ReadLine() ?? string.Empty;
 
 			if (input.Trim().Equals("cancel", StringComparison.OrdinalIgnoreCase)) return null;
@@ -36,7 +36,7 @@ public static class ConsoleHelper
 	{
 		while (true)
 		{
-			Console.Write($"{prompt} (or type 'cancel' to abort): ");
+			Console.Write($"{prompt} (type 'cancel' to abort): ");
 			var input = Console.ReadLine() ?? string.Empty;
 			var trimmed = input.Trim();
 
@@ -141,10 +141,10 @@ public static class ConsoleHelper
 			foreach (var opt in options) Console.WriteLine($"	{opt.Id}. {opt.DisplayName}");
 
 			var instruction = allowMultiple
-				? "Enter numbers separated by commas (e.g., 1,3) or type 'cancel' to abort"
-				: "Enter a single number or type 'cancel' to abort";
+				? "Enter numbers separated by commas (e.g., 1,2,3 or type 'cancel' to abort)"
+				: "Enter a single number (type 'cancel' to abort)";
 
-			Console.WriteLine($"{prompt} ({instruction}): ");
+			Console.Write($"{prompt} .{instruction}: ");
 			var input = Console.ReadLine() ?? string.Empty;
 			var trimmed = input.Trim();
 

@@ -18,7 +18,7 @@ public static class Program
 		var fineRepo = new InMemoryFineRepository();
 
 		// Seed data for development/testing
-		DataSeeder.Seed(authorRepo, translatorRepo, bookRepo, userRepo, loanRepo, roleRepo);
+		DataSeeder.Seed(authorRepo, translatorRepo, bookRepo, userRepo, loanRepo, roleRepo, fineRepo);
 
 		var authorService = new AuthorManagementService(authorRepo);
 		var translatorService = new TranslatorManagementService(translatorRepo);

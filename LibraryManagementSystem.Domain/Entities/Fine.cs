@@ -4,10 +4,12 @@ namespace LibraryManagementSystem.Domain.Entities;
 
 public class Fine
 {
-	public Fine(Loan loan, int overdueDays, string? reason = null)
+	public Fine(Loan loan, string? reason = null)
 	{
 		if (loan is null) throw new ArgumentNullException(nameof(loan));
-		if (overdueDays <= 0) throw new ArgumentException("Overdue days must be greater than zero.");
+		if (loan.ReturnDate is null) throw new InvalidOperationException("Cannot create a fine for a loan that has not been returned.");
+		var overdueDays = loan.ReturnDate.Value.DayNumber - loan.DueDate.DayNumber;
+		if (overdueDays <= 0) throw new ArgumentException("Cannot create a fine for a loan that was not returned late.");
 
 		FineId = ++_nextFineId;
 		Loan = loan;

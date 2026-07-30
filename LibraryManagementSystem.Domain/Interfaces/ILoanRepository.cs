@@ -11,6 +11,7 @@ public interface ILoanRepository
 	Loan? GetActiveLoanById(int loanId);
 	IReadOnlyList<Loan> GetActiveLoansByUser(int userId);
 	IReadOnlyList<Loan> GetActiveLoansByBook(int bookId);
+	IReadOnlyList<Loan> GetReturnedLoans();
 	int CountActiveLoansByUser(int userId);
 	bool HasActiveLoan(int userId, int bookId);
 	IReadOnlyList<Loan> GetActiveLoans();

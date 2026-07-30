@@ -32,12 +32,10 @@ public class FineManagementService
 
 		if (loan.ReturnDate <= loan.DueDate) return ServiceResult<FineDto>.Fail(ValidationMessages.NoFine);
 
-		var overdueDays = loan.ReturnDate.Value.DayNumber - loan.DueDate.DayNumber;
-
 		var existing = _fineRepository.GetByLoanId(loanId);
 		if (existing.Count > 0) return ServiceResult<FineDto>.Fail(ValidationMessages.ExistedFine);
 
-		var fine = new Fine(loan, overdueDays);
+		var fine = new Fine(loan);
 		_fineRepository.Add(fine);
 
 		var totalUnpaid = _fineRepository.GetTotalUnpaidAmount(loan.UserId);
@@ -54,7 +52,7 @@ public class FineManagementService
 
 		return ServiceResult<FineDto>.Ok(MapToDto(fine), ValidationMessages.FineCreatedSuccessfully);
 	}
-	
+
 
 
 	public ServiceResult<FineDto> PayFine(int fineId)
