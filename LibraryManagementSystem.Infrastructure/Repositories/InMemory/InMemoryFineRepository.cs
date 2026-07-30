@@ -41,12 +41,6 @@ public class InMemoryFineRepository : IFineRepository
 	}
 
 
-	public IReadOnlyList<Fine> GetUnpaidByLoanId(int loanId)
-	{
-		return _fines.Where(f => f.LoanId == loanId && f.Status == FineStatus.Unpaid).ToList().AsReadOnly();
-	}
-
-
 	public bool HasUnpaidFines(int userId)
 	{
 		return _fines.Any(f => f.UserId == userId && f.Status == FineStatus.Unpaid);
@@ -57,9 +51,6 @@ public class InMemoryFineRepository : IFineRepository
 	{
 		return _fines.Where(f => f.UserId == userId && f.Status == FineStatus.Unpaid).Sum(f => f.Amount);
 	}
-
-
-	public void Remove(Fine fine) { _fines.Remove(fine); }
 
 
 	public void Update(Fine fine)

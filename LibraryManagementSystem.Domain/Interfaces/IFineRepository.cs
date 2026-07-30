@@ -11,9 +11,7 @@ public interface IFineRepository
 	IReadOnlyList<Fine> GetByLoanId(int loanId);
 	IReadOnlyList<Fine> GetByUserId(int userId);
 	IReadOnlyList<Fine> GetUnpaidByUserId(int userId);
-	IReadOnlyList<Fine> GetUnpaidByLoanId(int loanId);
 	bool HasUnpaidFines(int userId);
 	decimal GetTotalUnpaidAmount(int userId);
-	void Remove(Fine fine);
 	void Update(Fine fine);
 }

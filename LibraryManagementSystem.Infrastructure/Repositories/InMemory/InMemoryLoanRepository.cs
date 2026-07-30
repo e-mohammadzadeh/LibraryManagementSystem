@@ -9,22 +9,13 @@ public class InMemoryLoanRepository : ILoanRepository
 	private readonly List<Loan> _loans = [];
 
 
-	public void Add(Loan loan)
-	{
-		_loans.Add(loan);
-	}
+	public void Add(Loan loan) { _loans.Add(loan); }
 
 
-	public Loan? FindById(int id)
-	{
-		return _loans.FirstOrDefault(l => l.LoanId == id);
-	}
+	public Loan? FindById(int id) { return _loans.FirstOrDefault(l => l.LoanId == id); }
 
 
-	public IReadOnlyList<Loan> GetAll()
-	{
-		return _loans.AsReadOnly();
-	}
+	public IReadOnlyList<Loan> GetAll() { return _loans.AsReadOnly(); }
 
 
 	public IReadOnlyList<Loan> GetAllByUser(int userId)
@@ -33,10 +24,7 @@ public class InMemoryLoanRepository : ILoanRepository
 	}
 
 
-	public Loan? GetActiveLoanById(int loanId)
-	{
-		return _loans.FirstOrDefault(l => l.LoanId == loanId && l.IsActive);
-	}
+	public Loan? GetActiveLoanById(int loanId) { return _loans.FirstOrDefault(l => l.LoanId == loanId && l.IsActive); }
 
 
 
@@ -45,7 +33,8 @@ public class InMemoryLoanRepository : ILoanRepository
 		return _loans.Where(l => l.UserId == userId && l.ReturnDate == null).ToList().AsReadOnly();
 	}
 
-	public IReadOnlyList<Loan> GetActiveLoansByBook(int bookId) 
+
+	public IReadOnlyList<Loan> GetActiveLoansByBook(int bookId)
 	{
 		return _loans.Where(l => l.BookId == bookId && l.ReturnDate == null).ToList().AsReadOnly();
 	}
@@ -63,28 +52,22 @@ public class InMemoryLoanRepository : ILoanRepository
 	}
 
 
+	public IReadOnlyList<Loan> GetActiveLoans() 
+	{
+		return _loans.Where(l => l.ReturnDate == null).ToList().AsReadOnly();
+	}
+
+
 	public Loan? GetActiveLoan(int userId, int bookId)
 	{
 		return _loans.FirstOrDefault(l => l.UserId == userId && l.BookId == bookId && l.ReturnDate == null);
 	}
 
 
-	public IReadOnlyList<Loan> GetActiveLoans()
-	{
-		return _loans.Where(l => l.ReturnDate == null).ToList().AsReadOnly();
-	}
+	public IReadOnlyList<Loan> GetLoansByBook(int bookId) { return [.. _loans.Where(l => l.BookId == bookId)]; }
 
 
-	public IReadOnlyList<Loan> GetLoansByBook(int bookId)
-	{
-		return [.. _loans.Where(l => l.BookId == bookId)];
-	}
-
-
-	public IReadOnlyList<Loan> GetOverdueLoans()
-	{
-		return [.. _loans.Where(l => l.IsOverdue)];
-	}
+	public IReadOnlyList<Loan> GetOverdueLoans() { return [.. _loans.Where(l => l.IsOverdue)]; }
 
 
 	public void Update(Loan loan)
@@ -96,8 +79,5 @@ public class InMemoryLoanRepository : ILoanRepository
 	}
 
 
-	public int CountActiveLoans()
-	{
-		return _loans.Count(l=>l.IsActive);
-	}
+	public int CountActiveLoans() { return _loans.Count(l => l.IsActive); }
 }

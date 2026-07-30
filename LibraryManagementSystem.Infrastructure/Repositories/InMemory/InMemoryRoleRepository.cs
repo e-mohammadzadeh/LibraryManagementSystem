@@ -23,10 +23,4 @@ public class InMemoryRoleRepository : IRoleRepository
 	{
 		return [.. _roles.Where(role => ids.Contains(role.Id))];
 	}
-
-
-	public bool RoleExists(int id)
-	{
-		return _roles.Any(role => role.Id == id);
-	}
 }

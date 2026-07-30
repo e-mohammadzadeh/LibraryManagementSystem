@@ -47,13 +47,6 @@ public class AuthorManagementService
 	}
 
 
-	public AuthorDto? FindAuthorById(int id)
-	{
-		var author = _authorRepository.FindById(id);
-		return author is null ? null : MapToDto(author);
-	}
-
-
 	public ServiceResult<AuthorDto> UpdateAuthor(int authorId, UpdateAuthorDto dto)
 	{
 		var author = _authorRepository.FindById(authorId);

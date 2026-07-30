@@ -83,21 +83,6 @@ public class BookManagementService
 	}
 
 
-	public IReadOnlyList<int> GetAuthorIds(int bookId)
-	{
-		var book = _bookRepository.FindById(bookId);
-		return book?.BookAuthors.Select(ba => ba.AuthorId).ToList().AsReadOnly() ?? Array.Empty<int>().AsReadOnly();
-	}
-
-
-	public IReadOnlyList<int> GetTranslatorIds(int bookId)
-	{
-		var book = _bookRepository.FindById(bookId);
-		return book?.BookTranslators.Select(bt => bt.TranslatorId).ToList().AsReadOnly() ??
-		       Array.Empty<int>().AsReadOnly();
-	}
-
-
 	public ServiceResult<BookDto> UpdateBook(int bookId, UpdateBookDto dto)
 	{
 		var book = _bookRepository.FindById(bookId);
