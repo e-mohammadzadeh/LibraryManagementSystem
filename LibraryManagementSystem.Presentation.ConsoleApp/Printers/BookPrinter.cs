@@ -41,7 +41,7 @@ public static class BookPrinter
 			return;
 		}
 
-		Console.WriteLine("{0,-3} {1, -60} {2, -50} {3, -15} {4, -30} {5, -6}", "ID", "Book Name", "Author Name",
+		Console.WriteLine("{0,-3} {1, -60} {2, -50} {3, -20} {4, -30} {5, -6}", "ID", "Book Name", "Author Name",
 			"ISBN", "Translator Name", "Copies");
 		Console.WriteLine(new string('=', 190));
 
@@ -52,7 +52,7 @@ public static class BookPrinter
 			var translatorsDisplay = string.Join(", ", book.Translators.Select(t => t.FullName));
 			translatorsDisplay = translatorsDisplay.Length > 27 ? translatorsDisplay[..25] + "..." : translatorsDisplay;
 
-			Console.WriteLine("{0,-3} {1, -60} {2, -50} {3, -15} {4, -30} {5, -6}", book.BookId, book.BookName,
+			Console.WriteLine("{0,-3} {1, -60} {2, -50} {3, -20} {4, -30} {5, -6}", book.BookId, book.BookName,
 				authorsDisplay, book.ISBN, translatorsDisplay, $"{book.AvailableCopies}/{book.TotalCopies}");
 		}
 

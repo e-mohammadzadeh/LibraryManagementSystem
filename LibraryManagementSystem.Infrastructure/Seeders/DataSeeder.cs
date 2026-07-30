@@ -15,7 +15,7 @@ public static class DataSeeder
 		SeedAuthors(authorRepository, translatorRepository, bookRepository);
 		SeedUsers(userRepository, roleRepository);
 		SeedLoans(userRepository, bookRepository, loanRepository);
-		SeedFines(loanRepository, fineRepository);
+		//SeedFines(loanRepository, fineRepository);
 	}
 
 

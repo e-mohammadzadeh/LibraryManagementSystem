@@ -42,6 +42,8 @@ public static class BookMenu
 				{
 					Console.Clear();
 					RemoveBook(bookManagementService);
+					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
+					Console.ReadKey(true);
 					break;
 				}
 				case 4:
@@ -591,7 +593,7 @@ public static class BookMenu
 		}
 
 		BookPrinter.PrintDetails(desiredBook);
-		var choice = ConsoleHelper.ReadYesNo($"Are you sure you want to remove {desiredBook.BookName}");
+		var choice = ConsoleHelper.ReadYesNo($"\nAre you sure you want to remove");
 
 		if (choice != true) return;
 		var result = bookManagementService.RemoveBook(desiredBook.BookId);
