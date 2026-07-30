@@ -156,10 +156,6 @@ public static class FineMenu
 
 		var payResult = fineManagementService.PayFine(fineId.Value);
 		ConsoleHelper.ShowResult(payResult);
-
-		if (!payResult.Success || payResult.Data is null) return;
-		var removeResult = userManagementService.TryAutoRemove(payResult.Data.UserId);
-		if (removeResult.Success) ConsoleHelper.ShowSuccess(removeResult.Message!);
 	}
 
 
@@ -183,9 +179,5 @@ public static class FineMenu
 
 		var waiveResult = fineManagementService.WaiveFine(fineId.Value);
 		ConsoleHelper.ShowResult(waiveResult);
-
-		if (!waiveResult.Success || waiveResult.Data is null) return;
-		var removeResult = userManagementService.TryAutoRemove(waiveResult.Data.UserId);
-		if (removeResult.Success) ConsoleHelper.ShowSuccess(removeResult.Message!);
 	}
 }

@@ -10,14 +10,17 @@ public class FineManagementService
 	private readonly IFineRepository _fineRepository;
 	private readonly ILoanRepository _loanRepository;
 	private readonly IUserRepository _userRepository;
+	private readonly UserAutoRemovalService _userAutoRemovalService;
+
 
 
 	public FineManagementService(IFineRepository fineRepository, ILoanRepository loanRepository,
-		IUserRepository userRepository)
+		IUserRepository userRepository, UserAutoRemovalService userAutoRemovalService)
 	{
 		_fineRepository = fineRepository;
 		_loanRepository = loanRepository;
 		_userRepository = userRepository;
+		_userAutoRemovalService = userAutoRemovalService;
 	}
 
 
@@ -55,20 +58,26 @@ public class FineManagementService
 	}
 
 
-	public ServiceResult<FineDto> PayFine(int fineId)
-	{
+	public ServiceResult<FineDto> PayFine(int fineId) {
 		var fine = _fineRepository.FindById(fineId);
-		if (fine is null) return ServiceResult<FineDto>.Fail(ValidationMessages.FineNotFound);
+		if (fine is null)
+			return ServiceResult<FineDto>.Fail(ValidationMessages.FineNotFound);
 
 		try
 		{
 			fine.Pay();
 			_fineRepository.Update(fine);
-			return ServiceResult<FineDto>.Ok(MapToDto(fine), ValidationMessages.FinePaidSuccessfully);
+
+			var removalResult = _userAutoRemovalService.TryAutoRemove(fine.UserId);
+			var message = ValidationMessages.FinePaidSuccessfully;
+			if (removalResult.Success)
+				message += $" | {removalResult.Message}";
+
+			return ServiceResult<FineDto>.Ok(MapToDto(fine), message);
 		}
 		catch (InvalidOperationException ex)
 		{
-			return ServiceResult<FineDto>.Fail(ex.Message);	
+			return ServiceResult<FineDto>.Fail(ex.Message);
 		}
 	}
 
@@ -82,7 +91,13 @@ public class FineManagementService
 		{
 			fine.Waive();
 			_fineRepository.Update(fine);
-			return ServiceResult<FineDto>.Ok(MapToDto(fine), ValidationMessages.FineWaivedSuccessfully);
+
+			var removalResult = _userAutoRemovalService.TryAutoRemove(fine.UserId);
+			var message = ValidationMessages.FineWaivedSuccessfully;
+			if (removalResult.Success)
+				message += $" | {removalResult.Message}";
+
+			return ServiceResult<FineDto>.Ok(MapToDto(fine), message);
 		}
 		catch (InvalidOperationException ex)
 		{

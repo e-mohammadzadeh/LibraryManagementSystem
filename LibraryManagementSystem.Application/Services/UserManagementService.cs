@@ -161,27 +161,6 @@ public class UserManagementService
 	}
 
 
-	public bool CanBeAutoRemoved(int userId)
-	{
-		var user = _userRepository.FindById(userId);
-		if (user is null || !user.ShouldRemove) return false;
-		if (_loanRepository.GetActiveLoansByUser(userId).Count > 0) return false;
-		if (_fineRepository.HasUnpaidFines(userId)) return false;
-		return true;
-	}
-
-
-	public ServiceResult<UserDto> TryAutoRemove(int userId)
-	{
-		if (!CanBeAutoRemoved(userId))
-			return ServiceResult<UserDto>.Fail("User does not meet auto-removal conditions.");
-
-		var user = _userRepository.FindById(userId)!;
-		_userRepository.Remove(user);
-		return ServiceResult<UserDto>.Ok(MapToDto(user), "User automatically removed from the system.");
-	}
-
-
 	// DeactivateMember  FindUserById
 
 

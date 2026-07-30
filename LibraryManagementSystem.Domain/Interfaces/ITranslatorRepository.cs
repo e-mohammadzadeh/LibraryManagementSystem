@@ -14,5 +14,4 @@ public interface ITranslatorRepository
 	bool ExistsByPhoneNumber(string phoneNumber, int excludeId = -1);
 	void Remove(Translator translator);
 	IReadOnlyList<Translator> Search(string searchItem, Func<Translator, string?> selector);
-	int Count();
 }

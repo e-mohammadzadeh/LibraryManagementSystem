@@ -11,15 +11,17 @@ public class LoanManagementService
 	private readonly IUserRepository _userRepository;
 	private readonly IBookRepository _bookRepository;
 	private readonly IFineRepository _fineRepository;
+	private readonly UserAutoRemovalService _userAutoRemovalService;
 
 
 	public LoanManagementService(ILoanRepository loanRepository, IUserRepository userRepository,
-		IBookRepository bookRepository, IFineRepository fineRepository)
+		IBookRepository bookRepository, IFineRepository fineRepository, UserAutoRemovalService userAutoRemovalService)
 	{
 		_loanRepository = loanRepository;
 		_userRepository = userRepository;
 		_bookRepository = bookRepository;
 		_fineRepository = fineRepository;
+		_userAutoRemovalService = userAutoRemovalService;
 	}
 
 
@@ -60,15 +62,40 @@ public class LoanManagementService
 
 		loan.MarkAsReturned();
 		loan.Book.ReturnCopy();
+		_loanRepository.Update(loan);
 
-		//_fineRepository.
-		if (loan.IsOverdue || (loan.ReturnDate.HasValue && loan.ReturnDate > loan.DueDate))
+		if (loan.ReturnDate.HasValue && loan.ReturnDate > loan.DueDate)
 		{
-			// You can inject FineManagementService or call it from the menu layer
-			// fineService.CreateFineForLoan(loan.LoanId);
+			var overdueDays = loan.ReturnDate.Value.DayNumber - loan.DueDate.DayNumber;
+			if (overdueDays > 0)
+			{
+				var existingFines = _fineRepository.GetUnpaidByLoanId(loanId);
+				if (existingFines.Count == 0)
+				{
+					var fine = new Fine(loan, overdueDays);
+					_fineRepository.Add(fine);
+
+					var totalUnpaid = _fineRepository.GetTotalUnpaidAmount(loan.UserId);
+					if (fine.Amount >= ValidationConstants.MaxUnpaidFineThreshold ||
+					    totalUnpaid >= ValidationConstants.MaxUnpaidFineThreshold)
+					{
+						var user = _userRepository.FindById(loan.UserId);
+						if (user is not null && !user.ShouldRemove)
+						{
+							user.FlagForRemoval();
+							_userRepository.Update(user);
+						}
+					}
+				}
+			}
 		}
 
-		return ServiceResult<LoanDto>.Ok(MapToDto(loan), ValidationMessages.ReturnedSuccessfully);
+		var removalResult = _userAutoRemovalService.TryAutoRemove(loan.UserId);
+		var message = ValidationMessages.ReturnedSuccessfully;
+		if (removalResult.Success)
+			message += $" | {removalResult.Message}";
+
+		return ServiceResult<LoanDto>.Ok(MapToDto(loan), message);
 	}
 
 

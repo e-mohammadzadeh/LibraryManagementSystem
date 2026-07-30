@@ -210,10 +210,6 @@ public static class LoanMenu
 
 		var result = loanManagementService.ReturnBook(loan.LoanId);
 		ConsoleHelper.ShowResult(result);
-
-		if (!result.Success || result.Data is null) return;
-		var removeResult = userManagementService.TryAutoRemove(result.Data.UserId);
-		if (removeResult.Success) ConsoleHelper.ShowSuccess(removeResult.Message!);
 	}
 
 
