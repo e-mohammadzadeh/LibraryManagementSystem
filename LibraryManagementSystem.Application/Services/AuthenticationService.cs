@@ -1,6 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Users;
-using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
@@ -18,26 +17,35 @@ public class AuthenticationService
 	}
 
 
-	public ServiceResult<UserDto> Login(string email, string password)
+	public ServiceResult<AuthUserDto> Login(string email, string password)
 	{
 		if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
-			return ServiceResult<UserDto>.Fail("Email and password are required.");
+			return ServiceResult<AuthUserDto>.Fail("Email and password are required.");
 
 		var user = _userRepository.FindByEmail(email);
 		if (user is null)
-			return ServiceResult<UserDto>.Fail("Login failed: Invalid email address.");
+			return ServiceResult<AuthUserDto>.Fail("Login failed: Invalid email address.");
 
 		if (!_passwordHasher.VerifyPassword(password, user.PasswordHash, user.PasswordSalt))
-			return ServiceResult<UserDto>.Fail("Login failed: Invalid password.");
+			return ServiceResult<AuthUserDto>.Fail("Login failed: Invalid password.");
 
 		if (!user.IsActive)
-			return ServiceResult<UserDto>.Fail("This account is inactive.");
+			return ServiceResult<AuthUserDto>.Fail("This account is inactive.");
 
-		// Update last login date (optional)
 		user.UpdateLastLogin();
 		_userRepository.Update(user);
 
-		return ServiceResult<UserDto>.Ok(MapToDto(user), "Login successful.");
+		var authUser = new AuthUserDto
+		{
+			Id = user.Id,
+			FullName = $"{user.FirstName} {user.LastName}",
+			Email = user.Email,
+			Roles = user.UserRoles.Select(ur => ur.Role.Name).ToList().AsReadOnly(),
+			IsActive = user.IsActive,
+			MembershipExpiryDate = user.MembershipExpiryDate
+		};
+
+		return ServiceResult<AuthUserDto>.Ok(authUser, "Login successful.");
 	}
 
 
@@ -51,8 +59,13 @@ public class AuthenticationService
 	}
 
 
-	public void GetCurrentUser() { }
+	public void GetCurrentUser()
+	{
+		cure
+	}
 
 	public void IsAuthenticated(){}
+
+
 
 }

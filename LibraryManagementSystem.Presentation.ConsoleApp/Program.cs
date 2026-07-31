@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Infrastructure.Repositories.InMemory;
+using LibraryManagementSystem.Infrastructure.Security;
 using LibraryManagementSystem.Infrastructure.Seeders;
 using LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
@@ -16,13 +17,14 @@ public static class Program
 		var roleRepo = new InMemoryRoleRepository();
 		var loanRepo = new InMemoryLoanRepository();
 		var fineRepo = new InMemoryFineRepository();
+		var passwordRepo = new PasswordHasher();
 
 		// Seed data for development/testing
 		DataSeeder.Seed(authorRepo, translatorRepo, bookRepo, userRepo, loanRepo, roleRepo, fineRepo);
 
 		var authorService = new AuthorManagementService(authorRepo);
 		var translatorService = new TranslatorManagementService(translatorRepo);
-		var userService = new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo);
+		var userService = new UserManagementService(userRepo, roleRepo, loanRepo, passwordRepo);
 		var bookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo);
 		var UARS = new UserAutoRemovalService(userRepo, loanRepo, fineRepo);
 		var fineService = new FineManagementService(fineRepo, loanRepo, userRepo, UARS);

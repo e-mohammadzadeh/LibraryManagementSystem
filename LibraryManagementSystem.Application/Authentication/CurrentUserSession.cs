@@ -1,35 +1,18 @@
-﻿using LibraryManagementSystem.Domain.Entities;
+﻿using LibraryManagementSystem.Application.DTOs.Users;
+using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 
 namespace LibraryManagementSystem.Application.Authentication;
 
 public class CurrentUserSession : ICurrentUserSession
 {
+	public AuthUserDto? CurrentUser { get; private set; }
 	public bool IsAuthenticated => CurrentUser is not null;
-	public int? UserId { get; set; }
-	public IReadOnlyList<LibraryUserRole> Roles { get; set; } = [];
-	public User? CurrentUser { get; set; }
+	public int? UserId => CurrentUser?.Id;
 
+	public void Login(AuthUserDto user) { CurrentUser = user ?? throw new ArgumentNullException(nameof(user)); }
 
-	public void Login(User user)
-	{
-		if (user is null) throw new ArgumentNullException(nameof(user));
+	public void Logout() => CurrentUser = null;
 
-		CurrentUser = user;
-		UserId = user.Id;
-		Roles = user.UserRoles.Select(ur => ur.Role.Name).ToList().AsReadOnly();
-	}
-
-
-	public void Logout()
-	{
-		CurrentUser = null;
-		UserId = null;
-		Roles = [];
-	}
-
-	public bool HasRole(LibraryUserRole role)
-	{
-		return Roles.Contains(role);
-	}
+	public bool HasRole(LibraryUserRole role) { return CurrentUser?.Roles.Contains(role) ?? false; }
 }

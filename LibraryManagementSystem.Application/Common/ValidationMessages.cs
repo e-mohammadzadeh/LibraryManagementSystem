@@ -25,7 +25,13 @@ public static class ValidationMessages
 	public const string GetRole = "Select a role for this user:";
 	public const string DuplicateRemoved = "Duplicate items were removed.";
 	public const string NotAllowedMultiSelections = "Multiple selections are not allowed. Please enter a single number.";
-
+	public const string MinimumPasswordLength = "Password must contain at least 8 characters.";
+	public const string MaximumPasswordLength = "Password cannot contain more than 64 characters.";
+	public const string OneUppercaseLetter = "Password must contain at least one uppercase letter.";
+	public const string OneLowercaseLetter = "Password must contain at least one lowercase letter.";
+	public const string PasswordContainDigit = "Password must contain at least one digit.";
+	public const string PasswordContainSpecialCharacter = "Password must contain at least one special character.";
+	public const string NotEmptyPassword = "Password cannot be empty.";
 
 
 	// 3. AUTHOR MESSAGES
@@ -201,7 +207,18 @@ public static class ValidationMessages
 	public const string ExistedFine = "An unpaid fine already exists for this loan.";
 
 
-	// 10. Questions
+
+	// 10. Authentication & Authorization
+	public const string LoginSuccess = "Login successful.";
+	public const string LogoutSuccess = "Logged out successfully.";
+	public const string LoginFailedByUsername = "Invalid username.";
+	public const string LoginFailedByPassword = "Invalid password.";
+	public const string AccessDenied = "Access denied. You do not have permission to perform this action.";
+	public const string SessionExpired = "Your session has expired. Please log in again.";
+
+
+
+	// 11. Questions
 	public const string MainMenuQuestion = "Please Enter a number: ";
 	public const string EditMenuQuestion = "Enter the number of the field you wish to edit";
 	public const string EditContinuesQuestion = "Do you want to edit another field";

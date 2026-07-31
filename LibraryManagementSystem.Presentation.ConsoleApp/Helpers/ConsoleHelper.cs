@@ -167,7 +167,7 @@ public static class ConsoleHelper
 			}
 
 			var distinctIds = selectedIds!.Distinct().ToList();
-			if (distinctIds.Count != selectedIds.Count) ShowWarning(ValidationMessages.DuplicateRemoved);
+			if (distinctIds.Count != selectedIds!.Count) ShowWarning(ValidationMessages.DuplicateRemoved);
 			return distinctIds;
 		}
 	}
@@ -277,6 +277,12 @@ public static class ConsoleHelper
 	public static DateOnly? GetValidDate(string prompt)
 	{
 		return GetValidDateOnly(prompt, d => Validator.DateValidator(d));
+	}
+
+
+	public static string? GetValidPassword(string prompt)
+	{
+		return GetValidString(prompt, Validator.PasswordValidator);
 	}
 
 

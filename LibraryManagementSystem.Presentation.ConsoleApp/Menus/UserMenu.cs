@@ -1,7 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Application.Services;
-using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -128,10 +127,14 @@ public static class UserMenu
 		var roleIds = ConsoleHelper.ReadRoles("Select role(s) for this user", availableRoles);
 		if (roleIds == null) return null;
 
+		var password = ConsoleHelper.GetValidPassword("Enter a password for the user's login account");
+		if (password is null) return null;
+
 		return new CreateUserDto()
 		{
 			FirstName = fields.FirstName, LastName = fields.LastName, NationalCode = fields.NationalCode,
-			Email = fields.Email, PhoneNumber = fields.PhoneNumber, BirthDate = fields.BirthDate, RoleIds = roleIds
+			Email = fields.Email, PhoneNumber = fields.PhoneNumber, BirthDate = fields.BirthDate, RoleIds = roleIds,
+			Password = password
 		};
 	}
 

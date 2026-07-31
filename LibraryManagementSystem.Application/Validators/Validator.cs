@@ -68,8 +68,7 @@ public static class Validator
 
 	public static ValidationResult NameValidator(string name, int minLength, int maxLength)
 	{
-		if (name.Contains("  "))
-			return ValidationResult.Fail("The name cannot contain consecutive spaces.");
+		if (name.Contains("  ")) return ValidationResult.Fail("The name cannot contain consecutive spaces.");
 
 		if (name.Length < minLength || name.Length > maxLength)
 			return ValidationResult.Fail(ValidationMessages.InvalidBookName);
@@ -82,12 +81,35 @@ public static class Validator
 
 	public static ValidationResult DateValidator(DateOnly? date)
 	{
-		if (date == null)
-			return ValidationResult.Fail(ValidationMessages.InvalidInput);
+		if (date == null) return ValidationResult.Fail(ValidationMessages.InvalidInput);
 
 		var today = DateOnly.FromDateTime(DateTime.Today);
 		return date <= today && date >= today.AddYears(-1500)
 			? ValidationResult.Success()
 			: ValidationResult.Fail(ValidationMessages.InvalidDate);
+	}
+
+
+	public static ValidationResult PasswordValidator(string password)
+	{
+		if (string.IsNullOrWhiteSpace(password)) return ValidationResult.Fail(ValidationMessages.NotEmptyPassword);
+
+		switch (password.Length)
+		{
+			case < 8:
+				return ValidationResult.Fail(ValidationMessages.MinimumPasswordLength);
+			case > 64:
+				return ValidationResult.Fail(ValidationMessages.MaximumPasswordLength);
+		}
+
+		if (!password.Any(char.IsUpper)) return ValidationResult.Fail(ValidationMessages.OneUppercaseLetter);
+
+		if (!password.Any(char.IsLower)) return ValidationResult.Fail(ValidationMessages.OneLowercaseLetter);
+
+		if (!password.Any(char.IsDigit)) return ValidationResult.Fail(ValidationMessages.PasswordContainDigit);
+
+		return password.All(char.IsLetterOrDigit)
+			? ValidationResult.Fail(ValidationMessages.PasswordContainSpecialCharacter)
+			: ValidationResult.Success();
 	}
 }

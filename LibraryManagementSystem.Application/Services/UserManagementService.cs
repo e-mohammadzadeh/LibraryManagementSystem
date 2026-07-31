@@ -11,17 +11,15 @@ public class UserManagementService
 	private readonly IUserRepository _userRepository;
 	private readonly IRoleRepository _roleRepository;
 	private readonly ILoanRepository _loanRepository;
-	private readonly IFineRepository _fineRepository;
 	private readonly IPasswordHasher _passwordHasher;
 
 
 	public UserManagementService(IUserRepository userRepository, IRoleRepository roleRepository,
-		ILoanRepository loanRepository, IFineRepository fineRepository,IPasswordHasher passwordHasher )
+		ILoanRepository loanRepository,IPasswordHasher passwordHasher )
 	{
 		_userRepository = userRepository;
 		_roleRepository = roleRepository;
 		_loanRepository = loanRepository;
-		_fineRepository = fineRepository;
 		_passwordHasher = passwordHasher;
 	}
 
