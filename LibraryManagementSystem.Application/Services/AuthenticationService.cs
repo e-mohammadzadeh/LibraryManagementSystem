@@ -61,7 +61,7 @@ public class AuthenticationService
 		var username = _currentUserSession.CurrentUser?.FullName ?? "User";
 		_currentUserSession.Logout();
 
-		return ServiceResult<string>.Ok(username, $"{username} logged out successfully.");
+		return ServiceResult<string>.Ok(username, $"{username} " + ValidationMessages.LogoutSuccess);
 	}
 
 
@@ -69,7 +69,7 @@ public class AuthenticationService
 
 	public bool IsAuthenticated() { return _currentUserSession.IsAuthenticated; }
 
-	public bool HasRole(string role) { return _currentUserSession.HasRole(role); }
+	public bool HasRole(LibraryUserRole role) { return _currentUserSession.HasRole(role); }
 
 
 	public bool HasAnyRole(params LibraryUserRole[] roles)

@@ -21,6 +21,13 @@ public class PasswordHasher : IPasswordHasher
 		if (string.IsNullOrWhiteSpace(password))
 			throw new ArgumentException("Password cannot be empty", nameof(password));
 
+		if (storedHash is null || storedHash.Length == 0)
+			throw new ArgumentException("Stored password hash is invalid.", nameof(storedHash));
+
+		if (storedSalt is null || storedSalt.Length == 0)
+			throw new ArgumentException("Stored password salt is invalid.", nameof(storedSalt));
+
+
 		using var hmac = new HMACSHA512(storedSalt);
 		var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
 		return CryptographicOperations.FixedTimeEquals(computedHash, storedHash);

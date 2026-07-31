@@ -211,7 +211,7 @@ public static class ValidationMessages
 	// 10. Authentication & Authorization
 	public const string LoginSuccess = "Login successful.";
 	public const string LoginFailed = "Login failed.";
-	public const string LogoutSuccess = "Logged out successfully.";
+	public const string LogoutSuccess = "logged out successfully.";
 	public const string LoginInputRequired = "Email and password are required.";
 	public const string InvalidLoginInput = "Invalid email or password";
 	public const string AccessDenied = "Access denied. You do not have permission to perform this action.";

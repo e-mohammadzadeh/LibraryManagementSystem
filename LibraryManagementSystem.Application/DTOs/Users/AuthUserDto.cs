@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using LibraryManagementSystem.Domain.Enums;
+﻿using LibraryManagementSystem.Domain.Enums;
 
 namespace LibraryManagementSystem.Application.DTOs.Users;
 
@@ -11,4 +10,5 @@ public class AuthUserDto
 	public IReadOnlyList<LibraryUserRole> Roles { get; init; } = [];
 	public bool IsActive { get; init; }
 	public DateOnly MembershipExpiryDate { get; init; }
+	public bool ShouldRemove { get; init; }
 }

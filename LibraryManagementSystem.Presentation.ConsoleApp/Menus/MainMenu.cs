@@ -9,7 +9,7 @@ public static class MainMenu
 	public static void MainMenuController(AuthorManagementService authorManagementService,
 		TranslatorManagementService translatorManagementService, UserManagementService userManagementService,
 		BookManagementService bookManagementService, LoanManagementService loanManagementService,
-		FineManagementService fineManagementService,
+		FineManagementService fineManagementService, AuthenticationService authenticationService,
 		LibraryStatisticsService statisticsService)
 	{
 		var continueProgram = true;
@@ -59,6 +59,15 @@ public static class MainMenu
 				}
 				case 7:
 				{
+					Console.Clear();
+					ConsoleHelper.ShowError("Logging out...\n");
+					var result = authenticationService.Logout();
+					ConsoleHelper.ShowResult(result);
+					continueProgram = false;
+					break;
+				}
+				case 8:
+				{
 					ConsoleHelper.ShowError("Exiting Program...\n");
 					continueProgram = false;
 					break;
@@ -79,12 +88,13 @@ public static class MainMenu
 			Console.WriteLine("4. Members");
 			Console.WriteLine("5. Loans");
 			Console.WriteLine("6. Fines");
-			Console.WriteLine("7. Exit");
+			Console.WriteLine("7. Logout");
+			Console.WriteLine("8. Exit");
 			Console.WriteLine(new string('=', 82));
 			Console.Write(ValidationMessages.MainMenuQuestion);
 
 			var option = Console.ReadLine();
-			if (int.TryParse(option, out var result) && result is >= 1 and <= 7)
+			if (int.TryParse(option, out var result) && result is >= 1 and <= 8)
 			{
 				return result;
 			}

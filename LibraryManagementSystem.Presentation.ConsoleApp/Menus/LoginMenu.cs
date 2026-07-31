@@ -21,7 +21,7 @@ public class LoginMenu
 			if (password is null) return null;
 
 			var result = authenticationService.Login(username, password);
-			if (!result.Success && result.Data is not null)
+			if (result is { Success: true, Data: not null })
 			{
 				ConsoleHelper.ShowSuccess(result.Message ?? ValidationMessages.LoginSuccess);
 				ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
