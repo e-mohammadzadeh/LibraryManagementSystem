@@ -86,7 +86,11 @@ public class LoanManagementService
 
 		if (!loan.CanRenew(out var errorMessage)) return ServiceResult<LoanDto>.Fail(errorMessage);
 
+		if (_fineService.HasUnpaidFines(loan.UserId))
+			return ServiceResult<LoanDto>.Fail(ValidationMessages.UserHasUnpaidFines);
+
 		loan.Renew();
+		_loanRepository.Update(loan);
 		return ServiceResult<LoanDto>.Ok(MapToDto(loan), ValidationMessages.RenewedSuccessfully);
 	}
 

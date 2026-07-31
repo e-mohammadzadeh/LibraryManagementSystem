@@ -51,9 +51,15 @@ public class Loan
 
 	public bool CanRenew(out string errorMessage)
 	{
-		if (ReturnDate != null)
+		if (ReturnDate.HasValue)
 		{
 			errorMessage = "Returned books cannot be renewed.";
+			return false;
+		}
+
+		if (IsOverdue)
+		{
+			errorMessage = "Overdue loans cannot be renewed. Please return the book and pay any applicable fine.";
 			return false;
 		}
 
@@ -62,9 +68,7 @@ public class Loan
 			errorMessage = "This loan has already reached the maximum number of renewals.";
 			return false;
 		}
-
-		// checking IsOverdue is true of false 
-
+		
 		errorMessage = string.Empty;
 		return true;
 	}
@@ -72,10 +76,8 @@ public class Loan
 
 	public void Renew()
 	{
-		if (!CanRenew(out var errorMessage)) throw new InvalidOperationException(errorMessage);
-
 		DueDate = DueDate.AddDays(LoanPeriodDays);
-		Status = LoanStatus.Borrowed;
 		RenewalCount++;
+		UpdatedAt = DateTime.Now;
 	}
 }

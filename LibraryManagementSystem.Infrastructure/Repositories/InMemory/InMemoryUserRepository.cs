@@ -16,15 +16,21 @@ public class InMemoryUserRepository : IUserRepository
 
 	public User? FindById(int id)
 	{
-		return _users.FirstOrDefault(m => m.Id == id);
+		return _users.FirstOrDefault(u => u.Id == id);
 	}
 
 
 	public User? FindByName(string firstName, string lastName)
 	{
-		return _users.FirstOrDefault(user =>
-			user.FirstName.Equals(firstName, StringComparison.OrdinalIgnoreCase) &&
-			user.LastName.Equals(lastName, StringComparison.OrdinalIgnoreCase));
+		return _users.FirstOrDefault(u =>
+			u.FirstName.Equals(firstName, StringComparison.OrdinalIgnoreCase) &&
+			u.LastName.Equals(lastName, StringComparison.OrdinalIgnoreCase));
+	}
+
+
+	public User? FindByEmail(string email)
+	{
+		return _users.FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
 	}
 
 
@@ -36,27 +42,27 @@ public class InMemoryUserRepository : IUserRepository
 
 	public bool ExistsByName(string firstName, string lastName, int excludeId = -1)
 	{
-		return _users.Any(user =>
-			user.Id != excludeId && user.FirstName.Equals(firstName, StringComparison.OrdinalIgnoreCase) &&
-			user.LastName.Equals(lastName, StringComparison.OrdinalIgnoreCase));
+		return _users.Any(u =>
+			u.Id != excludeId && u.FirstName.Equals(firstName, StringComparison.OrdinalIgnoreCase) &&
+			u.LastName.Equals(lastName, StringComparison.OrdinalIgnoreCase));
 	}
 
 
 	public bool ExistsByNationalCode(string nationalCode, int excludeId = -1)
 	{
-		return _users.Any(user => user.Id != excludeId && user.NationalCode.Equals(nationalCode));
+		return _users.Any(u => u.Id != excludeId && u.NationalCode.Equals(nationalCode));
 	}
 
 
 	public bool ExistsByEmail(string email, int excludeId = -1)
 	{
-		return _users.Any(user => user.Id != excludeId && user.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+		return _users.Any(u => u.Id != excludeId && u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
 	}
 
 
 	public bool ExistsByPhoneNumber(string phoneNumber, int excludeId = -1)
 	{
-		return _users.Any(user => user.Id != excludeId && user.PhoneNumber.Equals(phoneNumber));
+		return _users.Any(u => u.Id != excludeId && u.PhoneNumber.Equals(phoneNumber));
 	}
 
 
@@ -80,9 +86,9 @@ public class InMemoryUserRepository : IUserRepository
 
 		return
 		[
-			.. _users.Where(member =>
+			.. _users.Where(u =>
 			{
-				var value = selector(member);
+				var value = selector(u);
 				return value is not null && value.Contains(searchTerm, StringComparison.OrdinalIgnoreCase);
 			})
 		];
@@ -95,6 +101,6 @@ public class InMemoryUserRepository : IUserRepository
 
 		return roleIds.Count == 0
 			? []
-			: _users.Where(user => user.UserRoles.Any(ur => roleIds.Contains(ur.RoleId))).ToList();
+			: _users.Where(u => u.UserRoles.Any(ur => roleIds.Contains(ur.RoleId))).ToList();
 	}
 }

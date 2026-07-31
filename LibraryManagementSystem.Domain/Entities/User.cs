@@ -8,6 +8,8 @@ public class User : Person
 	public DateOnly MembershipStartDate { get; set; }
 	public DateOnly MembershipExpiryDate { get; private set; }
 	public bool ShouldRemove { get; private set; }
+	public byte[] PasswordHash { get; private set; } = [];
+	public byte[] PasswordSalt { get; private set; } = [];
 
 
 	public IReadOnlyCollection<UserRole> UserRoles => _userRoles.AsReadOnly();
@@ -98,4 +100,11 @@ public class User : Person
 
 
 	public void FlagForRemoval() { ShouldRemove = true; }
+
+
+	public void SetPasswordHash(byte[] passwordHash, byte[] passwordSalt)
+	{
+		passwordHash = passwordHash ?? throw new ArgumentNullException(nameof(passwordHash));
+		passwordSalt = passwordSalt ?? throw new ArgumentNullException(nameof(passwordSalt));
+	}
 }

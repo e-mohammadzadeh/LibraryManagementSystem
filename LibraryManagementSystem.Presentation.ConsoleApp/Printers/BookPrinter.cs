@@ -29,7 +29,6 @@ public static class BookPrinter
 		Console.WriteLine("{0, -30} [{1}]", "Description:", book.Description);
 		Console.WriteLine("{0, -30} [{1}]", "Created At:", book.CreatedAt);
 		Console.WriteLine("{0, -30} [{1}]", "Updated At:", book.UpdatedAt);
-		
 	}
 
 

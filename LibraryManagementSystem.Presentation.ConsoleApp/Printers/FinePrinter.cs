@@ -31,7 +31,7 @@ public static class FinePrinter
 			return;
 		}
 
-		Console.WriteLine("{0,-4} {1,-8} {2,-35} {3,-35} {4,10} {5,8} {6,-10}", "ID", "Loan ID", "User", "Book",
+		Console.WriteLine("\n{0,-4} {1,-8} {2,-35} {3,-35} {4,-10} {5,-8} {6,-10}", "ID", "Loan ID", "User", "Book",
 			"Amount", "Days", "Status");
 		Console.WriteLine(new string('=', 130));
 

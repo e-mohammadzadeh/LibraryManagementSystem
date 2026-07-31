@@ -179,6 +179,7 @@ public static class ValidationMessages
 	public const string ActiveLoanNotFound = "No active loan found for the selected user and book.";
 	public const string UserHasNoBorrowedBooks = "This user has no borrowed books.";
 	public const string NoLoanHistoryForUser = "This user has no loan history.";
+	public const string UserHasUnpaidFines = "You cannot renew a loan while you have unpaid fines. Please pay your fines first.";
 
 	// Copy Availability
 	public const string NotEnoughCopiesAvailable = "Not enough copies available for this book.";
