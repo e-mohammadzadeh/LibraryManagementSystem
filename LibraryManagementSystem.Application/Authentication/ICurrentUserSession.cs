@@ -5,12 +5,12 @@ namespace LibraryManagementSystem.Application.Authentication;
 
 public interface ICurrentUserSession
 {
-	bool IsAuthenticated { get; set; }
-	int? UserId { get; set; }
-	IReadOnlyList<LibraryUserRole> Roles { get; set; }
-	User? CurrentUser { get; set; }
+	bool IsAuthenticated { get; }
+	int? UserId { get; }
+	IReadOnlyList<LibraryUserRole> Roles { get; }
+	User? CurrentUser { get; }
 
 	void Login(User user);
 	void Logout();
-	bool HasRole(string roleName);
+	bool HasRole(LibraryUserRole role);
 }

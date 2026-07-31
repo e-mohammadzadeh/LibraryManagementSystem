@@ -12,15 +12,17 @@ public class UserManagementService
 	private readonly IRoleRepository _roleRepository;
 	private readonly ILoanRepository _loanRepository;
 	private readonly IFineRepository _fineRepository;
+	private readonly IPasswordHasher _passwordHasher;
 
 
 	public UserManagementService(IUserRepository userRepository, IRoleRepository roleRepository,
-		ILoanRepository loanRepository, IFineRepository fineRepository)
+		ILoanRepository loanRepository, IFineRepository fineRepository,IPasswordHasher passwordHasher )
 	{
 		_userRepository = userRepository;
 		_roleRepository = roleRepository;
 		_loanRepository = loanRepository;
 		_fineRepository = fineRepository;
+		_passwordHasher = passwordHasher;
 	}
 
 
@@ -44,13 +46,14 @@ public class UserManagementService
 
 		var roles = _roleRepository.FindByIds(dto.RoleIds);
 		if (roles.Count != dto.RoleIds.Count)
-		{
 			return ServiceResult<UserDto>.Fail("One or more selected roles do not exist.");
-		}
 
+		_passwordHasher.CreatePasswordHash(dto.Password, out var hash, out var salt);
+		
 		var newUser = new User(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
 			roles);
 
+		newUser.SetPasswordHash(hash, salt);
 		_userRepository.Add(newUser);
 		return warningMessage is not null
 			? ServiceResult<UserDto>.Warning(MapToDto(newUser), warningMessage)
