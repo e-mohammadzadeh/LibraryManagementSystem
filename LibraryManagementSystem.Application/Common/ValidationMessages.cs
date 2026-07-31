@@ -158,8 +158,8 @@ public static class ValidationMessages
 	public const string FailureDuplicateRolesSelected = "Duplicate roles selected.";
 
 	// Membership
-	public const string MembershipExpired = "Membership expired. Please renew your membership to borrow books.";
-
+	public const string MembershipExpired = "Membership expired. Please renew your membership.";
+	public const string InactiveAccount = "This account is inactive.";
 
 
 	// 7. LOAN MESSAGES
@@ -210,9 +210,10 @@ public static class ValidationMessages
 
 	// 10. Authentication & Authorization
 	public const string LoginSuccess = "Login successful.";
+	public const string LoginFailed = "Login failed.";
 	public const string LogoutSuccess = "Logged out successfully.";
-	public const string LoginFailedByUsername = "Invalid username.";
-	public const string LoginFailedByPassword = "Invalid password.";
+	public const string LoginInputRequired = "Email and password are required.";
+	public const string InvalidLoginInput = "Invalid email or password";
 	public const string AccessDenied = "Access denied. You do not have permission to perform this action.";
 	public const string SessionExpired = "Your session has expired. Please log in again.";
 

@@ -7,7 +7,7 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
 public class LoginMenu
 {
-	public static UserDto? LoginMenuOption(AuthenticationService authenticationService)
+	public static AuthUserDto? ShowLogin(AuthenticationService authenticationService)
 	{
 		while (true)
 		{
@@ -21,16 +21,15 @@ public class LoginMenu
 			if (password is null) return null;
 
 			var result = authenticationService.Login(username, password);
-			if (!result.Success)
+			if (!result.Success && result.Data is not null)
 			{
-				ConsoleHelper.ShowError(result.Message);
+				ConsoleHelper.ShowSuccess(result.Message ?? ValidationMessages.LoginSuccess);
 				ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
 				Console.ReadKey(true);
-				return null;
+				return result.Data;
 			}
-
-			ConsoleHelper.ShowSuccess(result.Message);
-			return result.Data;
+			ConsoleHelper.ShowError(result.Message ?? ValidationMessages.LoginFailed);
+			return null;
 		}
 	}
 }
