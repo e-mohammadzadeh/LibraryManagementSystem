@@ -1,30 +1,25 @@
-﻿namespace LibraryManagementSystem.Application.Services;
+﻿using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Application.DTOs.Users;
+using LibraryManagementSystem.Domain.Interfaces;
+
+namespace LibraryManagementSystem.Application.Services;
 
 public class AuthenticationService
 {
-	public void Login(string email, byte[] password)
+	public ServiceResult<UserDto> Login(string email, byte[] password)
 	{
-		Login(email, password)
-			↓
-		UserRepository.FindByEmail(email)
-			↓
-		User not found ?
-			├── Yes → Login failed
-			│
-			└── No
-			↓
-		Verify password
-			↓
+		var user = _userRepository.FindByEmail(email);
+		if (user is null)
+			return ServiceResult<UserDto>.Fail("Login failed: Invalid email address.");
 
-		Password valid?
-			├── No → Login failed
-			│
-			└── Yes
-			↓
-		Create Session
-			↓
+		if (!IPasswordHasher.VerifyPassword(password, user.PasswordHash))
+			return ServiceResult<UserDto>.Fail("Login failed: Invalid password.");
 
-		Login successful
+		// Update last login date (optional)
+		user.RecordLogin();
+		_userRepository.Update(user);
+
+		return ServiceResult<UserDto>.Ok(MapToDto(user), "Login successful.");
 	}
 
 

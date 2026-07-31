@@ -1,4 +1,7 @@
-﻿namespace LibraryManagementSystem.Domain.Entities;
+﻿using System.ComponentModel.DataAnnotations;
+using LibraryManagementSystem.Domain.Interfaces;
+
+namespace LibraryManagementSystem.Domain.Entities;
 
 public class User : Person
 {
@@ -8,17 +11,17 @@ public class User : Person
 	public DateOnly MembershipStartDate { get; set; }
 	public DateOnly MembershipExpiryDate { get; private set; }
 	public bool ShouldRemove { get; private set; }
-	public byte[] PasswordHash { get; private set; } = [];
-	public byte[] PasswordSalt { get; private set; } = [];
+	public byte[] PasswordHash { get; private set; }
+	public byte[] PasswordSalt { get; private set; }
+	public DateTime? LastLoginDate { get; private set; }
 
 
 	public IReadOnlyCollection<UserRole> UserRoles => _userRoles.AsReadOnly();
 
 
 	public User(string firstName, string lastName, string nationalCode, string email, string phoneNumber,
-		DateOnly birthDate, IEnumerable<Role> roles, DateOnly? membershipStartDate = null) : base(firstName, lastName,
-		nationalCode, email, phoneNumber,
-		birthDate)
+		DateOnly birthDate, IEnumerable<Role> roles, string password, IPasswordHasher passwordHasher,
+		DateOnly? membershipStartDate = null) : base(firstName, lastName, nationalCode, email, phoneNumber, birthDate)
 	{
 		Id = ++_nextUserId;
 		IsActive = true;
@@ -34,6 +37,9 @@ public class User : Person
 		var rolesList = roles.ToList();
 		if (rolesList.Count == 0) throw new ArgumentException("A user must have at least one role.");
 		foreach (var role in rolesList) AssignRole(role);
+
+		passwordHasher.CreatePasswordHash(password, out var hash, out var salt);
+		SetPasswordHash(hash, salt);
 	}
 
 
@@ -104,7 +110,10 @@ public class User : Person
 
 	public void SetPasswordHash(byte[] passwordHash, byte[] passwordSalt)
 	{
-		passwordHash = passwordHash ?? throw new ArgumentNullException(nameof(passwordHash));
-		passwordSalt = passwordSalt ?? throw new ArgumentNullException(nameof(passwordSalt));
+		PasswordHash = passwordHash ?? throw new ArgumentNullException(nameof(passwordHash));
+		PasswordSalt = passwordSalt ?? throw new ArgumentNullException(nameof(passwordSalt));
 	}
+
+
+	public void UpdateLastLogin() { LastLoginDate = DateTime.Now; }
 }
