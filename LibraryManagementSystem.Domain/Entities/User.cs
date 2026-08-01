@@ -8,8 +8,8 @@ public class User : Person
 	public DateOnly MembershipStartDate { get; set; }
 	public DateOnly MembershipExpiryDate { get; private set; }
 	public bool ShouldRemove { get; private set; }
-	public byte[] PasswordHash { get; private set; }
-	public byte[] PasswordSalt { get; private set; }
+	public byte[]? PasswordHash { get; private set; }
+	public byte[]? PasswordSalt { get; private set; }
 	public DateTime? LastLoginDate { get; private set; }
 
 
@@ -104,9 +104,15 @@ public class User : Person
 
 	public void SetPasswordHash(byte[] passwordHash, byte[] passwordSalt)
 	{
-		PasswordHash = passwordHash ?? throw new ArgumentNullException(nameof(passwordHash));
-		PasswordSalt = passwordSalt ?? throw new ArgumentNullException(nameof(passwordSalt));
+		if (passwordHash is null || passwordHash.Length == 0) throw new ArgumentNullException(nameof(passwordHash));
+		if (passwordSalt is null || passwordSalt.Length == 0) throw new ArgumentNullException(nameof(passwordSalt));
+
+		PasswordHash = passwordHash;
+		PasswordSalt = passwordSalt;
 	}
+
+
+	public bool HasPassword() => PasswordHash is not null && PasswordSalt is not null;
 
 
 	public void UpdateLastLogin() { LastLoginDate = DateTime.Now; }

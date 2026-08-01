@@ -12,4 +12,7 @@ public interface ICurrentUserSession
 	void Login(AuthUserDto user);
 	void Logout();
 	bool HasRole(LibraryUserRole role);
+	bool IsAdmin { get; }
+	bool IsLibrarian { get; }
+	bool IsMember { get; }
 }

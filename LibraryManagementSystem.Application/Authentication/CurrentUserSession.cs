@@ -14,4 +14,9 @@ public class CurrentUserSession : ICurrentUserSession
 	public void Logout() => CurrentUser = null;
 
 	public bool HasRole(LibraryUserRole role) { return CurrentUser?.Roles.Contains(role) ?? false; }
+
+
+	public bool IsAdmin => HasRole(LibraryUserRole.Admin);
+	public bool IsLibrarian => HasRole(LibraryUserRole.Librarian) || IsAdmin;
+	public bool IsMember => HasRole(LibraryUserRole.Member);
 }

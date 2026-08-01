@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
@@ -46,12 +47,12 @@ public class UserManagementService
 		if (roles.Count != dto.RoleIds.Count)
 			return ServiceResult<UserDto>.Fail("One or more selected roles do not exist.");
 
-		_passwordHasher.CreatePasswordHash(dto.Password, out var hash, out var salt);
+		var result = _passwordHasher.CreatePasswordHash(dto.Password);
 		
 		var newUser = new User(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
 			roles);
 
-		newUser.SetPasswordHash(hash, salt);
+		newUser.SetPasswordHash(result.Hash, result.Salt);
 		_userRepository.Add(newUser);
 		return warningMessage is not null
 			? ServiceResult<UserDto>.Warning(MapToDto(newUser), warningMessage)

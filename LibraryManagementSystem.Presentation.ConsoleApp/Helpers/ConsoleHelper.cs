@@ -118,8 +118,33 @@ public static class ConsoleHelper
 	}
 
 
+	private static string ReadPassword(string prompt)
+	{
+		Console.Write($"{prompt}: ");
+		var password = new System.Text.StringBuilder();
+		while (true)
+		{
+			var key = Console.ReadKey(intercept: true);
+			if (key.Key == ConsoleKey.Enter) break;
+			if (key.Key == ConsoleKey.Backspace && password.Length > 0)
+			{
+				password.Remove(password.Length - 1, 1);
+				Console.Write("\b \b");
+			}
+			else if (key.Key != ConsoleKey.Backspace)
+			{
+				password.Append(key.KeyChar);
+				Console.Write("*");
+			}
+		}
+
+		Console.WriteLine();
+		return password.ToString();
+	}
+
+
 	public static List<int>? ReadMultiSelect<T>(string prompt, IReadOnlyList<T>? items, Func<T, int> idSelector,
-		Func<T, string> displayNameSelector, bool allowMultiple = true, bool allowEmpty =  false)
+		Func<T, string> displayNameSelector, bool allowMultiple = true, bool allowEmpty = false)
 	{
 		if (items == null || items.Count == 0)
 		{
@@ -128,6 +153,7 @@ public static class ConsoleHelper
 				ShowWarning("No items available. Continuing with no selection.");
 				return [];
 			}
+
 			ShowWarning("No items available to select.");
 			return null;
 		}
@@ -195,23 +221,28 @@ public static class ConsoleHelper
 	}
 
 
-	public static List<int>? ReadAuthors(string prompt, IReadOnlyList<AuthorDto> authors, bool allowMultiple=true, bool allowEmpty=false)
+	public static List<int>? ReadAuthors(string prompt, IReadOnlyList<AuthorDto> authors, bool allowMultiple = true,
+		bool allowEmpty = false)
 	{
 		return ReadMultiSelect(prompt, authors, idSelector: a => a.Id,
-			displayNameSelector: a => $"{a.FirstName} {a.LastName}", allowMultiple: allowMultiple, allowEmpty: allowEmpty);
+			displayNameSelector: a => $"{a.FirstName} {a.LastName}", allowMultiple: allowMultiple,
+			allowEmpty: allowEmpty);
 	}
 
 
-	public static List<int>? ReadTranslators(string prompt, IReadOnlyList<TranslatorDto> translators, bool allowMultiple = true, bool allowEmpty = true)
+	public static List<int>? ReadTranslators(string prompt, IReadOnlyList<TranslatorDto> translators,
+		bool allowMultiple = true, bool allowEmpty = true)
 	{
 		return ReadMultiSelect(prompt, translators, idSelector: t => t.Id,
 			displayNameSelector: t => $"{t.FirstName} {t.LastName}", allowMultiple, allowEmpty);
 	}
 
 
-	public static List<int>? ReadRoles(string prompt, IReadOnlyList<Role> roles, bool allowMultiple = true, bool allowEmpty = false)
+	public static List<int>? ReadRoles(string prompt, IReadOnlyList<Role> roles, bool allowMultiple = true,
+		bool allowEmpty = false)
 	{
-		return ReadMultiSelect(prompt, roles, idSelector: r => r.Id, displayNameSelector: r => r.Name.ToString(), allowMultiple, allowEmpty);
+		return ReadMultiSelect(prompt, roles, idSelector: r => r.Id, displayNameSelector: r => r.Name.ToString(),
+			allowMultiple, allowEmpty);
 	}
 
 
@@ -280,9 +311,16 @@ public static class ConsoleHelper
 	}
 
 
-	public static string? GetValidPassword(string prompt)
+	public static string GetValidPassword(string prompt)
 	{
-		return GetValidString(prompt, Validator.PasswordValidator);
+		while (true)
+		{
+			var input = ReadPassword(prompt);
+			var validationResult = Validator.PasswordValidator(input);
+			if (validationResult.IsValid) return input;
+
+			ShowError(validationResult.ErrorMessage ?? ValidationMessages.InvalidInput);
+		}
 	}
 
 

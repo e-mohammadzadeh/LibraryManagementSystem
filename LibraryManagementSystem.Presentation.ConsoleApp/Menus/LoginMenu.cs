@@ -18,7 +18,6 @@ public class LoginMenu
 			if (username is null) return null;
 
 			var password = ConsoleHelper.GetValidPassword("Enter your password");
-			if (password is null) return null;
 
 			var result = authenticationService.Login(username, password);
 			if (result is { Success: true, Data: not null })
