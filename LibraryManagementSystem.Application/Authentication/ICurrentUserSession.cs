@@ -15,4 +15,5 @@ public interface ICurrentUserSession
 	bool IsAdmin { get; }
 	bool IsLibrarian { get; }
 	bool IsMember { get; }
+	bool CanBorrowBooks { get; }
 }

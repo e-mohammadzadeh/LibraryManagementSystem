@@ -19,4 +19,5 @@ public class CurrentUserSession : ICurrentUserSession
 	public bool IsAdmin => HasRole(LibraryUserRole.Admin);
 	public bool IsLibrarian => HasRole(LibraryUserRole.Librarian) || IsAdmin;
 	public bool IsMember => HasRole(LibraryUserRole.Member);
+	public bool CanBorrowBooks => IsAuthenticated && CurrentUser!.IsActive && !CurrentUser.ShouldRemove;
 }
