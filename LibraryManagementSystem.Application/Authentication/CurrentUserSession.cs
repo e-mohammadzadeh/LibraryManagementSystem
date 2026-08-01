@@ -16,8 +16,20 @@ public class CurrentUserSession : ICurrentUserSession
 	public bool HasRole(LibraryUserRole role) { return CurrentUser?.Roles.Contains(role) ?? false; }
 
 
+	public bool HasAnyRole(params LibraryUserRole[]? roles)
+	{
+		if (CurrentUser is null || roles is null || roles.Length == 0) return false;
+
+		return roles.Any(r => CurrentUser.Roles.Contains(r));
+	}
+
+
 	public bool IsAdmin => HasRole(LibraryUserRole.Admin);
-	public bool IsLibrarian => HasRole(LibraryUserRole.Librarian) || IsAdmin;
+	public bool IsLibrarian => HasRole(LibraryUserRole.Librarian);
 	public bool IsMember => HasRole(LibraryUserRole.Member);
-	public bool CanBorrowBooks => IsAuthenticated && CurrentUser!.IsActive && !CurrentUser.ShouldRemove;
+
+
+	public bool HasBasicBorrowPermission =>
+		IsAuthenticated && CurrentUser!.IsActive && !CurrentUser.ShouldRemove &&
+		CurrentUser.MembershipExpiryDate >= DateOnly.FromDateTime(DateTime.Today);
 }

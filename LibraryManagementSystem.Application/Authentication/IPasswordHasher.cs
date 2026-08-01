@@ -1,6 +1,4 @@
-﻿using LibraryManagementSystem.Application.Authentication;
-
-namespace LibraryManagementSystem.Domain.Interfaces;
+﻿namespace LibraryManagementSystem.Application.Authentication;
 
 public interface IPasswordHasher
 {

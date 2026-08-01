@@ -5,7 +5,7 @@ using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
-public class LoginMenu
+public static class LoginMenu
 {
 	public static AuthUserDto? ShowLogin(AuthenticationService authenticationService)
 	{
@@ -14,12 +14,12 @@ public class LoginMenu
 			Console.WriteLine(new string('=', 35) + " LOGIN MENU " + new string('=', 35));
 
 			Console.WriteLine("Please log in to access the Library Management System.");
-			var username = ConsoleHelper.GetValidEmail("Enter your email address");
-			if (username is null) return null;
+			var email = ConsoleHelper.GetValidEmail("Enter your email address");
+			if (email is null) return null;
 
 			var password = ConsoleHelper.GetValidPassword("Enter your password");
 
-			var result = authenticationService.Login(username, password);
+			var result = authenticationService.Login(email, password);
 			if (result is { Success: true, Data: not null })
 			{
 				ConsoleHelper.ShowSuccess(result.Message ?? ValidationMessages.LoginSuccess);
@@ -27,7 +27,7 @@ public class LoginMenu
 				return result.Data;
 			}
 			ConsoleHelper.ShowError(result.Message ?? ValidationMessages.LoginFailed);
-			return null;
+			ConsoleHelper.Pause();
 		}
 	}
 }

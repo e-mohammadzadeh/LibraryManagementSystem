@@ -20,8 +20,8 @@ public class PasswordHasher : IPasswordHasher
 	public bool VerifyPassword(string password, byte[]? storedHash, byte[]? storedSalt)
 	{
 		if (string.IsNullOrWhiteSpace(password)) return false;
-		if (storedHash is null || storedHash.Length == 0) return false;
-		if (storedSalt is null || storedSalt.Length == 0) return false;
+		if (storedHash is null || storedSalt is null) return false;
+		if (storedHash.Length == 0 || storedSalt.Length == 0) return false;
 
 		using var hmac = new HMACSHA512(storedSalt);
 		var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));

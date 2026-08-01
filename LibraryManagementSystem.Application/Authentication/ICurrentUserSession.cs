@@ -12,8 +12,9 @@ public interface ICurrentUserSession
 	void Login(AuthUserDto user);
 	void Logout();
 	bool HasRole(LibraryUserRole role);
+	bool HasAnyRole(params LibraryUserRole[] roles);
 	bool IsAdmin { get; }
 	bool IsLibrarian { get; }
 	bool IsMember { get; }
-	bool CanBorrowBooks { get; }
+	bool HasBasicBorrowPermission { get; }
 }

@@ -1,7 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Users;
-using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
@@ -24,6 +23,7 @@ public class AuthenticationService
 
 	public ServiceResult<AuthUserDto> Login(string email, string password)
 	{
+		email = email.Trim().ToLower();
 		if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
 			return ServiceResult<AuthUserDto>.Fail(ValidationMessages.LoginInputRequired);
 
@@ -36,9 +36,6 @@ public class AuthenticationService
 		if (user.MembershipExpiryDate < DateOnly.FromDateTime(DateTime.Today))
 			return ServiceResult<AuthUserDto>.Fail(ValidationMessages.MembershipExpired);
 
-		user.UpdateLastLogin();
-		_userRepository.Update(user);
-
 		var authUser = new AuthUserDto
 		{
 			Id = user.Id,
@@ -50,6 +47,9 @@ public class AuthenticationService
 		};
 
 		_currentUserSession.Login(authUser);
+		user.UpdateLastLogin();
+		_userRepository.Update(user);
+		
 		return ServiceResult<AuthUserDto>.Ok(authUser, ValidationMessages.LoginSuccess);
 	}
 
@@ -68,13 +68,4 @@ public class AuthenticationService
 	public AuthUserDto? GetCurrentUser() { return _currentUserSession.CurrentUser; }
 
 	public bool IsAuthenticated() { return _currentUserSession.IsAuthenticated; }
-
-	public bool HasRole(LibraryUserRole role) { return _currentUserSession.HasRole(role); }
-
-
-	public bool HasAnyRole(params LibraryUserRole[] roles)
-	{
-		var currentRoles = _currentUserSession.CurrentUser?.Roles;
-		return currentRoles is not null && roles.Any(currentRoles.Contains);
-	}
 }
