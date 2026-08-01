@@ -22,40 +22,35 @@ public static class FineMenu
 				{
 					Console.Clear();
 					ViewAllFines(fineManagementService);
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
 					Console.Clear();
 					ViewUnpaidFines(fineManagementService);
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
 				{
 					Console.Clear();
 					ViewUserFines(fineManagementService, userManagementService);
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
 				{
 					Console.Clear();
 					PayFine(fineManagementService, userManagementService);
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 5:
 				{
 					Console.Clear();
 					WaiveFine(fineManagementService, userManagementService);
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 6:

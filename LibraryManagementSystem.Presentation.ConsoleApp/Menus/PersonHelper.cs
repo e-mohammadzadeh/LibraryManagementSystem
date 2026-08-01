@@ -56,8 +56,7 @@ internal static class PersonHelper
 	{
 		if (entity is null)
 		{
-			ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-			Console.ReadKey(true);
+			ConsoleHelper.Pause();
 			return;
 		}
 
@@ -68,7 +67,6 @@ internal static class PersonHelper
 
 		var result = removeFn();
 		ConsoleHelper.ShowResult(result);
-		ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-		Console.ReadKey(true);
+		ConsoleHelper.Pause();
 	}
 }

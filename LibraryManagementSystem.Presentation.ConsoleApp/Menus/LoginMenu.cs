@@ -23,8 +23,7 @@ public class LoginMenu
 			if (result is { Success: true, Data: not null })
 			{
 				ConsoleHelper.ShowSuccess(result.Message ?? ValidationMessages.LoginSuccess);
-				ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-				Console.ReadKey(true);
+				ConsoleHelper.Pause();
 				return result.Data;
 			}
 			ConsoleHelper.ShowError(result.Message ?? ValidationMessages.LoginFailed);

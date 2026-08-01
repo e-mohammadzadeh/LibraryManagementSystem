@@ -397,4 +397,10 @@ public static class ConsoleHelper
 
 		return (LoanStatus)(choice.Value - 1);
 	}
+
+	public static void Pause() 
+	{
+		ShowInfo(ValidationMessages.Press2Continue);
+		Console.ReadKey(true);
+	}
 }

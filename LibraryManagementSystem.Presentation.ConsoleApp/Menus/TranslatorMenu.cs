@@ -22,16 +22,14 @@ public static class TranslatorMenu
 				{
 					Console.Clear();
 					AddTranslator(translatorManagementService);
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
 					Console.Clear();
 					EditTranslator(translatorManagementService);
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
@@ -53,8 +51,7 @@ public static class TranslatorMenu
 					if (desiredTranslator is not null)
 					{
 						TranslatorPrinter.PrintDetails(desiredTranslator);
-						ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-						Console.ReadKey(true);
+						ConsoleHelper.Pause();
 					}
 
 					break;
@@ -67,8 +64,7 @@ public static class TranslatorMenu
 					else
 						TranslatorPrinter.PrintTable(translatorManagementService.GetAllTranslators());
 
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
@@ -243,8 +239,7 @@ public static class TranslatorMenu
 			if (translatorsList.Count == 0)
 			{
 				ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableTranslator);
-				ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-				Console.ReadKey(true);
+				ConsoleHelper.Pause();
 				return;
 			}
 
@@ -303,8 +298,7 @@ public static class TranslatorMenu
 				}
 			}
 
-			ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-			Console.ReadKey(true);
+			ConsoleHelper.Pause();
 		}
 	}
 

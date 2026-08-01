@@ -24,24 +24,21 @@ public static class LoanMenu
 				{
 					Console.Clear();
 					BorrowBook(loanManagementService, bookManagementService);
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
 					Console.Clear();
 					ReturnBook(loanManagementService, userManagementService);
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
 				{
 					Console.Clear();
 					RenewLoan(loanManagementService);
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
@@ -51,14 +48,12 @@ public static class LoanMenu
 					if (loans.Count is 0)
 					{
 						ConsoleHelper.ShowWarning(ValidationMessages.NoActiveLoans);
-						ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-						Console.ReadKey(true);
+						ConsoleHelper.Pause();
 						break;
 					}
 
 					LoanPrinter.PrintTable(loans);
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 5:
@@ -67,8 +62,7 @@ public static class LoanMenu
 					DisplayLoansForUsers(userManagementService, loanManagementService.GetLoansByUser,
 						ValidationMessages.NoLoanHistoryForUser);
 
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 6:
@@ -78,14 +72,12 @@ public static class LoanMenu
 					if (loans.Count is 0)
 					{
 						ConsoleHelper.ShowWarning(ValidationMessages.NoOverdueLoans);
-						ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-						Console.ReadKey(true);
+						ConsoleHelper.Pause();
 						break;
 					}
 
 					LoanPrinter.PrintTable(loans);
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
@@ -94,8 +86,7 @@ public static class LoanMenu
 					DisplayLoansForUsers(userManagementService, loanManagementService.GetActiveLoansByUser,
 						ValidationMessages.UserHasNoBorrowedBooks);
 
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 8:
@@ -257,8 +248,7 @@ public static class LoanMenu
 					? ValidationMessages.NotAvailableActionLoan
 					: ValidationMessages.NotAvailableLoan);
 
-				ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-				Console.ReadKey(true);
+				ConsoleHelper.Pause();
 				return;
 			}
 
@@ -339,8 +329,7 @@ public static class LoanMenu
 				}
 			}
 
-			ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-			Console.ReadKey(true);
+			ConsoleHelper.Pause();
 		}
 	}
 

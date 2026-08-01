@@ -26,24 +26,21 @@ public static class BookMenu
 				{
 					Console.Clear();
 					AddBook(authorManagementService, translatorManagementService, bookManagementService);
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
 					Console.Clear();
 					EditBook(authorManagementService, translatorManagementService, bookManagementService);
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
 				{
 					Console.Clear();
 					RemoveBook(bookManagementService);
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
@@ -66,8 +63,7 @@ public static class BookMenu
 					else
 						BookPrinter.PrintTable(bookManagementService.GetAllBooks());
 
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
@@ -587,8 +583,7 @@ public static class BookMenu
 		var desiredBook = SelectExistingBook(bookManagementService);
 		if (desiredBook is null)
 		{
-			ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-			Console.ReadKey(true);
+			ConsoleHelper.Pause();
 			return;
 		}
 
@@ -611,8 +606,7 @@ public static class BookMenu
 			if (booksList.Count == 0)
 			{
 				ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableBook);
-				ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-				Console.ReadKey(true);
+				ConsoleHelper.Pause();
 				return;
 			}
 
@@ -695,8 +689,7 @@ public static class BookMenu
 				}
 			}
 
-			ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-			Console.ReadKey(true);
+			ConsoleHelper.Pause();
 		}
 	}
 
@@ -752,7 +745,6 @@ public static class BookMenu
 			var loans = loanManagementService.GetLoanByBook(desiredBook.BookId);
 			BookPrinter.PrintLoanHistory(loans);
 		}
-		ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-		Console.ReadKey(true);
+		ConsoleHelper.Pause();
 	}
 }

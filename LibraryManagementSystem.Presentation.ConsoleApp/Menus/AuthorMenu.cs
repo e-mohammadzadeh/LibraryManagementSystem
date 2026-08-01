@@ -22,16 +22,14 @@ public static class AuthorMenu
 				{
 					Console.Clear();
 					AddAuthor(authorManagementService);
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
 					Console.Clear();
 					EditAuthor(authorManagementService);
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
@@ -54,8 +52,7 @@ public static class AuthorMenu
 					if (desiredAuthor is not null)
 					{
 						AuthorPrinter.PrintDetails(desiredAuthor);
-						ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-						Console.ReadKey(true);
+						ConsoleHelper.Pause();
 					}
 
 					break;
@@ -67,9 +64,7 @@ public static class AuthorMenu
 						ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
 					else
 						AuthorPrinter.PrintTable(authorManagementService.GetAllAuthors());
-
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
@@ -255,8 +250,7 @@ public static class AuthorMenu
 			if (authorsList.Count == 0)
 			{
 				ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
-				ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-				Console.ReadKey(true);
+				ConsoleHelper.Pause();
 				return;
 			}
 
@@ -312,8 +306,7 @@ public static class AuthorMenu
 				}
 			}
 
-			ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-			Console.ReadKey(true);
+			ConsoleHelper.Pause();
 		}
 	}
 

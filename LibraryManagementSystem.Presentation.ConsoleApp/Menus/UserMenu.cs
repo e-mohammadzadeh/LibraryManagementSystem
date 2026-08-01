@@ -22,16 +22,14 @@ public static class UserMenu
 				{
 					Console.Clear();
 					AddUser(userManagementService);
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
 					Console.Clear();
 					EditUser(userManagementService);
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
@@ -53,8 +51,7 @@ public static class UserMenu
 					if (desiredUser is not null)
 					{
 						UserPrinter.PrintDetails(desiredUser);
-						ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-						Console.ReadKey(true);
+						ConsoleHelper.Pause();
 					}
 
 					break;
@@ -67,8 +64,7 @@ public static class UserMenu
 					else
 						UserPrinter.PrintTable(userManagementService.GetAllUsers());
 
-					ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-					Console.ReadKey(true);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
@@ -271,8 +267,7 @@ public static class UserMenu
 			if (usersList.Count == 0)
 			{
 				ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableUser);
-				ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-				Console.ReadKey(true);
+				ConsoleHelper.Pause();
 				return;
 			}
 
@@ -333,8 +328,7 @@ public static class UserMenu
 				}
 			}
 
-			ConsoleHelper.ShowInfo(ValidationMessages.Press2Continue);
-			Console.ReadKey(true);
+			ConsoleHelper.Pause();
 		}
 	}
 
