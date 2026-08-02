@@ -19,7 +19,7 @@ public static class Program
 		var loanRepo = new InMemoryLoanRepository();
 		var fineRepo = new InMemoryFineRepository();
 		var passwordRepo = new PasswordHasher();
-		var currentUserSession = new CurrentUserSession();
+		ICurrentUserSession currentUserSession = new CurrentUserSession();
 
 		Console.Clear();
 		Console.Title = "Library Management System";

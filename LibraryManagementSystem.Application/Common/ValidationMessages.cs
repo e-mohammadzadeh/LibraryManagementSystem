@@ -237,4 +237,6 @@ public static class ValidationMessages
 	public const string FineId4Waive = "Enter Fine ID to waive";
 	public const string Confirm2Pay = "Are you sure you want to pay this fine";
 	public const string Confirm2Waive = "Are you sure you want to waive this fine";
+	public const string GetEmail = "Enter your email address";
+	public const string GetPassword = "Enter your password";
 }

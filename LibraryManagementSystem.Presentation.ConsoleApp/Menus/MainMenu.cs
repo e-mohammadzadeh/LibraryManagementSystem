@@ -11,15 +11,14 @@ public static class MainMenu
 		TranslatorManagementService translatorManagementService, UserManagementService userManagementService,
 		BookManagementService bookManagementService, LoanManagementService loanManagementService,
 		FineManagementService fineManagementService, AuthenticationService authenticationService,
-		CurrentUserSession session, LibraryStatisticsService statisticsService)
+		ICurrentUserSession session, LibraryStatisticsService statisticsService)
 	{
 		var continueProgram = true;
 		while (continueProgram)
 		{
 			if (!session.IsAuthenticated)
 			{
-				ConsoleHelper.ShowError(ValidationMessages.SessionExpired ??
-				                        "Your session has expired. Please log in again.");
+				ConsoleHelper.ShowError(ValidationMessages.SessionExpired);
 				ConsoleHelper.Pause();
 				continueProgram = false;
 				break;

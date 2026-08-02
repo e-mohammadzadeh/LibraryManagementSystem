@@ -112,7 +112,7 @@ public class User : Person
 	}
 
 
-	public bool HasPassword() => PasswordHash is not null && PasswordSalt is not null;
+	public bool HasPassword() => PasswordHash is { Length: > 0 } &&	                             PasswordSalt is { Length: > 0 };
 
 
 	public void UpdateLastLogin() { LastLoginDate = DateTime.Now; }

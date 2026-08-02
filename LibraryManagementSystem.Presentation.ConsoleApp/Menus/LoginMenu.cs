@@ -14,10 +14,10 @@ public static class LoginMenu
 			Console.WriteLine(new string('=', 35) + " LOGIN MENU " + new string('=', 35));
 
 			Console.WriteLine("Please log in to access the Library Management System.");
-			var email = ConsoleHelper.GetValidEmail("Enter your email address");
+			var email = ConsoleHelper.GetValidEmail(ValidationMessages.GetEmail);
 			if (email is null) return null;
 
-			var password = ConsoleHelper.GetValidPassword("Enter your password");
+			var password = ConsoleHelper.GetValidPassword(ValidationMessages.GetPassword);
 
 			var result = authenticationService.Login(email, password);
 			if (result is { Success: true, Data: not null })
