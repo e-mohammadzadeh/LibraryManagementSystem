@@ -1,27 +1,26 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
 public static class MainMenu
 {
-	public static void MainMenuController(AuthorManagementService authorManagementService,
+	public static MainMenuResult MainMenuController(AuthorManagementService authorManagementService,
 		TranslatorManagementService translatorManagementService, UserManagementService userManagementService,
 		BookManagementService bookManagementService, LoanManagementService loanManagementService,
 		FineManagementService fineManagementService, AuthenticationService authenticationService,
 		ICurrentUserSession session, LibraryStatisticsService statisticsService)
 	{
-		var continueProgram = true;
-		while (continueProgram)
+		while (true)
 		{
 			if (!session.IsAuthenticated)
 			{
 				ConsoleHelper.ShowError(ValidationMessages.SessionExpired);
 				ConsoleHelper.Pause();
-				continueProgram = false;
-				break;
+				return MainMenuResult.Logout;
 			}
 
 			Console.Clear();
@@ -73,15 +72,13 @@ public static class MainMenu
 					ConsoleHelper.ShowError("Logged out successfully. Returning to login screen...\n");
 					var result = authenticationService.Logout();
 					ConsoleHelper.ShowResult(result);
-					continueProgram = false;
 					ConsoleHelper.Pause();
-					break;
+					return MainMenuResult.Logout;
 				}
 				case 8:
 				{
 					ConsoleHelper.ShowError("Exiting Program...\n");
-					continueProgram = false;
-					break;
+					return MainMenuResult.Exit;
 				}
 			}
 		}
@@ -100,7 +97,7 @@ public static class MainMenu
 			Console.WriteLine("5. Loans");
 			Console.WriteLine("6. Fines");
 			Console.WriteLine("7. Logout");
-			Console.WriteLine("8. Exit");
+			Console.WriteLine("8. Exit Application");
 			Console.WriteLine(new string('=', 82));
 			Console.Write(ValidationMessages.MainMenuQuestion);
 

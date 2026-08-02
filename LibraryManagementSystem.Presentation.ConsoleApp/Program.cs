@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Infrastructure.Repositories.InMemory;
 using LibraryManagementSystem.Infrastructure.Security;
 using LibraryManagementSystem.Infrastructure.Seeders;
@@ -20,12 +21,13 @@ public static class Program
 		var fineRepo = new InMemoryFineRepository();
 		var passwordRepo = new PasswordHasher();
 		ICurrentUserSession currentUserSession = new CurrentUserSession();
+		
 
 		Console.Clear();
 		Console.Title = "Library Management System";
 
 		// Seed data for development/testing
-		DataSeeder.Seed(authorRepo, translatorRepo, bookRepo, userRepo, loanRepo, roleRepo, fineRepo);
+		DataSeeder.Seed(authorRepo, translatorRepo, bookRepo, userRepo, loanRepo, roleRepo, fineRepo, passwordRepo);
 
 		var authorService = new AuthorManagementService(authorRepo);
 		var translatorService = new TranslatorManagementService(translatorRepo);
@@ -42,8 +44,10 @@ public static class Program
 			var loggedInUser = LoginMenu.ShowLogin(authService);
 			if (loggedInUser is null) return;
 
-			MainMenu.MainMenuController(authorService, translatorService, userService, bookService, loanService,
+			var result = MainMenu.MainMenuController(authorService, translatorService, userService, bookService, loanService,
 				fineService, authService, currentUserSession, statisticsService);
+
+			if (result == MainMenuResult.Exit) return;
 		}
 	}
 }

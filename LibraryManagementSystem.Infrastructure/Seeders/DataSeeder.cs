@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Domain.Entities;
+﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
 
@@ -10,10 +11,10 @@ public static class DataSeeder
 {
 	public static void Seed(IAuthorRepository authorRepository, ITranslatorRepository translatorRepository,
 		IBookRepository bookRepository, IUserRepository userRepository, ILoanRepository loanRepository,
-		IRoleRepository roleRepository, IFineRepository fineRepository)
+		IRoleRepository roleRepository, IFineRepository fineRepository, IPasswordHasher passwordHasher)
 	{
 		SeedAuthors(authorRepository, translatorRepository, bookRepository);
-		SeedUsers(userRepository, roleRepository);
+		SeedUsers(userRepository, roleRepository, passwordHasher);
 		SeedLoans(userRepository, bookRepository, loanRepository);
 		//SeedFines(loanRepository, fineRepository);
 	}
@@ -132,8 +133,15 @@ public static class DataSeeder
 	}
 
 
-	private static void SeedUsers(IUserRepository userRepository, IRoleRepository roleRepository)
+	private static void SeedUsers(IUserRepository userRepository, IRoleRepository roleRepository, IPasswordHasher passwordHasher)
 	{
+		void SetPassword(User user, string password)
+		{
+			var result = passwordHasher.CreatePasswordHash(password);
+			user.SetPasswordHash(result.Hash, result.Salt);
+		}
+
+
 		// Seed users
 		var allRoles = roleRepository.GetAllRoles();
 		var adminRole = allRoles.First(r => r.Name == LibraryUserRole.Admin);
@@ -142,18 +150,23 @@ public static class DataSeeder
 
 		var admin = new User("Sara", "Admin", "3780254901", "admin@library.com", "09120000010",
 			new DateOnly(1985, 3, 15), [adminRole]);
+		SetPassword(admin, "Admin@123");
 
 		var librarian1 = new User("Ali", "Librarian", "3780254902", "librarian@library.com", "09120000011",
 			new DateOnly(1990, 5, 20), [librarianRole, memberRole]);
+		SetPassword(librarian1, "Librarian1@123");
 
 		var librarian2 = new User("Reza", "Karimi", "3780254903", "reza.karimi@library.com", "09120000014",
 			new DateOnly(1988, 11, 5), [librarianRole], membershipStartDate: new DateOnly(2026, 1, 15));
+		SetPassword(librarian2, "Librarian2@123");
 
 		var librarian3 = new User("Zahra", "Rahimi", "3780254904", "zahra.rahimi@library.com", "09120000015",
 			new DateOnly(1992, 4, 18), [librarianRole]);
+		SetPassword(librarian3, "Librarian3@123");
 
 		var member1 = new User("Mohammad", "Ahmadi", "3780254905", "m.ahmadi@example.com", "09120000012",
 			new DateOnly(1998, 1, 10), [memberRole]);
+		SetPassword(member1, "Member1@123");
 
 		var member2 = new User("Fateme", "Hosseini", "3780254906", "f.hosseini@example.com", "09120000013",
 			new DateOnly(2000, 7, 25), [memberRole], membershipStartDate: new DateOnly(2026, 9, 1));
@@ -205,6 +218,7 @@ public static class DataSeeder
 		userRepository.Add(member11);
 		userRepository.Add(member12);
 	}
+
 
 
 	private static void SeedLoans(IUserRepository userRepository, IBookRepository bookRepository,
