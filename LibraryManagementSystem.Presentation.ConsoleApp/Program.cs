@@ -21,6 +21,9 @@ public static class Program
 		var passwordRepo = new PasswordHasher();
 		var currentUserSession = new CurrentUserSession();
 
+		Console.Clear();
+		Console.Title = "Library Management System";
+
 		// Seed data for development/testing
 		DataSeeder.Seed(authorRepo, translatorRepo, bookRepo, userRepo, loanRepo, roleRepo, fineRepo);
 
@@ -40,7 +43,7 @@ public static class Program
 			if (loggedInUser is null) return;
 
 			MainMenu.MainMenuController(authorService, translatorService, userService, bookService, loanService,
-				fineService, authService, statisticsService);
+				fineService, authService, currentUserSession, statisticsService);
 		}
 	}
 }

@@ -43,29 +43,24 @@ public class AuthenticationService
 			Email = user.Email,
 			Roles = user.UserRoles.Select(ur => ur.Role.Name).ToList().AsReadOnly(),
 			IsActive = user.IsActive,
-			MembershipExpiryDate = user.MembershipExpiryDate
+			MembershipExpiryDate = user.MembershipExpiryDate,
+			ShouldRemove = user.ShouldRemove
 		};
 
-		_currentUserSession.Login(authUser);
 		user.UpdateLastLogin();
 		_userRepository.Update(user);
-		
+		_currentUserSession.Login(authUser);
 		return ServiceResult<AuthUserDto>.Ok(authUser, ValidationMessages.LoginSuccess);
 	}
 
 
 	public ServiceResult<string> Logout()
 	{
-		if (!_currentUserSession.IsAuthenticated) return ServiceResult<string>.Fail("No user is currently logged in.");
+		if (!_currentUserSession.IsAuthenticated) return ServiceResult<string>.Fail(ValidationMessages.NoUserLoggedIn);
 
 		var username = _currentUserSession.CurrentUser?.FullName ?? "User";
 		_currentUserSession.Logout();
 
 		return ServiceResult<string>.Ok(username, $"{username} " + ValidationMessages.LogoutSuccess);
 	}
-
-
-	public AuthUserDto? GetCurrentUser() { return _currentUserSession.CurrentUser; }
-
-	public bool IsAuthenticated() { return _currentUserSession.IsAuthenticated; }
 }

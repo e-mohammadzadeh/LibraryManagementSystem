@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Domain.Enums;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
@@ -17,61 +18,53 @@ public static class SessionGuard
 
 	public static bool RequireAuthentication(ICurrentUserSession session)
 	{
-		return RequireRole(session.IsAuthenticated, "You must be logged in.");
+		return RequireRole(session.IsAuthenticated, ValidationMessages.AuthenticationRequired);
 	}
 
 
 	public static bool RequireAdmin(ICurrentUserSession session)
 	{
-		return RequireRole(session.IsAdmin, "Admin role required.");
+		return RequireRole(session.IsAdmin, ValidationMessages.AdminRoleRequired);
 	}
 
 
 	public static bool RequireLibrarian(ICurrentUserSession session)
 	{
-		return RequireRole(session.IsLibrarian, "Librarian role required.");
+		return RequireRole(session.IsLibrarian, ValidationMessages.LibrarianRoleRequired);
 	}
 
 
 	public static bool RequireMember(ICurrentUserSession session)
 	{
-		return RequireRole(session.IsMember, "Member role required.");
+		return RequireRole(session.IsMember, ValidationMessages.MemberRoleRequired);
 	}
+
 
 
 	public static bool RequireAdminOrLibrarian(ICurrentUserSession session)
 	{
-		return RequireRole(session.IsAdmin || session.IsLibrarian, "Admin or Librarian role required.");
+		return RequireRole(session.HasAnyRole(LibraryUserRole.Admin, LibraryUserRole.Librarian),
+			ValidationMessages.AdminOrLibrarianRoleRequired);
 	}
+
 
 
 	public static bool RequireCanBorrow(ICurrentUserSession session)
 	{
 		if (!session.IsAuthenticated)
 		{
-			ConsoleHelper.ShowError("Access denied. You must be logged in.");
+			ConsoleHelper.ShowError(ValidationMessages.AuthenticationRequired);
 			ConsoleHelper.Pause();
 			return false;
 		}
 
-		if (!session.HasBasicBorrowPermission)
+		if (!session.CanBorrowBooks)
 		{
-			ConsoleHelper.ShowError("You cannot borrow books. Check your membership status or outstanding fines.");
+			ConsoleHelper.ShowError(ValidationMessages.CannotBorrowBooks);
 			ConsoleHelper.Pause();
 			return false;
 		}
 
 		return true;
-	}
-
-
-	public static bool RequireAdminOrLibrarian(ICurrentUserSession session)
-	{
-		if (session.HasAnyRole(LibraryUserRole.Admin, LibraryUserRole.Librarian))
-			return true;
-
-		ConsoleHelper.ShowError("Access denied. Admin or Librarian role required.");
-		ConsoleHelper.Pause();
-		return false;
 	}
 }

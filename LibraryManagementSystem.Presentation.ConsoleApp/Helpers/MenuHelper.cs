@@ -10,9 +10,17 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 public static class MenuHelper
 {
-	public static void Print(LibraryStatisticsDto statistics)
+	public static void Print(LibraryStatisticsDto statistics, AuthUserDto? currentUser = null)
 	{
 		Console.WriteLine(new string('=', 32) + " LIBRARY DASHBOARD " + new string('=', 32));
+		if (currentUser is not null)
+		{
+			Console.ForegroundColor = ConsoleColor.Cyan;
+			Console.WriteLine($"Logged in as: {currentUser.FullName} ({string.Join(", ", currentUser.Roles)})");
+			Console.ResetColor();
+			Console.WriteLine();
+		}
+
 		Console.ForegroundColor = ConsoleColor.Cyan;
 		Console.Write($"Books: {statistics.TotalBooks}\t");
 		Console.Write($"Authors: {statistics.TotalAuthors}\t");

@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
@@ -10,12 +11,22 @@ public static class MainMenu
 		TranslatorManagementService translatorManagementService, UserManagementService userManagementService,
 		BookManagementService bookManagementService, LoanManagementService loanManagementService,
 		FineManagementService fineManagementService, AuthenticationService authenticationService,
-		LibraryStatisticsService statisticsService)
+		CurrentUserSession session, LibraryStatisticsService statisticsService)
 	{
 		var continueProgram = true;
 		while (continueProgram)
 		{
-			MenuHelper.Print(statisticsService.GetLibraryStatistics());
+			if (!session.IsAuthenticated)
+			{
+				ConsoleHelper.ShowError(ValidationMessages.SessionExpired ??
+				                        "Your session has expired. Please log in again.");
+				ConsoleHelper.Pause();
+				continueProgram = false;
+				break;
+			}
+
+			Console.Clear();
+			MenuHelper.Print(statisticsService.GetLibraryStatistics(), session.CurrentUser);
 			switch (MainMenuList())
 			{
 				case 1:
@@ -60,10 +71,11 @@ public static class MainMenu
 				case 7:
 				{
 					Console.Clear();
-					ConsoleHelper.ShowError("Logging out...\n");
+					ConsoleHelper.ShowError("Logged out successfully. Returning to login screen...\n");
 					var result = authenticationService.Logout();
 					ConsoleHelper.ShowResult(result);
 					continueProgram = false;
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 8:

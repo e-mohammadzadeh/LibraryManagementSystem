@@ -29,7 +29,9 @@ public class CurrentUserSession : ICurrentUserSession
 	public bool IsMember => HasRole(LibraryUserRole.Member);
 
 
-	public bool HasBasicBorrowPermission =>
-		IsAuthenticated && CurrentUser!.IsActive && !CurrentUser.ShouldRemove &&
+	public bool CanBorrowBooks =>
+		IsAuthenticated && 
+		CurrentUser!.IsActive && 
+		!CurrentUser.ShouldRemove &&
 		CurrentUser.MembershipExpiryDate >= DateOnly.FromDateTime(DateTime.Today);
 }

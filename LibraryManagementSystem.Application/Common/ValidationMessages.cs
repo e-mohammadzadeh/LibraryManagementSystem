@@ -216,6 +216,13 @@ public static class ValidationMessages
 	public const string InvalidLoginInput = "Invalid email or password";
 	public const string AccessDenied = "Access denied. You do not have permission to perform this action.";
 	public const string SessionExpired = "Your session has expired. Please log in again.";
+	public const string AuthenticationRequired = "Access denied. You must be logged in.";
+	public const string AdminRoleRequired = "Admin role required.";
+	public const string LibrarianRoleRequired = "Librarian role required.";
+	public const string MemberRoleRequired = "Member role required.";
+	public const string AdminOrLibrarianRoleRequired = "Access denied. Admin or Librarian role required.";
+	public const string CannotBorrowBooks = "You cannot borrow books. Check your membership status or outstanding fines.";
+	public const string NoUserLoggedIn = "No user is currently logged in.";
 
 
 
