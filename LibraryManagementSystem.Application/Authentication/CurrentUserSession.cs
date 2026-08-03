@@ -34,4 +34,12 @@ public class CurrentUserSession : ICurrentUserSession
 		CurrentUser!.IsActive && 
 		!CurrentUser.ShouldRemove &&
 		CurrentUser.MembershipExpiryDate >= DateOnly.FromDateTime(DateTime.Today);
+
+	public bool CanAccessAuthorManagement => IsAdmin || IsLibrarian;
+	public bool CanAccessUserManagement => IsAdmin || IsLibrarian;
+	public bool CanAccessBookManagement => IsAuthenticated;
+	public bool CanAccessTranslatorManagement => IsAdmin || IsLibrarian;
+	public bool CanAccessLoanManagement => IsAuthenticated;
+	public bool CanAccessFineManagement => IsAuthenticated;
+	public bool CanAccessStatistics => IsAdmin || IsLibrarian;
 }

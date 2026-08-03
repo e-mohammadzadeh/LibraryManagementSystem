@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Application.DTOs.Users;
+﻿using System.Dynamic;
+using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Domain.Enums;
 
 namespace LibraryManagementSystem.Application.Authentication;
@@ -17,4 +18,11 @@ public interface ICurrentUserSession
 	bool IsLibrarian { get; }
 	bool IsMember { get; }
 	bool CanBorrowBooks { get; }
+	bool CanAccessAuthorManagement { get; }
+	bool CanAccessUserManagement { get; }
+	bool CanAccessBookManagement { get; }
+	bool CanAccessTranslatorManagement { get; }
+	bool CanAccessLoanManagement { get; }
+	bool CanAccessFineManagement { get; }
+	bool CanAccessStatistics { get; }
 }

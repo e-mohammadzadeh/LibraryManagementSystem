@@ -25,7 +25,7 @@ public static class MainMenu
 
 			Console.Clear();
 			MenuHelper.Print(statisticsService.GetLibraryStatistics(), session.CurrentUser);
-			switch (MainMenuList())
+			switch (MainMenuList(session))
 			{
 				case 1:
 				{
@@ -56,7 +56,7 @@ public static class MainMenu
 				{
 					Console.Clear();
 					LoanMenu.LoanMenuController(loanManagementService, userManagementService, bookManagementService,
-						statisticsService);
+						statisticsService, session);
 
 					break;
 				}
@@ -85,29 +85,48 @@ public static class MainMenu
 	}
 
 
-	private static int MainMenuList()
+	private static int MainMenuList(ICurrentUserSession session)
 	{
 		while (true)
 		{
 			Console.WriteLine(new string('=', 36) + " MAIN MENU " + new string('=', 36));
-			Console.WriteLine("1. Authors");
-			Console.WriteLine("2. Translators");
-			Console.WriteLine("3. Books");
-			Console.WriteLine("4. Members");
-			Console.WriteLine("5. Loans");
-			Console.WriteLine("6. Fines");
+			if (session.CanAccessAuthorManagement) Console.WriteLine("1. Authors");
+
+			if (session.CanAccessTranslatorManagement) Console.WriteLine("2. Translators");
+
+			if (session.CanAccessBookManagement) Console.WriteLine("3. Books");
+
+			if (session.CanAccessUserManagement) Console.WriteLine("4. Members");
+
+			if (session.CanAccessLoanManagement) Console.WriteLine("5. Loans");
+
+			if (session.CanAccessFineManagement) Console.WriteLine("6. Fines");
+
 			Console.WriteLine("7. Logout");
 			Console.WriteLine("8. Exit Application");
 			Console.WriteLine(new string('=', 82));
 			Console.Write(ValidationMessages.MainMenuQuestion);
 
 			var option = Console.ReadLine();
-			if (int.TryParse(option, out var result) && result is >= 1 and <= 8)
+			if (!int.TryParse(option, out var result))
 			{
-				return result;
+				ConsoleHelper.ShowError("Invalid selection. Try again.\n");
+				continue;
 			}
 
-			ConsoleHelper.ShowError("Invalid selection, Try again.\n");
+			if (result is 7 or 8) return result;
+			var isAuthorized = result switch
+			{
+				1 => session.CanAccessAuthorManagement,
+				2 => session.CanAccessTranslatorManagement,
+				3 => session.CanAccessBookManagement,
+				4 => session.CanAccessUserManagement,
+				5 => session.CanAccessLoanManagement,
+				6 => session.CanAccessFineManagement,
+				_ => false
+			};
+			if (isAuthorized) return result;
+			ConsoleHelper.ShowError("You are not authorized to access this menu.\n");
 		}
 	}
 }
