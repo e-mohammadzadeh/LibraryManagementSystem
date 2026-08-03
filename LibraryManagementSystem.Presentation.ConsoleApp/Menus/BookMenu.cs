@@ -1,11 +1,12 @@
-﻿using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.Contracts;
+﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
+using static System.Collections.Specialized.BitVector32;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
@@ -13,14 +14,24 @@ public static class BookMenu
 {
 	public static void BookMenuController(AuthorManagementService authorManagementService,
 		TranslatorManagementService translatorManagementService, BookManagementService bookManagementService,
-		LoanManagementService loanManagementService, LibraryStatisticsService statisticsService)
+		LoanManagementService loanManagementService, LibraryStatisticsService statisticsService,
+		ICurrentUserSession session)
 	{
+		if (!SessionGuard.RequireBookManagement(session)) return;
+
 		var continueProgram = true;
 		while (continueProgram)
 		{
+			if (!session.IsAuthenticated)
+			{
+				ConsoleHelper.ShowError(ValidationMessages.SessionExpired);
+				ConsoleHelper.Pause();
+				return;
+			}
+
 			Console.Clear();
 			MenuHelper.Print(statisticsService.GetLibraryStatistics());
-			switch (BookMenuList())
+			switch (BookMenuList(session))
 			{
 				case 1:
 				{
@@ -39,7 +50,7 @@ public static class BookMenu
 				case 3:
 				{
 					Console.Clear();
-					RemoveBook(bookManagementService);
+					RemoveBook(bookManagementService, session);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -79,7 +90,7 @@ public static class BookMenu
 	}
 
 
-	private static int BookMenuList()
+	private static int BookMenuList(ICurrentUserSession session)
 	{
 		while (true)
 		{
@@ -87,7 +98,8 @@ public static class BookMenu
 
 			Console.WriteLine("1. Add Book");
 			Console.WriteLine("2. Edit Book");
-			Console.WriteLine("3. Remove Book");
+			if (session.IsAdmin || session.IsLibrarian)
+				Console.WriteLine("3. Remove Book");
 			Console.WriteLine("4. Search Book");
 			Console.WriteLine("5. View Book Details");
 			Console.WriteLine("6. View All Books");
@@ -138,7 +150,12 @@ public static class BookMenu
 			}
 
 			ConsoleHelper.ShowResult(addAuthorResult);
-			authorIds = [addAuthorResult.Data!.Id];
+			if (addAuthorResult.Data is null)
+			{
+				ConsoleHelper.ShowError("Failed to retrieve the newly created author.");
+				return;
+			}
+			authorIds = [addAuthorResult.Data.Id];
 		}
 		else
 		{
@@ -577,18 +594,21 @@ public static class BookMenu
 
 
 
-	private static void RemoveBook(BookManagementService bookManagementService)
+	private static void RemoveBook(BookManagementService bookManagementService, ICurrentUserSession session)
 	{
-		Console.WriteLine(new string('=', 36) + " REMOVING BOOK MENU " + new string('=', 36));
-		var desiredBook = SelectExistingBook(bookManagementService);
-		if (desiredBook is null)
+		if (!(session.IsAdmin || session.IsLibrarian))
 		{
-			ConsoleHelper.Pause();
+			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
 			return;
 		}
 
+		Console.WriteLine(new string('=', 36) + " REMOVING BOOK MENU " + new string('=', 36));
+		var desiredBook = SelectExistingBook(bookManagementService);
+		if (desiredBook is null)
+			return;
+
 		BookPrinter.PrintDetails(desiredBook);
-		var choice = ConsoleHelper.ReadYesNo($"\nAre you sure you want to remove");
+		var choice = ConsoleHelper.ReadYesNo("\nAre you sure you want to remove");
 
 		if (choice != true) return;
 		var result = bookManagementService.RemoveBook(desiredBook.BookId);
@@ -745,6 +765,7 @@ public static class BookMenu
 			var loans = loanManagementService.GetLoanByBook(desiredBook.BookId);
 			BookPrinter.PrintLoanHistory(loans);
 		}
+
 		ConsoleHelper.Pause();
 	}
 }

@@ -72,4 +72,10 @@ public static class SessionGuard
 	{
 		return RequireRole(session.CanAccessAuthorManagement, "Access denied. You need Admin or Librarian privileges to manage authors.");
 	}
+
+
+	public static bool RequireBookManagement(ICurrentUserSession session)
+	{
+		return RequireRole(session.CanAccessBookManagement, "Access denied. You need Admin or Librarian privileges to manage books.")
+	}
 }

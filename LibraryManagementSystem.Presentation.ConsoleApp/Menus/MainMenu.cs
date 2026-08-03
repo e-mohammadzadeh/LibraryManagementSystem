@@ -36,20 +36,20 @@ public static class MainMenu
 				case 2:
 				{
 					Console.Clear();
-					TranslatorMenu.TranslatorMenuController(translatorManagementService, statisticsService);
+					TranslatorMenu.TranslatorMenuController(translatorManagementService, statisticsService, session);
 					break;
 				}
 				case 3:
 				{
 					Console.Clear();
 					BookMenu.BookMenuController(authorManagementService, translatorManagementService,
-						bookManagementService, loanManagementService, statisticsService);
+						bookManagementService, loanManagementService, statisticsService, session);
 					break;
 				}
 				case 4:
 				{
 					Console.Clear();
-					UserMenu.UserMenuController(userManagementService, statisticsService);
+					UserMenu.UserMenuController(userManagementService, statisticsService, session);
 					break;
 				}
 				case 5:
@@ -63,7 +63,7 @@ public static class MainMenu
 				case 6:
 				{
 					Console.Clear();
-					FineMenu.FineMenuController(fineManagementService, userManagementService, statisticsService);
+					FineMenu.FineMenuController(fineManagementService, userManagementService, statisticsService, session);
 					break;
 				}
 				case 7:
