@@ -30,7 +30,7 @@ public static class MainMenu
 				case 1:
 				{
 					Console.Clear();
-					AuthorMenu.AuthorMenuController(authorManagementService, statisticsService);
+					AuthorMenu.AuthorMenuController(authorManagementService, statisticsService, session);
 					break;
 				}
 				case 2:

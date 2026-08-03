@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
@@ -9,14 +10,23 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 public static class AuthorMenu
 {
 	public static void AuthorMenuController(AuthorManagementService authorManagementService,
-		LibraryStatisticsService statisticsService)
+		LibraryStatisticsService statisticsService, ICurrentUserSession session)
 	{
+		if (!SessionGuard.RequireAuthorManagement(session)) return;
+
 		var continueProgram = true;
 		while (continueProgram)
 		{
+			if (!session.IsAuthenticated)
+			{
+				ConsoleHelper.ShowError(ValidationMessages.SessionExpired);
+				ConsoleHelper.Pause();
+				return;
+			}
+
 			Console.Clear();
 			MenuHelper.Print(statisticsService.GetLibraryStatistics());
-			switch (AuthorMenuList())
+			switch (AuthorMenuList(session))
 			{
 				case 1:
 				{
@@ -35,7 +45,8 @@ public static class AuthorMenu
 				case 3:
 				{
 					Console.Clear();
-					RemoveAuthor(authorManagementService);
+					RemoveAuthor(authorManagementService, session);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
@@ -80,7 +91,7 @@ public static class AuthorMenu
 	}
 
 
-	private static int AuthorMenuList()
+	private static int AuthorMenuList(ICurrentUserSession session)
 	{
 		while (true)
 		{
@@ -88,7 +99,7 @@ public static class AuthorMenu
 
 			Console.WriteLine("1. Add Author");
 			Console.WriteLine("2. Edit Author");
-			Console.WriteLine("3. Remove Author");
+			if (session.IsAdmin) Console.WriteLine("3. Remove Author");
 			Console.WriteLine("4. Search Author");
 			Console.WriteLine("5. View Author Details");
 			Console.WriteLine("6. View All Authors");
@@ -228,8 +239,14 @@ public static class AuthorMenu
 	}
 
 
-	private static void RemoveAuthor(AuthorManagementService authorManagementService)
+	private static void RemoveAuthor(AuthorManagementService authorManagementService, ICurrentUserSession session)
 	{
+		if (!session.IsAdmin)
+		{
+			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			return;
+		}
+
 		// TODO	(SQL Server)	Implement SOFT DELETE system with flags like `IsDeleted = true` or `IsActive = False`
 		Console.WriteLine(new string('=', 36) + " REMOVING AUTHOR MENU " + new string('=', 36));
 		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(), MenuHelper.SelectAuthor,

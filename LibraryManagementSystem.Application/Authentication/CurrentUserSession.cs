@@ -42,4 +42,5 @@ public class CurrentUserSession : ICurrentUserSession
 	public bool CanAccessLoanManagement => IsAuthenticated;
 	public bool CanAccessFineManagement => IsAuthenticated;
 	public bool CanAccessStatistics => IsAdmin || IsLibrarian;
+	public bool IsSelfServiceMember => IsMember && !IsAdmin && !IsLibrarian;
 }

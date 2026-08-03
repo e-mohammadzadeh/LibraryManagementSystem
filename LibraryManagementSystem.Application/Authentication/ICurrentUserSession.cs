@@ -25,4 +25,5 @@ public interface ICurrentUserSession
 	bool CanAccessLoanManagement { get; }
 	bool CanAccessFineManagement { get; }
 	bool CanAccessStatistics { get; }
+	bool IsSelfServiceMember { get; }
 }

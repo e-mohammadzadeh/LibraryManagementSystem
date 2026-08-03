@@ -67,4 +67,9 @@ public static class SessionGuard
 
 		return true;
 	}
+
+	public static bool RequireAuthorManagement(ICurrentUserSession session) 
+	{
+		return RequireRole(session.CanAccessAuthorManagement, "Access denied. You need Admin or Librarian privileges to manage authors.");
+	}
 }
