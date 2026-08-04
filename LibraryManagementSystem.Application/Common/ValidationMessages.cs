@@ -40,6 +40,8 @@ public static class ValidationMessages
 	public const string AuthorAddedSuccessfully = "Author added successfully.";
 	public const string AuthorAddFailed = "Failed to add author.";
 	public const string NotEnoughAuthors = "All available authors are already assigned to this book.";
+	public const string DuplicateAuthorNameWarning = "An author with the same name already exists (ID: {0}).";
+
 
 	// Update
 	public const string AuthorUpdatedSuccessfully = "Author updated successfully.";
@@ -53,6 +55,7 @@ public static class ValidationMessages
 	public const string AuthorRemoveFailed = "Failed to remove author.";
 	public const string CannotRemove = "Cannot remove the only author. A book must have at least one author.";
 	public const string AuthorSelection4Remove = "Select the author you want to remove";
+	public const string AuthorHasAssociatedBooks = "Failed to remove author. The author has associated books.";
 
 	// Search
 	public const string NotAvailableAuthor = "No authors found. Please add a new author first.";

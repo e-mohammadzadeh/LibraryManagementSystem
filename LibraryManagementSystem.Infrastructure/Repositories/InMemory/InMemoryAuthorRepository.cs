@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Domain.Entities;
+﻿using LibraryManagementSystem.Application.DTOs.Authors;
+using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Infrastructure.Repositories.InMemory;
@@ -8,16 +9,10 @@ public class InMemoryAuthorRepository : IAuthorRepository
 	private readonly List<Author> _authors = [];
 
 
-	public void Add(Author author)
-	{
-		_authors.Add(author);
-	}
+	public void Add(Author author) { _authors.Add(author); }
 
 
-	public Author? FindById(int id)
-	{
-		return _authors.FirstOrDefault(author => author.Id == id);
-	}
+	public Author? FindById(int id) { return _authors.FirstOrDefault(author => author.Id == id); }
 
 
 	public Author? FindByName(string firstName, string lastName)
@@ -28,10 +23,7 @@ public class InMemoryAuthorRepository : IAuthorRepository
 	}
 
 
-	public IReadOnlyList<Author> GetAll()
-	{
-		return _authors.AsReadOnly();
-	}
+	public IReadOnlyList<Author> GetAll() { return _authors.AsReadOnly(); }
 
 
 	public bool ExistsByName(string firstName, string lastName, int excludeId = -1)
@@ -50,7 +42,8 @@ public class InMemoryAuthorRepository : IAuthorRepository
 
 	public bool ExistsByEmail(string email, int excludeId = -1)
 	{
-		return _authors.Any(author => author.Id != excludeId && author.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+		return _authors.Any(author =>
+			author.Id != excludeId && author.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
 	}
 
 
@@ -60,21 +53,29 @@ public class InMemoryAuthorRepository : IAuthorRepository
 	}
 
 
-	public void Remove(Author author)
+	public void Remove(Author author) { _authors.Remove(author); }
+
+
+	public IReadOnlyList<Author> Search(string searchItem, Func<AuthorDto, string?> selector)
 	{
-		_authors.Remove(author);
+		if (string.IsNullOrWhiteSpace(searchItem)) return [];
+
+		return
+		[
+			.. _authors.Where(author =>
+			{
+				var value = selector(author);
+				return value is not null && value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
+			})
+		];
 	}
 
 
-	public IReadOnlyList<Author> Search(string searchItem, Func<Author, string?> selector)
+	public void Update(Author author)
 	{
-		if (string.IsNullOrWhiteSpace(searchItem))
-			return [];
-
-		return [.. _authors.Where(author =>
-		{
-			var value = selector(author);
-			return value is not null && value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
-		})];
+		// In-memory collections update by reference automatically.
+		// However, we leave this method empty rather than throwing an exception 
+		// so that the Service layer can safely call _repository.Update() 
+		// without crashing, simulating a real database save operation.
 	}
 }

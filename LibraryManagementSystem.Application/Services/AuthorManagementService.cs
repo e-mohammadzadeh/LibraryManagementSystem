@@ -29,7 +29,7 @@ public class AuthorManagementService
 		var existingSameName = _authorRepository.FindByName(dto.FirstName, dto.LastName);
 
 		if (existingSameName is not null)
-			warningMessage = $"An author with the same name already exists (ID: {existingSameName.Id}).";
+			warningMessage = string.Format(ValidationMessages.DuplicateAuthorNameWarning, existingSameName.Id); 
 
 		var newAuthor = new Author(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber,
 			dto.BirthDate, dto.Biography);
@@ -75,7 +75,7 @@ public class AuthorManagementService
 
 		author.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
 			dto.Biography);
-
+		_authorRepository.Update(author);
 		return ServiceResult<AuthorDto>.Ok(MapToDto(author), ValidationMessages.AuthorUpdatedSuccessfully);
 	}
 
@@ -99,20 +99,20 @@ public class AuthorManagementService
 			return ServiceResult<AuthorDto>.Fail(ValidationMessages.AuthorRemoveFailed);
 
 		if (author.BookAuthors.Count != 0)
-			return ServiceResult<AuthorDto>.Fail("Failed to remove author. The author has associated books.");
+			return ServiceResult<AuthorDto>.Fail(ValidationMessages.AuthorHasAssociatedBooks);
 
 		_authorRepository.Remove(author);
 		return ServiceResult<AuthorDto>.Ok(MapToDto(author), ValidationMessages.AuthorRemovedSuccessfully);
 	}
 
 
-	public IReadOnlyList<AuthorDto> SearchAuthor(string searchItem, Func<Author, string?> selector)
+	public IReadOnlyList<AuthorDto> SearchAuthor(string searchItem, Func<AuthorDto, string?> selector)
 	{
-		return _authorRepository.Search(searchItem, selector).Select(MapToDto).ToList().AsReadOnly();
+		return _authorRepository.Search(searchItem, selector).ToList().AsReadOnly();
 	}
 
 
-	internal static AuthorDto MapToDto(Author author)
+	private static AuthorDto MapToDto(Author author)
 	{
 		return new AuthorDto
 		{
