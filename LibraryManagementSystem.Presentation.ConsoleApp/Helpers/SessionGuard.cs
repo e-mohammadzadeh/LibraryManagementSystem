@@ -68,14 +68,31 @@ public static class SessionGuard
 		return true;
 	}
 
-	public static bool RequireAuthorManagement(ICurrentUserSession session) 
+
+	public static bool RequireAuthorManagement(ICurrentUserSession session)
 	{
-		return RequireRole(session.CanAccessAuthorManagement, "Access denied. You need Admin or Librarian privileges to manage authors.");
+		return RequireRole(session.CanAccessAuthorManagement,
+			"Access denied. You need Admin or Librarian privileges to manage authors.");
+	}
+
+
+	public static bool RequireTranslatorManagement(ICurrentUserSession session)
+	{
+		return RequireRole(session.CanAccessTranslatorManagement,
+			"Access denied. You need Admin or Librarian privileges to manage translators.");
+	}
+
+
+	public static bool RequireUserManagement(ICurrentUserSession session)
+	{
+		return RequireRole(session.CanAccessUserManagement,
+			"Access denied. You need Admin or Librarian privileges to manage users.");
 	}
 
 
 	public static bool RequireBookManagement(ICurrentUserSession session)
 	{
-		return RequireRole(session.CanAccessBookManagement, "Access denied. You need Admin or Librarian privileges to manage books.")
+		return RequireRole(session.CanAccessBookManagement,
+			"Access denied. You need Admin or Librarian privileges to manage books.");
 	}
 }

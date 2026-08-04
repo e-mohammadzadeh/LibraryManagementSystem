@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Translator;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
@@ -9,14 +10,23 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 public static class TranslatorMenu
 {
 	public static void TranslatorMenuController(TranslatorManagementService translatorManagementService,
-		LibraryStatisticsService statisticsService)
+		LibraryStatisticsService statisticsService, ICurrentUserSession session)
 	{
+		if (!SessionGuard.RequireTranslatorManagement(session)) return;
+
 		var continueProgram = true;
 		while (continueProgram)
 		{
+			if (!session.IsAuthenticated)
+			{
+				ConsoleHelper.ShowError(ValidationMessages.SessionExpired);
+				ConsoleHelper.Pause();
+				return;
+			}
+
 			Console.Clear();
 			MenuHelper.Print(statisticsService.GetLibraryStatistics());
-			switch (TranslatorMenuList())
+			switch (TranslatorMenuList(session))
 			{
 				case 1:
 				{
@@ -35,7 +45,7 @@ public static class TranslatorMenu
 				case 3:
 				{
 					Console.Clear();
-					RemoveTranslator(translatorManagementService);
+					RemoveTranslator(translatorManagementService, session);
 					break;
 				}
 				case 4:
@@ -80,14 +90,14 @@ public static class TranslatorMenu
 	}
 
 
-	private static int TranslatorMenuList()
+	private static int TranslatorMenuList(ICurrentUserSession session)
 	{
 		while (true)
 		{
 			Console.WriteLine(new string('=', 33) + " TRANSLATOR MENU " + new string('=', 33));
 			Console.WriteLine("1. Add Translator");
 			Console.WriteLine("2. Edit Translator");
-			Console.WriteLine("3. Remove Translator");
+			if (session.IsAdmin) Console.WriteLine("3. Remove Translator");
 			Console.WriteLine("4. Search Translator");
 			Console.WriteLine("5. View Translator Details");
 			Console.WriteLine("6. View All Translators");
@@ -216,8 +226,14 @@ public static class TranslatorMenu
 	}
 
 
-	private static void RemoveTranslator(TranslatorManagementService translatorManagementService)
+	private static void RemoveTranslator(TranslatorManagementService translatorManagementService, ICurrentUserSession session)
 	{
+		if (!session.IsAdmin)
+		{
+			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			return;
+		}
+
 		// TODO	(SQL Server)	Implement SOFT DELETE system with flags like `IsDeleted = true` or `IsActive = False`
 		Console.WriteLine(new string('=', 36) + " REMOVING TRANSLATOR MENU " + new string('=', 36));
 		var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),

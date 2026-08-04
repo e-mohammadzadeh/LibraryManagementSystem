@@ -2,6 +2,7 @@
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
 
 
@@ -12,15 +13,17 @@ public class UserManagementService
 	private readonly IUserRepository _userRepository;
 	private readonly IRoleRepository _roleRepository;
 	private readonly ILoanRepository _loanRepository;
+	private readonly IFineRepository _fineRepository;
 	private readonly IPasswordHasher _passwordHasher;
 
 
 	public UserManagementService(IUserRepository userRepository, IRoleRepository roleRepository,
-		ILoanRepository loanRepository,IPasswordHasher passwordHasher )
+		ILoanRepository loanRepository, IFineRepository fineRepository, IPasswordHasher passwordHasher)
 	{
 		_userRepository = userRepository;
 		_roleRepository = roleRepository;
 		_loanRepository = loanRepository;
+		_fineRepository = fineRepository;
 		_passwordHasher = passwordHasher;
 	}
 
@@ -48,7 +51,7 @@ public class UserManagementService
 			return ServiceResult<UserDto>.Fail("One or more selected roles do not exist.");
 
 		var result = _passwordHasher.CreatePasswordHash(dto.Password);
-		
+
 		var newUser = new User(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
 			roles);
 
@@ -137,18 +140,43 @@ public class UserManagementService
 	}
 
 
-	public ServiceResult<UserDto> RemoveUser(int userId)
+	public ServiceResult<UserDto> RemoveUser(int userId, ICurrentUserSession? session = null)
 	{
 		var user = _userRepository.FindById(userId);
 		if (user is null) return ServiceResult<UserDto>.Fail(ValidationMessages.UserRemoveFailed);
 
+		if (session is not null && session.UserId == userId)
+			return ServiceResult<UserDto>.Fail(ValidationMessages.CannotRemoveYourself);
+
+		if (session is not null && !CanRemoveUser(session, user))
+			return ServiceResult<UserDto>.Fail(ValidationMessages.AccessDenied);
 
 		if (_loanRepository.CountActiveLoansByUser(userId) > 0)
-			return ServiceResult<UserDto>.Fail("Failed to remove author. The author has associated books.");
+			return ServiceResult<UserDto>.Fail(ValidationMessages.UserRemovalFailedByActiveLoans);
+
+		if (_fineRepository.HasUnpaidFines(userId))
+			return ServiceResult<UserDto>.Fail(ValidationMessages.UserRemovalFailedByUnpaidFines);
 
 		_userRepository.Remove(user);
 		return ServiceResult<UserDto>.Ok(MapToDto(user), ValidationMessages.UserRemovedSuccessfully);
 	}
+
+
+	private static bool CanRemoveUser(ICurrentUserSession session, User targetUser)
+	{
+		var targetRoles = targetUser.UserRoles.Select(ur => ur.Role.Name).ToList();
+
+		if (session.IsAdmin)
+			return !targetRoles.Contains(LibraryUserRole.Admin);
+
+		if (session.IsLibrarian)
+			return targetRoles.Contains(LibraryUserRole.Member)
+			       && !targetRoles.Contains(LibraryUserRole.Librarian)
+			       && !targetRoles.Contains(LibraryUserRole.Admin);
+
+		return false;
+	}
+
 
 
 	public IReadOnlyList<UserDto> SearchUser(string searchTerm, Func<User, string?> selector)

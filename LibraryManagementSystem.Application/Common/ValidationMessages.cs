@@ -143,6 +143,9 @@ public static class ValidationMessages
 	// Remove
 	public const string UserRemovedSuccessfully = "User removed successfully.";
 	public const string UserRemoveFailed = "Failed to remove user.";
+	public const string CannotRemoveYourself = "You cannot remove your own account.";
+	public const string UserRemovalFailedByActiveLoans = "Cannot remove user. The user still has active loans.";
+	public const string UserRemovalFailedByUnpaidFines = "Cannot remove user. The user has unpaid fines.";
 
 	// Search
 	public const string NotAvailableUser = "No users found. Please add a new user first.";
@@ -223,6 +226,10 @@ public static class ValidationMessages
 	public const string AdminOrLibrarianRoleRequired = "Access denied. Admin or Librarian role required.";
 	public const string CannotBorrowBooks = "You cannot borrow books. Check your membership status or outstanding fines.";
 	public const string NoUserLoggedIn = "No user is currently logged in.";
+	public const string BorrowBook4Yourself = "You can only borrow books for yourself.";
+	public const string ReturnOwnLoans = "You can only return your own loans.";
+	public const string RenewOwnLoans = "You can only renew your own loans.";
+	public const string ViewOwnLoans = "You can only view your own loans.";
 
 
 

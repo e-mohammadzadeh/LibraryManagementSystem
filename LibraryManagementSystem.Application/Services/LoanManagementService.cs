@@ -1,7 +1,9 @@
-﻿using LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Loans;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
+using static System.Collections.Specialized.BitVector32;
 
 namespace LibraryManagementSystem.Application.Services;
 
@@ -25,8 +27,11 @@ public class LoanManagementService
 	}
 
 
-	public ServiceResult<LoanDto> BorrowBook(int userId, int bookId)
+	public ServiceResult<LoanDto> BorrowBook(int userId, int bookId, ICurrentUserSession session)
 	{
+		if (session.IsSelfServiceMember && session.UserId != userId)
+			return ServiceResult<LoanDto>.Fail(ValidationMessages.BorrowBook4Yourself);
+
 		var user = _userRepository.FindById(userId);
 		if (user is null) return ServiceResult<LoanDto>.Fail(ValidationMessages.NotUserMatched);
 
@@ -55,10 +60,13 @@ public class LoanManagementService
 	}
 
 
-	public ServiceResult<LoanDto> ReturnBook(int loanId)
+	public ServiceResult<LoanDto> ReturnBook(int loanId, ICurrentUserSession session)
 	{
 		var loan = _loanRepository.GetActiveLoanById(loanId);
 		if (loan is null) return ServiceResult<LoanDto>.Fail(ValidationMessages.ActiveLoanNotFound);
+
+		if (session.IsSelfServiceMember && session.UserId != loan.UserId)
+			return ServiceResult<LoanDto>.Fail(ValidationMessages.ReturnOwnLoans);
 
 		loan.MarkAsReturned();
 		loan.Book.ReturnCopy();
@@ -73,16 +81,23 @@ public class LoanManagementService
 	}
 
 
-	public IReadOnlyList<LoanDto> GetActiveLoansByUser(int userId)
+	public ServiceResult<IReadOnlyList<LoanDto>> GetActiveLoansByUser(int userId, ICurrentUserSession session)
 	{
-		return _loanRepository.GetActiveLoansByUser(userId).Select(MapToDto).ToList().AsReadOnly();
+		if (session.IsSelfServiceMember && session.UserId != userId)
+			return ServiceResult<IReadOnlyList<LoanDto>>.Fail(ValidationMessages.ViewOwnLoans);
+
+		var loans = _loanRepository.GetActiveLoansByUser(userId).Select(MapToDto).ToList().AsReadOnly();
+		return ServiceResult<IReadOnlyList<LoanDto>>.Ok(loans, "Loans retrieved successfully.");
 	}
 
 
-	public ServiceResult<LoanDto> RenewLoan(int loanId)
+	public ServiceResult<LoanDto> RenewLoan(int loanId, ICurrentUserSession session)
 	{
 		var loan = _loanRepository.GetActiveLoanById(loanId);
 		if (loan is null) return ServiceResult<LoanDto>.Fail(ValidationMessages.ActiveLoanNotFound);
+
+		if (session.IsSelfServiceMember && session.UserId != loan.UserId)
+			return ServiceResult<LoanDto>.Fail(ValidationMessages.RenewOwnLoans);
 
 		if (!loan.CanRenew(out var errorMessage)) return ServiceResult<LoanDto>.Fail(errorMessage);
 
@@ -95,26 +110,39 @@ public class LoanManagementService
 	}
 
 
-	public IReadOnlyList<LoanDto> GetOverdueLoans()
+	public IReadOnlyList<LoanDto> GetOverdueLoans(ICurrentUserSession session)
 	{
+		if (session.IsSelfServiceMember)
+			return _loanRepository.GetActiveLoansByUser(session.UserId!.Value).Where(l => l.IsOverdue).Select(MapToDto)
+				.ToList().AsReadOnly();
+
 		return _loanRepository.GetOverdueLoans().Select(MapToDto).ToList().AsReadOnly();
 	}
 
 
-	public IReadOnlyList<LoanDto> GetLoansByUser(int userId)
+	public ServiceResult<IReadOnlyList<LoanDto>> GetLoansByUser(int userId, ICurrentUserSession session)
 	{
-		return _loanRepository.GetAllByUser(userId).Select(MapToDto).ToList().AsReadOnly();
+		if (session.IsSelfServiceMember && session.UserId != userId)
+			return ServiceResult<IReadOnlyList<LoanDto>>.Fail(ValidationMessages.ViewOwnLoans);
+
+		var loans = _loanRepository.GetAllByUser(userId).Select(MapToDto).ToList().AsReadOnly();
+		return ServiceResult<IReadOnlyList<LoanDto>>.Ok(loans, "Loans retrieved successfully.");
 	}
 
 
-	public IReadOnlyList<LoanDto> SearchLoans<T>(T? searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer)
+	public IReadOnlyList<LoanDto> SearchLoans<T>(T? searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer,
+		ICurrentUserSession session)
 		where T : class
 	{
 		// TODO	(EF)	When EF is added, move search filtering to ILoanRepository.Search<T>() to allow SQL-level filtering instead of in-memory LINQ.
 
 		if (searchTerm is null) return [];
 
-		return _loanRepository.GetAll().Where(l =>
+		IEnumerable<Loan> source = session.IsSelfServiceMember
+			? _loanRepository.GetActiveLoansByUser(session.UserId!.Value)
+			: _loanRepository.GetActiveLoans();
+
+		return source.Where(l =>
 		{
 			var value = selector(l);
 			return value != null && comparer(searchTerm, value);
@@ -122,12 +150,17 @@ public class LoanManagementService
 	}
 
 
-	public IReadOnlyList<LoanDto> SearchLoans<T>(T? searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer)
+	public IReadOnlyList<LoanDto> SearchLoans<T>(T? searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer,
+		ICurrentUserSession session)
 		where T : struct
 	{
 		if (!searchTerm.HasValue) return [];
 
-		return _loanRepository.GetAll().Where(l =>
+		IEnumerable<Loan> source = session.IsSelfServiceMember
+			? _loanRepository.GetActiveLoansByUser(session.UserId!.Value)
+			: _loanRepository.GetActiveLoans();
+
+		return source.Where(l =>
 		{
 			var value = selector(l);
 			return value.HasValue && comparer(searchTerm.Value, value.Value);
@@ -136,12 +169,16 @@ public class LoanManagementService
 
 
 	public IReadOnlyList<LoanDto> SearchActiveLoans<T>(T? searchTerm, Func<Loan, T?> selector,
-		Func<T, T, bool> comparer)
+		Func<T, T, bool> comparer, ICurrentUserSession session)
 		where T : class
 	{
 		if (searchTerm is null) return [];
 
-		return _loanRepository.GetActiveLoans().Where(l =>
+		IEnumerable<Loan> source = session.IsSelfServiceMember
+			? _loanRepository.GetActiveLoansByUser(session.UserId!.Value)
+			: _loanRepository.GetActiveLoans();
+
+		return source.Where(l =>
 		{
 			var value = selector(l);
 			return value != null && comparer(searchTerm, value);
@@ -150,12 +187,16 @@ public class LoanManagementService
 
 
 	public IReadOnlyList<LoanDto> SearchActiveLoans<T>(T? searchTerm, Func<Loan, T?> selector,
-		Func<T, T, bool> comparer)
+		Func<T, T, bool> comparer, ICurrentUserSession session)
 		where T : struct
 	{
 		if (!searchTerm.HasValue) return [];
 
-		return _loanRepository.GetActiveLoans().Where(l =>
+		IEnumerable<Loan> source = session.IsSelfServiceMember
+			? _loanRepository.GetActiveLoansByUser(session.UserId!.Value)
+			: _loanRepository.GetActiveLoans();
+
+		return source.Where(l =>
 		{
 			var value = selector(l);
 			return value.HasValue && comparer(searchTerm.Value, value.Value);
@@ -163,8 +204,12 @@ public class LoanManagementService
 	}
 
 
-	public IReadOnlyList<LoanDto> GetAllLoans()
+	public IReadOnlyList<LoanDto> GetAllLoans(ICurrentUserSession session)
 	{
+		if (session.IsSelfServiceMember)
+			return GetActiveLoansByUser(session.UserId!.Value, session).Data ??
+			       Array.Empty<LoanDto>().ToList().AsReadOnly();
+
 		return _loanRepository.GetAll().Select(MapToDto).ToList().AsReadOnly();
 	}
 
@@ -175,8 +220,12 @@ public class LoanManagementService
 	}
 
 
-	public IReadOnlyList<LoanDto> GetAllActiveLoans()
+	public IReadOnlyList<LoanDto> GetAllActiveLoans(ICurrentUserSession session)
 	{
+		if (session.IsSelfServiceMember)
+			return GetActiveLoansByUser(session.UserId!.Value, session).Data ??
+			       Array.Empty<LoanDto>().ToList().AsReadOnly();
+
 		return _loanRepository.GetActiveLoans().Select(MapToDto).ToList().AsReadOnly();
 	}
 

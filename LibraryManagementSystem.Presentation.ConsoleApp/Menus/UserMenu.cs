@@ -1,6 +1,8 @@
-﻿using LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -9,14 +11,23 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 public static class UserMenu
 {
 	public static void UserMenuController(UserManagementService userManagementService,
-		LibraryStatisticsService statisticsService)
+		LibraryStatisticsService statisticsService, ICurrentUserSession session)
 	{
+		if (!SessionGuard.RequireUserManagement(session)) return;
+
 		var continueProgram = true;
 		while (continueProgram)
 		{
+			if (!session.IsAuthenticated)
+			{
+				ConsoleHelper.ShowError(ValidationMessages.SessionExpired);
+				ConsoleHelper.Pause();
+				return;
+			}
+
 			Console.Clear();
 			MenuHelper.Print(statisticsService.GetLibraryStatistics());
-			switch (UserMenuList())
+			switch (UserMenuList(session))
 			{
 				case 1:
 				{
@@ -35,7 +46,8 @@ public static class UserMenu
 				case 3:
 				{
 					Console.Clear();
-					RemoveUser(userManagementService);
+					RemoveUser(userManagementService, session);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
@@ -80,14 +92,14 @@ public static class UserMenu
 	}
 
 
-	private static int UserMenuList()
+	private static int UserMenuList(ICurrentUserSession session)
 	{
 		while (true)
 		{
 			Console.WriteLine(new string('=', 36) + " USER MENU " + new string('=', 36));
 			Console.WriteLine("1. Register User");
 			Console.WriteLine("2. Edit User");
-			Console.WriteLine("3. Remove User");
+			if (session.IsAdmin || session.IsLibrarian) Console.WriteLine("3. Remove User");
 			Console.WriteLine("4. Search User");
 			Console.WriteLine("5. View User Details");
 			Console.WriteLine("6. View All Users");
@@ -246,14 +258,15 @@ public static class UserMenu
 	}
 
 
-	private static void RemoveUser(UserManagementService userManagementService)
+	private static void RemoveUser(UserManagementService userManagementService, ICurrentUserSession session)
 	{
 		Console.WriteLine(new string('=', 36) + " REMOVING USER MENU " + new string('=', 36));
 		var desiredUser = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
 			MenuHelper.SelectUser, ValidationMessages.NotAvailableUser);
+		if (desiredUser is null) return;
 
-		PersonHelper.PerformRemove(desiredUser, desiredUser?.FirstName ?? "", desiredUser?.LastName ?? "",
-			UserPrinter.PrintDetails, () => userManagementService.RemoveUser(desiredUser!.Id));
+		PersonHelper.PerformRemove(desiredUser, desiredUser.FirstName, desiredUser.LastName, UserPrinter.PrintDetails,
+			() => userManagementService.RemoveUser(desiredUser.Id, session));
 	}
 
 
