@@ -12,7 +12,7 @@ public static class ValidationMessages
 	public const string InvalidMenuChoice = "Invalid selection. Please try again.\n";
 	public const string InvalidDate = "Invalid date. Please enter a date on or before today.";
 	public const string InvalidBirthDateFormat = "Invalid date format. Please use YYYY-MM-DD (e.g., 2026-12-27).";
-
+	public const string ExitingProgram = "Exiting Program...\n";
 
 
 	// 2. VALIDATION MESSAGES (Format‑specific)
@@ -230,6 +230,7 @@ public static class ValidationMessages
 	public const string ReturnOwnLoans = "You can only return your own loans.";
 	public const string RenewOwnLoans = "You can only renew your own loans.";
 	public const string ViewOwnLoans = "You can only view your own loans.";
+	public const string NotAuthorized = "You are not authorized to access this menu.\n";
 
 
 

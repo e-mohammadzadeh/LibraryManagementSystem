@@ -1,7 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
-using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
@@ -63,13 +62,14 @@ public static class MainMenu
 				case 6:
 				{
 					Console.Clear();
-					FineMenu.FineMenuController(fineManagementService, userManagementService, statisticsService, session);
+					FineMenu.FineMenuController(fineManagementService, userManagementService, session,
+						statisticsService);
 					break;
 				}
 				case 7:
 				{
 					Console.Clear();
-					ConsoleHelper.ShowError("Logged out successfully. Returning to login screen...\n");
+					ConsoleHelper.ShowInfo(ValidationMessages.LogoutSuccess);
 					var result = authenticationService.Logout();
 					ConsoleHelper.ShowResult(result);
 					ConsoleHelper.Pause();
@@ -77,7 +77,7 @@ public static class MainMenu
 				}
 				case 8:
 				{
-					ConsoleHelper.ShowError("Exiting Program...\n");
+					ConsoleHelper.ShowError(ValidationMessages.ExitingProgram);
 					return MainMenuResult.Exit;
 				}
 			}
@@ -87,46 +87,45 @@ public static class MainMenu
 
 	private static int MainMenuList(ICurrentUserSession session)
 	{
+		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>();
+
+		items.Add((1, "Authors", session.CanAccessAuthorManagement));
+		items.Add((2, "Translators", session.CanAccessTranslatorManagement));
+		items.Add((3, "Books", session.CanAccessBookManagement));
+		items.Add((4, "Members", session.CanAccessUserManagement));
+		items.Add((5, "Loans", session.CanAccessLoanManagement));
+		items.Add((6, "Fines", session.CanAccessFineManagement));
+		items.Add((7, "Logout", true));
+		items.Add((8, "Exit Application", true));
+
+		var availableItems = items.Where(i => i.IsAvailable).ToList();
+
+
+
 		while (true)
 		{
 			Console.WriteLine(new string('=', 36) + " MAIN MENU " + new string('=', 36));
-			if (session.CanAccessAuthorManagement) Console.WriteLine("1. Authors");
-
-			if (session.CanAccessTranslatorManagement) Console.WriteLine("2. Translators");
-
-			if (session.CanAccessBookManagement) Console.WriteLine("3. Books");
-
-			if (session.CanAccessUserManagement) Console.WriteLine("4. Members");
-
-			if (session.CanAccessLoanManagement) Console.WriteLine("5. Loans");
-
-			if (session.CanAccessFineManagement) Console.WriteLine("6. Fines");
-
-			Console.WriteLine("7. Logout");
-			Console.WriteLine("8. Exit Application");
+			var displayNumber = 1;
+			foreach (var item in items)
+			{
+				Console.WriteLine($"{displayNumber}. {item.DisplayText}");
+				displayNumber++;
+			}
 			Console.WriteLine(new string('=', 82));
 			Console.Write(ValidationMessages.MainMenuQuestion);
 
 			var option = Console.ReadLine();
-			if (!int.TryParse(option, out var result))
+			if (!int.TryParse(option, out var userChoice))
 			{
-				ConsoleHelper.ShowError("Invalid selection. Try again.\n");
+				ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
 				continue;
 			}
 
-			if (result is 7 or 8) return result;
-			var isAuthorized = result switch
+			if (userChoice >= 1 && userChoice <= availableItems.Count)
 			{
-				1 => session.CanAccessAuthorManagement,
-				2 => session.CanAccessTranslatorManagement,
-				3 => session.CanAccessBookManagement,
-				4 => session.CanAccessUserManagement,
-				5 => session.CanAccessLoanManagement,
-				6 => session.CanAccessFineManagement,
-				_ => false
-			};
-			if (isAuthorized) return result;
-			ConsoleHelper.ShowError("You are not authorized to access this menu.\n");
+				return availableItems[userChoice - 1].ActionId;
+			}
+			ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
 		}
 	}
 }

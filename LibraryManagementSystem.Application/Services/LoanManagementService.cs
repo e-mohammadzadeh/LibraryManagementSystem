@@ -129,7 +129,7 @@ public class LoanManagementService
 	}
 
 
-	public IReadOnlyList<LoanDto> SearchLoans<T>(T? searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer,
+	public IReadOnlyList<LoanDto> SearchLoans<T>(T? searchTerm, Func<LoanDto, T?> selector, Func<T, T, bool> comparer,
 		ICurrentUserSession session)
 		where T : class
 	{
@@ -141,15 +141,16 @@ public class LoanManagementService
 			? _loanRepository.GetActiveLoansByUser(session.UserId!.Value)
 			: _loanRepository.GetActiveLoans();
 
-		return source.Where(l =>
+		var dtos = source.Select(MapToDto).ToList();
+		return dtos.Where(dto =>
 		{
-			var value = selector(l);
+			var value = selector(dto);
 			return value != null && comparer(searchTerm, value);
-		}).Select(MapToDto).ToList().AsReadOnly();
+		}).ToList().AsReadOnly();
 	}
 
 
-	public IReadOnlyList<LoanDto> SearchLoans<T>(T? searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer,
+	public IReadOnlyList<LoanDto> SearchLoans<T>(T? searchTerm, Func<LoanDto, T?> selector, Func<T, T, bool> comparer,
 		ICurrentUserSession session)
 		where T : struct
 	{
@@ -159,15 +160,16 @@ public class LoanManagementService
 			? _loanRepository.GetActiveLoansByUser(session.UserId!.Value)
 			: _loanRepository.GetActiveLoans();
 
-		return source.Where(l =>
+		var dtos = source.Select(MapToDto).ToList();
+		return dtos.Where(dto =>
 		{
-			var value = selector(l);
+			var value = selector(dto);
 			return value.HasValue && comparer(searchTerm.Value, value.Value);
-		}).Select(MapToDto).ToList().AsReadOnly();
+		}).ToList().AsReadOnly();
 	}
 
 
-	public IReadOnlyList<LoanDto> SearchActiveLoans<T>(T? searchTerm, Func<Loan, T?> selector,
+	public IReadOnlyList<LoanDto> SearchActiveLoans<T>(T? searchTerm, Func<LoanDto, T?> selector,
 		Func<T, T, bool> comparer, ICurrentUserSession session)
 		where T : class
 	{
@@ -177,15 +179,16 @@ public class LoanManagementService
 			? _loanRepository.GetActiveLoansByUser(session.UserId!.Value)
 			: _loanRepository.GetActiveLoans();
 
-		return source.Where(l =>
+		var dtos = source.Select(MapToDto).ToList();
+		return dtos.Where(dto =>
 		{
-			var value = selector(l);
+			var value = selector(dto);
 			return value != null && comparer(searchTerm, value);
-		}).Select(MapToDto).ToList().AsReadOnly();
+		}).ToList().AsReadOnly();
 	}
 
 
-	public IReadOnlyList<LoanDto> SearchActiveLoans<T>(T? searchTerm, Func<Loan, T?> selector,
+	public IReadOnlyList<LoanDto> SearchActiveLoans<T>(T? searchTerm, Func<LoanDto, T?> selector,
 		Func<T, T, bool> comparer, ICurrentUserSession session)
 		where T : struct
 	{
@@ -195,11 +198,12 @@ public class LoanManagementService
 			? _loanRepository.GetActiveLoansByUser(session.UserId!.Value)
 			: _loanRepository.GetActiveLoans();
 
-		return source.Where(l =>
+		var dtos = source.Select(MapToDto).ToList();
+		return dtos.Where(dto =>
 		{
-			var value = selector(l);
+			var value = selector(dto);
 			return value.HasValue && comparer(searchTerm.Value, value.Value);
-		}).Select(MapToDto).ToList().AsReadOnly();
+		}).ToList().AsReadOnly();
 	}
 
 
@@ -236,12 +240,14 @@ public class LoanManagementService
 			LoanId = loan.LoanId,
 			BookName = loan.Book.BookName,
 			BookId = loan.BookId,
+			BookISBN = loan.Book.InternationalStandardBookNumber,
 			UserName = $"{loan.User.FirstName} {loan.User.LastName}",
 			UserId = loan.UserId,
+			UserNationalCode = loan.User.NationalCode,
 			BorrowDate = loan.BorrowDate,
 			DueDate = loan.DueDate,
 			ReturnDate = loan.ReturnDate,
-			Status = loan.Status.ToString(),
+			Status = loan.Status,
 			RenewalCount = loan.RenewalCount,
 			IsOverdue = loan.IsOverdue,
 			CreatedAt = loan.CreatedAt,

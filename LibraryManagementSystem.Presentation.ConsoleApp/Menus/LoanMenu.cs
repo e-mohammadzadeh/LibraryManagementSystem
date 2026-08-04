@@ -2,7 +2,6 @@
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Loans;
 using LibraryManagementSystem.Application.Services;
-using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -422,7 +421,7 @@ public static class LoanMenu
 					SearchLoanAndDisplay(
 						p => ConsoleHelper.GetValidName(p, ValidationConstants.MinBookNameLength,
 							ValidationConstants.MaxBookNameLength), "Enter a book title to search",
-						loan => loan.Book.BookName,
+						loan => loan.BookName,
 						(search, value) => value.Contains(search, StringComparison.OrdinalIgnoreCase), activeOnly,
 						loanManagementService, session);
 
@@ -431,7 +430,7 @@ public static class LoanMenu
 				case 3:
 				{
 					SearchLoanAndDisplay(p => ConsoleHelper.ReadString(p), "Enter a book ISBN to search",
-						loan => loan.Book.InternationalStandardBookNumber,
+						loan => loan.BookISBN,
 						(search, value) => value.Contains(search, StringComparison.OrdinalIgnoreCase), activeOnly,
 						loanManagementService, session);
 
@@ -442,7 +441,7 @@ public static class LoanMenu
 					SearchLoanAndDisplay(
 						p => ConsoleHelper.GetValidName(p, ValidationConstants.MinNameLength,
 							ValidationConstants.MaxNameLength), "Enter a member name to search",
-						loan => $"{loan.User.FirstName} {loan.User.LastName}",
+						loan => loan.UserName,
 						(search, value) => value.Contains(search, StringComparison.OrdinalIgnoreCase), activeOnly,
 						loanManagementService, session);
 
@@ -451,7 +450,7 @@ public static class LoanMenu
 				case 5:
 				{
 					SearchLoanAndDisplay(ConsoleHelper.GetValidNationalCode, "Enter a member national code to search",
-						loan => loan.User.NationalCode,
+						loan => loan.UserNationalCode,
 						(search, value) => value.Contains(search, StringComparison.OrdinalIgnoreCase),
 						activeOnly, loanManagementService, session);
 
@@ -479,7 +478,7 @@ public static class LoanMenu
 	}
 
 
-	private static void SearchLoanAndDisplay<T>(Func<string, T?> reader, string prompt, Func<Loan, T?> selector,
+	private static void SearchLoanAndDisplay<T>(Func<string, T?> reader, string prompt, Func<LoanDto, T?> selector,
 		Func<T, T, bool> comparer, bool activeOnly, LoanManagementService loanManagementService,
 		ICurrentUserSession session)
 		where T : class
@@ -495,7 +494,7 @@ public static class LoanMenu
 	}
 
 
-	private static void SearchLoanAndDisplay<T>(Func<string, T?> reader, string prompt, Func<Loan, T?> selector,
+	private static void SearchLoanAndDisplay<T>(Func<string, T?> reader, string prompt, Func<LoanDto, T?> selector,
 		Func<T, T, bool> comparer, bool activeOnly, LoanManagementService loanManagementService,
 		ICurrentUserSession session)
 		where T : struct

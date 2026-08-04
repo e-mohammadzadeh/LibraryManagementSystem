@@ -1,6 +1,6 @@
-﻿using LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
-using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -8,8 +8,8 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
 public static class FineMenu
 {
-	public static void FineMenuController(FineManagementService fineManagementService,
-		UserManagementService userManagementService, LibraryStatisticsService statisticsService)
+	public static void FineMenuController(IFineManagementService fineManagementService,
+		UserManagementService userManagementService, ICurrentUserSession session, LibraryStatisticsService statisticsService)
 	{
 		var continueProgram = true;
 		while (continueProgram)
@@ -90,7 +90,7 @@ public static class FineMenu
 
 
 
-	private static void ViewAllFines(FineManagementService fineManagementService)
+	private static void ViewAllFines(IFineManagementService fineManagementService)
 	{
 		var fines = fineManagementService.GetAllFines();
 		if (fines.Count == 0)
@@ -103,7 +103,7 @@ public static class FineMenu
 	}
 
 
-	private static void ViewUnpaidFines(FineManagementService fineManagementService)
+	private static void ViewUnpaidFines(IFineManagementService fineManagementService)
 	{
 		var fines = fineManagementService.GetAllUnpaidFines();
 		if (fines.Count == 0)
@@ -116,7 +116,7 @@ public static class FineMenu
 	}
 
 
-	private static void ViewUserFines(FineManagementService fineManagementService, UserManagementService userManagementService)
+	private static void ViewUserFines(IFineManagementService fineManagementService, UserManagementService userManagementService)
 	{
 		var desiredUser = MenuHelper.SelectUser(userManagementService.GetAllUsers());
 		if (desiredUser is null) return;
@@ -132,7 +132,7 @@ public static class FineMenu
 
 
 
-	private static void PayFine(FineManagementService fineManagementService,
+	private static void PayFine(IFineManagementService fineManagementService,
 		UserManagementService userManagementService)
 	{
 		var unpaidFines = fineManagementService.GetAllUnpaidFines();
@@ -154,7 +154,7 @@ public static class FineMenu
 	}
 
 
-	private static void WaiveFine(FineManagementService fineManagementService,
+	private static void WaiveFine(IFineManagementService fineManagementService,
 		UserManagementService userManagementService)
 	{
 		var unpaidFines = fineManagementService.GetAllUnpaidFines();
