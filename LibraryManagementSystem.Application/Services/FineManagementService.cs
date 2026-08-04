@@ -5,7 +5,7 @@ using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
 
-public class FineManagementService
+public class FineManagementService : IFineManagementService
 {
 	private readonly IFineRepository _fineRepository;
 	private readonly ILoanRepository _loanRepository;

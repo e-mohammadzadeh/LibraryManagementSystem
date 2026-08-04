@@ -3,7 +3,6 @@ using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Loans;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
-using static System.Collections.Specialized.BitVector32;
 
 namespace LibraryManagementSystem.Application.Services;
 
@@ -13,11 +12,11 @@ public class LoanManagementService
 	private readonly IUserRepository _userRepository;
 	private readonly IBookRepository _bookRepository;
 	private readonly IFineRepository _fineRepository;
-	private readonly FineManagementService _fineService;
+	private readonly IFineManagementService _fineService;
 
 
 	public LoanManagementService(ILoanRepository loanRepository, IUserRepository userRepository,
-		IBookRepository bookRepository, IFineRepository fineRepository, FineManagementService fineManagementService)
+		IBookRepository bookRepository, IFineRepository fineRepository, IFineManagementService fineManagementService)
 	{
 		_loanRepository = loanRepository;
 		_userRepository = userRepository;

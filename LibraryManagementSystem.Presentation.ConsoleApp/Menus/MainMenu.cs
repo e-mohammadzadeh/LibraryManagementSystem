@@ -11,7 +11,7 @@ public static class MainMenu
 	public static MainMenuResult MainMenuController(AuthorManagementService authorManagementService,
 		TranslatorManagementService translatorManagementService, UserManagementService userManagementService,
 		BookManagementService bookManagementService, LoanManagementService loanManagementService,
-		FineManagementService fineManagementService, AuthenticationService authenticationService,
+		IFineManagementService fineManagementService, AuthenticationService authenticationService,
 		ICurrentUserSession session, LibraryStatisticsService statisticsService)
 	{
 		while (true)
