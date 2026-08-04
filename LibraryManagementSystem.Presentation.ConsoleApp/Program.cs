@@ -14,6 +14,7 @@ public static class Program
 	{
 		try
 		{
+			// ── Repositories ──────────────────────────
 			var userRepo = new InMemoryUserRepository();
 			var authorRepo = new InMemoryAuthorRepository();
 			var translatorRepo = new InMemoryTranslatorRepository();
@@ -21,23 +22,27 @@ public static class Program
 			var roleRepo = new InMemoryRoleRepository();
 			var loanRepo = new InMemoryLoanRepository();
 			var fineRepo = new InMemoryFineRepository();
+
+
+			// ── Infrastructure Services ───────────────
 			var passwordHasher = new PasswordHasher();
 			ICurrentUserSession currentUserSession = new CurrentUserSession();
 
 
 			Console.Clear();
 			Console.Title = "Library Management System";
-
 			// Seed data for development/testing
 			DataSeeder.Seed(authorRepo, translatorRepo, bookRepo, userRepo, loanRepo, roleRepo, fineRepo, passwordHasher);
 
+
+			// ── Application Services ──────────────────
 			var authorService = new AuthorManagementService(authorRepo);
 			var translatorService = new TranslatorManagementService(translatorRepo);
-			var userService = new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher);
-			var bookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo);
 			var uars = new UserAutoRemovalService(userRepo, loanRepo, fineRepo);
 			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo, uars);
 			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, fineRepo, fineService);
+			var userService = new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher);
+			var bookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo);
 			var authService = new AuthenticationService(userRepo, passwordHasher, currentUserSession);
 			var statisticsService = new LibraryStatisticsService(bookRepo, authorRepo, translatorRepo, userRepo, loanRepo);
 
@@ -62,9 +67,6 @@ public static class Program
 			Console.WriteLine(ex.Message);
 			Console.WriteLine("========================================\n");
 			Console.ResetColor();
-
-			// Show full stack trace in development (optional but helpful)
-			Console.WriteLine(ex.StackTrace);
 
 			Console.WriteLine("\nPress any key to exit...");
 			Console.ReadKey();

@@ -77,7 +77,7 @@ public static class MainMenu
 				}
 				case 8:
 				{
-					ConsoleHelper.ShowError(ValidationMessages.ExitingProgram);
+					ConsoleHelper.ShowInfo(ValidationMessages.ExitingProgram);
 					return MainMenuResult.Exit;
 				}
 			}
@@ -106,7 +106,7 @@ public static class MainMenu
 		{
 			Console.WriteLine(new string('=', 36) + " MAIN MENU " + new string('=', 36));
 			var displayNumber = 1;
-			foreach (var item in items)
+			foreach (var item in availableItems)
 			{
 				Console.WriteLine($"{displayNumber}. {item.DisplayText}");
 				displayNumber++;

@@ -13,6 +13,7 @@ public static class ValidationMessages
 	public const string InvalidDate = "Invalid date. Please enter a date on or before today.";
 	public const string InvalidBirthDateFormat = "Invalid date format. Please use YYYY-MM-DD (e.g., 2026-12-27).";
 	public const string ExitingProgram = "Exiting Program...\n";
+	public const string Back2MainMenu = "Backing to main menu...\n";
 
 
 	// 2. VALIDATION MESSAGES (Format‑specific)
@@ -44,6 +45,9 @@ public static class ValidationMessages
 	public const string AuthorUpdatedSuccessfully = "Author updated successfully.";
 	public const string AuthorUpdateFailed = "Failed to update author.";
 
+	// Edit
+	public const string EditCancelled = "Edit cancelled. Returning to {0} Menu...";
+
 	// Remove
 	public const string AuthorRemovedSuccessfully = "Author removed successfully.";
 	public const string AuthorRemoveFailed = "Failed to remove author.";
@@ -54,6 +58,7 @@ public static class ValidationMessages
 	public const string NotAvailableAuthor = "No authors found. Please add a new author first.";
 	public const string NotAuthorMatched = "No authors matched your search.";
 	public const string AuthorNotFoundFormat = "Author with ID {0} was not found.";
+	public const string SearchCancelled = "Search cancelled. Returning to {0} Menu...";
 
 	// Duplicate
 	public const string FailureDuplicateAuthor = "Duplicate authors are not allowed. Please enter each author only once.";
@@ -183,7 +188,6 @@ public static class ValidationMessages
 	public const string NoActiveLoans = "No active loans found.";
 	public const string NoOverdueLoans = "No overdue loans at the moment.";
 	public const string NotAvailableActionLoan = "No actionable loans found.";
-	public const string SearchCancelled = "Search cancelled. Returning to Loan Menu...";
 
 	// User‑specific Loan Errors
 	public const string MaximumLoansReached = "Borrowing failed. This user has reached the maximum number of active loans.";

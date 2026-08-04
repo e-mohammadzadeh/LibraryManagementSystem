@@ -80,7 +80,7 @@ public static class AuthorMenu
 				}
 				case 7:
 				{
-					ConsoleHelper.ShowInfo("Backing to main menu...\n");
+					ConsoleHelper.ShowInfo(ValidationMessages.Back2MainMenu);
 					Thread.Sleep(2000);
 					Console.Clear();
 					continueProgram = false;
@@ -93,22 +93,42 @@ public static class AuthorMenu
 
 	private static int AuthorMenuList(ICurrentUserSession session)
 	{
+		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
+		{
+			(1, "Add Author", session.IsAdmin || session.IsLibrarian),
+			(2, "Edit Author", session.IsAdmin || session.IsLibrarian),
+			(3, "Remove Author", session.IsAdmin),
+			(4, "Search Author", session.IsAdmin || session.IsLibrarian),
+			(5, "View Author Details", session.IsAdmin || session.IsLibrarian),
+			(6, "View All Authors", session.IsAdmin || session.IsLibrarian),
+			(7, "Back", true)
+		};
+
+		var availableItems = items.Where(i => i.IsAvailable).ToList();
+
 		while (true)
 		{
 			Console.WriteLine(new string('=', 35) + " AUTHOR MENU " + new string('=', 35));
 
-			Console.WriteLine("1. Add Author");
-			Console.WriteLine("2. Edit Author");
-			if (session.IsAdmin) Console.WriteLine("3. Remove Author");
-			Console.WriteLine("4. Search Author");
-			Console.WriteLine("5. View Author Details");
-			Console.WriteLine("6. View All Authors");
-			Console.WriteLine("7. Back");
+			var displayNumber = 1;
+			foreach (var item in availableItems)
+			{
+				Console.WriteLine($"{displayNumber}. {item.DisplayText}");
+				displayNumber++;
+			}
+
 			Console.WriteLine(new string('=', 82));
 			Console.Write(ValidationMessages.MainMenuQuestion);
 
 			var option = Console.ReadLine();
-			if (int.TryParse(option, out var result) && result is >= 1 and <= 7) return result;
+			if (!int.TryParse(option, out var userChoice))
+			{
+				ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
+				continue;
+			}
+
+			if (userChoice >= 1 && userChoice <= availableItems.Count)
+				return availableItems[userChoice - 1].ActionId;
 
 			ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
 		}
@@ -225,8 +245,8 @@ public static class AuthorMenu
 				}
 				case 8:
 				{
-					ConsoleHelper.ShowError("Edit cancelled. Returning to Author Menu...");
-					Thread.Sleep(1500);
+					ConsoleHelper.ShowInfo(string.Format(ValidationMessages.EditCancelled, "Author"));
+					ConsoleHelper.Pause();
 					Console.Clear();
 					return;
 				}
@@ -316,8 +336,8 @@ public static class AuthorMenu
 				}
 				case 5:
 				{
-					ConsoleHelper.ShowInfo("Search cancelled. Returning to Author Menu...");
-					Thread.Sleep(1500);
+					ConsoleHelper.ShowInfo(string.Format(ValidationMessages.SearchCancelled, "Author"));
+					ConsoleHelper.Pause();
 					Console.Clear();
 					return;
 				}

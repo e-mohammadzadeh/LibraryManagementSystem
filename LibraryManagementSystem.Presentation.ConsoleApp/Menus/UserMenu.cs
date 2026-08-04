@@ -234,8 +234,8 @@ public static class UserMenu
 				}
 				case 8:
 				{
-					ConsoleHelper.ShowError("Edit cancelled. Returning to User Menu...");
-					Thread.Sleep(1500);
+					ConsoleHelper.ShowError(string.Format(ValidationMessages.EditCancelled, "User"));
+					ConsoleHelper.Pause();
 					Console.Clear();
 					return;
 				}
@@ -334,8 +334,8 @@ public static class UserMenu
 				}
 				case 6:
 				{
-					ConsoleHelper.ShowInfo("Search cancelled. Returning to User Menu...");
-					Thread.Sleep(1500);
+					ConsoleHelper.ShowInfo(string.Format(ValidationMessages.SearchCancelled, "User"));
+					ConsoleHelper.Pause();
 					Console.Clear();
 					return;
 				}

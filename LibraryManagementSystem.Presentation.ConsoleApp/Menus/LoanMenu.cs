@@ -88,8 +88,8 @@ public static class LoanMenu
 				}
 				case 9:
 				{
-					ConsoleHelper.ShowInfo("Backing to main menu...\n");
-					Thread.Sleep(2000);
+					ConsoleHelper.ShowInfo(ValidationMessages.Back2MainMenu);
+					ConsoleHelper.Pause();
 					Console.Clear();
 					continueProgram = false;
 					break;
@@ -464,8 +464,8 @@ public static class LoanMenu
 				}
 				case 7:
 				{
-					ConsoleHelper.ShowInfo(ValidationMessages.SearchCancelled);
-					Thread.Sleep(1500);
+					ConsoleHelper.ShowInfo(string.Format(ValidationMessages.SearchCancelled, "Loan"));
+					ConsoleHelper.Pause();
 					Console.Clear();
 					return;
 				}

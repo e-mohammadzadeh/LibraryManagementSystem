@@ -55,8 +55,8 @@ public static class FineMenu
 				}
 				case 6:
 				{
-					ConsoleHelper.ShowInfo("Backing to main menu...\n");
-					Thread.Sleep(2000);
+					ConsoleHelper.ShowInfo(ValidationMessages.Back2MainMenu);
+					ConsoleHelper.Pause();
 					Console.Clear();
 					continueProgram = false;
 					break;

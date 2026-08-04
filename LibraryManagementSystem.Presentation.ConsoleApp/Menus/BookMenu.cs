@@ -79,8 +79,8 @@ public static class BookMenu
 				}
 				case 7:
 				{
-					ConsoleHelper.ShowInfo("Backing to main menu...\n");
-					Thread.Sleep(2000);
+					ConsoleHelper.ShowInfo(ValidationMessages.Back2MainMenu);
+					ConsoleHelper.Pause();
 					Console.Clear();
 					continueProgram = false;
 					break;
@@ -339,8 +339,8 @@ public static class BookMenu
 				}
 				case 10:
 				{
-					ConsoleHelper.ShowError("Edit cancelled. Returning to Book Menu...");
-					Thread.Sleep(1500);
+					ConsoleHelper.ShowError(string.Format(ValidationMessages.EditCancelled, "Book"));
+					ConsoleHelper.Pause();
 					Console.Clear();
 					return;
 				}
@@ -472,7 +472,7 @@ public static class BookMenu
 			case 4:
 			{
 				ConsoleHelper.ShowError("Author edit cancelled. Returning to Edit Menu...");
-				Thread.Sleep(1500);
+				ConsoleHelper.Pause();
 				Console.Clear();
 				break;
 			}
@@ -585,7 +585,7 @@ public static class BookMenu
 			case 5:
 			{
 				ConsoleHelper.ShowError("Translator edit cancelled. Returning to Edit Menu...");
-				Thread.Sleep(1500);
+				ConsoleHelper.Pause();
 				Console.Clear();
 				break;
 			}
@@ -702,8 +702,8 @@ public static class BookMenu
 				}
 				case 8:
 				{
-					ConsoleHelper.ShowInfo("Search cancelled. Returning to Book Menu...");
-					Thread.Sleep(1500);
+					ConsoleHelper.ShowInfo(string.Format(ValidationMessages.SearchCancelled, "Book"));
+					ConsoleHelper.Pause();
 					Console.Clear();
 					return;
 				}

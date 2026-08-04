@@ -79,8 +79,8 @@ public static class TranslatorMenu
 				}
 				case 7:
 				{
-					ConsoleHelper.ShowInfo("Backing to main menu...\n");
-					Thread.Sleep(2000);
+					ConsoleHelper.ShowInfo(ValidationMessages.Back2MainMenu);
+					ConsoleHelper.Pause();
 					Console.Clear();
 					continueProgram = false;
 					break;
@@ -212,8 +212,8 @@ public static class TranslatorMenu
 				}
 				case 7:
 				{
-					ConsoleHelper.ShowError("Edit cancelled. Returning to Translator Menu...");
-					Thread.Sleep(1500);
+					ConsoleHelper.ShowError(string.Format(ValidationMessages.EditCancelled, "Translator"));
+					ConsoleHelper.Pause();
 					Console.Clear();
 					return;
 				}
@@ -307,8 +307,8 @@ public static class TranslatorMenu
 				}
 				case 5:
 				{
-					ConsoleHelper.ShowInfo("Search cancelled. Returning to Translator Menu...");
-					Thread.Sleep(1500);
+					ConsoleHelper.ShowInfo(string.Format(ValidationMessages.SearchCancelled, "Translator"));
+					ConsoleHelper.Pause();
 					Console.Clear();
 					return;
 				}
