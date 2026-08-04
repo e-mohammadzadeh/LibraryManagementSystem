@@ -88,7 +88,7 @@ public static class LoanMenu
 				}
 				case 9:
 				{
-					ConsoleHelper.ShowError("Backing to main menu...\n");
+					ConsoleHelper.ShowInfo("Backing to main menu...\n");
 					Thread.Sleep(2000);
 					Console.Clear();
 					continueProgram = false;
@@ -178,9 +178,7 @@ public static class LoanMenu
 			var selectedBook = availableBooks.FirstOrDefault(b => b.BookId == input);
 			if (selectedBook is null)
 			{
-				ConsoleHelper.ShowError(
-					"That book ID is not in the available list. Please select from the list above.");
-
+				ConsoleHelper.ShowError(ValidationMessages.InvalidBookSelection);
 				continue;
 			}
 
@@ -466,8 +464,8 @@ public static class LoanMenu
 				}
 				case 7:
 				{
-					ConsoleHelper.ShowInfo("Search cancelled. Returning to Loan Menu...");
-					Thread.Sleep(3000);
+					ConsoleHelper.ShowInfo(ValidationMessages.SearchCancelled);
+					Thread.Sleep(1500);
 					Console.Clear();
 					return;
 				}

@@ -79,7 +79,7 @@ public static class BookMenu
 				}
 				case 7:
 				{
-					ConsoleHelper.ShowError("Backing to main menu...\n");
+					ConsoleHelper.ShowInfo("Backing to main menu...\n");
 					Thread.Sleep(2000);
 					Console.Clear();
 					continueProgram = false;
@@ -340,7 +340,7 @@ public static class BookMenu
 				case 10:
 				{
 					ConsoleHelper.ShowError("Edit cancelled. Returning to Book Menu...");
-					Thread.Sleep(3000);
+					Thread.Sleep(1500);
 					Console.Clear();
 					return;
 				}
@@ -472,7 +472,7 @@ public static class BookMenu
 			case 4:
 			{
 				ConsoleHelper.ShowError("Author edit cancelled. Returning to Edit Menu...");
-				Thread.Sleep(3000);
+				Thread.Sleep(1500);
 				Console.Clear();
 				break;
 			}
@@ -585,7 +585,7 @@ public static class BookMenu
 			case 5:
 			{
 				ConsoleHelper.ShowError("Translator edit cancelled. Returning to Edit Menu...");
-				Thread.Sleep(3000);
+				Thread.Sleep(1500);
 				Console.Clear();
 				break;
 			}
@@ -703,7 +703,7 @@ public static class BookMenu
 				case 8:
 				{
 					ConsoleHelper.ShowInfo("Search cancelled. Returning to Book Menu...");
-					Thread.Sleep(3000);
+					Thread.Sleep(1500);
 					Console.Clear();
 					return;
 				}

@@ -81,7 +81,7 @@ public static class UserMenu
 				}
 				case 7:
 				{
-					ConsoleHelper.ShowError("Backing to Main Menu...\n");
+					ConsoleHelper.ShowInfo("Backing to Main Menu...\n");
 					Thread.Sleep(2000);
 					Console.Clear();
 					continueProgram = false;
@@ -235,7 +235,7 @@ public static class UserMenu
 				case 8:
 				{
 					ConsoleHelper.ShowError("Edit cancelled. Returning to User Menu...");
-					Thread.Sleep(3000);
+					Thread.Sleep(1500);
 					Console.Clear();
 					return;
 				}
@@ -335,7 +335,7 @@ public static class UserMenu
 				case 6:
 				{
 					ConsoleHelper.ShowInfo("Search cancelled. Returning to User Menu...");
-					Thread.Sleep(3000);
+					Thread.Sleep(1500);
 					Console.Clear();
 					return;
 				}

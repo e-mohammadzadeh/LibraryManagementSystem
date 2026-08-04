@@ -129,6 +129,8 @@ public static class ValidationMessages
 	public const string WrongTotalCopies = "Total copies must be greater than zero.";
 	public const string BookRequiresAtLeastOneAuthor = "A book must have at least one author.";
 
+	public const string InvalidBookSelection =
+		"That book ID is not in the available list. Please select from the list above.";
 
 
 	// 6. USER (Member/Admin/Manager) MESSAGES
@@ -181,6 +183,7 @@ public static class ValidationMessages
 	public const string NoActiveLoans = "No active loans found.";
 	public const string NoOverdueLoans = "No overdue loans at the moment.";
 	public const string NotAvailableActionLoan = "No actionable loans found.";
+	public const string SearchCancelled = "Search cancelled. Returning to Loan Menu...";
 
 	// User‑specific Loan Errors
 	public const string MaximumLoansReached = "Borrowing failed. This user has reached the maximum number of active loans.";

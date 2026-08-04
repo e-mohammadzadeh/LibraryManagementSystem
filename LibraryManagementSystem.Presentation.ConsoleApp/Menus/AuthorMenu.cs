@@ -80,7 +80,7 @@ public static class AuthorMenu
 				}
 				case 7:
 				{
-					ConsoleHelper.ShowError("Backing to main menu...\n");
+					ConsoleHelper.ShowInfo("Backing to main menu...\n");
 					Thread.Sleep(2000);
 					Console.Clear();
 					continueProgram = false;
@@ -226,7 +226,7 @@ public static class AuthorMenu
 				case 8:
 				{
 					ConsoleHelper.ShowError("Edit cancelled. Returning to Author Menu...");
-					Thread.Sleep(3000);
+					Thread.Sleep(1500);
 					Console.Clear();
 					return;
 				}
@@ -317,7 +317,7 @@ public static class AuthorMenu
 				case 5:
 				{
 					ConsoleHelper.ShowInfo("Search cancelled. Returning to Author Menu...");
-					Thread.Sleep(3000);
+					Thread.Sleep(1500);
 					Console.Clear();
 					return;
 				}
