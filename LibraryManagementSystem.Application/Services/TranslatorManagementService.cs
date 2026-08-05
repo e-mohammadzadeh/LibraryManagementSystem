@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Translator;
+using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 
@@ -42,7 +43,7 @@ public class TranslatorManagementService
 
 	public IReadOnlyList<TranslatorDto> GetAllTranslators()
 	{
-		return _translatorRepository.GetAll().Select(MapToDto).ToList().AsReadOnly();
+		return _translatorRepository.GetAll().Select(translator => translator.ToDto()).ToList().AsReadOnly();
 	}
 
 
@@ -97,33 +98,17 @@ public class TranslatorManagementService
 		if (translator is null) return ServiceResult<TranslatorDto>.Fail(ValidationMessages.TranslatorRemoveFailed);
 
 		if (translator.BookTranslators.Count != 0)
-			return ServiceResult<TranslatorDto>.Fail("Failed to remove translator. The translator has associated books.");
+			return ServiceResult<TranslatorDto>.Fail(
+				"Failed to remove translator. The translator has associated books.");
 
 		_translatorRepository.Remove(translator);
-		return ServiceResult<TranslatorDto>.Ok(MapToDto(translator), ValidationMessages.TranslatorRemovedSuccessfully);
+		return ServiceResult<TranslatorDto>.Ok(translator.ToDto(), ValidationMessages.TranslatorRemovedSuccessfully);
 	}
 
 
 	public IReadOnlyList<TranslatorDto> SearchTranslator(string searchItem, Func<Translator, string?> selector)
 	{
-		return _translatorRepository.Search(searchItem, selector).Select(MapToDto).ToList().AsReadOnly();
-	}
-
-
-	internal static TranslatorDto MapToDto(Translator translator)
-	{
-		return new TranslatorDto
-		{
-			Id = translator.Id,
-			FirstName = translator.FirstName,
-			LastName = translator.LastName,
-			NationalCode = translator.NationalCode,
-			Email = translator.Email,
-			PhoneNumber = translator.PhoneNumber,
-			BirthDate = translator.BirthDate,
-			BookCount = translator.BookTranslators.Count,
-			CreatedAt = translator.CreatedAt,
-			UpdatedAt = translator.UpdatedAt
-		};
+		return _translatorRepository.Search(searchItem, selector).Select(translator => translator.ToDto()).ToList()
+			.AsReadOnly();
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Authors;
+using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
@@ -34,14 +35,14 @@ public class AuthorManagementService
 
 		_authorRepository.Add(newAuthor);
 		return warningMessage is not null
-			? ServiceResult<AuthorDto>.Warning(MapToDto(newAuthor), warningMessage)
-			: ServiceResult<AuthorDto>.Ok(MapToDto(newAuthor), ValidationMessages.AuthorAddedSuccessfully);
+			? ServiceResult<AuthorDto>.Warning(newAuthor.ToDto(), warningMessage)
+			: ServiceResult<AuthorDto>.Ok(newAuthor.ToDto(), ValidationMessages.AuthorAddedSuccessfully);
 	}
 
 
 	public IReadOnlyList<AuthorDto> GetAllAuthors()
 	{
-		return _authorRepository.GetAll().Select(MapToDto).ToList().AsReadOnly();
+		return _authorRepository.GetAll().Select(author => author.ToDto()).ToList().AsReadOnly();
 	}
 
 
@@ -72,7 +73,7 @@ public class AuthorManagementService
 		author.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
 			dto.Biography);
 		_authorRepository.Update(author);
-		return ServiceResult<AuthorDto>.Ok(MapToDto(author), ValidationMessages.AuthorUpdatedSuccessfully);
+		return ServiceResult<AuthorDto>.Ok(author.ToDto(), ValidationMessages.AuthorUpdatedSuccessfully);
 	}
 
 
@@ -97,7 +98,7 @@ public class AuthorManagementService
 			return ServiceResult<AuthorDto>.Fail(ValidationMessages.AuthorHasAssociatedBooks);
 
 		_authorRepository.Remove(author);
-		return ServiceResult<AuthorDto>.Ok(MapToDto(author), ValidationMessages.AuthorRemovedSuccessfully);
+		return ServiceResult<AuthorDto>.Ok(author.ToDto(), ValidationMessages.AuthorRemovedSuccessfully);
 	}
 
 
@@ -112,25 +113,6 @@ public class AuthorManagementService
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};
 
-		return _authorRepository.Search(searchItem, selector).Select(MapToDto).ToList().AsReadOnly();
-	}
-
-
-	private static AuthorDto MapToDto(Author author)
-	{
-		return new AuthorDto
-		{
-			Id = author.Id,
-			FirstName = author.FirstName,
-			LastName = author.LastName,
-			NationalCode = author.NationalCode,
-			Email = author.Email,
-			PhoneNumber = author.PhoneNumber,
-			BirthDate = author.BirthDate,
-			Biography = author.Biography,
-			BookCount = author.BookAuthors.Count,
-			CreatedAt = author.CreatedAt,
-			UpdatedAt = author.UpdatedAt
-		};
+		return _authorRepository.Search(searchItem, selector).Select(author => author.ToDto()).ToList().AsReadOnly();
 	}
 }

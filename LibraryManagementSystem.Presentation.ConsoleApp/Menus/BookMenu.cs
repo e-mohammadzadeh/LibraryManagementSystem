@@ -49,7 +49,7 @@ public static class BookMenu
 				case 3:
 				{
 					Console.Clear();
-					RemoveBook(bookManagementService, session);
+					RemoveBook(bookManagementService);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -89,7 +89,8 @@ public static class BookMenu
 	}
 
 
-	private static int BookMenuList(ICurrentUserSession session) {
+	private static int BookMenuList(ICurrentUserSession session)
+	{
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
 			(1, "Add Book", session.IsAdmin || session.IsLibrarian),
@@ -124,8 +125,7 @@ public static class BookMenu
 				continue;
 			}
 
-			if (userChoice >= 1 && userChoice <= availableItems.Count)
-				return availableItems[userChoice - 1].ActionId;
+			if (userChoice >= 1 && userChoice <= availableItems.Count) return availableItems[userChoice - 1].ActionId;
 
 			ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
 		}
@@ -142,91 +142,24 @@ public static class BookMenu
 
 		var bookName = ConsoleHelper.GetValidName("Enter the new book's full name",
 			ValidationConstants.MinBookNameLength, ValidationConstants.MaxBookNameLength);
-
 		if (bookName is null) return;
 
-		var availableAuthors = authorManagementService.GetAllAuthors();
-		List<int> authorIds;
-		if (availableAuthors.Count == 0)
-		{
-			var choice = ConsoleHelper.ReadYesNo("\nNo authors found. Do you want to create a new author now");
-			if (choice is not true)
-			{
-				ConsoleHelper.ShowWarning(ValidationMessages.BookRequiresAtLeastOneAuthor);
-				return;
-			}
+		var authorIds = ResolveAuthorIds(authorManagementService);
+		if (authorIds is null) return;
 
-			var authorDto = AuthorMenu.PromptForAuthorDto();
-			if (authorDto is null) return;
-
-			var addAuthorResult = authorManagementService.AddAuthor(authorDto);
-			if (!addAuthorResult.Success)
-			{
-				ConsoleHelper.ShowError(ValidationMessages.NotAvailableAuthor);
-				return;
-			}
-
-			ConsoleHelper.ShowResult(addAuthorResult);
-			if (addAuthorResult.Data is null)
-			{
-				ConsoleHelper.ShowError("Failed to retrieve the newly created author.");
-				return;
-			}
-			authorIds = [addAuthorResult.Data.Id];
-		}
-		else
-		{
-			var selectedIds = ConsoleHelper.ReadAuthors("Select author(s) for this book", availableAuthors);
-			if (selectedIds is null) return;
-			authorIds = selectedIds;
-		}
-
-
-		var availableTranslators = translatorManagementService.GetAllTranslators();
-		List<int> translatorIds = [];
-		if (availableTranslators.Count > 0)
-		{
-			var selectedTranslatorIds =
-				ConsoleHelper.ReadTranslators("Select one or more translators (optional)", availableTranslators);
-			if (selectedTranslatorIds is null) return;
-			translatorIds = selectedTranslatorIds;
-		}
-		else
-		{
-			var choice =
-				ConsoleHelper.ReadYesNo(
-					"\nNo translators found. Do you want to create a new translator now (Optional)");
-			if (choice == true)
-			{
-				var translatorDto = TranslatorMenu.PromptForTranslatorDto();
-				if (translatorDto is null) return;
-
-				var addTranslatorResult = translatorManagementService.AddTranslator(translatorDto);
-				if (!addTranslatorResult.Success)
-				{
-					ConsoleHelper.ShowError(ValidationMessages.NotAvailableTranslator);
-					return;
-				}
-
-				ConsoleHelper.ShowResult(addTranslatorResult);
-				translatorIds.Add(addTranslatorResult.Data!.Id);
-			}
-		}
+		var translatorIds = ResolveTranslatorIds(translatorManagementService);
+		if (translatorIds is null) return;
 
 		var publishDate = ConsoleHelper.GetValidDate("Enter the publication date for this book");
 		if (publishDate is null) return;
 
-
 		var totalCopies = ConsoleHelper.ReadInt("Enter the total number of copies for this book",
 			ValidationConstants.MinBookCopies, ValidationConstants.MaxBookCopies);
-
 		if (totalCopies is null) return;
-
 
 		ConsoleHelper.DisplayGenres();
 		var genreId = ConsoleHelper.ReadInt("Select your desired genre by entering its ID", 1,
 			Enum.GetValues<Genre>().Length);
-
 		if (genreId is null) return;
 
 		var publisher = ConsoleHelper.GetValidName("Enter the publisher for this book",
@@ -250,6 +183,53 @@ public static class BookMenu
 
 		ConsoleHelper.ShowResult(result);
 	}
+
+
+	private static List<int>? ResolveAuthorIds(AuthorManagementService authorManagementService)
+	{
+		var availableAuthors = authorManagementService.GetAllAuthors();
+		if (availableAuthors.Count != 0)
+			return ConsoleHelper.ReadAuthors("Select author(s) for this book", availableAuthors);
+
+		var choice = ConsoleHelper.ReadYesNo(ValidationMessages.NotAvailableAuthor);
+		if (choice is not true)
+		{
+			ConsoleHelper.ShowWarning(ValidationMessages.BookRequiresAtLeastOneAuthor);
+			return null;
+		}
+
+		var authorDto = AuthorMenu.PromptForAuthorDto();
+		if (authorDto is null) return null;
+
+		var addResult = authorManagementService.AddAuthor(authorDto);
+		ConsoleHelper.ShowResult(addResult);
+		if (addResult is { Success: true, Data: not null }) return [addResult.Data.Id];
+
+		ConsoleHelper.ShowError(ValidationMessages.AuthorCreationFailed);
+		return null;
+	}
+
+
+	private static List<int>? ResolveTranslatorIds(TranslatorManagementService translatorManagementService)
+	{
+		var availableTranslators = translatorManagementService.GetAllTranslators();
+		if (availableTranslators.Count != 0)
+			return ConsoleHelper.ReadTranslators("Select one or more translators (optional)", availableTranslators);
+
+		var choice = ConsoleHelper.ReadYesNo(ValidationMessages.AddTranslatorInAdd);
+		if (choice != true) return [];
+			
+		var translatorDto = TranslatorMenu.PromptForTranslatorDto();
+		if (translatorDto is null) return null;
+
+		var addResult = translatorManagementService.AddTranslator(translatorDto);
+		ConsoleHelper.ShowResult(addResult);
+		if (addResult is { Success: true, Data: not null }) return [addResult.Data.Id];
+
+		ConsoleHelper.ShowError(ValidationMessages.NotAvailableTranslator);
+		return null;
+	}
+
 
 
 	private static void EditBook(AuthorManagementService authorManagementService,
@@ -610,22 +590,14 @@ public static class BookMenu
 	}
 
 
-
-	private static void RemoveBook(BookManagementService bookManagementService, ICurrentUserSession session)
+	private static void RemoveBook(BookManagementService bookManagementService)
 	{
-		if (!(session.IsAdmin || session.IsLibrarian))
-		{
-			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
-			return;
-		}
-
 		Console.WriteLine(new string('=', 36) + " REMOVING BOOK MENU " + new string('=', 36));
 		var desiredBook = SelectExistingBook(bookManagementService);
-		if (desiredBook is null)
-			return;
+		if (desiredBook is null) return;
 
 		BookPrinter.PrintDetails(desiredBook);
-		var choice = ConsoleHelper.ReadYesNo("\nAre you sure you want to remove");
+		var choice = ConsoleHelper.ReadYesNo(string.Format(ValidationMessages.BookRemoveConfirmation, desiredBook.BookName));
 
 		if (choice != true) return;
 		var result = bookManagementService.RemoveBook(desiredBook.BookId);

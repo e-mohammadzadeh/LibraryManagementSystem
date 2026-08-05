@@ -41,6 +41,7 @@ public static class ValidationMessages
 	public const string AuthorAddFailed = "Failed to add author.";
 	public const string NotEnoughAuthors = "All available authors are already assigned to this book.";
 	public const string DuplicateAuthorNameWarning = "An author with the same name already exists (ID: {0}).";
+	public const string AuthorCreationFailed = "Failed to retrieve the newly created author.";
 
 
 	// Update
@@ -79,6 +80,7 @@ public static class ValidationMessages
 	public const string TranslatorAddFailed = "Failed to add translator.";
 	public const string AllTranslatorsAssigned = "All available translators are already assigned to this book.";
 	public const string AddTranslatorInEdit = "Select the new translator(s) for this book";
+	public const string AddTranslatorInAdd = "\nNo translators found. Do you want to create a new translator now (Optional)";
 
 	// Update
 	public const string TranslatorUpdatedSuccessfully = "Translator updated successfully.";
@@ -120,6 +122,7 @@ public static class ValidationMessages
 	public const string BookRemovedSuccessfully = "Book removed successfully.";
 	public const string BookRemoveFailed = "Failed to remove book.";
 	public const string BookRemoveFailedBorrowed = "Failed to remove Book. It is currently borrowed by user(s) with id: {0}";
+	public const string BookRemoveConfirmation = "\nAre you sure you want to remove '{0}'";
 
 	// Search
 	public const string NotAvailableBook = "No books found. Please add a new book first.";

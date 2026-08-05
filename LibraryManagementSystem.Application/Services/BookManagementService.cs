@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Books;
+using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
@@ -66,20 +67,20 @@ public class BookManagementService
 			dto.Publisher, dto.Description);
 
 		_bookRepository.Add(newBook);
-		return ServiceResult<BookDto>.Ok(MapToDto(newBook), ValidationMessages.BookAddedSuccessfully);
+		return ServiceResult<BookDto>.Ok(newBook.ToDto(), ValidationMessages.BookAddedSuccessfully);
 	}
 
 
 	public IReadOnlyList<BookDto> GetAllBooks()
 	{
-		return _bookRepository.GetAll().Select(MapToDto).ToList().AsReadOnly();
+		return _bookRepository.GetAll().Select(book => book.ToDto()).ToList().AsReadOnly();
 	}
 
 
 	public BookDto? FindBookById(int id)
 	{
 		var book = _bookRepository.FindById(id);
-		return book is null ? null : MapToDto(book);
+		return book?.ToDto();
 	}
 
 
@@ -97,7 +98,7 @@ public class BookManagementService
 		if (dto.GenreId != null && !Enum.IsDefined(typeof(Genre), dto.GenreId))
 			return ServiceResult<BookDto>.Fail(ValidationMessages.InvalidGenre);
 
-		if (dto.TotalCopies.HasValue && dto.TotalCopies.Value <= 0)
+		if (dto.TotalCopies is <= 0)
 			return ServiceResult<BookDto>.Fail(ValidationMessages.WrongTotalCopies);
 
 		List<Author>? resolvedAuthors = null;
@@ -148,7 +149,7 @@ public class BookManagementService
 		if (resolvedTranslators is not null) book.ReplaceTranslators(resolvedTranslators);
 
 		_bookRepository.Update(book);
-		return ServiceResult<BookDto>.Ok(MapToDto(book), ValidationMessages.BookUpdatedSuccessfully);
+		return ServiceResult<BookDto>.Ok(book.ToDto(), ValidationMessages.BookUpdatedSuccessfully);
 	}
 
 
@@ -167,48 +168,28 @@ public class BookManagementService
 		book.DetachFromAuthors();
 		book.DetachFromTranslators();
 		_bookRepository.Remove(book);
-		return ServiceResult<BookDto>.Ok(MapToDto(book), ValidationMessages.BookRemovedSuccessfully);
+		return ServiceResult<BookDto>.Ok(book.ToDto(), ValidationMessages.BookRemovedSuccessfully);
 	}
 
 
 	public IReadOnlyList<BookDto> SearchBooks<T>(T? searchTerm, Func<Book, T?> selector, Func<T, T, bool> comparer)
 		where T : class
 	{
-		return _bookRepository.Search(searchTerm, selector, comparer).Select(MapToDto).ToList().AsReadOnly();
+		return _bookRepository.Search(searchTerm, selector, comparer).Select(book => book.ToDto()).ToList()
+			.AsReadOnly();
 	}
 
 
 	public IReadOnlyList<BookDto> SearchBooks<T>(T? searchTerm, Func<Book, T?> selector, Func<T, T, bool> comparer)
 		where T : struct
 	{
-		return _bookRepository.Search(searchTerm, selector, comparer).Select(MapToDto).ToList().AsReadOnly();
+		return _bookRepository.Search(searchTerm, selector, comparer).Select(book => book.ToDto()).ToList()
+			.AsReadOnly();
 	}
 
 
 	public IReadOnlyList<BookDto> GetAvailableBooks()
 	{
-		return _bookRepository.GetAvailableBooks().Select(MapToDto).ToList().AsReadOnly();
-	}
-
-
-	private static BookDto MapToDto(Book book)
-	{
-		return new BookDto
-		{
-			BookId = book.BookId,
-			BookName = book.BookName,
-			ISBN = book.InternationalStandardBookNumber,
-			Authors = book.BookAuthors.Select(ba => AuthorManagementService.MapToDto(ba.Author)).ToList().AsReadOnly(),
-			Translators = book.BookTranslators.Select(bt => TranslatorManagementService.MapToDto(bt.Translator))
-				.ToList().AsReadOnly(),
-			PublishDate = book.PublishDate,
-			Genre = book.Genre.ToString(),
-			Publisher = book.Publisher,
-			TotalCopies = book.TotalCopies,
-			AvailableCopies = book.AvailableCopies,
-			Description = book.Description,
-			CreatedAt = book.CreatedAt,
-			UpdatedAt = book.UpdatedAt
-		};
+		return _bookRepository.GetAvailableBooks().Select(book => book.ToDto()).ToList().AsReadOnly();
 	}
 }
