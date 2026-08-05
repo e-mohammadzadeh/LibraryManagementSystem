@@ -2,7 +2,6 @@
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Application.Services;
-using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -32,14 +31,14 @@ public static class UserMenu
 				case 1:
 				{
 					Console.Clear();
-					AddUser(userManagementService);
+					AddUser(userManagementService, session);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
 					Console.Clear();
-					EditUser(userManagementService);
+					EditUser(userManagementService, session);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -52,25 +51,25 @@ public static class UserMenu
 				}
 				case 4:
 				{
-					SearchUser(userManagementService);
+					SearchUser(userManagementService, session);
 					break;
 				}
 				case 5:
 				{
 					Console.Clear();
-					var desiredUser = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
-						MenuHelper.SelectUser, ValidationMessages.NotAvailableUser);
-					if (desiredUser is not null)
-					{
-						UserPrinter.PrintDetails(desiredUser);
-						ConsoleHelper.Pause();
-					}
-
+					ViewUserDetails(userManagementService, session);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 6:
 				{
 					Console.Clear();
+					if (session is { IsAdmin: false, IsLibrarian: false })
+					{
+						ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+						return;
+					}
+
 					if (userManagementService.GetAllUsers().Count is 0)
 						ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableUser);
 					else
@@ -81,8 +80,8 @@ public static class UserMenu
 				}
 				case 7:
 				{
-					ConsoleHelper.ShowInfo("Backing to Main Menu...\n");
-					Thread.Sleep(2000);
+					ConsoleHelper.ShowInfo(ValidationMessages.Back2MainMenu);
+					ConsoleHelper.Pause();
 					Console.Clear();
 					continueProgram = false;
 					break;
@@ -94,29 +93,55 @@ public static class UserMenu
 
 	private static int UserMenuList(ICurrentUserSession session)
 	{
+		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
+		{
+			(1, "Register User", session.IsAdmin || session.IsLibrarian),
+			(2, "Edit User", session.IsAdmin || session.IsLibrarian),
+			(3, "Remove User", session.IsAdmin || session.IsLibrarian),
+			(4, "Search User", session.IsAdmin || session.IsLibrarian),
+			(5, "View User Details", true),
+			(6, "View All Users", session.IsAdmin || session.IsLibrarian),
+			(7, "Back", true)
+		};
+
+		var availableItems = items.Where(i => i.IsAvailable).ToList();
+
 		while (true)
 		{
 			Console.WriteLine(new string('=', 36) + " USER MENU " + new string('=', 36));
-			Console.WriteLine("1. Register User");
-			Console.WriteLine("2. Edit User");
-			if (session.IsAdmin || session.IsLibrarian) Console.WriteLine("3. Remove User");
-			Console.WriteLine("4. Search User");
-			Console.WriteLine("5. View User Details");
-			Console.WriteLine("6. View All Users");
-			Console.WriteLine("7. Back");
+
+			var displayNumber = 1;
+			foreach (var item in availableItems)
+			{
+				Console.WriteLine($"{displayNumber}. {item.DisplayText}");
+				displayNumber++;
+			}
+
 			Console.WriteLine(new string('=', 82));
 			Console.Write(ValidationMessages.MainMenuQuestion);
 
 			var option = Console.ReadLine();
-			if (int.TryParse(option, out var result) && result is >= 1 and <= 7) return result;
+			if (!int.TryParse(option, out var userChoice))
+			{
+				ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
+				continue;
+			}
+
+			if (userChoice >= 1 && userChoice <= availableItems.Count) return availableItems[userChoice - 1].ActionId;
 
 			ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
 		}
 	}
 
 
-	private static void AddUser(UserManagementService userManagementService)
+	private static void AddUser(UserManagementService userManagementService, ICurrentUserSession session)
 	{
+		if (session is { IsAdmin: false, IsLibrarian: false })
+		{
+			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			return;
+		}
+
 		Console.WriteLine(new string('=', 36) + " ADDING USER MENU " + new string('=', 36));
 		var userDto = PromptForUserDto(userManagementService);
 		if (userDto is null) return;
@@ -136,7 +161,6 @@ public static class UserMenu
 		if (roleIds == null) return null;
 
 		var password = ConsoleHelper.GetValidPassword("Enter a password for the user's login account");
-		if (password is null) return null;
 
 		return new CreateUserDto()
 		{
@@ -147,8 +171,14 @@ public static class UserMenu
 	}
 
 
-	private static void EditUser(UserManagementService userManagementService)
+	private static void EditUser(UserManagementService userManagementService, ICurrentUserSession session)
 	{
+		if (session is { IsAdmin: false, IsLibrarian: false })
+		{
+			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			return;
+		}
+
 		Console.WriteLine(new string('=', 36) + " EDITING USER MENU " + new string('=', 36));
 		var desiredUser = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
 			MenuHelper.SelectUser, ValidationMessages.NotAvailableUser);
@@ -260,6 +290,12 @@ public static class UserMenu
 
 	private static void RemoveUser(UserManagementService userManagementService, ICurrentUserSession session)
 	{
+		if (session is { IsAdmin: false, IsLibrarian: false })
+		{
+			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			return;
+		}
+
 		Console.WriteLine(new string('=', 36) + " REMOVING USER MENU " + new string('=', 36));
 		var desiredUser = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
 			MenuHelper.SelectUser, ValidationMessages.NotAvailableUser);
@@ -270,8 +306,14 @@ public static class UserMenu
 	}
 
 
-	private static void SearchUser(UserManagementService userManagementService)
+	private static void SearchUser(UserManagementService userManagementService, ICurrentUserSession session)
 	{
+		if (session is { IsAdmin: false, IsLibrarian: false })
+		{
+			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			return;
+		}
+
 		while (true)
 		{
 			Console.Clear();
@@ -366,5 +408,28 @@ public static class UserMenu
 		}
 
 		UserPrinter.PrintTable(result);
+	}
+
+
+	private static void ViewUserDetails(UserManagementService userManagementService, ICurrentUserSession session)
+	{
+		UserDto? userDto;
+		if (session.IsAuthenticated)
+		{
+			userDto = userManagementService.FindUserById(session.UserId!.Value);
+		}
+		else
+		{
+			userDto = MenuHelper.SelectExisting(userManagementService.GetAllUsers(), MenuHelper.SelectUser,
+				ValidationMessages.NotAvailableUser);
+		}
+
+		if (userDto is null)
+		{
+			ConsoleHelper.ShowError(ValidationMessages.NotUserMatched);
+			return;
+		}
+
+		UserPrinter.PrintDetails(userDto);
 	}
 }

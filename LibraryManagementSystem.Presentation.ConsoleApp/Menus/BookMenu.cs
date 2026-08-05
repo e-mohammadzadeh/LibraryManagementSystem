@@ -35,21 +35,21 @@ public static class BookMenu
 				case 1:
 				{
 					Console.Clear();
-					AddBook(authorManagementService, translatorManagementService, bookManagementService);
+					AddBook(authorManagementService, translatorManagementService, bookManagementService, session);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
 					Console.Clear();
-					EditBook(authorManagementService, translatorManagementService, bookManagementService);
+					EditBook(authorManagementService, translatorManagementService, bookManagementService, session);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
 				{
 					Console.Clear();
-					RemoveBook(bookManagementService);
+					RemoveBook(bookManagementService, session);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -133,8 +133,15 @@ public static class BookMenu
 
 
 	private static void AddBook(AuthorManagementService authorManagementService,
-		TranslatorManagementService translatorManagementService, BookManagementService bookManagementService)
+		TranslatorManagementService translatorManagementService, BookManagementService bookManagementService,
+		ICurrentUserSession session)
 	{
+		if (session is { IsAdmin: false, IsLibrarian: false })
+		{
+			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			return;
+		}
+
 		Console.WriteLine(new string('=', 36) + " ADDING BOOK MENU " + new string('=', 36));
 
 		var isbn = ConsoleHelper.ReadISBN("Enter ISBN for the new book");
@@ -218,7 +225,7 @@ public static class BookMenu
 
 		var choice = ConsoleHelper.ReadYesNo(ValidationMessages.AddTranslatorInAdd);
 		if (choice != true) return [];
-			
+
 		var translatorDto = TranslatorMenu.PromptForTranslatorDto();
 		if (translatorDto is null) return null;
 
@@ -233,8 +240,15 @@ public static class BookMenu
 
 
 	private static void EditBook(AuthorManagementService authorManagementService,
-		TranslatorManagementService translatorManagementService, BookManagementService bookManagementService)
+		TranslatorManagementService translatorManagementService, BookManagementService bookManagementService,
+		ICurrentUserSession session)
 	{
+		if (session is { IsAdmin: false, IsLibrarian: false })
+		{
+			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			return;
+		}
+
 		Console.WriteLine(new string('=', 36) + " EDITING BOOK MENU " + new string('=', 36));
 		var desiredBook = SelectExistingBook(bookManagementService);
 		if (desiredBook is null) return;
@@ -590,14 +604,21 @@ public static class BookMenu
 	}
 
 
-	private static void RemoveBook(BookManagementService bookManagementService)
+	private static void RemoveBook(BookManagementService bookManagementService, ICurrentUserSession session)
 	{
+		if (session is { IsAdmin: false, IsLibrarian: false })
+		{
+			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			return;
+		}
+
 		Console.WriteLine(new string('=', 36) + " REMOVING BOOK MENU " + new string('=', 36));
 		var desiredBook = SelectExistingBook(bookManagementService);
 		if (desiredBook is null) return;
 
 		BookPrinter.PrintDetails(desiredBook);
-		var choice = ConsoleHelper.ReadYesNo(string.Format(ValidationMessages.BookRemoveConfirmation, desiredBook.BookName));
+		var choice =
+			ConsoleHelper.ReadYesNo(string.Format(ValidationMessages.BookRemoveConfirmation, desiredBook.BookName));
 
 		if (choice != true) return;
 		var result = bookManagementService.RemoveBook(desiredBook.BookId);

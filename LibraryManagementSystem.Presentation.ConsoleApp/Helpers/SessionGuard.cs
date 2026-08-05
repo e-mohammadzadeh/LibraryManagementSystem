@@ -85,8 +85,7 @@ public static class SessionGuard
 
 	public static bool RequireUserManagement(ICurrentUserSession session)
 	{
-		return RequireRole(session.CanAccessUserManagement,
-			"Access denied. You need Admin or Librarian privileges to manage users.");
+		return RequireRole(session.CanAccessUserManagement, ValidationMessages.AuthenticationRequired);
 	}
 
 

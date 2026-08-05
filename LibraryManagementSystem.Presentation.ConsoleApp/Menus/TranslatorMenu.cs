@@ -31,14 +31,14 @@ public static class TranslatorMenu
 				case 1:
 				{
 					Console.Clear();
-					AddTranslator(translatorManagementService);
+					AddTranslator(translatorManagementService, session);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
 					Console.Clear();
-					EditTranslator(translatorManagementService);
+					EditTranslator(translatorManagementService, session);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -92,29 +92,55 @@ public static class TranslatorMenu
 
 	private static int TranslatorMenuList(ICurrentUserSession session)
 	{
+		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
+		{
+			(1, "Add Translator", session.IsAdmin || session.IsLibrarian),
+			(2, "Edit Translator", session.IsAdmin || session.IsLibrarian),
+			(3, "Remove Translator", session.IsAdmin),
+			(4, "Search Translator", true),
+			(5, "View Translator Details", true),
+			(6, "View All Translators", true),
+			(7, "Back", true)
+		};
+
+		var availableItems = items.Where(i => i.IsAvailable).ToList();
+
 		while (true)
 		{
 			Console.WriteLine(new string('=', 33) + " TRANSLATOR MENU " + new string('=', 33));
-			Console.WriteLine("1. Add Translator");
-			Console.WriteLine("2. Edit Translator");
-			if (session.IsAdmin) Console.WriteLine("3. Remove Translator");
-			Console.WriteLine("4. Search Translator");
-			Console.WriteLine("5. View Translator Details");
-			Console.WriteLine("6. View All Translators");
-			Console.WriteLine("7. Back");
+
+			var displayNumber = 1;
+			foreach (var item in availableItems)
+			{
+				Console.WriteLine($"{displayNumber}. {item.DisplayText}");
+				displayNumber++;
+			}
+
 			Console.WriteLine(new string('=', 82));
 			Console.Write(ValidationMessages.MainMenuQuestion);
 
 			var option = Console.ReadLine();
-			if (int.TryParse(option, out var result) && result is >= 1 and <= 7) return result;
+			if (!int.TryParse(option, out var userChoice))
+			{
+				ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
+				continue;
+			}
+
+			if (userChoice >= 1 && userChoice <= availableItems.Count) return availableItems[userChoice - 1].ActionId;
 
 			ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
 		}
 	}
 
 
-	private static void AddTranslator(TranslatorManagementService translatorManagementService)
+	private static void AddTranslator(TranslatorManagementService translatorManagementService, ICurrentUserSession session)
 	{
+		if (session is { IsAdmin: false, IsLibrarian: false })
+		{
+			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			return;
+		}
+
 		Console.WriteLine(new string('=', 36) + " ADDING TRANSLATOR MENU " + new string('=', 36));
 		var translatorDto = PromptForTranslatorDto();
 		if (translatorDto is null) return;
@@ -137,8 +163,14 @@ public static class TranslatorMenu
 	}
 
 
-	private static void EditTranslator(TranslatorManagementService translatorManagementService)
+	private static void EditTranslator(TranslatorManagementService translatorManagementService, ICurrentUserSession session)
 	{
+		if (session is { IsAdmin: false, IsLibrarian: false })
+		{
+			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			return;
+		}
+
 		Console.WriteLine(new string('=', 36) + " EDITING TRANSLATOR MENU " + new string('=', 36));
 		var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
 			MenuHelper.SelectTranslator, ValidationMessages.NotAvailableTranslator);
@@ -226,7 +258,8 @@ public static class TranslatorMenu
 	}
 
 
-	private static void RemoveTranslator(TranslatorManagementService translatorManagementService, ICurrentUserSession session)
+	private static void RemoveTranslator(TranslatorManagementService translatorManagementService,
+		ICurrentUserSession session)
 	{
 		if (!session.IsAdmin)
 		{

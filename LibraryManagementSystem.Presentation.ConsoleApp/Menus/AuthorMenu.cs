@@ -32,14 +32,14 @@ public static class AuthorMenu
 				case 1:
 				{
 					Console.Clear();
-					AddAuthor(authorManagementService);
+					AddAuthor(authorManagementService, session);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
 					Console.Clear();
-					EditAuthor(authorManagementService);
+					EditAuthor(authorManagementService, session);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -99,9 +99,9 @@ public static class AuthorMenu
 			(1, "Add Author", session.IsAdmin || session.IsLibrarian),
 			(2, "Edit Author", session.IsAdmin || session.IsLibrarian),
 			(3, "Remove Author", session.IsAdmin),
-			(4, "Search Author", session.IsAdmin || session.IsLibrarian),
-			(5, "View Author Details", session.IsAdmin || session.IsLibrarian),
-			(6, "View All Authors", session.IsAdmin || session.IsLibrarian),
+			(4, "Search Author", true),
+			(5, "View Author Details", true),
+			(6, "View All Authors", true),
 			(7, "Back", true)
 		};
 
@@ -151,8 +151,14 @@ public static class AuthorMenu
 	}
 
 
-	private static void AddAuthor(AuthorManagementService authorManagementService)
+	private static void AddAuthor(AuthorManagementService authorManagementService, ICurrentUserSession session)
 	{
+		if (session is { IsAdmin: false, IsLibrarian: false })
+		{
+			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			return;
+		}
+
 		Console.WriteLine(new string('=', 36) + " ADDING AUTHOR MENU " + new string('=', 36));
 		var authorDto = PromptForAuthorDto();
 		if (authorDto is null) return;
@@ -162,8 +168,15 @@ public static class AuthorMenu
 	}
 
 
-	private static void EditAuthor(AuthorManagementService authorManagementService)
+	private static void EditAuthor(AuthorManagementService authorManagementService, ICurrentUserSession session)
 	{
+		if (session is { IsAdmin: false, IsLibrarian: false })
+		{
+			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			return;
+		}
+
+
 		Console.WriteLine(new string('=', 36) + " EDITING AUTHOR MENU " + new string('=', 36));
 		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(), MenuHelper.SelectAuthor,
 			ValidationMessages.NotAvailableAuthor);
