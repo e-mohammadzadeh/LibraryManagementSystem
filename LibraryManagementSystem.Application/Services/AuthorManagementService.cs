@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
@@ -10,10 +11,7 @@ public class AuthorManagementService
 	private readonly IAuthorRepository _authorRepository;
 
 
-	public AuthorManagementService(IAuthorRepository authorRepository)
-	{
-		_authorRepository = authorRepository;
-	}
+	public AuthorManagementService(IAuthorRepository authorRepository) { _authorRepository = authorRepository; }
 
 
 	public ServiceResult<AuthorDto> AddAuthor(CreateAuthorDto dto)
@@ -29,7 +27,7 @@ public class AuthorManagementService
 		var existingSameName = _authorRepository.FindByName(dto.FirstName, dto.LastName);
 
 		if (existingSameName is not null)
-			warningMessage = string.Format(ValidationMessages.DuplicateAuthorNameWarning, existingSameName.Id); 
+			warningMessage = string.Format(ValidationMessages.DuplicateAuthorNameWarning, existingSameName.Id);
 
 		var newAuthor = new Author(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber,
 			dto.BirthDate, dto.Biography);
@@ -50,11 +48,9 @@ public class AuthorManagementService
 	public ServiceResult<AuthorDto> UpdateAuthor(int authorId, UpdateAuthorDto dto)
 	{
 		var author = _authorRepository.FindById(authorId);
-		if (author is null)
-			return ServiceResult<AuthorDto>.Fail(ValidationMessages.AuthorUpdateFailed);
+		if (author is null) return ServiceResult<AuthorDto>.Fail(ValidationMessages.AuthorUpdateFailed);
 
-		if (IsNoOpUpdateAuthor(author, dto))
-			return ServiceResult<AuthorDto>.Fail(ValidationMessages.NoChangesDetected);
+		if (IsNoOpUpdateAuthor(author, dto)) return ServiceResult<AuthorDto>.Fail(ValidationMessages.NoChangesDetected);
 
 		var resolvedFirstName = dto.FirstName ?? author.FirstName;
 		var resolvedLastName = dto.LastName ?? author.LastName;
@@ -95,8 +91,7 @@ public class AuthorManagementService
 	public ServiceResult<AuthorDto> RemoveAuthor(int authorId)
 	{
 		var author = _authorRepository.FindById(authorId);
-		if (author is null)
-			return ServiceResult<AuthorDto>.Fail(ValidationMessages.AuthorRemoveFailed);
+		if (author is null) return ServiceResult<AuthorDto>.Fail(ValidationMessages.AuthorRemoveFailed);
 
 		if (author.BookAuthors.Count != 0)
 			return ServiceResult<AuthorDto>.Fail(ValidationMessages.AuthorHasAssociatedBooks);
@@ -106,9 +101,18 @@ public class AuthorManagementService
 	}
 
 
-	public IReadOnlyList<AuthorDto> SearchAuthor(string searchItem, Func<AuthorDto, string?> selector)
+	public IReadOnlyList<AuthorDto> SearchAuthor(string searchItem, AuthorSearchField field)
 	{
-		return _authorRepository.Search(searchItem, selector).ToList().AsReadOnly();
+		Func<Author, string?> selector = field switch
+		{
+			AuthorSearchField.Name => a => $"{a.FirstName} {a.LastName}",
+			AuthorSearchField.NationalCode => a => a.NationalCode,
+			AuthorSearchField.Email => a => a.Email,
+			AuthorSearchField.PhoneNumber => a => a.PhoneNumber,
+			_ => throw new ArgumentOutOfRangeException(nameof(field))
+		};
+
+		return _authorRepository.Search(searchItem, selector).Select(MapToDto).ToList().AsReadOnly();
 	}
 
 

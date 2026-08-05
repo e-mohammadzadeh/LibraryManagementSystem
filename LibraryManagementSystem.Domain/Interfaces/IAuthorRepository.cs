@@ -13,6 +13,6 @@ public interface IAuthorRepository
 	bool ExistsByEmail(string email, int excludeId = -1);
 	bool ExistsByPhoneNumber(string phoneNumber, int excludeId = -1);
 	void Remove(Author author);
-	IReadOnlyList<Author> Search(string searchItem, Func<AuthorDto, string?> selector);
+	IReadOnlyList<Author> Search(string searchItem, Func<Author, string?> selector);
 	void Update(Author author);
 }

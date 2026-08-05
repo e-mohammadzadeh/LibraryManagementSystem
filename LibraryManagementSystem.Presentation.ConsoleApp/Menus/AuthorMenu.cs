@@ -2,6 +2,7 @@
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -81,7 +82,7 @@ public static class AuthorMenu
 				case 7:
 				{
 					ConsoleHelper.ShowInfo(ValidationMessages.Back2MainMenu);
-					Thread.Sleep(2000);
+					ConsoleHelper.Pause();
 					Console.Clear();
 					continueProgram = false;
 					break;
@@ -305,8 +306,7 @@ public static class AuthorMenu
 				case 1:
 				{
 					PersonHelper.SearchAndDisplay("Enter a name to search",
-						term => authorManagementService.SearchAuthor(term,
-							author => $"{author.FirstName} {author.LastName}"), AuthorPrinter.PrintTable,
+						term => authorManagementService.SearchAuthor(term, AuthorSearchField.Name), AuthorPrinter.PrintTable,
 						ValidationMessages.NotAuthorMatched);
 
 					break;
@@ -314,7 +314,7 @@ public static class AuthorMenu
 				case 2:
 				{
 					PersonHelper.SearchAndDisplay("Enter a national code to search",
-						term => authorManagementService.SearchAuthor(term, author => author.NationalCode),
+						term => authorManagementService.SearchAuthor(term, AuthorSearchField.NationalCode),
 						AuthorPrinter.PrintTable, ValidationMessages.NotAuthorMatched);
 
 					break;
@@ -322,7 +322,7 @@ public static class AuthorMenu
 				case 3:
 				{
 					PersonHelper.SearchAndDisplay("Enter an email to search",
-						term => authorManagementService.SearchAuthor(term, author => author.Email),
+						term => authorManagementService.SearchAuthor(term, AuthorSearchField.Email),
 						AuthorPrinter.PrintTable, ValidationMessages.NotAuthorMatched);
 
 					break;
@@ -330,7 +330,7 @@ public static class AuthorMenu
 				case 4:
 				{
 					PersonHelper.SearchAndDisplay("Enter a phone number to search",
-						term => authorManagementService.SearchAuthor(term, author => author.PhoneNumber),
+						term => authorManagementService.SearchAuthor(term, AuthorSearchField.PhoneNumber),
 						AuthorPrinter.PrintTable, ValidationMessages.NotAuthorMatched);
 					break;
 				}

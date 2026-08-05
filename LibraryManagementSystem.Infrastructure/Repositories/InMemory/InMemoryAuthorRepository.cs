@@ -56,7 +56,7 @@ public class InMemoryAuthorRepository : IAuthorRepository
 	public void Remove(Author author) { _authors.Remove(author); }
 
 
-	public IReadOnlyList<Author> Search(string searchItem, Func<AuthorDto, string?> selector)
+	public IReadOnlyList<Author> Search(string searchItem, Func<Author, string?> selector)
 	{
 		if (string.IsNullOrWhiteSpace(searchItem)) return [];
 

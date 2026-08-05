@@ -6,7 +6,6 @@ using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
-using static System.Collections.Specialized.BitVector32;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
@@ -90,25 +89,43 @@ public static class BookMenu
 	}
 
 
-	private static int BookMenuList(ICurrentUserSession session)
-	{
+	private static int BookMenuList(ICurrentUserSession session) {
+		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
+		{
+			(1, "Add Book", session.IsAdmin || session.IsLibrarian),
+			(2, "Edit Book", session.IsAdmin || session.IsLibrarian),
+			(3, "Remove Book", session.IsAdmin || session.IsLibrarian),
+			(4, "Search Book", true),
+			(5, "View Book Details", true),
+			(6, "View All Books", true),
+			(7, "Back", true)
+		};
+
+		var availableItems = items.Where(i => i.IsAvailable).ToList();
+
 		while (true)
 		{
 			Console.WriteLine(new string('=', 36) + " BOOK MENU " + new string('=', 36));
 
-			Console.WriteLine("1. Add Book");
-			Console.WriteLine("2. Edit Book");
-			if (session.IsAdmin || session.IsLibrarian)
-				Console.WriteLine("3. Remove Book");
-			Console.WriteLine("4. Search Book");
-			Console.WriteLine("5. View Book Details");
-			Console.WriteLine("6. View All Books");
-			Console.WriteLine("7. Back");
+			var displayNumber = 1;
+			foreach (var item in availableItems)
+			{
+				Console.WriteLine($"{displayNumber}. {item.DisplayText}");
+				displayNumber++;
+			}
+
 			Console.WriteLine(new string('=', 82));
 			Console.Write(ValidationMessages.MainMenuQuestion);
 
 			var option = Console.ReadLine();
-			if (int.TryParse(option, out var result) && result is >= 1 and <= 7) return result;
+			if (!int.TryParse(option, out var userChoice))
+			{
+				ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
+				continue;
+			}
+
+			if (userChoice >= 1 && userChoice <= availableItems.Count)
+				return availableItems[userChoice - 1].ActionId;
 
 			ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
 		}
