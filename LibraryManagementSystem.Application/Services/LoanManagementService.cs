@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Loans;
+using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 
@@ -55,7 +56,7 @@ public class LoanManagementService
 		var loan = new Loan(book, user, DateOnly.FromDateTime(DateTime.Today));
 		book.BorrowCopy();
 		_loanRepository.Add(loan);
-		return ServiceResult<LoanDto>.Ok(MapToDto(loan), ValidationMessages.BorrowedSuccessfully);
+		return ServiceResult<LoanDto>.Ok(loan.ToDto(), ValidationMessages.BorrowedSuccessfully);
 	}
 
 
@@ -73,10 +74,10 @@ public class LoanManagementService
 
 		var fineResult = _fineService.CreateFineForLoan(loanId);
 		if (!fineResult.Success && fineResult.Message != ValidationMessages.NoFine)
-			return ServiceResult<LoanDto>.Warning(MapToDto(loan),
+			return ServiceResult<LoanDto>.Warning(loan.ToDto(),
 				$"{ValidationMessages.ReturnedSuccessfully} - Note: {fineResult.Message}");
 
-		return ServiceResult<LoanDto>.Ok(MapToDto(loan), ValidationMessages.ReturnedSuccessfully);
+		return ServiceResult<LoanDto>.Ok(loan.ToDto(), ValidationMessages.ReturnedSuccessfully);
 	}
 
 
@@ -85,7 +86,7 @@ public class LoanManagementService
 		if (session.IsSelfServiceMember && session.UserId != userId)
 			return ServiceResult<IReadOnlyList<LoanDto>>.Fail(ValidationMessages.ViewOwnLoans);
 
-		var loans = _loanRepository.GetActiveLoansByUser(userId).Select(MapToDto).ToList().AsReadOnly();
+		var loans = _loanRepository.GetActiveLoansByUser(userId).Select(loan => loan.ToDto()).ToList().AsReadOnly();
 		return ServiceResult<IReadOnlyList<LoanDto>>.Ok(loans, "Loans retrieved successfully.");
 	}
 
@@ -105,17 +106,18 @@ public class LoanManagementService
 
 		loan.Renew();
 		_loanRepository.Update(loan);
-		return ServiceResult<LoanDto>.Ok(MapToDto(loan), ValidationMessages.RenewedSuccessfully);
+		return ServiceResult<LoanDto>.Ok(loan.ToDto(), ValidationMessages.RenewedSuccessfully);
 	}
 
 
 	public IReadOnlyList<LoanDto> GetOverdueLoans(ICurrentUserSession session)
 	{
 		if (session.IsSelfServiceMember)
-			return _loanRepository.GetActiveLoansByUser(session.UserId!.Value).Where(l => l.IsOverdue).Select(MapToDto)
+			return _loanRepository.GetActiveLoansByUser(session.UserId!.Value).Where(l => l.IsOverdue)
+				.Select(loan => loan.ToDto())
 				.ToList().AsReadOnly();
 
-		return _loanRepository.GetOverdueLoans().Select(MapToDto).ToList().AsReadOnly();
+		return _loanRepository.GetOverdueLoans().Select(loan => loan.ToDto()).ToList().AsReadOnly();
 	}
 
 
@@ -124,7 +126,7 @@ public class LoanManagementService
 		if (session.IsSelfServiceMember && session.UserId != userId)
 			return ServiceResult<IReadOnlyList<LoanDto>>.Fail(ValidationMessages.ViewOwnLoans);
 
-		var loans = _loanRepository.GetAllByUser(userId).Select(MapToDto).ToList().AsReadOnly();
+		var loans = _loanRepository.GetAllByUser(userId).Select(loan => loan.ToDto()).ToList().AsReadOnly();
 		return ServiceResult<IReadOnlyList<LoanDto>>.Ok(loans, "Loans retrieved successfully.");
 	}
 
@@ -176,9 +178,9 @@ public class LoanManagementService
 		return source
 			.Where(loan =>
 			{
-				var value = selector(MapToDto(loan));
+				var value = selector(loan.ToDto());
 				return value is not null && comparer(searchTerm, value);
-			}).Select(MapToDto).ToList().AsReadOnly();
+			}).Select(loan => loan.ToDto()).ToList().AsReadOnly();
 	}
 
 
@@ -194,9 +196,9 @@ public class LoanManagementService
 		return source
 			.Where(loan =>
 			{
-				var value = selector(MapToDto(loan));
+				var value = selector(loan.ToDto());
 				return value.HasValue && comparer(searchTerm, value.Value);
-			}).Select(MapToDto).ToList().AsReadOnly();
+			}).Select(loan => loan.ToDto()).ToList().AsReadOnly();
 	}
 
 
@@ -205,16 +207,16 @@ public class LoanManagementService
 		if (session.IsSelfServiceMember)
 		{
 			if (session.UserId is null) return [];
-			return _loanRepository.GetAllByUser(session.UserId!.Value).Select(MapToDto).ToList().AsReadOnly();
+			return _loanRepository.GetAllByUser(session.UserId!.Value).Select(loan => loan.ToDto()).ToList().AsReadOnly();
 		}
 
-		return _loanRepository.GetAll().Select(MapToDto).ToList().AsReadOnly();
+		return _loanRepository.GetAll().Select(loan => loan.ToDto()).ToList().AsReadOnly();
 	}
 
 
 	public IReadOnlyList<LoanDto> GetLoanByBook(int bookId)
 	{
-		return _loanRepository.GetLoansByBook(bookId).Select(MapToDto).ToList().AsReadOnly();
+		return _loanRepository.GetLoansByBook(bookId).Select(loan => loan.ToDto()).ToList().AsReadOnly();
 	}
 
 
@@ -223,32 +225,9 @@ public class LoanManagementService
 		if (session.IsSelfServiceMember)
 		{
 			if (session.UserId is null) return [];
-			return _loanRepository.GetActiveLoansByUser(session.UserId!.Value).Select(MapToDto).ToList().AsReadOnly();
+			return _loanRepository.GetActiveLoansByUser(session.UserId!.Value).Select(loan => loan.ToDto()).ToList().AsReadOnly();
 		}
 
-		return _loanRepository.GetActiveLoans().Select(MapToDto).ToList().AsReadOnly();
-	}
-
-
-	private static LoanDto MapToDto(Loan loan)
-	{
-		return new LoanDto
-		{
-			LoanId = loan.LoanId,
-			BookName = loan.Book.BookName,
-			BookId = loan.BookId,
-			BookISBN = loan.Book.InternationalStandardBookNumber,
-			UserName = $"{loan.User.FirstName} {loan.User.LastName}",
-			UserId = loan.UserId,
-			UserNationalCode = loan.User.NationalCode,
-			BorrowDate = loan.BorrowDate,
-			DueDate = loan.DueDate,
-			ReturnDate = loan.ReturnDate,
-			Status = loan.Status,
-			RenewalCount = loan.RenewalCount,
-			IsOverdue = loan.IsOverdue,
-			CreatedAt = loan.CreatedAt,
-			UpdatedAt = loan.UpdatedAt
-		};
+		return _loanRepository.GetActiveLoans().Select(loan => loan.ToDto()).ToList().AsReadOnly();
 	}
 }

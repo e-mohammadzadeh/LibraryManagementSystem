@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Fine;
+using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 
@@ -50,7 +51,7 @@ public class FineManagementService : IFineManagementService
 			}
 		}
 
-		return ServiceResult<FineDto>.Ok(MapToDto(fine), ValidationMessages.FineCreatedSuccessfully);
+		return ServiceResult<FineDto>.Ok(fine.ToDto(), ValidationMessages.FineCreatedSuccessfully);
 	}
 
 
@@ -69,7 +70,7 @@ public class FineManagementService : IFineManagementService
 			var message = ValidationMessages.FinePaidSuccessfully;
 			if (removalResult.Success) message += $" | {removalResult.Message}";
 
-			return ServiceResult<FineDto>.Ok(MapToDto(fine), message);
+			return ServiceResult<FineDto>.Ok(fine.ToDto(), message);
 		}
 		catch (InvalidOperationException ex)
 		{
@@ -92,7 +93,7 @@ public class FineManagementService : IFineManagementService
 			var message = ValidationMessages.FineWaivedSuccessfully;
 			if (removalResult.Success) message += $" | {removalResult.Message}";
 
-			return ServiceResult<FineDto>.Ok(MapToDto(fine), message);
+			return ServiceResult<FineDto>.Ok(fine.ToDto(), message);
 		}
 		catch (InvalidOperationException ex)
 		{
@@ -101,45 +102,23 @@ public class FineManagementService : IFineManagementService
 	}
 
 
-	public IReadOnlyList<FineDto> GetAllFines() => _fineRepository.GetAll().Select(MapToDto).ToList().AsReadOnly();
+	public IReadOnlyList<FineDto> GetAllFines() =>
+		_fineRepository.GetAll().Select(fine => fine.ToDto()).ToList().AsReadOnly();
 
 
 	public IReadOnlyList<FineDto> GetAllUnpaidFines() =>
-		_fineRepository.GetAllUnpaid().Select(MapToDto).ToList().AsReadOnly();
+		_fineRepository.GetAllUnpaid().Select(fine => fine.ToDto()).ToList().AsReadOnly();
 
 
 	public IReadOnlyList<FineDto> GetFinesByUser(int userId) =>
-		_fineRepository.GetByUserId(userId).Select(MapToDto).ToList().AsReadOnly();
+		_fineRepository.GetByUserId(userId).Select(fine => fine.ToDto()).ToList().AsReadOnly();
 
 
 	public IReadOnlyList<FineDto> GetUnpaidFinesByUser(int userId) =>
-		_fineRepository.GetUnpaidByUserId(userId).Select(MapToDto).ToList().AsReadOnly();
+		_fineRepository.GetUnpaidByUserId(userId).Select(fine => fine.ToDto()).ToList().AsReadOnly();
 
 
 	public decimal GetTotalUnpaidAmount(int userId) => _fineRepository.GetTotalUnpaidAmount(userId);
 
 	public bool HasUnpaidFines(int userId) => _fineRepository.HasUnpaidFines(userId);
-
-
-	private static FineDto MapToDto(Fine fine)
-	{
-		return new FineDto
-		{
-			FineId = fine.FineId,
-			LoanId = fine.LoanId,
-			UserId = fine.UserId,
-			UserFullName = fine.Loan?.User is not null
-				? $"{fine.Loan.User.FirstName} {fine.Loan.User.LastName}"
-				: "Unknown",
-			BookName = fine.Loan?.Book?.BookName ?? "Unknown",
-			OverdueDays = fine.OverdueDays,
-			Amount = fine.Amount,
-			Status = fine.Status,
-			Reason = fine.Reason,
-			DailyRate = fine.DailyRate,
-			CreatedAt = fine.CreatedAt,
-			UpdatedAt = fine.UpdatedAt,
-			PaidAt = fine.PaidAt
-		};
-	}
 }

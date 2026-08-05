@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Users;
+using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
@@ -58,14 +59,14 @@ public class UserManagementService
 		newUser.SetPasswordHash(result.Hash, result.Salt);
 		_userRepository.Add(newUser);
 		return warningMessage is not null
-			? ServiceResult<UserDto>.Warning(MapToDto(newUser), warningMessage)
-			: ServiceResult<UserDto>.Ok(MapToDto(newUser), ValidationMessages.UserAddedSuccessfully);
+			? ServiceResult<UserDto>.Warning(newUser.ToDto(), warningMessage)
+			: ServiceResult<UserDto>.Ok(newUser.ToDto(), ValidationMessages.UserAddedSuccessfully);
 	}
 
 
 	public IReadOnlyList<UserDto> GetAllUsers()
 	{
-		return _userRepository.GetAll().Select(MapToDto).ToList().AsReadOnly();
+		return _userRepository.GetAll().Select(user => user.ToDto()).ToList().AsReadOnly();
 	}
 
 
@@ -115,14 +116,14 @@ public class UserManagementService
 		user.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
 			resolvedRoles);
 
-		return ServiceResult<UserDto>.Ok(MapToDto(user), ValidationMessages.UserUpdatedSuccessfully);
+		return ServiceResult<UserDto>.Ok(user.ToDto(), ValidationMessages.UserUpdatedSuccessfully);
 	}
 
 
 	public UserDto? FindUserById(int id)
 	{
 		var user = _userRepository.FindById(id);
-		return user is null ? null : MapToDto(user);
+		return user?.ToDto();
 	}
 
 
@@ -158,7 +159,7 @@ public class UserManagementService
 			return ServiceResult<UserDto>.Fail(ValidationMessages.UserRemovalFailedByUnpaidFines);
 
 		_userRepository.Remove(user);
-		return ServiceResult<UserDto>.Ok(MapToDto(user), ValidationMessages.UserRemovedSuccessfully);
+		return ServiceResult<UserDto>.Ok(user.ToDto(), ValidationMessages.UserRemovedSuccessfully);
 	}
 
 
@@ -166,8 +167,7 @@ public class UserManagementService
 	{
 		var targetRoles = targetUser.UserRoles.Select(ur => ur.Role.Name).ToList();
 
-		if (session.IsAdmin)
-			return !targetRoles.Contains(LibraryUserRole.Admin);
+		if (session.IsAdmin) return !targetRoles.Contains(LibraryUserRole.Admin);
 
 		if (session.IsLibrarian)
 			return targetRoles.Contains(LibraryUserRole.Member)
@@ -181,36 +181,15 @@ public class UserManagementService
 
 	public IReadOnlyList<UserDto> SearchUser(string searchTerm, Func<User, string?> selector)
 	{
-		return _userRepository.Search(searchTerm, selector).Select(MapToDto).ToList().AsReadOnly();
+		return _userRepository.Search(searchTerm, selector).Select(user => user.ToDto()).ToList().AsReadOnly();
 	}
 
 
 	public IReadOnlyList<UserDto> SearchByRole(List<int> role)
 	{
-		return _userRepository.SearchByRole(role).Select(MapToDto).ToList().AsReadOnly();
+		return _userRepository.SearchByRole(role).Select(user => user.ToDto()).ToList().AsReadOnly();
 	}
 
 
 	// DeactivateMember  FindUserById
-
-
-	private static UserDto MapToDto(User user)
-	{
-		return new UserDto
-		{
-			Id = user.Id,
-			FirstName = user.FirstName,
-			LastName = user.LastName,
-			NationalCode = user.NationalCode,
-			Email = user.Email,
-			PhoneNumber = user.PhoneNumber,
-			BirthDate = user.BirthDate,
-			Roles = user.UserRoles.Select(ur => ur.Role.Name).ToList().AsReadOnly(),
-			MembershipStartDate = user.MembershipStartDate,
-			MembershipExpiryDate = user.MembershipExpiryDate,
-			IsActive = user.IsActive,
-			CreatedAt = user.CreatedAt,
-			UpdatedAt = user.UpdatedAt
-		};
-	}
 }
