@@ -35,14 +35,14 @@ public static class FineMenu
 				case 3:
 				{
 					Console.Clear();
-					ViewUserFines(fineManagementService, userManagementService);
+					ViewUserFines(fineManagementService, userManagementService, session);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
 				{
 					Console.Clear();
-					PayFine(fineManagementService, userManagementService);
+					PayFine(fineManagementService, userManagementService, session);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -55,7 +55,7 @@ public static class FineMenu
 				}
 				case 6:
 				{
-					ConsoleHelper.ShowInfo(ValidationMessages.Back2MainMenu);
+					ConsoleHelper.ShowInfo(ValidationMessages.BackToMainMenu);
 					ConsoleHelper.Pause();
 					Console.Clear();
 					continueProgram = false;
@@ -116,9 +116,9 @@ public static class FineMenu
 	}
 
 
-	private static void ViewUserFines(IFineManagementService fineManagementService, UserManagementService userManagementService)
+	private static void ViewUserFines(IFineManagementService fineManagementService, UserManagementService userManagementService, ICurrentUserSession session)
 	{
-		var desiredUser = MenuHelper.SelectUser(userManagementService.GetAllUsers());
+		var desiredUser = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
 		if (desiredUser is null) return;
 		var fines = fineManagementService.GetFinesByUser(desiredUser.Id);
 		if (fines.Count == 0)
@@ -133,7 +133,7 @@ public static class FineMenu
 
 
 	private static void PayFine(IFineManagementService fineManagementService,
-		UserManagementService userManagementService)
+		UserManagementService userManagementService, ICurrentUserSession session)
 	{
 		var unpaidFines = fineManagementService.GetAllUnpaidFines();
 		if (unpaidFines.Count == 0)
@@ -146,7 +146,7 @@ public static class FineMenu
 		var fineId = ConsoleHelper.ReadInt(ValidationMessages.FineId4Pay, 1, int.MaxValue);
 		if (fineId is null) return;
 
-		var confirm = ConsoleHelper.ReadYesNo(ValidationMessages.Confirm2Pay);
+		var confirm = ConsoleHelper.ReadYesNo(ValidationMessages.ConfirmToPay);
 		if (confirm != true) return;
 
 		var payResult = fineManagementService.PayFine(fineId.Value);
@@ -169,7 +169,7 @@ public static class FineMenu
 		var fineId = ConsoleHelper.ReadInt(ValidationMessages.FineId4Waive, 1, int.MaxValue);
 		if (fineId is null) return;
 
-		var confirm = ConsoleHelper.ReadYesNo(ValidationMessages.Confirm2Waive);
+		var confirm = ConsoleHelper.ReadYesNo(ValidationMessages.ConfirmToWaive);
 		if (confirm != true) return;
 
 		var waiveResult = fineManagementService.WaiveFine(fineId.Value);

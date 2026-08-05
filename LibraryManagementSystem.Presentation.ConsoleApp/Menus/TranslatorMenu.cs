@@ -79,7 +79,7 @@ public static class TranslatorMenu
 				}
 				case 7:
 				{
-					ConsoleHelper.ShowInfo(ValidationMessages.Back2MainMenu);
+					ConsoleHelper.ShowInfo(ValidationMessages.BackToMainMenu);
 					ConsoleHelper.Pause();
 					Console.Clear();
 					continueProgram = false;

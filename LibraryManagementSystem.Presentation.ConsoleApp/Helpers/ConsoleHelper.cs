@@ -400,7 +400,7 @@ public static class ConsoleHelper
 
 	public static void Pause() 
 	{
-		ShowInfo(ValidationMessages.Press2Continue);
+		ShowInfo(ValidationMessages.PressToContinue);
 		Console.ReadKey(true);
 	}
 }

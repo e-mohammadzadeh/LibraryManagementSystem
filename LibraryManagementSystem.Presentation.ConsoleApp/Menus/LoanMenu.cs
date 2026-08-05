@@ -88,7 +88,7 @@ public static class LoanMenu
 				}
 				case 9:
 				{
-					ConsoleHelper.ShowInfo(ValidationMessages.Back2MainMenu);
+					ConsoleHelper.ShowInfo(ValidationMessages.BackToMainMenu);
 					ConsoleHelper.Pause();
 					Console.Clear();
 					continueProgram = false;
@@ -99,44 +99,47 @@ public static class LoanMenu
 	}
 
 
-	private static int LoanMenuList(ICurrentUserSession session)
-	{
+	private static int LoanMenuList(ICurrentUserSession session) {
+		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
+		{
+			(1, "Borrow Book", true),
+			(2, "Return Book", true),
+			(3, "Renew Loan", true),
+			(4, "View Borrowed Books", true),
+			(5, "View Loan History", true),
+			(6, "View Overdue Loans", true),
+			(7, "View User Loans", session.IsAdmin || session.IsLibrarian),
+			(8, "Search Loans", session.IsAdmin || session.IsLibrarian),
+			(9, "Back", true)
+		};
+
+		var availableItems = items.Where(i => i.IsAvailable).ToList();
+
 		while (true)
 		{
 			Console.WriteLine(new string('=', 36) + " LOAN MENU " + new string('=', 36));
-			Console.WriteLine("1. Borrow Book");
-			Console.WriteLine("2. Return Book");
-			Console.WriteLine("3. Renew Loan");
-			Console.WriteLine("4. View Borrowed Books");
-			Console.WriteLine("5. View Loan History");
-			Console.WriteLine("6. View Overdue Loans");
 
-			if (session.IsAdmin || session.IsLibrarian)
+			var displayNumber = 1;
+			foreach (var item in availableItems)
 			{
-				Console.WriteLine("7. View User Loans");
-				Console.WriteLine("8. Search Loans");
+				Console.WriteLine($"{displayNumber}. {item.DisplayText}");
+				displayNumber++;
 			}
 
-			Console.WriteLine("9. Back");
 			Console.WriteLine(new string('=', 82));
 			Console.Write(ValidationMessages.MainMenuQuestion);
 
 			var option = Console.ReadLine();
-			if (!int.TryParse(option, out var result))
+			if (!int.TryParse(option, out var userChoice))
 			{
 				ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
 				continue;
 			}
 
-			switch (result)
-			{
-				case 1 or 2 or 3 or 4 or 5 or 6 or 9:
-				case 7 or 8 when (session.IsAdmin || session.IsLibrarian):
-					return result;
-				default:
-					ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
-					break;
-			}
+			if (userChoice >= 1 && userChoice <= availableItems.Count)
+				return availableItems[userChoice - 1].ActionId;
+
+			ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
 		}
 	}
 
@@ -152,7 +155,7 @@ public static class LoanMenu
 		}
 		else
 		{
-			var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
+			var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
 			if (user is null)
 			{
 				ConsoleHelper.ShowWarning(ValidationMessages.UserNotFound);
@@ -165,7 +168,7 @@ public static class LoanMenu
 		var availableBooks = bookManagementService.GetAvailableBooks();
 		if (availableBooks.Count is 0)
 		{
-			ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableBook2Borrow);
+			ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableBookToBorrow);
 			return;
 		}
 
@@ -202,7 +205,7 @@ public static class LoanMenu
 		}
 		else
 		{
-			var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
+			var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
 			if (user is null)
 			{
 				ConsoleHelper.ShowWarning(ValidationMessages.UserNotFound);
@@ -299,7 +302,7 @@ public static class LoanMenu
 		}
 		else
 		{
-			var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
+			var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
 			if (user is null)
 			{
 				ConsoleHelper.ShowWarning(ValidationMessages.UserNotFound);
@@ -374,7 +377,7 @@ public static class LoanMenu
 
 
 	private static void SearchLoan(LoanManagementService loanManagementService, ICurrentUserSession session,
-		bool activeOnly = true)
+		bool activeOnly = false)
 	{
 		while (true)
 		{

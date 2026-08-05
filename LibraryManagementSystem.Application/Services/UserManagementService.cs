@@ -64,9 +64,11 @@ public class UserManagementService
 	}
 
 
-	public IReadOnlyList<UserDto> GetAllUsers()
+	public IReadOnlyList<UserDto> GetAllUsers(ICurrentUserSession session)
 	{
-		return _userRepository.GetAll().Select(user => user.ToDto()).ToList().AsReadOnly();
+		return session is { IsAdmin: false, IsLibrarian: false }
+			? []
+			: _userRepository.GetAll().Select(user => user.ToDto()).ToList().AsReadOnly();
 	}
 
 

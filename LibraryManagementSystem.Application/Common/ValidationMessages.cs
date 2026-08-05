@@ -3,7 +3,7 @@
 public static class ValidationMessages
 {
 	// 1. GENERAL MESSAGES (Cross‑cutting)
-	public const string Press2Continue = "\nPress any key to continue...";
+	public const string PressToContinue = "\nPress any key to continue...";
 	public const string NoChangesDetected = "No changes detected. The new value is identical to the current one.";
 	public const string EmptyInput = "Input cannot be empty. Please try again.";
 	public const string InvalidInput = "Invalid input. Please try again.";
@@ -12,20 +12,22 @@ public static class ValidationMessages
 	public const string InvalidMenuChoice = "Invalid selection. Please try again.\n";
 	public const string InvalidDate = "Invalid date. Please enter a date on or before today.";
 	public const string InvalidBirthDateFormat = "Invalid date format. Please use YYYY-MM-DD (e.g., 2026-12-27).";
-	public const string ExitingProgram = "Exiting Program...\n";
-	public const string Back2MainMenu = "Backing to main menu...\n";
+	public const string DuplicateRemoved = "Duplicate items were removed.";
+	public const string NotAllowedMultiSelections = "Multiple selections are not allowed. Please enter a single number.";
+
+
 
 
 	// 2. VALIDATION MESSAGES (Format‑specific)
+	// Input Validation
+
+	// Password Validation
 	public const string InvalidNationalCode = "Invalid national code. Please enter exactly 10 digits without dashes or spaces.";
 	public const string InvalidEmail = "Invalid email address. Please enter a valid email (e.g., name@domain.com).";
 	public const string InvalidPhoneNumber = "Invalid phone number. Please enter exactly 11 digits.";
 	public const string InvalidBirthDate = "Invalid birth date. Please enter a past date that is no more than 120 years ago.";
 	public const string InvalidCharacters = "The name can only contain letters, numbers, spaces, and basic punctuation.";
 	public const string InvalidOptionSelection = "Please select at least one option.";
-	public const string GetRole = "Select a role for this user:";
-	public const string DuplicateRemoved = "Duplicate items were removed.";
-	public const string NotAllowedMultiSelections = "Multiple selections are not allowed. Please enter a single number.";
 	public const string MinimumPasswordLength = "Password must contain at least 8 characters.";
 	public const string MaximumPasswordLength = "Password cannot contain more than 64 characters.";
 	public const string OneUppercaseLetter = "Password must contain at least one uppercase letter.";
@@ -39,9 +41,7 @@ public static class ValidationMessages
 	// Add
 	public const string AuthorAddedSuccessfully = "Author added successfully.";
 	public const string AuthorAddFailed = "Failed to add author.";
-	public const string NotEnoughAuthors = "All available authors are already assigned to this book.";
 	public const string DuplicateAuthorNameWarning = "An author with the same name already exists (ID: {0}).";
-	public const string AuthorCreationFailed = "Failed to retrieve the newly created author.";
 
 
 	// Update
@@ -49,7 +49,6 @@ public static class ValidationMessages
 	public const string AuthorUpdateFailed = "Failed to update author.";
 
 	// Edit
-	public const string EditCancelled = "Edit cancelled. Returning to {0} Menu...";
 
 	// Remove
 	public const string AuthorRemovedSuccessfully = "Author removed successfully.";
@@ -62,7 +61,6 @@ public static class ValidationMessages
 	public const string NotAvailableAuthor = "No authors found. Please add a new author first.";
 	public const string NotAuthorMatched = "No authors matched your search.";
 	public const string AuthorNotFoundFormat = "Author with ID {0} was not found.";
-	public const string SearchCancelled = "Search cancelled. Returning to {0} Menu...";
 
 	// Duplicate
 	public const string FailureDuplicateAuthor = "Duplicate authors are not allowed. Please enter each author only once.";
@@ -79,7 +77,6 @@ public static class ValidationMessages
 	public const string TranslatorAddedSuccessfully = "Translator added successfully.";
 	public const string TranslatorAddFailed = "Failed to add translator.";
 	public const string AllTranslatorsAssigned = "All available translators are already assigned to this book.";
-	public const string AddTranslatorInEdit = "Select the new translator(s) for this book";
 	public const string AddTranslatorInAdd = "\nNo translators found. Do you want to create a new translator now (Optional)";
 
 	// Update
@@ -89,7 +86,8 @@ public static class ValidationMessages
 	// Remove
 	public const string TranslatorRemovedSuccessfully = "Translator removed successfully.";
 	public const string TranslatorRemoveFailed = "Failed to remove translator.";
-	public const string NoTranslator2Remove = "This book has no translators to remove.";
+	public const string NoTranslatorToRemove = "This book has no translators to remove.";
+	public const string RemoveAllTranslators = "Are you sure you want to remove ALL translators from this book";
 	public const string TranslatorSelection4Remove = "Select the translator you want to remove";
 
 
@@ -97,6 +95,9 @@ public static class ValidationMessages
 	public const string NotAvailableTranslator = "No translators found. Please add a new translator first.";
 	public const string NotTranslatorMatched = "No translators matched your search.";
 	public const string TranslatorNotFoundFormat = "Translator with ID {0} was not found.";
+
+	// Edit
+	public const string AddTranslatorInEdit = "Select the new translator(s) for this book";
 
 
 	// Duplicate
@@ -112,6 +113,10 @@ public static class ValidationMessages
 	// Add
 	public const string BookAddedSuccessfully = "Book added successfully.";
 	public const string BookAddFailed = "Failed to add book.";
+	public const string NotEnoughAuthors = "All available authors are already assigned to this book.";
+	public const string AuthorCreationFailed = "Failed to retrieve the newly created author.";
+	public const string BookRequiresAtLeastOneAuthor = "A book must have at least one author.";
+
 
 	// Update
 	public const string BookUpdatedSuccessfully = "Book updated successfully.";
@@ -138,10 +143,7 @@ public static class ValidationMessages
 	public const string InvalidISBN = "Invalid ISBN format. Please enter a valid 10 or 13 digit ISBN.";
 	public const string InvalidGenre = "Invalid genre. Please select a valid genre.";
 	public const string WrongTotalCopies = "Total copies must be greater than zero.";
-	public const string BookRequiresAtLeastOneAuthor = "A book must have at least one author.";
-
-	public const string InvalidBookSelection =
-		"That book ID is not in the available list. Please select from the list above.";
+	public const string InvalidBookSelection = "That book ID is not in the available list. Please select from the list above.";
 
 
 	// 6. USER (Member/Admin/Manager) MESSAGES
@@ -171,11 +173,20 @@ public static class ValidationMessages
 	public const string FailureDuplicateUserByEmail = "A user with the same email already exists.";
 	public const string FailureDuplicateUserByPhoneNumber = "A user with the same phone number already exists.";
 	public const string FailureDuplicateUserByRole = "This user already has this role.";
-	public const string FailureDuplicateRolesSelected = "Duplicate roles selected.";
 
 	// Membership
 	public const string MembershipExpired = "Membership expired. Please renew your membership.";
 	public const string InactiveAccount = "This account is inactive.";
+
+	// Role
+	public const string FailureDuplicateRolesSelected = "Duplicate roles selected.";
+
+
+	// User
+	public const string NotRoleMatched = "No roles matched your search.";
+	public const string GetRole = "Select a role for this user:";
+
+
 
 
 	// 7. LOAN MESSAGES
@@ -189,7 +200,7 @@ public static class ValidationMessages
 
 	// Search / Availability
 	public const string NotAvailableLoan = "No loans found. Please add a new loan first.";
-	public const string NotAvailableBook2Borrow = "No books are currently available to borrow.";
+	public const string NotAvailableBookToBorrow = "No books are currently available to borrow.";
 	public const string NotLoanMatched = "No loans matched your search.";
 	public const string NoActiveLoans = "No active loans found.";
 	public const string NoOverdueLoans = "No overdue loans at the moment.";
@@ -208,8 +219,6 @@ public static class ValidationMessages
 
 
 
-	// 8. ROLE MESSAGES
-	public const string NotRoleMatched = "No roles matched your search.";
 
 
 
@@ -221,6 +230,10 @@ public static class ValidationMessages
 	public const string FineWaivedSuccessfully = "Fine waived successfully.";
 	public const string NoFine = "Loan is not overdue. No fine needed.";
 	public const string ExistedFine = "An unpaid fine already exists for this loan.";
+	public const string FineId4Pay = "Enter Fine ID to pay";
+	public const string FineId4Waive = "Enter Fine ID to waive";
+	public const string ConfirmToPay = "Are you sure you want to pay this fine";
+	public const string ConfirmToWaive = "Are you sure you want to waive this fine";
 
 
 
@@ -247,17 +260,28 @@ public static class ValidationMessages
 
 
 
-	// 11. Questions
+	// 11. UI Prompts & Questions
 	public const string MainMenuQuestion = "Please Enter a number: ";
 	public const string EditMenuQuestion = "Enter the number of the field you wish to edit";
 	public const string EditContinuesQuestion = "Do you want to edit another field";
 	public const string SearchMenuQuestion = "Select a search field by entering its number";
 	public const string SubMenusQuestion = "what do you want to do?";
-	public const string RemoveAllTranslators = "Are you sure you want to remove ALL translators from this book";
-	public const string FineId4Pay = "Enter Fine ID to pay";
-	public const string FineId4Waive = "Enter Fine ID to waive";
-	public const string Confirm2Pay = "Are you sure you want to pay this fine";
-	public const string Confirm2Waive = "Are you sure you want to waive this fine";
 	public const string GetEmail = "Enter your email address";
 	public const string GetPassword = "Enter your password";
+
+
+
+	// 12. Navigation
+	// Back
+	public const string BackToMainMenu = "Backing to main menu...\n";
+
+	// Exit
+	public const string ExitingProgram = "Exiting Program...\n";
+
+	// Search Cancelled
+	public const string SearchCancelled = "Search cancelled. Returning to {0} Menu...";
+
+	// Edit Cancelled
+	public const string EditCancelled = "Edit cancelled. Returning to {0} Menu...";
+
 }

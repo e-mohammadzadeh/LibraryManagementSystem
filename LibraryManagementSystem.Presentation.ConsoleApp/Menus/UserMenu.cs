@@ -70,17 +70,17 @@ public static class UserMenu
 						return;
 					}
 
-					if (userManagementService.GetAllUsers().Count is 0)
+					if (userManagementService.GetAllUsers(session).Count is 0)
 						ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableUser);
 					else
-						UserPrinter.PrintTable(userManagementService.GetAllUsers());
+						UserPrinter.PrintTable(userManagementService.GetAllUsers(session));
 
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
 				{
-					ConsoleHelper.ShowInfo(ValidationMessages.Back2MainMenu);
+					ConsoleHelper.ShowInfo(ValidationMessages.BackToMainMenu);
 					ConsoleHelper.Pause();
 					Console.Clear();
 					continueProgram = false;
@@ -180,7 +180,7 @@ public static class UserMenu
 		}
 
 		Console.WriteLine(new string('=', 36) + " EDITING USER MENU " + new string('=', 36));
-		var desiredUser = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
+		var desiredUser = MenuHelper.SelectExisting(userManagementService.GetAllUsers(session),
 			MenuHelper.SelectUser, ValidationMessages.NotAvailableUser);
 		if (desiredUser == null) return;
 
@@ -297,7 +297,7 @@ public static class UserMenu
 		}
 
 		Console.WriteLine(new string('=', 36) + " REMOVING USER MENU " + new string('=', 36));
-		var desiredUser = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
+		var desiredUser = MenuHelper.SelectExisting(userManagementService.GetAllUsers(session),
 			MenuHelper.SelectUser, ValidationMessages.NotAvailableUser);
 		if (desiredUser is null) return;
 
@@ -318,7 +318,7 @@ public static class UserMenu
 		{
 			Console.Clear();
 			Console.WriteLine(new string('=', 36) + " SEARCHING USER MENU " + new string('=', 36));
-			var usersList = userManagementService.GetAllUsers();
+			var usersList = userManagementService.GetAllUsers(session);
 			if (usersList.Count == 0)
 			{
 				ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableUser);
@@ -420,7 +420,7 @@ public static class UserMenu
 		}
 		else
 		{
-			userDto = MenuHelper.SelectExisting(userManagementService.GetAllUsers(), MenuHelper.SelectUser,
+			userDto = MenuHelper.SelectExisting(userManagementService.GetAllUsers(session), MenuHelper.SelectUser,
 				ValidationMessages.NotAvailableUser);
 		}
 

@@ -78,7 +78,7 @@ public static class BookMenu
 				}
 				case 7:
 				{
-					ConsoleHelper.ShowInfo(ValidationMessages.Back2MainMenu);
+					ConsoleHelper.ShowInfo(ValidationMessages.BackToMainMenu);
 					ConsoleHelper.Pause();
 					Console.Clear();
 					continueProgram = false;
@@ -547,7 +547,7 @@ public static class BookMenu
 			{
 				if (currentBook.Translators.Count == 0)
 				{
-					ConsoleHelper.ShowWarning(ValidationMessages.NoTranslator2Remove);
+					ConsoleHelper.ShowWarning(ValidationMessages.NoTranslatorToRemove);
 					break;
 				}
 
