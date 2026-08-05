@@ -20,10 +20,10 @@ public class AuthorManagementService
 		string? warningMessage = null;
 
 		if (_authorRepository.ExistsByNationalCode(dto.NationalCode))
-			return ServiceResult<AuthorDto>.Fail(ValidationMessages.FailureDuplicateAuthorByNationalCode);
+			return ServiceResult<AuthorDto>.Fail(ValidationMessages.DuplicateAuthorsNotAllowedByNationalCode);
 
 		if (_authorRepository.ExistsByEmail(dto.Email))
-			return ServiceResult<AuthorDto>.Fail(ValidationMessages.FailureDuplicateAuthorByEmail);
+			return ServiceResult<AuthorDto>.Fail(ValidationMessages.DuplicateAuthorsNotAllowedByEmail);
 
 		var existingSameName = _authorRepository.FindByName(dto.FirstName, dto.LastName);
 
@@ -58,17 +58,17 @@ public class AuthorManagementService
 		if (dto.FirstName is not null || dto.LastName is not null)
 		{
 			if (_authorRepository.ExistsByName(resolvedFirstName, resolvedLastName, authorId))
-				return ServiceResult<AuthorDto>.Fail(ValidationMessages.FailureDuplicateAuthorByName);
+				return ServiceResult<AuthorDto>.Fail(ValidationMessages.DuplicateAuthorsNotAllowedByName);
 		}
 
 		if (dto.NationalCode is not null && _authorRepository.ExistsByNationalCode(dto.NationalCode, authorId))
-			return ServiceResult<AuthorDto>.Fail(ValidationMessages.FailureDuplicateAuthorByNationalCode);
+			return ServiceResult<AuthorDto>.Fail(ValidationMessages.DuplicateAuthorsNotAllowedByNationalCode);
 
 		if (dto.Email is not null && _authorRepository.ExistsByEmail(dto.Email, authorId))
-			return ServiceResult<AuthorDto>.Fail(ValidationMessages.FailureDuplicateAuthorByEmail);
+			return ServiceResult<AuthorDto>.Fail(ValidationMessages.DuplicateAuthorsNotAllowedByEmail);
 
 		if (dto.PhoneNumber is not null && _authorRepository.ExistsByPhoneNumber(dto.PhoneNumber, authorId))
-			return ServiceResult<AuthorDto>.Fail(ValidationMessages.FailureDuplicateAuthorByPhoneNumber);
+			return ServiceResult<AuthorDto>.Fail(ValidationMessages.DuplicateAuthorsNotAllowedByPhoneNumber);
 
 		author.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
 			dto.Biography);

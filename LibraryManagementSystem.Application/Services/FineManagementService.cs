@@ -29,12 +29,12 @@ public class FineManagementService : IFineManagementService
 		var loan = _loanRepository.FindById(loanId);
 		if (loan is null) return ServiceResult<FineDto>.Fail(ValidationMessages.NotLoanMatched);
 
-		if (loan.ReturnDate is null) return ServiceResult<FineDto>.Fail(ValidationMessages.NotReturned);
+		if (loan.ReturnDate is null) return ServiceResult<FineDto>.Fail(ValidationMessages.LoanNotYetReturned);
 
 		if (loan.ReturnDate <= loan.DueDate) return ServiceResult<FineDto>.Fail(ValidationMessages.NoFine);
 
 		var existing = _fineRepository.GetByLoanId(loanId);
-		if (existing.Count > 0) return ServiceResult<FineDto>.Fail(ValidationMessages.ExistedFine);
+		if (existing.Count > 0) return ServiceResult<FineDto>.Fail(ValidationMessages.FineAlreadyExists);
 
 		var fine = new Fine(loan);
 		_fineRepository.Add(fine);

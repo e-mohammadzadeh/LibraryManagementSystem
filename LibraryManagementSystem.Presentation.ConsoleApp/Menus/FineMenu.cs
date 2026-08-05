@@ -143,7 +143,7 @@ public static class FineMenu
 		}
 
 		FinePrinter.PrintTable(unpaidFines);
-		var fineId = ConsoleHelper.ReadInt(ValidationMessages.FineId4Pay, 1, int.MaxValue);
+		var fineId = ConsoleHelper.ReadInt(ValidationMessages.FineIdForPay, 1, int.MaxValue);
 		if (fineId is null) return;
 
 		var confirm = ConsoleHelper.ReadYesNo(ValidationMessages.ConfirmToPay);
@@ -166,7 +166,7 @@ public static class FineMenu
 
 		FinePrinter.PrintTable(unpaidFines);
 
-		var fineId = ConsoleHelper.ReadInt(ValidationMessages.FineId4Waive, 1, int.MaxValue);
+		var fineId = ConsoleHelper.ReadInt(ValidationMessages.FineIdForWaive, 1, int.MaxValue);
 		if (fineId is null) return;
 
 		var confirm = ConsoleHelper.ReadYesNo(ValidationMessages.ConfirmToWaive);

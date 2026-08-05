@@ -408,7 +408,7 @@ public static class BookMenu
 		var currentAuthorsNames = string.Join(", ", currentBook.Authors.Select(a => a.FullName));
 
 		Console.WriteLine($"Current authors: {currentAuthorsNames}");
-		Console.WriteLine(ValidationMessages.SubMenusQuestion);
+		Console.WriteLine(ValidationMessages.SubMenuPrompt);
 		Console.WriteLine("1. Add an author");
 		Console.WriteLine("2. Remove an author");
 		Console.WriteLine("3. Replace all authors");
@@ -447,12 +447,12 @@ public static class BookMenu
 			{
 				if (currentBook.Authors.Count <= 1)
 				{
-					ConsoleHelper.ShowWarning(ValidationMessages.CannotRemove);
+					ConsoleHelper.ShowWarning(ValidationMessages.CannotRemoveLastAuthor);
 					break;
 				}
 
 				// Use ReadAuthors with allowMultiple = false — pick exactly one to remove
-				var selectedIds = ConsoleHelper.ReadAuthors(ValidationMessages.AuthorSelection4Remove,
+				var selectedIds = ConsoleHelper.ReadAuthors(ValidationMessages.AuthorSelectionForRemove,
 					currentBook.Authors,
 					false);
 				if (selectedIds is null) break;
@@ -506,7 +506,7 @@ public static class BookMenu
 			: string.Join(", ", currentBook.Translators.Select(t => t.FullName));
 
 		Console.WriteLine($"Current translators: {currentTranslatorName}");
-		Console.WriteLine(ValidationMessages.SubMenusQuestion);
+		Console.WriteLine(ValidationMessages.SubMenuPrompt);
 		Console.WriteLine("1. Add a translator");
 		Console.WriteLine("2. Remove a translator");
 		Console.WriteLine("3. Replace all translators");
@@ -551,7 +551,7 @@ public static class BookMenu
 					break;
 				}
 
-				var selectedIds = ConsoleHelper.ReadTranslators(ValidationMessages.TranslatorSelection4Remove,
+				var selectedIds = ConsoleHelper.ReadTranslators(ValidationMessages.TranslatorSelectionForRemove,
 					currentBook.Translators, false, false);
 				if (selectedIds is null) break;
 				var idToRemove = selectedIds[0];
@@ -571,7 +571,7 @@ public static class BookMenu
 					break;
 				}
 
-				var selectedIds = ConsoleHelper.ReadTranslators(ValidationMessages.AddTranslatorInEdit, allTranslators);
+				var selectedIds = ConsoleHelper.ReadTranslators(ValidationMessages.SelectReplacementTranslators, allTranslators);
 				if (selectedIds is null) break;
 				PerformUpdate(bookManagementService, bookId, selectedIds,
 					v => new UpdateBookDto { TranslatorIds = v });

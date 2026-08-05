@@ -30,17 +30,17 @@ public class LoanManagementService
 	public ServiceResult<LoanDto> BorrowBook(int userId, int bookId, ICurrentUserSession session)
 	{
 		if (session.IsSelfServiceMember && session.UserId != userId)
-			return ServiceResult<LoanDto>.Fail(ValidationMessages.BorrowBook4Yourself);
+			return ServiceResult<LoanDto>.Fail(ValidationMessages.BorrowBookForYourself);
 
 		var user = _userRepository.FindById(userId);
 		if (user is null) return ServiceResult<LoanDto>.Fail(ValidationMessages.NotUserMatched);
 
 		if (!user.IsActive) return ServiceResult<LoanDto>.Fail(ValidationMessages.MembershipExpired);
 
-		if (user.ShouldRemove) return ServiceResult<LoanDto>.Fail(ValidationMessages.Flagged4Removal);
+		if (user.ShouldRemove) return ServiceResult<LoanDto>.Fail(ValidationMessages.FlaggedForRemoval);
 
 		if (_fineRepository.HasUnpaidFines(userId))
-			return ServiceResult<LoanDto>.Fail(ValidationMessages.BorrowFailed4Fine);
+			return ServiceResult<LoanDto>.Fail(ValidationMessages.BorrowFailedForFine);
 
 		if (_loanRepository.CountActiveLoansByUser(userId) >= ValidationConstants.MaxActiveLoansPerUser)
 			return ServiceResult<LoanDto>.Fail(ValidationMessages.MaximumLoansReached);

@@ -41,7 +41,7 @@ public class BookManagementService
 			return ServiceResult<BookDto>.Fail(ValidationMessages.BookRequiresAtLeastOneAuthor);
 
 		if (dto.AuthorIds.Count != dto.AuthorIds.Distinct().Count())
-			return ServiceResult<BookDto>.Fail(ValidationMessages.FailureDuplicateAuthor);
+			return ServiceResult<BookDto>.Fail(ValidationMessages.DuplicateAuthorsNotAllowed);
 
 		var authors = new List<Author>();
 		foreach (var authorId in dto.AuthorIds)
@@ -53,7 +53,7 @@ public class BookManagementService
 		}
 
 		if (dto.TranslatorIds.Count != dto.TranslatorIds.Distinct().Count())
-			return ServiceResult<BookDto>.Fail(ValidationMessages.FailureDuplicateTranslator);
+			return ServiceResult<BookDto>.Fail(ValidationMessages.DuplicateTranslatorsNotAllowed);
 
 		var translators = new List<Translator>();
 		foreach (var translatorId in dto.TranslatorIds)
@@ -108,7 +108,7 @@ public class BookManagementService
 				return ServiceResult<BookDto>.Fail(ValidationMessages.BookRequiresAtLeastOneAuthor);
 
 			if (dto.AuthorIds.Count != dto.AuthorIds.Distinct().Count())
-				return ServiceResult<BookDto>.Fail(ValidationMessages.FailureDuplicateAuthor);
+				return ServiceResult<BookDto>.Fail(ValidationMessages.DuplicateAuthorsNotAllowed);
 
 
 			resolvedAuthors = new List<Author>();
@@ -125,7 +125,7 @@ public class BookManagementService
 		if (dto.TranslatorIds is not null)
 		{
 			if (dto.TranslatorIds.Count != dto.TranslatorIds.Distinct().Count())
-				return ServiceResult<BookDto>.Fail(ValidationMessages.FailureDuplicateTranslator);
+				return ServiceResult<BookDto>.Fail(ValidationMessages.DuplicateTranslatorsNotAllowed);
 
 			resolvedTranslators = new List<Translator>();
 			foreach (var translatorId in dto.TranslatorIds)

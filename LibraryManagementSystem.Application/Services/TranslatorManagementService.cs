@@ -22,10 +22,10 @@ public class TranslatorManagementService
 		string? warningMessage = null;
 
 		if (_translatorRepository.ExistsByNationalCode(dto.NationalCode))
-			return ServiceResult<Translator>.Fail(ValidationMessages.FailureDuplicateTranslatorByNationalCode);
+			return ServiceResult<Translator>.Fail(ValidationMessages.DuplicateTranslatorsNotAllowedByNationalCode);
 
 		if (_translatorRepository.ExistsByEmail(dto.Email))
-			return ServiceResult<Translator>.Fail(ValidationMessages.FailureDuplicateTranslatorByEmail);
+			return ServiceResult<Translator>.Fail(ValidationMessages.DuplicateTranslatorsNotAllowedByEmail);
 
 		var existingSameName = _translatorRepository.FindByName(dto.FirstName, dto.LastName);
 		if (existingSameName is not null)
@@ -63,17 +63,17 @@ public class TranslatorManagementService
 		if (dto.FirstName is not null || dto.LastName is not null)
 		{
 			if (_translatorRepository.ExistsByName(resolvedFirstName, resolvedLastName, translatorId))
-				return ServiceResult<Translator>.Fail(ValidationMessages.FailureDuplicateTranslatorByName);
+				return ServiceResult<Translator>.Fail(ValidationMessages.DuplicateTranslatorsNotAllowedByName);
 		}
 
 		if (dto.NationalCode is not null && _translatorRepository.ExistsByNationalCode(dto.NationalCode, translatorId))
-			return ServiceResult<Translator>.Fail(ValidationMessages.FailureDuplicateTranslatorByNationalCode);
+			return ServiceResult<Translator>.Fail(ValidationMessages.DuplicateTranslatorsNotAllowedByNationalCode);
 
 		if (dto.Email is not null && _translatorRepository.ExistsByEmail(dto.Email, translatorId))
-			return ServiceResult<Translator>.Fail(ValidationMessages.FailureDuplicateTranslatorByEmail);
+			return ServiceResult<Translator>.Fail(ValidationMessages.DuplicateTranslatorsNotAllowedByEmail);
 
 		if (dto.PhoneNumber is not null && _translatorRepository.ExistsByPhoneNumber(dto.PhoneNumber, translatorId))
-			return ServiceResult<Translator>.Fail(ValidationMessages.FailureDuplicateTranslatorByPhoneNumber);
+			return ServiceResult<Translator>.Fail(ValidationMessages.DuplicateTranslatorsNotAllowedByPhoneNumber);
 
 		translator.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate);
 
