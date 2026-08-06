@@ -81,7 +81,7 @@ public static class UserMenu
 				case 7:
 				{
 					Console.Clear();
-					
+					ChangePassword(userManagementService, session);
 					break;
 				}
 				case 8:
@@ -438,5 +438,30 @@ public static class UserMenu
 		}
 
 		UserPrinter.PrintDetails(userDto);
+	}
+
+
+	private static void ChangePassword(UserManagementService userManagementService, ICurrentUserSession session)
+	{
+		if (!session.IsAuthenticated || session.UserId == null)
+		{
+			ConsoleHelper.ShowError(Messages.SessionExpired);
+			return;
+		}
+
+		Console.WriteLine(new string('=', 36) + " CHANGE PASSWORD " + new string('=', 36));
+
+		var currentPassword = ConsoleHelper.GetValidPassword(string.Format(Messages.EnterPasswordPrompt, "current"));
+		var newPassword = ConsoleHelper.GetValidPassword(string.Format(Messages.EnterPasswordPrompt, "new"));
+		var confirmPassword = ConsoleHelper.GetValidPassword(Messages.PasswordConfirmation);
+
+		if (newPassword != confirmPassword)
+		{
+			ConsoleHelper.ShowError(Messages.PasswordMatchedFailed);
+			return;
+		}
+
+		var result = userManagementService.ChangePassword(session.UserId.Value, currentPassword, newPassword, session);
+		ConsoleHelper.ShowResult(result);
 	}
 }

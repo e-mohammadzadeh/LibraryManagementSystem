@@ -17,7 +17,7 @@ public static class LoginMenu
 			var email = ConsoleHelper.GetValidEmail(Messages.EnterEmailPrompt);
 			if (email is null) return null;
 
-			var password = ConsoleHelper.GetValidPassword(Messages.EnterPasswordPrompt);
+			var password = ConsoleHelper.GetValidPassword(string.Format(Messages.EnterPasswordPrompt, ""));
 
 			var result = authenticationService.Login(email, password);
 			if (result is { Success: true, Data: not null })

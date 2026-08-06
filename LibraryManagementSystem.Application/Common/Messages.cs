@@ -39,6 +39,7 @@ public static class Messages
 	public const string PasswordChangedSuccessfully = "Password changed successfully.";
 	public const string PasswordChangeFailed = "Failed to change password. Please check your current password and try again.";
 	public const string CanChangeOwnPassword = "You can only change your own password.";
+	public const string PasswordMatchedFailed = "New password and confirmation do not match.";
 	public const string SelectDifferentNewPassword = "New password must be different from the current password.";
 
 
@@ -262,7 +263,8 @@ public static class Messages
 	public const string TranslatorSelectionForRemove = "Select the translator you want to remove";
 	public const string SubMenuPrompt = "What do you want to do?";
 	public const string EnterEmailPrompt = "Enter your email address";
-	public const string EnterPasswordPrompt = "Enter your password";
+	public const string EnterPasswordPrompt = "Enter your {0} password";
+	public const string PasswordConfirmation = "Confirm new password";
 	public const string FineIdForPay = "Enter Fine ID to pay";
 	public const string FineIdForWaive = "Enter Fine ID to waive";
 	public const string ConfirmToPay = "Are you sure you want to pay this fine";
