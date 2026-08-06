@@ -12,11 +12,11 @@ public class FineManagementService : IFineManagementService
 	private readonly IFineRepository _fineRepository;
 	private readonly ILoanRepository _loanRepository;
 	private readonly IUserRepository _userRepository;
-	private readonly UserAutoRemovalService _userAutoRemovalService;
+	private readonly IUserAutoRemovalService _userAutoRemovalService;
 
 
 	public FineManagementService(IFineRepository fineRepository, ILoanRepository loanRepository,
-		IUserRepository userRepository, UserAutoRemovalService userAutoRemovalService)
+		IUserRepository userRepository, IUserAutoRemovalService userAutoRemovalService)
 	{
 		_fineRepository = fineRepository;
 		_loanRepository = loanRepository;

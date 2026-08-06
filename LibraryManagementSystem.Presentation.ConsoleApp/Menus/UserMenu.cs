@@ -80,6 +80,12 @@ public static class UserMenu
 				}
 				case 7:
 				{
+					Console.Clear();
+					
+					break;
+				}
+				case 8:
+				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					ConsoleHelper.Pause();
 					Console.Clear();
@@ -101,7 +107,8 @@ public static class UserMenu
 			(4, "Search User", session.IsAdmin || session.IsLibrarian),
 			(5, "View User Details", true),
 			(6, "View All Users", session.IsAdmin || session.IsLibrarian),
-			(7, "Back", true)
+			(7, "Change Password", true),
+			(8, "Back", true)
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();

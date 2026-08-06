@@ -3,7 +3,7 @@ using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
 
-public class UserAutoRemovalService
+public class UserAutoRemovalService : IUserAutoRemovalService
 {
 	private readonly IUserRepository _userRepository;
 	private readonly ILoanRepository _loanRepository;

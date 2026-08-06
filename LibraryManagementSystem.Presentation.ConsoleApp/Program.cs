@@ -38,8 +38,8 @@ public static class Program
 			// ── Application Services ──────────────────
 			var authorService = new AuthorManagementService(authorRepo);
 			var translatorService = new TranslatorManagementService(translatorRepo);
-			var uars = new UserAutoRemovalService(userRepo, loanRepo, fineRepo);
-			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo, uars);
+			IUserAutoRemovalService userAutoRemovalService = new UserAutoRemovalService(userRepo, loanRepo, fineRepo);
+			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo, userAutoRemovalService);
 			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, fineRepo, fineService);
 			var userService = new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher);
 			var bookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo);

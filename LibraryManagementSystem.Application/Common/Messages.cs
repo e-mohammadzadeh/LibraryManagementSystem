@@ -38,6 +38,8 @@ public static class Messages
 	public const string NotEmptyPassword = "Password cannot be empty.";
 	public const string PasswordChangedSuccessfully = "Password changed successfully.";
 	public const string PasswordChangeFailed = "Failed to change password. Please check your current password and try again.";
+	public const string CanChangeOwnPassword = "You can only change your own password.";
+	public const string SelectDifferentNewPassword = "New password must be different from the current password.";
 
 
 	// 4. AUTHOR MESSAGES ────────────────────────────────────────────────────────────

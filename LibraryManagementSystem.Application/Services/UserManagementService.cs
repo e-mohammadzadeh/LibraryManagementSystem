@@ -193,5 +193,26 @@ public class UserManagementService
 	}
 
 
-	// DeactivateMember  FindUserById
+	public ServiceResult<string> ChangePassword(int userId, string currentPassword, string newPassword,
+		ICurrentUserSession session)
+	{
+		if (session.UserId != userId) return ServiceResult<string>.Fail(Messages.CanChangeOwnPassword);
+
+		var user = _userRepository.FindById(userId);
+		if (user is null) return ServiceResult<string>.Fail(Messages.UserNotFound);
+
+		if (!_passwordHasher.VerifyPassword(currentPassword, user.PasswordHash, user.PasswordSalt))
+			return ServiceResult<string>.Fail(Messages.PasswordChangeFailed);
+
+		if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 8)
+			return ServiceResult<string>.Fail(Messages.MinimumPasswordLength);
+
+		if (newPassword == currentPassword) return ServiceResult<string>.Fail(Messages.SelectDifferentNewPassword);
+
+		var hashResult = _passwordHasher.CreatePasswordHash(newPassword);
+		user.SetPasswordHash(hashResult.Hash, hashResult.Salt);
+		_userRepository.Update(user);
+
+		return ServiceResult<string>.Ok(user.Email, Messages.PasswordChangedSuccessfully);
+	}
 }
