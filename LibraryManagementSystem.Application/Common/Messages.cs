@@ -2,7 +2,7 @@
 
 public static class Messages
 {
-	// 1. GENERAL MESSAGES (Cross‑cutting)
+	// 1. GENERAL MESSAGES (Cross‑cutting) ────────────────────────────────────────────────────────────
 	public const string PressToContinue = "\nPress any key to continue...";
 	public const string NoChangesDetected = "No changes detected. The new value is identical to the current one.";
 	public const string EmptyInput = "Input cannot be empty. Please try again.";
@@ -18,7 +18,7 @@ public static class Messages
 
 
 
-	// 2. VALIDATION MESSAGES (Format‑specific)
+	// 2. VALIDATION MESSAGES (Format‑specific) ────────────────────────────────────────────────────────────
 	public const string InvalidNationalCode = "Invalid national code. Please enter exactly 10 digits without dashes or spaces.";
 	public const string InvalidEmail = "Invalid email address. Please enter a valid email (e.g., name@domain.com).";
 	public const string InvalidPhoneNumber = "Invalid phone number. Please enter exactly 11 digits.";
@@ -28,7 +28,7 @@ public static class Messages
 
 
 
-	// 3. Password Validation
+	// 3. Password Validation ────────────────────────────────────────────────────────────
 	public const string MinimumPasswordLength = "Password must contain at least 8 characters.";
 	public const string MaximumPasswordLength = "Password cannot contain more than 64 characters.";
 	public const string OneUppercaseLetter = "Password must contain at least one uppercase letter.";
@@ -40,7 +40,7 @@ public static class Messages
 	public const string PasswordChangeFailed = "Failed to change password. Please check your current password and try again.";
 
 
-	// 4. AUTHOR MESSAGES
+	// 4. AUTHOR MESSAGES ────────────────────────────────────────────────────────────
 	// Add
 	public const string AuthorAddedSuccessfully = "Author added successfully.";
 	public const string AuthorAddFailed = "Failed to add author.";
@@ -71,7 +71,7 @@ public static class Messages
 
 
 
-	// 5. TRANSLATOR MESSAGES
+	// 5. TRANSLATOR MESSAGES ────────────────────────────────────────────────────────────
 	// Add
 	public const string TranslatorAddedSuccessfully = "Translator added successfully.";
 	public const string TranslatorAddFailed = "Failed to add translator.";
@@ -102,7 +102,7 @@ public static class Messages
 
 
 
-	// 6. BOOK MESSAGES
+	// 6. BOOK MESSAGES ────────────────────────────────────────────────────────────
 	// Add
 	public const string BookAddedSuccessfully = "Book added successfully.";
 	public const string BookAddFailed = "Failed to add book.";
@@ -138,7 +138,7 @@ public static class Messages
 	public const string InvalidBookSelection = "That book ID is not in the available list. Please select from the list above.";
 
 
-	// 7. USER (Member/Admin/Manager) MESSAGES
+	// 7. USER (Member/Admin/Manager) MESSAGES ────────────────────────────────────────────────────────────
 	// Add
 	public const string UserAddedSuccessfully = "User added successfully.";
 	public const string UserAddFailed = "Failed to add user.";
@@ -180,7 +180,7 @@ public static class Messages
 
 
 
-	// 8. LOAN MESSAGES
+	// 8. LOAN MESSAGES ────────────────────────────────────────────────────────────
 	// Borrow / Return / Renew
 	public const string BorrowedSuccessfully = "Book borrowed successfully.";
 	public const string ReturnedSuccessfully = "Book returned successfully.";
@@ -213,7 +213,7 @@ public static class Messages
 
 
 
-	// 9. FINE MESSAGES
+	// 9. FINE MESSAGES ────────────────────────────────────────────────────────────
 	public const string FineCreatedSuccessfully = "Fine created successfully.";
 	public const string FineNotFound = "Fine not found.";
 	public const string UnpaidFineNotFound = "No unpaid fines found.";
@@ -221,11 +221,12 @@ public static class Messages
 	public const string FineWaivedSuccessfully = "Fine waived successfully.";
 	public const string NoFine = "This loan was returned on time. No fine has been applied.";
 	public const string FineAlreadyExists = "An unpaid fine already exists for this loan.";
+	public const string CanPayOwnFine = "You can only pay your own fines";
+	public const string AdminOnlyWaive = "Only Admin can waive fines.";
 
 
 
-
-	// 10. Authentication & Authorization
+	// 10. Authentication & Authorization ────────────────────────────────────────────────────────────
 	public const string LoginSuccess = "Login successful.";
 	public const string LoginFailed = "Login failed.";
 	public const string LogoutSuccess = "Logged out successfully.";
@@ -248,7 +249,7 @@ public static class Messages
 
 
 
-	// 11. UI Prompts & Questions
+	// 11. UI Prompts & Questions ────────────────────────────────────────────────────────────
 	public const string MainMenuQuestion = "Please enter a number: ";
 	public const string AuthorSelectionForRemove = "Select the author you want to remove";
 	public const string EditMenuQuestion = "Enter the number of the field you wish to edit";
@@ -266,7 +267,7 @@ public static class Messages
 
 
 
-	// 12. Navigation
+	// 12. Navigation ────────────────────────────────────────────────────────────
 	// Back
 	public const string BackToMainMenu = "Backing to main menu...\n";
 

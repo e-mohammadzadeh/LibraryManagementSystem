@@ -9,26 +9,34 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 public static class FineMenu
 {
 	public static void FineMenuController(IFineManagementService fineManagementService,
-		UserManagementService userManagementService, ICurrentUserSession session, LibraryStatisticsService statisticsService)
+		UserManagementService userManagementService, ICurrentUserSession session,
+		LibraryStatisticsService statisticsService)
 	{
 		var continueProgram = true;
 		while (continueProgram)
 		{
+			if (!session.IsAuthenticated)
+			{
+				ConsoleHelper.ShowError(Messages.SessionExpired);
+				ConsoleHelper.Pause();
+				return;
+			}
+
 			Console.Clear();
 			MenuHelper.Print(statisticsService.GetLibraryStatistics());
-			switch (FineMenuList())
+			switch (FineMenuList(session))
 			{
 				case 1:
 				{
 					Console.Clear();
-					ViewAllFines(fineManagementService);
+					ViewAllFines(fineManagementService, session);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
 					Console.Clear();
-					ViewUnpaidFines(fineManagementService);
+					ViewUnpaidFines(fineManagementService, session);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -42,14 +50,15 @@ public static class FineMenu
 				case 4:
 				{
 					Console.Clear();
-					PayFine(fineManagementService, userManagementService, session);
+					PayFine(fineManagementService, session);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 5:
 				{
 					Console.Clear();
-					WaiveFine(fineManagementService, userManagementService);
+					if (!SessionGuard.RequireAdmin(session)) break;
+					WaiveFine(fineManagementService, session);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -66,23 +75,42 @@ public static class FineMenu
 	}
 
 
-	private static int FineMenuList()
+	private static int FineMenuList(ICurrentUserSession session)
 	{
+		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
+		{
+			(1, "View All Fines", true),
+			(2, "View Unpaid Fines", true),
+			(3, "View User Fines", session.IsAdmin || session.IsLibrarian),
+			(4, "Pay Fine", true),
+			(5, "Waive Fine", session.IsAdmin),
+			(6, "Back", true)
+		};
+
+		var availableItems = items.Where(i => i.IsAvailable).ToList();
+
 		while (true)
 		{
 			Console.WriteLine(new string('=', 36) + " FINE MENU " + new string('=', 36));
 
-			Console.WriteLine("1. View All Fines");
-			Console.WriteLine("2. View Unpaid Fines");
-			Console.WriteLine("3. View User Fines");
-			Console.WriteLine("4. Pay Fine");
-			Console.WriteLine("5. Waive Fine");
-			Console.WriteLine("6. Back");
+			var displayNumber = 1;
+			foreach (var item in availableItems)
+			{
+				Console.WriteLine($"{displayNumber}. {item.DisplayText}");
+				displayNumber++;
+			}
+
 			Console.WriteLine(new string('=', 82));
 			Console.Write(Messages.MainMenuQuestion);
 
 			var option = Console.ReadLine();
-			if (int.TryParse(option, out var result) && result is >= 1 and <= 6) return result;
+			if (!int.TryParse(option, out var userChoice))
+			{
+				ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
+				continue;
+			}
+
+			if (userChoice >= 1 && userChoice <= availableItems.Count) return availableItems[userChoice - 1].ActionId;
 
 			ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
 		}
@@ -90,9 +118,11 @@ public static class FineMenu
 
 
 
-	private static void ViewAllFines(IFineManagementService fineManagementService)
+	private static void ViewAllFines(IFineManagementService fineManagementService, ICurrentUserSession session)
 	{
-		var fines = fineManagementService.GetAllFines();
+		var fines = session.IsSelfServiceMember
+			? fineManagementService.GetFinesByUser(session.UserId!.Value)
+			: fineManagementService.GetAllFines(session);
 		if (fines.Count == 0)
 		{
 			ConsoleHelper.ShowWarning(Messages.FineNotFound);
@@ -103,9 +133,11 @@ public static class FineMenu
 	}
 
 
-	private static void ViewUnpaidFines(IFineManagementService fineManagementService)
+	private static void ViewUnpaidFines(IFineManagementService fineManagementService, ICurrentUserSession session)
 	{
-		var fines = fineManagementService.GetAllUnpaidFines();
+		var fines = session.IsSelfServiceMember
+			? fineManagementService.GetUnpaidFinesByUser(session.UserId!.Value)
+			: fineManagementService.GetAllUnpaidFines(session);
 		if (fines.Count == 0)
 		{
 			ConsoleHelper.ShowWarning(Messages.UnpaidFineNotFound);
@@ -116,7 +148,8 @@ public static class FineMenu
 	}
 
 
-	private static void ViewUserFines(IFineManagementService fineManagementService, UserManagementService userManagementService, ICurrentUserSession session)
+	private static void ViewUserFines(IFineManagementService fineManagementService,
+		UserManagementService userManagementService, ICurrentUserSession session)
 	{
 		var desiredUser = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
 		if (desiredUser is null) return;
@@ -132,10 +165,11 @@ public static class FineMenu
 
 
 
-	private static void PayFine(IFineManagementService fineManagementService,
-		UserManagementService userManagementService, ICurrentUserSession session)
+	private static void PayFine(IFineManagementService fineManagementService, ICurrentUserSession session)
 	{
-		var unpaidFines = fineManagementService.GetAllUnpaidFines();
+		var unpaidFines = session.IsSelfServiceMember
+			? fineManagementService.GetUnpaidFinesByUser(session.UserId!.Value)
+			: fineManagementService.GetAllUnpaidFines(session);
 		if (unpaidFines.Count == 0)
 		{
 			ConsoleHelper.ShowWarning(Messages.UnpaidFineNotFound);
@@ -146,18 +180,27 @@ public static class FineMenu
 		var fineId = ConsoleHelper.ReadInt(Messages.FineIdForPay, 1, int.MaxValue);
 		if (fineId is null) return;
 
+		if (session.IsSelfServiceMember)
+		{
+			var selected = unpaidFines.FirstOrDefault(f => f.FineId == fineId.Value);
+			if (selected is null || selected.UserId != session.UserId)
+			{
+				ConsoleHelper.ShowError(Messages.CanPayOwnFine);
+				return;
+			}
+		}
+
 		var confirm = ConsoleHelper.ReadYesNo(Messages.ConfirmToPay);
 		if (confirm != true) return;
 
-		var payResult = fineManagementService.PayFine(fineId.Value);
+		var payResult = fineManagementService.PayFine(fineId.Value, session);
 		ConsoleHelper.ShowResult(payResult);
 	}
 
 
-	private static void WaiveFine(IFineManagementService fineManagementService,
-		UserManagementService userManagementService)
+	private static void WaiveFine(IFineManagementService fineManagementService, ICurrentUserSession session)
 	{
-		var unpaidFines = fineManagementService.GetAllUnpaidFines();
+		var unpaidFines = fineManagementService.GetAllUnpaidFines(session);
 		if (unpaidFines.Count == 0)
 		{
 			ConsoleHelper.ShowWarning(Messages.UnpaidFineNotFound);
@@ -172,7 +215,7 @@ public static class FineMenu
 		var confirm = ConsoleHelper.ReadYesNo(Messages.ConfirmToWaive);
 		if (confirm != true) return;
 
-		var waiveResult = fineManagementService.WaiveFine(fineId.Value);
+		var waiveResult = fineManagementService.WaiveFine(fineId.Value, session);
 		ConsoleHelper.ShowResult(waiveResult);
 	}
 }

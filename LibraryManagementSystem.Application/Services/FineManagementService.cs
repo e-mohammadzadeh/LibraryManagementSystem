@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Fine;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
@@ -56,10 +57,13 @@ public class FineManagementService : IFineManagementService
 
 
 
-	public ServiceResult<FineDto> PayFine(int fineId)
+	public ServiceResult<FineDto> PayFine(int fineId, ICurrentUserSession session)
 	{
 		var fine = _fineRepository.FindById(fineId);
 		if (fine is null) return ServiceResult<FineDto>.Fail(Messages.FineNotFound);
+
+		if (session.IsSelfServiceMember && session.UserId != fine.UserId)
+			return ServiceResult<FineDto>.Fail(Messages.CanPayOwnFine);
 
 		try
 		{
@@ -79,8 +83,10 @@ public class FineManagementService : IFineManagementService
 	}
 
 
-	public ServiceResult<FineDto> WaiveFine(int fineId)
+	public ServiceResult<FineDto> WaiveFine(int fineId, ICurrentUserSession session)
 	{
+		if (!session.IsAdmin) return ServiceResult<FineDto>.Fail(Messages.AdminOnlyWaive);
+
 		var fine = _fineRepository.FindById(fineId);
 		if (fine is null) return ServiceResult<FineDto>.Fail(Messages.FineNotFound);
 
@@ -102,12 +108,20 @@ public class FineManagementService : IFineManagementService
 	}
 
 
-	public IReadOnlyList<FineDto> GetAllFines() =>
-		_fineRepository.GetAll().Select(fine => fine.ToDto()).ToList().AsReadOnly();
+	public IReadOnlyList<FineDto> GetAllFines(ICurrentUserSession session)
+	{
+		if (session.IsSelfServiceMember) return GetFinesByUser(session.UserId!.Value);
+
+		return _fineRepository.GetAll().Select(f => f.ToDto()).ToList().AsReadOnly();
+	}
 
 
-	public IReadOnlyList<FineDto> GetAllUnpaidFines() =>
-		_fineRepository.GetAllUnpaid().Select(fine => fine.ToDto()).ToList().AsReadOnly();
+	public IReadOnlyList<FineDto> GetAllUnpaidFines(ICurrentUserSession session)
+	{
+		if (session.IsSelfServiceMember) return GetUnpaidFinesByUser(session.UserId!.Value);
+
+		return _fineRepository.GetAllUnpaid().Select(f => f.ToDto()).ToList().AsReadOnly();
+	}
 
 
 	public IReadOnlyList<FineDto> GetFinesByUser(int userId) =>
