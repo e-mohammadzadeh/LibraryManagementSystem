@@ -23,7 +23,7 @@ public static class FineMenu
 			}
 
 			Console.Clear();
-			MenuHelper.Print(statisticsService.GetLibraryStatistics());
+			MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
 			switch (FineMenuList(session))
 			{
 				case 1:

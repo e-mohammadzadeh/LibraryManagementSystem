@@ -23,7 +23,7 @@ public static class MainMenu
 			}
 
 			Console.Clear();
-			MenuHelper.Print(statisticsService.GetLibraryStatistics(), session.CurrentUser);
+			MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
 			switch (MainMenuList(session))
 			{
 				case 1:

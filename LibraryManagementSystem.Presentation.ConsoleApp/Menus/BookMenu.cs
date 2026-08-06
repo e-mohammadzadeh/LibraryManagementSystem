@@ -29,7 +29,7 @@ public static class BookMenu
 			}
 
 			Console.Clear();
-			MenuHelper.Print(statisticsService.GetLibraryStatistics());
+			MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
 			switch (BookMenuList(session))
 			{
 				case 1:

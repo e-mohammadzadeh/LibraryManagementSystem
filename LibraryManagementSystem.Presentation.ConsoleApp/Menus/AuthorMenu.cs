@@ -26,7 +26,7 @@ public static class AuthorMenu
 			}
 
 			Console.Clear();
-			MenuHelper.Print(statisticsService.GetLibraryStatistics());
+			MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
 			switch (AuthorMenuList(session))
 			{
 				case 1:

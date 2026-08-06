@@ -10,9 +10,8 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 public static class MenuHelper
 {
-	public static void Print(LibraryStatisticsDto statistics, AuthUserDto? currentUser = null)
+	public static void Print(ServiceResult<LibraryStatisticsDto> statistics, AuthUserDto? currentUser = null)
 	{
-		Console.WriteLine(new string('=', 32) + " LIBRARY DASHBOARD " + new string('=', 32));
 		if (currentUser is not null)
 		{
 			Console.ForegroundColor = ConsoleColor.Cyan;
@@ -21,12 +20,20 @@ public static class MenuHelper
 			Console.WriteLine();
 		}
 
+		if (!statistics.Success || statistics.Data is null)
+		{
+			ConsoleHelper.ShowError(Messages.NotAuthorized);
+			return;
+		}
+
+		var s = statistics.Data;
+		Console.WriteLine(new string('=', 32) + " LIBRARY DASHBOARD " + new string('=', 32));
 		Console.ForegroundColor = ConsoleColor.Cyan;
-		Console.Write($"Books: {statistics.TotalBooks}\t");
-		Console.Write($"Authors: {statistics.TotalAuthors}\t");
-		Console.Write($"Translators: {statistics.TotalTranslators}\t");
-		Console.Write($"Users: {statistics.TotalUsers}\t");
-		Console.WriteLine($"Active Loans: {statistics.TotalActiveLoans}\n");
+		Console.Write($"Books: {s.TotalBooks}\t");
+		Console.Write($"Authors: {s.TotalAuthors}\t");
+		Console.Write($"Translators: {s.TotalTranslators}\t");
+		Console.Write($"Users: {s.TotalUsers}\t");
+		Console.WriteLine($"Active Loans: {s.TotalActiveLoans}\n");
 		Console.ResetColor();
 	}
 

@@ -25,7 +25,7 @@ public static class TranslatorMenu
 			}
 
 			Console.Clear();
-			MenuHelper.Print(statisticsService.GetLibraryStatistics());
+			MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
 			switch (TranslatorMenuList(session))
 			{
 				case 1:

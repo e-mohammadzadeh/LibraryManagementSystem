@@ -239,6 +239,7 @@ public static class Messages
 	public const string LibrarianRoleRequired = "Access denied. Librarian role required.";
 	public const string MemberRoleRequired = "Access denied. Member role required.";
 	public const string AdminOrLibrarianRoleRequired = "Access denied. Admin or Librarian role required.";
+	public const string LibraryStatisticsAccessDenied = "Access denied. Only Admin or Librarian can view library statistics.";
 	public const string CannotBorrowBooks = "You are not eligible to borrow books. Please check your membership status and outstanding fines.";
 	public const string NoUserLoggedIn = "No user is currently logged in.";
 	public const string BorrowBookForYourself = "You can only borrow books for yourself.";

@@ -24,7 +24,7 @@ public static class LoanMenu
 			}
 
 			Console.Clear();
-			MenuHelper.Print(statisticsService.GetLibraryStatistics());
+			MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
 			switch (LoanMenuList(session))
 			{
 				case 1:
