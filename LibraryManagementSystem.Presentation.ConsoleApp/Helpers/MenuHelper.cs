@@ -35,7 +35,7 @@ public static class MenuHelper
 	{
 		if (authorsList.Count == 0)
 		{
-			ConsoleHelper.ShowError(ValidationMessages.NotAvailableAuthor);
+			ConsoleHelper.ShowError(Messages.NotAvailableAuthor);
 			return null;
 		}
 
@@ -61,7 +61,7 @@ public static class MenuHelper
 	{
 		if (translatorsList.Count == 0)
 		{
-			ConsoleHelper.ShowError(ValidationMessages.NotAvailableTranslator);
+			ConsoleHelper.ShowError(Messages.NotAvailableTranslator);
 			return null;
 		}
 
@@ -86,7 +86,7 @@ public static class MenuHelper
 	{
 		if (booksList.Count == 0)
 		{
-			ConsoleHelper.ShowError(ValidationMessages.NotAvailableBook);
+			ConsoleHelper.ShowError(Messages.NotAvailableBook);
 			return null;
 		}
 
@@ -110,7 +110,7 @@ public static class MenuHelper
 	{
 		if (usersList.Count is 0)
 		{
-			ConsoleHelper.ShowError(ValidationMessages.NotAvailableUser);
+			ConsoleHelper.ShowError(Messages.NotAvailableUser);
 			return null;
 		}
 

@@ -1,6 +1,6 @@
 ﻿namespace LibraryManagementSystem.Application.Common;
 
-public static class ValidationMessages
+public static class Messages
 {
 	// 1. GENERAL MESSAGES (Cross‑cutting)
 	public const string PressToContinue = "\nPress any key to continue...";
@@ -10,8 +10,8 @@ public static class ValidationMessages
 	public const string InvalidNumber = "Invalid number. Please try again.";
 	public const string InvalidYesNo = "Invalid input. Please enter 'y' or 'n'.";
 	public const string InvalidMenuChoice = "Invalid selection. Please try again.\n";
-	public const string InvalidDate = "Invalid date. Please enter a date on or before today.";
-	public const string InvalidBirthDateFormat = "Invalid date format. Please use YYYY-MM-DD (e.g., 2026-12-27).";
+	public const string InvalidDateRange = "Invalid date. Please enter a date on or before today.";
+	public const string InvalidDateFormat = "Invalid date format. Please use YYYY-MM-DD (e.g., 2026-12-27).";
 	public const string DuplicateRemoved = "Duplicate items were removed.";
 	public const string NotAllowedMultiSelections = "Multiple selections are not allowed. Please enter a single number.";
 
@@ -19,15 +19,16 @@ public static class ValidationMessages
 
 
 	// 2. VALIDATION MESSAGES (Format‑specific)
-	// Input Validation
-
-	// Password Validation
 	public const string InvalidNationalCode = "Invalid national code. Please enter exactly 10 digits without dashes or spaces.";
 	public const string InvalidEmail = "Invalid email address. Please enter a valid email (e.g., name@domain.com).";
 	public const string InvalidPhoneNumber = "Invalid phone number. Please enter exactly 11 digits.";
 	public const string InvalidBirthDate = "Invalid birth date. Please enter a past date that is no more than 120 years ago.";
 	public const string InvalidCharacters = "The name can only contain letters, numbers, spaces, and basic punctuation.";
 	public const string InvalidOptionSelection = "Please select at least one option.";
+
+
+
+	// 3. Password Validation
 	public const string MinimumPasswordLength = "Password must contain at least 8 characters.";
 	public const string MaximumPasswordLength = "Password cannot contain more than 64 characters.";
 	public const string OneUppercaseLetter = "Password must contain at least one uppercase letter.";
@@ -35,27 +36,25 @@ public static class ValidationMessages
 	public const string PasswordContainDigit = "Password must contain at least one digit.";
 	public const string PasswordContainSpecialCharacter = "Password must contain at least one special character.";
 	public const string NotEmptyPassword = "Password cannot be empty.";
+	public const string PasswordChangedSuccessfully = "Password changed successfully.";
+	public const string PasswordChangeFailed = "Failed to change password. Please check your current password and try again.";
 
 
-	// 3. AUTHOR MESSAGES
+	// 4. AUTHOR MESSAGES
 	// Add
 	public const string AuthorAddedSuccessfully = "Author added successfully.";
 	public const string AuthorAddFailed = "Failed to add author.";
 	public const string DuplicateAuthorNameWarning = "An author with the same name already exists (ID: {0}).";
 
-
 	// Update
 	public const string AuthorUpdatedSuccessfully = "Author updated successfully.";
 	public const string AuthorUpdateFailed = "Failed to update author.";
-
-	// Edit
 
 	// Remove
 	public const string AuthorRemovedSuccessfully = "Author removed successfully.";
 	public const string AuthorRemoveFailed = "Failed to remove author.";
 	public const string CannotRemoveLastAuthor = "Cannot remove the only author. A book must have at least one author.";
-	public const string AuthorSelectionForRemove = "Select the author you want to remove";
-	public const string AuthorHasAssociatedBooks = "Failed to remove author. The author has associated books.";
+	public const string AuthorHasAssociatedBooks = "This author cannot be removed because they have associated books.";
 
 	// Search
 	public const string NotAvailableAuthor = "No authors found. Please add a new author first.";
@@ -72,7 +71,7 @@ public static class ValidationMessages
 
 
 
-	// 4. TRANSLATOR MESSAGES
+	// 5. TRANSLATOR MESSAGES
 	// Add
 	public const string TranslatorAddedSuccessfully = "Translator added successfully.";
 	public const string TranslatorAddFailed = "Failed to add translator.";
@@ -88,17 +87,11 @@ public static class ValidationMessages
 	public const string TranslatorRemoveFailed = "Failed to remove translator.";
 	public const string NoTranslatorToRemove = "This book has no translators to remove.";
 	public const string RemoveAllTranslators = "Are you sure you want to remove ALL translators from this book";
-	public const string TranslatorSelectionForRemove = "Select the translator you want to remove";
-
 
 	// Search
 	public const string NotAvailableTranslator = "No translators found. Please add a new translator first.";
 	public const string NotTranslatorMatched = "No translators matched your search.";
 	public const string TranslatorNotFoundFormat = "Translator with ID {0} was not found.";
-
-	// Edit
-	public const string SelectReplacementTranslators = "Select the new translator(s) for this book";
-
 
 	// Duplicate
 	public const string DuplicateTranslatorsNotAllowed = "Duplicate translators are not allowed. Please enter each translator only once.";
@@ -109,14 +102,13 @@ public static class ValidationMessages
 
 
 
-	// 5. BOOK MESSAGES
+	// 6. BOOK MESSAGES
 	// Add
 	public const string BookAddedSuccessfully = "Book added successfully.";
 	public const string BookAddFailed = "Failed to add book.";
 	public const string NotEnoughAuthors = "All available authors are already assigned to this book.";
 	public const string AuthorCreationFailed = "Failed to retrieve the newly created author.";
 	public const string BookRequiresAtLeastOneAuthor = "A book must have at least one author.";
-
 
 	// Update
 	public const string BookUpdatedSuccessfully = "Book updated successfully.";
@@ -126,7 +118,7 @@ public static class ValidationMessages
 	// Remove
 	public const string BookRemovedSuccessfully = "Book removed successfully.";
 	public const string BookRemoveFailed = "Failed to remove book.";
-	public const string BookRemoveFailedBorrowed = "Failed to remove Book. It is currently borrowed by user(s) with id: {0}";
+	public const string BookRemoveFailedBorrowed = "Failed to remove book. It is currently borrowed by user(s) with ID: {0}";
 	public const string BookRemoveConfirmation = "\nAre you sure you want to remove '{0}'";
 
 	// Search
@@ -134,8 +126,8 @@ public static class ValidationMessages
 	public const string NotBookMatched = "No books matched your search.";
 
 	// Duplicate
-	public const string FailureDuplicateBookByName = "A book with the same name already exists.";
-	public const string FailureDuplicateBookByISBN = "A book with the same ISBN already exists.";
+	public const string DuplicateBooksNotAllowedByName = "A book with the same name already exists.";
+	public const string DuplicateBooksNotAllowedByISBN = "A book with the same ISBN already exists.";
 	public const string AuthorAlreadyAssignedToBook = "This author is already associated with this book.";
 
 	// Validation
@@ -146,7 +138,7 @@ public static class ValidationMessages
 	public const string InvalidBookSelection = "That book ID is not in the available list. Please select from the list above.";
 
 
-	// 6. USER (Member/Admin/Manager) MESSAGES
+	// 7. USER (Member/Admin/Manager) MESSAGES
 	// Add
 	public const string UserAddedSuccessfully = "User added successfully.";
 	public const string UserAddFailed = "Failed to add user.";
@@ -159,8 +151,10 @@ public static class ValidationMessages
 	public const string UserRemovedSuccessfully = "User removed successfully.";
 	public const string UserRemoveFailed = "Failed to remove user.";
 	public const string CannotRemoveYourself = "You cannot remove your own account.";
-	public const string UserRemovalFailedByActiveLoans = "Cannot remove user. The user still has active loans.";
-	public const string UserRemovalFailedByUnpaidFines = "Cannot remove user. The user has unpaid fines.";
+	public const string UserRemovalFailedByActiveLoans = "This user cannot be removed because they have active loans.";
+	public const string UserRemovalFailedByUnpaidFines = "This user cannot be removed because they have unpaid fines.";
+	public const string UserAutoRemovedSuccessfully = "User has been automatically removed from the system after settling all obligations.";
+	public const string UserEligibleForRemoval = "This user has been flagged for removal. They must pay all fines and return all books before their account is deleted.";
 
 	// Search
 	public const string NotAvailableUser = "No users found. Please add a new user first.";
@@ -168,11 +162,11 @@ public static class ValidationMessages
 	public const string UserNotFound = "User not found.";
 
 	// Duplicate
-	public const string FailureDuplicateUserByName = "A user with the same first and last name already exists.";
-	public const string FailureDuplicateUserByNationalCode = "A user with the same national code already exists.";
-	public const string FailureDuplicateUserByEmail = "A user with the same email already exists.";
-	public const string FailureDuplicateUserByPhoneNumber = "A user with the same phone number already exists.";
-	public const string FailureDuplicateUserByRole = "This user already has this role.";
+	public const string DuplicateUsersNotAllowedByName = "A user with the same first and last name already exists.";
+	public const string DuplicateUsersNotAllowedByNationalCode = "A user with the same national code already exists.";
+	public const string DuplicateUsersNotAllowedByEmail = "A user with the same email already exists.";
+	public const string DuplicateUsersNotAllowedByPhoneNumber = "A user with the same phone number already exists.";
+	public const string DuplicateUsersNotAllowedByRole = "This user already has this role.";
 
 	// Membership
 	public const string MembershipExpired = "Membership expired. Please renew your membership.";
@@ -180,23 +174,20 @@ public static class ValidationMessages
 
 	// Role
 	public const string FailureDuplicateRolesSelected = "Duplicate roles selected.";
-
-
-	// User
 	public const string NotRoleMatched = "No roles matched your search.";
 	public const string SelectRolePrompt = "Select a role for this user:";
 
 
 
 
-	// 7. LOAN MESSAGES
+	// 8. LOAN MESSAGES
 	// Borrow / Return / Renew
 	public const string BorrowedSuccessfully = "Book borrowed successfully.";
 	public const string ReturnedSuccessfully = "Book returned successfully.";
 	public const string RenewedSuccessfully = "Loan renewed successfully.";
 	public const string LoanNotYetReturned = "Loan has not been returned yet.";
 	public const string FlaggedForRemoval = "This account has been flagged for removal due to reaching the maximum fine limit. Borrowing is disabled.";
-	public const string BorrowFailedForFine = "User has unpaid fines. Please pay them first.";
+	public const string BorrowFailedForFine = "You cannot borrow books while you have unpaid fines. Please pay your fines first.";
 
 	// Search / Availability
 	public const string NotAvailableLoan = "No loans found.";
@@ -230,10 +221,7 @@ public static class ValidationMessages
 	public const string FineWaivedSuccessfully = "Fine waived successfully.";
 	public const string NoFine = "This loan was returned on time. No fine has been applied.";
 	public const string FineAlreadyExists = "An unpaid fine already exists for this loan.";
-	public const string FineIdForPay = "Enter Fine ID to pay";
-	public const string FineIdForWaive = "Enter Fine ID to waive";
-	public const string ConfirmToPay = "Are you sure you want to pay this fine";
-	public const string ConfirmToWaive = "Are you sure you want to waive this fine";
+
 
 
 
@@ -246,9 +234,9 @@ public static class ValidationMessages
 	public const string AccessDenied = "Access denied. You do not have permission to perform this action.";
 	public const string SessionExpired = "Your session has expired. Please log in again.";
 	public const string AuthenticationRequired = "Access denied. You must be logged in.";
-	public const string AdminRoleRequired = "Admin role required.";
-	public const string LibrarianRoleRequired = "Librarian role required.";
-	public const string MemberRoleRequired = "Member role required.";
+	public const string AdminRoleRequired = "Access denied. Admin role required.";
+	public const string LibrarianRoleRequired = "Access denied. Librarian role required.";
+	public const string MemberRoleRequired = "Access denied. Member role required.";
 	public const string AdminOrLibrarianRoleRequired = "Access denied. Admin or Librarian role required.";
 	public const string CannotBorrowBooks = "You are not eligible to borrow books. Please check your membership status and outstanding fines.";
 	public const string NoUserLoggedIn = "No user is currently logged in.";
@@ -261,13 +249,20 @@ public static class ValidationMessages
 
 
 	// 11. UI Prompts & Questions
-	public const string MainMenuQuestion = "Please Enter a number: ";
+	public const string MainMenuQuestion = "Please enter a number: ";
+	public const string AuthorSelectionForRemove = "Select the author you want to remove";
 	public const string EditMenuQuestion = "Enter the number of the field you wish to edit";
 	public const string EditContinuesQuestion = "Do you want to edit another field";
+	public const string SelectReplacementTranslators = "Select the new translator(s) for this book";
 	public const string SearchMenuQuestion = "Select a search field by entering its number";
+	public const string TranslatorSelectionForRemove = "Select the translator you want to remove";
 	public const string SubMenuPrompt = "What do you want to do?";
 	public const string EnterEmailPrompt = "Enter your email address";
 	public const string EnterPasswordPrompt = "Enter your password";
+	public const string FineIdForPay = "Enter Fine ID to pay";
+	public const string FineIdForWaive = "Enter Fine ID to waive";
+	public const string ConfirmToPay = "Are you sure you want to pay this fine";
+	public const string ConfirmToWaive = "Are you sure you want to waive this fine";
 
 
 

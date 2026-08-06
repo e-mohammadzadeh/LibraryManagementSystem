@@ -14,19 +14,19 @@ public static class LoginMenu
 			Console.WriteLine(new string('=', 35) + " LOGIN MENU " + new string('=', 35));
 
 			Console.WriteLine("Please log in to access the Library Management System.");
-			var email = ConsoleHelper.GetValidEmail(ValidationMessages.EnterEmailPrompt);
+			var email = ConsoleHelper.GetValidEmail(Messages.EnterEmailPrompt);
 			if (email is null) return null;
 
-			var password = ConsoleHelper.GetValidPassword(ValidationMessages.EnterPasswordPrompt);
+			var password = ConsoleHelper.GetValidPassword(Messages.EnterPasswordPrompt);
 
 			var result = authenticationService.Login(email, password);
 			if (result is { Success: true, Data: not null })
 			{
-				ConsoleHelper.ShowSuccess(result.Message ?? ValidationMessages.LoginSuccess);
+				ConsoleHelper.ShowSuccess(result.Message ?? Messages.LoginSuccess);
 				ConsoleHelper.Pause();
 				return result.Data;
 			}
-			ConsoleHelper.ShowError(result.Message ?? ValidationMessages.LoginFailed);
+			ConsoleHelper.ShowError(result.Message ?? Messages.LoginFailed);
 			ConsoleHelper.Pause();
 		}
 	}

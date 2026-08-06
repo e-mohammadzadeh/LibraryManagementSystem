@@ -19,7 +19,7 @@ public static class UserMenu
 		{
 			if (!session.IsAuthenticated)
 			{
-				ConsoleHelper.ShowError(ValidationMessages.SessionExpired);
+				ConsoleHelper.ShowError(Messages.SessionExpired);
 				ConsoleHelper.Pause();
 				return;
 			}
@@ -66,12 +66,12 @@ public static class UserMenu
 					Console.Clear();
 					if (session is { IsAdmin: false, IsLibrarian: false })
 					{
-						ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+						ConsoleHelper.ShowError(Messages.AccessDenied);
 						return;
 					}
 
 					if (userManagementService.GetAllUsers(session).Count is 0)
-						ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableUser);
+						ConsoleHelper.ShowWarning(Messages.NotAvailableUser);
 					else
 						UserPrinter.PrintTable(userManagementService.GetAllUsers(session));
 
@@ -80,7 +80,7 @@ public static class UserMenu
 				}
 				case 7:
 				{
-					ConsoleHelper.ShowInfo(ValidationMessages.BackToMainMenu);
+					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					ConsoleHelper.Pause();
 					Console.Clear();
 					continueProgram = false;
@@ -118,18 +118,18 @@ public static class UserMenu
 			}
 
 			Console.WriteLine(new string('=', 82));
-			Console.Write(ValidationMessages.MainMenuQuestion);
+			Console.Write(Messages.MainMenuQuestion);
 
 			var option = Console.ReadLine();
 			if (!int.TryParse(option, out var userChoice))
 			{
-				ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
+				ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
 				continue;
 			}
 
 			if (userChoice >= 1 && userChoice <= availableItems.Count) return availableItems[userChoice - 1].ActionId;
 
-			ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
+			ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
 		}
 	}
 
@@ -138,7 +138,7 @@ public static class UserMenu
 	{
 		if (session is { IsAdmin: false, IsLibrarian: false })
 		{
-			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
 		}
 
@@ -175,13 +175,13 @@ public static class UserMenu
 	{
 		if (session is { IsAdmin: false, IsLibrarian: false })
 		{
-			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
 		}
 
 		Console.WriteLine(new string('=', 36) + " EDITING USER MENU " + new string('=', 36));
 		var desiredUser = MenuHelper.SelectExisting(userManagementService.GetAllUsers(session),
-			MenuHelper.SelectUser, ValidationMessages.NotAvailableUser);
+			MenuHelper.SelectUser, Messages.NotAvailableUser);
 		if (desiredUser == null) return;
 
 		while (true)
@@ -194,7 +194,7 @@ public static class UserMenu
 			Console.WriteLine("{0, -20} [{1}]", "6. Birth Date", desiredUser.BirthDate);
 			Console.WriteLine("{0, -20} [{1}]", "7. Role", string.Join(", ", desiredUser.Roles));
 			Console.WriteLine("8. Cancel");
-			var editMenuChoice = ConsoleHelper.ReadInt(ValidationMessages.EditMenuQuestion, 1, 8);
+			var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 8);
 			if (editMenuChoice == null) return;
 
 			switch (editMenuChoice)
@@ -264,14 +264,14 @@ public static class UserMenu
 				}
 				case 8:
 				{
-					ConsoleHelper.ShowError(string.Format(ValidationMessages.EditCancelled, "User"));
+					ConsoleHelper.ShowError(string.Format(Messages.EditCancelled, "User"));
 					ConsoleHelper.Pause();
 					Console.Clear();
 					return;
 				}
 			}
 
-			var choice = ConsoleHelper.ReadYesNo(ValidationMessages.EditContinuesQuestion);
+			var choice = ConsoleHelper.ReadYesNo(Messages.EditContinuesQuestion);
 			if (choice != true) return;
 			Console.Clear();
 		}
@@ -292,13 +292,13 @@ public static class UserMenu
 	{
 		if (session is { IsAdmin: false, IsLibrarian: false })
 		{
-			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
 		}
 
 		Console.WriteLine(new string('=', 36) + " REMOVING USER MENU " + new string('=', 36));
 		var desiredUser = MenuHelper.SelectExisting(userManagementService.GetAllUsers(session),
-			MenuHelper.SelectUser, ValidationMessages.NotAvailableUser);
+			MenuHelper.SelectUser, Messages.NotAvailableUser);
 		if (desiredUser is null) return;
 
 		PersonHelper.PerformRemove(desiredUser, desiredUser.FirstName, desiredUser.LastName, UserPrinter.PrintDetails,
@@ -310,7 +310,7 @@ public static class UserMenu
 	{
 		if (session is { IsAdmin: false, IsLibrarian: false })
 		{
-			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
 		}
 
@@ -321,7 +321,7 @@ public static class UserMenu
 			var usersList = userManagementService.GetAllUsers(session);
 			if (usersList.Count == 0)
 			{
-				ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableUser);
+				ConsoleHelper.ShowWarning(Messages.NotAvailableUser);
 				ConsoleHelper.Pause();
 				return;
 			}
@@ -333,7 +333,7 @@ public static class UserMenu
 			Console.WriteLine("{0, -20}", "5. Role");
 			Console.WriteLine("6. Cancel");
 
-			var searchMenuChoice = ConsoleHelper.ReadInt(ValidationMessages.SearchMenuQuestion, 1, 6);
+			var searchMenuChoice = ConsoleHelper.ReadInt(Messages.SearchMenuQuestion, 1, 6);
 			if (searchMenuChoice is null) return;
 
 			switch (searchMenuChoice)
@@ -342,7 +342,7 @@ public static class UserMenu
 				{
 					PersonHelper.SearchAndDisplay("Enter a name to search",
 						term => userManagementService.SearchUser(term, user => $"{user.FirstName} {user.LastName}"),
-						UserPrinter.PrintTable, ValidationMessages.NotUserMatched);
+						UserPrinter.PrintTable, Messages.NotUserMatched);
 
 					break;
 				}
@@ -350,7 +350,7 @@ public static class UserMenu
 				{
 					PersonHelper.SearchAndDisplay("Enter a national code to search",
 						term => userManagementService.SearchUser(term, user => user.NationalCode),
-						UserPrinter.PrintTable, ValidationMessages.NotUserMatched);
+						UserPrinter.PrintTable, Messages.NotUserMatched);
 
 					break;
 				}
@@ -358,14 +358,14 @@ public static class UserMenu
 				{
 					PersonHelper.SearchAndDisplay("Enter an email to search",
 						term => userManagementService.SearchUser(term, user => user.Email),
-						UserPrinter.PrintTable, ValidationMessages.NotUserMatched);
+						UserPrinter.PrintTable, Messages.NotUserMatched);
 					break;
 				}
 				case 4:
 				{
 					PersonHelper.SearchAndDisplay("Enter a phone number to search",
 						term => userManagementService.SearchUser(term, user => user.PhoneNumber),
-						UserPrinter.PrintTable, ValidationMessages.NotUserMatched);
+						UserPrinter.PrintTable, Messages.NotUserMatched);
 
 					break;
 				}
@@ -376,7 +376,7 @@ public static class UserMenu
 				}
 				case 6:
 				{
-					ConsoleHelper.ShowInfo(string.Format(ValidationMessages.SearchCancelled, "User"));
+					ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "User"));
 					ConsoleHelper.Pause();
 					Console.Clear();
 					return;
@@ -403,7 +403,7 @@ public static class UserMenu
 	{
 		if (result.Count == 0)
 		{
-			ConsoleHelper.ShowWarning(ValidationMessages.NotRoleMatched);
+			ConsoleHelper.ShowWarning(Messages.NotRoleMatched);
 			return;
 		}
 
@@ -421,12 +421,12 @@ public static class UserMenu
 		else
 		{
 			userDto = MenuHelper.SelectExisting(userManagementService.GetAllUsers(session), MenuHelper.SelectUser,
-				ValidationMessages.NotAvailableUser);
+				Messages.NotAvailableUser);
 		}
 
 		if (userDto is null)
 		{
-			ConsoleHelper.ShowError(ValidationMessages.NotUserMatched);
+			ConsoleHelper.ShowError(Messages.NotUserMatched);
 			return;
 		}
 

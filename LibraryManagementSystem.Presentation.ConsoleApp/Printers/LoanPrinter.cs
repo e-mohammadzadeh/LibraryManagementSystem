@@ -30,7 +30,7 @@ public static class LoanPrinter
 	{
 		if (loans.Count == 0)
 		{
-			ConsoleHelper.ShowError(ValidationMessages.NotAvailableLoan);
+			ConsoleHelper.ShowError(Messages.NotAvailableLoan);
 			return;
 		}
 

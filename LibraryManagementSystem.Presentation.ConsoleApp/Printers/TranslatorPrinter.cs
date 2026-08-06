@@ -23,7 +23,7 @@ public class TranslatorPrinter
 	public static void PrintTable(IReadOnlyList<TranslatorDto> translators) {
 		if (translators.Count == 0)
 		{
-			ConsoleHelper.ShowError(ValidationMessages.NotAvailableTranslator);
+			ConsoleHelper.ShowError(Messages.NotAvailableTranslator);
 			return;
 		}
 

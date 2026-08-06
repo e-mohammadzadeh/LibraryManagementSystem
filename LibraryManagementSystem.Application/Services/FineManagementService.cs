@@ -27,14 +27,14 @@ public class FineManagementService : IFineManagementService
 	public ServiceResult<FineDto> CreateFineForLoan(int loanId)
 	{
 		var loan = _loanRepository.FindById(loanId);
-		if (loan is null) return ServiceResult<FineDto>.Fail(ValidationMessages.NotLoanMatched);
+		if (loan is null) return ServiceResult<FineDto>.Fail(Messages.NotLoanMatched);
 
-		if (loan.ReturnDate is null) return ServiceResult<FineDto>.Fail(ValidationMessages.LoanNotYetReturned);
+		if (loan.ReturnDate is null) return ServiceResult<FineDto>.Fail(Messages.LoanNotYetReturned);
 
-		if (loan.ReturnDate <= loan.DueDate) return ServiceResult<FineDto>.Fail(ValidationMessages.NoFine);
+		if (loan.ReturnDate <= loan.DueDate) return ServiceResult<FineDto>.Fail(Messages.NoFine);
 
 		var existing = _fineRepository.GetByLoanId(loanId);
-		if (existing.Count > 0) return ServiceResult<FineDto>.Fail(ValidationMessages.FineAlreadyExists);
+		if (existing.Count > 0) return ServiceResult<FineDto>.Fail(Messages.FineAlreadyExists);
 
 		var fine = new Fine(loan);
 		_fineRepository.Add(fine);
@@ -51,7 +51,7 @@ public class FineManagementService : IFineManagementService
 			}
 		}
 
-		return ServiceResult<FineDto>.Ok(fine.ToDto(), ValidationMessages.FineCreatedSuccessfully);
+		return ServiceResult<FineDto>.Ok(fine.ToDto(), Messages.FineCreatedSuccessfully);
 	}
 
 
@@ -59,7 +59,7 @@ public class FineManagementService : IFineManagementService
 	public ServiceResult<FineDto> PayFine(int fineId)
 	{
 		var fine = _fineRepository.FindById(fineId);
-		if (fine is null) return ServiceResult<FineDto>.Fail(ValidationMessages.FineNotFound);
+		if (fine is null) return ServiceResult<FineDto>.Fail(Messages.FineNotFound);
 
 		try
 		{
@@ -67,7 +67,7 @@ public class FineManagementService : IFineManagementService
 			_fineRepository.Update(fine);
 
 			var removalResult = _userAutoRemovalService.TryAutoRemove(fine.UserId);
-			var message = ValidationMessages.FinePaidSuccessfully;
+			var message = Messages.FinePaidSuccessfully;
 			if (removalResult.Success) message += $" | {removalResult.Message}";
 
 			return ServiceResult<FineDto>.Ok(fine.ToDto(), message);
@@ -82,7 +82,7 @@ public class FineManagementService : IFineManagementService
 	public ServiceResult<FineDto> WaiveFine(int fineId)
 	{
 		var fine = _fineRepository.FindById(fineId);
-		if (fine is null) return ServiceResult<FineDto>.Fail(ValidationMessages.FineNotFound);
+		if (fine is null) return ServiceResult<FineDto>.Fail(Messages.FineNotFound);
 
 		try
 		{
@@ -90,7 +90,7 @@ public class FineManagementService : IFineManagementService
 			_fineRepository.Update(fine);
 
 			var removalResult = _userAutoRemovalService.TryAutoRemove(fine.UserId);
-			var message = ValidationMessages.FineWaivedSuccessfully;
+			var message = Messages.FineWaivedSuccessfully;
 			if (removalResult.Success) message += $" | {removalResult.Message}";
 
 			return ServiceResult<FineDto>.Ok(fine.ToDto(), message);

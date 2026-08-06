@@ -25,16 +25,16 @@ public class AuthenticationService
 	{
 		email = email.Trim().ToLower();
 		if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
-			return ServiceResult<AuthUserDto>.Fail(ValidationMessages.LoginInputRequired);
+			return ServiceResult<AuthUserDto>.Fail(Messages.LoginInputRequired);
 
 		var user = _userRepository.FindByEmail(email);
 		if (user is null || !_passwordHasher.VerifyPassword(password, user.PasswordHash, user.PasswordSalt))
-			return ServiceResult<AuthUserDto>.Fail(ValidationMessages.InvalidLoginInput);
+			return ServiceResult<AuthUserDto>.Fail(Messages.InvalidLoginInput);
 
-		if (!user.IsActive) return ServiceResult<AuthUserDto>.Fail(ValidationMessages.InactiveAccount);
+		if (!user.IsActive) return ServiceResult<AuthUserDto>.Fail(Messages.InactiveAccount);
 
 		if (user.MembershipExpiryDate < DateOnly.FromDateTime(DateTime.Today))
-			return ServiceResult<AuthUserDto>.Fail(ValidationMessages.MembershipExpired);
+			return ServiceResult<AuthUserDto>.Fail(Messages.MembershipExpired);
 
 		var authUser = new AuthUserDto
 		{
@@ -50,17 +50,17 @@ public class AuthenticationService
 		user.UpdateLastLogin();
 		_userRepository.Update(user);
 		_currentUserSession.Login(authUser);
-		return ServiceResult<AuthUserDto>.Ok(authUser, ValidationMessages.LoginSuccess);
+		return ServiceResult<AuthUserDto>.Ok(authUser, Messages.LoginSuccess);
 	}
 
 
 	public ServiceResult<string> Logout()
 	{
-		if (!_currentUserSession.IsAuthenticated) return ServiceResult<string>.Fail(ValidationMessages.NoUserLoggedIn);
+		if (!_currentUserSession.IsAuthenticated) return ServiceResult<string>.Fail(Messages.NoUserLoggedIn);
 
 		var username = _currentUserSession.CurrentUser?.FullName ?? "User";
 		_currentUserSession.Logout();
 
-		return ServiceResult<string>.Ok(username, $"{username} " + ValidationMessages.LogoutSuccess);
+		return ServiceResult<string>.Ok(username, $"{username} " + Messages.LogoutSuccess);
 	}
 }

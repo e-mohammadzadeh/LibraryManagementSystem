@@ -18,25 +18,25 @@ public static class SessionGuard
 
 	public static bool RequireAuthentication(ICurrentUserSession session)
 	{
-		return RequireRole(session.IsAuthenticated, ValidationMessages.AuthenticationRequired);
+		return RequireRole(session.IsAuthenticated, Messages.AuthenticationRequired);
 	}
 
 
 	public static bool RequireAdmin(ICurrentUserSession session)
 	{
-		return RequireRole(session.IsAdmin, ValidationMessages.AdminRoleRequired);
+		return RequireRole(session.IsAdmin, Messages.AdminRoleRequired);
 	}
 
 
 	public static bool RequireLibrarian(ICurrentUserSession session)
 	{
-		return RequireRole(session.IsLibrarian, ValidationMessages.LibrarianRoleRequired);
+		return RequireRole(session.IsLibrarian, Messages.LibrarianRoleRequired);
 	}
 
 
 	public static bool RequireMember(ICurrentUserSession session)
 	{
-		return RequireRole(session.IsMember, ValidationMessages.MemberRoleRequired);
+		return RequireRole(session.IsMember, Messages.MemberRoleRequired);
 	}
 
 
@@ -44,7 +44,7 @@ public static class SessionGuard
 	public static bool RequireAdminOrLibrarian(ICurrentUserSession session)
 	{
 		return RequireRole(session.HasAnyRole(LibraryUserRole.Admin, LibraryUserRole.Librarian),
-			ValidationMessages.AdminOrLibrarianRoleRequired);
+			Messages.AdminOrLibrarianRoleRequired);
 	}
 
 
@@ -53,14 +53,14 @@ public static class SessionGuard
 	{
 		if (!session.IsAuthenticated)
 		{
-			ConsoleHelper.ShowError(ValidationMessages.AuthenticationRequired);
+			ConsoleHelper.ShowError(Messages.AuthenticationRequired);
 			ConsoleHelper.Pause();
 			return false;
 		}
 
 		if (!session.CanBorrowBooks)
 		{
-			ConsoleHelper.ShowError(ValidationMessages.CannotBorrowBooks);
+			ConsoleHelper.ShowError(Messages.CannotBorrowBooks);
 			ConsoleHelper.Pause();
 			return false;
 		}
@@ -85,7 +85,7 @@ public static class SessionGuard
 
 	public static bool RequireUserManagement(ICurrentUserSession session)
 	{
-		return RequireRole(session.CanAccessUserManagement, ValidationMessages.AuthenticationRequired);
+		return RequireRole(session.CanAccessUserManagement, Messages.AuthenticationRequired);
 	}
 
 

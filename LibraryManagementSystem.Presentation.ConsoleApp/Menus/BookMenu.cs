@@ -23,7 +23,7 @@ public static class BookMenu
 		{
 			if (!session.IsAuthenticated)
 			{
-				ConsoleHelper.ShowError(ValidationMessages.SessionExpired);
+				ConsoleHelper.ShowError(Messages.SessionExpired);
 				ConsoleHelper.Pause();
 				return;
 			}
@@ -69,7 +69,7 @@ public static class BookMenu
 				{
 					Console.Clear();
 					if (bookManagementService.GetAllBooks().Count is 0)
-						ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableBook);
+						ConsoleHelper.ShowWarning(Messages.NotAvailableBook);
 					else
 						BookPrinter.PrintTable(bookManagementService.GetAllBooks());
 
@@ -78,7 +78,7 @@ public static class BookMenu
 				}
 				case 7:
 				{
-					ConsoleHelper.ShowInfo(ValidationMessages.BackToMainMenu);
+					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					ConsoleHelper.Pause();
 					Console.Clear();
 					continueProgram = false;
@@ -116,18 +116,18 @@ public static class BookMenu
 			}
 
 			Console.WriteLine(new string('=', 82));
-			Console.Write(ValidationMessages.MainMenuQuestion);
+			Console.Write(Messages.MainMenuQuestion);
 
 			var option = Console.ReadLine();
 			if (!int.TryParse(option, out var userChoice))
 			{
-				ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
+				ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
 				continue;
 			}
 
 			if (userChoice >= 1 && userChoice <= availableItems.Count) return availableItems[userChoice - 1].ActionId;
 
-			ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
+			ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
 		}
 	}
 
@@ -138,7 +138,7 @@ public static class BookMenu
 	{
 		if (session is { IsAdmin: false, IsLibrarian: false })
 		{
-			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
 		}
 
@@ -198,10 +198,10 @@ public static class BookMenu
 		if (availableAuthors.Count != 0)
 			return ConsoleHelper.ReadAuthors("Select author(s) for this book", availableAuthors);
 
-		var choice = ConsoleHelper.ReadYesNo(ValidationMessages.NotAvailableAuthor);
+		var choice = ConsoleHelper.ReadYesNo(Messages.NotAvailableAuthor);
 		if (choice is not true)
 		{
-			ConsoleHelper.ShowWarning(ValidationMessages.BookRequiresAtLeastOneAuthor);
+			ConsoleHelper.ShowWarning(Messages.BookRequiresAtLeastOneAuthor);
 			return null;
 		}
 
@@ -212,7 +212,7 @@ public static class BookMenu
 		ConsoleHelper.ShowResult(addResult);
 		if (addResult is { Success: true, Data: not null }) return [addResult.Data.Id];
 
-		ConsoleHelper.ShowError(ValidationMessages.AuthorCreationFailed);
+		ConsoleHelper.ShowError(Messages.AuthorCreationFailed);
 		return null;
 	}
 
@@ -223,7 +223,7 @@ public static class BookMenu
 		if (availableTranslators.Count != 0)
 			return ConsoleHelper.ReadTranslators("Select one or more translators (optional)", availableTranslators);
 
-		var choice = ConsoleHelper.ReadYesNo(ValidationMessages.AddTranslatorInAdd);
+		var choice = ConsoleHelper.ReadYesNo(Messages.AddTranslatorInAdd);
 		if (choice != true) return [];
 
 		var translatorDto = TranslatorMenu.PromptForTranslatorDto();
@@ -233,7 +233,7 @@ public static class BookMenu
 		ConsoleHelper.ShowResult(addResult);
 		if (addResult is { Success: true, Data: not null }) return [addResult.Data.Id];
 
-		ConsoleHelper.ShowError(ValidationMessages.NotAvailableTranslator);
+		ConsoleHelper.ShowError(Messages.NotAvailableTranslator);
 		return null;
 	}
 
@@ -245,7 +245,7 @@ public static class BookMenu
 	{
 		if (session is { IsAdmin: false, IsLibrarian: false })
 		{
-			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
 		}
 
@@ -268,7 +268,7 @@ public static class BookMenu
 			Console.WriteLine("{0, -30} [{1}]", "8. Publisher", desiredBook.Publisher);
 			Console.WriteLine("{0, -30} [{1}]", "9. Description", desiredBook.Description);
 			Console.WriteLine("10. Cancel");
-			var editMenuChoice = ConsoleHelper.ReadInt(ValidationMessages.EditMenuQuestion, 1, 10);
+			var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 10);
 			if (editMenuChoice is null) return;
 
 			switch (editMenuChoice)
@@ -350,14 +350,14 @@ public static class BookMenu
 				}
 				case 10:
 				{
-					ConsoleHelper.ShowError(string.Format(ValidationMessages.EditCancelled, "Book"));
+					ConsoleHelper.ShowError(string.Format(Messages.EditCancelled, "Book"));
 					ConsoleHelper.Pause();
 					Console.Clear();
 					return;
 				}
 			}
 
-			var choice = ConsoleHelper.ReadYesNo(ValidationMessages.EditContinuesQuestion);
+			var choice = ConsoleHelper.ReadYesNo(Messages.EditContinuesQuestion);
 			if (choice != true)
 			{
 				Console.Clear();
@@ -378,7 +378,7 @@ public static class BookMenu
 		var bookList = bookManagementService.GetAllBooks();
 		if (bookList.Count is not 0) return MenuHelper.SelectBook(bookList);
 
-		ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableBook);
+		ConsoleHelper.ShowWarning(Messages.NotAvailableBook);
 		return null;
 	}
 
@@ -400,7 +400,7 @@ public static class BookMenu
 		var currentBook = bookManagementService.FindBookById(bookId);
 		if (currentBook is null)
 		{
-			ConsoleHelper.ShowError(ValidationMessages.NotAvailableBook);
+			ConsoleHelper.ShowError(Messages.NotAvailableBook);
 			return;
 		}
 
@@ -408,12 +408,12 @@ public static class BookMenu
 		var currentAuthorsNames = string.Join(", ", currentBook.Authors.Select(a => a.FullName));
 
 		Console.WriteLine($"Current authors: {currentAuthorsNames}");
-		Console.WriteLine(ValidationMessages.SubMenuPrompt);
+		Console.WriteLine(Messages.SubMenuPrompt);
 		Console.WriteLine("1. Add an author");
 		Console.WriteLine("2. Remove an author");
 		Console.WriteLine("3. Replace all authors");
 		Console.WriteLine("4. Cancel");
-		var editMenuChoice = ConsoleHelper.ReadInt(ValidationMessages.EditMenuQuestion, 1, 4);
+		var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 4);
 		if (editMenuChoice is null) return;
 
 		switch (editMenuChoice)
@@ -423,14 +423,14 @@ public static class BookMenu
 				var allAuthors = authorManagementService.GetAllAuthors();
 				if (allAuthors.Count == 0)
 				{
-					ConsoleHelper.ShowError(ValidationMessages.NotAvailableAuthor);
+					ConsoleHelper.ShowError(Messages.NotAvailableAuthor);
 					break;
 				}
 
 				var availableToAdd = allAuthors.Where(a => !currentAuthorIds.Contains(a.Id)).ToList().AsReadOnly();
 				if (availableToAdd.Count == 0)
 				{
-					ConsoleHelper.ShowError(ValidationMessages.NotEnoughAuthors);
+					ConsoleHelper.ShowError(Messages.NotEnoughAuthors);
 					break;
 				}
 
@@ -447,12 +447,12 @@ public static class BookMenu
 			{
 				if (currentBook.Authors.Count <= 1)
 				{
-					ConsoleHelper.ShowWarning(ValidationMessages.CannotRemoveLastAuthor);
+					ConsoleHelper.ShowWarning(Messages.CannotRemoveLastAuthor);
 					break;
 				}
 
 				// Use ReadAuthors with allowMultiple = false — pick exactly one to remove
-				var selectedIds = ConsoleHelper.ReadAuthors(ValidationMessages.AuthorSelectionForRemove,
+				var selectedIds = ConsoleHelper.ReadAuthors(Messages.AuthorSelectionForRemove,
 					currentBook.Authors,
 					false);
 				if (selectedIds is null) break;
@@ -469,7 +469,7 @@ public static class BookMenu
 				var allAuthors = authorManagementService.GetAllAuthors();
 				if (allAuthors.Count == 0)
 				{
-					ConsoleHelper.ShowError(ValidationMessages.NotAvailableActionLoan);
+					ConsoleHelper.ShowError(Messages.NotAvailableActionLoan);
 					break;
 				}
 
@@ -497,7 +497,7 @@ public static class BookMenu
 		var currentBook = bookManagementService.FindBookById(bookId);
 		if (currentBook is null)
 		{
-			ConsoleHelper.ShowError(ValidationMessages.NotAvailableBook);
+			ConsoleHelper.ShowError(Messages.NotAvailableBook);
 			return;
 		}
 
@@ -506,13 +506,13 @@ public static class BookMenu
 			: string.Join(", ", currentBook.Translators.Select(t => t.FullName));
 
 		Console.WriteLine($"Current translators: {currentTranslatorName}");
-		Console.WriteLine(ValidationMessages.SubMenuPrompt);
+		Console.WriteLine(Messages.SubMenuPrompt);
 		Console.WriteLine("1. Add a translator");
 		Console.WriteLine("2. Remove a translator");
 		Console.WriteLine("3. Replace all translators");
 		Console.WriteLine("4. Remove all translators");
 		Console.WriteLine("5. Cancel");
-		var editMenuChoice = ConsoleHelper.ReadInt(ValidationMessages.EditMenuQuestion, 1, 5);
+		var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 5);
 		if (editMenuChoice is null) return;
 
 		switch (editMenuChoice)
@@ -522,7 +522,7 @@ public static class BookMenu
 				var allTranslators = translatorManagementService.GetAllTranslators();
 				if (allTranslators.Count == 0)
 				{
-					ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableTranslator);
+					ConsoleHelper.ShowWarning(Messages.NotAvailableTranslator);
 					break;
 				}
 
@@ -531,7 +531,7 @@ public static class BookMenu
 					.AsReadOnly();
 				if (availableToAdd.Count == 0)
 				{
-					ConsoleHelper.ShowWarning(ValidationMessages.AllTranslatorsAssigned);
+					ConsoleHelper.ShowWarning(Messages.AllTranslatorsAssigned);
 					break;
 				}
 
@@ -547,11 +547,11 @@ public static class BookMenu
 			{
 				if (currentBook.Translators.Count == 0)
 				{
-					ConsoleHelper.ShowWarning(ValidationMessages.NoTranslatorToRemove);
+					ConsoleHelper.ShowWarning(Messages.NoTranslatorToRemove);
 					break;
 				}
 
-				var selectedIds = ConsoleHelper.ReadTranslators(ValidationMessages.TranslatorSelectionForRemove,
+				var selectedIds = ConsoleHelper.ReadTranslators(Messages.TranslatorSelectionForRemove,
 					currentBook.Translators, false, false);
 				if (selectedIds is null) break;
 				var idToRemove = selectedIds[0];
@@ -567,11 +567,11 @@ public static class BookMenu
 				var allTranslators = translatorManagementService.GetAllTranslators();
 				if (allTranslators.Count == 0)
 				{
-					ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableTranslator);
+					ConsoleHelper.ShowWarning(Messages.NotAvailableTranslator);
 					break;
 				}
 
-				var selectedIds = ConsoleHelper.ReadTranslators(ValidationMessages.SelectReplacementTranslators, allTranslators);
+				var selectedIds = ConsoleHelper.ReadTranslators(Messages.SelectReplacementTranslators, allTranslators);
 				if (selectedIds is null) break;
 				PerformUpdate(bookManagementService, bookId, selectedIds,
 					v => new UpdateBookDto { TranslatorIds = v });
@@ -585,7 +585,7 @@ public static class BookMenu
 					break;
 				}
 
-				var confirm = ConsoleHelper.ReadYesNo(ValidationMessages.RemoveAllTranslators);
+				var confirm = ConsoleHelper.ReadYesNo(Messages.RemoveAllTranslators);
 				if (confirm != true) break;
 
 				var emptyList = new List<int>();
@@ -608,7 +608,7 @@ public static class BookMenu
 	{
 		if (session is { IsAdmin: false, IsLibrarian: false })
 		{
-			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
 		}
 
@@ -618,7 +618,7 @@ public static class BookMenu
 
 		BookPrinter.PrintDetails(desiredBook);
 		var choice =
-			ConsoleHelper.ReadYesNo(string.Format(ValidationMessages.BookRemoveConfirmation, desiredBook.BookName));
+			ConsoleHelper.ReadYesNo(string.Format(Messages.BookRemoveConfirmation, desiredBook.BookName));
 
 		if (choice != true) return;
 		var result = bookManagementService.RemoveBook(desiredBook.BookId);
@@ -635,7 +635,7 @@ public static class BookMenu
 			var booksList = bookManagementService.GetAllBooks();
 			if (booksList.Count == 0)
 			{
-				ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableBook);
+				ConsoleHelper.ShowWarning(Messages.NotAvailableBook);
 				ConsoleHelper.Pause();
 				return;
 			}
@@ -649,7 +649,7 @@ public static class BookMenu
 			Console.WriteLine("{0, -20}", "7. Publisher");
 			Console.WriteLine("8. Cancel");
 
-			var searchMenuChoice = ConsoleHelper.ReadInt(ValidationMessages.SearchMenuQuestion, 1, 8);
+			var searchMenuChoice = ConsoleHelper.ReadInt(Messages.SearchMenuQuestion, 1, 8);
 			if (searchMenuChoice == null) return;
 
 			switch (searchMenuChoice)
@@ -712,7 +712,7 @@ public static class BookMenu
 				}
 				case 8:
 				{
-					ConsoleHelper.ShowInfo(string.Format(ValidationMessages.SearchCancelled, "Book"));
+					ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "Book"));
 					ConsoleHelper.Pause();
 					Console.Clear();
 					return;
@@ -757,7 +757,7 @@ public static class BookMenu
 	{
 		if (result.Count == 0)
 		{
-			ConsoleHelper.ShowWarning(ValidationMessages.NotBookMatched);
+			ConsoleHelper.ShowWarning(Messages.NotBookMatched);
 			return;
 		}
 

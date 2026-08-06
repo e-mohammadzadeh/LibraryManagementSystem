@@ -20,7 +20,7 @@ public static class AuthorMenu
 		{
 			if (!session.IsAuthenticated)
 			{
-				ConsoleHelper.ShowError(ValidationMessages.SessionExpired);
+				ConsoleHelper.ShowError(Messages.SessionExpired);
 				ConsoleHelper.Pause();
 				return;
 			}
@@ -60,7 +60,7 @@ public static class AuthorMenu
 					Console.Clear();
 					var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
 						MenuHelper.SelectAuthor,
-						ValidationMessages.NotAvailableAuthor);
+						Messages.NotAvailableAuthor);
 					if (desiredAuthor is not null)
 					{
 						AuthorPrinter.PrintDetails(desiredAuthor);
@@ -73,7 +73,7 @@ public static class AuthorMenu
 				{
 					Console.Clear();
 					if (authorManagementService.GetAllAuthors().Count is 0)
-						ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
+						ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
 					else
 						AuthorPrinter.PrintTable(authorManagementService.GetAllAuthors());
 					ConsoleHelper.Pause();
@@ -81,7 +81,7 @@ public static class AuthorMenu
 				}
 				case 7:
 				{
-					ConsoleHelper.ShowInfo(ValidationMessages.BackToMainMenu);
+					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					ConsoleHelper.Pause();
 					Console.Clear();
 					continueProgram = false;
@@ -119,19 +119,19 @@ public static class AuthorMenu
 			}
 
 			Console.WriteLine(new string('=', 82));
-			Console.Write(ValidationMessages.MainMenuQuestion);
+			Console.Write(Messages.MainMenuQuestion);
 
 			var option = Console.ReadLine();
 			if (!int.TryParse(option, out var userChoice))
 			{
-				ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
+				ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
 				continue;
 			}
 
 			if (userChoice >= 1 && userChoice <= availableItems.Count)
 				return availableItems[userChoice - 1].ActionId;
 
-			ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
+			ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
 		}
 	}
 
@@ -155,7 +155,7 @@ public static class AuthorMenu
 	{
 		if (session is { IsAdmin: false, IsLibrarian: false })
 		{
-			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
 		}
 
@@ -172,14 +172,14 @@ public static class AuthorMenu
 	{
 		if (session is { IsAdmin: false, IsLibrarian: false })
 		{
-			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
 		}
 
 
 		Console.WriteLine(new string('=', 36) + " EDITING AUTHOR MENU " + new string('=', 36));
 		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(), MenuHelper.SelectAuthor,
-			ValidationMessages.NotAvailableAuthor);
+			Messages.NotAvailableAuthor);
 		if (desiredAuthor is null) return;
 
 		while (true)
@@ -192,7 +192,7 @@ public static class AuthorMenu
 			Console.WriteLine("{0, -20} [{1}]", "6. Birth Date", desiredAuthor.BirthDate);
 			Console.WriteLine("{0, -20} [{1}]", "7. Biography", desiredAuthor.Biography);
 			Console.WriteLine("8. Cancel");
-			var editMenuChoice = ConsoleHelper.ReadInt(ValidationMessages.EditMenuQuestion, 1, 8);
+			var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 8);
 			if (editMenuChoice == null) return;
 
 			switch (editMenuChoice)
@@ -259,14 +259,14 @@ public static class AuthorMenu
 				}
 				case 8:
 				{
-					ConsoleHelper.ShowInfo(string.Format(ValidationMessages.EditCancelled, "Author"));
+					ConsoleHelper.ShowInfo(string.Format(Messages.EditCancelled, "Author"));
 					ConsoleHelper.Pause();
 					Console.Clear();
 					return;
 				}
 			}
 
-			var choice = ConsoleHelper.ReadYesNo(ValidationMessages.EditContinuesQuestion);
+			var choice = ConsoleHelper.ReadYesNo(Messages.EditContinuesQuestion);
 			if (choice != true) return;
 			Console.Clear();
 		}
@@ -277,14 +277,14 @@ public static class AuthorMenu
 	{
 		if (!session.IsAdmin)
 		{
-			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
 		}
 
 		// TODO	(SQL Server)	Implement SOFT DELETE system with flags like `IsDeleted = true` or `IsActive = False`
 		Console.WriteLine(new string('=', 36) + " REMOVING AUTHOR MENU " + new string('=', 36));
 		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(), MenuHelper.SelectAuthor,
-			ValidationMessages.NotAvailableAuthor);
+			Messages.NotAvailableAuthor);
 
 		PersonHelper.PerformRemove(desiredAuthor, desiredAuthor?.FirstName ?? "", desiredAuthor?.LastName ?? "",
 			AuthorPrinter.PrintDetails, () => authorManagementService.RemoveAuthor(desiredAuthor!.Id));
@@ -300,7 +300,7 @@ public static class AuthorMenu
 			var authorsList = authorManagementService.GetAllAuthors();
 			if (authorsList.Count == 0)
 			{
-				ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableAuthor);
+				ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
 				ConsoleHelper.Pause();
 				return;
 			}
@@ -311,7 +311,7 @@ public static class AuthorMenu
 			Console.WriteLine("{0, -20}", "4. Phone Number");
 			Console.WriteLine("5. Cancel");
 
-			var searchMenuChoice = ConsoleHelper.ReadInt(ValidationMessages.SearchMenuQuestion, 1, 5);
+			var searchMenuChoice = ConsoleHelper.ReadInt(Messages.SearchMenuQuestion, 1, 5);
 			if (searchMenuChoice is null) return;
 
 			switch (searchMenuChoice)
@@ -320,7 +320,7 @@ public static class AuthorMenu
 				{
 					PersonHelper.SearchAndDisplay("Enter a name to search",
 						term => authorManagementService.SearchAuthor(term, AuthorSearchField.Name), AuthorPrinter.PrintTable,
-						ValidationMessages.NotAuthorMatched);
+						Messages.NotAuthorMatched);
 
 					break;
 				}
@@ -328,7 +328,7 @@ public static class AuthorMenu
 				{
 					PersonHelper.SearchAndDisplay("Enter a national code to search",
 						term => authorManagementService.SearchAuthor(term, AuthorSearchField.NationalCode),
-						AuthorPrinter.PrintTable, ValidationMessages.NotAuthorMatched);
+						AuthorPrinter.PrintTable, Messages.NotAuthorMatched);
 
 					break;
 				}
@@ -336,7 +336,7 @@ public static class AuthorMenu
 				{
 					PersonHelper.SearchAndDisplay("Enter an email to search",
 						term => authorManagementService.SearchAuthor(term, AuthorSearchField.Email),
-						AuthorPrinter.PrintTable, ValidationMessages.NotAuthorMatched);
+						AuthorPrinter.PrintTable, Messages.NotAuthorMatched);
 
 					break;
 				}
@@ -344,12 +344,12 @@ public static class AuthorMenu
 				{
 					PersonHelper.SearchAndDisplay("Enter a phone number to search",
 						term => authorManagementService.SearchAuthor(term, AuthorSearchField.PhoneNumber),
-						AuthorPrinter.PrintTable, ValidationMessages.NotAuthorMatched);
+						AuthorPrinter.PrintTable, Messages.NotAuthorMatched);
 					break;
 				}
 				case 5:
 				{
-					ConsoleHelper.ShowInfo(string.Format(ValidationMessages.SearchCancelled, "Author"));
+					ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "Author"));
 					ConsoleHelper.Pause();
 					Console.Clear();
 					return;

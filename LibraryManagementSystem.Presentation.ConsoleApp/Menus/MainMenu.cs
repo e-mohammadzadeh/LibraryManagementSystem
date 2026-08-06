@@ -17,7 +17,7 @@ public static class MainMenu
 		{
 			if (!session.IsAuthenticated)
 			{
-				ConsoleHelper.ShowError(ValidationMessages.SessionExpired);
+				ConsoleHelper.ShowError(Messages.SessionExpired);
 				ConsoleHelper.Pause();
 				return MainMenuResult.Logout;
 			}
@@ -69,7 +69,7 @@ public static class MainMenu
 				case 7:
 				{
 					Console.Clear();
-					ConsoleHelper.ShowInfo(ValidationMessages.LogoutSuccess);
+					ConsoleHelper.ShowInfo(Messages.LogoutSuccess);
 					var result = authenticationService.Logout();
 					ConsoleHelper.ShowResult(result);
 					ConsoleHelper.Pause();
@@ -77,7 +77,7 @@ public static class MainMenu
 				}
 				case 8:
 				{
-					ConsoleHelper.ShowInfo(ValidationMessages.ExitingProgram);
+					ConsoleHelper.ShowInfo(Messages.ExitingProgram);
 					return MainMenuResult.Exit;
 				}
 			}
@@ -112,12 +112,12 @@ public static class MainMenu
 				displayNumber++;
 			}
 			Console.WriteLine(new string('=', 82));
-			Console.Write(ValidationMessages.MainMenuQuestion);
+			Console.Write(Messages.MainMenuQuestion);
 
 			var option = Console.ReadLine();
 			if (!int.TryParse(option, out var userChoice))
 			{
-				ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
+				ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
 				continue;
 			}
 
@@ -125,7 +125,7 @@ public static class MainMenu
 			{
 				return availableItems[userChoice - 1].ActionId;
 			}
-			ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
+			ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
 		}
 	}
 }

@@ -28,7 +28,7 @@ public class UserPrinter
 	{
 		if (users.Count == 0)
 		{
-			ConsoleHelper.ShowError(ValidationMessages.NotAvailableUser);
+			ConsoleHelper.ShowError(Messages.NotAvailableUser);
 			return;
 		}
 

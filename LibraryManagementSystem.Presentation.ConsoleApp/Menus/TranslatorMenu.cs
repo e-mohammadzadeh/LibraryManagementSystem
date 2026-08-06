@@ -19,7 +19,7 @@ public static class TranslatorMenu
 		{
 			if (!session.IsAuthenticated)
 			{
-				ConsoleHelper.ShowError(ValidationMessages.SessionExpired);
+				ConsoleHelper.ShowError(Messages.SessionExpired);
 				ConsoleHelper.Pause();
 				return;
 			}
@@ -57,7 +57,7 @@ public static class TranslatorMenu
 				{
 					Console.Clear();
 					var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
-						MenuHelper.SelectTranslator, ValidationMessages.NotAvailableTranslator);
+						MenuHelper.SelectTranslator, Messages.NotAvailableTranslator);
 					if (desiredTranslator is not null)
 					{
 						TranslatorPrinter.PrintDetails(desiredTranslator);
@@ -70,7 +70,7 @@ public static class TranslatorMenu
 				{
 					Console.Clear();
 					if (translatorManagementService.GetAllTranslators().Count is 0)
-						ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableTranslator);
+						ConsoleHelper.ShowWarning(Messages.NotAvailableTranslator);
 					else
 						TranslatorPrinter.PrintTable(translatorManagementService.GetAllTranslators());
 
@@ -79,7 +79,7 @@ public static class TranslatorMenu
 				}
 				case 7:
 				{
-					ConsoleHelper.ShowInfo(ValidationMessages.BackToMainMenu);
+					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					ConsoleHelper.Pause();
 					Console.Clear();
 					continueProgram = false;
@@ -117,18 +117,18 @@ public static class TranslatorMenu
 			}
 
 			Console.WriteLine(new string('=', 82));
-			Console.Write(ValidationMessages.MainMenuQuestion);
+			Console.Write(Messages.MainMenuQuestion);
 
 			var option = Console.ReadLine();
 			if (!int.TryParse(option, out var userChoice))
 			{
-				ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
+				ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
 				continue;
 			}
 
 			if (userChoice >= 1 && userChoice <= availableItems.Count) return availableItems[userChoice - 1].ActionId;
 
-			ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
+			ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
 		}
 	}
 
@@ -137,7 +137,7 @@ public static class TranslatorMenu
 	{
 		if (session is { IsAdmin: false, IsLibrarian: false })
 		{
-			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
 		}
 
@@ -167,13 +167,13 @@ public static class TranslatorMenu
 	{
 		if (session is { IsAdmin: false, IsLibrarian: false })
 		{
-			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
 		}
 
 		Console.WriteLine(new string('=', 36) + " EDITING TRANSLATOR MENU " + new string('=', 36));
 		var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
-			MenuHelper.SelectTranslator, ValidationMessages.NotAvailableTranslator);
+			MenuHelper.SelectTranslator, Messages.NotAvailableTranslator);
 		if (desiredTranslator is null) return;
 
 		while (true)
@@ -185,7 +185,7 @@ public static class TranslatorMenu
 			Console.WriteLine("{0, -20} [{1}]", "5. Phone Number", desiredTranslator.PhoneNumber);
 			Console.WriteLine("{0, -20} [{1}]", "6. Birth Date", desiredTranslator.BirthDate);
 			Console.WriteLine("7. Cancel");
-			var editMenuChoice = ConsoleHelper.ReadInt(ValidationMessages.EditMenuQuestion, 1, 7);
+			var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 7);
 			if (editMenuChoice == null) return;
 
 			switch (editMenuChoice)
@@ -244,14 +244,14 @@ public static class TranslatorMenu
 				}
 				case 7:
 				{
-					ConsoleHelper.ShowError(string.Format(ValidationMessages.EditCancelled, "Translator"));
+					ConsoleHelper.ShowError(string.Format(Messages.EditCancelled, "Translator"));
 					ConsoleHelper.Pause();
 					Console.Clear();
 					return;
 				}
 			}
 
-			var choice = ConsoleHelper.ReadYesNo(ValidationMessages.EditContinuesQuestion);
+			var choice = ConsoleHelper.ReadYesNo(Messages.EditContinuesQuestion);
 			if (choice != true) return;
 			Console.Clear();
 		}
@@ -263,14 +263,14 @@ public static class TranslatorMenu
 	{
 		if (!session.IsAdmin)
 		{
-			ConsoleHelper.ShowError(ValidationMessages.AccessDenied);
+			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
 		}
 
 		// TODO	(SQL Server)	Implement SOFT DELETE system with flags like `IsDeleted = true` or `IsActive = False`
 		Console.WriteLine(new string('=', 36) + " REMOVING TRANSLATOR MENU " + new string('=', 36));
 		var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
-			MenuHelper.SelectTranslator, ValidationMessages.NotAvailableTranslator);
+			MenuHelper.SelectTranslator, Messages.NotAvailableTranslator);
 
 		PersonHelper.PerformRemove(desiredTranslator, desiredTranslator?.FirstName ?? "",
 			desiredTranslator?.LastName ?? "", TranslatorPrinter.PrintDetails,
@@ -287,7 +287,7 @@ public static class TranslatorMenu
 			var translatorsList = translatorManagementService.GetAllTranslators();
 			if (translatorsList.Count == 0)
 			{
-				ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableTranslator);
+				ConsoleHelper.ShowWarning(Messages.NotAvailableTranslator);
 				ConsoleHelper.Pause();
 				return;
 			}
@@ -298,7 +298,7 @@ public static class TranslatorMenu
 			Console.WriteLine("{0, -20}", "4. Phone Number");
 			Console.WriteLine("5. Cancel");
 
-			var searchMenuChoice = ConsoleHelper.ReadInt(ValidationMessages.SearchMenuQuestion, 1, 5);
+			var searchMenuChoice = ConsoleHelper.ReadInt(Messages.SearchMenuQuestion, 1, 5);
 			if (searchMenuChoice is null) return;
 
 			switch (searchMenuChoice)
@@ -308,7 +308,7 @@ public static class TranslatorMenu
 					PersonHelper.SearchAndDisplay("Enter a name to search",
 						term => translatorManagementService.SearchTranslator(term,
 							translator => $"{translator.FirstName} {translator.LastName}"),
-						TranslatorPrinter.PrintTable, ValidationMessages.NotTranslatorMatched);
+						TranslatorPrinter.PrintTable, Messages.NotTranslatorMatched);
 
 					break;
 				}
@@ -317,7 +317,7 @@ public static class TranslatorMenu
 					PersonHelper.SearchAndDisplay("Enter a national code to search",
 						term => translatorManagementService.SearchTranslator(term,
 							translator => translator.NationalCode), TranslatorPrinter.PrintTable,
-						ValidationMessages.NotTranslatorMatched);
+						Messages.NotTranslatorMatched);
 
 					break;
 				}
@@ -325,7 +325,7 @@ public static class TranslatorMenu
 				{
 					PersonHelper.SearchAndDisplay("Enter an email to search",
 						term => translatorManagementService.SearchTranslator(term, translator => translator.Email),
-						TranslatorPrinter.PrintTable, ValidationMessages.NotTranslatorMatched);
+						TranslatorPrinter.PrintTable, Messages.NotTranslatorMatched);
 
 					break;
 				}
@@ -334,13 +334,13 @@ public static class TranslatorMenu
 					PersonHelper.SearchAndDisplay("Enter a phone number to search",
 						term => translatorManagementService.SearchTranslator(term,
 							translator => translator.PhoneNumber), TranslatorPrinter.PrintTable,
-						ValidationMessages.NotTranslatorMatched);
+						Messages.NotTranslatorMatched);
 
 					break;
 				}
 				case 5:
 				{
-					ConsoleHelper.ShowInfo(string.Format(ValidationMessages.SearchCancelled, "Translator"));
+					ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "Translator"));
 					ConsoleHelper.Pause();
 					Console.Clear();
 					return;

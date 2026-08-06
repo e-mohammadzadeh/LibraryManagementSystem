@@ -27,7 +27,7 @@ public static class FinePrinter
 	{
 		if (fines.Count == 0)
 		{
-			ConsoleHelper.ShowError(ValidationMessages.FineNotFound);
+			ConsoleHelper.ShowError(Messages.FineNotFound);
 			return;
 		}
 

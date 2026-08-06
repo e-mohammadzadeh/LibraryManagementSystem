@@ -18,7 +18,7 @@ public static class LoanMenu
 		{
 			if (!session.IsAuthenticated)
 			{
-				ConsoleHelper.ShowError(ValidationMessages.SessionExpired);
+				ConsoleHelper.ShowError(Messages.SessionExpired);
 				ConsoleHelper.Pause();
 				return;
 			}
@@ -59,7 +59,7 @@ public static class LoanMenu
 				{
 					Console.Clear();
 					DisplayLoansForUsers(loanManagementService, userManagementService, activeOnly: false,
-						ValidationMessages.NoLoanHistoryForUser, session);
+						Messages.NoLoanHistoryForUser, session);
 
 					ConsoleHelper.Pause();
 					break;
@@ -75,7 +75,7 @@ public static class LoanMenu
 				{
 					Console.Clear();
 					DisplayLoansForUsers(loanManagementService, userManagementService, activeOnly: true,
-						ValidationMessages.UserHasNoBorrowedBooks, session);
+						Messages.UserHasNoBorrowedBooks, session);
 
 					ConsoleHelper.Pause();
 					break;
@@ -88,7 +88,7 @@ public static class LoanMenu
 				}
 				case 9:
 				{
-					ConsoleHelper.ShowInfo(ValidationMessages.BackToMainMenu);
+					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					ConsoleHelper.Pause();
 					Console.Clear();
 					continueProgram = false;
@@ -127,19 +127,19 @@ public static class LoanMenu
 			}
 
 			Console.WriteLine(new string('=', 82));
-			Console.Write(ValidationMessages.MainMenuQuestion);
+			Console.Write(Messages.MainMenuQuestion);
 
 			var option = Console.ReadLine();
 			if (!int.TryParse(option, out var userChoice))
 			{
-				ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
+				ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
 				continue;
 			}
 
 			if (userChoice >= 1 && userChoice <= availableItems.Count)
 				return availableItems[userChoice - 1].ActionId;
 
-			ConsoleHelper.ShowError(ValidationMessages.InvalidMenuChoice);
+			ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
 		}
 	}
 
@@ -158,7 +158,7 @@ public static class LoanMenu
 			var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
 			if (user is null)
 			{
-				ConsoleHelper.ShowWarning(ValidationMessages.UserNotFound);
+				ConsoleHelper.ShowWarning(Messages.UserNotFound);
 				return;
 			}
 
@@ -168,7 +168,7 @@ public static class LoanMenu
 		var availableBooks = bookManagementService.GetAvailableBooks();
 		if (availableBooks.Count is 0)
 		{
-			ConsoleHelper.ShowWarning(ValidationMessages.NotAvailableBookToBorrow);
+			ConsoleHelper.ShowWarning(Messages.NotAvailableBookToBorrow);
 			return;
 		}
 
@@ -181,7 +181,7 @@ public static class LoanMenu
 			var selectedBook = availableBooks.FirstOrDefault(b => b.BookId == input);
 			if (selectedBook is null)
 			{
-				ConsoleHelper.ShowError(ValidationMessages.InvalidBookSelection);
+				ConsoleHelper.ShowError(Messages.InvalidBookSelection);
 				continue;
 			}
 
@@ -208,7 +208,7 @@ public static class LoanMenu
 			var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
 			if (user is null)
 			{
-				ConsoleHelper.ShowWarning(ValidationMessages.UserNotFound);
+				ConsoleHelper.ShowWarning(Messages.UserNotFound);
 				return null;
 			}
 
@@ -225,7 +225,7 @@ public static class LoanMenu
 		var loans = result.Data;
 		if (loans is null || loans.Count == 0)
 		{
-			ConsoleHelper.ShowWarning(ValidationMessages.UserHasNoBorrowedBooks);
+			ConsoleHelper.ShowWarning(Messages.UserHasNoBorrowedBooks);
 			return null;
 		}
 
@@ -236,7 +236,7 @@ public static class LoanMenu
 		var selectedLoan = loans.FirstOrDefault(l => l.LoanId == loanId);
 		if (selectedLoan is not null) return selectedLoan;
 
-		ConsoleHelper.ShowError(ValidationMessages.ActiveLoanNotFound);
+		ConsoleHelper.ShowError(Messages.ActiveLoanNotFound);
 		return null;
 	}
 
@@ -284,7 +284,7 @@ public static class LoanMenu
 
 		if (loans.Count is 0)
 		{
-			ConsoleHelper.ShowWarning(ValidationMessages.NoActiveLoans);
+			ConsoleHelper.ShowWarning(Messages.NoActiveLoans);
 			return;
 		}
 
@@ -305,7 +305,7 @@ public static class LoanMenu
 			var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
 			if (user is null)
 			{
-				ConsoleHelper.ShowWarning(ValidationMessages.UserNotFound);
+				ConsoleHelper.ShowWarning(Messages.UserNotFound);
 				return;
 			}
 
@@ -367,7 +367,7 @@ public static class LoanMenu
 
 		if (loans.Count is 0)
 		{
-			ConsoleHelper.ShowWarning(ValidationMessages.NoOverdueLoans);
+			ConsoleHelper.ShowWarning(Messages.NoOverdueLoans);
 			return;
 		}
 
@@ -389,8 +389,8 @@ public static class LoanMenu
 			if (loanList.Count == 0)
 			{
 				ConsoleHelper.ShowWarning(activeOnly
-					? ValidationMessages.NotAvailableActionLoan
-					: ValidationMessages.NotAvailableLoan);
+					? Messages.NotAvailableActionLoan
+					: Messages.NotAvailableLoan);
 
 				ConsoleHelper.Pause();
 				return;
@@ -404,7 +404,7 @@ public static class LoanMenu
 			Console.WriteLine("{0, -20}", "6. Status (Active/Returned)");
 			Console.WriteLine("7. Cancel");
 
-			var searchMenuChoice = ConsoleHelper.ReadInt(ValidationMessages.SearchMenuQuestion, 1, 7);
+			var searchMenuChoice = ConsoleHelper.ReadInt(Messages.SearchMenuQuestion, 1, 7);
 			if (searchMenuChoice is null) return;
 
 			switch (searchMenuChoice)
@@ -467,7 +467,7 @@ public static class LoanMenu
 				}
 				case 7:
 				{
-					ConsoleHelper.ShowInfo(string.Format(ValidationMessages.SearchCancelled, "Loan"));
+					ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "Loan"));
 					ConsoleHelper.Pause();
 					Console.Clear();
 					return;
@@ -514,7 +514,7 @@ public static class LoanMenu
 	{
 		if (results.Count == 0)
 		{
-			ConsoleHelper.ShowWarning(ValidationMessages.NotLoanMatched);
+			ConsoleHelper.ShowWarning(Messages.NotLoanMatched);
 			return;
 		}
 

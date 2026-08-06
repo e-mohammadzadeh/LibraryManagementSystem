@@ -22,10 +22,10 @@ public class TranslatorManagementService
 		string? warningMessage = null;
 
 		if (_translatorRepository.ExistsByNationalCode(dto.NationalCode))
-			return ServiceResult<Translator>.Fail(ValidationMessages.DuplicateTranslatorsNotAllowedByNationalCode);
+			return ServiceResult<Translator>.Fail(Messages.DuplicateTranslatorsNotAllowedByNationalCode);
 
 		if (_translatorRepository.ExistsByEmail(dto.Email))
-			return ServiceResult<Translator>.Fail(ValidationMessages.DuplicateTranslatorsNotAllowedByEmail);
+			return ServiceResult<Translator>.Fail(Messages.DuplicateTranslatorsNotAllowedByEmail);
 
 		var existingSameName = _translatorRepository.FindByName(dto.FirstName, dto.LastName);
 		if (existingSameName is not null)
@@ -37,7 +37,7 @@ public class TranslatorManagementService
 		_translatorRepository.Add(newTranslator);
 		return warningMessage is not null
 			? ServiceResult<Translator>.Warning(newTranslator, warningMessage)
-			: ServiceResult<Translator>.Ok(newTranslator, ValidationMessages.TranslatorAddedSuccessfully);
+			: ServiceResult<Translator>.Ok(newTranslator, Messages.TranslatorAddedSuccessfully);
 	}
 
 
@@ -53,31 +53,31 @@ public class TranslatorManagementService
 	public ServiceResult<Translator> UpdateTranslator(int translatorId, UpdateTranslatorDto dto)
 	{
 		var translator = FindTranslatorById(translatorId);
-		if (translator is null) return ServiceResult<Translator>.Fail(ValidationMessages.TranslatorUpdateFailed);
+		if (translator is null) return ServiceResult<Translator>.Fail(Messages.TranslatorUpdateFailed);
 
 		if (IsNoOpUpdateTranslator(translator, dto))
-			return ServiceResult<Translator>.Fail(ValidationMessages.NoChangesDetected);
+			return ServiceResult<Translator>.Fail(Messages.NoChangesDetected);
 
 		var resolvedFirstName = dto.FirstName ?? translator.FirstName;
 		var resolvedLastName = dto.LastName ?? translator.LastName;
 		if (dto.FirstName is not null || dto.LastName is not null)
 		{
 			if (_translatorRepository.ExistsByName(resolvedFirstName, resolvedLastName, translatorId))
-				return ServiceResult<Translator>.Fail(ValidationMessages.DuplicateTranslatorsNotAllowedByName);
+				return ServiceResult<Translator>.Fail(Messages.DuplicateTranslatorsNotAllowedByName);
 		}
 
 		if (dto.NationalCode is not null && _translatorRepository.ExistsByNationalCode(dto.NationalCode, translatorId))
-			return ServiceResult<Translator>.Fail(ValidationMessages.DuplicateTranslatorsNotAllowedByNationalCode);
+			return ServiceResult<Translator>.Fail(Messages.DuplicateTranslatorsNotAllowedByNationalCode);
 
 		if (dto.Email is not null && _translatorRepository.ExistsByEmail(dto.Email, translatorId))
-			return ServiceResult<Translator>.Fail(ValidationMessages.DuplicateTranslatorsNotAllowedByEmail);
+			return ServiceResult<Translator>.Fail(Messages.DuplicateTranslatorsNotAllowedByEmail);
 
 		if (dto.PhoneNumber is not null && _translatorRepository.ExistsByPhoneNumber(dto.PhoneNumber, translatorId))
-			return ServiceResult<Translator>.Fail(ValidationMessages.DuplicateTranslatorsNotAllowedByPhoneNumber);
+			return ServiceResult<Translator>.Fail(Messages.DuplicateTranslatorsNotAllowedByPhoneNumber);
 
 		translator.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate);
 
-		return ServiceResult<Translator>.Ok(translator, ValidationMessages.TranslatorUpdatedSuccessfully);
+		return ServiceResult<Translator>.Ok(translator, Messages.TranslatorUpdatedSuccessfully);
 	}
 
 
@@ -95,14 +95,14 @@ public class TranslatorManagementService
 	public ServiceResult<TranslatorDto> RemoveTranslator(int translatorId)
 	{
 		var translator = FindTranslatorById(translatorId);
-		if (translator is null) return ServiceResult<TranslatorDto>.Fail(ValidationMessages.TranslatorRemoveFailed);
+		if (translator is null) return ServiceResult<TranslatorDto>.Fail(Messages.TranslatorRemoveFailed);
 
 		if (translator.BookTranslators.Count != 0)
 			return ServiceResult<TranslatorDto>.Fail(
 				"Failed to remove translator. The translator has associated books.");
 
 		_translatorRepository.Remove(translator);
-		return ServiceResult<TranslatorDto>.Ok(translator.ToDto(), ValidationMessages.TranslatorRemovedSuccessfully);
+		return ServiceResult<TranslatorDto>.Ok(translator.ToDto(), Messages.TranslatorRemovedSuccessfully);
 	}
 
 

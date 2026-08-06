@@ -25,7 +25,7 @@ public static class AuthorPrinter
 	{
 		if (authors.Count == 0)
 		{
-			ConsoleHelper.ShowError(ValidationMessages.NotAvailableAuthor);
+			ConsoleHelper.ShowError(Messages.NotAvailableAuthor);
 			return;
 		}
 

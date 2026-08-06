@@ -36,7 +36,7 @@ public static class BookPrinter
 	{
 		if (books.Count == 0)
 		{
-			ConsoleHelper.ShowError(ValidationMessages.NotAvailableBook);
+			ConsoleHelper.ShowError(Messages.NotAvailableBook);
 			return;
 		}
 

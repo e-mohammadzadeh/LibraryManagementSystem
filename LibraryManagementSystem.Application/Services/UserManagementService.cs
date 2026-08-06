@@ -34,10 +34,10 @@ public class UserManagementService
 		string? warningMessage = null;
 
 		if (_userRepository.ExistsByNationalCode(dto.NationalCode))
-			return ServiceResult<UserDto>.Fail(ValidationMessages.FailureDuplicateUserByNationalCode);
+			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
 
 		if (_userRepository.ExistsByEmail(dto.Email))
-			return ServiceResult<UserDto>.Fail(ValidationMessages.FailureDuplicateUserByEmail);
+			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
 
 		var existingSameName = _userRepository.FindByName(dto.FirstName, dto.LastName);
 
@@ -45,7 +45,7 @@ public class UserManagementService
 			warningMessage = $"A user with the same name already exists (ID: {existingSameName.Id}). ";
 
 		if (dto.RoleIds.Count != dto.RoleIds.Distinct().Count())
-			return ServiceResult<UserDto>.Fail(ValidationMessages.FailureDuplicateRolesSelected);
+			return ServiceResult<UserDto>.Fail(Messages.FailureDuplicateRolesSelected);
 
 		var roles = _roleRepository.FindByIds(dto.RoleIds);
 		if (roles.Count != dto.RoleIds.Count)
@@ -60,7 +60,7 @@ public class UserManagementService
 		_userRepository.Add(newUser);
 		return warningMessage is not null
 			? ServiceResult<UserDto>.Warning(newUser.ToDto(), warningMessage)
-			: ServiceResult<UserDto>.Ok(newUser.ToDto(), ValidationMessages.UserAddedSuccessfully);
+			: ServiceResult<UserDto>.Ok(newUser.ToDto(), Messages.UserAddedSuccessfully);
 	}
 
 
@@ -78,30 +78,30 @@ public class UserManagementService
 	public ServiceResult<UserDto> UpdateUser(int userId, UpdateUserDto dto)
 	{
 		var user = _userRepository.FindById(userId);
-		if (user is null) return ServiceResult<UserDto>.Fail(ValidationMessages.UserUpdateFailed);
+		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserUpdateFailed);
 
-		if (IsNoOpUpdateUser(user, dto)) return ServiceResult<UserDto>.Fail(ValidationMessages.NoChangesDetected);
+		if (IsNoOpUpdateUser(user, dto)) return ServiceResult<UserDto>.Fail(Messages.NoChangesDetected);
 
 		var resolvedFirstName = dto.FirstName ?? user.FirstName;
 		var resolvedLastName = dto.LastName ?? user.LastName;
 		if (dto.FirstName is not null || dto.LastName is not null)
 		{
 			if (_userRepository.ExistsByName(resolvedFirstName, resolvedLastName, userId))
-				return ServiceResult<UserDto>.Fail(ValidationMessages.FailureDuplicateUserByName);
+				return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByName);
 		}
 
 		if (dto.NationalCode is not null && _userRepository.ExistsByNationalCode(dto.NationalCode, userId))
-			return ServiceResult<UserDto>.Fail(ValidationMessages.FailureDuplicateUserByNationalCode);
+			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
 
 		if (dto.Email is not null && _userRepository.ExistsByEmail(dto.Email, userId))
-			return ServiceResult<UserDto>.Fail(ValidationMessages.FailureDuplicateUserByEmail);
+			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
 
 		if (dto.PhoneNumber is not null && _userRepository.ExistsByPhoneNumber(dto.PhoneNumber, userId))
-			return ServiceResult<UserDto>.Fail(ValidationMessages.FailureDuplicateUserByPhoneNumber);
+			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
 
 		if (dto.RoleIds.Count != dto.RoleIds.Distinct().Count())
 		{
-			return ServiceResult<UserDto>.Fail(ValidationMessages.FailureDuplicateRolesSelected);
+			return ServiceResult<UserDto>.Fail(Messages.FailureDuplicateRolesSelected);
 		}
 
 		List<Role>? resolvedRoles = null;
@@ -118,7 +118,7 @@ public class UserManagementService
 		user.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
 			resolvedRoles);
 
-		return ServiceResult<UserDto>.Ok(user.ToDto(), ValidationMessages.UserUpdatedSuccessfully);
+		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.UserUpdatedSuccessfully);
 	}
 
 
@@ -146,22 +146,22 @@ public class UserManagementService
 	public ServiceResult<UserDto> RemoveUser(int userId, ICurrentUserSession? session = null)
 	{
 		var user = _userRepository.FindById(userId);
-		if (user is null) return ServiceResult<UserDto>.Fail(ValidationMessages.UserRemoveFailed);
+		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserRemoveFailed);
 
 		if (session is not null && session.UserId == userId)
-			return ServiceResult<UserDto>.Fail(ValidationMessages.CannotRemoveYourself);
+			return ServiceResult<UserDto>.Fail(Messages.CannotRemoveYourself);
 
 		if (session is not null && !CanRemoveUser(session, user))
-			return ServiceResult<UserDto>.Fail(ValidationMessages.AccessDenied);
+			return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
 
 		if (_loanRepository.CountActiveLoansByUser(userId) > 0)
-			return ServiceResult<UserDto>.Fail(ValidationMessages.UserRemovalFailedByActiveLoans);
+			return ServiceResult<UserDto>.Fail(Messages.UserRemovalFailedByActiveLoans);
 
 		if (_fineRepository.HasUnpaidFines(userId))
-			return ServiceResult<UserDto>.Fail(ValidationMessages.UserRemovalFailedByUnpaidFines);
+			return ServiceResult<UserDto>.Fail(Messages.UserRemovalFailedByUnpaidFines);
 
 		_userRepository.Remove(user);
-		return ServiceResult<UserDto>.Ok(user.ToDto(), ValidationMessages.UserRemovedSuccessfully);
+		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.UserRemovedSuccessfully);
 	}
 
 

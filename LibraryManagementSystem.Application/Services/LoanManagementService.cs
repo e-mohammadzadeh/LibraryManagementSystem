@@ -30,61 +30,61 @@ public class LoanManagementService
 	public ServiceResult<LoanDto> BorrowBook(int userId, int bookId, ICurrentUserSession session)
 	{
 		if (session.IsSelfServiceMember && session.UserId != userId)
-			return ServiceResult<LoanDto>.Fail(ValidationMessages.BorrowBookForYourself);
+			return ServiceResult<LoanDto>.Fail(Messages.BorrowBookForYourself);
 
 		var user = _userRepository.FindById(userId);
-		if (user is null) return ServiceResult<LoanDto>.Fail(ValidationMessages.NotUserMatched);
+		if (user is null) return ServiceResult<LoanDto>.Fail(Messages.NotUserMatched);
 
-		if (!user.IsActive) return ServiceResult<LoanDto>.Fail(ValidationMessages.MembershipExpired);
+		if (!user.IsActive) return ServiceResult<LoanDto>.Fail(Messages.MembershipExpired);
 
-		if (user.ShouldRemove) return ServiceResult<LoanDto>.Fail(ValidationMessages.FlaggedForRemoval);
+		if (user.ShouldRemove) return ServiceResult<LoanDto>.Fail(Messages.FlaggedForRemoval);
 
 		if (_fineRepository.HasUnpaidFines(userId))
-			return ServiceResult<LoanDto>.Fail(ValidationMessages.BorrowFailedForFine);
+			return ServiceResult<LoanDto>.Fail(Messages.BorrowFailedForFine);
 
 		if (_loanRepository.CountActiveLoansByUser(userId) >= ValidationConstants.MaxActiveLoansPerUser)
-			return ServiceResult<LoanDto>.Fail(ValidationMessages.MaximumLoansReached);
+			return ServiceResult<LoanDto>.Fail(Messages.MaximumLoansReached);
 
 		var book = _bookRepository.FindById(bookId);
-		if (book is null) return ServiceResult<LoanDto>.Fail(ValidationMessages.NotBookMatched);
+		if (book is null) return ServiceResult<LoanDto>.Fail(Messages.NotBookMatched);
 
-		if (book.AvailableCopies <= 0) return ServiceResult<LoanDto>.Fail(ValidationMessages.NotEnoughCopiesAvailable);
+		if (book.AvailableCopies <= 0) return ServiceResult<LoanDto>.Fail(Messages.NotEnoughCopiesAvailable);
 
 		if (_loanRepository.HasActiveLoan(userId, bookId))
-			return ServiceResult<LoanDto>.Fail(ValidationMessages.BookAlreadyBorrowed);
+			return ServiceResult<LoanDto>.Fail(Messages.BookAlreadyBorrowed);
 
 		var loan = new Loan(book, user, DateOnly.FromDateTime(DateTime.Today));
 		book.BorrowCopy();
 		_loanRepository.Add(loan);
-		return ServiceResult<LoanDto>.Ok(loan.ToDto(), ValidationMessages.BorrowedSuccessfully);
+		return ServiceResult<LoanDto>.Ok(loan.ToDto(), Messages.BorrowedSuccessfully);
 	}
 
 
 	public ServiceResult<LoanDto> ReturnBook(int loanId, ICurrentUserSession session)
 	{
 		var loan = _loanRepository.GetActiveLoanById(loanId);
-		if (loan is null) return ServiceResult<LoanDto>.Fail(ValidationMessages.ActiveLoanNotFound);
+		if (loan is null) return ServiceResult<LoanDto>.Fail(Messages.ActiveLoanNotFound);
 
 		if (session.IsSelfServiceMember && session.UserId != loan.UserId)
-			return ServiceResult<LoanDto>.Fail(ValidationMessages.ReturnOwnLoans);
+			return ServiceResult<LoanDto>.Fail(Messages.ReturnOwnLoans);
 
 		loan.MarkAsReturned();
 		loan.Book.ReturnCopy();
 		_loanRepository.Update(loan);
 
 		var fineResult = _fineService.CreateFineForLoan(loanId);
-		if (!fineResult.Success && fineResult.Message != ValidationMessages.NoFine)
+		if (!fineResult.Success && fineResult.Message != Messages.NoFine)
 			return ServiceResult<LoanDto>.Warning(loan.ToDto(),
-				$"{ValidationMessages.ReturnedSuccessfully} - Note: {fineResult.Message}");
+				$"{Messages.ReturnedSuccessfully} - Note: {fineResult.Message}");
 
-		return ServiceResult<LoanDto>.Ok(loan.ToDto(), ValidationMessages.ReturnedSuccessfully);
+		return ServiceResult<LoanDto>.Ok(loan.ToDto(), Messages.ReturnedSuccessfully);
 	}
 
 
 	public ServiceResult<IReadOnlyList<LoanDto>> GetActiveLoansByUser(int userId, ICurrentUserSession session)
 	{
 		if (session.IsSelfServiceMember && session.UserId != userId)
-			return ServiceResult<IReadOnlyList<LoanDto>>.Fail(ValidationMessages.ViewOwnLoans);
+			return ServiceResult<IReadOnlyList<LoanDto>>.Fail(Messages.ViewOwnLoans);
 
 		var loans = _loanRepository.GetActiveLoansByUser(userId).Select(loan => loan.ToDto()).ToList().AsReadOnly();
 		return ServiceResult<IReadOnlyList<LoanDto>>.Ok(loans, "Loans retrieved successfully.");
@@ -94,19 +94,19 @@ public class LoanManagementService
 	public ServiceResult<LoanDto> RenewLoan(int loanId, ICurrentUserSession session)
 	{
 		var loan = _loanRepository.GetActiveLoanById(loanId);
-		if (loan is null) return ServiceResult<LoanDto>.Fail(ValidationMessages.ActiveLoanNotFound);
+		if (loan is null) return ServiceResult<LoanDto>.Fail(Messages.ActiveLoanNotFound);
 
 		if (session.IsSelfServiceMember && session.UserId != loan.UserId)
-			return ServiceResult<LoanDto>.Fail(ValidationMessages.RenewOwnLoans);
+			return ServiceResult<LoanDto>.Fail(Messages.RenewOwnLoans);
 
 		if (!loan.CanRenew(out var errorMessage)) return ServiceResult<LoanDto>.Fail(errorMessage);
 
 		if (_fineService.HasUnpaidFines(loan.UserId))
-			return ServiceResult<LoanDto>.Fail(ValidationMessages.UserHasUnpaidFines);
+			return ServiceResult<LoanDto>.Fail(Messages.UserHasUnpaidFines);
 
 		loan.Renew();
 		_loanRepository.Update(loan);
-		return ServiceResult<LoanDto>.Ok(loan.ToDto(), ValidationMessages.RenewedSuccessfully);
+		return ServiceResult<LoanDto>.Ok(loan.ToDto(), Messages.RenewedSuccessfully);
 	}
 
 
@@ -124,7 +124,7 @@ public class LoanManagementService
 	public ServiceResult<IReadOnlyList<LoanDto>> GetLoansByUser(int userId, ICurrentUserSession session)
 	{
 		if (session.IsSelfServiceMember && session.UserId != userId)
-			return ServiceResult<IReadOnlyList<LoanDto>>.Fail(ValidationMessages.ViewOwnLoans);
+			return ServiceResult<IReadOnlyList<LoanDto>>.Fail(Messages.ViewOwnLoans);
 
 		var loans = _loanRepository.GetAllByUser(userId).Select(loan => loan.ToDto()).ToList().AsReadOnly();
 		return ServiceResult<IReadOnlyList<LoanDto>>.Ok(loans, "Loans retrieved successfully.");

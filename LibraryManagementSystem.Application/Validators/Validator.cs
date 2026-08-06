@@ -10,19 +10,19 @@ public static class Validator
 		// 1. Basic format check: non-empty, digits only, exact length
 		if (string.IsNullOrWhiteSpace(nationalCode) ||
 		    !Regex.IsMatch(nationalCode, $@"^\d{{{ValidationConstants.NationalCodeLength}}}$"))
-			return ValidationResult.Fail(ValidationMessages.InvalidNationalCode);
+			return ValidationResult.Fail(Messages.InvalidNationalCode);
 
 		// 2. Reject codes where every digit is the same (e.g., "0000000000", "1111111111", ..., "9999999999")
 		return nationalCode.Any(c => c != nationalCode[0])
 			? ValidationResult.Success()
-			: ValidationResult.Fail(ValidationMessages.InvalidNationalCode);
+			: ValidationResult.Fail(Messages.InvalidNationalCode);
 	}
 
 
 	public static ValidationResult EmailValidator(string email)
 	{
 		if (string.IsNullOrWhiteSpace(email) || !Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
-			return ValidationResult.Fail(ValidationMessages.InvalidEmail);
+			return ValidationResult.Fail(Messages.InvalidEmail);
 
 		return ValidationResult.Success();
 	}
@@ -32,11 +32,11 @@ public static class Validator
 	{
 		if (string.IsNullOrWhiteSpace(phoneNumber) ||
 		    !Regex.IsMatch(phoneNumber, $@"^\d{{{ValidationConstants.PhoneNumberLength}}}$"))
-			return ValidationResult.Fail(ValidationMessages.InvalidPhoneNumber);
+			return ValidationResult.Fail(Messages.InvalidPhoneNumber);
 
 		return phoneNumber.Any(c => c != phoneNumber[0])
 			? ValidationResult.Success()
-			: ValidationResult.Fail(ValidationMessages.InvalidPhoneNumber);
+			: ValidationResult.Fail(Messages.InvalidPhoneNumber);
 	}
 
 
@@ -45,7 +45,7 @@ public static class Validator
 		var today = DateOnly.FromDateTime(DateTime.Today);
 		return birthDate <= today && birthDate >= today.AddYears(-120)
 			? ValidationResult.Success()
-			: ValidationResult.Fail(ValidationMessages.InvalidBirthDate);
+			: ValidationResult.Fail(Messages.InvalidBirthDate);
 	}
 
 
@@ -61,7 +61,7 @@ public static class Validator
 			case 10 when Regex.IsMatch(cleaned, @"^\d{9}[\dX]$"):
 				return ValidationResult.Success();
 			default:
-				return ValidationResult.Fail(ValidationMessages.InvalidISBN);
+				return ValidationResult.Fail(Messages.InvalidISBN);
 		}
 	}
 
@@ -71,45 +71,45 @@ public static class Validator
 		if (name.Contains("  ")) return ValidationResult.Fail("The name cannot contain consecutive spaces.");
 
 		if (name.Length < minLength || name.Length > maxLength)
-			return ValidationResult.Fail(ValidationMessages.InvalidBookName);
+			return ValidationResult.Fail(Messages.InvalidBookName);
 
 		return !Regex.IsMatch(name, @"^(?=.*\p{L})[\p{L}\p{N}\s+\-#/'""\.,:;!?&()_]+$")
-			? ValidationResult.Fail(ValidationMessages.InvalidCharacters)
+			? ValidationResult.Fail(Messages.InvalidCharacters)
 			: ValidationResult.Success();
 	}
 
 
 	public static ValidationResult DateValidator(DateOnly? date)
 	{
-		if (date == null) return ValidationResult.Fail(ValidationMessages.InvalidInput);
+		if (date == null) return ValidationResult.Fail(Messages.InvalidInput);
 
 		var today = DateOnly.FromDateTime(DateTime.Today);
 		return date <= today && date >= today.AddYears(-1500)
 			? ValidationResult.Success()
-			: ValidationResult.Fail(ValidationMessages.InvalidDate);
+			: ValidationResult.Fail(Messages.InvalidDateRange);
 	}
 
 
 	public static ValidationResult PasswordValidator(string password)
 	{
-		if (string.IsNullOrWhiteSpace(password)) return ValidationResult.Fail(ValidationMessages.NotEmptyPassword);
+		if (string.IsNullOrWhiteSpace(password)) return ValidationResult.Fail(Messages.NotEmptyPassword);
 
 		switch (password.Length)
 		{
 			case < 8:
-				return ValidationResult.Fail(ValidationMessages.MinimumPasswordLength);
+				return ValidationResult.Fail(Messages.MinimumPasswordLength);
 			case > 64:
-				return ValidationResult.Fail(ValidationMessages.MaximumPasswordLength);
+				return ValidationResult.Fail(Messages.MaximumPasswordLength);
 		}
 
-		if (!password.Any(char.IsUpper)) return ValidationResult.Fail(ValidationMessages.OneUppercaseLetter);
+		if (!password.Any(char.IsUpper)) return ValidationResult.Fail(Messages.OneUppercaseLetter);
 
-		if (!password.Any(char.IsLower)) return ValidationResult.Fail(ValidationMessages.OneLowercaseLetter);
+		if (!password.Any(char.IsLower)) return ValidationResult.Fail(Messages.OneLowercaseLetter);
 
-		if (!password.Any(char.IsDigit)) return ValidationResult.Fail(ValidationMessages.PasswordContainDigit);
+		if (!password.Any(char.IsDigit)) return ValidationResult.Fail(Messages.PasswordContainDigit);
 
 		return password.All(char.IsLetterOrDigit)
-			? ValidationResult.Fail(ValidationMessages.PasswordContainSpecialCharacter)
+			? ValidationResult.Fail(Messages.PasswordContainSpecialCharacter)
 			: ValidationResult.Success();
 	}
 }

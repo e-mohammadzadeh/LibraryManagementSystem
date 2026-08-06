@@ -26,7 +26,7 @@ public static class ConsoleHelper
 			}
 			else
 			{
-				ShowError(ValidationMessages.InvalidNumber);
+				ShowError(Messages.InvalidNumber);
 			}
 		}
 	}
@@ -43,7 +43,7 @@ public static class ConsoleHelper
 			if (trimmed.Equals("cancel", StringComparison.OrdinalIgnoreCase)) return null;
 			if (!string.IsNullOrWhiteSpace(trimmed) || allowEmpty) return trimmed;
 
-			ShowError(ValidationMessages.EmptyInput);
+			ShowError(Messages.EmptyInput);
 		}
 	}
 
@@ -58,7 +58,7 @@ public static class ConsoleHelper
 			if (input.Trim().Equals("cancel", StringComparison.OrdinalIgnoreCase)) return null;
 			if (DateOnly.TryParse(input, out var date)) return date;
 
-			ShowError(ValidationMessages.InvalidBirthDateFormat);
+			ShowError(Messages.InvalidDateFormat);
 		}
 	}
 
@@ -74,14 +74,14 @@ public static class ConsoleHelper
 			if (trimmed.Equals("cancel", StringComparison.OrdinalIgnoreCase)) return null;
 			if (string.IsNullOrWhiteSpace(trimmed))
 			{
-				ShowError(ValidationMessages.EmptyInput);
+				ShowError(Messages.EmptyInput);
 				continue;
 			}
 
 			var validationResult = Validator.ISBNValidator(trimmed);
 			if (validationResult.IsValid) return trimmed;
 
-			ShowError(validationResult.ErrorMessage ?? ValidationMessages.InvalidISBN);
+			ShowError(validationResult.ErrorMessage ?? Messages.InvalidISBN);
 		}
 	}
 
@@ -111,7 +111,7 @@ public static class ConsoleHelper
 				case "n" or "no":
 					return false;
 				default:
-					ShowError(ValidationMessages.InvalidYesNo);
+					ShowError(Messages.InvalidYesNo);
 					break;
 			}
 		}
@@ -181,7 +181,7 @@ public static class ConsoleHelper
 			{
 				if (allowEmpty) return [];
 
-				ShowError(ValidationMessages.EmptyInput);
+				ShowError(Messages.EmptyInput);
 				continue;
 			}
 
@@ -193,7 +193,7 @@ public static class ConsoleHelper
 			}
 
 			var distinctIds = selectedIds!.Distinct().ToList();
-			if (distinctIds.Count != selectedIds!.Count) ShowWarning(ValidationMessages.DuplicateRemoved);
+			if (distinctIds.Count != selectedIds!.Count) ShowWarning(Messages.DuplicateRemoved);
 			return distinctIds;
 		}
 	}
@@ -205,7 +205,7 @@ public static class ConsoleHelper
 		var parts = input.Split(',', StringSplitOptions.RemoveEmptyEntries);
 		var result = new List<int>();
 
-		if (!allowMultiple && parts.Length > 1) return (false, null, ValidationMessages.NotAllowedMultiSelections);
+		if (!allowMultiple && parts.Length > 1) return (false, null, Messages.NotAllowedMultiSelections);
 
 		foreach (var part in parts)
 		{
@@ -216,7 +216,7 @@ public static class ConsoleHelper
 			result.Add(id);
 		}
 
-		if (result.Count == 0) return (false, null, ValidationMessages.InvalidOptionSelection);
+		if (result.Count == 0) return (false, null, Messages.InvalidOptionSelection);
 		return (true, result, null);
 	}
 
@@ -258,7 +258,7 @@ public static class ConsoleHelper
 			var validationResult = validator(input);
 			if (validationResult.IsValid) return input;
 
-			ShowError(validationResult.ErrorMessage ?? ValidationMessages.InvalidInput);
+			ShowError(validationResult.ErrorMessage ?? Messages.InvalidInput);
 		}
 	}
 
@@ -294,7 +294,7 @@ public static class ConsoleHelper
 			var validationResult = validator(date.Value);
 			if (validationResult.IsValid) return date;
 
-			ShowError(validationResult.ErrorMessage ?? ValidationMessages.InvalidDate);
+			ShowError(validationResult.ErrorMessage ?? Messages.InvalidDateRange);
 		}
 	}
 
@@ -319,7 +319,7 @@ public static class ConsoleHelper
 			var validationResult = Validator.PasswordValidator(input);
 			if (validationResult.IsValid) return input;
 
-			ShowError(validationResult.ErrorMessage ?? ValidationMessages.InvalidInput);
+			ShowError(validationResult.ErrorMessage ?? Messages.InvalidInput);
 		}
 	}
 
@@ -400,7 +400,7 @@ public static class ConsoleHelper
 
 	public static void Pause() 
 	{
-		ShowInfo(ValidationMessages.PressToContinue);
+		ShowInfo(Messages.PressToContinue);
 		Console.ReadKey(true);
 	}
 }
