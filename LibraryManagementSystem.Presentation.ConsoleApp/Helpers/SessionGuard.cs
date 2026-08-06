@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Domain.Enums;
 
@@ -93,5 +94,15 @@ public static class SessionGuard
 	{
 		return RequireRole(session.CanAccessBookManagement,
 			"Access denied. You need Admin or Librarian privileges to manage books.");
+	}
+
+
+	public static bool RequirePermission(IAuthorizationService auth, Permission permission, string? message = null)
+	{
+		if (auth.HasPermission(permission)) return true;
+
+		ConsoleHelper.ShowError(message ?? "Access denied.");
+		ConsoleHelper.Pause();
+		return false;
 	}
 }
