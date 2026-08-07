@@ -2,35 +2,65 @@
 
 public enum Permission
 {
+	// Authors / Translators
+	AddAuthor,
+	EditAuthor,
+	SearchAuthor,
+	ViewAuthorDetails,
+	ViewAllAuthors,
+	AddTranslator,
+	EditTranslator,
+	SearchTranslator,
+	ViewTranslatorDetails,
+	ViewAllTranslators,
+	RemoveAuthor,
+	RemoveTranslator,
+
+	
 	// Books
-	ViewBooks,
 	AddBook,
 	EditBook,
 	RemoveBook,
+	SearchBook,
+	ViewBookDetails,
+	ViewAllBooks,
 
-	// Authors / Translators
-	ManageAuthors,
-	ManageTranslators,
-	RemoveAuthor,
-	RemoveTranslator,
+
+	// Fines
+	ViewAllFines,
+	ViewUnpaidFines,
+	ViewUserFines,
+	PayFine,
+	ViewOwnUnpaidFines,
+	ViewOwnFines,
+	PayOwnFine,
+
 
 	// Loans
 	BorrowBook,
 	ReturnBook,
 	RenewLoan,
+	ViewBorrowedBooks,
+	ViewLoanHistory,
+	ViewOverdueLoans,
+	ViewUserLoans,
+	SearchLoans,
+	ViewOwnBorrowedBooks,
+	ViewOwnLoanHistory,
+	ViewOwnOverdueLoans,
 	ViewOwnLoans,
-	ViewAllLoans,
 
-	// Fines
-	ViewOwnFines,
-	ViewAllFines,
-	PayFine,
-	WaiveFine,
 
 	// Users
-	ManageUsers,
+	AddUser,
+	EditUser,
 	RemoveUser,
+	SearchUser,
+	ViewUserDetails,
 	ViewAllUsers,
+	ChangePassword,
+	ChangeOwnPassword,
+
 
 	// System
 	ViewStatistics

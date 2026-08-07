@@ -79,9 +79,9 @@ public static class FineMenu
 	{
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
-			(1, "View All Fines", true),
+			(1, "View All Fines", session.IsAdmin || session.IsLibrarian),
 			(2, "View Unpaid Fines", true),
-			(3, "View User Fines", session.IsAdmin || session.IsLibrarian),
+			(3, "View User Fines", true),
 			(4, "Pay Fine", true),
 			(5, "Waive Fine", session.IsAdmin),
 			(6, "Back", true)
