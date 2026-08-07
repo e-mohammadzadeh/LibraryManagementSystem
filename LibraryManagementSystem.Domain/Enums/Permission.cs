@@ -31,6 +31,7 @@ public enum Permission
 	ViewUnpaidFines,
 	ViewUserFines,
 	PayFine,
+	WaiveFine,
 	ViewOwnUnpaidFines,
 	ViewOwnFines,
 	PayOwnFine,

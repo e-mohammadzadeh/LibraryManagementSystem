@@ -6,8 +6,8 @@ namespace LibraryManagementSystem.Application.Authentication;
 public class CurrentUserSession : ICurrentUserSession
 {
 	public AuthUserDto? CurrentUser { get; private set; }
-	public bool IsAuthenticated => CurrentUser is not null;
 	public int? UserId => CurrentUser?.Id;
+	public bool IsAuthenticated => CurrentUser is not null;
 
 	public void Login(AuthUserDto user) { CurrentUser = user ?? throw new ArgumentNullException(nameof(user)); }
 
@@ -29,18 +29,5 @@ public class CurrentUserSession : ICurrentUserSession
 	public bool IsMember => HasRole(LibraryUserRole.Member);
 
 
-	public bool CanBorrowBooks =>
-		IsAuthenticated && 
-		CurrentUser!.IsActive && 
-		!CurrentUser.ShouldRemove &&
-		CurrentUser.MembershipExpiryDate >= DateOnly.FromDateTime(DateTime.Today);
-
-	public bool CanAccessAuthorManagement => IsAuthenticated;
-	public bool CanAccessUserManagement => IsAuthenticated;
-	public bool CanAccessBookManagement => IsAuthenticated;
-	public bool CanAccessTranslatorManagement => IsAuthenticated;
-	public bool CanAccessLoanManagement => IsAuthenticated;
-	public bool CanAccessFineManagement => IsAuthenticated;
-	public bool CanAccessStatistics => IsAdmin || IsLibrarian;
 	public bool IsSelfServiceMember => IsMember && !IsAdmin && !IsLibrarian;
 }

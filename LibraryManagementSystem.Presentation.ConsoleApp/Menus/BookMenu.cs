@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Application.DTOs.Books;
@@ -15,9 +16,20 @@ public static class BookMenu
 	public static void BookMenuController(AuthorManagementService authorManagementService,
 		TranslatorManagementService translatorManagementService, BookManagementService bookManagementService,
 		LoanManagementService loanManagementService, LibraryStatisticsService statisticsService,
-		ICurrentUserSession session)
+		ICurrentUserSession session, IAuthorizationService authorization)
 	{
-		if (!SessionGuard.RequireBookManagement(session)) return;
+		if (!SessionGuard.RequireAnyPermission(
+			    authorization,
+			    Messages.AccessDenied,
+			    Permission.AddBook,
+			    Permission.EditBook,
+			    Permission.RemoveBook,
+			    Permission.SearchBook,
+			    Permission.ViewBookDetails,
+			    Permission.ViewAllBooks))
+		{
+			return;
+		}
 
 		var continueProgram = true;
 		while (continueProgram)
@@ -35,57 +47,57 @@ public static class BookMenu
 			{
 				case 1:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.AddBook, Messages.AccessDenied))
+						break;
 					AddBook(authorManagementService, translatorManagementService, bookManagementService, session);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.EditBook, Messages.AccessDenied))
+						break;
 					EditBook(authorManagementService, translatorManagementService, bookManagementService, session);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveBook, Messages.AccessDenied))
+						break;
 					RemoveBook(bookManagementService, session);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.SearchBook, Messages.AccessDenied))
+						break;
 					SearchBook(bookManagementService);
 					break;
 				}
 				case 5:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewBookDetails, Messages.AccessDenied))
+						break;
 					ViewBookDetails(bookManagementService, loanManagementService);
 					break;
 				}
 				case 6:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllBooks, Messages.AccessDenied))
+						break;
 					if (bookManagementService.GetAllBooks().Count is 0)
 						ConsoleHelper.ShowWarning(Messages.NotAvailableBook);
 					else
 						BookPrinter.PrintTable(bookManagementService.GetAllBooks());
-
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
-					ConsoleHelper.Pause();
-					Console.Clear();
 					continueProgram = false;
 					break;
 				}
 			}
+			ConsoleHelper.Pause();
 		}
 	}
 

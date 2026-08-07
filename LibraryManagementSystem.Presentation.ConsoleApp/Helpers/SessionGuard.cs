@@ -49,57 +49,19 @@ public static class SessionGuard
 	}
 
 
-
-	public static bool RequireCanBorrow(ICurrentUserSession session)
-	{
-		if (!session.IsAuthenticated)
-		{
-			ConsoleHelper.ShowError(Messages.AuthenticationRequired);
-			ConsoleHelper.Pause();
-			return false;
-		}
-
-		if (!session.CanBorrowBooks)
-		{
-			ConsoleHelper.ShowError(Messages.CannotBorrowBooks);
-			ConsoleHelper.Pause();
-			return false;
-		}
-
-		return true;
-	}
-
-
-	public static bool RequireAuthorManagement(ICurrentUserSession session)
-	{
-		return RequireRole(session.CanAccessAuthorManagement,
-			"Access denied. You need Admin or Librarian privileges to manage authors.");
-	}
-
-
-	public static bool RequireTranslatorManagement(ICurrentUserSession session)
-	{
-		return RequireRole(session.CanAccessTranslatorManagement,
-			"Access denied. You need Admin or Librarian privileges to manage translators.");
-	}
-
-
-	public static bool RequireUserManagement(ICurrentUserSession session)
-	{
-		return RequireRole(session.CanAccessUserManagement, Messages.AuthenticationRequired);
-	}
-
-
-	public static bool RequireBookManagement(ICurrentUserSession session)
-	{
-		return RequireRole(session.CanAccessBookManagement,
-			"Access denied. You need Admin or Librarian privileges to manage books.");
-	}
-
-
 	public static bool RequirePermission(IAuthorizationService auth, Permission permission, string? message = null)
 	{
 		if (auth.HasPermission(permission)) return true;
+
+		ConsoleHelper.ShowError(message ?? Messages.AccessDenied);
+		ConsoleHelper.Pause();
+		return false;
+	}
+
+
+	public static bool RequireAnyPermission(IAuthorizationService auth, string message, params Permission[] permission)
+	{
+		if (auth.HasAnyPermission(permission)) return true;
 
 		ConsoleHelper.ShowError(message ?? "Access denied.");
 		ConsoleHelper.Pause();

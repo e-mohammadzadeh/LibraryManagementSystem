@@ -1,8 +1,10 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Loans;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -12,8 +14,24 @@ public static class LoanMenu
 {
 	public static void LoanMenuController(LoanManagementService loanManagementService,
 		UserManagementService userManagementService, BookManagementService bookManagementService,
-		LibraryStatisticsService statisticsService, ICurrentUserSession session)
+		LibraryStatisticsService statisticsService, ICurrentUserSession session, IAuthorizationService authorization)
 	{
+		if (!SessionGuard.RequireAnyPermission(
+			    authorization,
+			    Messages.AccessDenied,
+			    Permission.BorrowBook,
+			    Permission.ReturnBook,
+			    Permission.RenewLoan,
+			    Permission.ViewBorrowedBooks,
+			    Permission.ViewLoanHistory,
+			    Permission.ViewOverdueLoans,
+			    Permission.ViewUserLoans,
+			    Permission.SearchLoans))
+		{
+			return;
+		}
+
+
 		var continueProgram = true;
 		while (continueProgram)
 		{
@@ -30,31 +48,31 @@ public static class LoanMenu
 			{
 				case 1:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.BorrowBook, Messages.AccessDenied))
+						break;
 					BorrowBook(loanManagementService, bookManagementService, userManagementService, session);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.ReturnBook, Messages.AccessDenied))
+						break;
 					ReturnBook(loanManagementService, userManagementService, session);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.RenewLoan, Messages.AccessDenied))
+						break;
 					RenewLoan(loanManagementService, userManagementService, session);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.AddAuthor, Messages.AccessDenied))
+						break;
 					var loans = loanManagementService.GetAllActiveLoans(session);
 					DisplayLoans(loans, Messages.NoActiveLoans);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 5:

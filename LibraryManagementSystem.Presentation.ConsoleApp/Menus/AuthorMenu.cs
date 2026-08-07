@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Application.Services;
@@ -11,9 +12,20 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 public static class AuthorMenu
 {
 	public static void AuthorMenuController(AuthorManagementService authorManagementService,
-		LibraryStatisticsService statisticsService, ICurrentUserSession session)
+		LibraryStatisticsService statisticsService, ICurrentUserSession session, IAuthorizationService authorization)
 	{
-		if (!SessionGuard.RequireAuthorManagement(session)) return;
+		if (!SessionGuard.RequireAnyPermission(
+			    authorization,
+			    Messages.AccessDenied,
+			    Permission.ViewAllAuthors,
+			    Permission.SearchAuthor,
+			    Permission.ViewAuthorDetails,
+			    Permission.AddAuthor,
+			    Permission.EditAuthor,
+			    Permission.RemoveAuthor))
+		{
+			return;
+		}
 
 		var continueProgram = true;
 		while (continueProgram)
@@ -27,81 +39,79 @@ public static class AuthorMenu
 
 			Console.Clear();
 			MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
-			switch (AuthorMenuList(session))
+			switch (AuthorMenuList(authorization))
 			{
 				case 1:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.AddAuthor, Messages.AccessDenied))
+						break;
 					AddAuthor(authorManagementService, session);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.EditAuthor, Messages.AccessDenied))
+						break;
 					EditAuthor(authorManagementService, session);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveAuthor, Messages.AccessDenied))
+						break;
 					RemoveAuthor(authorManagementService, session);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
 				{
+					if (!SessionGuard.RequirePermission(authorization, Permission.SearchAuthor, Messages.AccessDenied))
+						break;
 					SearchAuthor(authorManagementService);
 					break;
 				}
 				case 5:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAuthorDetails, Messages.AccessDenied))
+						break;
 					var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
 						MenuHelper.SelectAuthor,
 						Messages.NotAvailableAuthor);
 					if (desiredAuthor is not null)
-					{
 						AuthorPrinter.PrintDetails(desiredAuthor);
-						ConsoleHelper.Pause();
-					}
-
 					break;
 				}
 				case 6:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllAuthors, Messages.AccessDenied))
+						break;
 					if (authorManagementService.GetAllAuthors().Count is 0)
 						ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
 					else
 						AuthorPrinter.PrintTable(authorManagementService.GetAllAuthors());
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
-					ConsoleHelper.Pause();
-					Console.Clear();
 					continueProgram = false;
 					break;
 				}
 			}
+			ConsoleHelper.Pause();
 		}
 	}
 
 
-	private static int AuthorMenuList(ICurrentUserSession session)
+	private static int AuthorMenuList(IAuthorizationService authorization)
 	{
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
-			(1, "Add Author", session.IsAdmin || session.IsLibrarian),
-			(2, "Edit Author", session.IsAdmin || session.IsLibrarian),
-			(3, "Remove Author", session.IsAdmin),
-			(4, "Search Author", true),
-			(5, "View Author Details", true),
-			(6, "View All Authors", true),
+			(1, "Add Author", authorization.HasPermission(Permission.AddAuthor)),
+			(2, "Edit Author", authorization.HasPermission(Permission.EditAuthor)),
+			(3, "Remove Author", authorization.HasPermission(Permission.RemoveAuthor)),
+			(4, "Search Author", authorization.HasPermission(Permission.SearchAuthor)),
+			(5, "View Author Details", authorization.HasPermission(Permission.ViewAuthorDetails)),
+			(6, "View All Authors", authorization.HasPermission(Permission.ViewAllAuthors)),
 			(7, "Back", true)
 		};
 
@@ -128,8 +138,7 @@ public static class AuthorMenu
 				continue;
 			}
 
-			if (userChoice >= 1 && userChoice <= availableItems.Count)
-				return availableItems[userChoice - 1].ActionId;
+			if (userChoice >= 1 && userChoice <= availableItems.Count) return availableItems[userChoice - 1].ActionId;
 
 			ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
 		}
@@ -319,7 +328,8 @@ public static class AuthorMenu
 				case 1:
 				{
 					PersonHelper.SearchAndDisplay("Enter a name to search",
-						term => authorManagementService.SearchAuthor(term, AuthorSearchField.Name), AuthorPrinter.PrintTable,
+						term => authorManagementService.SearchAuthor(term, AuthorSearchField.Name),
+						AuthorPrinter.PrintTable,
 						Messages.NotAuthorMatched);
 
 					break;

@@ -6,7 +6,7 @@ public static class RolePermissionMap
 {
 	private static readonly Dictionary<LibraryUserRole, HashSet<Permission>> Map = new()
 	{
-		[LibraryUserRole.Admin] = Enum.GetValues<Permission>().ToHashSet(),
+		[LibraryUserRole.Admin] = AllPermissions,
 		[LibraryUserRole.Librarian] =
 		[
 			Permission.AddAuthor,
@@ -75,4 +75,8 @@ public static class RolePermissionMap
 
 	public static IReadOnlySet<Permission> GetPermissions(LibraryUserRole role) =>
 		Map.TryGetValue(role, out var set) ? set : new HashSet<Permission>();
+
+
+	private static readonly HashSet<Permission> AllPermissions =
+		Enum.GetValues<Permission>().ToHashSet();
 }

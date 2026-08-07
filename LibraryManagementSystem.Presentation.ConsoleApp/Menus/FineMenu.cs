@@ -1,6 +1,8 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -10,8 +12,20 @@ public static class FineMenu
 {
 	public static void FineMenuController(IFineManagementService fineManagementService,
 		UserManagementService userManagementService, ICurrentUserSession session,
-		LibraryStatisticsService statisticsService)
+		LibraryStatisticsService statisticsService, IAuthorizationService authorization)
 	{
+		if (!SessionGuard.RequireAnyPermission(
+			    authorization,
+			    Messages.AccessDenied,
+			    Permission.ViewAllFines,
+			    Permission.ViewUnpaidFines,
+			    Permission.ViewUserFines,
+			    Permission.PayFine,
+			    Permission.WaiveFine))
+		{
+			return;
+		}
+
 		var continueProgram = true;
 		while (continueProgram)
 		{
@@ -28,49 +42,47 @@ public static class FineMenu
 			{
 				case 1:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllFines, Messages.AccessDenied))
+						break;
 					ViewAllFines(fineManagementService, session);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewUnpaidFines, Messages.AccessDenied))
+						break;
 					ViewUnpaidFines(fineManagementService, session);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewUserFines, Messages.AccessDenied))
+						break;
 					ViewUserFines(fineManagementService, userManagementService, session);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.PayFine, Messages.AccessDenied))
+						break;
 					PayFine(fineManagementService, session);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 5:
 				{
-					Console.Clear();
-					if (!SessionGuard.RequireAdmin(session)) break;
+					if (!SessionGuard.RequirePermission(authorization, Permission.WaiveFine, Messages.AccessDenied))
+						break;
 					WaiveFine(fineManagementService, session);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 6:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
-					ConsoleHelper.Pause();
-					Console.Clear();
 					continueProgram = false;
 					break;
 				}
 			}
+			ConsoleHelper.Pause();
 		}
 	}
 
