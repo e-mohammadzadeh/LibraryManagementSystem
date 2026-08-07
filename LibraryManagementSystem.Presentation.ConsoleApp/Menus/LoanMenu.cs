@@ -72,7 +72,8 @@ public static class LoanMenu
 				{
 					Console.Clear();
 					int userId;
-					if (session.IsSelfServiceMember) userId = session.UserId!.Value;
+					if (session.IsSelfServiceMember)
+						userId = session.UserId!.Value;
 					else
 					{
 						var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
@@ -86,6 +87,7 @@ public static class LoanMenu
 						ConsoleHelper.ShowError(result.Message!);
 						break;
 					}
+
 					DisplayLoans(result.Data ?? [], Messages.UserHasNoBorrowedBooks);
 					ConsoleHelper.Pause();
 					break;
@@ -100,14 +102,44 @@ public static class LoanMenu
 				}
 				case 8:
 				{
+					Console.Clear();
+					if (!SessionGuard.RequireAdminOrLibrarian(session)) break;
+
+					var book = MenuHelper.SelectBook(bookManagementService.GetAllBooks());
+					if (book is null) break;
+
+					var loans = loanManagementService.GetLoanByBook(book.BookId);
+					DisplayLoans(loans, Messages.NotAvailableLoan);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 9:
 				{
+					Console.Clear();
+					if (!SessionGuard.RequireAdminOrLibrarian(session)) break;
+
+					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
+					if (user is null) break;
+
+					var result = loanManagementService.GetLoansByUser(user.Id, session);
+					if (!result.Success)
+					{
+						ConsoleHelper.ShowError(result.Message!);
+						break;
+					}
+
+					DisplayLoans(result.Data ?? [], Messages.UserHasNoBorrowedBooks);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 10:
 				{
+					Console.Clear();
+					if (!SessionGuard.RequireAdminOrLibrarian(session)) break;
+
+					var allLoans = loanManagementService.GetFullLibraryHistory();
+					DisplayLoans(allLoans, Messages.NotAvailableLoan);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 11:
@@ -129,7 +161,8 @@ public static class LoanMenu
 	}
 
 
-	private static int LoanMenuList(ICurrentUserSession session) {
+	private static int LoanMenuList(ICurrentUserSession session)
+	{
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
 			(1, "Borrow Book", true),
@@ -169,8 +202,7 @@ public static class LoanMenu
 				continue;
 			}
 
-			if (userChoice >= 1 && userChoice <= availableItems.Count)
-				return availableItems[userChoice - 1].ActionId;
+			if (userChoice >= 1 && userChoice <= availableItems.Count) return availableItems[userChoice - 1].ActionId;
 
 			ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
 		}
@@ -304,6 +336,7 @@ public static class LoanMenu
 			ConsoleHelper.ShowWarning(emptyMessage);
 			return;
 		}
+
 		LoanPrinter.PrintTable(loans);
 	}
 

@@ -132,10 +132,10 @@ public class LoanManagementService
 	public IReadOnlyList<LoanDto> SearchLoans<T>(T? searchTerm, Func<Loan, T?> selector, Func<T, T, bool> comparer,
 		ICurrentUserSession session) where T : class
 	{
-		if (searchTerm is null) return [];
 		// TODO	(EF)	When EF is added, move search filtering to ILoanRepository.Search<T>() to allow SQL-level filtering instead of in-memory LINQ.
-
-		return SearchLoansInternal(searchTerm, selector, comparer, session, activeOnly: false);
+		return searchTerm is null
+			? []
+			: SearchLoansInternal(searchTerm, selector, comparer, session, activeOnly: false);
 	}
 
 
@@ -229,7 +229,6 @@ public class LoanManagementService
 	{
 		return [.. _loanRepository.GetActiveLoansByBook(bookId).Select(loan => loan.ToDto())];
 	}
-
 
 
 	public IReadOnlyList<LoanDto> GetAllActiveLoans(ICurrentUserSession session)

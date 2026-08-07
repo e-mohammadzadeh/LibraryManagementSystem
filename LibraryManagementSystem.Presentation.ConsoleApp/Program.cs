@@ -32,31 +32,33 @@ public static class Program
 			Console.Clear();
 			Console.Title = "Library Management System";
 			// Seed data for development/testing
-			DataSeeder.Seed(authorRepo, translatorRepo, bookRepo, userRepo, loanRepo, roleRepo, fineRepo, passwordHasher);
+			DataSeeder.Seed(authorRepo, translatorRepo, bookRepo, userRepo, loanRepo, roleRepo, fineRepo,
+				passwordHasher);
 
 
 			// ── Application Services ──────────────────
 			var authorService = new AuthorManagementService(authorRepo);
 			var translatorService = new TranslatorManagementService(translatorRepo);
 			IUserAutoRemovalService userAutoRemovalService = new UserAutoRemovalService(userRepo, loanRepo, fineRepo);
-			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo, userAutoRemovalService);
-			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, fineRepo, fineService);
+			IFineManagementService fineService =
+				new FineManagementService(fineRepo, loanRepo, userRepo, userAutoRemovalService);
+			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, fineService);
 			var userService = new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher);
 			var bookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo);
 			var authService = new AuthenticationService(userRepo, passwordHasher, currentUserSession);
-			var statisticsService = new LibraryStatisticsService(bookRepo, authorRepo, translatorRepo, userRepo, loanRepo);
+			var statisticsService =
+				new LibraryStatisticsService(bookRepo, authorRepo, translatorRepo, userRepo, loanRepo);
 
 			while (true)
 			{
 				var loggedInUser = LoginMenu.ShowLogin(authService);
-				if (loggedInUser is null)
-					return;
+				if (loggedInUser is null) return;
 
-				var result = MainMenu.MainMenuController(authorService, translatorService, userService, bookService, loanService,
+				var result = MainMenu.MainMenuController(authorService, translatorService, userService, bookService,
+					loanService,
 					fineService, authService, currentUserSession, statisticsService);
 
-				if (result == MainMenuResult.Exit)
-					return;
+				if (result == MainMenuResult.Exit) return;
 			}
 		}
 		catch (Exception ex)
