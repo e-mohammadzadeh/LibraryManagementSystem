@@ -10,6 +10,7 @@ public class InMemoryBookRepository : IBookRepository
 
 	public void Add(Book book)
 	{
+		ArgumentNullException.ThrowIfNull(book);
 		_books.Add(book);
 	}
 

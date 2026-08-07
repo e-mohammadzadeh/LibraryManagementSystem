@@ -8,7 +8,12 @@ public class InMemoryFineRepository : IFineRepository
 {
 	private readonly List<Fine> _fines = [];
 
-	public void Add(Fine fine) { _fines.Add(fine); }
+
+	public void Add(Fine fine)
+	{
+		ArgumentNullException.ThrowIfNull(fine);
+		_fines.Add(fine);
+	}
 
 
 	public Fine? FindById(int fineId) { return _fines.FirstOrDefault(f => f.FineId == fineId); }

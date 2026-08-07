@@ -10,6 +10,7 @@ public class InMemoryUserRepository : IUserRepository
 
 	public void Add(User user)
 	{
+		ArgumentNullException.ThrowIfNull(user);
 		_users.Add(user);
 	}
 

@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Domain.Entities;
@@ -427,7 +428,7 @@ public static class BookMenu
 					break;
 				}
 
-				var availableToAdd = allAuthors.Where(a => !currentAuthorIds.Contains(a.Id)).ToList().AsReadOnly();
+				IReadOnlyList<AuthorDto> availableToAdd = [.. allAuthors.Where(a => !currentAuthorIds.Contains(a.Id))];
 				if (availableToAdd.Count == 0)
 				{
 					ConsoleHelper.ShowError(Messages.NotEnoughAuthors);

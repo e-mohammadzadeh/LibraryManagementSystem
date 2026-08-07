@@ -2,6 +2,7 @@
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Loans;
 using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -52,7 +53,7 @@ public static class LoanMenu
 				{
 					Console.Clear();
 					var loans = loanManagementService.GetAllActiveLoans(session);
-					DisplayLoans(loans, Messages.NoActiveLoans, session);
+					DisplayLoans(loans, Messages.NoActiveLoans);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -62,8 +63,8 @@ public static class LoanMenu
 					if (!SessionGuard.RequireLibrarian(session)) break;
 					var book = MenuHelper.SelectBook(bookManagementService.GetAllBooks());
 					if (book is null) break;
-					var loans = loanManagementService.GetAciveLoansByBook(book.BookId);
-					DisplayLoans(loans, Messages.NotAvailableLoan, session);
+					var loans = loanManagementService.GetActiveLoansByBook(book.BookId);
+					DisplayLoans(loans, Messages.NotAvailableLoan);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -85,7 +86,7 @@ public static class LoanMenu
 						ConsoleHelper.ShowError(result.Message!);
 						break;
 					}
-					DisplayLoans(result.Data ?? [], Messages.UserHasNoBorrowedBooks, session);
+					DisplayLoans(result.Data ?? [], Messages.UserHasNoBorrowedBooks);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -93,17 +94,29 @@ public static class LoanMenu
 				{
 					Console.Clear();
 					var loans = loanManagementService.GetOverdueLoans(session);
-					DisplayLoans(loans, Messages.NoOverdueLoans, session);
+					DisplayLoans(loans, Messages.NoOverdueLoans);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 8:
 				{
+					break;
+				}
+				case 9:
+				{
+					break;
+				}
+				case 10:
+				{
+					break;
+				}
+				case 11:
+				{
 					if (!SessionGuard.RequireAdminOrLibrarian(session)) break;
 					SearchLoan(loanManagementService, session);
 					break;
 				}
-				case 9:
+				case 12:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					ConsoleHelper.Pause();
@@ -146,7 +159,7 @@ public static class LoanMenu
 				displayNumber++;
 			}
 
-			Console.WriteLine(new string('=', 82));
+			Console.WriteLine(new string('=', 83));
 			Console.Write(Messages.MainMenuQuestion);
 
 			var option = Console.ReadLine();
@@ -283,128 +296,14 @@ public static class LoanMenu
 	}
 
 
-	private static void ViewBorrowedBooks(LoanManagementService loanManagementService, ICurrentUserSession session)
-	{
-		IReadOnlyList<LoanDto> loans;
-		if (session.IsSelfServiceMember)
-		{
-			var result = loanManagementService.GetActiveLoansByUser(session.UserId!.Value, session);
-			if (!result.Success)
-			{
-				ConsoleHelper.ShowError(result.Message!);
-				return;
-			}
 
-			loans = result.Data ?? [];
-		}
-		else
-		{
-			loans = loanManagementService.GetAllActiveLoans(session);
-		}
-
-		if (loans.Count is 0)
-		{
-			ConsoleHelper.ShowWarning(Messages.NoActiveLoans);
-			return;
-		}
-
-		LoanPrinter.PrintTable(loans);
-	}
-
-
-	private static void DisplayLoans(IReadOnlyList<LoanDto> loans, string emptyMessage, ICurrentUserSession session)
+	private static void DisplayLoans(IReadOnlyList<LoanDto> loans, string emptyMessage)
 	{
 		if (loans.Count == 0)
 		{
 			ConsoleHelper.ShowWarning(emptyMessage);
 			return;
 		}
-		LoanPrinter.PrintTable(loans);
-	}
-
-
-
-
-
-	private static void DisplayLoansForUsers(LoanManagementService loanManagementService,
-		UserManagementService userManagementService, bool activeOnly, string emptyMessage, ICurrentUserSession session)
-	{
-		int userId;
-		if (session.IsSelfServiceMember)
-		{
-			userId = session.UserId!.Value;
-		}
-		else
-		{
-			var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
-			if (user is null)
-			{
-				ConsoleHelper.ShowWarning(Messages.UserNotFound);
-				return;
-			}
-
-			userId = user.Id;
-		}
-
-		IReadOnlyList<LoanDto> loans;
-		if (activeOnly)
-		{
-			var result = loanManagementService.GetActiveLoansByUser(userId, session);
-			if (!result.Success)
-			{
-				ConsoleHelper.ShowError(result.Message!);
-				return;
-			}
-
-			loans = result.Data ?? [];
-		}
-		else
-		{
-			var result = loanManagementService.GetLoansByUser(userId, session);
-			if (!result.Success)
-			{
-				ConsoleHelper.ShowError(result.Message!);
-				return;
-			}
-
-			loans = result.Data ?? [];
-		}
-
-		if (loans.Count is 0)
-		{
-			ConsoleHelper.ShowWarning(emptyMessage);
-			return;
-		}
-
-		LoanPrinter.PrintTable(loans);
-	}
-
-
-	private static void ViewOverdueLoans(LoanManagementService loanManagementService, ICurrentUserSession session)
-	{
-		IReadOnlyList<LoanDto> loans;
-		if (session.IsSelfServiceMember)
-		{
-			var result = loanManagementService.GetActiveLoansByUser(session.UserId!.Value, session);
-			if (!result.Success)
-			{
-				ConsoleHelper.ShowError(result.Message!);
-				return;
-			}
-
-			loans = [.. (result.Data ?? []).Where(l => l.IsOverdue)];
-		}
-		else
-		{
-			loans = loanManagementService.GetOverdueLoans(session);
-		}
-
-		if (loans.Count is 0)
-		{
-			ConsoleHelper.ShowWarning(Messages.NoOverdueLoans);
-			return;
-		}
-
 		LoanPrinter.PrintTable(loans);
 	}
 
@@ -456,7 +355,7 @@ public static class LoanMenu
 					SearchLoanAndDisplay(
 						p => ConsoleHelper.GetValidName(p, ValidationConstants.MinBookNameLength,
 							ValidationConstants.MaxBookNameLength), "Enter a book title to search",
-						loan => loan.BookName,
+						loan => loan.Book.BookName,
 						(search, value) => value.Contains(search, StringComparison.OrdinalIgnoreCase), activeOnly,
 						loanManagementService, session);
 
@@ -465,7 +364,7 @@ public static class LoanMenu
 				case 3:
 				{
 					SearchLoanAndDisplay(p => ConsoleHelper.ReadString(p), "Enter a book ISBN to search",
-						loan => loan.BookISBN,
+						loan => loan.Book.InternationalStandardBookNumber,
 						(search, value) => value.Contains(search, StringComparison.OrdinalIgnoreCase), activeOnly,
 						loanManagementService, session);
 
@@ -476,7 +375,7 @@ public static class LoanMenu
 					SearchLoanAndDisplay(
 						p => ConsoleHelper.GetValidName(p, ValidationConstants.MinNameLength,
 							ValidationConstants.MaxNameLength), "Enter a member name to search",
-						loan => loan.UserName,
+						loan => $"{loan.User.FirstName} {loan.User.LastName}",
 						(search, value) => value.Contains(search, StringComparison.OrdinalIgnoreCase), activeOnly,
 						loanManagementService, session);
 
@@ -485,7 +384,7 @@ public static class LoanMenu
 				case 5:
 				{
 					SearchLoanAndDisplay(ConsoleHelper.GetValidNationalCode, "Enter a member national code to search",
-						loan => loan.UserNationalCode,
+						loan => loan.User.NationalCode,
 						(search, value) => value.Contains(search, StringComparison.OrdinalIgnoreCase),
 						activeOnly, loanManagementService, session);
 
@@ -513,7 +412,7 @@ public static class LoanMenu
 	}
 
 
-	private static void SearchLoanAndDisplay<T>(Func<string, T?> reader, string prompt, Func<LoanDto, T?> selector,
+	private static void SearchLoanAndDisplay<T>(Func<string, T?> reader, string prompt, Func<Loan, T?> selector,
 		Func<T, T, bool> comparer, bool activeOnly, LoanManagementService loanManagementService,
 		ICurrentUserSession session)
 		where T : class
@@ -529,7 +428,7 @@ public static class LoanMenu
 	}
 
 
-	private static void SearchLoanAndDisplay<T>(Func<string, T?> reader, string prompt, Func<LoanDto, T?> selector,
+	private static void SearchLoanAndDisplay<T>(Func<string, T?> reader, string prompt, Func<Loan, T?> selector,
 		Func<T, T, bool> comparer, bool activeOnly, LoanManagementService loanManagementService,
 		ICurrentUserSession session)
 		where T : struct

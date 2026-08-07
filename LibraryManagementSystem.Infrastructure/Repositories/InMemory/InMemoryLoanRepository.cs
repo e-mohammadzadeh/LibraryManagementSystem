@@ -8,7 +8,11 @@ public class InMemoryLoanRepository : ILoanRepository
 	private readonly List<Loan> _loans = [];
 
 
-	public void Add(Loan loan) { _loans.Add(loan); }
+	public void Add(Loan loan)
+	{
+		ArgumentNullException.ThrowIfNull(loan);
+		_loans.Add(loan);
+	}
 
 
 	public Loan? FindById(int id) { return _loans.FirstOrDefault(l => l.LoanId == id); }

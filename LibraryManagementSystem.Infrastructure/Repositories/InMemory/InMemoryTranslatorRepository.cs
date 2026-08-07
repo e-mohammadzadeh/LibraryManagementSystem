@@ -10,6 +10,7 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 
 	public void Add(Translator translator)
 	{
+		ArgumentNullException.ThrowIfNull(translator);
 		_translators.Add(translator);
 	}
 

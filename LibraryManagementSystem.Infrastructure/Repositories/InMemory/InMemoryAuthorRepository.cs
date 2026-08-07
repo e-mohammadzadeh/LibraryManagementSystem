@@ -9,7 +9,11 @@ public class InMemoryAuthorRepository : IAuthorRepository
 	private readonly List<Author> _authors = [];
 
 
-	public void Add(Author author) { _authors.Add(author); }
+	public void Add(Author author)
+	{
+		ArgumentNullException.ThrowIfNull(author);
+		_authors.Add(author);
+	}
 
 
 	public Author? FindById(int id) { return _authors.FirstOrDefault(author => author.Id == id); }
