@@ -1,5 +1,4 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
-using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Infrastructure.Repositories.InMemory;
@@ -18,10 +17,7 @@ public class InMemoryLoanRepository : ILoanRepository
 	public IReadOnlyList<Loan> GetAll() { return _loans.AsReadOnly(); }
 
 
-	public IReadOnlyList<Loan> GetAllByUser(int userId)
-	{
-		return _loans.Where(l => l.UserId == userId).ToList().AsReadOnly();
-	}
+	public IReadOnlyList<Loan> GetAllByUser(int userId) { return [.. _loans.Where(l => l.UserId == userId)]; }
 
 
 	public Loan? GetActiveLoanById(int loanId) { return _loans.FirstOrDefault(l => l.LoanId == loanId && l.IsActive); }
@@ -30,43 +26,34 @@ public class InMemoryLoanRepository : ILoanRepository
 
 	public IReadOnlyList<Loan> GetActiveLoansByUser(int userId)
 	{
-		return _loans.Where(l => l.UserId == userId && l.ReturnDate == null).ToList().AsReadOnly();
+		return [.. _loans.Where(l => l.UserId == userId && l.IsActive)];
 	}
 
 
 	public IReadOnlyList<Loan> GetActiveLoansByBook(int bookId)
 	{
-		return _loans.Where(l => l.BookId == bookId && l.ReturnDate == null).ToList().AsReadOnly();
+		return [.. _loans.Where(l => l.BookId == bookId && l.IsActive)];
 	}
 
 
-	public IReadOnlyList<Loan> GetReturnedLoans()
-	{
-		return _loans.Where(loan => loan.ReturnDate.HasValue).ToList().AsReadOnly();
-	}
+	public IReadOnlyList<Loan> GetReturnedLoans() { return [.. _loans.Where(loan => loan.ReturnDate.HasValue)]; }
 
 
-	public int CountActiveLoansByUser(int userId)
-	{
-		return _loans.Count(l => l.UserId == userId && l.ReturnDate == null);
-	}
+	public int CountActiveLoansByUser(int userId) { return _loans.Count(l => l.UserId == userId && l.IsActive); }
 
 
 	public bool HasActiveLoan(int userId, int bookId)
 	{
-		return _loans.Any(l => l.UserId == userId && l.BookId == bookId && l.ReturnDate == null);
+		return _loans.Any(l => l.UserId == userId && l.BookId == bookId && l.IsActive);
 	}
 
 
-	public IReadOnlyList<Loan> GetActiveLoans()
-	{
-		return _loans.Where(l => l.ReturnDate == null).ToList().AsReadOnly();
-	}
+	public IReadOnlyList<Loan> GetActiveLoans() { return [.. _loans.Where(l => l.IsActive)]; }
 
 
 	public Loan? GetActiveLoan(int userId, int bookId)
 	{
-		return _loans.FirstOrDefault(l => l.UserId == userId && l.BookId == bookId && l.ReturnDate == null);
+		return _loans.FirstOrDefault(l => l.UserId == userId && l.BookId == bookId && l.IsActive);
 	}
 
 

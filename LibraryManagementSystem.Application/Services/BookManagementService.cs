@@ -73,7 +73,7 @@ public class BookManagementService
 
 	public IReadOnlyList<BookDto> GetAllBooks()
 	{
-		return _bookRepository.GetAll().Select(book => book.ToDto()).ToList().AsReadOnly();
+		return [.. _bookRepository.GetAll().Select(book => book.ToDto())];
 	}
 
 
@@ -190,6 +190,6 @@ public class BookManagementService
 
 	public IReadOnlyList<BookDto> GetAvailableBooks()
 	{
-		return _bookRepository.GetAvailableBooks().Select(book => book.ToDto()).ToList().AsReadOnly();
+		return [.. _bookRepository.GetAvailableBooks().Select(book => book.ToDto())];
 	}
 }

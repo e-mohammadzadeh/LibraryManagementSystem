@@ -41,7 +41,7 @@ public class AuthenticationService
 			Id = user.Id,
 			FullName = $"{user.FirstName} {user.LastName}",
 			Email = user.Email,
-			Roles = user.UserRoles.Select(ur => ur.Role.Name).ToList().AsReadOnly(),
+			Roles = [.. user.UserRoles.Select(ur => ur.Role.Name)],
 			IsActive = user.IsActive,
 			MembershipExpiryDate = user.MembershipExpiryDate,
 			ShouldRemove = user.ShouldRemove

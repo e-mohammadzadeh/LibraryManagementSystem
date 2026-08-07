@@ -68,7 +68,7 @@ public class UserManagementService
 	{
 		return session is { IsAdmin: false, IsLibrarian: false }
 			? []
-			: _userRepository.GetAll().Select(user => user.ToDto()).ToList().AsReadOnly();
+			: [.. _userRepository.GetAll().Select(user => user.ToDto())];
 	}
 
 
@@ -183,13 +183,13 @@ public class UserManagementService
 
 	public IReadOnlyList<UserDto> SearchUser(string searchTerm, Func<User, string?> selector)
 	{
-		return _userRepository.Search(searchTerm, selector).Select(user => user.ToDto()).ToList().AsReadOnly();
+		return [.. _userRepository.Search(searchTerm, selector).Select(user => user.ToDto())];
 	}
 
 
 	public IReadOnlyList<UserDto> SearchByRole(List<int> role)
 	{
-		return _userRepository.SearchByRole(role).Select(user => user.ToDto()).ToList().AsReadOnly();
+		return [.. _userRepository.SearchByRole(role).Select(user => user.ToDto())];
 	}
 
 

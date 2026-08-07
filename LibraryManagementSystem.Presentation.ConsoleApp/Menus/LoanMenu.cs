@@ -51,32 +51,49 @@ public static class LoanMenu
 				case 4:
 				{
 					Console.Clear();
-					ViewBorrowedBooks(loanManagementService, session);
+					var loans = loanManagementService.GetAllActiveLoans(session);
+					DisplayLoans(loans, Messages.NoActiveLoans, session);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 5:
 				{
 					Console.Clear();
-					DisplayLoansForUsers(loanManagementService, userManagementService, activeOnly: false,
-						Messages.NoLoanHistoryForUser, session);
-
+					if (!SessionGuard.RequireLibrarian(session)) break;
+					var book = MenuHelper.SelectBook(bookManagementService.GetAllBooks());
+					if (book is null) break;
+					var loans = loanManagementService.GetAciveLoansByBook(book.BookId);
+					DisplayLoans(loans, Messages.NotAvailableLoan, session);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 6:
 				{
 					Console.Clear();
-					ViewOverdueLoans(loanManagementService, session);
+					int userId;
+					if (session.IsSelfServiceMember) userId = session.UserId!.Value;
+					else
+					{
+						var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
+						if (user is null) break;
+						userId = user.Id;
+					}
+
+					var result = loanManagementService.GetActiveLoansByUser(userId, session);
+					if (!result.Success)
+					{
+						ConsoleHelper.ShowError(result.Message!);
+						break;
+					}
+					DisplayLoans(result.Data ?? [], Messages.UserHasNoBorrowedBooks, session);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
 				{
 					Console.Clear();
-					DisplayLoansForUsers(loanManagementService, userManagementService, activeOnly: true,
-						Messages.UserHasNoBorrowedBooks, session);
-
+					var loans = loanManagementService.GetOverdueLoans(session);
+					DisplayLoans(loans, Messages.NoOverdueLoans, session);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -105,12 +122,15 @@ public static class LoanMenu
 			(1, "Borrow Book", true),
 			(2, "Return Book", true),
 			(3, "Renew Loan", true),
-			(4, "View Borrowed Books", true),
-			(5, "View Loan History", true),
-			(6, "View Overdue Loans", true),
-			(7, "View User Loans", session.IsAdmin || session.IsLibrarian),
-			(8, "Search Loans", session.IsAdmin || session.IsLibrarian),
-			(9, "Back", true)
+			(4, "My Active Loans", true),
+			(5, "Active Loans by Book", session.IsAdmin || session.IsLibrarian),
+			(6, "Active Loans by User", true),
+			(7, "Overdue Loans", session.IsAdmin || session.IsLibrarian),
+			(8, "Full History By Book", session.IsAdmin || session.IsLibrarian),
+			(9, "Full History By User", session.IsAdmin || session.IsLibrarian),
+			(10, "Full  Library History", session.IsAdmin || session.IsLibrarian),
+			(11, "Search Loans", session.IsAdmin || session.IsLibrarian),
+			(12, "Back", true)
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
@@ -292,6 +312,20 @@ public static class LoanMenu
 	}
 
 
+	private static void DisplayLoans(IReadOnlyList<LoanDto> loans, string emptyMessage, ICurrentUserSession session)
+	{
+		if (loans.Count == 0)
+		{
+			ConsoleHelper.ShowWarning(emptyMessage);
+			return;
+		}
+		LoanPrinter.PrintTable(loans);
+	}
+
+
+
+
+
 	private static void DisplayLoansForUsers(LoanManagementService loanManagementService,
 		UserManagementService userManagementService, bool activeOnly, string emptyMessage, ICurrentUserSession session)
 	{
@@ -358,7 +392,7 @@ public static class LoanMenu
 				return;
 			}
 
-			loans = (result.Data ?? []).Where(l => l.IsOverdue).ToList().AsReadOnly();
+			loans = [.. (result.Data ?? []).Where(l => l.IsOverdue)];
 		}
 		else
 		{

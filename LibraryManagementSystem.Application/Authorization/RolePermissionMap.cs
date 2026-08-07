@@ -73,6 +73,6 @@ public static class RolePermissionMap
 	};
 
 
-	public static IReadOnlyList<Permission> GetPermissions(LibraryUserRole role) =>
+	public static IReadOnlySet<Permission> GetPermissions(LibraryUserRole role) =>
 		Map.TryGetValue(role, out var set) ? set : new HashSet<Permission>();
 }

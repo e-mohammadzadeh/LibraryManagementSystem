@@ -39,8 +39,7 @@ public class LoanManagementService
 
 		if (user.ShouldRemove) return ServiceResult<LoanDto>.Fail(Messages.FlaggedForRemoval);
 
-		if (_fineRepository.HasUnpaidFines(userId))
-			return ServiceResult<LoanDto>.Fail(Messages.BorrowFailedForFine);
+		if (_fineRepository.HasUnpaidFines(userId)) return ServiceResult<LoanDto>.Fail(Messages.BorrowFailedForFine);
 
 		if (_loanRepository.CountActiveLoansByUser(userId) >= ValidationConstants.MaxActiveLoansPerUser)
 			return ServiceResult<LoanDto>.Fail(Messages.MaximumLoansReached);
@@ -87,7 +86,7 @@ public class LoanManagementService
 			return ServiceResult<IReadOnlyList<LoanDto>>.Fail(Messages.ViewOwnLoans);
 
 		var loans = _loanRepository.GetActiveLoansByUser(userId).Select(loan => loan.ToDto()).ToList().AsReadOnly();
-		return ServiceResult<IReadOnlyList<LoanDto>>.Ok(loans, "Loans retrieved successfully.");
+		return ServiceResult<IReadOnlyList<LoanDto>>.Ok(loans, Messages.LoansRetrievedSuccessfully);
 	}
 
 
@@ -101,8 +100,7 @@ public class LoanManagementService
 
 		if (!loan.CanRenew(out var errorMessage)) return ServiceResult<LoanDto>.Fail(errorMessage);
 
-		if (_fineService.HasUnpaidFines(loan.UserId))
-			return ServiceResult<LoanDto>.Fail(Messages.UserHasUnpaidFines);
+		if (_fineService.HasUnpaidFines(loan.UserId)) return ServiceResult<LoanDto>.Fail(Messages.UserHasUnpaidFines);
 
 		loan.Renew();
 		_loanRepository.Update(loan);
@@ -113,11 +111,13 @@ public class LoanManagementService
 	public IReadOnlyList<LoanDto> GetOverdueLoans(ICurrentUserSession session)
 	{
 		if (session.IsSelfServiceMember)
-			return _loanRepository.GetActiveLoansByUser(session.UserId!.Value).Where(l => l.IsOverdue)
-				.Select(loan => loan.ToDto())
-				.ToList().AsReadOnly();
+			return
+			[
+				.. _loanRepository.GetActiveLoansByUser(session.UserId!.Value).Where(l => l.IsOverdue)
+					.Select(loan => loan.ToDto())
+			];
 
-		return _loanRepository.GetOverdueLoans().Select(loan => loan.ToDto()).ToList().AsReadOnly();
+		return [.. _loanRepository.GetOverdueLoans().Select(loan => loan.ToDto())];
 	}
 
 
@@ -127,7 +127,7 @@ public class LoanManagementService
 			return ServiceResult<IReadOnlyList<LoanDto>>.Fail(Messages.ViewOwnLoans);
 
 		var loans = _loanRepository.GetAllByUser(userId).Select(loan => loan.ToDto()).ToList().AsReadOnly();
-		return ServiceResult<IReadOnlyList<LoanDto>>.Ok(loans, "Loans retrieved successfully.");
+		return ServiceResult<IReadOnlyList<LoanDto>>.Ok(loans, Messages.LoansRetrievedSuccessfully);
 	}
 
 
@@ -175,12 +175,12 @@ public class LoanManagementService
 				? _loanRepository.GetActiveLoans()
 				: _loanRepository.GetAll();
 
-		return source
+		return [.. source
 			.Where(loan =>
 			{
 				var value = selector(loan.ToDto());
 				return value is not null && comparer(searchTerm, value);
-			}).Select(loan => loan.ToDto()).ToList().AsReadOnly();
+			}).Select(loan => loan.ToDto())];
 	}
 
 
@@ -193,12 +193,12 @@ public class LoanManagementService
 				? _loanRepository.GetActiveLoans()
 				: _loanRepository.GetAll();
 
-		return source
+		return [.. source
 			.Where(loan =>
 			{
 				var value = selector(loan.ToDto());
 				return value.HasValue && comparer(searchTerm, value.Value);
-			}).Select(loan => loan.ToDto()).ToList().AsReadOnly();
+			}).Select(loan => loan.ToDto())];
 	}
 
 
@@ -207,16 +207,17 @@ public class LoanManagementService
 		if (session.IsSelfServiceMember)
 		{
 			if (session.UserId is null) return [];
-			return _loanRepository.GetAllByUser(session.UserId!.Value).Select(loan => loan.ToDto()).ToList().AsReadOnly();
+			return _loanRepository.GetAllByUser(session.UserId!.Value).Select(loan => loan.ToDto()).ToList()
+				.AsReadOnly();
 		}
 
-		return _loanRepository.GetAll().Select(loan => loan.ToDto()).ToList().AsReadOnly();
+		return [.. _loanRepository.GetAll().Select(loan => loan.ToDto())];
 	}
 
 
 	public IReadOnlyList<LoanDto> GetLoanByBook(int bookId)
 	{
-		return _loanRepository.GetLoansByBook(bookId).Select(loan => loan.ToDto()).ToList().AsReadOnly();
+		return [.. _loanRepository.GetLoansByBook(bookId).Select(loan => loan.ToDto())];
 	}
 
 
@@ -224,10 +225,17 @@ public class LoanManagementService
 	{
 		if (session.IsSelfServiceMember)
 		{
-			if (session.UserId is null) return [];
-			return _loanRepository.GetActiveLoansByUser(session.UserId!.Value).Select(loan => loan.ToDto()).ToList().AsReadOnly();
+			return session.UserId is null
+				? []
+				: [.. _loanRepository.GetActiveLoansByUser(session.UserId!.Value).Select(loan => loan.ToDto())];
 		}
 
-		return _loanRepository.GetActiveLoans().Select(loan => loan.ToDto()).ToList().AsReadOnly();
+		return [.. _loanRepository.GetActiveLoans().Select(loan => loan.ToDto())];
+	}
+
+
+	public IReadOnlyList<LoanDto> GetFullLibraryHistory()
+	{
+		return [.. _loanRepository.GetAll().Select(loan => loan.ToDto())];
 	}
 }

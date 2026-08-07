@@ -43,7 +43,7 @@ public class TranslatorManagementService
 
 	public IReadOnlyList<TranslatorDto> GetAllTranslators()
 	{
-		return _translatorRepository.GetAll().Select(translator => translator.ToDto()).ToList().AsReadOnly();
+		return [.. _translatorRepository.GetAll().Select(translator => translator.ToDto())];
 	}
 
 

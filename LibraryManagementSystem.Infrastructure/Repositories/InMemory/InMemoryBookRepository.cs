@@ -49,7 +49,7 @@ public class InMemoryBookRepository : IBookRepository
 
 	public IReadOnlyList<Book> GetAvailableBooks()
 	{
-		return _books.Where(b => b.AvailableCopies > 0).ToList().AsReadOnly();
+		return [.. _books.Where(b => b.AvailableCopies > 0)];
 	}
 
 
@@ -66,11 +66,11 @@ public class InMemoryBookRepository : IBookRepository
 		if (searchTerm is null)
 			return [];
 
-		return _books.Where(book =>
+		return [.. _books.Where(book =>
 		{
 			var value = selector(book);
 			return value is not null && comparer(searchTerm, value);
-		}).ToList().AsReadOnly();
+		})];
 	}
 
 
@@ -81,11 +81,11 @@ public class InMemoryBookRepository : IBookRepository
 		if (!searchTerm.HasValue)
 			return [];
 
-		return _books.Where(book =>
+		return [.. _books.Where(book =>
 		{
 			var value = selector(book);
 			return value.HasValue && comparer(searchTerm.Value, value.Value);
-		}).ToList().AsReadOnly();
+		})];
 	}
 
 

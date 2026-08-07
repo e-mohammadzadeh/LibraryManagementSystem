@@ -19,25 +19,25 @@ public class InMemoryFineRepository : IFineRepository
 
 	public IReadOnlyList<Fine> GetAllUnpaid()
 	{
-		return _fines.Where(f => f.Status == FineStatus.Unpaid).ToList().AsReadOnly();
+		return [.. _fines.Where(f => f.Status == FineStatus.Unpaid)];
 	}
 
 
 	public IReadOnlyList<Fine> GetByLoanId(int loanId)
 	{
-		return _fines.Where(f => f.LoanId == loanId).ToList().AsReadOnly();
+		return [.. _fines.Where(f => f.LoanId == loanId)];
 	}
 
 
 	public IReadOnlyList<Fine> GetByUserId(int userId)
 	{
-		return _fines.Where(f => f.UserId == userId).ToList().AsReadOnly();
+		return [.. _fines.Where(f => f.UserId == userId)];
 	}
 
 
 	public IReadOnlyList<Fine> GetUnpaidByUserId(int userId)
 	{
-		return _fines.Where(f => f.UserId == userId && f.Status == FineStatus.Unpaid).ToList().AsReadOnly();
+		return [.. _fines.Where(f => f.UserId == userId && f.Status == FineStatus.Unpaid)];
 	}
 
 

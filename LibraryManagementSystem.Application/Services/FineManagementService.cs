@@ -112,7 +112,7 @@ public class FineManagementService : IFineManagementService
 	{
 		if (session.IsSelfServiceMember) return GetFinesByUser(session.UserId!.Value);
 
-		return _fineRepository.GetAll().Select(f => f.ToDto()).ToList().AsReadOnly();
+		return [.. _fineRepository.GetAll().Select(f => f.ToDto())];
 	}
 
 
@@ -120,16 +120,16 @@ public class FineManagementService : IFineManagementService
 	{
 		if (session.IsSelfServiceMember) return GetUnpaidFinesByUser(session.UserId!.Value);
 
-		return _fineRepository.GetAllUnpaid().Select(f => f.ToDto()).ToList().AsReadOnly();
+		return [.. _fineRepository.GetAllUnpaid().Select(f => f.ToDto())];
 	}
 
 
 	public IReadOnlyList<FineDto> GetFinesByUser(int userId) =>
-		_fineRepository.GetByUserId(userId).Select(fine => fine.ToDto()).ToList().AsReadOnly();
+		[.. _fineRepository.GetByUserId(userId).Select(fine => fine.ToDto())];
 
 
 	public IReadOnlyList<FineDto> GetUnpaidFinesByUser(int userId) =>
-		_fineRepository.GetUnpaidByUserId(userId).Select(fine => fine.ToDto()).ToList().AsReadOnly();
+		[.. _fineRepository.GetUnpaidByUserId(userId).Select(fine => fine.ToDto())];
 
 
 	public decimal GetTotalUnpaidAmount(int userId) => _fineRepository.GetTotalUnpaidAmount(userId);

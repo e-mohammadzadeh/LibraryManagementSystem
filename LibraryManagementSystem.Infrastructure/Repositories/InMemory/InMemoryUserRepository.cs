@@ -99,8 +99,8 @@ public class InMemoryUserRepository : IUserRepository
 	{
 		ArgumentNullException.ThrowIfNull(roleIds);
 
-		return roleIds.Count == 0
+		return [.. roleIds.Count == 0
 			? []
-			: _users.Where(u => u.UserRoles.Any(ur => roleIds.Contains(ur.RoleId))).ToList();
+			: _users.Where(u => u.UserRoles.Any(ur => roleIds.Contains(ur.RoleId)))];
 	}
 }

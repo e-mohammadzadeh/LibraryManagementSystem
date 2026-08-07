@@ -42,7 +42,7 @@ public class AuthorManagementService
 
 	public IReadOnlyList<AuthorDto> GetAllAuthors()
 	{
-		return _authorRepository.GetAll().Select(author => author.ToDto()).ToList().AsReadOnly();
+		return [.. _authorRepository.GetAll().Select(author => author.ToDto())];
 	}
 
 
@@ -113,6 +113,6 @@ public class AuthorManagementService
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};
 
-		return _authorRepository.Search(searchItem, selector).Select(author => author.ToDto()).ToList().AsReadOnly();
+		return [.. _authorRepository.Search(searchItem, selector).Select(author => author.ToDto())];
 	}
 }

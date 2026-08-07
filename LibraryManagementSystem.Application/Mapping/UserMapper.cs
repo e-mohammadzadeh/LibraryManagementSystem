@@ -16,7 +16,7 @@ public static class UserMapper
 			Email = user.Email,
 			PhoneNumber = user.PhoneNumber,
 			BirthDate = user.BirthDate,
-			Roles = user.UserRoles.Select(ur => ur.Role.Name).ToList().AsReadOnly(),
+			Roles = [.. user.UserRoles.Select(ur => ur.Role.Name)],
 			MembershipStartDate = user.MembershipStartDate,
 			MembershipExpiryDate = user.MembershipExpiryDate,
 			IsActive = user.IsActive,
