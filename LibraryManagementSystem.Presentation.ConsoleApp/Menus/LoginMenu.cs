@@ -13,7 +13,7 @@ public static class LoginMenu
 		{
 			Console.WriteLine(new string('=', 35) + " LOGIN MENU " + new string('=', 35));
 
-			Console.WriteLine("Please log in to access the Library Management System.");
+			Console.WriteLine("Please log in to access the Library Management System.\n");
 			var email = ConsoleHelper.GetValidEmail(Messages.EnterEmailPrompt);
 			if (email is null) return null;
 
@@ -27,7 +27,6 @@ public static class LoginMenu
 				return result.Data;
 			}
 			ConsoleHelper.ShowError(result.Message ?? Messages.LoginFailed);
-			ConsoleHelper.Pause();
 		}
 	}
 }

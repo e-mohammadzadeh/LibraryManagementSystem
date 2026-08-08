@@ -5,6 +5,7 @@ using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Infrastructure.Repositories.InMemory;
 using LibraryManagementSystem.Infrastructure.Security;
 using LibraryManagementSystem.Infrastructure.Seeders;
+using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp;
@@ -64,15 +65,9 @@ public static class Program
 		}
 		catch (Exception ex)
 		{
-			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine("\n========================================");
-			Console.WriteLine("FATAL ERROR DURING STARTUP OR EXECUTION:");
-			Console.WriteLine(ex.Message);
-			Console.WriteLine("========================================\n");
-			Console.ResetColor();
-
-			Console.WriteLine("\nPress any key to exit...");
-			Console.ReadKey();
+			ConsoleHelper.ShowError("\n" + new string('=', 50) + "\nFATAL ERROR DURING STARTUP OR EXECUTION:\n" +
+			                        ex.Message + "\n" + new string('=', 50));
+			ConsoleHelper.Pause();
 		}
 	}
 }

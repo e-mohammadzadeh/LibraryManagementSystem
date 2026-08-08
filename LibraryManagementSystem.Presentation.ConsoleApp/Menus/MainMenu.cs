@@ -64,9 +64,7 @@ public static class MainMenu
 				}
 				case 7:
 				{
-					ConsoleHelper.ShowInfo(Messages.LogoutSuccess);
-					var result = authenticationService.Logout();
-					ConsoleHelper.ShowResult(result);
+					ConsoleHelper.ShowResult(authenticationService.Logout());
 					return MainMenuResult.Logout;
 				}
 				case 8:
@@ -75,7 +73,6 @@ public static class MainMenu
 					return MainMenuResult.Exit;
 				}
 			}
-			ConsoleHelper.Pause();
 		}
 	}
 

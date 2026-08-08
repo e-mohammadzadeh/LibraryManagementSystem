@@ -17,12 +17,12 @@ public static class AuthorMenu
 		if (!SessionGuard.RequireAnyPermission(
 			    authorization,
 			    Messages.AccessDenied,
-			    Permission.ViewAllAuthors,
-			    Permission.SearchAuthor,
-			    Permission.ViewAuthorDetails,
 			    Permission.AddAuthor,
 			    Permission.EditAuthor,
-			    Permission.RemoveAuthor))
+			    Permission.RemoveAuthor,
+			    Permission.SearchAuthor,
+			    Permission.ViewAuthorDetails,
+			    Permission.ViewAllAuthors))
 		{
 			return;
 		}

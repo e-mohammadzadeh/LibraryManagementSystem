@@ -278,7 +278,7 @@ public static class Messages
 	public const string BackToMainMenu = "Backing to main menu...\n";
 
 	// Exit
-	public const string ExitingProgram = "Exiting Program...\n";
+	public const string ExitingProgram = "\nExiting Program...\n";
 
 	// Search Cancelled
 	public const string SearchCancelled = "Search cancelled. Returning to {0} Menu...";

@@ -226,9 +226,7 @@ public static class LoanMenu
 	{
 		int userId;
 		if (session.IsSelfServiceMember)
-		{
 			userId = session.UserId!.Value;
-		}
 		else
 		{
 			var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
@@ -276,9 +274,7 @@ public static class LoanMenu
 	{
 		int userId;
 		if (session.IsSelfServiceMember)
-		{
 			userId = session.UserId!.Value;
-		}
 		else
 		{
 			var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));

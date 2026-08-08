@@ -20,11 +20,7 @@ public static class MenuHelper
 			Console.WriteLine();
 		}
 
-		if (!statistics.Success || statistics.Data is null)
-		{
-			ConsoleHelper.ShowError(Messages.NotAuthorized);
-			return;
-		}
+		if (!statistics.Success || statistics.Data is null) return;
 
 		var s = statistics.Data;
 		Console.WriteLine(new string('=', 32) + " LIBRARY DASHBOARD " + new string('=', 32));
