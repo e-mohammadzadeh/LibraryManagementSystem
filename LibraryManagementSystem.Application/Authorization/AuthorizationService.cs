@@ -59,8 +59,10 @@ public class AuthorizationService : IAuthorizationService
 	public bool CanAccessLoanManagement()
 	{
 		return HasAnyPermission(Permission.BorrowBook, Permission.ReturnBook, Permission.RenewLoan,
-			Permission.ViewBorrowedBooks, Permission.ViewLoanHistory, Permission.ViewLoanHistory,
-			Permission.ViewOverdueLoans, Permission.ViewUserLoans, Permission.SearchLoans);
+			Permission.ViewActiveLoans, Permission.ViewOverdueLoans, Permission.ViewLoanHistory,
+			Permission.MyActiveLoans, Permission.ViewActiveLoansByUser, Permission.ViewActiveLoansByBook,
+			Permission.MyOverdueLoans, Permission.ViewOverdueLoansByUser, Permission.ViewOverdueLoansByBook,
+			Permission.LoanHistoryByUser, Permission.LoanHistoryByBook, Permission.FullLibraryHistory, Permission.SearchLoans);
 	}
 
 
@@ -74,7 +76,5 @@ public class AuthorizationService : IAuthorizationService
 	public bool CanAccessStatistics() { return HasAnyPermission(Permission.ViewStatistics); }
 
 
-	public bool IsAuthorized(params Permission[] permissions) {
-		return permissions.Any(HasPermission);
-	}
+	public bool IsAuthorized(params Permission[] permissions) { return permissions.Any(HasPermission); }
 }

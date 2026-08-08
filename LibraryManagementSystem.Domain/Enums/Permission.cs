@@ -27,14 +27,19 @@ public enum Permission
 
 
 	// Fines
-	ViewAllFines,
-	ViewUnpaidFines,
-	ViewUserFines,
 	PayFine,
 	WaiveFine,
-	ViewOwnUnpaidFines,
-	ViewOwnFines,
-	PayOwnFine,
+	ViewFines,
+	MyFines,
+	ViewFinesByUser,
+	ViewFinesByBook,
+	ViewUnpaidFines,
+	MyUnpaidFines,
+	ViewUnpaidFinesByUser,
+	ViewUnpaidFinesByBook,
+	ViewFineHistory,
+	FineHistoryByUser,
+	FineHistoryByBook,
 
 
 	// Loans
@@ -43,15 +48,15 @@ public enum Permission
 	RenewLoan,
 	ViewActiveLoans,
 	ViewOverdueLoans,
-	ViewLoanHistory,
 	MyActiveLoans,
 	ViewActiveLoansByUser,
 	ViewActiveLoansByBook,
 	MyOverdueLoans,
 	ViewOverdueLoansByUser,
 	ViewOverdueLoansByBook,
-	HistoryByUser,
-	HistoryByBook,
+	ViewLoanHistory,
+	LoanHistoryByUser,
+	LoanHistoryByBook,
 	FullLibraryHistory,
 	SearchLoans,
 	
