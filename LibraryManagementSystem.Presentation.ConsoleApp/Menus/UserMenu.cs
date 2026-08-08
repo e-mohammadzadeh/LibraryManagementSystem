@@ -1,7 +1,9 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -10,9 +12,21 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 public static class UserMenu
 {
 	public static void UserMenuController(UserManagementService userManagementService,
-		LibraryStatisticsService statisticsService, ICurrentUserSession session)
+		LibraryStatisticsService statisticsService, ICurrentUserSession session, IAuthorizationService authorization)
 	{
-		if (!SessionGuard.RequireUserManagement(session)) return;
+		if (!SessionGuard.RequireAnyPermission(
+			    authorization,
+			    Messages.AccessDenied,
+			    Permission.AddUser,
+			    Permission.EditUser,
+			    Permission.RemoveUser,
+			    Permission.SearchUser,
+			    Permission.ViewUserDetails,
+			    Permission.ViewAllUsers,
+			    Permission.ChangePassword))
+		{
+			return;
+		}
 
 		var continueProgram = true;
 		while (continueProgram)
@@ -26,88 +40,83 @@ public static class UserMenu
 
 			Console.Clear();
 			MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
-			switch (UserMenuList(session))
+			switch (UserMenuList(authorization))
 			{
 				case 1:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.AddUser, Messages.AccessDenied))
+						break;
 					AddUser(userManagementService, session);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.EditUser, Messages.AccessDenied))
+						break;
 					EditUser(userManagementService, session);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveUser, Messages.AccessDenied))
+						break;
 					RemoveUser(userManagementService, session);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
 				{
+					if (!SessionGuard.RequirePermission(authorization, Permission.SearchUser, Messages.AccessDenied))
+						break;
 					SearchUser(userManagementService, session);
 					break;
 				}
 				case 5:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewUserDetails, Messages.AccessDenied))
+						break;
 					ViewUserDetails(userManagementService, session);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 6:
 				{
-					Console.Clear();
-					if (session is { IsAdmin: false, IsLibrarian: false })
-					{
-						ConsoleHelper.ShowError(Messages.AccessDenied);
-						return;
-					}
-
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllUsers, Messages.AccessDenied))
+						break;
 					if (userManagementService.GetAllUsers(session).Count is 0)
 						ConsoleHelper.ShowWarning(Messages.NotAvailableUser);
 					else
 						UserPrinter.PrintTable(userManagementService.GetAllUsers(session));
-
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.ChangePassword, Messages.AccessDenied))
+						break;
 					ChangePassword(userManagementService, session);
 					break;
 				}
 				case 8:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
-					ConsoleHelper.Pause();
-					Console.Clear();
 					continueProgram = false;
 					break;
 				}
 			}
+			ConsoleHelper.Pause();
 		}
 	}
 
 
-	private static int UserMenuList(ICurrentUserSession session)
+	private static int UserMenuList(IAuthorizationService authorization)
 	{
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
-			(1, "Register User", session.IsAdmin || session.IsLibrarian),
-			(2, "Edit User", session.IsAdmin || session.IsLibrarian),
-			(3, "Remove User", session.IsAdmin || session.IsLibrarian),
-			(4, "Search User", session.IsAdmin || session.IsLibrarian),
-			(5, "View User Details", true),
-			(6, "View All Users", session.IsAdmin || session.IsLibrarian),
-			(7, "Change Password", true),
+			(1, "Register User", authorization.HasPermission(Permission.AddUser)),
+			(2, "Edit User", authorization.HasPermission(Permission.EditUser)),
+			(3, "Remove User", authorization.HasPermission(Permission.RemoveUser)),
+			(4, "Search User", authorization.HasPermission(Permission.SearchUser)),
+			(5, "View User Details", authorization.HasPermission(Permission.ViewUserDetails)),
+			(6, "View All Users", authorization.HasPermission(Permission.ViewAllUsers)),
+			(7, "Change Password", authorization.HasPermission(Permission.ChangePassword)),
 			(8, "Back", true)
 		};
 

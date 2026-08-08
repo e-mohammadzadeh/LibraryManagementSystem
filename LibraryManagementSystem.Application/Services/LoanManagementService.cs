@@ -119,13 +119,11 @@ public class LoanManagementService
 	}
 
 
-	public ServiceResult<IReadOnlyList<LoanDto>> GetLoansByUser(int userId, ICurrentUserSession session)
+	public IReadOnlyList<LoanDto> GetLoansByUser(int userId, ICurrentUserSession session)
 	{
 		if (session.IsSelfServiceMember && session.UserId != userId)
-			return ServiceResult<IReadOnlyList<LoanDto>>.Fail(Messages.ViewOwnLoans);
-
-		IReadOnlyList<LoanDto> loans = [.. _loanRepository.GetAllByUser(userId).Select(loan => loan.ToDto())];
-		return ServiceResult<IReadOnlyList<LoanDto>>.Ok(loans, Messages.LoansRetrievedSuccessfully);
+			return Array.Empty<LoanDto>().AsReadOnly();
+		return [.. _loanRepository.GetAllByUser(userId).Select(loan => loan.ToDto())];
 	}
 
 

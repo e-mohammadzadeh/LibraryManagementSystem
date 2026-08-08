@@ -1,7 +1,9 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Translator;
 using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -10,9 +12,19 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 public static class TranslatorMenu
 {
 	public static void TranslatorMenuController(TranslatorManagementService translatorManagementService,
-		LibraryStatisticsService statisticsService, ICurrentUserSession session)
+		LibraryStatisticsService statisticsService, ICurrentUserSession session, IAuthorizationService authorization)
 	{
-		if (!SessionGuard.RequireTranslatorManagement(session)) return;
+		if (!SessionGuard.RequireAnyPermission(
+			    authorization,
+			    Messages.AccessDenied,
+			    Permission.AddTranslator,
+			    Permission.EditTranslator,
+			    Permission.SearchTranslator,
+			    Permission.ViewTranslatorDetails,
+			    Permission.ViewAllTranslators))
+		{
+			return;
+		}
 
 		var continueProgram = true;
 		while (continueProgram)
@@ -26,80 +38,80 @@ public static class TranslatorMenu
 
 			Console.Clear();
 			MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
-			switch (TranslatorMenuList(session))
+			switch (TranslatorMenuList(authorization))
 			{
 				case 1:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.AddTranslator, Messages.AccessDenied))
+						break;
 					AddTranslator(translatorManagementService, session);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.EditTranslator, Messages.AccessDenied))
+						break;
 					EditTranslator(translatorManagementService, session);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveTranslator, Messages.AccessDenied))
+						break;
 					RemoveTranslator(translatorManagementService, session);
 					break;
 				}
 				case 4:
 				{
+					if (!SessionGuard.RequirePermission(authorization, Permission.SearchTranslator, Messages.AccessDenied))
+						break;
 					SearchTranslator(translatorManagementService);
 					break;
 				}
 				case 5:
 				{
-					Console.Clear();
+
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewTranslatorDetails, Messages.AccessDenied))
+						break;
 					var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
 						MenuHelper.SelectTranslator, Messages.NotAvailableTranslator);
 					if (desiredTranslator is not null)
-					{
 						TranslatorPrinter.PrintDetails(desiredTranslator);
-						ConsoleHelper.Pause();
-					}
-
 					break;
 				}
 				case 6:
 				{
-					Console.Clear();
+					
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllTranslators, Messages.AccessDenied))
+						break;
 					if (translatorManagementService.GetAllTranslators().Count is 0)
 						ConsoleHelper.ShowWarning(Messages.NotAvailableTranslator);
 					else
 						TranslatorPrinter.PrintTable(translatorManagementService.GetAllTranslators());
-
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
-					ConsoleHelper.Pause();
-					Console.Clear();
 					continueProgram = false;
 					break;
 				}
 			}
+			ConsoleHelper.Pause();
 		}
 	}
 
 
-	private static int TranslatorMenuList(ICurrentUserSession session)
+	private static int TranslatorMenuList(IAuthorizationService authorization)
 	{
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
-			(1, "Add Translator", session.IsAdmin || session.IsLibrarian),
-			(2, "Edit Translator", session.IsAdmin || session.IsLibrarian),
-			(3, "Remove Translator", session.IsAdmin),
-			(4, "Search Translator", true),
-			(5, "View Translator Details", true),
-			(6, "View All Translators", true),
+			(1, "Add Translator", authorization.HasPermission(Permission.AddTranslator)),
+			(2, "Edit Translator", authorization.HasPermission(Permission.EditTranslator)),
+			(3, "Remove Translator", authorization.HasPermission(Permission.RemoveTranslator)),
+			(4, "Search Translator", authorization.HasPermission(Permission.SearchTranslator)),
+			(5, "View Translator Details", authorization.HasPermission(Permission.ViewTranslatorDetails)),
+			(6, "View All Translators", authorization.HasPermission(Permission.ViewAllTranslators)),
 			(7, "Back", true)
 		};
 

@@ -46,9 +46,13 @@ public enum Permission
 	ViewOverdueLoans,
 	ViewUserLoans,
 	SearchLoans,
-	ViewOwnBorrowedBooks,
-	ViewOwnLoanHistory,
+	ViewActiveLoans,
+	ViewActiveLoansByBook,
+	ViewActiveLoansByUser,
 	ViewOwnOverdueLoans,
+	HistoryByBook,
+	HistoryByUser,
+	FullLibraryHistory,
 	ViewOwnLoans,
 
 

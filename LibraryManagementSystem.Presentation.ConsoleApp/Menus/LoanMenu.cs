@@ -44,7 +44,7 @@ public static class LoanMenu
 
 			Console.Clear();
 			MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
-			switch (LoanMenuList(session))
+			switch (LoanMenuList(authorization))
 			{
 				case 1:
 				{
@@ -69,7 +69,8 @@ public static class LoanMenu
 				}
 				case 4:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.AddAuthor, Messages.AccessDenied))
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewActiveLoans,
+						    Messages.AccessDenied))
 						break;
 					var loans = loanManagementService.GetAllActiveLoans(session);
 					DisplayLoans(loans, Messages.NoActiveLoans);
@@ -77,18 +78,20 @@ public static class LoanMenu
 				}
 				case 5:
 				{
-					Console.Clear();
-					if (!SessionGuard.RequireLibrarian(session)) break;
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewActiveLoansByBook,
+						    Messages.AccessDenied))
+						break;
 					var book = MenuHelper.SelectBook(bookManagementService.GetAllBooks());
 					if (book is null) break;
 					var loans = loanManagementService.GetActiveLoansByBook(book.BookId);
 					DisplayLoans(loans, Messages.NotAvailableLoan);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 6:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewActiveLoansByUser,
+						    Messages.AccessDenied))
+						break;
 					int userId;
 					if (session.IsSelfServiceMember)
 						userId = session.UserId!.Value;
@@ -107,93 +110,83 @@ public static class LoanMenu
 					}
 
 					DisplayLoans(result.Data ?? [], Messages.UserHasNoBorrowedBooks);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
 				{
-					Console.Clear();
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewOverdueLoans,
+						    Messages.AccessDenied))
+						break;
 					var loans = loanManagementService.GetOverdueLoans(session);
 					DisplayLoans(loans, Messages.NoOverdueLoans);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 8:
 				{
-					Console.Clear();
-					if (!SessionGuard.RequireAdminOrLibrarian(session)) break;
-
+					if (!SessionGuard.RequirePermission(authorization, Permission.HistoryByBook, Messages.AccessDenied))
+						break;
 					var book = MenuHelper.SelectBook(bookManagementService.GetAllBooks());
 					if (book is null) break;
 
 					var loans = loanManagementService.GetLoanByBook(book.BookId);
 					DisplayLoans(loans, Messages.NotAvailableLoan);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 9:
 				{
-					Console.Clear();
-					if (!SessionGuard.RequireAdminOrLibrarian(session)) break;
-
+					if (!SessionGuard.RequirePermission(authorization, Permission.HistoryByUser, Messages.AccessDenied))
+						break;
 					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
 					if (user is null) break;
 
-					var result = loanManagementService.GetLoansByUser(user.Id, session);
-					if (!result.Success)
-					{
-						ConsoleHelper.ShowError(result.Message!);
-						break;
-					}
-
-					DisplayLoans(result.Data ?? [], Messages.UserHasNoBorrowedBooks);
-					ConsoleHelper.Pause();
+					DisplayLoans(loanManagementService.GetLoansByUser(user.Id, session),
+						Messages.UserHasNoBorrowedBooks);
 					break;
 				}
 				case 10:
 				{
-					Console.Clear();
-					if (!SessionGuard.RequireAdminOrLibrarian(session)) break;
-
+					if (!SessionGuard.RequirePermission(authorization, Permission.FullLibraryHistory,
+						    Messages.AccessDenied))
+						break;
 					var allLoans = loanManagementService.GetFullLibraryHistory();
 					DisplayLoans(allLoans, Messages.NotAvailableLoan);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 11:
 				{
-					if (!SessionGuard.RequireAdminOrLibrarian(session)) break;
+					if (!SessionGuard.RequirePermission(authorization, Permission.SearchLoans, Messages.AccessDenied))
+						break;
 					SearchLoan(loanManagementService, session);
 					break;
 				}
 				case 12:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
-					ConsoleHelper.Pause();
-					Console.Clear();
 					continueProgram = false;
 					break;
 				}
 			}
+
+			ConsoleHelper.Pause();
 		}
 	}
 
 
-	private static int LoanMenuList(ICurrentUserSession session)
+	private static int LoanMenuList(IAuthorizationService authorization)
 	{
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
-			(1, "Borrow Book", true),
-			(2, "Return Book", true),
-			(3, "Renew Loan", true),
-			(4, "My Active Loans", true),
-			(5, "Active Loans by Book", session.IsAdmin || session.IsLibrarian),
-			(6, "Active Loans by User", true),
-			(7, "Overdue Loans", session.IsAdmin || session.IsLibrarian),
-			(8, "Full History By Book", session.IsAdmin || session.IsLibrarian),
-			(9, "Full History By User", session.IsAdmin || session.IsLibrarian),
-			(10, "Full  Library History", session.IsAdmin || session.IsLibrarian),
-			(11, "Search Loans", session.IsAdmin || session.IsLibrarian),
+			(1, "Borrow Book", authorization.HasPermission(Permission.BorrowBook)),
+			(2, "Return Book", authorization.HasPermission(Permission.ReturnBook)),
+			(3, "Renew Loan", authorization.HasPermission(Permission.RenewLoan)),
+			(4, "My Active Loans", authorization.HasPermission(Permission.ViewActiveLoans)),
+			(5, "Active Loans by Book", authorization.HasPermission(Permission.ViewActiveLoansByBook)),
+			(6, "Active Loans by User", authorization.HasPermission(Permission.ViewActiveLoansByUser)),
+			(7, "Overdue Loans", authorization.HasPermission(Permission.ViewOverdueLoans)),
+			(8, "Full History By Book", authorization.HasPermission(Permission.HistoryByBook)),
+			(9, "Full History By User", authorization.HasPermission(Permission.HistoryByUser)),
+			(10, "Full  Library History", authorization.HasPermission(Permission.FullLibraryHistory)),
+			(11, "Search Loans", authorization.HasPermission(Permission.SearchLoans)),
 			(12, "Back", true)
 		};
 

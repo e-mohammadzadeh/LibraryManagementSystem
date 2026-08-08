@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Infrastructure.Repositories.InMemory;
@@ -27,6 +28,7 @@ public static class Program
 			// ── Infrastructure Services ───────────────
 			var passwordHasher = new PasswordHasher();
 			ICurrentUserSession currentUserSession = new CurrentUserSession();
+			IAuthorizationService authorization = new AuthorizationService(currentUserSession);
 
 
 			Console.Clear();
@@ -55,8 +57,7 @@ public static class Program
 				if (loggedInUser is null) return;
 
 				var result = MainMenu.MainMenuController(authorService, translatorService, userService, bookService,
-					loanService,
-					fineService, authService, currentUserSession, statisticsService);
+					loanService, fineService, authService, currentUserSession, authorization, statisticsService);
 
 				if (result == MainMenuResult.Exit) return;
 			}

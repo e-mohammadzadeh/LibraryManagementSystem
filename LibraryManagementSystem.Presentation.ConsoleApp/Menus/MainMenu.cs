@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
@@ -11,7 +12,7 @@ public static class MainMenu
 		TranslatorManagementService translatorManagementService, UserManagementService userManagementService,
 		BookManagementService bookManagementService, LoanManagementService loanManagementService,
 		IFineManagementService fineManagementService, AuthenticationService authenticationService,
-		ICurrentUserSession session, LibraryStatisticsService statisticsService)
+		ICurrentUserSession session, IAuthorizationService authorization ,LibraryStatisticsService statisticsService)
 	{
 		while (true)
 		{
@@ -24,55 +25,48 @@ public static class MainMenu
 
 			Console.Clear();
 			MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
-			switch (MainMenuList(session))
+			switch (MainMenuList())
 			{
 				case 1:
 				{
-					Console.Clear();
-					AuthorMenu.AuthorMenuController(authorManagementService, statisticsService, session);
+					AuthorMenu.AuthorMenuController(authorManagementService, statisticsService, session, authorization);
 					break;
 				}
 				case 2:
 				{
-					Console.Clear();
-					TranslatorMenu.TranslatorMenuController(translatorManagementService, statisticsService, session);
+					TranslatorMenu.TranslatorMenuController(translatorManagementService, statisticsService, session, authorization);
 					break;
 				}
 				case 3:
 				{
-					Console.Clear();
 					BookMenu.BookMenuController(authorManagementService, translatorManagementService,
-						bookManagementService, loanManagementService, statisticsService, session);
+						bookManagementService, loanManagementService, statisticsService, session, authorization);
 					break;
 				}
 				case 4:
 				{
 					Console.Clear();
-					UserMenu.UserMenuController(userManagementService, statisticsService, session);
+					UserMenu.UserMenuController(userManagementService, statisticsService, session, authorization);
 					break;
 				}
 				case 5:
 				{
-					Console.Clear();
 					LoanMenu.LoanMenuController(loanManagementService, userManagementService, bookManagementService,
-						statisticsService, session);
+						statisticsService, session, authorization);
 
 					break;
 				}
 				case 6:
 				{
-					Console.Clear();
 					FineMenu.FineMenuController(fineManagementService, userManagementService, session,
-						statisticsService);
+						statisticsService, authorization);
 					break;
 				}
 				case 7:
 				{
-					Console.Clear();
 					ConsoleHelper.ShowInfo(Messages.LogoutSuccess);
 					var result = authenticationService.Logout();
 					ConsoleHelper.ShowResult(result);
-					ConsoleHelper.Pause();
 					return MainMenuResult.Logout;
 				}
 				case 8:
@@ -81,22 +75,24 @@ public static class MainMenu
 					return MainMenuResult.Exit;
 				}
 			}
+			ConsoleHelper.Pause();
 		}
 	}
 
 
-	private static int MainMenuList(ICurrentUserSession session)
+	private static int MainMenuList()
 	{
-		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>();
-
-		items.Add((1, "Authors", session.CanAccessAuthorManagement));
-		items.Add((2, "Translators", session.CanAccessTranslatorManagement));
-		items.Add((3, "Books", session.CanAccessBookManagement));
-		items.Add((4, "Members", session.CanAccessUserManagement));
-		items.Add((5, "Loans", session.CanAccessLoanManagement));
-		items.Add((6, "Fines", session.CanAccessFineManagement));
-		items.Add((7, "Logout", true));
-		items.Add((8, "Exit Application", true));
+		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
+		{
+			(1, "Authors", true),
+			(2, "Translators", true),
+			(3, "Books", true),
+			(4, "Members", true),
+			(5, "Loans", true),
+			(6, "Fines", true),
+			(7, "Logout", true),
+			(8, "Exit Application", true)
+		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
 
