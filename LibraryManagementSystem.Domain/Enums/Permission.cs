@@ -35,7 +35,6 @@ public enum Permission
 	ViewUnpaidFinesByUser,
 	ViewFineHistory,
 	FineHistoryByUser,
-	FineHistoryByBook,
 
 
 	// Loans

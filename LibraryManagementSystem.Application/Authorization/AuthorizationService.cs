@@ -14,7 +14,7 @@ public class AuthorizationService : IAuthorizationService
 	{
 		if (!_session.IsAuthenticated || _session.CurrentUser is null) return false;
 
-		return _session.CurrentUser.Roles.SelectMany(RolePermissionMap.GetPermissions).Contains(permission);
+		return _session.CurrentUser.Permissions.Contains(permission);
 	}
 
 
@@ -51,9 +51,9 @@ public class AuthorizationService : IAuthorizationService
 
 	public bool CanAccessFineManagement()
 	{
-		return HasAnyPermission(Permission.PayFine, Permission.ViewFines, Permission.ViewFinesByUser,
-			Permission.ViewUnpaidFines, Permission.ViewUnpaidFinesByUser, Permission.ViewFineHistory,
-			Permission.FineHistoryByUser);
+		return HasAnyPermission(Permission.PayFine, Permission.WaiveFine, Permission.ViewFines,
+			Permission.ViewFinesByUser, Permission.ViewUnpaidFines, Permission.ViewUnpaidFinesByUser,
+			Permission.ViewFineHistory, Permission.FineHistoryByUser);
 	}
 
 

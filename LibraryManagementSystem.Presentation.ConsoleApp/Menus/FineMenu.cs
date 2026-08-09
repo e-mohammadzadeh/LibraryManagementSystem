@@ -25,8 +25,7 @@ public static class FineMenu
 			    Permission.ViewUnpaidFines,
 			    Permission.ViewUnpaidFinesByUser,
 			    Permission.ViewFineHistory,
-			    Permission.FineHistoryByUser,
-			    Permission.FineHistoryByBook))
+			    Permission.FineHistoryByUser))
 		{
 			return;
 		}
@@ -286,10 +285,7 @@ public static class FineMenu
 	private static void History(IFineManagementService fineManagementService,
 		UserManagementService userManagementService, ICurrentUserSession session, IAuthorizationService authorization)
 	{
-		if (!authorization.HasAnyPermission(
-			    Permission.ViewFineHistory,
-			    Permission.FineHistoryByUser,
-			    Permission.FineHistoryByBook))
+		if (!authorization.HasAnyPermission(Permission.ViewFineHistory, Permission.FineHistoryByUser))
 		{
 			ConsoleHelper.ShowError(Messages.AccessDenied);
 			ConsoleHelper.Pause();

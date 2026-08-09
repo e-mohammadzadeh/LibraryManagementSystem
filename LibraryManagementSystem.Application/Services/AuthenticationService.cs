@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Domain.Interfaces;
@@ -36,12 +37,15 @@ public class AuthenticationService
 		if (user.MembershipExpiryDate < DateOnly.FromDateTime(DateTime.Today))
 			return ServiceResult<AuthUserDto>.Fail(Messages.MembershipExpired);
 
+		var permissions = user.UserRoles.SelectMany(ur => RolePermissionMap.GetPermissions(ur.Role.Name)).Distinct().ToList();
+
 		var authUser = new AuthUserDto
 		{
 			Id = user.Id,
 			FullName = $"{user.FirstName} {user.LastName}",
 			Email = user.Email,
 			Roles = [.. user.UserRoles.Select(ur => ur.Role.Name)],
+			Permissions = permissions,
 			IsActive = user.IsActive,
 			MembershipExpiryDate = user.MembershipExpiryDate,
 			ShouldRemove = user.ShouldRemove

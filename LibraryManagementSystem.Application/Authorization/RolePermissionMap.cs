@@ -86,12 +86,10 @@ public static class RolePermissionMap
 			Permission.BorrowBook,
 			Permission.ReturnBook,
 			Permission.RenewLoan,
-			Permission.ViewActiveLoans,
-			Permission.ViewOverdueLoans,
 			Permission.MyActiveLoans,
 			Permission.MyOverdueLoans,
 
-			Permission.ChangeOwnPassword
+			Permission.ChangeOwnPassword,
 		]
 	};
 

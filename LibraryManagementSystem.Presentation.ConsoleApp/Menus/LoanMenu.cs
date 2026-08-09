@@ -276,60 +276,60 @@ public static class LoanMenu
 		UserManagementService userManagementService, BookManagementService bookManagementService,
 		ICurrentUserSession session, IAuthorizationService authorization)
 	{
-		if (SessionGuard.RequirePermission(authorization, Permission.MyActiveLoans, Messages.AccessDenied))
+		if (session.IsSelfServiceMember)
 		{
 			var loans = loanManagementService.GetAllActiveLoans(session);
 			DisplayLoans(loans, Messages.NoActiveLoans);
 		}
-		else if
-			(SessionGuard.RequirePermission(authorization, Permission.ViewActiveLoansByUser, Messages.AccessDenied) ||
-			 SessionGuard.RequirePermission(authorization, Permission.ViewActiveLoansByBook, Messages.AccessDenied))
+		else if (authorization.HasAnyPermission(Permission.ViewActiveLoansByUser, Permission.ViewActiveLoansByBook))
 		{
-			Console.WriteLine(new string('=', 36) + " ACTIVE LOAN MENU " + new string('=', 36));
+			ConsoleHelper.ShowError(Messages.AccessDenied);
+			ConsoleHelper.Pause();
+			return;
+		}
+		Console.WriteLine(new string('=', 36) + " ACTIVE LOAN MENU " + new string('=', 36));
+		while (true)
+		{
+			Console.WriteLine("1. Active Loans By User");
+			Console.WriteLine("2. Active Loans By Book");
+			Console.WriteLine("3. Back");
 
-			while (true)
+			var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 3);
+			if (editMenuChoice == null) return;
+
+			switch (editMenuChoice)
 			{
-				Console.WriteLine("1. Active Loans By User");
-				Console.WriteLine("2. Active Loans By Book");
-				Console.WriteLine("3. Back");
-
-				var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 3);
-				if (editMenuChoice == null) return;
-
-				switch (editMenuChoice)
+				case 1:
 				{
-					case 1:
+					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
+					if (user is null) break;
+
+					var result = loanManagementService.GetActiveLoansByUser(user.Id, session);
+					if (!result.Success)
 					{
-						var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
-						if (user is null) break;
-
-						var result = loanManagementService.GetActiveLoansByUser(user.Id, session);
-						if (!result.Success)
-						{
-							ConsoleHelper.ShowError(result.Message!);
-							break;
-						}
-
-						DisplayLoans(result.Data ?? [], Messages.UserHasNoBorrowedBooks);
+						ConsoleHelper.ShowError(result.Message!);
 						break;
 					}
-					case 2:
-					{
-						var book = MenuHelper.SelectBook(bookManagementService.GetAllBooks());
-						if (book is null) break;
-						var loans = loanManagementService.GetActiveLoansByBook(book.BookId);
-						DisplayLoans(loans, Messages.NotAvailableLoan);
-						break;
-					}
-					case 3:
-					{
-						ConsoleHelper.ShowInfo("Backing to Loan Menu");
-						return;
-					}
+
+					DisplayLoans(result.Data ?? [], Messages.UserHasNoBorrowedBooks);
+					break;
+				}
+				case 2:
+				{
+					var book = MenuHelper.SelectBook(bookManagementService.GetAllBooks());
+					if (book is null) break;
+					var loans = loanManagementService.GetActiveLoansByBook(book.BookId);
+					DisplayLoans(loans, Messages.NotAvailableLoan);
+					break;
+				}
+				case 3:
+				{
+					ConsoleHelper.ShowInfo("Backing to Loan Menu");
+					return;
 				}
 			}
 		}
-	}
+		}
 
 
 	private static void DisplayLoans(IReadOnlyList<LoanDto> loans, string emptyMessage)
@@ -348,56 +348,57 @@ public static class LoanMenu
 		UserManagementService userManagementService, BookManagementService bookManagementService,
 		ICurrentUserSession session, IAuthorizationService authorization)
 	{
-		if (SessionGuard.RequirePermission(authorization, Permission.MyOverdueLoans, Messages.AccessDenied))
+		if (session.IsSelfServiceMember)
 		{
 			var loans = loanManagementService.GetOverdueLoans(session);
 			DisplayLoans(loans, Messages.NoOverdueLoans);
 		}
-		else if
-			(SessionGuard.RequirePermission(authorization, Permission.ViewOverdueLoansByUser, Messages.AccessDenied) ||
-			 SessionGuard.RequirePermission(authorization, Permission.ViewOverdueLoansByBook, Messages.AccessDenied))
+		else if (!authorization.HasAnyPermission(Permission.ViewOverdueLoansByUser, Permission.ViewOverdueLoansByBook))
 		{
-			Console.WriteLine(new string('=', 36) + " OVERDUE LOAN MENU " + new string('=', 36));
+			ConsoleHelper.ShowError(Messages.AccessDenied);
+			ConsoleHelper.Pause();
+			return;
+		}
 
-			while (true)
+		Console.WriteLine(new string('=', 36) + " OVERDUE LOAN MENU " + new string('=', 36));
+		while (true)
+		{
+			Console.WriteLine("1. Overdue Loans By User");
+			Console.WriteLine("2. Overdue Loans By Book");
+			Console.WriteLine("3. Back");
+
+			var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 3);
+			if (editMenuChoice == null) return;
+
+			switch (editMenuChoice)
 			{
-				Console.WriteLine("1. Overdue Loans By User");
-				Console.WriteLine("2. Overdue Loans By Book");
-				Console.WriteLine("3. Back");
-
-				var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 3);
-				if (editMenuChoice == null) return;
-
-				switch (editMenuChoice)
+				case 1:
 				{
-					case 1:
+					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
+					if (user is null) break;
+
+					var result = loanManagementService.GetActiveLoansByUser(user.Id, session);
+					if (!result.Success)
 					{
-						var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
-						if (user is null) break;
-
-						var result = loanManagementService.GetActiveLoansByUser(user.Id, session);
-						if (!result.Success)
-						{
-							ConsoleHelper.ShowError(result.Message!);
-							break;
-						}
-
-						DisplayLoans(result.Data ?? [], Messages.UserHasNoBorrowedBooks);
+						ConsoleHelper.ShowError(result.Message!);
 						break;
 					}
-					case 2:
-					{
-						var book = MenuHelper.SelectBook(bookManagementService.GetAllBooks());
-						if (book is null) break;
-						var loans = loanManagementService.GetActiveLoansByBook(book.BookId);
-						DisplayLoans(loans, Messages.NotAvailableLoan);
-						break;
-					}
-					case 3:
-					{
-						ConsoleHelper.ShowInfo("Backing to Loan Menu");
-						return;
-					}
+
+					DisplayLoans(result.Data ?? [], Messages.UserHasNoBorrowedBooks);
+					break;
+				}
+				case 2:
+				{
+					var book = MenuHelper.SelectBook(bookManagementService.GetAllBooks());
+					if (book is null) break;
+					var loans = loanManagementService.GetActiveLoansByBook(book.BookId);
+					DisplayLoans(loans, Messages.NotAvailableLoan);
+					break;
+				}
+				case 3:
+				{
+					ConsoleHelper.ShowInfo("Backing to Loan Menu");
+					return;
 				}
 			}
 		}
@@ -409,10 +410,13 @@ public static class LoanMenu
 		UserManagementService userManagementService, BookManagementService bookManagementService,
 		ICurrentUserSession session, IAuthorizationService authorization)
 	{
-		if (!SessionGuard.RequirePermission(authorization, Permission.LoanHistoryByUser, Messages.AccessDenied) &&
-		    !SessionGuard.RequirePermission(authorization, Permission.LoanHistoryByBook, Messages.AccessDenied) &&
-		    !SessionGuard.RequirePermission(authorization, Permission.FullLibraryHistory, Messages.AccessDenied))
+		if (!authorization.HasAnyPermission(Permission.LoanHistoryByUser, Permission.LoanHistoryByBook,
+			    Permission.FullLibraryHistory))
+		{
+			ConsoleHelper.ShowError(Messages.AccessDenied);
+			ConsoleHelper.Pause();
 			return;
+		}
 
 		Console.WriteLine(new string('=', 36) + " HISTORY MENU " + new string('=', 36));
 		while (true)

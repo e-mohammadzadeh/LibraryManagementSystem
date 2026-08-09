@@ -7,64 +7,46 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 public static class SessionGuard
 {
-	private static bool RequireRole(bool hasPermission, string message)
+	private static bool Fail(string message)
 	{
-		if (hasPermission) return true;
-
 		ConsoleHelper.ShowError(message);
 		ConsoleHelper.Pause();
 		return false;
 	}
 
 
+	//private static bool RequireRole(bool hasPermission, string message)
+	//{
+	//	if (hasPermission) return true;
+
+	//	ConsoleHelper.ShowError(message);
+	//	ConsoleHelper.Pause();
+	//	return false;
+	//}
+
+
 	public static bool RequireAuthentication(ICurrentUserSession session)
 	{
-		return RequireRole(session.IsAuthenticated, Messages.AuthenticationRequired);
-	}
-
-
-	public static bool RequireAdmin(ICurrentUserSession session)
-	{
-		return RequireRole(session.IsAdmin, Messages.AdminRoleRequired);
-	}
-
-
-	public static bool RequireLibrarian(ICurrentUserSession session)
-	{
-		return RequireRole(session.IsLibrarian, Messages.LibrarianRoleRequired);
-	}
-
-
-	public static bool RequireMember(ICurrentUserSession session)
-	{
-		return RequireRole(session.IsMember, Messages.MemberRoleRequired);
-	}
-
-
-
-	public static bool RequireAdminOrLibrarian(ICurrentUserSession session)
-	{
-		return RequireRole(session.HasAnyRole(LibraryUserRole.Admin, LibraryUserRole.Librarian),
-			Messages.AdminOrLibrarianRoleRequired);
+		return session.IsAuthenticated || Fail(Messages.AuthenticationRequired);
 	}
 
 
 	public static bool RequirePermission(IAuthorizationService auth, Permission permission, string? message = null)
 	{
-		if (auth.HasPermission(permission)) return true;
-
-		ConsoleHelper.ShowError(message ?? Messages.AccessDenied);
-		ConsoleHelper.Pause();
-		return false;
+		return auth.HasPermission(permission) || Fail(message ?? Messages.AccessDenied);
 	}
 
 
-	public static bool RequireAnyPermission(IAuthorizationService auth, string message, params Permission[] permission)
+	public static bool RequireAnyPermission(IAuthorizationService auth, string? message = null,
+		params Permission[] permissions)
 	{
-		if (auth.HasAnyPermission(permission)) return true;
+		return auth.HasAnyPermission(permissions) || Fail(message ?? Messages.AccessDenied);
+	}
 
-		ConsoleHelper.ShowError(message ?? "Access denied.");
-		ConsoleHelper.Pause();
-		return false;
+
+	public static bool RequireAllPermissions(IAuthorizationService auth, string? message = null,
+		params Permission[] permissions)
+	{
+		return permissions.All(auth.HasPermission) || Fail(message ?? Messages.AccessDenied);
 	}
 }

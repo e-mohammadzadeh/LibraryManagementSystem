@@ -8,6 +8,7 @@ public class AuthUserDto
 	public string FullName { get; init; } = null!;
 	public string Email { get; init; } = null!;
 	public IReadOnlyList<LibraryUserRole> Roles { get; init; } = [];
+	public IReadOnlyList<Permission> Permissions { get; init; } = [];
 	public bool IsActive { get; init; }
 	public DateOnly MembershipExpiryDate { get; init; }
 	public bool ShouldRemove { get; init; }

@@ -8,10 +8,11 @@ public interface IAuthorizationService
 	bool HasAnyPermission(params Permission[] permissions);
 	bool CanBorrowBooks();
 	bool CanAccessAuthorManagement();
-	bool CanAccessUserManagement();
-	bool CanAccessBookManagement();
 	bool CanAccessTranslatorManagement();
-	bool CanAccessLoanManagement();
+	bool CanAccessBookManagement();
 	bool CanAccessFineManagement();
+	bool CanAccessLoanManagement();
+	bool CanAccessUserManagement();
 	bool CanAccessStatistics();
+	bool IsAuthorized(params Permission[] permissions);
 }
