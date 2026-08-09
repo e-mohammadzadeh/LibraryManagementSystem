@@ -54,23 +54,7 @@ public class InMemoryFineRepository : IFineRepository
 
 	public IReadOnlyList<Fine> GetHistoryByUserId(int userId)
 	{
-		return
-		[
-			.. _fines.Where(f =>
-				f.UserId == userId &&
-				f.Status != FineStatus.Unpaid)
-		];
-	}
-
-
-	public IReadOnlyList<Fine> GetHistoryByLoanId(int loanId)
-	{
-		return
-		[
-			.. _fines.Where(f =>
-				f.LoanId == loanId &&
-				f.Status != FineStatus.Unpaid)
-		];
+		return [.. _fines.Where(f => f.UserId == userId && f.Status != FineStatus.Unpaid)];
 	}
 
 

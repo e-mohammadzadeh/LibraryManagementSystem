@@ -17,5 +17,4 @@ public interface IFineManagementService
 	bool HasUnpaidFines(int userId);
 	IReadOnlyList<FineDto> GetFineHistory(ICurrentUserSession session);
 	IReadOnlyList<FineDto> GetFineHistoryByUser(int userId, ICurrentUserSession session);
-	IReadOnlyList<FineDto> GetFineHistoryByBook(int bookId, ICurrentUserSession session);
 }

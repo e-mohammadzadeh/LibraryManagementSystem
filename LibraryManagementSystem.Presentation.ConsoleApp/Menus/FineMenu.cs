@@ -1,9 +1,7 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using LibraryManagementSystem.Application.Authentication;
+﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Fine;
-using LibraryManagementSystem.Application.DTOs.Loans;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
@@ -140,16 +138,6 @@ public static class FineMenu
 		var fineId = ConsoleHelper.ReadInt(Messages.FineIdForPay, 1, int.MaxValue);
 		if (fineId is null) return;
 
-		if (session.IsSelfServiceMember)
-		{
-			var selected = unpaidFines.FirstOrDefault(f => f.FineId == fineId.Value);
-			if (selected is null || selected.UserId != session.UserId)
-			{
-				ConsoleHelper.ShowError(Messages.CanPayOwnFine);
-				return;
-			}
-		}
-
 		var confirm = ConsoleHelper.ReadYesNo(Messages.ConfirmToPay);
 		if (confirm != true) return;
 
@@ -221,7 +209,7 @@ public static class FineMenu
 					if (user is null) break;
 
 					var fines = fineManagementService.GetFinesByUser(user.Id, session);
-					DisplayFines(fines, Messages.UserHasNoBorrowedBooks);
+					DisplayFines(fines, Messages.FineNotFound);
 					break;
 				}
 				case 2:
@@ -319,22 +307,14 @@ public static class FineMenu
 					ViewFineHistoryByUser(fineManagementService, userManagementService, session, authorization);
 					break;
 				}
-
-
 				case 2:
-				{
-					ViewFineHistoryByBook(fineManagementService, session, authorization);
-					break;
-				}
-
-				case 3:
 				{
 					ViewFullFineHistory(fineManagementService, session, authorization);
 					break;
 				}
-
-				case 4:
+				case 3:
 				{
+					ConsoleHelper.ShowInfo("Backing to Fine Menu");
 					return;
 				}
 			}
@@ -347,9 +327,8 @@ public static class FineMenu
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
 			(1, "History By User", authorization.HasPermission(Permission.FineHistoryByUser)),
-			(2, "History By Book", authorization.HasPermission(Permission.FineHistoryByBook)),
-			(3, "Full Library History", authorization.HasPermission(Permission.ViewFineHistory)),
-			(4, "Back", true)
+			(2, "Full Library History", authorization.HasPermission(Permission.ViewFineHistory)),
+			(3, "Back", true)
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
@@ -384,6 +363,25 @@ public static class FineMenu
 	}
 
 
+	private static void ViewFineHistoryByUser(IFineManagementService fineManagementService,
+		UserManagementService userManagementService, ICurrentUserSession session, IAuthorizationService authorization)
+	{
+		if (!SessionGuard.RequirePermission(authorization, Permission.FineHistoryByUser, Messages.AccessDenied)) return;
+
+		var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
+		if (user is null) return;
+		var fines = fineManagementService.GetFineHistoryByUser(user.Id, session);
+		DisplayFines(fines, Messages.FineNotFound);
+	}
+
+
+	private static void ViewFullFineHistory(IFineManagementService fineManagementService, ICurrentUserSession session,
+		IAuthorizationService authorization)
+	{
+		if (!SessionGuard.RequirePermission(authorization, Permission.ViewFineHistory, Messages.AccessDenied)) return;
+		var fines = fineManagementService.GetFineHistory(session);
+		DisplayFines(fines, Messages.FineNotFound);
+	}
 
 
 

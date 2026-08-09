@@ -15,6 +15,6 @@ public interface IFineRepository
 	decimal GetTotalUnpaidAmount(int userId);
 	IReadOnlyList<Fine> GetHistory();
 	IReadOnlyList<Fine> GetHistoryByUserId(int userId);
-	IReadOnlyList<Fine> GetHistoryByLoanId(int loanId);
 	void Update(Fine fine);
+
 }

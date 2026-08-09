@@ -51,8 +51,9 @@ public class AuthorizationService : IAuthorizationService
 
 	public bool CanAccessFineManagement()
 	{
-		return HasAnyPermission(Permission.ViewAllFines, Permission.ViewUnpaidFines, Permission.ViewUserFines,
-			Permission.PayFine);
+		return HasAnyPermission(Permission.PayFine, Permission.ViewFines, Permission.ViewFinesByUser,
+			Permission.ViewUnpaidFines, Permission.ViewUnpaidFinesByUser, Permission.ViewFineHistory,
+			Permission.FineHistoryByUser);
 	}
 
 
@@ -62,7 +63,8 @@ public class AuthorizationService : IAuthorizationService
 			Permission.ViewActiveLoans, Permission.ViewOverdueLoans, Permission.ViewLoanHistory,
 			Permission.MyActiveLoans, Permission.ViewActiveLoansByUser, Permission.ViewActiveLoansByBook,
 			Permission.MyOverdueLoans, Permission.ViewOverdueLoansByUser, Permission.ViewOverdueLoansByBook,
-			Permission.LoanHistoryByUser, Permission.LoanHistoryByBook, Permission.FullLibraryHistory, Permission.SearchLoans);
+			Permission.LoanHistoryByUser, Permission.LoanHistoryByBook, Permission.FullLibraryHistory,
+			Permission.SearchLoans);
 	}
 
 

@@ -1,8 +1,10 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Fine;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
@@ -13,15 +15,18 @@ public class FineManagementService : IFineManagementService
 	private readonly ILoanRepository _loanRepository;
 	private readonly IUserRepository _userRepository;
 	private readonly IUserAutoRemovalService _userAutoRemovalService;
+	private readonly IAuthorizationService _authorization;
 
 
 	public FineManagementService(IFineRepository fineRepository, ILoanRepository loanRepository,
-		IUserRepository userRepository, IUserAutoRemovalService userAutoRemovalService)
+		IUserRepository userRepository, IUserAutoRemovalService userAutoRemovalService,
+		IAuthorizationService authorization)
 	{
 		_fineRepository = fineRepository;
 		_loanRepository = loanRepository;
 		_userRepository = userRepository;
 		_userAutoRemovalService = userAutoRemovalService;
+		_authorization = authorization;
 	}
 
 
@@ -110,9 +115,9 @@ public class FineManagementService : IFineManagementService
 
 	public IReadOnlyList<FineDto> GetAllFines(ICurrentUserSession session)
 	{
-		if (session.IsSelfServiceMember) return GetFinesByUser(session.UserId!.Value);
-
-		return [.. _fineRepository.GetAll().Select(f => f.ToDto())];
+		return session.IsSelfServiceMember
+			? GetFinesByUser(session.UserId!.Value, session)
+			: [.. _fineRepository.GetAll().Select(f => f.ToDto())];
 	}
 
 
@@ -124,7 +129,7 @@ public class FineManagementService : IFineManagementService
 	}
 
 
-	public IReadOnlyList<FineDto> GetFinesByUser(int userId) =>
+	public IReadOnlyList<FineDto> GetFinesByUser(int userId, ICurrentUserSession session) =>
 		[.. _fineRepository.GetByUserId(userId).Select(fine => fine.ToDto())];
 
 
@@ -135,4 +140,22 @@ public class FineManagementService : IFineManagementService
 	public decimal GetTotalUnpaidAmount(int userId) => _fineRepository.GetTotalUnpaidAmount(userId);
 
 	public bool HasUnpaidFines(int userId) => _fineRepository.HasUnpaidFines(userId);
+
+
+	public IReadOnlyList<FineDto> GetFineHistory(ICurrentUserSession session)
+	{
+		if (!_authorization.HasPermission(Permission.ViewFineHistory)) return [];
+
+		return [.. _fineRepository.GetHistory().Select(fine => fine.ToDto())];
+	}
+
+
+	public IReadOnlyList<FineDto> GetFineHistoryByUser(int userId, ICurrentUserSession session)
+	{
+		if ((session.IsSelfServiceMember && session.UserId != userId) ||
+		    !_authorization.HasAnyPermission(Permission.FineHistoryByUser, Permission.ViewFineHistory))
+			return [];
+
+		return [.. _fineRepository.GetHistoryByUserId(userId).Select(fine => fine.ToDto())];
+	}
 }
