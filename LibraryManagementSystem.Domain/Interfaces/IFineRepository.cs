@@ -13,5 +13,8 @@ public interface IFineRepository
 	IReadOnlyList<Fine> GetUnpaidByUserId(int userId);
 	bool HasUnpaidFines(int userId);
 	decimal GetTotalUnpaidAmount(int userId);
+	IReadOnlyList<Fine> GetHistory();
+	IReadOnlyList<Fine> GetHistoryByUserId(int userId);
+	IReadOnlyList<Fine> GetHistoryByLoanId(int loanId);
 	void Update(Fine fine);
 }

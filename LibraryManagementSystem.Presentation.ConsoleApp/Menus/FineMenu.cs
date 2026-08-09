@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Application.Authentication;
+﻿using System.Diagnostics.CodeAnalysis;
+using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Fine;
@@ -22,13 +23,9 @@ public static class FineMenu
 			    Permission.PayFine,
 			    Permission.WaiveFine,
 			    Permission.ViewFines,
-			    Permission.MyFines,
 			    Permission.ViewFinesByUser,
-			    Permission.ViewFinesByBook,
 			    Permission.ViewUnpaidFines,
-			    Permission.MyUnpaidFines,
 			    Permission.ViewUnpaidFinesByUser,
-			    Permission.ViewUnpaidFinesByBook,
 			    Permission.ViewFineHistory,
 			    Permission.FineHistoryByUser,
 			    Permission.FineHistoryByBook))
@@ -66,17 +63,17 @@ public static class FineMenu
 				}
 				case 3:
 				{
-					ViewAllFines(fineManagementService, session, authorization);
+					ViewFines(fineManagementService, userManagementService, session, authorization);
 					break;
 				}
 				case 4:
 				{
-					ViewUnpaidFines(fineManagementService, session, authorization);
+					ViewUnpaidFines(fineManagementService, userManagementService, session, authorization);
 					break;
 				}
 				case 5:
 				{
-					History(fineManagementService, session, authorization);
+					History(fineManagementService, userManagementService, session, authorization);
 					break;
 				}
 				case 6:
@@ -138,13 +135,8 @@ public static class FineMenu
 		var unpaidFines = session.IsSelfServiceMember
 			? fineManagementService.GetUnpaidFinesByUser(session.UserId!.Value)
 			: fineManagementService.GetAllUnpaidFines(session);
-		if (unpaidFines.Count == 0)
-		{
-			ConsoleHelper.ShowWarning(Messages.UnpaidFineNotFound);
-			return;
-		}
+		DisplayFines(unpaidFines, Messages.UnpaidFineNotFound);
 
-		FinePrinter.PrintTable(unpaidFines);
 		var fineId = ConsoleHelper.ReadInt(Messages.FineIdForPay, 1, int.MaxValue);
 		if (fineId is null) return;
 
@@ -169,13 +161,7 @@ public static class FineMenu
 	private static void WaiveFine(IFineManagementService fineManagementService, ICurrentUserSession session)
 	{
 		var unpaidFines = fineManagementService.GetAllUnpaidFines(session);
-		if (unpaidFines.Count == 0)
-		{
-			ConsoleHelper.ShowWarning(Messages.UnpaidFineNotFound);
-			return;
-		}
-
-		FinePrinter.PrintTable(unpaidFines);
+		DisplayFines(unpaidFines, Messages.UnpaidFineNotFound);
 
 		var fineId = ConsoleHelper.ReadInt(Messages.FineIdForWaive, 1, int.MaxValue);
 		if (fineId is null) return;
@@ -188,107 +174,217 @@ public static class FineMenu
 	}
 
 
-	private static void ViewFines(FineManagementService fineManagementService,
-		UserManagementService userManagementService, ICurrentUserSession session,
-		IAuthorizationService authorization)
+	private static void ViewFines(IFineManagementService fineManagementService,
+		UserManagementService userManagementService, ICurrentUserSession session, IAuthorizationService authorization)
 	{
-		if (SessionGuard.RequirePermission(authorization, Permission.MyFines, Messages.AccessDenied))
+		if (session.IsSelfServiceMember)
 		{
-			var fines = fineManagementService.GetFinesByUser(session.UserId!.Value);
-			if (fines.Count == 0)
-			{
-				ConsoleHelper.ShowWarning(Messages.FineNotFound);
-				return;
-			}
-
-			FinePrinter.PrintTable(fines);
+			ViewOwnFines(fineManagementService, session);
+			return;
 		}
-		else if (SessionGuard.RequirePermission(authorization, Permission.ViewFinesByUser, Messages.AccessDenied) ||
-		         SessionGuard.RequirePermission(authorization, Permission.ViewFinesByBook, Messages.AccessDenied))
+
+		if (!SessionGuard.RequirePermission(authorization, Permission.ViewFinesByUser, Messages.AccessDenied)) return;
+
+		ViewAdministrativeFines(fineManagementService, userManagementService, session, authorization);
+	}
+
+
+	private static void ViewOwnFines(IFineManagementService fineManagementService, ICurrentUserSession session)
+	{
+		var fines = fineManagementService.GetFinesByUser(session.UserId!.Value, session);
+		DisplayFines(fines, Messages.FineNotFound);
+	}
+
+
+	private static void ViewAdministrativeFines(IFineManagementService fineManagementService,
+		UserManagementService userManagementService, ICurrentUserSession session, IAuthorizationService authorization)
+	{
+		while (true)
 		{
+			Console.Clear();
 			Console.WriteLine(new string('=', 36) + " VIEW FINE MENU " + new string('=', 36));
+			Console.WriteLine("1. View Fines By User");
+			Console.WriteLine("2. Back");
 
-			while (true)
+			var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 2);
+			if (editMenuChoice == null) return;
+
+			switch (editMenuChoice)
 			{
-				Console.WriteLine("1. View Fines By User");
-				Console.WriteLine("2. View Fines By Book");
-				Console.WriteLine("3. Back");
-
-				var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 3);
-				if (editMenuChoice == null) return;
-
-				switch (editMenuChoice)
+				case 1:
 				{
-					case 1:
-					{
-						var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
-						if (user is null) break;
-
-						var fines = fineManagementService.GetFinesByUser(user.Id, session);
-						DisplayFines(fines, Messages.UserHasNoBorrowedBooks);
-
-
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewFinesByUser,
+						    Messages.AccessDenied))
 						break;
-					}
-					case 2:
-					{
-						break;
-					}
-					case 3:
-					{
-						break;
-					}
+
+					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
+					if (user is null) break;
+
+					var fines = fineManagementService.GetFinesByUser(user.Id, session);
+					DisplayFines(fines, Messages.UserHasNoBorrowedBooks);
+					break;
+				}
+				case 2:
+				{
+					ConsoleHelper.ShowInfo("Backing to Fine Menu");
+					return;
 				}
 			}
 		}
 	}
 
 
-
-	private static void ViewAllFines(IFineManagementService fineManagementService, ICurrentUserSession session)
+	private static void ViewUnpaidFines(IFineManagementService fineManagementService,
+		UserManagementService userManagementService, ICurrentUserSession session, IAuthorizationService authorization)
 	{
-		var fines = session.IsSelfServiceMember
-			? fineManagementService.GetFinesByUser(session.UserId!.Value)
-			: fineManagementService.GetAllFines(session);
-		if (fines.Count == 0)
+		if (session.IsSelfServiceMember)
 		{
-			ConsoleHelper.ShowWarning(Messages.FineNotFound);
+			ViewOwnUnpaidFines(fineManagementService, session);
 			return;
 		}
 
-		FinePrinter.PrintTable(fines);
+		if (!SessionGuard.RequirePermission(authorization, Permission.ViewUnpaidFinesByUser, Messages.AccessDenied))
+			return;
+
+		ViewAdministrativeUnpaidFines(fineManagementService, userManagementService, session, authorization);
 	}
 
 
-	private static void ViewUnpaidFines(IFineManagementService fineManagementService, ICurrentUserSession session)
+	private static void ViewOwnUnpaidFines(IFineManagementService fineManagementService, ICurrentUserSession session)
 	{
-		var fines = session.IsSelfServiceMember
-			? fineManagementService.GetUnpaidFinesByUser(session.UserId!.Value)
-			: fineManagementService.GetAllUnpaidFines(session);
-		if (fines.Count == 0)
+		var fines = fineManagementService.GetUnpaidFinesByUser(session.UserId!.Value);
+		DisplayFines(fines, Messages.UnpaidFineNotFound);
+	}
+
+
+	private static void ViewAdministrativeUnpaidFines(IFineManagementService fineManagementService,
+		UserManagementService userManagementService, ICurrentUserSession session, IAuthorizationService authorization)
+	{
+		while (true)
 		{
-			ConsoleHelper.ShowWarning(Messages.UnpaidFineNotFound);
+			Console.Clear();
+			Console.WriteLine(new string('=', 33) + " VIEW UNPAID FINE MENU " + new string('=', 33));
+			Console.WriteLine("1. View Unpaid Fines By User");
+			Console.WriteLine("2. Back");
+
+			var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 2);
+			if (editMenuChoice == null) return;
+
+			switch (editMenuChoice)
+			{
+				case 1:
+				{
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewUnpaidFinesByUser,
+						    Messages.AccessDenied))
+						break;
+
+					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
+					if (user is null) break;
+
+					var fines = fineManagementService.GetUnpaidFinesByUser(user.Id);
+					DisplayFines(fines, Messages.UnpaidFineNotFound);
+					break;
+				}
+				case 2:
+				{
+					ConsoleHelper.ShowInfo("Backing to Fine Menu");
+					return;
+				}
+			}
+		}
+	}
+
+
+	private static void History(IFineManagementService fineManagementService,
+		UserManagementService userManagementService, ICurrentUserSession session, IAuthorizationService authorization)
+	{
+		if (!authorization.HasAnyPermission(
+			    Permission.ViewFineHistory,
+			    Permission.FineHistoryByUser,
+			    Permission.FineHistoryByBook))
+		{
+			ConsoleHelper.ShowError(Messages.AccessDenied);
+			ConsoleHelper.Pause();
 			return;
 		}
 
-		FinePrinter.PrintTable(fines);
-	}
-
-
-	private static void ViewUserFines(IFineManagementService fineManagementService,
-		UserManagementService userManagementService, ICurrentUserSession session)
-	{
-		var desiredUser = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
-		if (desiredUser is null) return;
-		var fines = fineManagementService.GetFinesByUser(desiredUser.Id);
-		if (fines.Count == 0)
+		while (true)
 		{
-			ConsoleHelper.ShowWarning(Messages.FineNotFound);
-			return;
-		}
+			Console.Clear();
 
-		FinePrinter.PrintTable(fines);
+			switch (HistoryMenuList(authorization))
+			{
+				case 1:
+				{
+					ViewFineHistoryByUser(fineManagementService, userManagementService, session, authorization);
+					break;
+				}
+
+
+				case 2:
+				{
+					ViewFineHistoryByBook(fineManagementService, session, authorization);
+					break;
+				}
+
+				case 3:
+				{
+					ViewFullFineHistory(fineManagementService, session, authorization);
+					break;
+				}
+
+				case 4:
+				{
+					return;
+				}
+			}
+		}
 	}
+
+
+	private static int HistoryMenuList(IAuthorizationService authorization)
+	{
+		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
+		{
+			(1, "History By User", authorization.HasPermission(Permission.FineHistoryByUser)),
+			(2, "History By Book", authorization.HasPermission(Permission.FineHistoryByBook)),
+			(3, "Full Library History", authorization.HasPermission(Permission.ViewFineHistory)),
+			(4, "Back", true)
+		};
+
+		var availableItems = items.Where(i => i.IsAvailable).ToList();
+
+		while (true)
+		{
+			Console.WriteLine(new string('=', 36) + " HISTORY MENU " + new string('=', 36));
+
+			var displayNumber = 1;
+
+			foreach (var item in availableItems)
+			{
+				Console.WriteLine($"{displayNumber}. {item.DisplayText}");
+				displayNumber++;
+			}
+
+			Console.WriteLine(new string('=', 82));
+			Console.Write(Messages.MainMenuQuestion);
+
+			var option = Console.ReadLine();
+
+			if (!int.TryParse(option, out var userChoice))
+			{
+				ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
+				continue;
+			}
+
+			if (userChoice >= 1 && userChoice <= availableItems.Count) return availableItems[userChoice - 1].ActionId;
+
+			ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
+		}
+	}
+
+
+
 
 
 	private static void DisplayFines(IReadOnlyList<FineDto> fines, string emptyMessage)

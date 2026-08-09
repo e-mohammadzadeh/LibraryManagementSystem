@@ -34,13 +34,10 @@ public static class RolePermissionMap
 			Permission.PayFine,
 			Permission.ViewFines,
 			Permission.ViewFinesByUser,
-			Permission.ViewFinesByBook,
 			Permission.ViewUnpaidFines,
 			Permission.ViewUnpaidFinesByUser,
-			Permission.ViewUnpaidFinesByBook,
 			Permission.ViewFineHistory,
 			Permission.FineHistoryByUser,
-			Permission.FineHistoryByBook,
 
 			Permission.BorrowBook,
 			Permission.ReturnBook,
@@ -84,9 +81,7 @@ public static class RolePermissionMap
 
 			Permission.PayFine,
 			Permission.ViewFines,
-			Permission.MyFines,
 			Permission.ViewUnpaidFines,
-			Permission.MyUnpaidFines,
 
 			Permission.BorrowBook,
 			Permission.ReturnBook,

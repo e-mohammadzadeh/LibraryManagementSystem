@@ -409,53 +409,52 @@ public static class LoanMenu
 		UserManagementService userManagementService, BookManagementService bookManagementService,
 		ICurrentUserSession session, IAuthorizationService authorization)
 	{
-		if (SessionGuard.RequirePermission(authorization, Permission.LoanHistoryByUser, Messages.AccessDenied) ||
-		    SessionGuard.RequirePermission(authorization, Permission.LoanHistoryByBook, Messages.AccessDenied) ||
-		    SessionGuard.RequirePermission(authorization, Permission.FullLibraryHistory, Messages.AccessDenied))
+		if (!SessionGuard.RequirePermission(authorization, Permission.LoanHistoryByUser, Messages.AccessDenied) &&
+		    !SessionGuard.RequirePermission(authorization, Permission.LoanHistoryByBook, Messages.AccessDenied) &&
+		    !SessionGuard.RequirePermission(authorization, Permission.FullLibraryHistory, Messages.AccessDenied))
+			return;
+
+		Console.WriteLine(new string('=', 36) + " HISTORY MENU " + new string('=', 36));
+		while (true)
 		{
-			Console.WriteLine(new string('=', 36) + " HISTORY MENU " + new string('=', 36));
+			Console.WriteLine("1. History By User");
+			Console.WriteLine("2. History By Book");
+			Console.WriteLine("3. Full Library History");
+			Console.WriteLine("4. Back");
 
-			while (true)
+			var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 4);
+			if (editMenuChoice == null) return;
+
+			switch (editMenuChoice)
 			{
-				Console.WriteLine("1. History By User");
-				Console.WriteLine("2. History By Book");
-				Console.WriteLine("3. Full Library History");
-				Console.WriteLine("4. Back");
-
-				var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 4);
-				if (editMenuChoice == null) return;
-
-				switch (editMenuChoice)
+				case 1:
 				{
-					case 1:
-					{
-						var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
-						if (user is null) break;
+					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
+					if (user is null) break;
 
-						DisplayLoans(loanManagementService.GetLoansByUser(user.Id, session),
-							Messages.UserHasNoBorrowedBooks);
-						break;
-					}
-					case 2:
-					{
-						var book = MenuHelper.SelectBook(bookManagementService.GetAllBooks());
-						if (book is null) break;
+					DisplayLoans(loanManagementService.GetLoansByUser(user.Id, session),
+						Messages.UserHasNoBorrowedBooks);
+					break;
+				}
+				case 2:
+				{
+					var book = MenuHelper.SelectBook(bookManagementService.GetAllBooks());
+					if (book is null) break;
 
-						var loans = loanManagementService.GetLoanByBook(book.BookId);
-						DisplayLoans(loans, Messages.NotAvailableLoan);
-						break;
-					}
-					case 3:
-					{
-						var allLoans = loanManagementService.GetFullLibraryHistory();
-						DisplayLoans(allLoans, Messages.NotAvailableLoan);
-						break;
-					}
-					case 4:
-					{
-						ConsoleHelper.ShowInfo("Backing to Loan Menu");
-						return;
-					}
+					var loans = loanManagementService.GetLoanByBook(book.BookId);
+					DisplayLoans(loans, Messages.NotAvailableLoan);
+					break;
+				}
+				case 3:
+				{
+					var allLoans = loanManagementService.GetFullLibraryHistory();
+					DisplayLoans(allLoans, Messages.NotAvailableLoan);
+					break;
+				}
+				case 4:
+				{
+					ConsoleHelper.ShowInfo("Backing to Loan Menu");
+					return;
 				}
 			}
 		}
