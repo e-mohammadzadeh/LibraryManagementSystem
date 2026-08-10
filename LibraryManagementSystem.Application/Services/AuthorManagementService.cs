@@ -25,6 +25,9 @@ public class AuthorManagementService
 		if (_authorRepository.ExistsByEmail(dto.Email))
 			return ServiceResult<AuthorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByEmail);
 
+		if (_authorRepository.ExistsByPhoneNumber(dto.PhoneNumber))
+			return ServiceResult<AuthorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByPhoneNumber);
+
 		var existingSameName = _authorRepository.FindByName(dto.FirstName, dto.LastName);
 
 		if (existingSameName is not null)
@@ -48,6 +51,8 @@ public class AuthorManagementService
 
 	public ServiceResult<AuthorDto> UpdateAuthor(int authorId, UpdateAuthorDto dto)
 	{
+		string? warningMessage = null;
+
 		var author = _authorRepository.FindById(authorId);
 		if (author is null) return ServiceResult<AuthorDto>.Fail(Messages.AuthorUpdateFailed);
 
@@ -58,7 +63,7 @@ public class AuthorManagementService
 		if (dto.FirstName is not null || dto.LastName is not null)
 		{
 			if (_authorRepository.ExistsByName(resolvedFirstName, resolvedLastName, authorId))
-				return ServiceResult<AuthorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByName);
+				warningMessage = string.Format(Messages.DuplicateAuthorNameWarning, authorId);
 		}
 
 		if (dto.NationalCode is not null && _authorRepository.ExistsByNationalCode(dto.NationalCode, authorId))
@@ -72,8 +77,11 @@ public class AuthorManagementService
 
 		author.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
 			dto.Biography);
+
 		_authorRepository.Update(author);
-		return ServiceResult<AuthorDto>.Ok(author.ToDto(), Messages.AuthorUpdatedSuccessfully);
+		return warningMessage is not null
+			? ServiceResult<AuthorDto>.Warning(author.ToDto(), warningMessage)
+			: ServiceResult<AuthorDto>.Ok(author.ToDto(), Messages.AuthorUpdatedSuccessfully);
 	}
 
 
@@ -94,8 +102,7 @@ public class AuthorManagementService
 		var author = _authorRepository.FindById(authorId);
 		if (author is null) return ServiceResult<AuthorDto>.Fail(Messages.AuthorRemoveFailed);
 
-		if (author.BookAuthors.Count != 0)
-			return ServiceResult<AuthorDto>.Fail(Messages.AuthorHasAssociatedBooks);
+		if (author.BookAuthors.Count != 0) return ServiceResult<AuthorDto>.Fail(Messages.AuthorHasAssociatedBooks);
 
 		_authorRepository.Remove(author);
 		return ServiceResult<AuthorDto>.Ok(author.ToDto(), Messages.AuthorRemovedSuccessfully);

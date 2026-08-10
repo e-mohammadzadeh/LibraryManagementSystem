@@ -80,6 +80,8 @@ public static class Messages
 	public const string TranslatorAddFailed = "Failed to add translator.";
 	public const string AllTranslatorsAssigned = "All available translators are already assigned to this book.";
 	public const string AddTranslatorInAdd = "\nNo translators found. Do you want to create a new translator now (Optional)";
+	public const string DuplicateTranslatorNameWarning = "A translator with the same name already exists (ID: {0}).";
+
 
 	// Update
 	public const string TranslatorUpdatedSuccessfully = "Translator updated successfully.";
@@ -90,6 +92,8 @@ public static class Messages
 	public const string TranslatorRemoveFailed = "Failed to remove translator.";
 	public const string NoTranslatorToRemove = "This book has no translators to remove.";
 	public const string RemoveAllTranslators = "Are you sure you want to remove ALL translators from this book";
+	public const string TranslatorHasAssociatedBooks = "This translator cannot be removed because they have associated books.";
+
 
 	// Search
 	public const string NotAvailableTranslator = "No translators found. Please add a new translator first.";

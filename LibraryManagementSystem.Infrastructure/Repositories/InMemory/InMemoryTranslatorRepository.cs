@@ -15,10 +15,7 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 	}
 
 
-	public Translator? FindById(int id)
-	{
-		return _translators.FirstOrDefault(translator => translator.Id == id);
-	}
+	public Translator? FindById(int id) { return _translators.FirstOrDefault(translator => translator.Id == id); }
 
 
 	public Translator? FindByName(string firstName, string lastName)
@@ -29,10 +26,7 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 	}
 
 
-	public IReadOnlyList<Translator> GetAll()
-	{
-		return _translators.AsReadOnly();
-	}
+	public IReadOnlyList<Translator> GetAll() { return _translators.AsReadOnly(); }
 
 
 	public bool ExistsByName(string firstName, string lastName, int excludeId = -1)
@@ -47,34 +41,30 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 	public bool ExistsByNationalCode(string nationalCode, int excludeId = -1)
 	{
 		return _translators.Any(translator => translator.Id != excludeId &&
-			translator.NationalCode.Equals(nationalCode));
+		                                      translator.NationalCode.Equals(nationalCode));
 	}
 
 
 	public bool ExistsByEmail(string email, int excludeId = -1)
 	{
 		return _translators.Any(translator => translator.Id != excludeId &&
-			translator.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+		                                      translator.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
 	}
 
 
 	public bool ExistsByPhoneNumber(string phoneNumber, int excludeId = -1)
 	{
 		return _translators.Any(translator => translator.Id != excludeId &&
-			translator.PhoneNumber.Equals(phoneNumber));
+		                                      translator.PhoneNumber.Equals(phoneNumber));
 	}
 
 
-	public void Remove(Translator translator)
-	{
-		_translators.Remove(translator);
-	}
+	public void Remove(Translator translator) { _translators.Remove(translator); }
 
 
 	public IReadOnlyList<Translator> Search(string searchItem, Func<Translator, string?> selector)
 	{
-		if (string.IsNullOrWhiteSpace(searchItem))
-			return [];
+		if (string.IsNullOrWhiteSpace(searchItem)) return [];
 
 		return
 		[
@@ -84,5 +74,14 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 				return value is not null && value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
 			})
 		];
+	}
+
+
+	public void Update(Translator translator)
+	{
+		// In-memory collections update by reference automatically.
+		// However, we leave this method empty rather than throwing an exception 
+		// so that the Service layer can safely call _repository.Update() 
+		// without crashing, simulating a real database save operation.
 	}
 }

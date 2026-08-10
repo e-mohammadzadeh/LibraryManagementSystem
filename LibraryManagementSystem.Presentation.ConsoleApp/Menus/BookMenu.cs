@@ -669,45 +669,45 @@ public static class BookMenu
 			{
 				case 1:
 				{
-					SearchBookAndDisplay(bookManagementService, p => ConsoleHelper.ReadString(p),
-						"Enter a title to search",
-						book => book.BookName, ContainsComparer);
-
+					var searchTerm = ConsoleHelper.ReadString("Enter a title to search");
+					if (string.IsNullOrWhiteSpace(searchTerm))
+						continue;
+					var results = bookManagementService.SearchBooks(searchTerm, BookSearchField.BookName);
+					DisplayBookResults(results);
 					break;
 				}
 				case 2:
 				{
-					SearchBookAndDisplay(bookManagementService, ConsoleHelper.ReadISBN, "Enter an ISBN to search",
-						book => book.InternationalStandardBookNumber, ContainsComparer);
-
+					var searchTerm = ConsoleHelper.ReadISBN("Enter an ISBN to search");
+					if (string.IsNullOrWhiteSpace(searchTerm)) continue;
+					var results = bookManagementService.SearchBooks(searchTerm, BookSearchField.ISBN);
+					DisplayBookResults(results);
 					break;
 				}
 				case 3:
 				{
-					SearchBookAndDisplay(bookManagementService, p => ConsoleHelper.ReadString(p),
-						"Enter an author name",
-						book => string.Join(" ",
-							book.BookAuthors.Select(ba => $"{ba.Author.FirstName} {ba.Author.LastName}")),
-						ContainsComparer);
+					var searchTerm = ConsoleHelper.ReadString("Enter an author name");
+					if (string.IsNullOrWhiteSpace(searchTerm))
+						continue;
+					var results = bookManagementService.SearchBooks(searchTerm, BookSearchField.AuthorName);
+					DisplayBookResults(results);
 					break;
 				}
 				case 4:
 				{
-					SearchBookAndDisplay(bookManagementService, p => ConsoleHelper.ReadString(p),
-						"Enter a translator name",
-						book => book.BookTranslators.Count == 0
-							? null
-							: string.Join(" ",
-								book.BookTranslators.Select(bt =>
-									$"{bt.Translator.FirstName} {bt.Translator.LastName}")),
-						ContainsComparer);
+					var searchTerm = ConsoleHelper.ReadString("Enter a translator name");
+					if (string.IsNullOrWhiteSpace(searchTerm)) continue;
+					var results = bookManagementService.SearchBooks(searchTerm, BookSearchField.TranslatorName);
+					DisplayBookResults(results);
+
 					break;
 				}
 				case 5:
 				{
-					SearchBookAndDisplay(bookManagementService, ConsoleHelper.ReadDateOnly,
-						"Enter a publish date to search", book => book.PublishDate, DateComparer);
-
+					var searchTerm = ConsoleHelper.ReadDateOnly("Enter a publish date to search");
+					if (searchTerm is null) continue;
+					var results = bookManagementService.SearchBooks(searchTerm, BookSearchField.PublishDate);
+					DisplayBookResults(results);
 					break;
 				}
 				case 6:
@@ -737,26 +737,26 @@ public static class BookMenu
 	}
 
 
-	private static void SearchBookAndDisplay<T>(BookManagementService bookManagementService, Func<string, T?> reader,
-		string prompt, Func<Book, T?> selector, Func<T, T, bool> comparer) where T : class
-	{
-		var searchTerm = reader(prompt);
-		if (searchTerm is null) return;
+	//private static void SearchBookAndDisplay<T>(BookManagementService bookManagementService, Func<string, T?> reader,
+	//	string prompt, Func<Book, T?> selector, Func<T, T, bool> comparer) where T : class
+	//{
+	//	var searchTerm = reader(prompt);
+	//	if (searchTerm is null) return;
 
-		var result = bookManagementService.SearchBooks(searchTerm, selector, comparer);
-		DisplayBookResults(result);
-	}
+	//	var result = bookManagementService.SearchBooks(searchTerm, selector, comparer);
+	//	DisplayBookResults(result);
+	//}
 
 
-	private static void SearchBookAndDisplay<T>(BookManagementService bookManagementService, Func<string, T?> reader,
-		string prompt, Func<Book, T?> selector, Func<T, T, bool> comparer) where T : struct
-	{
-		var searchTerm = reader(prompt);
-		if (!searchTerm.HasValue) return;
+	//private static void SearchBookAndDisplay<T>(BookManagementService bookManagementService, Func<string, T?> reader,
+	//	string prompt, Func<Book, T?> selector, Func<T, T, bool> comparer) where T : struct
+	//{
+	//	var searchTerm = reader(prompt);
+	//	if (!searchTerm.HasValue) return;
 
-		var result = bookManagementService.SearchBooks(searchTerm, selector, comparer);
-		DisplayBookResults(result);
-	}
+	//	var result = bookManagementService.SearchBooks(searchTerm, selector, comparer);
+	//	DisplayBookResults(result);
+	//}
 
 
 	private static readonly Func<string, string, bool> ContainsComparer =

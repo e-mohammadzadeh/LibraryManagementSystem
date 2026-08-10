@@ -318,8 +318,7 @@ public static class TranslatorMenu
 				case 1:
 				{
 					PersonHelper.SearchAndDisplay("Enter a name to search",
-						term => translatorManagementService.SearchTranslator(term,
-							translator => $"{translator.FirstName} {translator.LastName}"),
+						term => translatorManagementService.SearchTranslator(term, TranslatorSearchField.Name),
 						TranslatorPrinter.PrintTable, Messages.NotTranslatorMatched);
 
 					break;
@@ -327,16 +326,15 @@ public static class TranslatorMenu
 				case 2:
 				{
 					PersonHelper.SearchAndDisplay("Enter a national code to search",
-						term => translatorManagementService.SearchTranslator(term,
-							translator => translator.NationalCode), TranslatorPrinter.PrintTable,
-						Messages.NotTranslatorMatched);
+						term => translatorManagementService.SearchTranslator(term, TranslatorSearchField.NationalCode),
+						TranslatorPrinter.PrintTable, Messages.NotTranslatorMatched);
 
 					break;
 				}
 				case 3:
 				{
 					PersonHelper.SearchAndDisplay("Enter an email to search",
-						term => translatorManagementService.SearchTranslator(term, translator => translator.Email),
+						term => translatorManagementService.SearchTranslator(term, TranslatorSearchField.Email),
 						TranslatorPrinter.PrintTable, Messages.NotTranslatorMatched);
 
 					break;
@@ -344,9 +342,8 @@ public static class TranslatorMenu
 				case 4:
 				{
 					PersonHelper.SearchAndDisplay("Enter a phone number to search",
-						term => translatorManagementService.SearchTranslator(term,
-							translator => translator.PhoneNumber), TranslatorPrinter.PrintTable,
-						Messages.NotTranslatorMatched);
+						term => translatorManagementService.SearchTranslator(term, TranslatorSearchField.PhoneNumber),
+						TranslatorPrinter.PrintTable, Messages.NotTranslatorMatched);
 
 					break;
 				}

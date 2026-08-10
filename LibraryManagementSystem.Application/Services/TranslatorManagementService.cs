@@ -2,6 +2,7 @@
 using LibraryManagementSystem.Application.DTOs.Translator;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
@@ -17,27 +18,30 @@ public class TranslatorManagementService
 	}
 
 
-	public ServiceResult<Translator> AddTranslator(CreateTranslatorDto dto)
+	public ServiceResult<TranslatorDto> AddTranslator(CreateTranslatorDto dto)
 	{
 		string? warningMessage = null;
 
 		if (_translatorRepository.ExistsByNationalCode(dto.NationalCode))
-			return ServiceResult<Translator>.Fail(Messages.DuplicateTranslatorsNotAllowedByNationalCode);
+			return ServiceResult<TranslatorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByNationalCode);
 
 		if (_translatorRepository.ExistsByEmail(dto.Email))
-			return ServiceResult<Translator>.Fail(Messages.DuplicateTranslatorsNotAllowedByEmail);
+			return ServiceResult<TranslatorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByEmail);
+
+		if (_translatorRepository.ExistsByPhoneNumber(dto.PhoneNumber))
+			return ServiceResult<TranslatorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByPhoneNumber);
 
 		var existingSameName = _translatorRepository.FindByName(dto.FirstName, dto.LastName);
 		if (existingSameName is not null)
-			warningMessage = $"A translator with the name already exists (ID: {existingSameName.Id}).";
+			warningMessage = string.Format(Messages.DuplicateTranslatorNameWarning, existingSameName.Id);
 
 		var newTranslator = new Translator(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber,
 			dto.BirthDate);
 
 		_translatorRepository.Add(newTranslator);
 		return warningMessage is not null
-			? ServiceResult<Translator>.Warning(newTranslator, warningMessage)
-			: ServiceResult<Translator>.Ok(newTranslator, Messages.TranslatorAddedSuccessfully);
+			? ServiceResult<TranslatorDto>.Warning(newTranslator.ToDto(), warningMessage)
+			: ServiceResult<TranslatorDto>.Ok(newTranslator.ToDto(), Messages.TranslatorAddedSuccessfully);
 	}
 
 
@@ -47,37 +51,42 @@ public class TranslatorManagementService
 	}
 
 
-	public Translator? FindTranslatorById(int id) { return _translatorRepository.FindById(id); }
+	private Translator? FindTranslatorById(int id) { return _translatorRepository.FindById(id); }
 
 
-	public ServiceResult<Translator> UpdateTranslator(int translatorId, UpdateTranslatorDto dto)
+	public ServiceResult<TranslatorDto> UpdateTranslator(int translatorId, UpdateTranslatorDto dto)
 	{
+		string? warningMessage = null;
+
 		var translator = FindTranslatorById(translatorId);
-		if (translator is null) return ServiceResult<Translator>.Fail(Messages.TranslatorUpdateFailed);
+		if (translator is null) return ServiceResult<TranslatorDto>.Fail(Messages.TranslatorUpdateFailed);
 
 		if (IsNoOpUpdateTranslator(translator, dto))
-			return ServiceResult<Translator>.Fail(Messages.NoChangesDetected);
+			return ServiceResult<TranslatorDto>.Fail(Messages.NoChangesDetected);
 
 		var resolvedFirstName = dto.FirstName ?? translator.FirstName;
 		var resolvedLastName = dto.LastName ?? translator.LastName;
 		if (dto.FirstName is not null || dto.LastName is not null)
 		{
 			if (_translatorRepository.ExistsByName(resolvedFirstName, resolvedLastName, translatorId))
-				return ServiceResult<Translator>.Fail(Messages.DuplicateTranslatorsNotAllowedByName);
+				warningMessage = string.Format(Messages.DuplicateTranslatorNameWarning, translatorId);
 		}
 
 		if (dto.NationalCode is not null && _translatorRepository.ExistsByNationalCode(dto.NationalCode, translatorId))
-			return ServiceResult<Translator>.Fail(Messages.DuplicateTranslatorsNotAllowedByNationalCode);
+			return ServiceResult<TranslatorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByNationalCode);
 
 		if (dto.Email is not null && _translatorRepository.ExistsByEmail(dto.Email, translatorId))
-			return ServiceResult<Translator>.Fail(Messages.DuplicateTranslatorsNotAllowedByEmail);
+			return ServiceResult<TranslatorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByEmail);
 
 		if (dto.PhoneNumber is not null && _translatorRepository.ExistsByPhoneNumber(dto.PhoneNumber, translatorId))
-			return ServiceResult<Translator>.Fail(Messages.DuplicateTranslatorsNotAllowedByPhoneNumber);
+			return ServiceResult<TranslatorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByPhoneNumber);
 
 		translator.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate);
 
-		return ServiceResult<Translator>.Ok(translator, Messages.TranslatorUpdatedSuccessfully);
+		_translatorRepository.Update(translator);
+		return warningMessage is not null
+			? ServiceResult<TranslatorDto>.Warning(translator.ToDto(), warningMessage)
+			: ServiceResult<TranslatorDto>.Ok(translator.ToDto(), Messages.TranslatorUpdatedSuccessfully);
 	}
 
 
@@ -98,17 +107,24 @@ public class TranslatorManagementService
 		if (translator is null) return ServiceResult<TranslatorDto>.Fail(Messages.TranslatorRemoveFailed);
 
 		if (translator.BookTranslators.Count != 0)
-			return ServiceResult<TranslatorDto>.Fail(
-				"Failed to remove translator. The translator has associated books.");
+			return ServiceResult<TranslatorDto>.Fail(Messages.TranslatorHasAssociatedBooks);
 
 		_translatorRepository.Remove(translator);
 		return ServiceResult<TranslatorDto>.Ok(translator.ToDto(), Messages.TranslatorRemovedSuccessfully);
 	}
 
 
-	public IReadOnlyList<TranslatorDto> SearchTranslator(string searchItem, Func<Translator, string?> selector)
+	public IReadOnlyList<TranslatorDto> SearchTranslator(string searchItem, TranslatorSearchField field)
 	{
-		return _translatorRepository.Search(searchItem, selector).Select(translator => translator.ToDto()).ToList()
-			.AsReadOnly();
+		Func<Translator, string?> selector = field switch
+		{
+			TranslatorSearchField.Name => t => $"{t.FirstName} {t.LastName}",
+			TranslatorSearchField.NationalCode => t => t.NationalCode,
+			TranslatorSearchField.Email => t => t.Email,
+			TranslatorSearchField.PhoneNumber => t => t.PhoneNumber,
+			_ => throw new ArgumentOutOfRangeException(nameof(field))
+		};
+
+		return [.. _translatorRepository.Search(searchItem, selector).Select(translator => translator.ToDto())];
 	}
 }

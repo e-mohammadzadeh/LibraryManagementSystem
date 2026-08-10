@@ -14,7 +14,8 @@ public interface IBookRepository
 	IReadOnlyList<Book> GetAvailableBooks();
 	void Remove(Book book);
 	//	TODO Split search methods into some methods to support search books by author - search books by translator - search books by publisher - search books by genre - search books by multiple authors
-	IReadOnlyList<Book> Search<T>(T? searchTerm, Func<Book, T?> selector, Func<T, T, bool> comparer) where T : class;
-	IReadOnlyList<Book> Search<T>(T? searchTerm, Func<Book, T?> selector, Func<T, T, bool> comparer) where T : struct;
+	//IReadOnlyList<Book> Search<T>(T? searchTerm, Func<Book, T?> selector, Func<T, T, bool> comparer) where T : class;
+	//IReadOnlyList<Book> Search<T>(T? searchTerm, Func<Book, T?> selector, Func<T, T, bool> comparer) where T : struct;
+	IReadOnlyList<Book> Search(string searchTerm, Func<Book, string?> selector);
 	void Update(Book book);
 }
