@@ -4,6 +4,7 @@ using LibraryManagementSystem.Application.DTOs.Loans;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
+using static System.Collections.Specialized.BitVector32;
 
 namespace LibraryManagementSystem.Application.Services;
 
@@ -53,6 +54,7 @@ public class LoanManagementService
 		var loan = new Loan(book, user, DateOnly.FromDateTime(DateTime.Today));
 		book.BorrowCopy();
 		_loanRepository.Add(loan);
+		_bookRepository.Update(book);
 		return ServiceResult<LoanDto>.Ok(loan.ToDto(), Messages.BorrowedSuccessfully);
 	}
 
@@ -68,6 +70,7 @@ public class LoanManagementService
 		loan.MarkAsReturned();
 		loan.Book.ReturnCopy();
 		_loanRepository.Update(loan);
+		_bookRepository.Update(loan.Book);
 
 		var fineResult = _fineService.CreateFineForLoan(loanId);
 		if (!fineResult.Success && fineResult.Message != Messages.NoFine)
@@ -121,8 +124,7 @@ public class LoanManagementService
 
 	public IReadOnlyList<LoanDto> GetLoansByUser(int userId, ICurrentUserSession session)
 	{
-		if (session.IsSelfServiceMember && session.UserId != userId)
-			return Array.Empty<LoanDto>().AsReadOnly();
+		if (session.IsSelfServiceMember && session.UserId != userId) return Array.Empty<LoanDto>().AsReadOnly();
 		return [.. _loanRepository.GetAllByUser(userId).Select(loan => loan.ToDto())];
 	}
 
@@ -217,14 +219,16 @@ public class LoanManagementService
 	}
 
 
-	public IReadOnlyList<LoanDto> GetLoanByBook(int bookId)
+	public IReadOnlyList<LoanDto> GetLoanByBook(int bookId, ICurrentUserSession session)
 	{
+		if (session.IsSelfServiceMember) return [];
 		return [.. _loanRepository.GetLoansByBook(bookId).Select(loan => loan.ToDto())];
 	}
 
 
-	public IReadOnlyList<LoanDto> GetActiveLoansByBook(int bookId)
+	public IReadOnlyList<LoanDto> GetActiveLoansByBook(int bookId, ICurrentUserSession session)
 	{
+		if (session.IsSelfServiceMember) return [];
 		return [.. _loanRepository.GetActiveLoansByBook(bookId).Select(loan => loan.ToDto())];
 	}
 

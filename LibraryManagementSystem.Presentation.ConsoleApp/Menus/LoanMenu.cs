@@ -318,7 +318,7 @@ public static class LoanMenu
 				{
 					var book = MenuHelper.SelectBook(bookManagementService.GetAllBooks());
 					if (book is null) break;
-					var loans = loanManagementService.GetActiveLoansByBook(book.BookId);
+					var loans = loanManagementService.GetActiveLoansByBook(book.BookId, session);
 					DisplayLoans(loans, Messages.NotAvailableLoan);
 					break;
 				}
@@ -391,7 +391,7 @@ public static class LoanMenu
 				{
 					var book = MenuHelper.SelectBook(bookManagementService.GetAllBooks());
 					if (book is null) break;
-					var loans = loanManagementService.GetActiveLoansByBook(book.BookId);
+					var loans = loanManagementService.GetActiveLoansByBook(book.BookId, session);
 					DisplayLoans(loans, Messages.NotAvailableLoan);
 					break;
 				}
@@ -445,7 +445,7 @@ public static class LoanMenu
 					var book = MenuHelper.SelectBook(bookManagementService.GetAllBooks());
 					if (book is null) break;
 
-					var loans = loanManagementService.GetLoanByBook(book.BookId);
+					var loans = loanManagementService.GetLoanByBook(book.BookId, session);
 					DisplayLoans(loans, Messages.NotAvailableLoan);
 					break;
 				}

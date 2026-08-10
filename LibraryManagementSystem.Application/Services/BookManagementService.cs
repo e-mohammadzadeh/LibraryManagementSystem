@@ -61,6 +61,9 @@ public class BookManagementService
 			translators.Add(translator);
 		}
 
+		if (dto.TotalCopies <= 0) return ServiceResult<BookDto>.Fail(Messages.WrongTotalCopies);
+
+
 		var newBook = new Book(dto.ISBN, dto.BookName, authors, translators, dto.PublishDate, dto.TotalCopies, genre,
 			dto.Publisher, dto.Description);
 
@@ -83,6 +86,8 @@ public class BookManagementService
 	{
 		var book = _bookRepository.FindById(bookId);
 		if (book is null) return ServiceResult<BookDto>.Fail(Messages.NotAvailableBook);
+
+		if (IsNoOpUpdateBook(book, dto)) return ServiceResult<BookDto>.Fail(Messages.NoChangesDetected);
 
 		if (dto.BookName != null && _bookRepository.ExistsByName(dto.BookName, bookId))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByName);
@@ -146,6 +151,29 @@ public class BookManagementService
 	}
 
 
+	private static bool IsNoOpUpdateBook(Book book, UpdateBookDto dto)
+	{
+		return (dto.BookName == null || dto.BookName == book.BookName) &&
+		       (dto.ISBN == null || dto.ISBN == book.InternationalStandardBookNumber) &&
+		       (dto.AuthorIds == null || SameIds(dto.AuthorIds, book.BookAuthors.Select(ba => ba.AuthorId))) &&
+		       (dto.TranslatorIds == null ||
+		        SameIds(dto.TranslatorIds, book.BookTranslators.Select(bt => bt.TranslatorId))) &&
+		       (dto.PublishDate == null || dto.PublishDate == book.PublishDate) &&
+		       (dto.GenreId == null || dto.GenreId == (int)book.Genre) &&
+		       (dto.Publisher == null || dto.Publisher == book.Publisher) &&
+		       (dto.TotalCopies == null || dto.TotalCopies == book.TotalCopies) &&
+		       (dto.Description == null || dto.Description == book.Description);
+	}
+
+
+	private static bool SameIds(IEnumerable<int> left, IEnumerable<int> right)
+	{
+		var a = left.Distinct().OrderBy(x => x).ToList();
+		var b = right.Distinct().OrderBy(x => x).ToList();
+		return a.SequenceEqual(b);
+	}
+
+
 	public ServiceResult<BookDto> RemoveBook(int bookId)
 	{
 		var book = _bookRepository.FindById(bookId);
@@ -165,20 +193,6 @@ public class BookManagementService
 		_bookRepository.Remove(book);
 		return ServiceResult<BookDto>.Ok(book.ToDto(), Messages.BookRemovedSuccessfully);
 	}
-
-
-	//public IReadOnlyList<BookDto> SearchBooks<T>(T? searchTerm, Func<Book, T?> selector, Func<T, T, bool> comparer)
-	//	where T : class {
-	//	return _bookRepository.Search(searchTerm, selector, comparer).Select(book => book.ToDto()).ToList()
-	//		.AsReadOnly();
-	//}
-
-
-	//public IReadOnlyList<BookDto> SearchBooks<T>(T? searchTerm, Func<Book, T?> selector, Func<T, T, bool> comparer)
-	//	where T : struct {
-	//	return _bookRepository.Search(searchTerm, selector, comparer).Select(book => book.ToDto()).ToList()
-	//		.AsReadOnly();
-	//}
 
 
 	public IReadOnlyList<BookDto> SearchBooks(string searchTerm, BookSearchField field)

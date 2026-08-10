@@ -75,7 +75,8 @@ public static class BookMenu
 				}
 				case 5:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewBookDetails, Messages.AccessDenied))
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewBookDetails,
+						    Messages.AccessDenied))
 						break;
 					ViewBookDetails(bookManagementService, loanManagementService);
 					break;
@@ -97,6 +98,7 @@ public static class BookMenu
 					break;
 				}
 			}
+
 			ConsoleHelper.Pause();
 		}
 	}
@@ -670,8 +672,7 @@ public static class BookMenu
 				case 1:
 				{
 					var searchTerm = ConsoleHelper.ReadString("Enter a title to search");
-					if (string.IsNullOrWhiteSpace(searchTerm))
-						continue;
+					if (string.IsNullOrWhiteSpace(searchTerm)) continue;
 					var results = bookManagementService.SearchBooks(searchTerm, BookSearchField.BookName);
 					DisplayBookResults(results);
 					break;
@@ -687,8 +688,7 @@ public static class BookMenu
 				case 3:
 				{
 					var searchTerm = ConsoleHelper.ReadString("Enter an author name");
-					if (string.IsNullOrWhiteSpace(searchTerm))
-						continue;
+					if (string.IsNullOrWhiteSpace(searchTerm)) continue;
 					var results = bookManagementService.SearchBooks(searchTerm, BookSearchField.AuthorName);
 					DisplayBookResults(results);
 					break;
@@ -706,21 +706,25 @@ public static class BookMenu
 				{
 					var searchTerm = ConsoleHelper.ReadDateOnly("Enter a publish date to search");
 					if (searchTerm is null) continue;
-					var results = bookManagementService.SearchBooks(searchTerm, BookSearchField.PublishDate);
+					var results = bookManagementService.SearchBooks(searchTerm.Value.ToString("yyyy-MM-dd"),
+						BookSearchField.PublishDate);
 					DisplayBookResults(results);
 					break;
 				}
 				case 6:
 				{
-					SearchBookAndDisplay(bookManagementService, ConsoleHelper.ReadGenre, "Enter a genre to search",
-						book => book.Genre, GenreComparer);
-
+					var searchTerm = ConsoleHelper.ReadGenre("Enter a genre to search");
+					if (searchTerm is null) continue;
+					var results = bookManagementService.SearchBooks(searchTerm.Value.ToString(), BookSearchField.Genre);
+					DisplayBookResults(results);
 					break;
 				}
 				case 7:
 				{
-					SearchBookAndDisplay(bookManagementService, p => ConsoleHelper.ReadString(p),
-						"Enter a publisher to search", book => book.Publisher, ContainsComparer);
+					var searchTerm = ConsoleHelper.ReadString("Enter a publisher to search");
+					if (string.IsNullOrWhiteSpace(searchTerm)) continue;
+					var results = bookManagementService.SearchBooks(searchTerm, BookSearchField.Publisher);
+					DisplayBookResults(results);
 					break;
 				}
 				case 8:
@@ -735,35 +739,6 @@ public static class BookMenu
 			ConsoleHelper.Pause();
 		}
 	}
-
-
-	//private static void SearchBookAndDisplay<T>(BookManagementService bookManagementService, Func<string, T?> reader,
-	//	string prompt, Func<Book, T?> selector, Func<T, T, bool> comparer) where T : class
-	//{
-	//	var searchTerm = reader(prompt);
-	//	if (searchTerm is null) return;
-
-	//	var result = bookManagementService.SearchBooks(searchTerm, selector, comparer);
-	//	DisplayBookResults(result);
-	//}
-
-
-	//private static void SearchBookAndDisplay<T>(BookManagementService bookManagementService, Func<string, T?> reader,
-	//	string prompt, Func<Book, T?> selector, Func<T, T, bool> comparer) where T : struct
-	//{
-	//	var searchTerm = reader(prompt);
-	//	if (!searchTerm.HasValue) return;
-
-	//	var result = bookManagementService.SearchBooks(searchTerm, selector, comparer);
-	//	DisplayBookResults(result);
-	//}
-
-
-	private static readonly Func<string, string, bool> ContainsComparer =
-		(search, value) => value.Contains(search, StringComparison.OrdinalIgnoreCase);
-
-	private static readonly Func<DateOnly, DateOnly, bool> DateComparer = (search, value) => search == value;
-	private static readonly Func<Genre, Genre, bool> GenreComparer = (search, value) => search == value;
 
 
 	private static void DisplayBookResults(IReadOnlyList<BookDto> result)

@@ -60,36 +60,6 @@ public class InMemoryBookRepository : IBookRepository
 	}
 
 
-
-	//public IReadOnlyList<Book> Search<T>(T? searchTerm, Func<Book, T?> selector, Func<T, T, bool> comparer)
-	//	where T : class
-	//{
-	//	if (searchTerm is null)
-	//		return [];
-
-	//	return [.. _books.Where(book =>
-	//	{
-	//		var value = selector(book);
-	//		return value is not null && comparer(searchTerm, value);
-	//	})];
-	//}
-
-
-
-	//public IReadOnlyList<Book> Search<T>(T? searchTerm, Func<Book, T?> selector, Func<T, T, bool> comparer)
-	//	where T : struct
-	//{
-	//	if (!searchTerm.HasValue)
-	//		return [];
-
-	//	return [.. _books.Where(book =>
-	//	{
-	//		var value = selector(book);
-	//		return value.HasValue && comparer(searchTerm.Value, value.Value);
-	//	})];
-	//}
-
-
 	public IReadOnlyList<Book> Search(string searchTerm, Func<Book, string?> selector)
 	{
 		return
