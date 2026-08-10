@@ -20,7 +20,7 @@ public class AuthenticationService
 		_passwordHasher = passwordHasher;
 		_currentUserSession = currentUserSession;
 	}
-
+	
 
 	public ServiceResult<AuthUserDto> Login(string email, string password)
 	{
@@ -37,7 +37,7 @@ public class AuthenticationService
 		if (user.MembershipExpiryDate < DateOnly.FromDateTime(DateTime.Today))
 			return ServiceResult<AuthUserDto>.Fail(Messages.MembershipExpired);
 
-		var permissions = user.UserRoles.SelectMany(ur => RolePermissionMap.GetPermissions(ur.Role.Name)).Distinct().ToList();
+		var permissions = user.UserRoles.SelectMany(ur => RolePermissionMap.GetPermissions(ur.Role.Name)).ToHashSet();
 
 		var authUser = new AuthUserDto
 		{
@@ -51,9 +51,9 @@ public class AuthenticationService
 			ShouldRemove = user.ShouldRemove
 		};
 
+		_currentUserSession.Login(authUser);
 		user.UpdateLastLogin();
 		_userRepository.Update(user);
-		_currentUserSession.Login(authUser);
 		return ServiceResult<AuthUserDto>.Ok(authUser, Messages.LoginSuccess);
 	}
 

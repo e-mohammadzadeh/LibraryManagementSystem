@@ -14,7 +14,7 @@ public class AuthorizationService : IAuthorizationService
 	{
 		if (!_session.IsAuthenticated || _session.CurrentUser is null) return false;
 
-		return _session.CurrentUser.Permissions.Contains(permission);
+		return _session.Permissions.Contains(permission);
 	}
 
 

@@ -4,12 +4,11 @@ namespace LibraryManagementSystem.Application.Authorization;
 
 public static class RolePermissionMap
 {
-	private static readonly HashSet<Permission> AllPermissions =
-		Enum.GetValues<Permission>().ToHashSet();
+	//private static readonly IReadOnlyList<Permission> AllPermissions = .ToHashSet().AsReadOnly();
 
 	private static readonly Dictionary<LibraryUserRole, HashSet<Permission>> Map = new()
 	{
-		[LibraryUserRole.Admin] = AllPermissions,
+		[LibraryUserRole.Admin] = [.. Enum.GetValues<Permission>()],
 		[LibraryUserRole.Librarian] =
 		[
 			Permission.AddAuthor,
@@ -56,7 +55,6 @@ public static class RolePermissionMap
 
 			Permission.AddUser,
 			Permission.EditUser,
-			Permission.RemoveUser,
 			Permission.SearchUser,
 			Permission.ViewUserDetails,
 			Permission.ViewAllUsers,
