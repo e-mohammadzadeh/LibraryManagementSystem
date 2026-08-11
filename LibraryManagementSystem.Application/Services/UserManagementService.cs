@@ -42,14 +42,14 @@ public class UserManagementService
 		var existingSameName = _userRepository.FindByName(dto.FirstName, dto.LastName);
 
 		if (existingSameName is not null)
-			warningMessage = $"A user with the same name already exists (ID: {existingSameName.Id}). ";
+			warningMessage = string.Format(Messages.DuplicateUserNameWarning, existingSameName.Id);
 
 		if (dto.RoleIds.Count != dto.RoleIds.Distinct().Count())
 			return ServiceResult<UserDto>.Fail(Messages.FailureDuplicateRolesSelected);
 
 		var roles = _roleRepository.FindByIds(dto.RoleIds);
 		if (roles.Count != dto.RoleIds.Count)
-			return ServiceResult<UserDto>.Fail("One or more selected roles do not exist.");
+			return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
 
 		var result = _passwordHasher.CreatePasswordHash(dto.Password);
 
@@ -77,6 +77,8 @@ public class UserManagementService
 
 	public ServiceResult<UserDto> UpdateUser(int userId, UpdateUserDto dto)
 	{
+		string? warningMessage = null;
+
 		var user = _userRepository.FindById(userId);
 		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserUpdateFailed);
 
@@ -86,9 +88,11 @@ public class UserManagementService
 		var resolvedLastName = dto.LastName ?? user.LastName;
 		if (dto.FirstName is not null || dto.LastName is not null)
 		{
-			if (_userRepository.ExistsByName(resolvedFirstName, resolvedLastName, userId))
-				return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByName);
+			var existingSameName = _userRepository.FindByName(resolvedFirstName, resolvedLastName);
+			if (existingSameName is not null && existingSameName.Id != userId)
+				warningMessage = string.Format(Messages.DuplicateAuthorNameWarning, existingSameName.Id);
 		}
+
 
 		if (dto.NationalCode is not null && _userRepository.ExistsByNationalCode(dto.NationalCode, userId))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
@@ -110,15 +114,17 @@ public class UserManagementService
 			resolvedRoles = [.. _roleRepository.FindByIds(dto.RoleIds)];
 			if (resolvedRoles.Count != dto.RoleIds.Count)
 			{
-				return ServiceResult<UserDto>.Fail("One or more selected roles do not exist.");
+				return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
 			}
 		}
 
-
 		user.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
 			resolvedRoles);
+		_userRepository.Update(user);
 
-		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.UserUpdatedSuccessfully);
+		return warningMessage is not null
+			? ServiceResult<UserDto>.Warning(user.ToDto(), warningMessage)
+			: ServiceResult<UserDto>.Ok(user.ToDto(), Messages.UserUpdatedSuccessfully);
 	}
 
 

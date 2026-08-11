@@ -45,21 +45,21 @@ public static class AuthorMenu
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.AddAuthor, Messages.AccessDenied))
 						break;
-					AddAuthor(authorManagementService, session);
+					AddAuthor(authorManagementService);
 					break;
 				}
 				case 2:
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.EditAuthor, Messages.AccessDenied))
 						break;
-					EditAuthor(authorManagementService, session);
+					EditAuthor(authorManagementService);
 					break;
 				}
 				case 3:
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveAuthor, Messages.AccessDenied))
 						break;
-					RemoveAuthor(authorManagementService, session);
+					RemoveAuthor(authorManagementService);
 					break;
 				}
 				case 4:
@@ -71,18 +71,19 @@ public static class AuthorMenu
 				}
 				case 5:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAuthorDetails, Messages.AccessDenied))
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAuthorDetails,
+						    Messages.AccessDenied))
 						break;
 					var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
 						MenuHelper.SelectAuthor,
 						Messages.NotAvailableAuthor);
-					if (desiredAuthor is not null)
-						AuthorPrinter.PrintDetails(desiredAuthor);
+					if (desiredAuthor is not null) AuthorPrinter.PrintDetails(desiredAuthor);
 					break;
 				}
 				case 6:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllAuthors, Messages.AccessDenied))
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllAuthors,
+						    Messages.AccessDenied))
 						break;
 					if (authorManagementService.GetAllAuthors().Count is 0)
 						ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
@@ -97,6 +98,7 @@ public static class AuthorMenu
 					break;
 				}
 			}
+
 			ConsoleHelper.Pause();
 		}
 	}
@@ -160,14 +162,8 @@ public static class AuthorMenu
 	}
 
 
-	private static void AddAuthor(AuthorManagementService authorManagementService, ICurrentUserSession session)
+	private static void AddAuthor(AuthorManagementService authorManagementService)
 	{
-		if (session is { IsAdmin: false, IsLibrarian: false })
-		{
-			ConsoleHelper.ShowError(Messages.AccessDenied);
-			return;
-		}
-
 		Console.WriteLine(new string('=', 36) + " ADDING AUTHOR MENU " + new string('=', 36));
 		var authorDto = PromptForAuthorDto();
 		if (authorDto is null) return;
@@ -177,15 +173,8 @@ public static class AuthorMenu
 	}
 
 
-	private static void EditAuthor(AuthorManagementService authorManagementService, ICurrentUserSession session)
+	private static void EditAuthor(AuthorManagementService authorManagementService)
 	{
-		if (session is { IsAdmin: false, IsLibrarian: false })
-		{
-			ConsoleHelper.ShowError(Messages.AccessDenied);
-			return;
-		}
-
-
 		Console.WriteLine(new string('=', 36) + " EDITING AUTHOR MENU " + new string('=', 36));
 		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(), MenuHelper.SelectAuthor,
 			Messages.NotAvailableAuthor);
@@ -211,9 +200,9 @@ public static class AuthorMenu
 					var authorNewFirstName = ConsoleHelper.GetValidName("Enter new first name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
-					PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewFirstName,
+					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewFirstName,
 						v => new UpdateAuthorDto { FirstName = v });
-
+					if (updated is not null) desiredAuthor = updated;
 					break;
 				}
 				case 2:
@@ -221,49 +210,54 @@ public static class AuthorMenu
 					var authorNewLastName = ConsoleHelper.GetValidName("Enter new last name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
-					PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewLastName,
+					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewLastName,
 						v => new UpdateAuthorDto { LastName = v });
+					if (updated is not null) desiredAuthor = updated;
 
 					break;
 				}
 				case 3:
 				{
 					var authorNewNationalCode = ConsoleHelper.GetValidNationalCode("Enter new national code");
-					PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewNationalCode,
+					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewNationalCode,
 						v => new UpdateAuthorDto { NationalCode = v });
+					if (updated is not null) desiredAuthor = updated;
 
 					break;
 				}
 				case 4:
 				{
 					var authorNewEmail = ConsoleHelper.GetValidEmail("Enter new email");
-					PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewEmail,
+					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewEmail,
 						v => new UpdateAuthorDto { Email = v });
+					if (updated is not null) desiredAuthor = updated;
 
 					break;
 				}
 				case 5:
 				{
 					var authorNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter new phone number");
-					PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewPhoneNumber,
+					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewPhoneNumber,
 						v => new UpdateAuthorDto { PhoneNumber = v });
+					if (updated is not null) desiredAuthor = updated;
 
 					break;
 				}
 				case 6:
 				{
 					var authorNewBirthDate = ConsoleHelper.GetValidBirthDate("Enter new birth date");
-					PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewBirthDate,
+					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewBirthDate,
 						v => new UpdateAuthorDto { BirthDate = v });
+					if (updated is not null) desiredAuthor = updated;
 
 					break;
 				}
 				case 7:
 				{
 					var authorNewBiography = ConsoleHelper.ReadString("Enter new biography");
-					PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewBiography,
+					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewBiography,
 						v => new UpdateAuthorDto { Biography = v });
-
+					if (updated is not null) desiredAuthor = updated;
 					break;
 				}
 				case 8:
@@ -282,14 +276,8 @@ public static class AuthorMenu
 	}
 
 
-	private static void RemoveAuthor(AuthorManagementService authorManagementService, ICurrentUserSession session)
+	private static void RemoveAuthor(AuthorManagementService authorManagementService)
 	{
-		if (!session.IsAdmin)
-		{
-			ConsoleHelper.ShowError(Messages.AccessDenied);
-			return;
-		}
-
 		// TODO	(SQL Server)	Implement SOFT DELETE system with flags like `IsDeleted = true` or `IsActive = False`
 		Console.WriteLine(new string('=', 36) + " REMOVING AUTHOR MENU " + new string('=', 36));
 		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(), MenuHelper.SelectAuthor,
@@ -371,14 +359,14 @@ public static class AuthorMenu
 	}
 
 
-	private static void PerformUpdate<T>(AuthorManagementService authorManagementService, int desiredAuthorId,
-		T? newValue,
-		Func<T, UpdateAuthorDto> buildDto)
+	private static AuthorDto? PerformUpdate<T>(AuthorManagementService authorManagementService, int desiredAuthorId,
+		T? newValue, Func<T, UpdateAuthorDto> buildDto)
 	{
-		if (newValue is null) return;
+		if (newValue is null) return null;
 
 		var dto = buildDto(newValue);
 		var result = authorManagementService.UpdateAuthor(desiredAuthorId, dto);
 		ConsoleHelper.ShowResult(result);
+		return result.Data;
 	}
 }

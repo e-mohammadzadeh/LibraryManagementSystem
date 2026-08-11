@@ -44,45 +44,47 @@ public static class TranslatorMenu
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.AddTranslator, Messages.AccessDenied))
 						break;
-					AddTranslator(translatorManagementService, session);
+					AddTranslator(translatorManagementService);
 					break;
 				}
 				case 2:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.EditTranslator, Messages.AccessDenied))
+					if (!SessionGuard.RequirePermission(authorization, Permission.EditTranslator,
+						    Messages.AccessDenied))
 						break;
-					EditTranslator(translatorManagementService, session);
+					EditTranslator(translatorManagementService);
 					break;
 				}
 				case 3:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveTranslator, Messages.AccessDenied))
+					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveTranslator,
+						    Messages.AccessDenied))
 						break;
-					RemoveTranslator(translatorManagementService, session);
+					RemoveTranslator(translatorManagementService);
 					break;
 				}
 				case 4:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.SearchTranslator, Messages.AccessDenied))
+					if (!SessionGuard.RequirePermission(authorization, Permission.SearchTranslator,
+						    Messages.AccessDenied))
 						break;
 					SearchTranslator(translatorManagementService);
 					break;
 				}
 				case 5:
 				{
-
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewTranslatorDetails, Messages.AccessDenied))
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewTranslatorDetails,
+						    Messages.AccessDenied))
 						break;
 					var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
 						MenuHelper.SelectTranslator, Messages.NotAvailableTranslator);
-					if (desiredTranslator is not null)
-						TranslatorPrinter.PrintDetails(desiredTranslator);
+					if (desiredTranslator is not null) TranslatorPrinter.PrintDetails(desiredTranslator);
 					break;
 				}
 				case 6:
 				{
-					
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllTranslators, Messages.AccessDenied))
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllTranslators,
+						    Messages.AccessDenied))
 						break;
 					if (translatorManagementService.GetAllTranslators().Count is 0)
 						ConsoleHelper.ShowWarning(Messages.NotAvailableTranslator);
@@ -97,6 +99,7 @@ public static class TranslatorMenu
 					break;
 				}
 			}
+
 			ConsoleHelper.Pause();
 		}
 	}
@@ -145,14 +148,8 @@ public static class TranslatorMenu
 	}
 
 
-	private static void AddTranslator(TranslatorManagementService translatorManagementService, ICurrentUserSession session)
+	private static void AddTranslator(TranslatorManagementService translatorManagementService)
 	{
-		if (session is { IsAdmin: false, IsLibrarian: false })
-		{
-			ConsoleHelper.ShowError(Messages.AccessDenied);
-			return;
-		}
-
 		Console.WriteLine(new string('=', 36) + " ADDING TRANSLATOR MENU " + new string('=', 36));
 		var translatorDto = PromptForTranslatorDto();
 		if (translatorDto is null) return;
@@ -175,14 +172,8 @@ public static class TranslatorMenu
 	}
 
 
-	private static void EditTranslator(TranslatorManagementService translatorManagementService, ICurrentUserSession session)
+	private static void EditTranslator(TranslatorManagementService translatorManagementService)
 	{
-		if (session is { IsAdmin: false, IsLibrarian: false })
-		{
-			ConsoleHelper.ShowError(Messages.AccessDenied);
-			return;
-		}
-
 		Console.WriteLine(new string('=', 36) + " EDITING TRANSLATOR MENU " + new string('=', 36));
 		var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
 			MenuHelper.SelectTranslator, Messages.NotAvailableTranslator);
@@ -207,9 +198,9 @@ public static class TranslatorMenu
 					var translatorNewFirstName = ConsoleHelper.GetValidName("Enter new first name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
-					PerformUpdate(translatorManagementService, desiredTranslator.Id, translatorNewFirstName,
-						v => new UpdateTranslatorDto { FirstName = v });
-
+					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
+						translatorNewFirstName, v => new UpdateTranslatorDto { FirstName = v });
+					if (updated is not null) desiredTranslator = updated;
 					break;
 				}
 				case 2:
@@ -217,46 +208,46 @@ public static class TranslatorMenu
 					var translatorNewLastName = ConsoleHelper.GetValidName("Enter new last name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
-					PerformUpdate(translatorManagementService, desiredTranslator.Id, translatorNewLastName,
-						v => new UpdateTranslatorDto { LastName = v });
-
+					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
+						translatorNewLastName, v => new UpdateTranslatorDto { LastName = v });
+					if (updated is not null) desiredTranslator = updated;
 					break;
 				}
 				case 3:
 				{
 					var translatorNewNationalCode = ConsoleHelper.GetValidNationalCode("Enter new national code");
-					PerformUpdate(translatorManagementService, desiredTranslator.Id, translatorNewNationalCode,
-						v => new UpdateTranslatorDto { NationalCode = v });
-
+					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
+						translatorNewNationalCode, v => new UpdateTranslatorDto { NationalCode = v });
+					if (updated is not null) desiredTranslator = updated;
 					break;
 				}
 				case 4:
 				{
 					var translatorNewEmail = ConsoleHelper.GetValidEmail("Enter new email");
-					PerformUpdate(translatorManagementService, desiredTranslator.Id, translatorNewEmail,
+					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id, translatorNewEmail,
 						v => new UpdateTranslatorDto { Email = v });
-
+					if (updated is not null) desiredTranslator = updated;
 					break;
 				}
 				case 5:
 				{
 					var translatorNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter new phone number");
-					PerformUpdate(translatorManagementService, desiredTranslator.Id, translatorNewPhoneNumber,
-						v => new UpdateTranslatorDto { PhoneNumber = v });
-
+					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
+						translatorNewPhoneNumber, v => new UpdateTranslatorDto { PhoneNumber = v });
+					if (updated is not null) desiredTranslator = updated;
 					break;
 				}
 				case 6:
 				{
 					var translatorNewBirthDate = ConsoleHelper.GetValidBirthDate("Enter new birth date");
-					PerformUpdate(translatorManagementService, desiredTranslator.Id, translatorNewBirthDate,
-						v => new UpdateTranslatorDto { BirthDate = v });
-
+					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
+						translatorNewBirthDate, v => new UpdateTranslatorDto { BirthDate = v });
+					if (updated is not null) desiredTranslator = updated;
 					break;
 				}
 				case 7:
 				{
-					ConsoleHelper.ShowError(string.Format(Messages.EditCancelled, "Translator"));
+					ConsoleHelper.ShowInfo(string.Format(Messages.EditCancelled, "Translator"));
 					ConsoleHelper.Pause();
 					Console.Clear();
 					return;
@@ -270,15 +261,8 @@ public static class TranslatorMenu
 	}
 
 
-	private static void RemoveTranslator(TranslatorManagementService translatorManagementService,
-		ICurrentUserSession session)
+	private static void RemoveTranslator(TranslatorManagementService translatorManagementService)
 	{
-		if (!session.IsAdmin)
-		{
-			ConsoleHelper.ShowError(Messages.AccessDenied);
-			return;
-		}
-
 		// TODO	(SQL Server)	Implement SOFT DELETE system with flags like `IsDeleted = true` or `IsActive = False`
 		Console.WriteLine(new string('=', 36) + " REMOVING TRANSLATOR MENU " + new string('=', 36));
 		var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
@@ -362,15 +346,14 @@ public static class TranslatorMenu
 
 
 
-	private static void PerformUpdate<T>(TranslatorManagementService translatorManagementService,
-		int desiredTranslatorId,
-		T? newValue,
-		Func<T, UpdateTranslatorDto> buildDto)
+	private static TranslatorDto? PerformUpdate<T>(TranslatorManagementService translatorManagementService,
+		int desiredTranslatorId, T? newValue, Func<T, UpdateTranslatorDto> buildDto)
 	{
-		if (newValue is null) return;
+		if (newValue is null) return null;
 
 		var dto = buildDto(newValue);
 		var result = translatorManagementService.UpdateTranslator(desiredTranslatorId, dto);
 		ConsoleHelper.ShowResult(result);
+		return result.Data;
 	}
 }

@@ -326,16 +326,19 @@ public static class ConsoleHelper
 
 	public static void ShowResult<T>(ServiceResult<T> result) where T : class
 	{
-		if (result.Success)
+		switch (result.Status)
 		{
-			if (result.Status == ResultStatus.Warning)
-				ShowWarning(result.Message ?? "Warning.");
-			else
-				ShowSuccess(result.Message ?? "Operation completed successfully.");
-		}
-		else
-		{
-			ShowError(result.Message ?? "Operation failed.");
+			case ResultStatus.Success:
+				ShowSuccess(result.Message ?? "Success");
+				break;
+			case ResultStatus.Warning:
+				ShowWarning(result.Message ?? "Completed with warnings");
+				break;
+			case ResultStatus.Failure:
+				ShowError(result.Message ?? "Failed");
+				break;
+			default:
+				throw new ArgumentOutOfRangeException();
 		}
 	}
 

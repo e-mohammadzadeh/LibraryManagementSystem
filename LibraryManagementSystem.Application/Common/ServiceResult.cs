@@ -17,6 +17,9 @@ public class ServiceResult<T> where T : class
 	public string? Message { get; init; }
 	public T? Data { get; init; }
 	public ResultStatus Status { get; init; }
+	public bool IsSuccess => Status == ResultStatus.Success;
+	public bool IsFailure => Status == ResultStatus.Failure;
+	public bool IsWarning => Status == ResultStatus.Warning;
 
 
 	public static ServiceResult<T> Ok(T data, string message)

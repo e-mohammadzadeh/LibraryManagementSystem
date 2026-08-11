@@ -14,5 +14,4 @@ public interface IAuthorizationService
 	bool CanAccessLoanManagement();
 	bool CanAccessUserManagement();
 	bool CanAccessStatistics();
-	bool IsAuthorized(params Permission[] permissions);
 }

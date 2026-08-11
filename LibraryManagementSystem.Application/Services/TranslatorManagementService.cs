@@ -68,8 +68,9 @@ public class TranslatorManagementService
 		var resolvedLastName = dto.LastName ?? translator.LastName;
 		if (dto.FirstName is not null || dto.LastName is not null)
 		{
-			if (_translatorRepository.ExistsByName(resolvedFirstName, resolvedLastName, translatorId))
-				warningMessage = string.Format(Messages.DuplicateTranslatorNameWarning, translatorId);
+			var existingSameName = _translatorRepository.FindByName(resolvedFirstName, resolvedLastName);
+			if (existingSameName is not null && existingSameName.Id != translatorId)
+				warningMessage = string.Format(Messages.DuplicateTranslatorNameWarning, existingSameName.Id);
 		}
 
 		if (dto.NationalCode is not null && _translatorRepository.ExistsByNationalCode(dto.NationalCode, translatorId))

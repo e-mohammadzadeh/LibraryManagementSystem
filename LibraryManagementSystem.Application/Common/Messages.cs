@@ -149,6 +149,8 @@ public static class Messages
 	// Add
 	public const string UserAddedSuccessfully = "User added successfully.";
 	public const string UserAddFailed = "Failed to add user.";
+	public const string DuplicateUserNameWarning = "A user with the same name already exists (ID: {0}).";
+
 
 	// Update
 	public const string UserUpdatedSuccessfully = "User updated successfully.";
@@ -183,6 +185,7 @@ public static class Messages
 	public const string FailureDuplicateRolesSelected = "Duplicate roles selected.";
 	public const string NotRoleMatched = "No roles matched your search.";
 	public const string SelectRolePrompt = "Select a role for this user:";
+	public const string NotAvailableRoles = "One or more selected roles do not exist.";
 
 
 

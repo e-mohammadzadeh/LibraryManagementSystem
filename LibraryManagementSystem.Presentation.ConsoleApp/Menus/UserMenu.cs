@@ -72,7 +72,8 @@ public static class UserMenu
 				}
 				case 5:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewUserDetails, Messages.AccessDenied))
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewUserDetails,
+						    Messages.AccessDenied))
 						break;
 					ViewUserDetails(userManagementService, session);
 					break;
@@ -89,7 +90,8 @@ public static class UserMenu
 				}
 				case 7:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ChangePassword, Messages.AccessDenied))
+					if (!SessionGuard.RequirePermission(authorization, Permission.ChangePassword,
+						    Messages.AccessDenied))
 						break;
 					ChangePassword(userManagementService, session);
 					break;
@@ -101,6 +103,7 @@ public static class UserMenu
 					break;
 				}
 			}
+
 			ConsoleHelper.Pause();
 		}
 	}
@@ -220,9 +223,9 @@ public static class UserMenu
 					var userNewFirstName = ConsoleHelper.GetValidName("Enter new first name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
-					PerformUpdate(userManagementService, desiredUser.Id, userNewFirstName,
+					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewFirstName,
 						v => new UpdateUserDto { FirstName = v });
-
+					if (updated is not null) desiredUser = updated;
 					break;
 				}
 				case 2:
@@ -230,41 +233,41 @@ public static class UserMenu
 					var userNewLastName = ConsoleHelper.GetValidName("Enter new last name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
-					PerformUpdate(userManagementService, desiredUser.Id, userNewLastName,
+					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewLastName,
 						v => new UpdateUserDto { LastName = v });
-
+					if (updated is not null) desiredUser = updated;
 					break;
 				}
 				case 3:
 				{
 					var userNewNationalCode = ConsoleHelper.GetValidNationalCode("Enter new national code");
-					PerformUpdate(userManagementService, desiredUser.Id, userNewNationalCode,
+					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewNationalCode,
 						v => new UpdateUserDto { NationalCode = v });
-
+					if (updated is not null) desiredUser = updated;
 					break;
 				}
 				case 4:
 				{
 					var userNewEmail = ConsoleHelper.GetValidEmail("Enter new email");
-					PerformUpdate(userManagementService, desiredUser.Id, userNewEmail,
+					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewEmail,
 						v => new UpdateUserDto { Email = v });
-
+					if (updated is not null) desiredUser = updated;
 					break;
 				}
 				case 5:
 				{
 					var userNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter new phone number");
-					PerformUpdate(userManagementService, desiredUser.Id, userNewPhoneNumber,
+					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewPhoneNumber,
 						v => new UpdateUserDto { PhoneNumber = v });
-
+					if (updated is not null) desiredUser = updated;
 					break;
 				}
 				case 6:
 				{
 					var userNewBirthDate = ConsoleHelper.GetValidBirthDate("Enter new birth date");
-					PerformUpdate(userManagementService, desiredUser.Id, userNewBirthDate,
+					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewBirthDate,
 						v => new UpdateUserDto { BirthDate = v });
-
+					if (updated is not null) desiredUser = updated;
 					break;
 				}
 				case 7:
@@ -280,7 +283,7 @@ public static class UserMenu
 				}
 				case 8:
 				{
-					ConsoleHelper.ShowError(string.Format(Messages.EditCancelled, "User"));
+					ConsoleHelper.ShowInfo(string.Format(Messages.EditCancelled, "User"));
 					ConsoleHelper.Pause();
 					Console.Clear();
 					return;
@@ -294,13 +297,15 @@ public static class UserMenu
 	}
 
 
-	private static void PerformUpdate<T>(UserManagementService userManagementService, int desiredMemberId, T? newValue,
+	private static UserDto? PerformUpdate<T>(UserManagementService userManagementService, int desiredMemberId,
+		T? newValue,
 		Func<T, UpdateUserDto> buildDto)
 	{
-		if (newValue is null) return;
+		if (newValue is null) return null;
 		var dto = buildDto(newValue);
 		var result = userManagementService.UpdateUser(desiredMemberId, dto);
 		ConsoleHelper.ShowResult(result);
+		return result.Data;
 	}
 
 

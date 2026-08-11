@@ -29,15 +29,6 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 	public IReadOnlyList<Translator> GetAll() { return _translators.AsReadOnly(); }
 
 
-	public bool ExistsByName(string firstName, string lastName, int excludeId = -1)
-	{
-		return _translators.Any(translator =>
-			translator.Id != excludeId &&
-			translator.FirstName.Equals(firstName, StringComparison.OrdinalIgnoreCase) &&
-			translator.LastName.Equals(lastName, StringComparison.OrdinalIgnoreCase));
-	}
-
-
 	public bool ExistsByNationalCode(string nationalCode, int excludeId = -1)
 	{
 		return _translators.Any(translator => translator.Id != excludeId &&

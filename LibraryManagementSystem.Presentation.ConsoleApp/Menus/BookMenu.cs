@@ -4,7 +4,6 @@ using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Application.Services;
-using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
@@ -49,21 +48,21 @@ public static class BookMenu
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.AddBook, Messages.AccessDenied))
 						break;
-					AddBook(authorManagementService, translatorManagementService, bookManagementService, session);
+					AddBook(authorManagementService, translatorManagementService, bookManagementService);
 					break;
 				}
 				case 2:
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.EditBook, Messages.AccessDenied))
 						break;
-					EditBook(authorManagementService, translatorManagementService, bookManagementService, session);
+					EditBook(authorManagementService, translatorManagementService, bookManagementService);
 					break;
 				}
 				case 3:
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveBook, Messages.AccessDenied))
 						break;
-					RemoveBook(bookManagementService, session);
+					RemoveBook(bookManagementService);
 					break;
 				}
 				case 4:
@@ -78,7 +77,7 @@ public static class BookMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewBookDetails,
 						    Messages.AccessDenied))
 						break;
-					ViewBookDetails(bookManagementService, loanManagementService);
+					ViewBookDetails(bookManagementService, loanManagementService, session);
 					break;
 				}
 				case 6:
@@ -148,15 +147,8 @@ public static class BookMenu
 
 
 	private static void AddBook(AuthorManagementService authorManagementService,
-		TranslatorManagementService translatorManagementService, BookManagementService bookManagementService,
-		ICurrentUserSession session)
+		TranslatorManagementService translatorManagementService, BookManagementService bookManagementService)
 	{
-		if (session is { IsAdmin: false, IsLibrarian: false })
-		{
-			ConsoleHelper.ShowError(Messages.AccessDenied);
-			return;
-		}
-
 		Console.WriteLine(new string('=', 36) + " ADDING BOOK MENU " + new string('=', 36));
 
 		var isbn = ConsoleHelper.ReadISBN("Enter ISBN for the new book");
@@ -255,15 +247,8 @@ public static class BookMenu
 
 
 	private static void EditBook(AuthorManagementService authorManagementService,
-		TranslatorManagementService translatorManagementService, BookManagementService bookManagementService,
-		ICurrentUserSession session)
+		TranslatorManagementService translatorManagementService, BookManagementService bookManagementService)
 	{
-		if (session is { IsAdmin: false, IsLibrarian: false })
-		{
-			ConsoleHelper.ShowError(Messages.AccessDenied);
-			return;
-		}
-
 		Console.WriteLine(new string('=', 36) + " EDITING BOOK MENU " + new string('=', 36));
 		var desiredBook = SelectExistingBook(bookManagementService);
 		if (desiredBook is null) return;
@@ -293,17 +278,17 @@ public static class BookMenu
 					var bookName = ConsoleHelper.GetValidName("Enter the new book name",
 						ValidationConstants.MinBookNameLength, ValidationConstants.MaxBookNameLength);
 
-					PerformUpdate(bookManagementService, desiredBook.BookId, bookName,
+					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, bookName,
 						v => new UpdateBookDto { BookName = v });
-
+					if (updated is not null) desiredBook = updated;
 					break;
 				}
 				case 2:
 				{
 					var isbn = ConsoleHelper.ReadISBN("Enter the new ISBN");
-					PerformUpdate(bookManagementService, desiredBook.BookId, isbn,
+					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, isbn,
 						v => new UpdateBookDto { ISBN = v });
-
+					if (updated is not null) desiredBook = updated;
 					break;
 				}
 				case 3:
@@ -319,9 +304,9 @@ public static class BookMenu
 				case 5:
 				{
 					var publishDate = ConsoleHelper.GetValidDate("Enter the new publish date");
-					PerformUpdate(bookManagementService, desiredBook.BookId, publishDate,
+					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, publishDate,
 						v => new UpdateBookDto { PublishDate = v });
-
+					if (updated is not null) desiredBook = updated;
 					break;
 				}
 				case 6:
@@ -329,9 +314,9 @@ public static class BookMenu
 					var totalCopies = ConsoleHelper.ReadInt("Enter the new total copies",
 						ValidationConstants.MinBookCopies, ValidationConstants.MaxBookCopies);
 
-					PerformUpdate(bookManagementService, desiredBook.BookId, totalCopies,
+					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, totalCopies,
 						v => new UpdateBookDto { TotalCopies = v });
-
+					if (updated is not null) desiredBook = updated;
 					break;
 				}
 				case 7:
@@ -342,25 +327,26 @@ public static class BookMenu
 
 					if (genreId is null) break;
 
-					PerformUpdate(bookManagementService, desiredBook.BookId, genreId - 1,
+					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, genreId - 1,
 						v => new UpdateBookDto { GenreId = v });
-
+					if (updated is not null) desiredBook = updated;
 					break;
 				}
 				case 8:
 				{
 					var publisher = ConsoleHelper.GetValidName("Enter the new publisher",
 						ValidationConstants.MinPublisherNameLength, ValidationConstants.MaxPublisherNameLength);
-					PerformUpdate(bookManagementService, desiredBook.BookId, publisher,
+					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, publisher,
 						v => new UpdateBookDto { Publisher = v });
+					if (updated is not null) desiredBook = updated;
 					break;
 				}
 				case 9:
 				{
 					var description = ConsoleHelper.ReadString("Enter the new description");
-					PerformUpdate(bookManagementService, desiredBook.BookId, description,
+					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, description,
 						v => new UpdateBookDto { Description = v });
-
+					if (updated is not null) desiredBook = updated;
 					break;
 				}
 				case 10:
@@ -398,14 +384,15 @@ public static class BookMenu
 	}
 
 
-	private static void PerformUpdate<T>(BookManagementService bookManagementService, int desiredBookId,
+	private static BookDto? PerformUpdate<T>(BookManagementService bookManagementService, int desiredBookId,
 		T? newValue, Func<T, UpdateBookDto> buildDto)
 	{
-		if (newValue is null) return;
+		if (newValue is null) return null;
 
 		var dto = buildDto(newValue);
 		var result = bookManagementService.UpdateBook(desiredBookId, dto);
 		ConsoleHelper.ShowResult(result);
+		return result.Data;
 	}
 
 
@@ -454,7 +441,7 @@ public static class BookMenu
 
 				// New list = existing author IDs + newly selected IDs
 				var updatedAuthorIds = currentAuthorIds.Concat(selectedIds).Distinct().ToList();
-				PerformUpdate(bookManagementService, bookId, updatedAuthorIds,
+				var updated = PerformUpdate(bookManagementService, bookId, updatedAuthorIds,
 					v => new UpdateBookDto { AuthorIds = v });
 				break;
 			}
@@ -475,7 +462,7 @@ public static class BookMenu
 				var idToRemove = selectedIds[0];
 				var updatedAuthorIds = currentBook.Authors.Select(a => a.Id).Where(id => id != idToRemove).ToList();
 
-				PerformUpdate(bookManagementService, bookId, updatedAuthorIds,
+				var updated = PerformUpdate(bookManagementService, bookId, updatedAuthorIds,
 					v => new UpdateBookDto { AuthorIds = v });
 				break;
 			}
@@ -491,7 +478,7 @@ public static class BookMenu
 				var selectedIds = ConsoleHelper.ReadAuthors("Select the new author(s) for this book", allAuthors);
 				if (selectedIds is null) break;
 
-				PerformUpdate(bookManagementService, bookId, selectedIds,
+				var updated = PerformUpdate(bookManagementService, bookId, selectedIds,
 					v => new UpdateBookDto { AuthorIds = v });
 				break;
 			}
@@ -619,14 +606,8 @@ public static class BookMenu
 	}
 
 
-	private static void RemoveBook(BookManagementService bookManagementService, ICurrentUserSession session)
+	private static void RemoveBook(BookManagementService bookManagementService)
 	{
-		if (session is { IsAdmin: false, IsLibrarian: false })
-		{
-			ConsoleHelper.ShowError(Messages.AccessDenied);
-			return;
-		}
-
 		Console.WriteLine(new string('=', 36) + " REMOVING BOOK MENU " + new string('=', 36));
 		var desiredBook = SelectExistingBook(bookManagementService);
 		if (desiredBook is null) return;
@@ -754,13 +735,13 @@ public static class BookMenu
 
 
 	private static void ViewBookDetails(BookManagementService bookManagementService,
-		LoanManagementService loanManagementService)
+		LoanManagementService loanManagementService, ICurrentUserSession session)
 	{
 		var desiredBook = SelectExistingBook(bookManagementService);
 		if (desiredBook is not null)
 		{
 			BookPrinter.PrintDetails(desiredBook);
-			var loans = loanManagementService.GetLoanByBook(desiredBook.BookId);
+			var loans = loanManagementService.GetLoanByBook(desiredBook.BookId, session);
 			BookPrinter.PrintLoanHistory(loans);
 		}
 

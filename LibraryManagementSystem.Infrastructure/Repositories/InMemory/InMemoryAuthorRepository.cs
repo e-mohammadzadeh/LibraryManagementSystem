@@ -1,5 +1,4 @@
-﻿using LibraryManagementSystem.Application.DTOs.Authors;
-using LibraryManagementSystem.Domain.Entities;
+﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Infrastructure.Repositories.InMemory;
@@ -28,14 +27,6 @@ public class InMemoryAuthorRepository : IAuthorRepository
 
 
 	public IReadOnlyList<Author> GetAll() { return _authors.AsReadOnly(); }
-
-
-	public bool ExistsByName(string firstName, string lastName, int excludeId = -1)
-	{
-		return _authors.Any(author =>
-			author.Id != excludeId && author.FirstName.Equals(firstName, StringComparison.OrdinalIgnoreCase) &&
-			author.LastName.Equals(lastName, StringComparison.OrdinalIgnoreCase));
-	}
 
 
 	public bool ExistsByNationalCode(string nationalCode, int excludeId = -1)

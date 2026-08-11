@@ -76,7 +76,4 @@ public class AuthorizationService : IAuthorizationService
 
 
 	public bool CanAccessStatistics() { return HasAnyPermission(Permission.ViewStatistics); }
-
-
-	public bool IsAuthorized(params Permission[] permissions) { return permissions.Any(HasPermission); }
 }

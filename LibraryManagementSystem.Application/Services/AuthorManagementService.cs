@@ -62,8 +62,9 @@ public class AuthorManagementService
 		var resolvedLastName = dto.LastName ?? author.LastName;
 		if (dto.FirstName is not null || dto.LastName is not null)
 		{
-			if (_authorRepository.ExistsByName(resolvedFirstName, resolvedLastName, authorId))
-				warningMessage = string.Format(Messages.DuplicateAuthorNameWarning, authorId);
+			var existingSameName = _authorRepository.FindByName(resolvedFirstName, resolvedLastName);
+			if (existingSameName is not null && existingSameName.Id != authorId)
+				warningMessage = string.Format(Messages.DuplicateAuthorNameWarning, existingSameName.Id);
 		}
 
 		if (dto.NationalCode is not null && _authorRepository.ExistsByNationalCode(dto.NationalCode, authorId))

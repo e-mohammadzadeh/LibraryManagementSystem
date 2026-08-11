@@ -1,5 +1,4 @@
-﻿using System.Dynamic;
-using LibraryManagementSystem.Application.DTOs.Users;
+﻿using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Domain.Enums;
 
 namespace LibraryManagementSystem.Application.Authentication;
@@ -9,12 +8,12 @@ public class CurrentUserSession : ICurrentUserSession
 	public AuthUserDto? CurrentUser { get; private set; }
 	public int? UserId => CurrentUser?.Id;
 	public bool IsAuthenticated => CurrentUser is not null;
+	public IReadOnlySet<Permission> Permissions => CurrentUser?.Permissions ?? new HashSet<Permission>();
 
 
 	public void Login(AuthUserDto user)
 	{
 		CurrentUser = user ?? throw new ArgumentNullException(nameof(user));
-		Permissions = new HashSet<Permission>();
 	}
 
 	public void Logout() => CurrentUser = null;
@@ -28,9 +27,6 @@ public class CurrentUserSession : ICurrentUserSession
 
 		return roles.Any(r => CurrentUser.Roles.Contains(r));
 	}
-
-
-	public IReadOnlySet<Permission> Permissions { get; private set; } = new HashSet<Permission>();
 
 	public bool IsAdmin => HasRole(LibraryUserRole.Admin);
 	public bool IsLibrarian => HasRole(LibraryUserRole.Librarian);
