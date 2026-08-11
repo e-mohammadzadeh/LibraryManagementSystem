@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Application.DTOs.Users;
+﻿using LibraryManagementSystem.Application.Authorization;
+using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Domain.Enums;
 
 namespace LibraryManagementSystem.Application.Authentication;
@@ -27,6 +28,7 @@ public class CurrentUserSession : ICurrentUserSession
 
 		return roles.Any(r => CurrentUser.Roles.Contains(r));
 	}
+
 
 	public bool IsAdmin => HasRole(LibraryUserRole.Admin);
 	public bool IsLibrarian => HasRole(LibraryUserRole.Librarian);

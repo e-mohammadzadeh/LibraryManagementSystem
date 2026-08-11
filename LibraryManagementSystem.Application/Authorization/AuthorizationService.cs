@@ -71,7 +71,7 @@ public class AuthorizationService : IAuthorizationService
 	public bool CanAccessUserManagement()
 	{
 		return HasAnyPermission(Permission.AddUser, Permission.EditUser, Permission.RemoveUser, Permission.SearchUser,
-			Permission.ViewUserDetails, Permission.ViewAllUsers, Permission.ChangePassword);
+			Permission.ViewUserDetails, Permission.ViewAllUsers, Permission.ChangePassword, Permission.ChangeOwnPassword);
 	}
 
 

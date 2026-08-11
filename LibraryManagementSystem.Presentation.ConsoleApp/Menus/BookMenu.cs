@@ -42,7 +42,7 @@ public static class BookMenu
 
 			Console.Clear();
 			MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
-			switch (BookMenuList(session))
+			switch (BookMenuList(authorization))
 			{
 				case 1:
 				{
@@ -103,16 +103,16 @@ public static class BookMenu
 	}
 
 
-	private static int BookMenuList(ICurrentUserSession session)
+	private static int BookMenuList(IAuthorizationService authorization)
 	{
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
-			(1, "Add Book", session.IsAdmin || session.IsLibrarian),
-			(2, "Edit Book", session.IsAdmin || session.IsLibrarian),
-			(3, "Remove Book", session.IsAdmin || session.IsLibrarian),
-			(4, "Search Book", true),
-			(5, "View Book Details", true),
-			(6, "View All Books", true),
+			(1, "Add Book", authorization.HasPermission(Permission.AddBook)),
+			(2, "Edit Book", authorization.HasPermission(Permission.EditBook)),
+			(3, "Remove Book", authorization.HasPermission(Permission.RemoveBook)),
+			(4, "Search Book", authorization.HasPermission(Permission.SearchBook)),
+			(5, "View Book Details", authorization.HasPermission(Permission.ViewBookDetails)),
+			(6, "View All Books", authorization.HasPermission(Permission.ViewAllBooks)),
 			(7, "Back", true)
 		};
 
@@ -293,12 +293,15 @@ public static class BookMenu
 				}
 				case 3:
 				{
-					AuthorSubMenu(desiredBook.BookId, authorManagementService, bookManagementService);
+					var updated = AuthorSubMenu(desiredBook.BookId, authorManagementService, bookManagementService);
+					if (updated is not null) desiredBook = updated;
 					break;
 				}
 				case 4:
 				{
-					TranslatorSubMenu(desiredBook.BookId, translatorManagementService, bookManagementService);
+					var updated = TranslatorSubMenu(desiredBook.BookId, translatorManagementService,
+						bookManagementService);
+					if (updated is not null) desiredBook = updated;
 					break;
 				}
 				case 5:
@@ -351,7 +354,7 @@ public static class BookMenu
 				}
 				case 10:
 				{
-					ConsoleHelper.ShowError(string.Format(Messages.EditCancelled, "Book"));
+					ConsoleHelper.ShowInfo(string.Format(Messages.EditCancelled, "Book"));
 					ConsoleHelper.Pause();
 					Console.Clear();
 					return;
@@ -396,14 +399,14 @@ public static class BookMenu
 	}
 
 
-	private static void AuthorSubMenu(int bookId, AuthorManagementService authorManagementService,
+	private static BookDto? AuthorSubMenu(int bookId, AuthorManagementService authorManagementService,
 		BookManagementService bookManagementService)
 	{
 		var currentBook = bookManagementService.FindBookById(bookId);
 		if (currentBook is null)
 		{
 			ConsoleHelper.ShowError(Messages.NotAvailableBook);
-			return;
+			return null;
 		}
 
 		var currentAuthorIds = currentBook.Authors.Select(a => a.Id).ToHashSet();
@@ -416,7 +419,7 @@ public static class BookMenu
 		Console.WriteLine("3. Replace all authors");
 		Console.WriteLine("4. Cancel");
 		var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 4);
-		if (editMenuChoice is null) return;
+		if (editMenuChoice is null) return null;
 
 		switch (editMenuChoice)
 		{
@@ -437,13 +440,12 @@ public static class BookMenu
 				}
 
 				var selectedIds = ConsoleHelper.ReadAuthors("Select author(s) for this book", availableToAdd);
-				if (selectedIds is null) return;
+				if (selectedIds is null) return null;
 
 				// New list = existing author IDs + newly selected IDs
 				var updatedAuthorIds = currentAuthorIds.Concat(selectedIds).Distinct().ToList();
-				var updated = PerformUpdate(bookManagementService, bookId, updatedAuthorIds,
+				return PerformUpdate(bookManagementService, bookId, updatedAuthorIds,
 					v => new UpdateBookDto { AuthorIds = v });
-				break;
 			}
 			case 2:
 			{
@@ -462,9 +464,8 @@ public static class BookMenu
 				var idToRemove = selectedIds[0];
 				var updatedAuthorIds = currentBook.Authors.Select(a => a.Id).Where(id => id != idToRemove).ToList();
 
-				var updated = PerformUpdate(bookManagementService, bookId, updatedAuthorIds,
+				return PerformUpdate(bookManagementService, bookId, updatedAuthorIds,
 					v => new UpdateBookDto { AuthorIds = v });
-				break;
 			}
 			case 3:
 			{
@@ -478,9 +479,8 @@ public static class BookMenu
 				var selectedIds = ConsoleHelper.ReadAuthors("Select the new author(s) for this book", allAuthors);
 				if (selectedIds is null) break;
 
-				var updated = PerformUpdate(bookManagementService, bookId, selectedIds,
+				return PerformUpdate(bookManagementService, bookId, selectedIds,
 					v => new UpdateBookDto { AuthorIds = v });
-				break;
 			}
 			case 4:
 			{
@@ -490,17 +490,19 @@ public static class BookMenu
 				break;
 			}
 		}
+
+		return null;
 	}
 
 
-	private static void TranslatorSubMenu(int bookId, TranslatorManagementService translatorManagementService,
+	private static BookDto? TranslatorSubMenu(int bookId, TranslatorManagementService translatorManagementService,
 		BookManagementService bookManagementService)
 	{
 		var currentBook = bookManagementService.FindBookById(bookId);
 		if (currentBook is null)
 		{
 			ConsoleHelper.ShowError(Messages.NotAvailableBook);
-			return;
+			return null;
 		}
 
 		var currentTranslatorName = currentBook.Translators.Count == 0
@@ -515,7 +517,7 @@ public static class BookMenu
 		Console.WriteLine("4. Remove all translators");
 		Console.WriteLine("5. Cancel");
 		var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 5);
-		if (editMenuChoice is null) return;
+		if (editMenuChoice is null) return null;
 
 		switch (editMenuChoice)
 		{
@@ -541,9 +543,8 @@ public static class BookMenu
 				if (selectedIds is null || selectedIds.Count == 0) break;
 
 				var updatedTranslatorIds = currentTranslatorIds.Concat(selectedIds).Distinct().ToList();
-				PerformUpdate(bookManagementService, bookId, updatedTranslatorIds,
+				return PerformUpdate(bookManagementService, bookId, updatedTranslatorIds,
 					v => new UpdateBookDto { TranslatorIds = v });
-				break;
 			}
 			case 2:
 			{
@@ -560,9 +561,8 @@ public static class BookMenu
 				var updatedTranslatorIds = currentBook.Translators.Select(t => t.Id)
 					.Where(id => id != idToRemove).ToList();
 
-				PerformUpdate(bookManagementService, bookId, updatedTranslatorIds,
+				return PerformUpdate(bookManagementService, bookId, updatedTranslatorIds,
 					v => new UpdateBookDto { TranslatorIds = v });
-				break;
 			}
 			case 3:
 			{
@@ -575,9 +575,8 @@ public static class BookMenu
 
 				var selectedIds = ConsoleHelper.ReadTranslators(Messages.SelectReplacementTranslators, allTranslators);
 				if (selectedIds is null) break;
-				PerformUpdate(bookManagementService, bookId, selectedIds,
+				return PerformUpdate(bookManagementService, bookId, selectedIds,
 					v => new UpdateBookDto { TranslatorIds = v });
-				break;
 			}
 			case 4:
 			{
@@ -591,9 +590,8 @@ public static class BookMenu
 				if (confirm != true) break;
 
 				var emptyList = new List<int>();
-				PerformUpdate(bookManagementService, bookId, emptyList,
+				return PerformUpdate(bookManagementService, bookId, emptyList,
 					v => new UpdateBookDto { TranslatorIds = v });
-				break;
 			}
 			case 5:
 			{
@@ -603,6 +601,8 @@ public static class BookMenu
 				break;
 			}
 		}
+
+		return null;
 	}
 
 
