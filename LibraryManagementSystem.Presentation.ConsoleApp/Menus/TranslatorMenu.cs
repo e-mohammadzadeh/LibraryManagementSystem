@@ -37,7 +37,10 @@ public static class TranslatorMenu
 			}
 
 			Console.Clear();
-			MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
+			if (authorization.CanAccessStatistics())
+				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
+			else
+				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
 			switch (TranslatorMenuList(authorization))
 			{
 				case 1:

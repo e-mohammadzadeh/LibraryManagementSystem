@@ -38,7 +38,10 @@ public static class AuthorMenu
 			}
 
 			Console.Clear();
-			MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
+			if (authorization.CanAccessStatistics())
+				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
+			else
+				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
 			switch (AuthorMenuList(authorization))
 			{
 				case 1:

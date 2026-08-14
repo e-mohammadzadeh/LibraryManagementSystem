@@ -34,6 +34,16 @@ public static class MenuHelper
 	}
 
 
+	public static void PrintCurrentUserOnly(AuthUserDto? currentUser = null)
+	{
+		if (currentUser is null) return;
+		Console.ForegroundColor = ConsoleColor.Cyan;
+		Console.WriteLine($"Logged in as: {currentUser.FullName} ({string.Join(", ", currentUser.Roles)})");
+		Console.ResetColor();
+		Console.WriteLine();
+	}
+
+
 	public static AuthorDto? SelectAuthor(IReadOnlyList<AuthorDto> authorsList)
 	{
 		if (authorsList.Count == 0)

@@ -24,8 +24,11 @@ public static class MainMenu
 			}
 
 			Console.Clear();
-			MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
-			switch (MainMenuList())
+			if (authorization.CanAccessStatistics())
+				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
+			else
+				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
+			switch (MainMenuList(authorization))
 			{
 				case 1:
 				{
@@ -77,16 +80,16 @@ public static class MainMenu
 	}
 
 
-	private static int MainMenuList()
+	private static int MainMenuList(IAuthorizationService authorization)
 	{
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
-			(1, "Authors", true),
-			(2, "Translators", true),
-			(3, "Books", true),
-			(4, "Members", true),
-			(5, "Loans", true),
-			(6, "Fines", true),
+			(1, "Authors", authorization.CanAccessAuthorManagement()),
+			(2, "Translators", authorization.CanAccessTranslatorManagement()),
+			(3, "Books", authorization.CanAccessBookManagement()),
+			(4, "Members", authorization.CanAccessUserManagement()),
+			(5, "Loans", authorization.CanAccessLoanManagement()),
+			(6, "Fines", authorization.CanAccessFineManagement()),
 			(7, "Logout", true),
 			(8, "Exit Application", true)
 		};

@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Domain.Enums;
+﻿using LibraryManagementSystem.Application.DTOs.Users;
+using LibraryManagementSystem.Domain.Enums;
 
 namespace LibraryManagementSystem.Application.Authorization;
 
@@ -6,7 +7,7 @@ public interface IAuthorizationService
 {
 	bool HasPermission(Permission permission);
 	bool HasAnyPermission(params Permission[] permissions);
-	bool CanBorrowBooks();
+	bool CanBorrowBooks(UserDto user);
 	bool CanAccessAuthorManagement();
 	bool CanAccessTranslatorManagement();
 	bool CanAccessBookManagement();

@@ -51,7 +51,10 @@ public static class LoanMenu
 			}
 
 			Console.Clear();
-			MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
+			if (authorization.CanAccessStatistics())
+				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
+			else
+				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
 			switch (LoanMenuList(authorization))
 			{
 				case 1:
@@ -159,14 +162,18 @@ public static class LoanMenu
 
 	private static void BorrowBook(LoanManagementService loanManagementService,
 		BookManagementService bookManagementService, UserManagementService userManagementService,
-		ICurrentUserSession session)
+		ICurrentUserSession session, IAuthorizationService authorization)
 	{
 		int userId;
+		var user;
 		if (session.IsSelfServiceMember)
+		{
 			userId = session.UserId!.Value;
+			user = userManagementService.FindUserById(userId);
+		}
 		else
 		{
-			var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
+			user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
 			if (user is null)
 			{
 				ConsoleHelper.ShowWarning(Messages.UserNotFound);
@@ -176,6 +183,7 @@ public static class LoanMenu
 			userId = user.Id;
 		}
 
+		authorization.CanBorrowBooks(user);
 		var availableBooks = bookManagementService.GetAvailableBooks();
 		if (availableBooks.Count is 0)
 		{
