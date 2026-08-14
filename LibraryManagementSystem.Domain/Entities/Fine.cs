@@ -39,7 +39,7 @@ public class Fine
 	public DateOnly? PaidAt { get; private set; }
 
 
-	public static decimal FineCalculator(int overdueDays)
+	private static decimal FineCalculator(int overdueDays)
 	{
 		const decimal maxUnpaidFineThreshold = 150m; // 15 days hits cap
 		const decimal initialDailyRate = 1m;

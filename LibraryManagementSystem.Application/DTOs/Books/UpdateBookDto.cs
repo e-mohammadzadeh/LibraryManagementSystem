@@ -2,13 +2,13 @@
 
 public class UpdateBookDto
 {
-	public string? BookName { get; set; }
-	public string? ISBN { get; set; }
-	public List<int>? AuthorIds { get; set; }
-	public List<int>? TranslatorIds { get; set; }
-	public DateOnly? PublishDate { get; set; }
-	public int? GenreId { get; set; }
-	public string? Publisher { get; set; }
-	public int? TotalCopies { get; set; }
-	public string? Description { get; set; }
+	public string? BookName { get; init; }
+	public string? ISBN { get; init; }
+	public List<int>? AuthorIds { get; init; }
+	public List<int>? TranslatorIds { get; init; }
+	public DateOnly? PublishDate { get; init; }
+	public int? GenreId { get; init; }
+	public string? Publisher { get; init; }
+	public int? TotalCopies { get; init; }
+	public string? Description { get; init; }
 }

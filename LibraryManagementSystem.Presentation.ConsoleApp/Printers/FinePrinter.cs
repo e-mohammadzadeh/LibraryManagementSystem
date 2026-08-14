@@ -11,6 +11,7 @@ public static class FinePrinter
 		Console.WriteLine("\nFine Details:");
 		Console.WriteLine("{0, -20} [{1}]", "Fine ID:", fine.FineId);
 		Console.WriteLine("{0, -20} [{1}]", "Loan ID:", fine.LoanId);
+		Console.WriteLine("{0, -20} [{1}]", "User ID:", fine.UserId);
 		Console.WriteLine("{0, -20} [{1}]", "User:", fine.UserFullName);
 		Console.WriteLine("{0, -20} [{1}]", "Book:", fine.BookName);
 		Console.WriteLine("{0, -20} [{1}]", "Overdue Days:", fine.OverdueDays);

@@ -2,6 +2,6 @@
 
 public class CreateLoanDto
 {
-	public required int UserId { get; set; }
-	public required int BookId { get; set; }
+	public required int UserId { get; init; }
+	public required int BookId { get; init; }
 }

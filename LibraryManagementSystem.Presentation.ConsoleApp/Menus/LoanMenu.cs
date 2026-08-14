@@ -213,8 +213,8 @@ public static class LoanMenu
 			break;
 		}
 
-
-		var result = loanManagementService.BorrowBook(userId, bookId, session);
+		var dto = new CreateLoanDto { BookId = bookId, UserId = userId };
+		var result = loanManagementService.BorrowBook(dto, session);
 		ConsoleHelper.ShowResult(result);
 	}
 

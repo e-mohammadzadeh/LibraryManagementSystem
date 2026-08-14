@@ -2,11 +2,11 @@
 
 public class UpdateAuthorDto
 {
-	public string? FirstName { get; set; }
-	public string? LastName { get; set; }
-	public string? NationalCode { get; set; }
-	public string? Email { get; set; }
-	public string? PhoneNumber { get; set; }
-	public DateOnly? BirthDate { get; set; }
-	public string? Biography { get; set; }
+	public string? FirstName { get; init; }
+	public string? LastName { get; init; }
+	public string? NationalCode { get; init; }
+	public string? Email { get; init; }
+	public string? PhoneNumber { get; init; }
+	public DateOnly? BirthDate { get; init; }
+	public string? Biography { get; init; }
 }
