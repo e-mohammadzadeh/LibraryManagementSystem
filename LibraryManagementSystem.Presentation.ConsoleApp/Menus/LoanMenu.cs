@@ -342,7 +342,7 @@ public static class LoanMenu
 				}
 			}
 		}
-		}
+	}
 
 
 	private static void DisplayLoans(IReadOnlyList<LoanDto> loans, string emptyMessage)

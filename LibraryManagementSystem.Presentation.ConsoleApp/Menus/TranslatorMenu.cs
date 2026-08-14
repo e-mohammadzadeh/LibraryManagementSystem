@@ -1,7 +1,7 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.DTOs.Translator;
+using LibraryManagementSystem.Application.DTOs.Translators;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;

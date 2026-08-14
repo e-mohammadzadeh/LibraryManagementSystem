@@ -1,5 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.DTOs.Translator;
+using LibraryManagementSystem.Application.DTOs.Translators;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;

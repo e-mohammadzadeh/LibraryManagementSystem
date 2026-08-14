@@ -25,7 +25,6 @@ public class AuthorizationService : IAuthorizationService
 	public bool CanBorrowBooks(UserDto? user)
 	{
 		if (!_session.IsAuthenticated || user is null) return false;
-
 		return user is { IsActive: true, ShouldRemove: false } &&
 		       user.MembershipExpiryDate >= DateOnly.FromDateTime(DateTime.Today);
 	}

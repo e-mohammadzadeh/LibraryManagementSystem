@@ -1,7 +1,7 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs;
 using LibraryManagementSystem.Application.DTOs.Authors;
-using LibraryManagementSystem.Application.DTOs.Translator;
+using LibraryManagementSystem.Application.DTOs.Translators;
 using LibraryManagementSystem.Application.Validators;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;

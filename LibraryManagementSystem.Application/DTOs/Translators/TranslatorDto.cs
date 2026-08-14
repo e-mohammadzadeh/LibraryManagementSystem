@@ -1,4 +1,4 @@
-﻿namespace LibraryManagementSystem.Application.DTOs.Translator;
+﻿namespace LibraryManagementSystem.Application.DTOs.Translators;
 
 public class TranslatorDto
 {

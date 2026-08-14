@@ -2,7 +2,7 @@
 using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Application.DTOs.Library;
-using LibraryManagementSystem.Application.DTOs.Translator;
+using LibraryManagementSystem.Application.DTOs.Translators;
 using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -15,7 +15,7 @@ public static class MenuHelper
 		if (currentUser is not null)
 		{
 			Console.ForegroundColor = ConsoleColor.Cyan;
-			Console.WriteLine($"Logged in as: {currentUser.FullName} ({string.Join(", ", currentUser.Roles)})");
+			Console.WriteLine($"Logged in as: {currentUser.FullName} ({currentUser.Email} - {string.Join(", ", currentUser.Roles)})");
 			Console.ResetColor();
 			Console.WriteLine();
 		}

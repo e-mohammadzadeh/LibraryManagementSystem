@@ -1,4 +1,4 @@
-﻿using LibraryManagementSystem.Application.DTOs.Translator;
+﻿using LibraryManagementSystem.Application.DTOs.Translators;
 using LibraryManagementSystem.Domain.Entities;
 
 namespace LibraryManagementSystem.Application.Mapping;
