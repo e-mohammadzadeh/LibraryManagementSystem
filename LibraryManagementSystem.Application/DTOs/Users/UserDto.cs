@@ -15,6 +15,7 @@ public class UserDto
 	public IReadOnlyList<LibraryUserRole> Roles { get; init; } = [];
 	public DateOnly MembershipStartDate { get; init; }
 	public DateOnly MembershipExpiryDate { get; init; }
+	public bool ShouldRemove { get; init; }
 	public bool IsActive { get; init; }
 	public DateTime CreatedAt { get; init; }
 	public DateTime? UpdatedAt { get; init; }

@@ -46,7 +46,6 @@ public static class Messages
 	// 4. AUTHOR MESSAGES ────────────────────────────────────────────────────────────
 	// Add
 	public const string AuthorAddedSuccessfully = "Author added successfully.";
-	public const string AuthorAddFailed = "Failed to add author.";
 	public const string DuplicateAuthorNameWarning = "An author with the same name already exists (ID: {0}).";
 
 	// Update
@@ -66,7 +65,6 @@ public static class Messages
 
 	// Duplicate
 	public const string DuplicateAuthorsNotAllowed = "Duplicate authors are not allowed. Please enter each author only once.";
-	public const string DuplicateAuthorsNotAllowedByName = "An author with the same first and last name already exists.";
 	public const string DuplicateAuthorsNotAllowedByNationalCode = "An author with the same national code already exists.";
 	public const string DuplicateAuthorsNotAllowedByEmail = "An author with the same email already exists.";
 	public const string DuplicateAuthorsNotAllowedByPhoneNumber = "An author with the same phone number already exists.";
@@ -77,7 +75,6 @@ public static class Messages
 	// 5. TRANSLATOR MESSAGES ────────────────────────────────────────────────────────────
 	// Add
 	public const string TranslatorAddedSuccessfully = "Translator added successfully.";
-	public const string TranslatorAddFailed = "Failed to add translator.";
 	public const string AllTranslatorsAssigned = "All available translators are already assigned to this book.";
 	public const string AddTranslatorInAdd = "\nNo translators found. Do you want to create a new translator now (Optional)";
 	public const string DuplicateTranslatorNameWarning = "A translator with the same name already exists (ID: {0}).";
@@ -102,7 +99,6 @@ public static class Messages
 
 	// Duplicate
 	public const string DuplicateTranslatorsNotAllowed = "Duplicate translators are not allowed. Please enter each translator only once.";
-	public const string DuplicateTranslatorsNotAllowedByName = "A translator with the same first and last name already exists.";
 	public const string DuplicateTranslatorsNotAllowedByNationalCode = "A translator with the same national code already exists.";
 	public const string DuplicateTranslatorsNotAllowedByEmail = "A translator with the same email already exists.";
 	public const string DuplicateTranslatorsNotAllowedByPhoneNumber = "A translator with the same phone number already exists.";
@@ -112,14 +108,12 @@ public static class Messages
 	// 6. BOOK MESSAGES ────────────────────────────────────────────────────────────
 	// Add
 	public const string BookAddedSuccessfully = "Book added successfully.";
-	public const string BookAddFailed = "Failed to add book.";
 	public const string NotEnoughAuthors = "All available authors are already assigned to this book.";
 	public const string AuthorCreationFailed = "Failed to retrieve the newly created author.";
 	public const string BookRequiresAtLeastOneAuthor = "A book must have at least one author.";
 
 	// Update
 	public const string BookUpdatedSuccessfully = "Book updated successfully.";
-	public const string BookUpdateFailed = "Failed to update book.";
 	public const string TotalCopiesUpdateInvalid = "Cannot update total copies because it would result in negative available copies.";
 
 	// Remove
@@ -148,7 +142,6 @@ public static class Messages
 	// 7. USER (Member/Admin/Manager) MESSAGES ────────────────────────────────────────────────────────────
 	// Add
 	public const string UserAddedSuccessfully = "User added successfully.";
-	public const string UserAddFailed = "Failed to add user.";
 	public const string DuplicateUserNameWarning = "A user with the same name already exists (ID: {0}).";
 
 
@@ -171,7 +164,6 @@ public static class Messages
 	public const string UserNotFound = "User not found.";
 
 	// Duplicate
-	public const string DuplicateUsersNotAllowedByName = "A user with the same first and last name already exists.";
 	public const string DuplicateUsersNotAllowedByNationalCode = "A user with the same national code already exists.";
 	public const string DuplicateUsersNotAllowedByEmail = "A user with the same email already exists.";
 	public const string DuplicateUsersNotAllowedByPhoneNumber = "A user with the same phone number already exists.";
@@ -215,6 +207,7 @@ public static class Messages
 	public const string UserHasNoBorrowedBooks = "This user has no borrowed books.";
 	public const string NoLoanHistoryForUser = "This user has no loan history.";
 	public const string UserHasUnpaidFines = "You cannot renew a loan while you have unpaid fines. Please pay your fines first.";
+	public const string BorrowFailedForUnauthorized = "You cannot borrow books. Check membership status or account flags.";
 
 	// Copy Availability
 	public const string NotEnoughCopiesAvailable = "Not enough copies available for this book.";

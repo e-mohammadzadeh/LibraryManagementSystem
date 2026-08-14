@@ -215,15 +215,30 @@ public static class BookMenu
 			return null;
 		}
 
-		var authorDto = AuthorMenu.PromptForAuthorDto();
-		if (authorDto is null) return null;
+		var createdIds = new List<int>();
+		while (true)
+		{
+			var authorDto = AuthorMenu.PromptForAuthorDto();
+			if (authorDto is null)
+			{
+				if (createdIds.Count == 0) return null;
+				break;
+			}
 
-		var addResult = authorManagementService.AddAuthor(authorDto);
-		ConsoleHelper.ShowResult(addResult);
-		if (addResult is { Success: true, Data: not null }) return [addResult.Data.Id];
+			var addResult = authorManagementService.AddAuthor(authorDto);
+			ConsoleHelper.ShowResult(addResult);
+			if (addResult is { Success: true, Data: not null })
+				createdIds.Add(addResult.Data.Id);
+			else
+				ConsoleHelper.ShowError(Messages.AuthorCreationFailed);
 
-		ConsoleHelper.ShowError(Messages.AuthorCreationFailed);
-		return null;
+			if (createdIds.Count == 0) continue;
+
+			var addMore = ConsoleHelper.ReadYesNo("Add another author for this book");
+			if (addMore != true) break;
+		}
+
+		return createdIds.Count > 0 ? createdIds : null;
 	}
 
 
@@ -236,15 +251,24 @@ public static class BookMenu
 		var choice = ConsoleHelper.ReadYesNo(Messages.AddTranslatorInAdd);
 		if (choice != true) return [];
 
-		var translatorDto = TranslatorMenu.PromptForTranslatorDto();
-		if (translatorDto is null) return null;
+		var createdIds = new List<int>();
+		while (true)
+		{
+			var translatorDto = TranslatorMenu.PromptForTranslatorDto();
+			if (translatorDto is null) break;
+			var addResult = translatorManagementService.AddTranslator(translatorDto);
+			ConsoleHelper.ShowResult(addResult);
 
-		var addResult = translatorManagementService.AddTranslator(translatorDto);
-		ConsoleHelper.ShowResult(addResult);
-		if (addResult is { Success: true, Data: not null }) return [addResult.Data.Id];
+			if (addResult is { Success: true, Data: not null })
+				createdIds.Add(addResult.Data.Id);
+			else
+				ConsoleHelper.ShowError(Messages.NotAvailableTranslator);
 
-		ConsoleHelper.ShowError(Messages.NotAvailableTranslator);
-		return null;
+			var addMore = ConsoleHelper.ReadYesNo("Add another translator for this book");
+			if (addMore != true) break;
+		}
+
+		return createdIds;
 	}
 
 

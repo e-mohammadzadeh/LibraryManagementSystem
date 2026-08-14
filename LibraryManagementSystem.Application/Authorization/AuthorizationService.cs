@@ -1,6 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.DTOs.Users;
-using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 
 namespace LibraryManagementSystem.Application.Authorization;
@@ -23,9 +22,11 @@ public class AuthorizationService : IAuthorizationService
 	public bool HasAnyPermission(params Permission[] permissions) => permissions.Any(HasPermission);
 
 
-	public bool CanBorrowBooks(UserDto user)
+	public bool CanBorrowBooks(UserDto? user)
 	{
-		return _session.IsAuthenticated && user is { IsActive: true, ShouldRemove: false } &&
+		if (!_session.IsAuthenticated || user is null) return false;
+
+		return user is { IsActive: true, ShouldRemove: false } &&
 		       user.MembershipExpiryDate >= DateOnly.FromDateTime(DateTime.Today);
 	}
 

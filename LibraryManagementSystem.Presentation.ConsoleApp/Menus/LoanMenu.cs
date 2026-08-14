@@ -2,6 +2,7 @@
 using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Loans;
+using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
@@ -61,7 +62,7 @@ public static class LoanMenu
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.BorrowBook, Messages.AccessDenied))
 						break;
-					BorrowBook(loanManagementService, bookManagementService, userManagementService, session);
+					BorrowBook(loanManagementService, bookManagementService, userManagementService, session, authorization);
 					break;
 				}
 				case 2:
@@ -165,7 +166,7 @@ public static class LoanMenu
 		ICurrentUserSession session, IAuthorizationService authorization)
 	{
 		int userId;
-		var user;
+		UserDto? user;
 		if (session.IsSelfServiceMember)
 		{
 			userId = session.UserId!.Value;
@@ -183,7 +184,11 @@ public static class LoanMenu
 			userId = user.Id;
 		}
 
-		authorization.CanBorrowBooks(user);
+		if (!authorization.CanBorrowBooks(user!))
+		{
+			ConsoleHelper.ShowError(Messages.BorrowFailedForUnauthorized);
+			return;
+		}
 		var availableBooks = bookManagementService.GetAvailableBooks();
 		if (availableBooks.Count is 0)
 		{
