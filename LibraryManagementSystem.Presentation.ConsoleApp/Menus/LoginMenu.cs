@@ -22,7 +22,9 @@ public static class LoginMenu
 			var result = authenticationService.Login(email, password);
 			if (result is { Success: true, Data: not null })
 			{
-				ConsoleHelper.ShowSuccess(result.Message ?? Messages.LoginSuccess);
+				ConsoleHelper.ShowInfo(result.Data.LastLoginDate is not null
+					? $"Welcome back, {result.Data.FullName}! Your last login was on {result.Data.LastLoginDate.Value.ToLocalTime():f}."
+					: $"Welcome, {result.Data.FullName}! This is your first login.");
 				ConsoleHelper.Pause();
 				return result.Data;
 			}

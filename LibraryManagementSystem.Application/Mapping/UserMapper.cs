@@ -19,9 +19,11 @@ public static class UserMapper
 			Roles = [.. user.UserRoles.Select(ur => ur.Role.Name)],
 			MembershipStartDate = user.MembershipStartDate,
 			MembershipExpiryDate = user.MembershipExpiryDate,
+			ShouldRemove = user.ShouldRemove,
 			IsActive = user.IsActive,
 			CreatedAt = user.CreatedAt,
-			UpdatedAt = user.UpdatedAt
+			UpdatedAt = user.UpdatedAt,
+			LastLoginDate = user.LastLoginDate
 		};
 	}
 }

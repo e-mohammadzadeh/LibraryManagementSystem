@@ -21,6 +21,7 @@ public class UserPrinter
 		Console.WriteLine("{0, -20} [{1}]", "Is Active: ", user.IsActive);
 		Console.WriteLine("{0, -20} [{1}]", "Created At: ", user.CreatedAt);
 		Console.WriteLine("{0, -20} [{1}]", "Updated At: ", user.UpdatedAt);
+		Console.WriteLine("{0, -20} [{1}]", "Last Login Date: ", user.LastLoginDate);
 	}
 
 

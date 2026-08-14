@@ -12,4 +12,5 @@ public class AuthUserDto
 	public bool IsActive { get; init; }
 	public DateOnly MembershipExpiryDate { get; init; }
 	public bool ShouldRemove { get; init; }
+	public DateTime? LastLoginDate { get; init; }
 }

@@ -32,6 +32,7 @@ public class AuthenticationService
 		if (user is null || !_passwordHasher.VerifyPassword(password, user.PasswordHash, user.PasswordSalt))
 			return ServiceResult<AuthUserDto>.Fail(Messages.InvalidLoginInput);
 
+		var lastLoginDate = user.LastLoginDate;
 		if (!user.IsActive) return ServiceResult<AuthUserDto>.Fail(Messages.InactiveAccount);
 
 		if (user.MembershipExpiryDate < DateOnly.FromDateTime(DateTime.Today))
@@ -48,7 +49,8 @@ public class AuthenticationService
 			Permissions = permissions,
 			IsActive = user.IsActive,
 			MembershipExpiryDate = user.MembershipExpiryDate,
-			ShouldRemove = user.ShouldRemove
+			ShouldRemove = user.ShouldRemove,
+			LastLoginDate = lastLoginDate
 		};
 
 		_currentUserSession.Login(authUser);
