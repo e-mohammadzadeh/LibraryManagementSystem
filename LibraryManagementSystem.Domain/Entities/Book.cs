@@ -48,18 +48,14 @@ public class Book
 	public int TotalCopies { get; private set; }
 	public int AvailableCopies { get; private set; }
 	public string? Description { get; private set; }
-	public DateTime CreatedAt { get; protected set; }
-	public DateTime? UpdatedAt { get; protected set; }
+	public DateTime CreatedAt { get; }
+	public DateTime? UpdatedAt { get; private set; }
 
 
-
-	protected void MarkAsUpdated()
-	{
-		UpdatedAt = DateTime.Now;
-	}
+	private void MarkAsUpdated() { UpdatedAt = DateTime.Now; }
 
 
-	public void AddAuthor(Author author)
+	private void AddAuthor(Author author)
 	{
 		if (author is null) throw new ArgumentNullException(nameof(author));
 
@@ -72,7 +68,7 @@ public class Book
 	}
 
 
-	public void RemoveAuthor(int authorId)
+	private void RemoveAuthor(int authorId)
 	{
 		if (_bookAuthors.Count <= 1) throw new InvalidOperationException("A book must have at least one author.");
 
@@ -106,10 +102,9 @@ public class Book
 	}
 
 
-	public void AddTranslator(Translator translator)
+	private void AddTranslator(Translator translator)
 	{
 		if (translator is null) throw new ArgumentNullException(nameof(translator));
-
 		if (_bookTranslators.Any(ba => ba.TranslatorId == translator.Id)) return;
 
 		var bookTranslator = new BookTranslator(this, translator);
@@ -119,7 +114,7 @@ public class Book
 	}
 
 
-	public void RemoveTranslator(int translatorId)
+	private void RemoveTranslator(int translatorId)
 	{
 		var bookTranslator = _bookTranslators.FirstOrDefault(ba => ba.TranslatorId == translatorId);
 
@@ -141,10 +136,7 @@ public class Book
 	public void ReplaceTranslators(IEnumerable<Translator> translators)
 	{
 		if (translators is null) throw new ArgumentNullException(nameof(translators));
-
 		foreach (var bookTranslator in _bookTranslators.ToList()) RemoveTranslator(bookTranslator.TranslatorId);
-
-
 		foreach (var translator in translators.DistinctBy(t => t.Id)) AddTranslator(translator);
 		MarkAsUpdated();
 	}
@@ -187,7 +179,6 @@ public class Book
 	public void BorrowCopy()
 	{
 		if (AvailableCopies <= 0) throw new InvalidOperationException("No copies are available.");
-
 		AvailableCopies--;
 		//TODO	(Web API)	Raise an event: a signal to the rest of the system that says "this book is now out of stock"
 	}

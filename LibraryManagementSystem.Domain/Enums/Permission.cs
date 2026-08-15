@@ -7,6 +7,7 @@ public enum Permission
 	EditAuthor,
 	SearchAuthor,
 	ViewAuthorDetails,
+	ViewAuthorBooks,
 	ViewAllAuthors,
 	AddTranslator,
 	EditTranslator,

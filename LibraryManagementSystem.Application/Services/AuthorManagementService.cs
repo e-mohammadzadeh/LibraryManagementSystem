@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Authors;
+using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
@@ -122,5 +123,13 @@ public class AuthorManagementService
 		};
 
 		return [.. _authorRepository.Search(searchItem, selector).Select(author => author.ToDto())];
+	}
+
+
+	public IReadOnlyList<BookDto> GetBooksByAuthor(int authorId)
+	{
+		var author = _authorRepository.FindById(authorId);
+		if (author is null) return [];
+		return [.. author.BookAuthors.Select(ba => ba.Book.ToDto())];
 	}
 }

@@ -126,6 +126,7 @@ public static class Messages
 	// Search
 	public const string NotAvailableBook = "No books found. Please add a new book first.";
 	public const string NotBookMatched = "No books matched your search.";
+	public const string AuthorHasNoBooks = "No books are associated with this author.";
 
 	// Duplicate
 	public const string DuplicateBooksNotAllowedByName = "A book with the same name already exists.";

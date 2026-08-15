@@ -15,6 +15,7 @@ public static class RolePermissionMap
 			Permission.EditAuthor,
 			Permission.SearchAuthor,
 			Permission.ViewAuthorDetails,
+			Permission.ViewAuthorBooks,
 			Permission.ViewAllAuthors,
 
 			Permission.AddTranslator,
@@ -67,6 +68,7 @@ public static class RolePermissionMap
 		[
 			Permission.SearchAuthor,
 			Permission.ViewAuthorDetails,
+			Permission.ViewAuthorBooks,
 			Permission.ViewAllAuthors,
 
 			Permission.SearchTranslator,

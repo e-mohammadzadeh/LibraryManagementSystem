@@ -85,6 +85,11 @@ public static class AuthorMenu
 				}
 				case 6:
 				{
+					ViewBooksByAuthor(authorManagementService, authorization);
+					break;
+				}
+				case 7:
+				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllAuthors,
 						    Messages.AccessDenied))
 						break;
@@ -94,7 +99,7 @@ public static class AuthorMenu
 						AuthorPrinter.PrintTable(authorManagementService.GetAllAuthors());
 					break;
 				}
-				case 7:
+				case 8:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					continueProgram = false;
@@ -116,8 +121,9 @@ public static class AuthorMenu
 			(3, "Remove Author", authorization.HasPermission(Permission.RemoveAuthor)),
 			(4, "Search Author", authorization.HasPermission(Permission.SearchAuthor)),
 			(5, "View Author Details", authorization.HasPermission(Permission.ViewAuthorDetails)),
-			(6, "View All Authors", authorization.HasPermission(Permission.ViewAllAuthors)),
-			(7, "Back", true)
+			(6, "View Author's Books", authorization.HasPermission(Permission.ViewAuthorBooks)),
+			(7, "View All Authors", authorization.HasPermission(Permission.ViewAllAuthors)),
+			(8, "Back", true)
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
@@ -371,5 +377,23 @@ public static class AuthorMenu
 		var result = authorManagementService.UpdateAuthor(desiredAuthorId, dto);
 		ConsoleHelper.ShowResult(result);
 		return result.Data;
+	}
+
+
+	private static void ViewBooksByAuthor(AuthorManagementService authorManagementService,
+		IAuthorizationService authorization)
+	{
+		if (!SessionGuard.RequirePermission(authorization, Permission.ViewAuthorBooks, Messages.AccessDenied)) return;
+		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(), MenuHelper.SelectAuthor,
+			Messages.NotAvailableAuthor);
+		if (desiredAuthor is null) return;
+
+		var books = authorManagementService.GetBooksByAuthor(desiredAuthor.Id);
+		if (books.Count == 0)
+		{
+			ConsoleHelper.ShowWarning(Messages.AuthorHasNoBooks);
+			return;
+		}
+		BookPrinter.PrintTable(books);
 	}
 }
