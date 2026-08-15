@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Application.DTOs.Translators;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
@@ -127,5 +128,13 @@ public class TranslatorManagementService
 		};
 
 		return [.. _translatorRepository.Search(searchItem, selector).Select(translator => translator.ToDto())];
+	}
+
+
+	public IReadOnlyList<BookDto> GetBooksByTranslator(int translatorId)
+	{
+		var translator = _translatorRepository.FindById(translatorId);
+		if (translator is null) return [];
+		return [.. translator.BookTranslators.Select(bt => bt.Book.ToDto())];
 	}
 }

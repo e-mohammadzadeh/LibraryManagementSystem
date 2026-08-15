@@ -13,6 +13,7 @@ public enum Permission
 	EditTranslator,
 	SearchTranslator,
 	ViewTranslatorDetails,
+	ViewTranslatorBooks,
 	ViewAllTranslators,
 	RemoveAuthor,
 	RemoveTranslator,

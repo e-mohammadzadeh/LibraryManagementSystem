@@ -22,6 +22,7 @@ public static class RolePermissionMap
 			Permission.EditTranslator,
 			Permission.SearchTranslator,
 			Permission.ViewTranslatorDetails,
+			Permission.ViewTranslatorBooks,
 			Permission.ViewAllTranslators,
 
 			Permission.AddBook,
@@ -73,6 +74,7 @@ public static class RolePermissionMap
 
 			Permission.SearchTranslator,
 			Permission.ViewTranslatorDetails,
+			Permission.ViewTranslatorBooks,
 			Permission.ViewAllTranslators,
 
 			Permission.SearchBook,

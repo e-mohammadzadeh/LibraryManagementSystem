@@ -86,6 +86,11 @@ public static class TranslatorMenu
 				}
 				case 6:
 				{
+					ViewBooksByTranslator(translatorManagementService, authorization);
+					break;
+				}
+				case 7:
+				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllTranslators,
 						    Messages.AccessDenied))
 						break;
@@ -95,7 +100,7 @@ public static class TranslatorMenu
 						TranslatorPrinter.PrintTable(translatorManagementService.GetAllTranslators());
 					break;
 				}
-				case 7:
+				case 8:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					continueProgram = false;
@@ -117,8 +122,9 @@ public static class TranslatorMenu
 			(3, "Remove Translator", authorization.HasPermission(Permission.RemoveTranslator)),
 			(4, "Search Translator", authorization.HasPermission(Permission.SearchTranslator)),
 			(5, "View Translator Details", authorization.HasPermission(Permission.ViewTranslatorDetails)),
-			(6, "View All Translators", authorization.HasPermission(Permission.ViewAllTranslators)),
-			(7, "Back", true)
+			(6, "View Translator's Books", authorization.HasPermission(Permission.ViewTranslatorBooks)),
+			(7, "View All Translators", authorization.HasPermission(Permission.ViewAllTranslators)),
+			(8, "Back", true)
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
@@ -348,7 +354,6 @@ public static class TranslatorMenu
 	}
 
 
-
 	private static TranslatorDto? PerformUpdate<T>(TranslatorManagementService translatorManagementService,
 		int desiredTranslatorId, T? newValue, Func<T, UpdateTranslatorDto> buildDto)
 	{
@@ -358,5 +363,25 @@ public static class TranslatorMenu
 		var result = translatorManagementService.UpdateTranslator(desiredTranslatorId, dto);
 		ConsoleHelper.ShowResult(result);
 		return result.Data;
+	}
+
+
+	private static void ViewBooksByTranslator(TranslatorManagementService translatorManagementService,
+		IAuthorizationService authorization)
+	{
+		if (!SessionGuard.RequirePermission(authorization, Permission.ViewTranslatorBooks, Messages.AccessDenied))
+			return;
+		var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
+			MenuHelper.SelectTranslator, Messages.NotAvailableTranslator);
+		if (desiredTranslator is null) return;
+
+		var books = translatorManagementService.GetBooksByTranslator(desiredTranslator.Id);
+		if (books.Count == 0)
+		{
+			ConsoleHelper.ShowWarning(Messages.TranslatorHasNoBooks);
+			return;
+		}
+
+		BookPrinter.PrintTable(books);
 	}
 }

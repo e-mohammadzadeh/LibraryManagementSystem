@@ -16,11 +16,17 @@ public class Translator : Person
 
 	internal void AddBookTranslator(BookTranslator bookTranslator)
 	{
-		if (!_bookTranslators.Contains(bookTranslator)) _bookTranslators.Add(bookTranslator);
+		if (_bookTranslators.Any(bt => bt.BookId == bookTranslator.BookId)) return;
+		_bookTranslators.Add(bookTranslator);
 	}
 
 
-	internal void RemoveBookTranslator(BookTranslator bookTranslator) { _bookTranslators.Remove(bookTranslator); }
+	internal void RemoveBookTranslator(BookTranslator bookTranslator)
+	{
+		var existing = _bookTranslators.FirstOrDefault(bt => bt.BookId == bookTranslator.BookId);
+		if (existing is not null) _bookTranslators.Remove(existing);
+	}
+
 
 	public IReadOnlyList<BookTranslator> BookTranslators => _bookTranslators.AsReadOnly();
 
