@@ -180,7 +180,6 @@ public class UserManagementService
 	}
 
 
-
 	public IReadOnlyList<UserDto> SearchUser(string searchTerm, Func<User, string?> selector)
 	{
 		return [.. _userRepository.Search(searchTerm, selector).Select(user => user.ToDto())];
@@ -214,5 +213,31 @@ public class UserManagementService
 		_userRepository.Update(user);
 
 		return ServiceResult<string>.Ok(user.Email, Messages.PasswordChangedSuccessfully);
+	}
+
+
+	public ServiceResult<UserDto> RenewMembership(int userId, int years, ICurrentUserSession session)
+	{
+		var user = _userRepository.FindById(userId);
+		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserNotFound);
+		if (years <= 0) return ServiceResult<UserDto>.Fail(Messages.InvalidMembershipRenewalPeriod);
+
+		if (session.IsAdmin)
+		{
+			// Admin can renew both members and librarians.
+		}
+		else if (session.IsLibrarian)
+		{
+			if (!user.UserRoles.Any(ur => ur.Role.Name == LibraryUserRole.Member))
+				return ServiceResult<UserDto>.Fail(Messages.LibrarianCanRenewMembersOnly);
+		}
+		else
+		{
+			return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
+		}
+
+		user.RenewMembership(years);
+		_userRepository.Update(user);
+		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.MembershipRenewedSuccessfully);
 	}
 }

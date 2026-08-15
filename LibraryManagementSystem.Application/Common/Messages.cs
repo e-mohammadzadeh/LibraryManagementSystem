@@ -17,7 +17,6 @@ public static class Messages
 
 
 
-
 	// 2. VALIDATION MESSAGES (Format‑specific) ────────────────────────────────────────────────────────────
 	public const string InvalidNationalCode = "Invalid national code. Please enter exactly 10 digits without dashes or spaces.";
 	public const string InvalidEmail = "Invalid email address. Please enter a valid email (e.g., name@domain.com).";
@@ -177,6 +176,9 @@ public static class Messages
 	// Membership
 	public const string MembershipExpired = "Membership expired. Please renew your membership.";
 	public const string InactiveAccount = "This account is inactive.";
+	public const string InvalidMembershipRenewalPeriod = "Invalid membership renewal period. Please enter a valid period.";
+	public const string LibrarianCanRenewMembersOnly = "Librarians can Only renew member accounts.";
+	public const string MembershipRenewedSuccessfully = "Membership renewed successfully.";
 
 	// Role
 	public const string FailureDuplicateRolesSelected = "Duplicate roles selected.";

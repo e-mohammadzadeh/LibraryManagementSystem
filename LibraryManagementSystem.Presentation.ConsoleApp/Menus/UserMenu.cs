@@ -122,8 +122,9 @@ public static class UserMenu
 			(4, "Search User", authorization.HasPermission(Permission.SearchUser)),
 			(5, "View User Details", authorization.HasPermission(Permission.ViewUserDetails)),
 			(6, "View All Users", authorization.HasPermission(Permission.ViewAllUsers)),
-			(7, "Change Password", authorization.HasPermission(Permission.ChangePassword)),
-			(8, "Back", true)
+			(7, "Renew Membership", authorization.HasPermission(Permission.RenewMemberMembership)),
+			(8, "Change Password", authorization.HasPermission(Permission.ChangePassword)),
+			(9, "Back", true)
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();

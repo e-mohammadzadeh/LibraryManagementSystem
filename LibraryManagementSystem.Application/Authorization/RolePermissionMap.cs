@@ -61,6 +61,7 @@ public static class RolePermissionMap
 			Permission.ViewUserDetails,
 			Permission.ViewAllUsers,
 			Permission.ChangePassword,
+			Permission.RenewMemberMembership,
 
 			Permission.ViewStatistics
 		],

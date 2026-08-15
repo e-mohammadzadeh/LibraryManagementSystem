@@ -68,6 +68,8 @@ public enum Permission
 	ViewAllUsers,
 	ChangePassword,
 	ChangeOwnPassword,
+	RenewLibrarianMembership,
+	RenewMemberMembership,
 
 
 	// System
