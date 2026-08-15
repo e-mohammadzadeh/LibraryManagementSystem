@@ -13,7 +13,6 @@ public class Translator : Person
 	private readonly List<BookTranslator> _bookTranslators = [];
 
 
-
 	internal void AddBookTranslator(BookTranslator bookTranslator)
 	{
 		if (_bookTranslators.Any(bt => bt.BookId == bookTranslator.BookId)) return;

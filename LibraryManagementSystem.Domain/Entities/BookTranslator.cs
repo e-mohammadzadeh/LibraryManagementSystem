@@ -12,10 +12,8 @@ public class BookTranslator
 	}
 
 
-	private BookTranslator() { }
-
 	public int BookId { get; private set; }
-	public Book Book { get; private set; } = null!;
+	public Book Book { get; private set; }
 	public int TranslatorId { get; private set; }
-	public Translator Translator { get; private set; } = null!;
+	public Translator Translator { get; private set; }
 }

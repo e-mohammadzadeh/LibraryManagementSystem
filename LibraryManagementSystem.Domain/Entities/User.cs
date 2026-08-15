@@ -5,7 +5,7 @@ public class User : Person
 	private static int _nextUserId;
 	private readonly List<UserRole> _userRoles = [];
 	public bool IsActive { get; private set; }
-	public DateOnly MembershipStartDate { get; set; }
+	public DateOnly MembershipStartDate { get; }
 	public DateOnly MembershipExpiryDate { get; private set; }
 	public bool ShouldRemove { get; private set; }
 	public byte[]? PasswordHash { get; private set; }
@@ -50,9 +50,9 @@ public class User : Person
 	}
 
 
-	public void AssignRole(Role role)
+	private void AssignRole(Role role)
 	{
-		if (role is null) throw new ArgumentNullException(nameof(role));
+		ArgumentNullException.ThrowIfNull(role);
 
 		// Prevent duplicate roles
 		if (_userRoles.Any(ur => ur.Role.Id == role.Id)) return;
@@ -77,12 +77,10 @@ public class User : Person
 	}
 
 
-	public void ReplaceRoles(IEnumerable<Role> newRoles)
+	private void ReplaceRoles(IEnumerable<Role> newRoles)
 	{
-		if (newRoles is null) throw new ArgumentNullException(nameof(newRoles));
-
+		ArgumentNullException.ThrowIfNull(newRoles);
 		var roles = newRoles.DistinctBy(r => r.Id).ToList();
-
 		if (roles.Count == 0) throw new ArgumentException("A user must have at least one role.");
 
 		// remove old roles correctly

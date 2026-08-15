@@ -12,7 +12,7 @@ public class Book
 		InternationalStandardBookNumber = internationalStandardBookNumber;
 		BookName = bookName;
 
-		if (authors is null) throw new ArgumentNullException(nameof(authors));
+		ArgumentNullException.ThrowIfNull(authors);
 		var authorList = authors.DistinctBy(a => a.Id).ToList();
 		if (authorList.Count == 0) throw new ArgumentException("A book must have at least one author.");
 		foreach (var author in authorList) AddAuthor(author);
@@ -57,8 +57,7 @@ public class Book
 
 	private void AddAuthor(Author author)
 	{
-		if (author is null) throw new ArgumentNullException(nameof(author));
-
+		ArgumentNullException.ThrowIfNull(author);
 		if (_bookAuthors.Any(ba => ba.AuthorId == author.Id)) return;
 
 		var bookAuthor = new BookAuthor(this, author);
@@ -84,8 +83,7 @@ public class Book
 
 	public void ReplaceAuthors(IEnumerable<Author> authors)
 	{
-		if (authors is null) throw new ArgumentNullException(nameof(authors));
-
+		ArgumentNullException.ThrowIfNull(authors);
 		var authorList = authors.DistinctBy(a => a.Id).ToList();
 		if (authorList.Count == 0) throw new ArgumentException("A book must have at least one author.");
 
@@ -104,7 +102,7 @@ public class Book
 
 	private void AddTranslator(Translator translator)
 	{
-		if (translator is null) throw new ArgumentNullException(nameof(translator));
+		ArgumentNullException.ThrowIfNull(translator);
 		if (_bookTranslators.Any(ba => ba.TranslatorId == translator.Id)) return;
 
 		var bookTranslator = new BookTranslator(this, translator);
@@ -135,7 +133,7 @@ public class Book
 
 	public void ReplaceTranslators(IEnumerable<Translator> translators)
 	{
-		if (translators is null) throw new ArgumentNullException(nameof(translators));
+		ArgumentNullException.ThrowIfNull(translators);
 		foreach (var bookTranslator in _bookTranslators.ToList()) RemoveTranslator(bookTranslator.TranslatorId);
 		foreach (var translator in translators.DistinctBy(t => t.Id)) AddTranslator(translator);
 		MarkAsUpdated();

@@ -28,7 +28,7 @@ public class Loan
 	public int BookId { get; private set; }
 	public User User { get; private set; }
 	public int UserId { get; private set; }
-	public DateOnly BorrowDate { get; private set; }
+	public DateOnly BorrowDate { get; }
 	public DateOnly DueDate { get; private set; }
 	public DateOnly? ReturnDate { get; private set; }
 	public LoanStatus Status { get; private set; }

@@ -22,11 +22,11 @@ public abstract class Person
 	public string Email { get; private set; }
 	public string PhoneNumber { get; private set; }
 	public DateOnly BirthDate { get; private set; }
-	public DateTime CreatedAt { get; protected set; }
-	public DateTime? UpdatedAt { get; protected set; }
+	public DateTime CreatedAt { get; }
+	public DateTime? UpdatedAt { get; private set; }
 
 
-	protected void MarkAsUpdated() { UpdatedAt = DateTime.Now; }
+	private void MarkAsUpdated() { UpdatedAt = DateTime.Now; }
 
 
 	protected void UpdateCore(string? firstName, string? lastName, string? nationalCode, string? email,
