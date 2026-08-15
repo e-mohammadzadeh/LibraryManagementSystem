@@ -11,7 +11,7 @@ public static class Messages
 	public const string InvalidYesNo = "Invalid input. Please enter 'y' or 'n'.";
 	public const string InvalidMenuChoice = "Invalid selection. Please try again.\n";
 	public const string InvalidDateRange = "Invalid date. Please enter a date on or before today.";
-	public const string InvalidDateFormat = "Invalid date format. Please use YYYY-MM-DD (e.g., 2026-12-27).";
+	public const string InvalidDateFormat = "Invalid date format. Please use ISO format (e.g., 2026-12-27).";
 	public const string DuplicateRemoved = "Duplicate items were removed.";
 	public const string NotAllowedMultiSelections = "Multiple selections are not allowed. Please enter a single number.";
 

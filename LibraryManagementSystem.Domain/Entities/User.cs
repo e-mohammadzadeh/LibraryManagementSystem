@@ -11,6 +11,7 @@ public class User : Person
 	public byte[]? PasswordHash { get; private set; }
 	public byte[]? PasswordSalt { get; private set; }
 	public DateTime? LastLoginDate { get; private set; }
+	private DateTime? PreviousLoginDate { get; set; }
 
 
 	public IReadOnlyCollection<UserRole> UserRoles => _userRoles.AsReadOnly();
@@ -115,5 +116,9 @@ public class User : Person
 	public bool HasPassword() => PasswordHash is { Length: > 0 } && PasswordSalt is { Length: > 0 };
 
 
-	public void UpdateLastLogin() { LastLoginDate = DateTime.Now; }
+	public void UpdateLastLogin()
+	{
+		LastLoginDate = PreviousLoginDate;
+		PreviousLoginDate = DateTime.Now;
+	}
 }

@@ -181,7 +181,7 @@ public static class FineMenu
 
 	private static void ViewOwnFines(IFineManagementService fineManagementService, ICurrentUserSession session)
 	{
-		var fines = fineManagementService.GetFinesByUser(session.UserId!.Value, session);
+		var fines = fineManagementService.GetFinesByUser(session.UserId!.Value);
 		DisplayFines(fines, Messages.FineNotFound);
 	}
 
@@ -210,7 +210,7 @@ public static class FineMenu
 					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
 					if (user is null) break;
 
-					var fines = fineManagementService.GetFinesByUser(user.Id, session);
+					var fines = fineManagementService.GetFinesByUser(user.Id);
 					DisplayFines(fines, Messages.FineNotFound);
 					break;
 				}
@@ -308,7 +308,7 @@ public static class FineMenu
 				}
 				case 2:
 				{
-					ViewFullFineHistory(fineManagementService, session, authorization);
+					ViewFullFineHistory(fineManagementService, authorization);
 					break;
 				}
 				case 3:
@@ -374,11 +374,10 @@ public static class FineMenu
 	}
 
 
-	private static void ViewFullFineHistory(IFineManagementService fineManagementService, ICurrentUserSession session,
-		IAuthorizationService authorization)
+	private static void ViewFullFineHistory(IFineManagementService fineManagementService, IAuthorizationService authorization)
 	{
 		if (!SessionGuard.RequirePermission(authorization, Permission.ViewFineHistory, Messages.AccessDenied)) return;
-		var fines = fineManagementService.GetFineHistory(session);
+		var fines = fineManagementService.GetFineHistory();
 		DisplayFines(fines, Messages.FineNotFound);
 	}
 

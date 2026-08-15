@@ -12,10 +12,8 @@ public static class FineMapper
 			FineId = fine.FineId,
 			LoanId = fine.LoanId,
 			UserId = fine.UserId,
-			UserFullName = fine.Loan?.User is not null
-				? $"{fine.Loan.User.FirstName} {fine.Loan.User.LastName}"
-				: "Unknown",
-			BookName = fine.Loan?.Book?.BookName ?? "Unknown",
+			UserFullName = $"{fine.Loan.User.FirstName} {fine.Loan.User.LastName}",
+			BookName = fine.Loan.Book.BookName,
 			OverdueDays = fine.OverdueDays,
 			Amount = fine.Amount,
 			Status = fine.Status,

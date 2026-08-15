@@ -52,7 +52,7 @@ public static class ConsoleHelper
 	{
 		while (true)
 		{
-			Console.Write($"{prompt} (YYYY-MM-DD, or type 'cancel' to abort): ");
+			Console.Write($"{prompt} (e.g., 2026-12-27, or type 'cancel' to abort): ");
 			var input = Console.ReadLine() ?? string.Empty;
 
 			if (input.Trim().Equals("cancel", StringComparison.OrdinalIgnoreCase)) return null;

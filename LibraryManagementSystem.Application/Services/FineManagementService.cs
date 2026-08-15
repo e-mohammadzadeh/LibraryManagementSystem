@@ -113,14 +113,6 @@ public class FineManagementService : IFineManagementService
 	}
 
 
-	public IReadOnlyList<FineDto> GetAllFines(ICurrentUserSession session)
-	{
-		return session.IsSelfServiceMember
-			? GetFinesByUser(session.UserId!.Value, session)
-			: [.. _fineRepository.GetAll().Select(f => f.ToDto())];
-	}
-
-
 	public IReadOnlyList<FineDto> GetAllUnpaidFines(ICurrentUserSession session)
 	{
 		if (session.IsSelfServiceMember) return GetUnpaidFinesByUser(session.UserId!.Value);
@@ -129,7 +121,7 @@ public class FineManagementService : IFineManagementService
 	}
 
 
-	public IReadOnlyList<FineDto> GetFinesByUser(int userId, ICurrentUserSession session) =>
+	public IReadOnlyList<FineDto> GetFinesByUser(int userId) =>
 		[.. _fineRepository.GetByUserId(userId).Select(fine => fine.ToDto())];
 
 
@@ -142,7 +134,7 @@ public class FineManagementService : IFineManagementService
 	public bool HasUnpaidFines(int userId) => _fineRepository.HasUnpaidFines(userId);
 
 
-	public IReadOnlyList<FineDto> GetFineHistory(ICurrentUserSession session)
+	public IReadOnlyList<FineDto> GetFineHistory()
 	{
 		if (!_authorization.HasPermission(Permission.ViewFineHistory)) return [];
 

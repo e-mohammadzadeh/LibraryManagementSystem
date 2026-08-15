@@ -2,6 +2,6 @@
 
 public class OptionItem
 {
-	public int Id { get; set; }
-	public string DisplayName { get; set; } = string.Empty;
+	public int Id { get; init; }
+	public string DisplayName { get; init; } = string.Empty;
 }
