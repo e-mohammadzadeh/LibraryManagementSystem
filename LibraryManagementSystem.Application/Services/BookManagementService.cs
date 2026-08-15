@@ -6,7 +6,6 @@ using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
-#pragma warning disable SPELL
 
 public class BookManagementService
 {
@@ -225,4 +224,3 @@ public class BookManagementService
 		return [.. _bookRepository.GetAvailableBooks().Select(book => book.ToDto())];
 	}
 }
-#pragma warning restore SPELL

@@ -183,12 +183,10 @@ public class LoanManagementService
 					return value is not null && comparer(searchTerm, value);
 				}).Select(loan => loan.ToDto())
 		];
-
 	}
 
 
-
-private IReadOnlyList<LoanDto> SearchLoansInternal<T>(T searchTerm, Func<Loan, T?> selector,
+	private IReadOnlyList<LoanDto> SearchLoansInternal<T>(T searchTerm, Func<Loan, T?> selector,
 		Func<T, T, bool> comparer, ICurrentUserSession session, bool activeOnly) where T : struct
 	{
 		if (session.UserId is null) return [];

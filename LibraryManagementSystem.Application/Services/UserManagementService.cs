@@ -48,8 +48,7 @@ public class UserManagementService
 			return ServiceResult<UserDto>.Fail(Messages.FailureDuplicateRolesSelected);
 
 		var roles = _roleRepository.FindByIds(dto.RoleIds);
-		if (roles.Count != dto.RoleIds.Count)
-			return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
+		if (roles.Count != dto.RoleIds.Count) return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
 
 		var result = _passwordHasher.CreatePasswordHash(dto.Password);
 
@@ -93,7 +92,6 @@ public class UserManagementService
 				warningMessage = string.Format(Messages.DuplicateAuthorNameWarning, existingSameName.Id);
 		}
 
-
 		if (dto.NationalCode is not null && _userRepository.ExistsByNationalCode(dto.NationalCode, userId))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
 
@@ -104,18 +102,14 @@ public class UserManagementService
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
 
 		if (dto.RoleIds.Count != dto.RoleIds.Distinct().Count())
-		{
 			return ServiceResult<UserDto>.Fail(Messages.FailureDuplicateRolesSelected);
-		}
 
 		List<Role>? resolvedRoles = null;
 		if (dto.RoleIds.Count != 0)
 		{
 			resolvedRoles = [.. _roleRepository.FindByIds(dto.RoleIds)];
 			if (resolvedRoles.Count != dto.RoleIds.Count)
-			{
 				return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
-			}
 		}
 
 		user.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,

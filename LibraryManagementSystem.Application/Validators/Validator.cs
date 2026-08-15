@@ -68,7 +68,7 @@ public static class Validator
 
 	public static ValidationResult NameValidator(string name, int minLength, int maxLength)
 	{
-		if (name.Contains("  ")) return ValidationResult.Fail("The name cannot contain consecutive spaces.");
+		if (name.Contains("  ")) return ValidationResult.Fail(Messages.ConsecutiveSpacesNotAllowed);
 
 		if (name.Length < minLength || name.Length > maxLength)
 			return ValidationResult.Fail(Messages.InvalidBookName);

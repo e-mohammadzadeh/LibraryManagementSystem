@@ -4,7 +4,7 @@ public static class Messages
 {
 	// 1. GENERAL MESSAGES (Cross‑cutting) ────────────────────────────────────────────────────────────
 	public const string PressToContinue = "\nPress any key to continue...";
-	public const string NoChangesDetected = "No changes detected. The new value is identical to the current one.";
+	public const string NoChangesDetected = "No changes detected. The new value is identical to the current one.";			
 	public const string EmptyInput = "Input cannot be empty. Please try again.";
 	public const string InvalidInput = "Invalid input. Please try again.";
 	public const string InvalidNumber = "Invalid number. Please try again.";
@@ -24,6 +24,7 @@ public static class Messages
 	public const string InvalidPhoneNumber = "Invalid phone number. Please enter exactly 11 digits.";
 	public const string InvalidBirthDate = "Invalid birth date. Please enter a past date that is no more than 120 years ago.";
 	public const string InvalidCharacters = "The name can only contain letters, numbers, spaces, and basic punctuation.";
+	public const string ConsecutiveSpacesNotAllowed = "The name cannot contain consecutive spaces.";
 	public const string InvalidOptionSelection = "Please select at least one option.";
 
 
@@ -156,7 +157,8 @@ public static class Messages
 	public const string UserRemovalFailedByActiveLoans = "This user cannot be removed because they have active loans.";
 	public const string UserRemovalFailedByUnpaidFines = "This user cannot be removed because they have unpaid fines.";
 	public const string UserAutoRemovedSuccessfully = "User has been automatically removed from the system after settling all obligations.";
-	public const string UserEligibleForRemoval = "This user has been flagged for removal. They must pay all fines and return all books before their account is deleted.";
+	public const string UserEligibleForRemoval = "User {0} {1} has been flagged for removal. They must pay all fines and return all books before their account is deleted.";
+	public const string UserAutoRemoveNotEligible = "User does not meet auto-removal conditions.";
 
 	// Search
 	public const string NotAvailableUser = "No users found. Please add a new user first.";

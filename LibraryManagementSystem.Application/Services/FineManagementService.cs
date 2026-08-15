@@ -54,6 +54,8 @@ public class FineManagementService : IFineManagementService
 			{
 				user.FlagForRemoval();
 				_userRepository.Update(user);
+				return ServiceResult<FineDto>.Warning(fine.ToDto(),
+					string.Format(Messages.UserEligibleForRemoval, user.FirstName, user.LastName));
 			}
 		}
 
@@ -77,7 +79,7 @@ public class FineManagementService : IFineManagementService
 
 			var removalResult = _userAutoRemovalService.TryAutoRemove(fine.UserId);
 			var message = Messages.FinePaidSuccessfully;
-			if (removalResult.Success) message += $" | {removalResult.Message}";
+			if (removalResult.Success) message = $"{message} | {removalResult.Message}";
 
 			return ServiceResult<FineDto>.Ok(fine.ToDto(), message);
 		}
@@ -102,7 +104,7 @@ public class FineManagementService : IFineManagementService
 
 			var removalResult = _userAutoRemovalService.TryAutoRemove(fine.UserId);
 			var message = Messages.FineWaivedSuccessfully;
-			if (removalResult.Success) message += $" | {removalResult.Message}";
+			if (removalResult.Success) message = $"{message} | {removalResult.Message}";
 
 			return ServiceResult<FineDto>.Ok(fine.ToDto(), message);
 		}
@@ -115,9 +117,9 @@ public class FineManagementService : IFineManagementService
 
 	public IReadOnlyList<FineDto> GetAllUnpaidFines(ICurrentUserSession session)
 	{
-		if (session.IsSelfServiceMember) return GetUnpaidFinesByUser(session.UserId!.Value);
-
-		return [.. _fineRepository.GetAllUnpaid().Select(f => f.ToDto())];
+		return session.IsSelfServiceMember
+			? GetUnpaidFinesByUser(session.UserId!.Value)
+			: [.. _fineRepository.GetAllUnpaid().Select(f => f.ToDto())];
 	}
 
 

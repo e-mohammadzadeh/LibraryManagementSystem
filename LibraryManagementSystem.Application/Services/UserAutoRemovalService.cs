@@ -24,18 +24,16 @@ public class UserAutoRemovalService : IUserAutoRemovalService
 		var user = _userRepository.FindById(userId);
 		if (user is null || !user.ShouldRemove) return false;
 		if (_loanRepository.GetActiveLoansByUser(userId).Count > 0) return false;
-		if (_fineRepository.HasUnpaidFines(userId)) return false;
-		return true;
+		return !_fineRepository.HasUnpaidFines(userId);
 	}
 
 
 	public ServiceResult<string> TryAutoRemove(int userId)
 	{
-		if (!CanBeAutoRemoved(userId)) return ServiceResult<string>.Fail("User does not meet auto-removal conditions.");
+		if (!CanBeAutoRemoved(userId)) return ServiceResult<string>.Fail(Messages.UserAutoRemoveNotEligible);
 
 		var user = _userRepository.FindById(userId)!;
 		_userRepository.Remove(user);
-		return ServiceResult<string>.Ok($"{user.FirstName} {user.LastName}",
-			"User automatically removed from the system.");
+		return ServiceResult<string>.Ok($"{user.FirstName} {user.LastName}", Messages.UserAutoRemovedSuccessfully);
 	}
 }
