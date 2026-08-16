@@ -143,7 +143,7 @@ public static class ConsoleHelper
 	}
 
 
-	public static List<int>? ReadMultiSelect<T>(string prompt, IReadOnlyList<T>? items, Func<T, int> idSelector,
+	private static List<int>? ReadMultiSelect<T>(string prompt, IReadOnlyList<T>? items, Func<T, int> idSelector,
 		Func<T, string> displayNameSelector, bool allowMultiple = true, bool allowEmpty = false)
 	{
 		if (items == null || items.Count == 0)
@@ -212,7 +212,7 @@ public static class ConsoleHelper
 			var cleaned = part.Trim();
 			if (!int.TryParse(cleaned, out var id)) return (false, null, $"{cleaned} is not a valid number.");
 			if (validOptions.All(o => o.Id != id))
-				return (false, null, $"ID '{id}' is not in the list. Please choose from the options above.");
+				return (false, null, string.Format(Messages.InvalidIdSelection, id));
 			result.Add(id);
 		}
 
@@ -252,9 +252,7 @@ public static class ConsoleHelper
 		while (true)
 		{
 			var input = ReadString(prompt);
-
 			if (input is null) return null;
-
 			var validationResult = validator(input);
 			if (validationResult.IsValid) return input;
 
@@ -284,7 +282,7 @@ public static class ConsoleHelper
 	}
 
 
-	public static DateOnly? GetValidDateOnly(string prompt, Func<DateOnly, ValidationResult> validator)
+	private static DateOnly? GetValidDateOnly(string prompt, Func<DateOnly, ValidationResult> validator)
 	{
 		while (true)
 		{

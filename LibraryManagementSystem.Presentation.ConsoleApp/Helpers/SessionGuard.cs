@@ -15,16 +15,6 @@ public static class SessionGuard
 	}
 
 
-	//private static bool RequireRole(bool hasPermission, string message)
-	//{
-	//	if (hasPermission) return true;
-
-	//	ConsoleHelper.ShowError(message);
-	//	ConsoleHelper.Pause();
-	//	return false;
-	//}
-
-
 	public static bool RequireAuthentication(ICurrentUserSession session)
 	{
 		return session.IsAuthenticated || Fail(Messages.AuthenticationRequired);

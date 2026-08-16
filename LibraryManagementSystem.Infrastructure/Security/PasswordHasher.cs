@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.Common;
 
 namespace LibraryManagementSystem.Infrastructure.Security;
 
@@ -9,7 +10,7 @@ public class PasswordHasher : IPasswordHasher
 	public PasswordHashResult CreatePasswordHash(string password)
 	{
 		if (string.IsNullOrWhiteSpace(password))
-			throw new ArgumentException("Password cannot be empty", nameof(password));
+			throw new ArgumentException(Messages.NotEmptyPassword, nameof(password));
 		using var hmac = new HMACSHA512();
 		var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
 		return new PasswordHashResult(hash, hmac.Key);

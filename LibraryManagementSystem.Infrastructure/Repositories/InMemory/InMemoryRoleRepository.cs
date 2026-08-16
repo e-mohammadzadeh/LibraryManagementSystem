@@ -8,9 +8,9 @@ public class InMemoryRoleRepository : IRoleRepository
 {
 	private readonly List<Role> _roles =
 	[
-		new Role(LibraryUserRole.Member, "Can borrow books"),
-		new Role(LibraryUserRole.Librarian, "Can manage books and members"),
-		new Role(LibraryUserRole.Admin, "Full system access")
+		new(LibraryUserRole.Member, "Can borrow books"),
+		new(LibraryUserRole.Librarian, "Can manage books and members"),
+		new(LibraryUserRole.Admin, "Full system access")
 	];
 
 	public IReadOnlyList<Role> GetAllRoles()

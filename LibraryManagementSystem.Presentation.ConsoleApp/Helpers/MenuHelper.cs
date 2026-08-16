@@ -15,7 +15,8 @@ public static class MenuHelper
 		if (currentUser is not null)
 		{
 			Console.ForegroundColor = ConsoleColor.Cyan;
-			Console.WriteLine($"Logged in as: {currentUser.FullName} ({currentUser.Email} - {string.Join(", ", currentUser.Roles)})");
+			Console.WriteLine(
+				$"Logged in as: {currentUser.FullName} ({currentUser.Email} - {string.Join(", ", currentUser.Roles)})");
 			Console.ResetColor();
 			Console.WriteLine();
 		}
@@ -64,7 +65,7 @@ public static class MenuHelper
 			var desiredAuthor = authorsList.FirstOrDefault(a => a.Id == desiredAuthorId.Value);
 			if (desiredAuthor != null) return desiredAuthor;
 
-			ConsoleHelper.ShowError("Author not found. Please try again.");
+			ConsoleHelper.ShowError(Messages.AuthorNotFound);
 		}
 	}
 
@@ -82,15 +83,15 @@ public static class MenuHelper
 		{
 			TranslatorPrinter.PrintTable(translatorsList);
 			// TODO	Max parameter has some logical issues when authors are removed and new authors are added.
-			var desiredTranslatorId = ConsoleHelper.ReadInt("Enter the number of the translator you wish", 1,
-				translatorsList.Max(t => t.Id));
+			var desiredTranslatorId =
+				ConsoleHelper.ReadInt(Messages.SelectTranslatorQuestion, 1, translatorsList.Max(t => t.Id));
 
 			if (desiredTranslatorId is null) return null;
 
 			var desiredTranslator = translatorsList.FirstOrDefault(t => t.Id == desiredTranslatorId.Value);
 			if (desiredTranslator != null) return desiredTranslator;
 
-			ConsoleHelper.ShowError("Translator not found. Please try again.");
+			ConsoleHelper.ShowError(Messages.TranslatorNotFound);
 		}
 	}
 
@@ -106,15 +107,14 @@ public static class MenuHelper
 		while (true)
 		{
 			BookPrinter.PrintTable(booksList);
-			var desiredBookId = ConsoleHelper.ReadInt("Enter the number of the book you wish", 1,
-				booksList.Max(b => b.BookId));
+			var desiredBookId = ConsoleHelper.ReadInt(Messages.SelectBookQuestion, 1, booksList.Max(b => b.BookId));
 
 			if (desiredBookId is null) return null;
 
 			var desiredBook = booksList.FirstOrDefault(b => b.BookId == desiredBookId.Value);
 			if (desiredBook != null) return desiredBook;
 
-			ConsoleHelper.ShowError("Book not found. Please try again.");
+			ConsoleHelper.ShowError(Messages.BookNotFound);
 		}
 	}
 
@@ -131,15 +131,14 @@ public static class MenuHelper
 		{
 			UserPrinter.PrintTable(usersList);
 			// TODO	Max parameter has some logical issues when authors are removed and new authors are added.
-			var desiredMemberId = ConsoleHelper.ReadInt("Enter the number of the member you wish", 1,
-				usersList.Max(u => u.Id));
+			var desiredMemberId = ConsoleHelper.ReadInt(Messages.SelectMemberQuestion, 1, usersList.Max(u => u.Id));
 
 			if (desiredMemberId is null) return null;
 
 			var desiredMember = usersList.FirstOrDefault(m => m.Id == desiredMemberId.Value);
 			if (desiredMember != null) return desiredMember;
 
-			ConsoleHelper.ShowError("Member not found. Please try again.");
+			ConsoleHelper.ShowError(Messages.UserNotFound);
 		}
 	}
 

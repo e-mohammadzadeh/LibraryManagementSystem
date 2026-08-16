@@ -62,6 +62,8 @@ public static class Messages
 	public const string NotAvailableAuthor = "No authors found. Please add a new author first.";
 	public const string NotAuthorMatched = "No authors matched your search.";
 	public const string AuthorNotFoundFormat = "Author with ID {0} was not found.";
+	public const string AuthorNotFound = "Author not found.";
+
 
 	// Duplicate
 	public const string DuplicateAuthorsNotAllowed = "Duplicate authors are not allowed. Please enter each author only once.";
@@ -91,11 +93,12 @@ public static class Messages
 	public const string RemoveAllTranslators = "Are you sure you want to remove ALL translators from this book";
 	public const string TranslatorHasAssociatedBooks = "This translator cannot be removed because they have associated books.";
 
-
 	// Search
 	public const string NotAvailableTranslator = "No translators found. Please add a new translator first.";
 	public const string NotTranslatorMatched = "No translators matched your search.";
 	public const string TranslatorNotFoundFormat = "Translator with ID {0} was not found.";
+	public const string TranslatorNotFound = "Translator not found.";
+
 
 	// Duplicate
 	public const string DuplicateTranslatorsNotAllowed = "Duplicate translators are not allowed. Please enter each translator only once.";
@@ -127,7 +130,7 @@ public static class Messages
 	public const string NotBookMatched = "No books matched your search.";
 	public const string AuthorHasNoBooks = "No books are associated with this author.";
 	public const string TranslatorHasNoBooks = "No books are associated with this translator.";
-
+	public const string BookNotFound = "Book not found.";
 
 	// Duplicate
 	public const string DuplicateBooksNotAllowedByName = "A book with the same name already exists.";
@@ -139,7 +142,7 @@ public static class Messages
 	public const string InvalidISBN = "Invalid ISBN format. Please enter a valid 10 or 13 digit ISBN.";
 	public const string InvalidGenre = "Invalid genre. Please select a valid genre.";
 	public const string WrongTotalCopies = "Total copies must be greater than zero.";
-	public const string InvalidBookSelection = "That book ID is not in the available list. Please select from the list above.";
+	public const string InvalidIdSelection = "ID {0} is not in the available list. Please select from the list above.";
 
 
 	// 7. USER (Member/Admin/Manager) MESSAGES ────────────────────────────────────────────────────────────
@@ -266,6 +269,9 @@ public static class Messages
 	public const string MainMenuQuestion = "Please enter a number: ";
 	public const string AuthorSelectionForRemove = "Select the author you want to remove";
 	public const string EditMenuQuestion = "Enter the number of the field you wish to edit";
+	public const string SelectTranslatorQuestion = "Enter the number of the translator you wish";
+	public const string SelectBookQuestion = "Enter the number of the book you wish";
+	public const string SelectMemberQuestion = "Enter the number of the member you wish";
 	public const string EditContinuesQuestion = "Do you want to edit another field";
 	public const string SelectReplacementTranslators = "Select the new translator(s) for this book";
 	public const string SearchMenuQuestion = "Select a search field by entering its number";

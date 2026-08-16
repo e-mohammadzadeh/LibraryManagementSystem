@@ -55,12 +55,6 @@ public class InMemoryLoanRepository : ILoanRepository
 	public IReadOnlyList<Loan> GetActiveLoans() { return [.. _loans.Where(l => l.IsActive)]; }
 
 
-	public Loan? GetActiveLoan(int userId, int bookId)
-	{
-		return _loans.FirstOrDefault(l => l.UserId == userId && l.BookId == bookId && l.IsActive);
-	}
-
-
 	public IReadOnlyList<Loan> GetLoansByBook(int bookId) { return [.. _loans.Where(l => l.BookId == bookId)]; }
 
 

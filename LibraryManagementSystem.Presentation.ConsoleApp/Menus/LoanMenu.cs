@@ -205,7 +205,7 @@ public static class LoanMenu
 			var selectedBook = availableBooks.FirstOrDefault(b => b.BookId == input);
 			if (selectedBook is null)
 			{
-				ConsoleHelper.ShowError(Messages.InvalidBookSelection);
+				ConsoleHelper.ShowError(string.Format(Messages.InvalidIdSelection, ""));
 				continue;
 			}
 
