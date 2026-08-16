@@ -8,7 +8,7 @@ public interface IFineManagementService
 {
 	ServiceResult<FineDto> CreateFineForLoan(int loanId);
 	ServiceResult<FineDto> PayFine(int fineId, ICurrentUserSession session);
-	ServiceResult<FineDto> WaiveFine(int fineId, ICurrentUserSession session);
+	ServiceResult<FineDto> WaiveFine(int fineId);
 	IReadOnlyList<FineDto> GetAllUnpaidFines(ICurrentUserSession session);
 	IReadOnlyList<FineDto> GetFinesByUser(int userId);
 	IReadOnlyList<FineDto> GetUnpaidFinesByUser(int userId);

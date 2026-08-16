@@ -100,11 +100,13 @@ public class User : Person
 
 	public void RenewMembership(int years = 1)
 	{
-		var renewalBase = MembershipExpiryDate > DateOnly.FromDateTime(DateTime.Today)
+		var today = DateOnly.FromDateTime(DateTime.Today);
+		var renewalBase = MembershipExpiryDate > today
 			? MembershipExpiryDate // extend from current expiry if not yet expired
-			: DateOnly.FromDateTime(DateTime.Today); // restart from today if already expired
+			: today; // restart from today if already expired
 
 		MembershipExpiryDate = renewalBase.AddYears(years);
+		if (!IsActive) IsActive = true;
 	}
 
 

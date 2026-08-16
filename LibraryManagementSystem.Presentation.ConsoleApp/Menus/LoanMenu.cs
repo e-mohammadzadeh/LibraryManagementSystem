@@ -174,7 +174,7 @@ public static class LoanMenu
 		}
 		else
 		{
-			user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
+			user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
 			if (user is null)
 			{
 				ConsoleHelper.ShowWarning(Messages.UserNotFound);
@@ -227,7 +227,7 @@ public static class LoanMenu
 			userId = session.UserId!.Value;
 		else
 		{
-			var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
+			var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
 			if (user is null)
 			{
 				ConsoleHelper.ShowWarning(Messages.UserNotFound);
@@ -314,7 +314,7 @@ public static class LoanMenu
 			{
 				case 1:
 				{
-					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
+					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
 					if (user is null) break;
 
 					var result = loanManagementService.GetActiveLoansByUser(user.Id, session);
@@ -387,7 +387,7 @@ public static class LoanMenu
 			{
 				case 1:
 				{
-					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
+					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
 					if (user is null) break;
 
 					var result = loanManagementService.GetActiveLoansByUser(user.Id, session);
@@ -446,7 +446,7 @@ public static class LoanMenu
 			{
 				case 1:
 				{
-					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
+					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
 					if (user is null) break;
 
 					DisplayLoans(loanManagementService.GetLoansByUser(user.Id, session),

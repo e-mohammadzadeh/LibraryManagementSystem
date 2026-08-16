@@ -90,9 +90,10 @@ public class FineManagementService : IFineManagementService
 	}
 
 
-	public ServiceResult<FineDto> WaiveFine(int fineId, ICurrentUserSession session)
+	public ServiceResult<FineDto> WaiveFine(int fineId)
 	{
-		if (!session.IsAdmin) return ServiceResult<FineDto>.Fail(Messages.AdminOnlyWaive);
+		if (!_authorization.HasPermission(Permission.WaiveFine))
+			return ServiceResult<FineDto>.Fail(Messages.AdminOnlyWaive);
 
 		var fine = _fineRepository.FindById(fineId);
 		if (fine is null) return ServiceResult<FineDto>.Fail(Messages.FineNotFound);

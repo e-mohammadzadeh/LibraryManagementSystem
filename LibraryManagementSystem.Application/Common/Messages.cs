@@ -179,6 +179,7 @@ public static class Messages
 	public const string InvalidMembershipRenewalPeriod = "Invalid membership renewal period. Please enter a valid period.";
 	public const string LibrarianCanRenewMembersOnly = "Librarians can Only renew member accounts.";
 	public const string MembershipRenewedSuccessfully = "Membership renewed successfully.";
+	public const string NoRenewableUser = "No renewable users found";
 
 	// Role
 	public const string FailureDuplicateRolesSelected = "Duplicate roles selected.";
@@ -277,7 +278,7 @@ public static class Messages
 	public const string FineIdForWaive = "Enter Fine ID to waive";
 	public const string ConfirmToPay = "Are you sure you want to pay this fine";
 	public const string ConfirmToWaive = "Are you sure you want to waive this fine";
-
+	public const string EnterYearForRenewMembership = "Enter number of years to renew (default 1)";
 
 
 	// 12. Navigation ────────────────────────────────────────────────────────────

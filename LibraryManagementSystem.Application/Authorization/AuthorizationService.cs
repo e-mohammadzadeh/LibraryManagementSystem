@@ -74,7 +74,7 @@ public class AuthorizationService : IAuthorizationService
 	{
 		return HasAnyPermission(Permission.AddUser, Permission.EditUser, Permission.RemoveUser, Permission.SearchUser,
 			Permission.ViewUserDetails, Permission.ViewAllUsers, Permission.ChangePassword,
-			Permission.ChangeOwnPassword);
+			Permission.ChangeOwnPassword, Permission.RenewLibrarianMembership, Permission.RenewMemberMembership);
 	}
 
 

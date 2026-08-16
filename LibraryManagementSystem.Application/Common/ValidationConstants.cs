@@ -17,5 +17,6 @@ public static class ValidationConstants
 	public const int MaxRoleId = 3;
 	public const int MaxActiveLoansPerUser = 3;
 	public const decimal MaxUnpaidFineThreshold = 150m;
-
+	public const int MinRenewMembershipYear = 1;
+	public const int MaxRenewMembershipYear = 3;
 }

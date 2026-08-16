@@ -159,7 +159,7 @@ public static class FineMenu
 		var confirm = ConsoleHelper.ReadYesNo(Messages.ConfirmToWaive);
 		if (confirm != true) return;
 
-		var waiveResult = fineManagementService.WaiveFine(fineId.Value, session);
+		var waiveResult = fineManagementService.WaiveFine(fineId.Value);
 		ConsoleHelper.ShowResult(waiveResult);
 	}
 
@@ -175,7 +175,7 @@ public static class FineMenu
 
 		if (!SessionGuard.RequirePermission(authorization, Permission.ViewFinesByUser, Messages.AccessDenied)) return;
 
-		ViewAdministrativeFines(fineManagementService, userManagementService, session, authorization);
+		ViewAdministrativeFines(fineManagementService, userManagementService, authorization);
 	}
 
 
@@ -187,7 +187,7 @@ public static class FineMenu
 
 
 	private static void ViewAdministrativeFines(IFineManagementService fineManagementService,
-		UserManagementService userManagementService, ICurrentUserSession session, IAuthorizationService authorization)
+		UserManagementService userManagementService, IAuthorizationService authorization)
 	{
 		while (true)
 		{
@@ -207,7 +207,7 @@ public static class FineMenu
 						    Messages.AccessDenied))
 						break;
 
-					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
+					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
 					if (user is null) break;
 
 					var fines = fineManagementService.GetFinesByUser(user.Id);
@@ -268,7 +268,7 @@ public static class FineMenu
 						    Messages.AccessDenied))
 						break;
 
-					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
+					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
 					if (user is null) break;
 
 					var fines = fineManagementService.GetUnpaidFinesByUser(user.Id);
@@ -367,7 +367,7 @@ public static class FineMenu
 	{
 		if (!SessionGuard.RequirePermission(authorization, Permission.FineHistoryByUser, Messages.AccessDenied)) return;
 
-		var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(session));
+		var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
 		if (user is null) return;
 		var fines = fineManagementService.GetFineHistoryByUser(user.Id, session);
 		DisplayFines(fines, Messages.FineNotFound);

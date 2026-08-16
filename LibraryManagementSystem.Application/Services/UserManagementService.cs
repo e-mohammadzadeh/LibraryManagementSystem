@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Application.Mapping;
@@ -16,16 +17,19 @@ public class UserManagementService
 	private readonly ILoanRepository _loanRepository;
 	private readonly IFineRepository _fineRepository;
 	private readonly IPasswordHasher _passwordHasher;
+	private readonly IAuthorizationService _authorization;
 
 
 	public UserManagementService(IUserRepository userRepository, IRoleRepository roleRepository,
-		ILoanRepository loanRepository, IFineRepository fineRepository, IPasswordHasher passwordHasher)
+		ILoanRepository loanRepository, IFineRepository fineRepository, IPasswordHasher passwordHasher,
+		IAuthorizationService authorization)
 	{
 		_userRepository = userRepository;
 		_roleRepository = roleRepository;
 		_loanRepository = loanRepository;
 		_fineRepository = fineRepository;
 		_passwordHasher = passwordHasher;
+		_authorization = authorization;
 	}
 
 
@@ -63,11 +67,10 @@ public class UserManagementService
 	}
 
 
-	public IReadOnlyList<UserDto> GetAllUsers(ICurrentUserSession session)
+	public IReadOnlyList<UserDto> GetAllUsers()
 	{
-		return session is { IsAdmin: false, IsLibrarian: false }
-			? []
-			: [.. _userRepository.GetAll().Select(user => user.ToDto())];
+		if (!_authorization.HasPermission(Permission.ViewAllUsers)) return [];
+		return [.. _userRepository.GetAll().Select(user => user.ToDto())];
 	}
 
 
@@ -165,8 +168,11 @@ public class UserManagementService
 	}
 
 
-	private static bool CanRemoveUser(ICurrentUserSession session, User targetUser)
+	private bool CanRemoveUser(ICurrentUserSession session, User targetUser)
 	{
+		if (!_authorization.HasPermission(Permission.RemoveUser))
+			return false;
+
 		var targetRoles = targetUser.UserRoles.Select(ur => ur.Role.Name).ToList();
 
 		if (session.IsAdmin) return !targetRoles.Contains(LibraryUserRole.Admin);
@@ -216,20 +222,23 @@ public class UserManagementService
 	}
 
 
-	public ServiceResult<UserDto> RenewMembership(int userId, int years, ICurrentUserSession session)
+	public ServiceResult<UserDto> RenewMembership(int userId, int years)
 	{
 		var user = _userRepository.FindById(userId);
 		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserNotFound);
 		if (years <= 0) return ServiceResult<UserDto>.Fail(Messages.InvalidMembershipRenewalPeriod);
 
-		if (session.IsAdmin)
+		var targetRoles = user.UserRoles.Select(ur => ur.Role.Name).ToList();
+
+		if (targetRoles.Contains(LibraryUserRole.Librarian))
 		{
-			// Admin can renew both members and librarians.
+			if (!_authorization.HasPermission(Permission.RenewLibrarianMembership))
+				return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
 		}
-		else if (session.IsLibrarian)
+		else if (targetRoles.Contains(LibraryUserRole.Member))
 		{
-			if (!user.UserRoles.Any(ur => ur.Role.Name == LibraryUserRole.Member))
-				return ServiceResult<UserDto>.Fail(Messages.LibrarianCanRenewMembersOnly);
+			if (!_authorization.HasPermission(Permission.RenewMemberMembership))
+				return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
 		}
 		else
 		{

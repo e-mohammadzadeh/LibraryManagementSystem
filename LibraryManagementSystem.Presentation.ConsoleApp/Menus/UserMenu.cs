@@ -23,7 +23,9 @@ public static class UserMenu
 			    Permission.SearchUser,
 			    Permission.ViewUserDetails,
 			    Permission.ViewAllUsers,
-			    Permission.ChangePassword))
+			    Permission.ChangePassword,
+			    Permission.RenewLibrarianMembership,
+			    Permission.RenewMemberMembership))
 		{
 			return;
 		}
@@ -85,13 +87,21 @@ public static class UserMenu
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllUsers, Messages.AccessDenied))
 						break;
-					if (userManagementService.GetAllUsers(session).Count is 0)
+					if (userManagementService.GetAllUsers().Count is 0)
 						ConsoleHelper.ShowWarning(Messages.NotAvailableUser);
 					else
-						UserPrinter.PrintTable(userManagementService.GetAllUsers(session));
+						UserPrinter.PrintTable(userManagementService.GetAllUsers());
 					break;
 				}
 				case 7:
+				{
+					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
+						    Permission.RenewLibrarianMembership, Permission.RenewMemberMembership))
+						return;
+					RenewMembership(userManagementService, authorization);
+					break;
+				}
+				case 8:
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ChangePassword,
 						    Messages.AccessDenied))
@@ -99,7 +109,7 @@ public static class UserMenu
 					ChangePassword(userManagementService, session);
 					break;
 				}
-				case 8:
+				case 9:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					continueProgram = false;
@@ -122,7 +132,8 @@ public static class UserMenu
 			(4, "Search User", authorization.HasPermission(Permission.SearchUser)),
 			(5, "View User Details", authorization.HasPermission(Permission.ViewUserDetails)),
 			(6, "View All Users", authorization.HasPermission(Permission.ViewAllUsers)),
-			(7, "Renew Membership", authorization.HasPermission(Permission.RenewMemberMembership)),
+			(7, "Renew Membership",
+				authorization.HasAnyPermission(Permission.RenewMemberMembership, Permission.RenewLibrarianMembership)),
 			(8, "Change Password", authorization.HasPermission(Permission.ChangePassword)),
 			(9, "Back", true)
 		};
@@ -203,7 +214,7 @@ public static class UserMenu
 		}
 
 		Console.WriteLine(new string('=', 36) + " EDITING USER MENU " + new string('=', 36));
-		var desiredUser = MenuHelper.SelectExisting(userManagementService.GetAllUsers(session),
+		var desiredUser = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
 			MenuHelper.SelectUser, Messages.NotAvailableUser);
 		if (desiredUser == null) return;
 
@@ -322,7 +333,7 @@ public static class UserMenu
 		}
 
 		Console.WriteLine(new string('=', 36) + " REMOVING USER MENU " + new string('=', 36));
-		var desiredUser = MenuHelper.SelectExisting(userManagementService.GetAllUsers(session),
+		var desiredUser = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
 			MenuHelper.SelectUser, Messages.NotAvailableUser);
 		if (desiredUser is null) return;
 
@@ -343,7 +354,7 @@ public static class UserMenu
 		{
 			Console.Clear();
 			Console.WriteLine(new string('=', 36) + " SEARCHING USER MENU " + new string('=', 36));
-			var usersList = userManagementService.GetAllUsers(session);
+			var usersList = userManagementService.GetAllUsers();
 			if (usersList.Count == 0)
 			{
 				ConsoleHelper.ShowWarning(Messages.NotAvailableUser);
@@ -445,7 +456,7 @@ public static class UserMenu
 		}
 		else
 		{
-			userDto = MenuHelper.SelectExisting(userManagementService.GetAllUsers(session), MenuHelper.SelectUser,
+			userDto = MenuHelper.SelectExisting(userManagementService.GetAllUsers(), MenuHelper.SelectUser,
 				Messages.NotAvailableUser);
 		}
 
@@ -456,6 +467,37 @@ public static class UserMenu
 		}
 
 		UserPrinter.PrintDetails(userDto);
+	}
+
+
+	private static void RenewMembership(UserManagementService userManagementService, IAuthorizationService authorization)
+	{
+		Console.WriteLine(new string('=', 36) + " RENEW MEMBERSHIP " + new string('=', 36));
+
+		var canRenewMembers = authorization.HasPermission(Permission.RenewMemberMembership);
+		var canRenewLibrarians = authorization.HasPermission(Permission.RenewLibrarianMembership);
+
+		var allUsers = userManagementService.GetAllUsers();
+
+		var renewableUsers = allUsers
+			.Where(u => (canRenewMembers && u.Roles.Contains(LibraryUserRole.Member)) ||
+			            (canRenewLibrarians && u.Roles.Contains(LibraryUserRole.Librarian))).ToList();
+
+		if (renewableUsers.Count == 0)
+		{
+			ConsoleHelper.ShowWarning(Messages.NoRenewableUser);
+			return;
+		}
+
+		var selectedUser = MenuHelper.SelectExisting(renewableUsers, MenuHelper.SelectUser, Messages.NotAvailableUser);
+		if (selectedUser is null) return;
+
+		var years = ConsoleHelper.ReadInt(Messages.EnterYearForRenewMembership,
+			ValidationConstants.MinRenewMembershipYear, ValidationConstants.MaxRenewMembershipYear);
+		if (years is null) return;
+
+		var result = userManagementService.RenewMembership(selectedUser.Id, years.Value);
+		ConsoleHelper.ShowResult(result);
 	}
 
 

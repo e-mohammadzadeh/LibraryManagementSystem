@@ -45,7 +45,7 @@ public static class Program
 			IUserAutoRemovalService userAutoRemovalService = new UserAutoRemovalService(userRepo, loanRepo, fineRepo);
 			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo, userAutoRemovalService, authorization);
 			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, fineService);
-			var userService = new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher);
+			var userService = new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher, authorization);
 			var bookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo);
 			var authService = new AuthenticationService(userRepo, passwordHasher, currentUserSession);
 			var statisticsService =
