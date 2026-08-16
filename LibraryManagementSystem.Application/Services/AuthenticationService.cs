@@ -38,6 +38,7 @@ public class AuthenticationService
 			return ServiceResult<AuthUserDto>.Fail(Messages.MembershipExpired);
 
 		var permissions = user.UserRoles.SelectMany(ur => RolePermissionMap.GetPermissions(ur.Role.Name)).ToHashSet();
+		user.UpdateLastLogin();
 
 		var authUser = new AuthUserDto
 		{
@@ -53,7 +54,6 @@ public class AuthenticationService
 		};
 
 		_currentUserSession.Login(authUser);
-		user.UpdateLastLogin();
 		_userRepository.Update(user);
 		return ServiceResult<AuthUserDto>.Ok(authUser, Messages.LoginSuccess);
 	}
@@ -66,6 +66,6 @@ public class AuthenticationService
 		var username = _currentUserSession.CurrentUser?.FullName ?? "User";
 		_currentUserSession.Logout();
 
-		return ServiceResult<string>.Ok(username, $"{username} " + Messages.LogoutSuccess);
+		return ServiceResult<string>.Ok(username, $"\n{username} " + Messages.LogoutSuccess);
 	}
 }

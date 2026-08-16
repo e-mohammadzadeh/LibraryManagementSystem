@@ -68,6 +68,8 @@ public static class MainMenu
 				case 7:
 				{
 					ConsoleHelper.ShowResult(authenticationService.Logout());
+					ConsoleHelper.Pause();
+					Console.Clear();
 					return MainMenuResult.Logout;
 				}
 				case 8:

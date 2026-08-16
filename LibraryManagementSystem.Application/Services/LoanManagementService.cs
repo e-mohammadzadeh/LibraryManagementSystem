@@ -3,7 +3,9 @@ using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Loans;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Application.Authorization;
 
 namespace LibraryManagementSystem.Application.Services;
 
@@ -13,15 +15,18 @@ public class LoanManagementService
 	private readonly IUserRepository _userRepository;
 	private readonly IBookRepository _bookRepository;
 	private readonly IFineManagementService _fineService;
+	private readonly IAuthorizationService _authorization;
 
 
 	public LoanManagementService(ILoanRepository loanRepository, IUserRepository userRepository,
-		IBookRepository bookRepository, IFineManagementService fineManagementService)
+		IBookRepository bookRepository, IFineManagementService fineManagementService,
+		IAuthorizationService authorization)
 	{
 		_loanRepository = loanRepository;
 		_userRepository = userRepository;
 		_bookRepository = bookRepository;
 		_fineService = fineManagementService;
+		_authorization = authorization;
 	}
 
 
@@ -105,6 +110,31 @@ public class LoanManagementService
 		loan.Renew();
 		_loanRepository.Update(loan);
 		return ServiceResult<LoanDto>.Ok(loan.ToDto(), Messages.RenewedSuccessfully);
+	}
+
+
+	public ServiceResult<IReadOnlyList<LoanDto>> GetOverdueLoansByUser(int userId, ICurrentUserSession session)
+	{
+		if (session.IsSelfServiceMember && session.UserId != userId)
+			return ServiceResult<IReadOnlyList<LoanDto>>.Fail(Messages.ViewOwnLoans);
+
+		List<LoanDto> loans =
+		[
+			.. _loanRepository.GetActiveLoansByUser(userId).Where(loan => loan.IsOverdue).Select(loan => loan.ToDto())
+		];
+
+		return ServiceResult<IReadOnlyList<LoanDto>>.Ok(loans, Messages.LoansRetrievedSuccessfully);
+	}
+
+
+	public IReadOnlyList<LoanDto> GetOverdueLoansByBook(int bookId, ICurrentUserSession session)
+	{
+		if (session.IsSelfServiceMember) return [];
+
+		return
+		[
+			.. _loanRepository.GetActiveLoansByBook(bookId).Where(loan => loan.IsOverdue).Select(loan => loan.ToDto())
+		];
 	}
 
 
@@ -233,7 +263,7 @@ public class LoanManagementService
 
 	public IReadOnlyList<LoanDto> GetAllActiveLoans(ICurrentUserSession session)
 	{
-		if (session.IsSelfServiceMember)
+		if (_authorization.HasPermission(Permission.MyActiveLoans))
 		{
 			return session.UserId is null
 				? []

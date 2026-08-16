@@ -17,14 +17,14 @@ public static class LoginMenu
 			var email = ConsoleHelper.GetValidEmail(Messages.EnterEmailPrompt);
 			if (email is null) return null;
 
-			var password = ConsoleHelper.GetValidPassword(string.Format(Messages.EnterPasswordPrompt, ""));
+			var password = ConsoleHelper.GetValidPassword(string.Format(Messages.EnterPasswordPrompt, "").Replace("  ", " "));
 
 			var result = authenticationService.Login(email, password);
 			if (result is { Success: true, Data: not null })
 			{
-				ConsoleHelper.ShowInfo(result.Data.LastLoginDate is not null
-					? $"Welcome back, {result.Data.FullName}! Your last login was on {result.Data.LastLoginDate.Value.ToLocalTime():f}."
-					: $"Welcome, {result.Data.FullName}! This is your first login.");
+				ConsoleHelper.ShowSuccess(result.Data.LastLoginDate is not null
+					? $"\nWelcome back, {result.Data.FullName}! Your last login was on {result.Data.LastLoginDate.Value.ToLocalTime():f}."
+					: $"\nWelcome, {result.Data.FullName}! This is your first login.");
 				ConsoleHelper.Pause();
 				return result.Data;
 			}

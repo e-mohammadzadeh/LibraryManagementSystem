@@ -24,6 +24,7 @@ public static class UserMenu
 			    Permission.ViewUserDetails,
 			    Permission.ViewAllUsers,
 			    Permission.ChangePassword,
+				Permission.ChangeOwnPassword,
 			    Permission.RenewLibrarianMembership,
 			    Permission.RenewMemberMembership))
 		{
@@ -134,7 +135,7 @@ public static class UserMenu
 			(6, "View All Users", authorization.HasPermission(Permission.ViewAllUsers)),
 			(7, "Renew Membership",
 				authorization.HasAnyPermission(Permission.RenewMemberMembership, Permission.RenewLibrarianMembership)),
-			(8, "Change Password", authorization.HasPermission(Permission.ChangePassword)),
+			(8, "Change Password", authorization.HasAnyPermission(Permission.ChangePassword, Permission.ChangeOwnPassword)),
 			(9, "Back", true)
 		};
 
