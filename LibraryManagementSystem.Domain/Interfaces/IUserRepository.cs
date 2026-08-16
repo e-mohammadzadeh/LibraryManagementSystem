@@ -9,7 +9,6 @@ public interface IUserRepository
 	User? FindByName(string firstName, string lastName);
 	User? FindByEmail(string email);
 	IReadOnlyList<User> GetAll();
-	bool ExistsByName(string firstName, string lastName, int excludeId = -1);
 	bool ExistsByNationalCode(string nationalCode, int excludeId = -1);
 	bool ExistsByEmail(string email, int excludeId = -1);
 	bool ExistsByPhoneNumber(string phoneNumber, int excludeId = -1);

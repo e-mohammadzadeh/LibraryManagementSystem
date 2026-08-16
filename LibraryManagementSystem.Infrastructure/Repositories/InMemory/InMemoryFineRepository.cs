@@ -19,9 +19,6 @@ public class InMemoryFineRepository : IFineRepository
 	public Fine? FindById(int fineId) { return _fines.FirstOrDefault(f => f.FineId == fineId); }
 
 
-	public IReadOnlyList<Fine> GetAll() { return _fines.AsReadOnly(); }
-
-
 	public IReadOnlyList<Fine> GetAllUnpaid() { return [.. _fines.Where(f => f.Status == FineStatus.Unpaid)]; }
 
 

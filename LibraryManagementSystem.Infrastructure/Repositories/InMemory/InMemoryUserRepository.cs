@@ -15,10 +15,7 @@ public class InMemoryUserRepository : IUserRepository
 	}
 
 
-	public User? FindById(int id)
-	{
-		return _users.FirstOrDefault(u => u.Id == id);
-	}
+	public User? FindById(int id) { return _users.FirstOrDefault(u => u.Id == id); }
 
 
 	public User? FindByName(string firstName, string lastName)
@@ -35,18 +32,7 @@ public class InMemoryUserRepository : IUserRepository
 	}
 
 
-	public IReadOnlyList<User> GetAll()
-	{
-		return _users.AsReadOnly();
-	}
-
-
-	public bool ExistsByName(string firstName, string lastName, int excludeId = -1)
-	{
-		return _users.Any(u =>
-			u.Id != excludeId && u.FirstName.Equals(firstName, StringComparison.OrdinalIgnoreCase) &&
-			u.LastName.Equals(lastName, StringComparison.OrdinalIgnoreCase));
-	}
+	public IReadOnlyList<User> GetAll() { return _users.AsReadOnly(); }
 
 
 	public bool ExistsByNationalCode(string nationalCode, int excludeId = -1)
@@ -74,16 +60,12 @@ public class InMemoryUserRepository : IUserRepository
 	}
 
 
-	public void Remove(User user)
-	{
-		_users.Remove(user);
-	}
+	public void Remove(User user) { _users.Remove(user); }
 
 
 	public IReadOnlyList<User> Search(string searchTerm, Func<User, string?> selector)
 	{
-		if (string.IsNullOrWhiteSpace(searchTerm))
-			return [];
+		if (string.IsNullOrWhiteSpace(searchTerm)) return [];
 
 		return
 		[
@@ -100,8 +82,11 @@ public class InMemoryUserRepository : IUserRepository
 	{
 		ArgumentNullException.ThrowIfNull(roleIds);
 
-		return [.. roleIds.Count == 0
-			? []
-			: _users.Where(u => u.UserRoles.Any(ur => roleIds.Contains(ur.RoleId)))];
+		return
+		[
+			.. roleIds.Count == 0
+				? []
+				: _users.Where(u => u.UserRoles.Any(ur => roleIds.Contains(ur.RoleId)))
+		];
 	}
 }

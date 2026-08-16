@@ -6,7 +6,6 @@ public interface IFineRepository
 {
 	void Add(Fine fine);
 	Fine? FindById(int fineId);
-	IReadOnlyList<Fine> GetAll();
 	IReadOnlyList<Fine> GetAllUnpaid();
 	IReadOnlyList<Fine> GetByLoanId(int loanId);
 	IReadOnlyList<Fine> GetByUserId(int userId);

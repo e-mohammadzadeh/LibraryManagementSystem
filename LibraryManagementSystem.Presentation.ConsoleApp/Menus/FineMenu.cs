@@ -236,7 +236,7 @@ public static class FineMenu
 		if (!SessionGuard.RequirePermission(authorization, Permission.ViewUnpaidFinesByUser, Messages.AccessDenied))
 			return;
 
-		ViewAdministrativeUnpaidFines(fineManagementService, userManagementService, session, authorization);
+		ViewAdministrativeUnpaidFines(fineManagementService, userManagementService, authorization);
 	}
 
 
@@ -248,7 +248,7 @@ public static class FineMenu
 
 
 	private static void ViewAdministrativeUnpaidFines(IFineManagementService fineManagementService,
-		UserManagementService userManagementService, ICurrentUserSession session, IAuthorizationService authorization)
+		UserManagementService userManagementService, IAuthorizationService authorization)
 	{
 		while (true)
 		{

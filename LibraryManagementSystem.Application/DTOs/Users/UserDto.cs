@@ -12,7 +12,7 @@ public class UserDto
 	public string Email { get; init; } = null!;
 	public string PhoneNumber { get; init; } = null!;
 	public DateOnly BirthDate { get; init; }
-	public IReadOnlyList<LibraryUserRole> Roles { get; init; } = [];
+	public IReadOnlyList<LibraryUserRole> Roles { get; init; } = [];    // TODO	Convert to string[] for API compatibility
 	public DateOnly MembershipStartDate { get; init; }
 	public DateOnly MembershipExpiryDate { get; init; }
 	public bool ShouldRemove { get; init; }

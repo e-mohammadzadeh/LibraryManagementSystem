@@ -15,14 +15,14 @@ public class Role
 	private static int _nextRoleId;
 	private readonly List<UserRole> _userRoles = [];
 	public int Id { get; private set; }
-	public LibraryUserRole Name { get; set; }
-	public string Description { get; set; }
+	public LibraryUserRole Name { get; }
+	public string Description { get; private set; }
 
 
 	internal void AddUserRole(UserRole userRole)
 	{
 		ArgumentNullException.ThrowIfNull(userRole);
-		if (_userRoles.Contains(userRole)) return;
+		if (_userRoles.Any(ur => ur.UserId == userRole.UserId)) return;
 		_userRoles.Add(userRole);
 	}
 
