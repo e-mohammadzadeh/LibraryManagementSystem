@@ -8,7 +8,7 @@ public class UserPrinter
 {
 	public static void PrintDetails(UserDto user)
 	{
-		Console.WriteLine("\nUser Details:");
+		Console.WriteLine("\n\nUser Details:");
 		Console.WriteLine("{0, -20} [{1}]", "ID:", user.Id);
 		Console.WriteLine("{0, -20} [{1}]", "Name:", user.FullName);
 		Console.WriteLine("{0, -20} [{1}]", "National Code:", user.NationalCode);
@@ -33,7 +33,7 @@ public class UserPrinter
 			return;
 		}
 
-		Console.WriteLine("{0,-3} {1, -30} {2, -12} {3, -40} {4, -15} {5, -9}", "ID", "User Name", "National Code",
+		Console.WriteLine("\n{0,-3} {1, -30} {2, -12} {3, -40} {4, -15} {5, -9}", "ID", "User Name", "National Code",
 			"Email Address", "Phone Number", "Role");
 
 		Console.WriteLine(new string('=', 130));

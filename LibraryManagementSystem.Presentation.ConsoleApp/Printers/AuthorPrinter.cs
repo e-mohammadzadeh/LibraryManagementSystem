@@ -8,7 +8,7 @@ public static class AuthorPrinter
 {
 	public static void PrintDetails(AuthorDto author)
 	{
-		Console.WriteLine("\nAuthor Details:");
+		Console.WriteLine("\n\nAuthor Details:");
 		Console.WriteLine("{0, -20} [{1}]", "Name:", author.FullName);
 		Console.WriteLine("{0, -20} [{1}]", "National Code:", author.NationalCode);
 		Console.WriteLine("{0, -20} [{1}]", "Email:", author.Email);
@@ -29,7 +29,7 @@ public static class AuthorPrinter
 			return;
 		}
 
-		Console.WriteLine("{0,-3} {1, -30} {2, -40}", "ID", "Author Name", "Email Address");
+		Console.WriteLine("\n{0,-3} {1, -30} {2, -40}", "ID", "Author Name", "Email Address");
 		Console.WriteLine(new string('=', 90));
 
 		foreach (var author in authors)

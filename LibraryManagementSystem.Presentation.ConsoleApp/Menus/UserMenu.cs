@@ -402,7 +402,7 @@ public static class UserMenu
 			{
 				case 1:
 				{
-					PersonHelper.SearchAndDisplay("Enter a name to search",
+					PersonHelper.SearchAndDisplay(Messages.SearchName,
 						term => userManagementService.SearchUser(term, user => $"{user.FirstName} {user.LastName}"),
 						UserPrinter.PrintTable, Messages.NotUserMatched);
 					ConsoleHelper.Pause();
@@ -410,7 +410,7 @@ public static class UserMenu
 				}
 				case 2:
 				{
-					PersonHelper.SearchAndDisplay("Enter a national code to search",
+					PersonHelper.SearchAndDisplay(Messages.SearchNationalCode,
 						term => userManagementService.SearchUser(term, user => user.NationalCode),
 						UserPrinter.PrintTable, Messages.NotUserMatched);
 					ConsoleHelper.Pause();
@@ -418,7 +418,7 @@ public static class UserMenu
 				}
 				case 3:
 				{
-					PersonHelper.SearchAndDisplay("Enter an email to search",
+					PersonHelper.SearchAndDisplay(Messages.SearchEmail,
 						term => userManagementService.SearchUser(term, user => user.Email),
 						UserPrinter.PrintTable, Messages.NotUserMatched);
 					ConsoleHelper.Pause();
@@ -426,7 +426,7 @@ public static class UserMenu
 				}
 				case 4:
 				{
-					PersonHelper.SearchAndDisplay("Enter a phone number to search",
+					PersonHelper.SearchAndDisplay(Messages.SearchPhoneNumber,
 						term => userManagementService.SearchUser(term, user => user.PhoneNumber),
 						UserPrinter.PrintTable, Messages.NotUserMatched);
 					ConsoleHelper.Pause();

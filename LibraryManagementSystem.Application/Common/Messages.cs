@@ -286,6 +286,10 @@ public static class Messages
 	public const string ConfirmToPay = "Are you sure you want to pay this fine";
 	public const string ConfirmToWaive = "Are you sure you want to waive this fine";
 	public const string EnterYearForRenewMembership = "Enter number of years to renew (default 1)";
+	public const string SearchName = "Enter a name to search";
+	public const string SearchNationalCode = "Enter a national code to search";
+	public const string SearchEmail = "Enter an email to search";
+	public const string SearchPhoneNumber = "Enter a phone number to search";
 
 
 	// 12. Navigation ────────────────────────────────────────────────────────────

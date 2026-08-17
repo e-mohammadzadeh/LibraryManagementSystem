@@ -33,7 +33,7 @@ public static class DataSeeder
 		var author3 = new Author("Ray", "Bradbury", "1122334455", "bradbury@example.com", "09120000003",
 			new DateOnly(1920, 8, 22), "American science fiction and fantasy writer.");
 
-		var author4 = new Author("J.K.", "Rowling", "0987654321", "rowling@example.com", "09120000002",
+		var author4 = new Author("J.K.", "Rowling", "0087654321", "rowling@example.com", "09120000002",
 			new DateOnly(1965, 7, 31), "British author of the Harry Potter series.");
 
 		var translator1 = new Translator("Najaf", "Daryabandari", "1234567890", "najaf.daryabandari@example.com",

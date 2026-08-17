@@ -310,7 +310,6 @@ public static class TranslatorMenu
 	{
 		while (true)
 		{
-			Console.Clear();
 			Console.WriteLine(new string('=', 36) + " SEARCHING TRANSLATOR MENU " + new string('=', 36));
 			var translatorsList = translatorManagementService.GetAllTranslators();
 			if (translatorsList.Count == 0)
@@ -332,7 +331,8 @@ public static class TranslatorMenu
 			{
 				case 1:
 				{
-					PersonHelper.SearchAndDisplay("Enter a name to search",
+					Console.Clear();
+					PersonHelper.SearchAndDisplay(Messages.SearchName,
 						term => translatorManagementService.SearchTranslator(term, TranslatorSearchField.Name),
 						TranslatorPrinter.PrintTable, Messages.NotTranslatorMatched);
 					ConsoleHelper.Pause();
@@ -340,7 +340,8 @@ public static class TranslatorMenu
 				}
 				case 2:
 				{
-					PersonHelper.SearchAndDisplay("Enter a national code to search",
+					Console.Clear();
+					PersonHelper.SearchAndDisplay(Messages.SearchNationalCode,
 						term => translatorManagementService.SearchTranslator(term, TranslatorSearchField.NationalCode),
 						TranslatorPrinter.PrintTable, Messages.NotTranslatorMatched);
 					ConsoleHelper.Pause();
@@ -348,7 +349,8 @@ public static class TranslatorMenu
 				}
 				case 3:
 				{
-					PersonHelper.SearchAndDisplay("Enter an email to search",
+					Console.Clear();
+					PersonHelper.SearchAndDisplay(Messages.SearchEmail,
 						term => translatorManagementService.SearchTranslator(term, TranslatorSearchField.Email),
 						TranslatorPrinter.PrintTable, Messages.NotTranslatorMatched);
 					ConsoleHelper.Pause();
@@ -356,7 +358,8 @@ public static class TranslatorMenu
 				}
 				case 4:
 				{
-					PersonHelper.SearchAndDisplay("Enter a phone number to search",
+					Console.Clear();
+					PersonHelper.SearchAndDisplay(Messages.SearchPhoneNumber,
 						term => translatorManagementService.SearchTranslator(term, TranslatorSearchField.PhoneNumber),
 						TranslatorPrinter.PrintTable, Messages.NotTranslatorMatched);
 					ConsoleHelper.Pause();

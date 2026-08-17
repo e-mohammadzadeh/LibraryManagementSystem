@@ -85,8 +85,7 @@ public static class AuthorMenu
 						break;
 					Console.Clear();
 					var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
-						MenuHelper.SelectAuthor,
-						Messages.NotAvailableAuthor);
+						MenuHelper.SelectAuthor, Messages.NotAvailableAuthor);
 					if (desiredAuthor is not null) AuthorPrinter.PrintDetails(desiredAuthor);
 					ConsoleHelper.Pause();
 					break;
@@ -340,7 +339,8 @@ public static class AuthorMenu
 			{
 				case 1:
 				{
-					PersonHelper.SearchAndDisplay("Enter a name to search",
+					Console.Clear();
+					PersonHelper.SearchAndDisplay(Messages.SearchName,
 						term => authorManagementService.SearchAuthor(term, AuthorSearchField.Name),
 						AuthorPrinter.PrintTable,
 						Messages.NotAuthorMatched);
@@ -349,7 +349,8 @@ public static class AuthorMenu
 				}
 				case 2:
 				{
-					PersonHelper.SearchAndDisplay("Enter a national code to search",
+					Console.Clear();
+					PersonHelper.SearchAndDisplay(Messages.SearchNationalCode,
 						term => authorManagementService.SearchAuthor(term, AuthorSearchField.NationalCode),
 						AuthorPrinter.PrintTable, Messages.NotAuthorMatched);
 					ConsoleHelper.Pause();
@@ -357,7 +358,8 @@ public static class AuthorMenu
 				}
 				case 3:
 				{
-					PersonHelper.SearchAndDisplay("Enter an email to search",
+					Console.Clear();
+					PersonHelper.SearchAndDisplay(Messages.SearchEmail,
 						term => authorManagementService.SearchAuthor(term, AuthorSearchField.Email),
 						AuthorPrinter.PrintTable, Messages.NotAuthorMatched);
 					ConsoleHelper.Pause();
@@ -365,7 +367,8 @@ public static class AuthorMenu
 				}
 				case 4:
 				{
-					PersonHelper.SearchAndDisplay("Enter a phone number to search",
+					Console.Clear();
+					PersonHelper.SearchAndDisplay(Messages.SearchPhoneNumber,
 						term => authorManagementService.SearchAuthor(term, AuthorSearchField.PhoneNumber),
 						AuthorPrinter.PrintTable, Messages.NotAuthorMatched);
 					ConsoleHelper.Pause();

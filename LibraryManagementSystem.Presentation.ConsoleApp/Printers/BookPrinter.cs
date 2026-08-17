@@ -13,8 +13,7 @@ public static class BookPrinter
 		var translatorsNameDisplay = string.Join(", ", book.Translators.Select(t => t.FullName));
 		var authorsEmailDisplay = string.Join(", ", book.Authors.Select(a => a.Email));
 		var translatorsEmailDisplay = string.Join(", ", book.Translators.Select(t => t.Email));
-		Console.WriteLine("\nBook Details:");
-
+		Console.WriteLine("\n\nBook Details:");
 		Console.WriteLine("{0, -30} [{1}]", "Name:", book.BookName);
 		Console.WriteLine("{0, -30} [{1}]", "ISBN:", book.ISBN);
 		Console.WriteLine("{0, -30} [{1}]", "Author:", authorsNameDisplay);
@@ -40,7 +39,7 @@ public static class BookPrinter
 			return;
 		}
 
-		Console.WriteLine("{0,-3} {1, -60} {2, -50} {3, -20} {4, -30} {5, -6}", "ID", "Book Name", "Author Name",
+		Console.WriteLine("\n{0,-3} {1, -60} {2, -50} {3, -20} {4, -30} {5, -6}", "ID", "Book Name", "Author Name",
 			"ISBN", "Translator Name", "Copies");
 		Console.WriteLine(new string('=', 190));
 

@@ -7,7 +7,7 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 public class TranslatorPrinter
 {
 	public static void PrintDetails(TranslatorDto translator) {
-		Console.WriteLine("\nTranslator Details:");
+		Console.WriteLine("\n\nTranslator Details:");
 		Console.WriteLine("{0, -20} [{1}]", "ID:", translator.Id);
 		Console.WriteLine("{0, -20} [{1}]", "Name:", translator.FullName);
 		Console.WriteLine("{0, -20} [{1}]", "National Code:", translator.NationalCode);
@@ -27,7 +27,7 @@ public class TranslatorPrinter
 			return;
 		}
 
-		Console.WriteLine("{0,-3} {1, -30} {2, -40}", "ID", "Translator Name", "Email Address");
+		Console.WriteLine("\n{0,-3} {1, -30} {2, -40}", "ID", "Translator Name", "Email Address");
 		Console.WriteLine(new string('=', 90));
 
 
