@@ -292,6 +292,7 @@ public static class BookMenu
 
 		while (true)
 		{
+			Console.Clear();
 			var authorNameDisplay = string.Join(", ", desiredBook.Authors.Select(a => a.FullName));
 			var translatorNameDisplay = string.Join(", ", desiredBook.Translators.Select(t => t.FullName));
 			Console.WriteLine("\n{0, -30} [{1}]", "1. Book Name", desiredBook.BookName);
@@ -465,12 +466,12 @@ public static class BookMenu
 		var currentAuthorIds = currentBook.Authors.Select(a => a.Id).ToHashSet();
 		var currentAuthorsNames = string.Join(", ", currentBook.Authors.Select(a => a.FullName));
 
-		Console.WriteLine($"Current authors: {currentAuthorsNames}");
+		ConsoleHelper.ShowInfo($"Current authors: {currentAuthorsNames}\n");
 		Console.WriteLine(Messages.SubMenuPrompt);
-		Console.WriteLine("1. Add an author");
-		Console.WriteLine("2. Remove an author");
-		Console.WriteLine("3. Replace all authors");
-		Console.WriteLine("4. Back");
+		Console.WriteLine("\t1. Add an author");
+		Console.WriteLine("\t2. Remove an author");
+		Console.WriteLine("\t3. Replace all authors");
+		Console.WriteLine("\t4. Back");
 		var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 4);
 		if (editMenuChoice is null) return null;
 
@@ -492,7 +493,7 @@ public static class BookMenu
 					break;
 				}
 
-				var selectedIds = ConsoleHelper.ReadAuthors("Select author(s) for this book", availableToAdd);
+				var selectedIds = ConsoleHelper.ReadAuthors("\nSelect author(s) for this book", availableToAdd);
 				if (selectedIds is null) return null;
 
 				// New list = existing author IDs + newly selected IDs
@@ -529,7 +530,7 @@ public static class BookMenu
 					break;
 				}
 
-				var selectedIds = ConsoleHelper.ReadAuthors("Select the new author(s) for this book", allAuthors);
+				var selectedIds = ConsoleHelper.ReadAuthors("\nSelect the new author(s) for this book", allAuthors);
 				if (selectedIds is null) break;
 
 				return PerformUpdate(bookManagementService, bookId, selectedIds,
@@ -537,7 +538,7 @@ public static class BookMenu
 			}
 			case 4:
 			{
-				ConsoleHelper.ShowError("Author edit cancelled. Returning to Edit Menu...");
+				ConsoleHelper.ShowInfo("Author edit cancelled. Returning to Edit Menu...");
 				break;
 			}
 		}
@@ -559,13 +560,13 @@ public static class BookMenu
 			? "None"
 			: string.Join(", ", currentBook.Translators.Select(t => t.FullName));
 
-		Console.WriteLine($"Current translators: {currentTranslatorName}");
+		ConsoleHelper.ShowInfo($"Current translators: {currentTranslatorName}\n");
 		Console.WriteLine(Messages.SubMenuPrompt);
-		Console.WriteLine("1. Add a translator");
-		Console.WriteLine("2. Remove a translator");
-		Console.WriteLine("3. Replace all translators");
-		Console.WriteLine("4. Remove all translators");
-		Console.WriteLine("5. Back");
+		Console.WriteLine("\t1. Add a translator");
+		Console.WriteLine("\t2. Remove a translator");
+		Console.WriteLine("\t3. Replace all translators");
+		Console.WriteLine("\t4. Remove all translators");
+		Console.WriteLine("\t5. Back");
 		var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 5);
 		if (editMenuChoice is null) return null;
 
@@ -589,7 +590,7 @@ public static class BookMenu
 					break;
 				}
 
-				var selectedIds = ConsoleHelper.ReadTranslators("Select translator(s) to add", availableToAdd);
+				var selectedIds = ConsoleHelper.ReadTranslators("\nSelect translator(s) to add", availableToAdd);
 				if (selectedIds is null || selectedIds.Count == 0) break;
 
 				var updatedTranslatorIds = currentTranslatorIds.Concat(selectedIds).Distinct().ToList();
@@ -645,7 +646,7 @@ public static class BookMenu
 			}
 			case 5:
 			{
-				ConsoleHelper.ShowError("Translator edit cancelled. Returning to Edit Menu...");
+				ConsoleHelper.ShowInfo("Translator edit cancelled. Returning to Edit Menu...");
 				break;
 			}
 		}

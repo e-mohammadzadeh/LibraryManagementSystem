@@ -67,30 +67,36 @@ public class Book
 	}
 
 
-	private void RemoveAuthor(int authorId)
-	{
-		if (_bookAuthors.Count <= 1) throw new InvalidOperationException("A book must have at least one author.");
-
-		var bookAuthor = _bookAuthors.FirstOrDefault(ba => ba.AuthorId == authorId);
-
-		if (bookAuthor is null) return;
-		_bookAuthors.Remove(bookAuthor);
-		bookAuthor.Author.RemoveBookAuthor(bookAuthor);
-		MarkAsUpdated();
-	}
-
-
-
 	public void ReplaceAuthors(IEnumerable<Author> authors)
 	{
 		ArgumentNullException.ThrowIfNull(authors);
 		var authorList = authors.DistinctBy(a => a.Id).ToList();
 		if (authorList.Count == 0) throw new ArgumentException("A book must have at least one author.");
 
-		foreach (var bookAuthor in _bookAuthors.ToList()) RemoveAuthor(bookAuthor.AuthorId);
+		foreach (var bookAuthor in _bookAuthors.ToList()) RemoveAuthorInternal(bookAuthor.AuthorId);
 		foreach (var author in authorList) AddAuthor(author);
 		MarkAsUpdated();
 	}
+
+
+	private void RemoveAuthor(int authorId)
+	{
+		if (_bookAuthors.Count <= 1) throw new InvalidOperationException("A book must have at least one author.");
+
+		RemoveAuthorInternal(authorId);
+		MarkAsUpdated();
+	}
+
+
+	private void RemoveAuthorInternal(int authorId)
+	{
+		var bookAuthor = _bookAuthors.FirstOrDefault(ba => ba.AuthorId == authorId);
+		if (bookAuthor is null) return;
+
+		_bookAuthors.Remove(bookAuthor);
+		bookAuthor.Author.RemoveBookAuthor(bookAuthor);
+	}
+
 
 
 	public void DetachFromAuthors()

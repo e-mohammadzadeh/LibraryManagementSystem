@@ -277,7 +277,7 @@ public static class Messages
 	public const string SelectReplacementTranslators = "Select the new translator(s) for this book";
 	public const string SearchMenuQuestion = "Select a search field by entering its number";
 	public const string TranslatorSelectionForRemove = "Select the translator you want to remove";
-	public const string SubMenuPrompt = "What do you want to do?";
+	public const string SubMenuPrompt = "\nWhat do you want to do?";
 	public const string EnterEmailPrompt = "Enter your email address";
 	public const string EnterPasswordPrompt = "Enter your {0} password";
 	public const string PasswordConfirmation = "Confirm new password";

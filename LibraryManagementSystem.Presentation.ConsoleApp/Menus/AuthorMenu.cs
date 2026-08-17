@@ -223,7 +223,6 @@ public static class AuthorMenu
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewFirstName,
 						v => new UpdateAuthorDto { FirstName = v });
 					if (updated is not null) desiredAuthor = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
@@ -235,7 +234,6 @@ public static class AuthorMenu
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewLastName,
 						v => new UpdateAuthorDto { LastName = v });
 					if (updated is not null) desiredAuthor = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
@@ -245,7 +243,6 @@ public static class AuthorMenu
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewNationalCode,
 						v => new UpdateAuthorDto { NationalCode = v });
 					if (updated is not null) desiredAuthor = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
@@ -255,7 +252,6 @@ public static class AuthorMenu
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewEmail,
 						v => new UpdateAuthorDto { Email = v });
 					if (updated is not null) desiredAuthor = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 5:
@@ -265,7 +261,6 @@ public static class AuthorMenu
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewPhoneNumber,
 						v => new UpdateAuthorDto { PhoneNumber = v });
 					if (updated is not null) desiredAuthor = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 6:
@@ -275,7 +270,6 @@ public static class AuthorMenu
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewBirthDate,
 						v => new UpdateAuthorDto { BirthDate = v });
 					if (updated is not null) desiredAuthor = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
@@ -285,7 +279,6 @@ public static class AuthorMenu
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewBiography,
 						v => new UpdateAuthorDto { Biography = v });
 					if (updated is not null) desiredAuthor = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 8:
