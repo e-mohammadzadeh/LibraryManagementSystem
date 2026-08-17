@@ -44,7 +44,7 @@ public static class Program
 			var translatorService = new TranslatorManagementService(translatorRepo);
 			IUserAutoRemovalService userAutoRemovalService = new UserAutoRemovalService(userRepo, loanRepo, fineRepo);
 			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo, userAutoRemovalService, authorization);
-			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, fineService);
+			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, fineService, authorization);
 			var userService = new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher, authorization);
 			var bookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo);
 			var authService = new AuthenticationService(userRepo, passwordHasher, currentUserSession);
@@ -53,6 +53,7 @@ public static class Program
 
 			while (true)
 			{
+				Console.Clear();
 				var loggedInUser = LoginMenu.ShowLogin(authService);
 				if (loggedInUser is null) return;
 
@@ -60,6 +61,7 @@ public static class Program
 					loanService, fineService, authService, currentUserSession, authorization, statisticsService);
 
 				if (result == MainMenuResult.Exit) return;
+				ConsoleHelper.Pause();
 			}
 		}
 		catch (Exception ex)

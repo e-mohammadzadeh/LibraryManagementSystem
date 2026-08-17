@@ -33,7 +33,6 @@ public static class AuthorMenu
 			if (!session.IsAuthenticated)
 			{
 				ConsoleHelper.ShowError(Messages.SessionExpired);
-				ConsoleHelper.Pause();
 				return;
 			}
 
@@ -48,21 +47,27 @@ public static class AuthorMenu
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.AddAuthor, Messages.AccessDenied))
 						break;
+					Console.Clear();
 					AddAuthor(authorManagementService);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.EditAuthor, Messages.AccessDenied))
 						break;
+					Console.Clear();
 					EditAuthor(authorManagementService);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveAuthor, Messages.AccessDenied))
 						break;
+					Console.Clear();
 					RemoveAuthor(authorManagementService);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
@@ -70,6 +75,7 @@ public static class AuthorMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.SearchAuthor, Messages.AccessDenied))
 						break;
 					SearchAuthor(authorManagementService);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 5:
@@ -77,19 +83,24 @@ public static class AuthorMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAuthorDetails,
 						    Messages.AccessDenied))
 						break;
+					Console.Clear();
 					var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
 						MenuHelper.SelectAuthor,
 						Messages.NotAvailableAuthor);
 					if (desiredAuthor is not null) AuthorPrinter.PrintDetails(desiredAuthor);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 6:
 				{
+					Console.Clear();
 					ViewBooksByAuthor(authorManagementService, authorization);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
 				{
+					Console.Clear();
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllAuthors,
 						    Messages.AccessDenied))
 						break;
@@ -97,6 +108,7 @@ public static class AuthorMenu
 						ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
 					else
 						AuthorPrinter.PrintTable(authorManagementService.GetAllAuthors());
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 8:
@@ -106,8 +118,6 @@ public static class AuthorMenu
 					break;
 				}
 			}
-
-			ConsoleHelper.Pause();
 		}
 	}
 
@@ -191,6 +201,7 @@ public static class AuthorMenu
 
 		while (true)
 		{
+			Console.Clear();
 			Console.WriteLine("\n{0, -20} [{1}]", "1. First Name", desiredAuthor.FirstName);
 			Console.WriteLine("{0, -20} [{1}]", "2. Last Name", desiredAuthor.LastName);
 			Console.WriteLine("{0, -20} [{1}]", "3. National Code", desiredAuthor.NationalCode);
@@ -206,81 +217,87 @@ public static class AuthorMenu
 			{
 				case 1:
 				{
+					Console.Clear();
 					var authorNewFirstName = ConsoleHelper.GetValidName("Enter new first name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewFirstName,
 						v => new UpdateAuthorDto { FirstName = v });
 					if (updated is not null) desiredAuthor = updated;
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
+					Console.Clear();
 					var authorNewLastName = ConsoleHelper.GetValidName("Enter new last name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewLastName,
 						v => new UpdateAuthorDto { LastName = v });
 					if (updated is not null) desiredAuthor = updated;
-
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
 				{
+					Console.Clear();
 					var authorNewNationalCode = ConsoleHelper.GetValidNationalCode("Enter new national code");
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewNationalCode,
 						v => new UpdateAuthorDto { NationalCode = v });
 					if (updated is not null) desiredAuthor = updated;
-
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
 				{
+					Console.Clear();
 					var authorNewEmail = ConsoleHelper.GetValidEmail("Enter new email");
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewEmail,
 						v => new UpdateAuthorDto { Email = v });
 					if (updated is not null) desiredAuthor = updated;
-
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 5:
 				{
+					Console.Clear();
 					var authorNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter new phone number");
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewPhoneNumber,
 						v => new UpdateAuthorDto { PhoneNumber = v });
 					if (updated is not null) desiredAuthor = updated;
-
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 6:
 				{
+					Console.Clear();
 					var authorNewBirthDate = ConsoleHelper.GetValidBirthDate("Enter new birth date");
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewBirthDate,
 						v => new UpdateAuthorDto { BirthDate = v });
 					if (updated is not null) desiredAuthor = updated;
-
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
 				{
+					Console.Clear();
 					var authorNewBiography = ConsoleHelper.ReadString("Enter new biography");
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewBiography,
 						v => new UpdateAuthorDto { Biography = v });
 					if (updated is not null) desiredAuthor = updated;
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 8:
 				{
 					ConsoleHelper.ShowInfo(string.Format(Messages.EditCancelled, "Author"));
-					ConsoleHelper.Pause();
-					Console.Clear();
 					return;
 				}
 			}
 
 			var choice = ConsoleHelper.ReadYesNo(Messages.EditContinuesQuestion);
 			if (choice != true) return;
-			Console.Clear();
 		}
 	}
 
@@ -307,7 +324,6 @@ public static class AuthorMenu
 			if (authorsList.Count == 0)
 			{
 				ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
-				ConsoleHelper.Pause();
 				return;
 			}
 
@@ -315,7 +331,7 @@ public static class AuthorMenu
 			Console.WriteLine("{0, -20}", "2. National Code");
 			Console.WriteLine("{0, -20}", "3. Email");
 			Console.WriteLine("{0, -20}", "4. Phone Number");
-			Console.WriteLine("5. Cancel");
+			Console.WriteLine("5. Back");
 
 			var searchMenuChoice = ConsoleHelper.ReadInt(Messages.SearchMenuQuestion, 1, 5);
 			if (searchMenuChoice is null) return;
@@ -328,7 +344,7 @@ public static class AuthorMenu
 						term => authorManagementService.SearchAuthor(term, AuthorSearchField.Name),
 						AuthorPrinter.PrintTable,
 						Messages.NotAuthorMatched);
-
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
@@ -336,7 +352,7 @@ public static class AuthorMenu
 					PersonHelper.SearchAndDisplay("Enter a national code to search",
 						term => authorManagementService.SearchAuthor(term, AuthorSearchField.NationalCode),
 						AuthorPrinter.PrintTable, Messages.NotAuthorMatched);
-
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
@@ -344,7 +360,7 @@ public static class AuthorMenu
 					PersonHelper.SearchAndDisplay("Enter an email to search",
 						term => authorManagementService.SearchAuthor(term, AuthorSearchField.Email),
 						AuthorPrinter.PrintTable, Messages.NotAuthorMatched);
-
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
@@ -352,18 +368,15 @@ public static class AuthorMenu
 					PersonHelper.SearchAndDisplay("Enter a phone number to search",
 						term => authorManagementService.SearchAuthor(term, AuthorSearchField.PhoneNumber),
 						AuthorPrinter.PrintTable, Messages.NotAuthorMatched);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 5:
 				{
 					ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "Author"));
-					ConsoleHelper.Pause();
-					Console.Clear();
 					return;
 				}
 			}
-
-			ConsoleHelper.Pause();
 		}
 	}
 
@@ -394,6 +407,7 @@ public static class AuthorMenu
 			ConsoleHelper.ShowWarning(Messages.AuthorHasNoBooks);
 			return;
 		}
+
 		BookPrinter.PrintTable(books);
 	}
 }

@@ -24,7 +24,7 @@ public static class UserMenu
 			    Permission.ViewUserDetails,
 			    Permission.ViewAllUsers,
 			    Permission.ChangePassword,
-				Permission.ChangeOwnPassword,
+			    Permission.ChangeOwnPassword,
 			    Permission.RenewLibrarianMembership,
 			    Permission.RenewMemberMembership))
 		{
@@ -52,28 +52,36 @@ public static class UserMenu
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.AddUser, Messages.AccessDenied))
 						break;
+					Console.Clear();
 					AddUser(userManagementService, session);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.EditUser, Messages.AccessDenied))
 						break;
+					Console.Clear();
 					EditUser(userManagementService, session);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveUser, Messages.AccessDenied))
 						break;
+					Console.Clear();
 					RemoveUser(userManagementService, session);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.SearchUser, Messages.AccessDenied))
 						break;
+					Console.Clear();
 					SearchUser(userManagementService, session);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 5:
@@ -81,17 +89,21 @@ public static class UserMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewUserDetails,
 						    Messages.AccessDenied))
 						break;
+					Console.Clear();
 					ViewUserDetails(userManagementService, session);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 6:
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllUsers, Messages.AccessDenied))
 						break;
+					Console.Clear();
 					if (userManagementService.GetAllUsers().Count is 0)
 						ConsoleHelper.ShowWarning(Messages.NotAvailableUser);
 					else
 						UserPrinter.PrintTable(userManagementService.GetAllUsers());
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
@@ -99,15 +111,19 @@ public static class UserMenu
 					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
 						    Permission.RenewLibrarianMembership, Permission.RenewMemberMembership))
 						return;
+					Console.Clear();
 					RenewMembership(userManagementService, authorization);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 8:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ChangePassword,
-						    Messages.AccessDenied))
+					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
+						    Permission.ChangePassword, Permission.ChangeOwnPassword))
 						break;
+					Console.Clear();
 					ChangePassword(userManagementService, session);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 9:
@@ -117,8 +133,6 @@ public static class UserMenu
 					break;
 				}
 			}
-
-			ConsoleHelper.Pause();
 		}
 	}
 
@@ -135,7 +149,8 @@ public static class UserMenu
 			(6, "View All Users", authorization.HasPermission(Permission.ViewAllUsers)),
 			(7, "Renew Membership",
 				authorization.HasAnyPermission(Permission.RenewMemberMembership, Permission.RenewLibrarianMembership)),
-			(8, "Change Password", authorization.HasAnyPermission(Permission.ChangePassword, Permission.ChangeOwnPassword)),
+			(8, "Change Password",
+				authorization.HasAnyPermission(Permission.ChangePassword, Permission.ChangeOwnPassword)),
 			(9, "Back", true)
 		};
 
@@ -236,58 +251,71 @@ public static class UserMenu
 			{
 				case 1:
 				{
+					Console.Clear();
 					var userNewFirstName = ConsoleHelper.GetValidName("Enter new first name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewFirstName,
 						v => new UpdateUserDto { FirstName = v });
 					if (updated is not null) desiredUser = updated;
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
+					Console.Clear();
 					var userNewLastName = ConsoleHelper.GetValidName("Enter new last name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewLastName,
 						v => new UpdateUserDto { LastName = v });
 					if (updated is not null) desiredUser = updated;
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
 				{
+					Console.Clear();
 					var userNewNationalCode = ConsoleHelper.GetValidNationalCode("Enter new national code");
 					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewNationalCode,
 						v => new UpdateUserDto { NationalCode = v });
 					if (updated is not null) desiredUser = updated;
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
 				{
+					Console.Clear();
 					var userNewEmail = ConsoleHelper.GetValidEmail("Enter new email");
 					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewEmail,
 						v => new UpdateUserDto { Email = v });
 					if (updated is not null) desiredUser = updated;
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 5:
 				{
+					Console.Clear();
 					var userNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter new phone number");
 					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewPhoneNumber,
 						v => new UpdateUserDto { PhoneNumber = v });
 					if (updated is not null) desiredUser = updated;
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 6:
 				{
+					Console.Clear();
 					var userNewBirthDate = ConsoleHelper.GetValidBirthDate("Enter new birth date");
 					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewBirthDate,
 						v => new UpdateUserDto { BirthDate = v });
 					if (updated is not null) desiredUser = updated;
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
 				{
+					Console.Clear();
 					var availableRoles = userManagementService.GetAllRoles();
 					var roleIds = ConsoleHelper.ReadRoles("Select role(s) for this user", availableRoles);
 					if (roleIds is null) break;
@@ -295,20 +323,18 @@ public static class UserMenu
 					var dto = new UpdateUserDto { RoleIds = roleIds };
 					var result = userManagementService.UpdateUser(desiredUser.Id, dto);
 					ConsoleHelper.ShowResult(result);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 8:
 				{
 					ConsoleHelper.ShowInfo(string.Format(Messages.EditCancelled, "User"));
-					ConsoleHelper.Pause();
-					Console.Clear();
 					return;
 				}
 			}
 
 			var choice = ConsoleHelper.ReadYesNo(Messages.EditContinuesQuestion);
 			if (choice != true) return;
-			Console.Clear();
 		}
 	}
 
@@ -359,7 +385,6 @@ public static class UserMenu
 			if (usersList.Count == 0)
 			{
 				ConsoleHelper.ShowWarning(Messages.NotAvailableUser);
-				ConsoleHelper.Pause();
 				return;
 			}
 
@@ -380,7 +405,7 @@ public static class UserMenu
 					PersonHelper.SearchAndDisplay("Enter a name to search",
 						term => userManagementService.SearchUser(term, user => $"{user.FirstName} {user.LastName}"),
 						UserPrinter.PrintTable, Messages.NotUserMatched);
-
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
@@ -388,7 +413,7 @@ public static class UserMenu
 					PersonHelper.SearchAndDisplay("Enter a national code to search",
 						term => userManagementService.SearchUser(term, user => user.NationalCode),
 						UserPrinter.PrintTable, Messages.NotUserMatched);
-
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
@@ -396,6 +421,7 @@ public static class UserMenu
 					PersonHelper.SearchAndDisplay("Enter an email to search",
 						term => userManagementService.SearchUser(term, user => user.Email),
 						UserPrinter.PrintTable, Messages.NotUserMatched);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
@@ -403,24 +429,21 @@ public static class UserMenu
 					PersonHelper.SearchAndDisplay("Enter a phone number to search",
 						term => userManagementService.SearchUser(term, user => user.PhoneNumber),
 						UserPrinter.PrintTable, Messages.NotUserMatched);
-
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 5:
 				{
 					SearchRoleAndDisplay(userManagementService, "Enter a role to search");
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 6:
 				{
 					ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "User"));
-					ConsoleHelper.Pause();
-					Console.Clear();
 					return;
 				}
 			}
-
-			ConsoleHelper.Pause();
 		}
 	}
 
@@ -471,7 +494,8 @@ public static class UserMenu
 	}
 
 
-	private static void RenewMembership(UserManagementService userManagementService, IAuthorizationService authorization)
+	private static void RenewMembership(UserManagementService userManagementService,
+		IAuthorizationService authorization)
 	{
 		Console.WriteLine(new string('=', 36) + " RENEW MEMBERSHIP " + new string('=', 36));
 

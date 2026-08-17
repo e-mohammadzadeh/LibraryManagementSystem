@@ -47,7 +47,9 @@ public static class TranslatorMenu
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.AddTranslator, Messages.AccessDenied))
 						break;
+					Console.Clear();
 					AddTranslator(translatorManagementService);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
@@ -55,7 +57,9 @@ public static class TranslatorMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.EditTranslator,
 						    Messages.AccessDenied))
 						break;
+					Console.Clear();
 					EditTranslator(translatorManagementService);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
@@ -63,7 +67,9 @@ public static class TranslatorMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveTranslator,
 						    Messages.AccessDenied))
 						break;
+					Console.Clear();
 					RemoveTranslator(translatorManagementService);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
@@ -71,7 +77,9 @@ public static class TranslatorMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.SearchTranslator,
 						    Messages.AccessDenied))
 						break;
+					Console.Clear();
 					SearchTranslator(translatorManagementService);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 5:
@@ -79,14 +87,18 @@ public static class TranslatorMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewTranslatorDetails,
 						    Messages.AccessDenied))
 						break;
+					Console.Clear();
 					var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
 						MenuHelper.SelectTranslator, Messages.NotAvailableTranslator);
 					if (desiredTranslator is not null) TranslatorPrinter.PrintDetails(desiredTranslator);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 6:
 				{
+					Console.Clear();
 					ViewBooksByTranslator(translatorManagementService, authorization);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
@@ -94,10 +106,12 @@ public static class TranslatorMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllTranslators,
 						    Messages.AccessDenied))
 						break;
+					Console.Clear();
 					if (translatorManagementService.GetAllTranslators().Count is 0)
 						ConsoleHelper.ShowWarning(Messages.NotAvailableTranslator);
 					else
 						TranslatorPrinter.PrintTable(translatorManagementService.GetAllTranslators());
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 8:
@@ -107,8 +121,6 @@ public static class TranslatorMenu
 					break;
 				}
 			}
-
-			ConsoleHelper.Pause();
 		}
 	}
 
@@ -190,6 +202,7 @@ public static class TranslatorMenu
 
 		while (true)
 		{
+			Console.Clear();
 			Console.WriteLine("\n{0, -20} [{1}]", "1. First Name", desiredTranslator.FirstName);
 			Console.WriteLine("{0, -20} [{1}]", "2. Last Name", desiredTranslator.LastName);
 			Console.WriteLine("{0, -20} [{1}]", "3. National Code", desiredTranslator.NationalCode);
@@ -204,61 +217,71 @@ public static class TranslatorMenu
 			{
 				case 1:
 				{
+					Console.Clear();
 					var translatorNewFirstName = ConsoleHelper.GetValidName("Enter new first name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
 						translatorNewFirstName, v => new UpdateTranslatorDto { FirstName = v });
 					if (updated is not null) desiredTranslator = updated;
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
+					Console.Clear();
 					var translatorNewLastName = ConsoleHelper.GetValidName("Enter new last name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
 						translatorNewLastName, v => new UpdateTranslatorDto { LastName = v });
 					if (updated is not null) desiredTranslator = updated;
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
 				{
+					Console.Clear();
 					var translatorNewNationalCode = ConsoleHelper.GetValidNationalCode("Enter new national code");
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
 						translatorNewNationalCode, v => new UpdateTranslatorDto { NationalCode = v });
 					if (updated is not null) desiredTranslator = updated;
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
 				{
+					Console.Clear();
 					var translatorNewEmail = ConsoleHelper.GetValidEmail("Enter new email");
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id, translatorNewEmail,
 						v => new UpdateTranslatorDto { Email = v });
 					if (updated is not null) desiredTranslator = updated;
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 5:
 				{
+					Console.Clear();
 					var translatorNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter new phone number");
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
 						translatorNewPhoneNumber, v => new UpdateTranslatorDto { PhoneNumber = v });
 					if (updated is not null) desiredTranslator = updated;
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 6:
 				{
+					Console.Clear();
 					var translatorNewBirthDate = ConsoleHelper.GetValidBirthDate("Enter new birth date");
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
 						translatorNewBirthDate, v => new UpdateTranslatorDto { BirthDate = v });
 					if (updated is not null) desiredTranslator = updated;
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
 				{
 					ConsoleHelper.ShowInfo(string.Format(Messages.EditCancelled, "Translator"));
-					ConsoleHelper.Pause();
-					Console.Clear();
 					return;
 				}
 			}
@@ -293,7 +316,6 @@ public static class TranslatorMenu
 			if (translatorsList.Count == 0)
 			{
 				ConsoleHelper.ShowWarning(Messages.NotAvailableTranslator);
-				ConsoleHelper.Pause();
 				return;
 			}
 
@@ -301,7 +323,7 @@ public static class TranslatorMenu
 			Console.WriteLine("{0, -20}", "2. National Code");
 			Console.WriteLine("{0, -20}", "3. Email");
 			Console.WriteLine("{0, -20}", "4. Phone Number");
-			Console.WriteLine("5. Cancel");
+			Console.WriteLine("5. Back");
 
 			var searchMenuChoice = ConsoleHelper.ReadInt(Messages.SearchMenuQuestion, 1, 5);
 			if (searchMenuChoice is null) return;
@@ -313,7 +335,7 @@ public static class TranslatorMenu
 					PersonHelper.SearchAndDisplay("Enter a name to search",
 						term => translatorManagementService.SearchTranslator(term, TranslatorSearchField.Name),
 						TranslatorPrinter.PrintTable, Messages.NotTranslatorMatched);
-
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
@@ -321,7 +343,7 @@ public static class TranslatorMenu
 					PersonHelper.SearchAndDisplay("Enter a national code to search",
 						term => translatorManagementService.SearchTranslator(term, TranslatorSearchField.NationalCode),
 						TranslatorPrinter.PrintTable, Messages.NotTranslatorMatched);
-
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
@@ -329,7 +351,7 @@ public static class TranslatorMenu
 					PersonHelper.SearchAndDisplay("Enter an email to search",
 						term => translatorManagementService.SearchTranslator(term, TranslatorSearchField.Email),
 						TranslatorPrinter.PrintTable, Messages.NotTranslatorMatched);
-
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
@@ -337,19 +359,15 @@ public static class TranslatorMenu
 					PersonHelper.SearchAndDisplay("Enter a phone number to search",
 						term => translatorManagementService.SearchTranslator(term, TranslatorSearchField.PhoneNumber),
 						TranslatorPrinter.PrintTable, Messages.NotTranslatorMatched);
-
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 5:
 				{
 					ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "Translator"));
-					ConsoleHelper.Pause();
-					Console.Clear();
 					return;
 				}
 			}
-
-			ConsoleHelper.Pause();
 		}
 	}
 

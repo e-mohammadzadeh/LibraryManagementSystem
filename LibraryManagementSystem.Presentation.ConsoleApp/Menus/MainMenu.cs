@@ -32,44 +32,52 @@ public static class MainMenu
 			{
 				case 1:
 				{
+					Console.Clear();
 					AuthorMenu.AuthorMenuController(authorManagementService, statisticsService, session, authorization);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
+					Console.Clear();
 					TranslatorMenu.TranslatorMenuController(translatorManagementService, statisticsService, session, authorization);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
 				{
+					Console.Clear();
 					BookMenu.BookMenuController(authorManagementService, translatorManagementService,
 						bookManagementService, loanManagementService, statisticsService, session, authorization);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
 				{
 					Console.Clear();
 					UserMenu.UserMenuController(userManagementService, statisticsService, session, authorization);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 5:
 				{
+					Console.Clear();
 					LoanMenu.LoanMenuController(loanManagementService, userManagementService, bookManagementService,
 						statisticsService, session, authorization);
-
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 6:
 				{
+					Console.Clear();
 					FineMenu.FineMenuController(fineManagementService, userManagementService, session,
 						statisticsService, authorization);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
 				{
 					ConsoleHelper.ShowResult(authenticationService.Logout());
-					ConsoleHelper.Pause();
-					Console.Clear();
 					return MainMenuResult.Logout;
 				}
 				case 8:

@@ -62,7 +62,7 @@ public static class BookPrinter
 	public static void PrintLoanHistory(IReadOnlyList<LoanDto> loans) {
 		if (loans.Count == 0)
 		{
-			ConsoleHelper.ShowInfo("No loan history for this book.");
+			ConsoleHelper.ShowInfo(Messages.NoLoanHistoryForBook);
 			return;
 		}
 		Console.WriteLine($"\nLoan History ({loans.Count} loans):");

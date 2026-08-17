@@ -217,6 +217,7 @@ public static class Messages
 	public const string ActiveLoanNotFound = "No active loan found for the selected user and book.";
 	public const string UserHasNoBorrowedBooks = "This user has no borrowed books.";
 	public const string NoLoanHistoryForUser = "This user has no loan history.";
+	public const string NoLoanHistoryForBook = "\nThis book has no loan history.";
 	public const string UserHasUnpaidFines = "You cannot renew a loan while you have unpaid fines. Please pay your fines first.";
 	public const string BorrowFailedForUnauthorized = "You cannot borrow books. Check membership status or account flags.";
 
@@ -289,15 +290,15 @@ public static class Messages
 
 	// 12. Navigation ────────────────────────────────────────────────────────────
 	// Back
-	public const string BackToMainMenu = "Backing to main menu...\n";
+	public const string BackToMainMenu = "\nBacking to main menu...";
 
 	// Exit
-	public const string ExitingProgram = "\nExiting Program...\n";
+	public const string ExitingProgram = "\nExiting Program...";
 
 	// Search Cancelled
-	public const string SearchCancelled = "Search cancelled. Returning to {0} Menu...";
+	public const string SearchCancelled = "\nSearch cancelled. Returning to {0} Menu...";
 
 	// Edit Cancelled
-	public const string EditCancelled = "Edit cancelled. Returning to {0} Menu...";
+	public const string EditCancelled = "\nEdit cancelled. Returning to {0} Menu...";
 
 }
