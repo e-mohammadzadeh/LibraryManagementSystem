@@ -310,6 +310,7 @@ public static class TranslatorMenu
 	{
 		while (true)
 		{
+			Console.Clear();
 			Console.WriteLine(new string('=', 36) + " SEARCHING TRANSLATOR MENU " + new string('=', 36));
 			var translatorsList = translatorManagementService.GetAllTranslators();
 			if (translatorsList.Count == 0)
@@ -317,7 +318,6 @@ public static class TranslatorMenu
 				ConsoleHelper.ShowWarning(Messages.NotAvailableTranslator);
 				return;
 			}
-
 			Console.WriteLine("\n{0, -20}", "1. Name");
 			Console.WriteLine("{0, -20}", "2. National Code");
 			Console.WriteLine("{0, -20}", "3. Email");

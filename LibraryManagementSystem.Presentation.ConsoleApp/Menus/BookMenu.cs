@@ -680,7 +680,6 @@ public static class BookMenu
 			if (booksList.Count == 0)
 			{
 				ConsoleHelper.ShowWarning(Messages.NotAvailableBook);
-				ConsoleHelper.Pause();
 				return;
 			}
 
@@ -700,6 +699,7 @@ public static class BookMenu
 			{
 				case 1:
 				{
+					Console.Clear();
 					var searchTerm = ConsoleHelper.ReadString("Enter a title to search");
 					if (string.IsNullOrWhiteSpace(searchTerm)) continue;
 					var results = bookManagementService.SearchBooks(searchTerm, BookSearchField.BookName);
@@ -709,6 +709,7 @@ public static class BookMenu
 				}
 				case 2:
 				{
+					Console.Clear();
 					var searchTerm = ConsoleHelper.ReadISBN("Enter an ISBN to search");
 					if (string.IsNullOrWhiteSpace(searchTerm)) continue;
 					var results = bookManagementService.SearchBooks(searchTerm, BookSearchField.ISBN);
@@ -718,6 +719,7 @@ public static class BookMenu
 				}
 				case 3:
 				{
+					Console.Clear();
 					var searchTerm = ConsoleHelper.ReadString("Enter an author name");
 					if (string.IsNullOrWhiteSpace(searchTerm)) continue;
 					var results = bookManagementService.SearchBooks(searchTerm, BookSearchField.AuthorName);
@@ -727,6 +729,7 @@ public static class BookMenu
 				}
 				case 4:
 				{
+					Console.Clear();
 					var searchTerm = ConsoleHelper.ReadString("Enter a translator name");
 					if (string.IsNullOrWhiteSpace(searchTerm)) continue;
 					var results = bookManagementService.SearchBooks(searchTerm, BookSearchField.TranslatorName);
@@ -736,6 +739,7 @@ public static class BookMenu
 				}
 				case 5:
 				{
+					Console.Clear();
 					var searchTerm = ConsoleHelper.ReadDateOnly("Enter a publish date to search");
 					if (searchTerm is null) continue;
 					var results = bookManagementService.SearchBooks(searchTerm.Value.ToString("yyyy-MM-dd"),
@@ -746,6 +750,7 @@ public static class BookMenu
 				}
 				case 6:
 				{
+					Console.Clear();
 					var searchTerm = ConsoleHelper.ReadGenre("Enter a genre to search");
 					if (searchTerm is null) continue;
 					var results = bookManagementService.SearchBooks(searchTerm.Value.ToString(), BookSearchField.Genre);
@@ -755,6 +760,7 @@ public static class BookMenu
 				}
 				case 7:
 				{
+					Console.Clear();
 					var searchTerm = ConsoleHelper.ReadString("Enter a publisher to search");
 					if (string.IsNullOrWhiteSpace(searchTerm)) continue;
 					var results = bookManagementService.SearchBooks(searchTerm, BookSearchField.Publisher);
@@ -768,8 +774,6 @@ public static class BookMenu
 					return;
 				}
 			}
-
-			ConsoleHelper.Pause();
 		}
 	}
 

@@ -33,6 +33,7 @@ public static class FineMenu
 		var continueProgram = true;
 		while (continueProgram)
 		{
+			Console.Clear();
 			if (!session.IsAuthenticated)
 			{
 				ConsoleHelper.ShowError(Messages.SessionExpired);
@@ -141,7 +142,14 @@ public static class FineMenu
 		var unpaidFines = session.IsSelfServiceMember
 			? fineManagementService.GetUnpaidFinesByUser(session.UserId!.Value)
 			: fineManagementService.GetAllUnpaidFines(session);
-		DisplayFines(unpaidFines, Messages.UnpaidFineNotFound);
+
+		if (unpaidFines.Count == 0)
+		{
+			ConsoleHelper.ShowWarning(Messages.UnpaidFineNotFound);
+			return;
+		}
+		FinePrinter.PrintTable(unpaidFines);
+
 
 		var fineId = ConsoleHelper.ReadInt(Messages.FineIdForPay, 1, int.MaxValue);
 		if (fineId is null) return;
@@ -157,7 +165,13 @@ public static class FineMenu
 	private static void WaiveFine(IFineManagementService fineManagementService, ICurrentUserSession session)
 	{
 		var unpaidFines = fineManagementService.GetAllUnpaidFines(session);
-		DisplayFines(unpaidFines, Messages.UnpaidFineNotFound);
+		if (unpaidFines.Count == 0)
+		{
+			ConsoleHelper.ShowWarning(Messages.UnpaidFineNotFound);
+			return;
+		}
+
+		FinePrinter.PrintTable(unpaidFines);
 
 		var fineId = ConsoleHelper.ReadInt(Messages.FineIdForWaive, 1, int.MaxValue);
 		if (fineId is null) return;

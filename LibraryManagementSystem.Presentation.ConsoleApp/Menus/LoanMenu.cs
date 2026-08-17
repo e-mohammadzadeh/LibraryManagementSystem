@@ -538,6 +538,7 @@ public static class LoanMenu
 	{
 		while (true)
 		{
+			Console.Clear();
 			Console.WriteLine(new string('=', 36) + " SEARCHING LOAN MENU " + new string('=', 36));
 			var loanList = activeOnly
 				? loanManagementService.GetAllActiveLoans(session)
