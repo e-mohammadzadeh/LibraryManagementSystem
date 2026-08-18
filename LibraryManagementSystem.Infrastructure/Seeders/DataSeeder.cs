@@ -15,7 +15,7 @@ public static class DataSeeder
 	{
 		SeedAuthors(authorRepository, translatorRepository, bookRepository);
 		SeedUsers(userRepository, roleRepository, passwordHasher);
-		SeedLoans(userRepository, bookRepository, loanRepository);
+		SeedLoans(userRepository, bookRepository, loanRepository, fineRepository);
 		//SeedFines(loanRepository, fineRepository);
 	}
 
@@ -133,7 +133,8 @@ public static class DataSeeder
 	}
 
 
-	private static void SeedUsers(IUserRepository userRepository, IRoleRepository roleRepository, IPasswordHasher passwordHasher)
+	private static void SeedUsers(IUserRepository userRepository, IRoleRepository roleRepository,
+		IPasswordHasher passwordHasher)
 	{
 		void SetPassword(User user, string password)
 		{
@@ -222,7 +223,7 @@ public static class DataSeeder
 
 
 	private static void SeedLoans(IUserRepository userRepository, IBookRepository bookRepository,
-		ILoanRepository loanRepository)
+		ILoanRepository loanRepository, IFineRepository fineRepository)
 	{
 		var users = userRepository.GetAll();
 		var books = bookRepository.GetAll();
@@ -237,11 +238,15 @@ public static class DataSeeder
 		CreateActiveLoan(GetUser(8), GetBook(3), loanRepository, today.AddDays(-40));
 		CreateActiveLoan(GetUser(7), GetBook(4), loanRepository, today);
 
-		CreateReturnedLoan(GetUser(7), GetBook(6), loanRepository, today.AddDays(-45), today.AddDays(-20));
-		CreateReturnedLoan(GetUser(7), GetBook(9), loanRepository, today, today);
-		CreateReturnedLoan(GetUser(9), GetBook(7), loanRepository, today.AddDays(-55), today.AddDays(-30));
-		CreateReturnedLoan(GetUser(9), GetBook(11), loanRepository, today, today);
-		CreateReturnedLoan(GetUser(1), GetBook(12), loanRepository, today.AddDays(-160), today.AddDays(-5));
+		CreateReturnedLoan(GetUser(7), GetBook(6), loanRepository, fineRepository, today.AddDays(-45),
+			today.AddDays(-20));
+		CreateReturnedLoan(GetUser(7), GetBook(9), loanRepository, fineRepository, today.AddDays(-15),
+			today.AddDays(-2));
+		CreateReturnedLoan(GetUser(9), GetBook(7), loanRepository, fineRepository, today.AddDays(-55),
+			today.AddDays(-30));
+		CreateReturnedLoan(GetUser(9), GetBook(11), loanRepository, fineRepository, today.AddDays(-22), today);
+		CreateReturnedLoan(GetUser(1), GetBook(12), loanRepository, fineRepository, today.AddDays(-160),
+			today.AddDays(-5));
 		return;
 
 
@@ -261,12 +266,17 @@ public static class DataSeeder
 	}
 
 
-	private static void CreateReturnedLoan(User user, Book book, ILoanRepository loanRepository, DateOnly? loanDate, DateOnly returnDate)
+	private static void CreateReturnedLoan(User user, Book book, ILoanRepository loanRepository,
+		IFineRepository fineRepository, DateOnly? loanDate, DateOnly returnDate)
 	{
 		var loan = new Loan(book, user, loanDate);
 		book.BorrowCopy();
 		loan.MarkAsReturned(returnDate);
+		book.ReturnCopy();
 		loanRepository.Add(loan);
+		if (!(loan.ReturnDate > loan.DueDate)) return;
+		var fine = new Fine(loan);
+		fineRepository.Add(fine);
 	}
 
 

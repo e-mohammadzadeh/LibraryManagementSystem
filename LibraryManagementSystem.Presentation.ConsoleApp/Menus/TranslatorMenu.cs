@@ -224,7 +224,6 @@ public static class TranslatorMenu
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
 						translatorNewFirstName, v => new UpdateTranslatorDto { FirstName = v });
 					if (updated is not null) desiredTranslator = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
@@ -236,7 +235,6 @@ public static class TranslatorMenu
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
 						translatorNewLastName, v => new UpdateTranslatorDto { LastName = v });
 					if (updated is not null) desiredTranslator = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
@@ -246,7 +244,6 @@ public static class TranslatorMenu
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
 						translatorNewNationalCode, v => new UpdateTranslatorDto { NationalCode = v });
 					if (updated is not null) desiredTranslator = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
@@ -256,7 +253,6 @@ public static class TranslatorMenu
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id, translatorNewEmail,
 						v => new UpdateTranslatorDto { Email = v });
 					if (updated is not null) desiredTranslator = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 5:
@@ -266,7 +262,6 @@ public static class TranslatorMenu
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
 						translatorNewPhoneNumber, v => new UpdateTranslatorDto { PhoneNumber = v });
 					if (updated is not null) desiredTranslator = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 6:
@@ -276,7 +271,6 @@ public static class TranslatorMenu
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
 						translatorNewBirthDate, v => new UpdateTranslatorDto { BirthDate = v });
 					if (updated is not null) desiredTranslator = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:

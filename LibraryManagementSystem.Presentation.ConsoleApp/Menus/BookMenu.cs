@@ -305,7 +305,7 @@ public static class BookMenu
 			Console.WriteLine("{0, -30} [{1}]", "7. Genre", desiredBook.Genre);
 			Console.WriteLine("{0, -30} [{1}]", "8. Publisher", desiredBook.Publisher);
 			Console.WriteLine("{0, -30} [{1}]", "9. Description", desiredBook.Description);
-			Console.WriteLine("10. Cancel");
+			Console.WriteLine("10. Back");
 			var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 10);
 			if (editMenuChoice is null) return;
 
@@ -320,7 +320,6 @@ public static class BookMenu
 					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, bookName,
 						v => new UpdateBookDto { BookName = v });
 					if (updated is not null) desiredBook = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
@@ -330,7 +329,6 @@ public static class BookMenu
 					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, isbn,
 						v => new UpdateBookDto { ISBN = v });
 					if (updated is not null) desiredBook = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
@@ -338,7 +336,6 @@ public static class BookMenu
 					Console.Clear();
 					var updated = AuthorSubMenu(desiredBook.BookId, authorManagementService, bookManagementService);
 					if (updated is not null) desiredBook = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
@@ -347,7 +344,6 @@ public static class BookMenu
 					var updated = TranslatorSubMenu(desiredBook.BookId, translatorManagementService,
 						bookManagementService);
 					if (updated is not null) desiredBook = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 5:
@@ -357,7 +353,6 @@ public static class BookMenu
 					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, publishDate,
 						v => new UpdateBookDto { PublishDate = v });
 					if (updated is not null) desiredBook = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 6:
@@ -369,7 +364,6 @@ public static class BookMenu
 					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, totalCopies,
 						v => new UpdateBookDto { TotalCopies = v });
 					if (updated is not null) desiredBook = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
@@ -384,7 +378,6 @@ public static class BookMenu
 					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, genreId - 1,
 						v => new UpdateBookDto { GenreId = v });
 					if (updated is not null) desiredBook = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 8:
@@ -395,7 +388,6 @@ public static class BookMenu
 					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, publisher,
 						v => new UpdateBookDto { Publisher = v });
 					if (updated is not null) desiredBook = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 9:
@@ -405,7 +397,6 @@ public static class BookMenu
 					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, description,
 						v => new UpdateBookDto { Description = v });
 					if (updated is not null) desiredBook = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 10:
@@ -509,7 +500,6 @@ public static class BookMenu
 					break;
 				}
 
-				// Use ReadAuthors with allowMultiple = false — pick exactly one to remove
 				var selectedIds = ConsoleHelper.ReadAuthors(Messages.AuthorSelectionForRemove,
 					currentBook.Authors,
 					false);

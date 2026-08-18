@@ -273,7 +273,7 @@ public static class Messages
 	public const string SelectTranslatorQuestion = "Enter the number of the translator you wish";
 	public const string SelectBookQuestion = "Enter the number of the book you wish";
 	public const string SelectMemberQuestion = "Enter the number of the member you wish";
-	public const string EditContinuesQuestion = "Do you want to edit another field";
+	public const string EditContinuesQuestion = "\nDo you want to edit another field";
 	public const string SelectReplacementTranslators = "Select the new translator(s) for this book";
 	public const string SearchMenuQuestion = "Select a search field by entering its number";
 	public const string TranslatorSelectionForRemove = "Select the translator you want to remove";
@@ -300,9 +300,9 @@ public static class Messages
 	public const string ExitingProgram = "\nExiting Program...";
 
 	// Search Cancelled
-	public const string SearchCancelled = "\nSearch cancelled. Returning to {0} Menu...";
+	public const string SearchCancelled = "\n\nSearch cancelled. Returning to {0} Menu...";
 
 	// Edit Cancelled
-	public const string EditCancelled = "\nEdit cancelled. Returning to {0} Menu...";
+	public const string EditCancelled = "\n\nEdit cancelled. Returning to {0} Menu...";
 
 }

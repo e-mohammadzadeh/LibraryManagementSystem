@@ -258,7 +258,6 @@ public static class UserMenu
 					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewFirstName,
 						v => new UpdateUserDto { FirstName = v });
 					if (updated is not null) desiredUser = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
@@ -270,7 +269,6 @@ public static class UserMenu
 					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewLastName,
 						v => new UpdateUserDto { LastName = v });
 					if (updated is not null) desiredUser = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
@@ -280,7 +278,6 @@ public static class UserMenu
 					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewNationalCode,
 						v => new UpdateUserDto { NationalCode = v });
 					if (updated is not null) desiredUser = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
@@ -290,7 +287,6 @@ public static class UserMenu
 					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewEmail,
 						v => new UpdateUserDto { Email = v });
 					if (updated is not null) desiredUser = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 5:
@@ -300,7 +296,6 @@ public static class UserMenu
 					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewPhoneNumber,
 						v => new UpdateUserDto { PhoneNumber = v });
 					if (updated is not null) desiredUser = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 6:
@@ -310,7 +305,6 @@ public static class UserMenu
 					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewBirthDate,
 						v => new UpdateUserDto { BirthDate = v });
 					if (updated is not null) desiredUser = updated;
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
@@ -323,7 +317,6 @@ public static class UserMenu
 					var dto = new UpdateUserDto { RoleIds = roleIds };
 					var result = userManagementService.UpdateUser(desiredUser.Id, dto);
 					ConsoleHelper.ShowResult(result);
-					ConsoleHelper.Pause();
 					break;
 				}
 				case 8:

@@ -368,7 +368,7 @@ public static class ConsoleHelper
 	public static void ShowInfo(string message)
 	{
 		Console.ForegroundColor = ConsoleColor.Cyan;
-		Console.Write(message);
+		Console.WriteLine(message);
 		Console.ResetColor();
 	}
 

@@ -46,6 +46,7 @@ public static class RolePermissionMap
 			Permission.ViewActiveLoans,
 			Permission.ViewOverdueLoans,
 			Permission.ViewLoanHistory,
+			Permission.MyActiveLoans,
 			Permission.ViewActiveLoansByUser,
 			Permission.ViewActiveLoansByBook,
 			Permission.ViewOverdueLoansByUser,
