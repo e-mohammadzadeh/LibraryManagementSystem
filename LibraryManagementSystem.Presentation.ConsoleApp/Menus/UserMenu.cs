@@ -62,7 +62,7 @@ public static class UserMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.EditUser, Messages.AccessDenied))
 						break;
 					Console.Clear();
-					EditUser(userManagementService, session);
+					EditUser(userManagementService, session, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -221,9 +221,9 @@ public static class UserMenu
 	}
 
 
-	private static void EditUser(UserManagementService userManagementService, ICurrentUserSession session)
+	private static void EditUser(UserManagementService userManagementService, ICurrentUserSession session, IAuthorizationService authorization)
 	{
-		if (session is { IsAdmin: false, IsLibrarian: false })
+		if (!authorization.HasPermission(Permission.EditUser))
 		{
 			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
@@ -236,18 +236,40 @@ public static class UserMenu
 
 		while (true)
 		{
-			Console.WriteLine("\n{0, -20} [{1}]", "1. First Name", desiredUser.FirstName);
-			Console.WriteLine("{0, -20} [{1}]", "2. Last Name", desiredUser.LastName);
-			Console.WriteLine("{0, -20} [{1}]", "3. National Code", desiredUser.NationalCode);
-			Console.WriteLine("{0, -20} [{1}]", "4. Email", desiredUser.Email);
-			Console.WriteLine("{0, -20} [{1}]", "5. Phone Number", desiredUser.PhoneNumber);
-			Console.WriteLine("{0, -20} [{1}]", "6. Birth Date", desiredUser.BirthDate);
-			Console.WriteLine("{0, -20} [{1}]", "7. Role", string.Join(", ", desiredUser.Roles));
-			Console.WriteLine("8. Cancel");
-			var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 8);
+			Console.Clear();
+
+			var items = new List<(int ActionId, string Label, string Value)>
+			{
+				(1, "First Name", desiredUser.FirstName),
+				(2, "Last Name", desiredUser.LastName),
+				(3, "National Code", desiredUser.NationalCode),
+				(4, "Email", desiredUser.Email),
+				(5, "Phone Number", desiredUser.PhoneNumber),
+				(6, "Birth Date", desiredUser.BirthDate.ToString()),
+			};
+
+			if (authorization.HasPermission(Permission.ChangeUserRoles))
+				items.Add((7, "Role", string.Join(", ", desiredUser.Roles)));
+
+			items.Add((8, "Back", ""));
+
+			var displayNumber = 1;
+			foreach (var item in items)
+			{
+				if (item.ActionId == 8)
+					Console.WriteLine("{0}. {1}", displayNumber, item.Label);
+				else
+					Console.WriteLine("{0}. {1, -20} [{2}]", displayNumber, item.Label, item.Value);
+
+				displayNumber++;
+			}
+
+
+
+			var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, items.Count);
 			if (editMenuChoice == null) return;
 
-			switch (editMenuChoice)
+			switch (items[editMenuChoice.Value - 1].ActionId)
 			{
 				case 1:
 				{
@@ -309,13 +331,18 @@ public static class UserMenu
 				}
 				case 7:
 				{
+					if (!authorization.HasPermission(Permission.ChangeUserRoles))
+					{
+						ConsoleHelper.ShowError(Messages.AccessDenied);
+						break;
+					}
+
 					Console.Clear();
 					var availableRoles = userManagementService.GetAllRoles();
 					var roleIds = ConsoleHelper.ReadRoles("Select role(s) for this user", availableRoles);
 					if (roleIds is null) break;
 
-					var dto = new UpdateUserDto { RoleIds = roleIds };
-					var result = userManagementService.UpdateUser(desiredUser.Id, dto);
+					var result = userManagementService.UpdateUser(desiredUser.Id, new UpdateUserDto { RoleIds = roleIds });
 					ConsoleHelper.ShowResult(result);
 					break;
 				}

@@ -304,13 +304,6 @@ public static class LoanMenu
 		UserManagementService userManagementService, BookManagementService bookManagementService,
 		ICurrentUserSession session, IAuthorizationService authorization)
 	{
-		//if (authorization.HasPermission(Permission.MyActiveLoans))
-		//{
-		//	var loans = loanManagementService.GetAllActiveLoans(session);
-		//	Console.WriteLine(loans.Count);
-		//	DisplayLoans(loans, Messages.NoActiveLoans);
-		//	return;
-		//}
 		var canViewOwn = authorization.HasPermission(Permission.MyActiveLoans);
 		var canViewByUser = authorization.HasPermission(Permission.ViewActiveLoansByUser);
 		var canViewByBook = authorization.HasPermission(Permission.ViewActiveLoansByBook);

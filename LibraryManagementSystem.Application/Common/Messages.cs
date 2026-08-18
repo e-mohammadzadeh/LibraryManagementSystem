@@ -189,6 +189,7 @@ public static class Messages
 	public const string NotRoleMatched = "No roles matched your search.";
 	public const string SelectRolePrompt = "Select a role for this user:";
 	public const string NotAvailableRoles = "One or more selected roles do not exist.";
+	public const string AdminCanChangeRole = "Only Admin can change user roles.";
 
 
 

@@ -110,6 +110,9 @@ public class UserManagementService
 		List<Role>? resolvedRoles = null;
 		if (dto.RoleIds.Count != 0)
 		{
+			if (!_authorization.HasPermission(Permission.ChangeUserRoles))
+				return ServiceResult<UserDto>.Fail(Messages.AdminCanChangeRole);
+
 			resolvedRoles = [.. _roleRepository.FindByIds(dto.RoleIds)];
 			if (resolvedRoles.Count != dto.RoleIds.Count)
 				return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
@@ -170,8 +173,7 @@ public class UserManagementService
 
 	private bool CanRemoveUser(ICurrentUserSession session, User targetUser)
 	{
-		if (!_authorization.HasPermission(Permission.RemoveUser))
-			return false;
+		if (!_authorization.HasPermission(Permission.RemoveUser)) return false;
 
 		var targetRoles = targetUser.UserRoles.Select(ur => ur.Role.Name).ToList();
 

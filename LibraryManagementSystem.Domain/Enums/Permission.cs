@@ -62,6 +62,7 @@ public enum Permission
 	// Users
 	AddUser,
 	EditUser,
+	ChangeUserRoles,
 	RemoveUser,
 	SearchUser,
 	ViewUserDetails,
