@@ -7,7 +7,6 @@ using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
 
-
 namespace LibraryManagementSystem.Application.Services;
 
 public class UserManagementService
@@ -33,8 +32,11 @@ public class UserManagementService
 	}
 
 
-	public ServiceResult<UserDto> AddUser(CreateUserDto dto)
+	public ServiceResult<UserDto> AddUser(CreateUserDto dto, ICurrentUserSession session)
 	{
+		if (!_authorization.HasPermission(Permission.AddUser))
+			return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
+
 		string? warningMessage = null;
 
 		if (_userRepository.ExistsByNationalCode(dto.NationalCode))
@@ -53,6 +55,17 @@ public class UserManagementService
 
 		var roles = _roleRepository.FindByIds(dto.RoleIds);
 		if (roles.Count != dto.RoleIds.Count) return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
+
+		if (roles.Select(role => role.Name switch
+		    {
+			    LibraryUserRole.Member => _authorization.HasPermission(Permission.AssignMemberRole),
+			    LibraryUserRole.Librarian => _authorization.HasPermission(Permission.AssignLibrarianRole),
+			    LibraryUserRole.Admin => _authorization.HasPermission(Permission.AssignAdminRole),
+			    _ => false
+		    }).Any(allowed => !allowed))
+		{
+			return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
+		}
 
 		var result = _passwordHasher.CreatePasswordHash(dto.Password);
 
@@ -108,14 +121,25 @@ public class UserManagementService
 			return ServiceResult<UserDto>.Fail(Messages.FailureDuplicateRolesSelected);
 
 		List<Role>? resolvedRoles = null;
-		if (dto.RoleIds.Count != 0)
+		if (dto.RoleIds is { Count: > 0 })
 		{
-			if (!_authorization.HasPermission(Permission.ChangeUserRoles))
-				return ServiceResult<UserDto>.Fail(Messages.AdminCanChangeRole);
+			if (dto.RoleIds.Count != dto.RoleIds.Distinct().Count())
+				return ServiceResult<UserDto>.Fail(Messages.FailureDuplicateRolesSelected);
 
 			resolvedRoles = [.. _roleRepository.FindByIds(dto.RoleIds)];
 			if (resolvedRoles.Count != dto.RoleIds.Count)
 				return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
+
+			if (resolvedRoles.Select(role => role.Name switch
+			    {
+				    LibraryUserRole.Member => _authorization.HasPermission(Permission.AssignMemberRole),
+				    LibraryUserRole.Librarian => _authorization.HasPermission(Permission.AssignLibrarianRole),
+				    LibraryUserRole.Admin => _authorization.HasPermission(Permission.AssignAdminRole),
+				    _ => false
+			    }).Any(allowed => !allowed))
+			{
+				return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
+			}
 		}
 
 		user.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,

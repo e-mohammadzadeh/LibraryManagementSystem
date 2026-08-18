@@ -94,6 +94,7 @@ public static class RolePermissionMap
 			Permission.MyOverdueLoans,
 
 			Permission.ChangeOwnPassword,
+			Permission.AssignMemberRole
 		]
 	};
 

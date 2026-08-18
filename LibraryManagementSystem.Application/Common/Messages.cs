@@ -190,6 +190,8 @@ public static class Messages
 	public const string SelectRolePrompt = "Select a role for this user:";
 	public const string NotAvailableRoles = "One or more selected roles do not exist.";
 	public const string AdminCanChangeRole = "Only Admin can change user roles.";
+	public const string NoRolesToAssign = "No roles available to assign.";
+	public const string CanOnlyAssignAllowedRoles = "You are not allowed to assign one or more of the selected roles.";
 
 
 
@@ -275,6 +277,7 @@ public static class Messages
 	public const string SelectBookQuestion = "Enter the number of the book you wish";
 	public const string SelectMemberQuestion = "Enter the number of the member you wish";
 	public const string EditContinuesQuestion = "\nDo you want to edit another field";
+	public const string PasswordPrompt = "Enter a password for the user's login account";
 	public const string SelectReplacementTranslators = "Select the new translator(s) for this book";
 	public const string SearchMenuQuestion = "Select a search field by entering its number";
 	public const string TranslatorSelectionForRemove = "Select the translator you want to remove";

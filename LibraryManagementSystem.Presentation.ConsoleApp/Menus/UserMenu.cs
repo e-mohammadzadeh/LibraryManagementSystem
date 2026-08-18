@@ -6,6 +6,7 @@ using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
+using LibraryManagementSystem.Domain.Entities;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
@@ -53,7 +54,7 @@ public static class UserMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.AddUser, Messages.AccessDenied))
 						break;
 					Console.Clear();
-					AddUser(userManagementService, session);
+					AddUser(userManagementService, session, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -62,7 +63,7 @@ public static class UserMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.EditUser, Messages.AccessDenied))
 						break;
 					Console.Clear();
-					EditUser(userManagementService, session, authorization);
+					EditUser(userManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -184,33 +185,44 @@ public static class UserMenu
 	}
 
 
-	private static void AddUser(UserManagementService userManagementService, ICurrentUserSession session)
+	private static void AddUser(UserManagementService userManagementService, ICurrentUserSession session,
+		IAuthorizationService authorization)
 	{
-		if (session is { IsAdmin: false, IsLibrarian: false })
+		if (!authorization.HasPermission(Permission.AddUser))
 		{
 			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
 		}
 
 		Console.WriteLine(new string('=', 36) + " ADDING USER MENU " + new string('=', 36));
-		var userDto = PromptForUserDto(userManagementService);
+		var userDto = PromptForUserDto(userManagementService, authorization);
 		if (userDto is null) return;
 
-		var result = userManagementService.AddUser(userDto);
+		var result = userManagementService.AddUser(userDto, session);
 		ConsoleHelper.ShowResult(result);
 	}
 
 
-	private static CreateUserDto? PromptForUserDto(UserManagementService userManagementService)
+	private static CreateUserDto? PromptForUserDto(UserManagementService userManagementService,
+		IAuthorizationService authorization)
 	{
 		var fields = PersonHelper.PromptForPersonFields("user");
 		if (fields is null) return null;
 
-		var availableRoles = userManagementService.GetAllRoles();
-		var roleIds = ConsoleHelper.ReadRoles("Select role(s) for this user", availableRoles);
+		var availableRoles = GetAssignableRoles(userManagementService, authorization);
+		if (availableRoles.Count == 0)
+		{
+			ConsoleHelper.ShowError(Messages.NoRolesToAssign);
+			return null;
+		}
+
+		var allowMultiple = authorization.HasAnyPermission(Permission.AssignLibrarianRole, Permission.AssignAdminRole);
+
+		var roleIds =
+			ConsoleHelper.ReadRoles("Select role(s) for this user", availableRoles, allowMultiple: allowMultiple);
 		if (roleIds == null) return null;
 
-		var password = ConsoleHelper.GetValidPassword("Enter a password for the user's login account");
+		var password = ConsoleHelper.GetValidPassword(Messages.PasswordPrompt);
 
 		return new CreateUserDto()
 		{
@@ -221,7 +233,26 @@ public static class UserMenu
 	}
 
 
-	private static void EditUser(UserManagementService userManagementService, ICurrentUserSession session, IAuthorizationService authorization)
+	private static IReadOnlyList<Role> GetAssignableRoles(UserManagementService userManagementService,
+		IAuthorizationService authorization)
+	{
+		var all = userManagementService.GetAllRoles();
+		return
+		[
+			.. all
+				.Where(role => role.Name switch
+				{
+					LibraryUserRole.Member => authorization.HasPermission(Permission.AssignMemberRole),
+					LibraryUserRole.Librarian => authorization.HasPermission(Permission.AssignLibrarianRole),
+					LibraryUserRole.Admin => authorization.HasPermission(Permission.AssignAdminRole),
+					_ => false
+				})
+		];
+	}
+
+
+
+	private static void EditUser(UserManagementService userManagementService, IAuthorizationService authorization)
 	{
 		if (!authorization.HasPermission(Permission.EditUser))
 		{
@@ -263,7 +294,6 @@ public static class UserMenu
 
 				displayNumber++;
 			}
-
 
 
 			var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, items.Count);
@@ -331,7 +361,8 @@ public static class UserMenu
 				}
 				case 7:
 				{
-					if (!authorization.HasPermission(Permission.ChangeUserRoles))
+					if (!authorization.HasPermission(Permission.ChangeUserRoles) &&
+					    !authorization.HasAnyPermission(Permission.AssignLibrarianRole, Permission.AssignAdminRole))
 					{
 						ConsoleHelper.ShowError(Messages.AccessDenied);
 						break;
@@ -342,7 +373,8 @@ public static class UserMenu
 					var roleIds = ConsoleHelper.ReadRoles("Select role(s) for this user", availableRoles);
 					if (roleIds is null) break;
 
-					var result = userManagementService.UpdateUser(desiredUser.Id, new UpdateUserDto { RoleIds = roleIds });
+					var result =
+						userManagementService.UpdateUser(desiredUser.Id, new UpdateUserDto { RoleIds = roleIds });
 					ConsoleHelper.ShowResult(result);
 					break;
 				}

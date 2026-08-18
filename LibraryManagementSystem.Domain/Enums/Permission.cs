@@ -61,6 +61,9 @@ public enum Permission
 
 	// Users
 	AddUser,
+	AssignMemberRole,
+	AssignLibrarianRole,
+	AssignAdminRole,
 	EditUser,
 	ChangeUserRoles,
 	RemoveUser,
