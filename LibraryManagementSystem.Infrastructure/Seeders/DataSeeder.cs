@@ -280,13 +280,13 @@ public static class DataSeeder
 	}
 
 
-	private static void SeedFines(ILoanRepository loanRepository, IFineRepository fineRepository)
-	{
-		var overdueReturnedLoans = loanRepository.GetReturnedLoans().Where(loan => loan.ReturnDate > loan.DueDate);
+	//private static void SeedFines(ILoanRepository loanRepository, IFineRepository fineRepository)
+	//{
+	//	var overdueReturnedLoans = loanRepository.GetReturnedLoans().Where(loan => loan.ReturnDate > loan.DueDate);
 
-		foreach (var loan in overdueReturnedLoans)
-		{
-			fineRepository.Add(new Fine(loan));
-		}
-	}
+	//	foreach (var loan in overdueReturnedLoans)
+	//	{
+	//		fineRepository.Add(new Fine(loan));
+	//	}
+	//}
 }

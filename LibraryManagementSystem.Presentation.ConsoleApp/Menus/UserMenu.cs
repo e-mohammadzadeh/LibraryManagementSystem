@@ -23,6 +23,7 @@ public static class UserMenu
 			    Permission.RemoveUser,
 			    Permission.SearchUser,
 			    Permission.ViewUserDetails,
+			    Permission.ViewOwnDetails,
 			    Permission.ViewAllUsers,
 			    Permission.ChangePassword,
 			    Permission.ChangeOwnPassword,
@@ -54,7 +55,7 @@ public static class UserMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.AddUser, Messages.AccessDenied))
 						break;
 					Console.Clear();
-					AddUser(userManagementService, session, authorization);
+					AddUser(userManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -87,11 +88,11 @@ public static class UserMenu
 				}
 				case 5:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewUserDetails,
-						    Messages.AccessDenied))
+					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
+						    Permission.ViewUserDetails, Permission.ViewOwnDetails))
 						break;
 					Console.Clear();
-					ViewUserDetails(userManagementService, session);
+					ViewUserDetails(userManagementService, session, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -146,7 +147,7 @@ public static class UserMenu
 			(2, "Edit User", authorization.HasPermission(Permission.EditUser)),
 			(3, "Remove User", authorization.HasPermission(Permission.RemoveUser)),
 			(4, "Search User", authorization.HasPermission(Permission.SearchUser)),
-			(5, "View User Details", authorization.HasPermission(Permission.ViewUserDetails)),
+			(5, "View User Details", authorization.HasAnyPermission(Permission.ViewUserDetails, Permission.ViewOwnDetails)),
 			(6, "View All Users", authorization.HasPermission(Permission.ViewAllUsers)),
 			(7, "Renew Membership",
 				authorization.HasAnyPermission(Permission.RenewMemberMembership, Permission.RenewLibrarianMembership)),
@@ -185,8 +186,7 @@ public static class UserMenu
 	}
 
 
-	private static void AddUser(UserManagementService userManagementService, ICurrentUserSession session,
-		IAuthorizationService authorization)
+	private static void AddUser(UserManagementService userManagementService, IAuthorizationService authorization)
 	{
 		if (!authorization.HasPermission(Permission.AddUser))
 		{
@@ -198,7 +198,7 @@ public static class UserMenu
 		var userDto = PromptForUserDto(userManagementService, authorization);
 		if (userDto is null) return;
 
-		var result = userManagementService.AddUser(userDto, session);
+		var result = userManagementService.AddUser(userDto);
 		ConsoleHelper.ShowResult(result);
 	}
 
@@ -445,7 +445,7 @@ public static class UserMenu
 			Console.WriteLine("{0, -20}", "3. Email");
 			Console.WriteLine("{0, -20}", "4. Phone Number");
 			Console.WriteLine("{0, -20}", "5. Role");
-			Console.WriteLine("6. Cancel");
+			Console.WriteLine("6. Back");
 
 			var searchMenuChoice = ConsoleHelper.ReadInt(Messages.SearchMenuQuestion, 1, 6);
 			if (searchMenuChoice is null) return;
@@ -523,19 +523,74 @@ public static class UserMenu
 	}
 
 
-	private static void ViewUserDetails(UserManagementService userManagementService, ICurrentUserSession session)
+	private static void ViewUserDetails(UserManagementService userManagementService, ICurrentUserSession session,
+		IAuthorizationService authorization)
 	{
-		UserDto? userDto;
-		if (session.IsAuthenticated)
+		var canViewOwn = authorization.HasPermission(Permission.ViewOwnDetails);
+		var canViewOthers = authorization.HasPermission(Permission.ViewUserDetails);
+
+		if (!canViewOwn && !canViewOthers)
 		{
-			userDto = userManagementService.FindUserById(session.UserId!.Value);
-		}
-		else
-		{
-			userDto = MenuHelper.SelectExisting(userManagementService.GetAllUsers(), MenuHelper.SelectUser,
-				Messages.NotAvailableUser);
+			ConsoleHelper.ShowError(Messages.AccessDenied);
+			return;
 		}
 
+		if (!canViewOthers)
+		{
+			ViewOwnDetails(userManagementService, session);
+			return;
+		}
+
+		while (true)
+		{
+			Console.Clear();
+			Console.WriteLine(new string('=', 36) + " USER DETAILS " + new string('=', 36));
+			Console.WriteLine("1. View Own Details");
+			Console.WriteLine("2. View User Details");
+			Console.WriteLine("3. Back");
+			Console.WriteLine(new string('=', 82));
+
+			var choice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 3);
+			if (choice is null) return;
+			switch (choice)
+			{
+				case 1:
+				{
+					Console.Clear();
+					ViewOwnDetails(userManagementService, session);
+					ConsoleHelper.Pause();
+					break;
+				}
+
+				case 2:
+				{
+					Console.Clear();
+					var userDto = MenuHelper.SelectExisting(userManagementService.GetAllUsers(), MenuHelper.SelectUser,
+						Messages.NotAvailableUser);
+					if (userDto is null) return;
+					UserPrinter.PrintDetails(userDto);
+					ConsoleHelper.Pause();
+					break;
+				}
+
+				case 3:
+				{
+					return;
+				}
+			}
+		}
+	}
+
+
+	private static void ViewOwnDetails(UserManagementService userManagementService, ICurrentUserSession session)
+	{
+		if (session.UserId is null)
+		{
+			ConsoleHelper.ShowError(Messages.AuthenticationRequired);
+			return;
+		}
+
+		var userDto = userManagementService.FindUserById(session.UserId.Value);
 		if (userDto is null)
 		{
 			ConsoleHelper.ShowError(Messages.NotUserMatched);
@@ -549,7 +604,7 @@ public static class UserMenu
 	private static void RenewMembership(UserManagementService userManagementService,
 		IAuthorizationService authorization)
 	{
-		Console.WriteLine(new string('=', 36) + " RENEW MEMBERSHIP " + new string('=', 36));
+		Console.WriteLine(new string('=', 56) + " RENEW MEMBERSHIP " + new string('=', 56));
 
 		var canRenewMembers = authorization.HasPermission(Permission.RenewMemberMembership);
 		var canRenewLibrarians = authorization.HasPermission(Permission.RenewLibrarianMembership);

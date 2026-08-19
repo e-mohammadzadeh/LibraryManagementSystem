@@ -60,6 +60,7 @@ public static class RolePermissionMap
 			Permission.EditUser,
 			Permission.SearchUser,
 			Permission.ViewUserDetails,
+			Permission.ViewOwnDetails,
 			Permission.ViewAllUsers,
 			Permission.ChangePassword,
 			Permission.RenewMemberMembership,
@@ -93,6 +94,7 @@ public static class RolePermissionMap
 			Permission.MyActiveLoans,
 			Permission.MyOverdueLoans,
 
+			Permission.ViewOwnDetails,
 			Permission.ChangeOwnPassword,
 			Permission.AssignMemberRole
 		]

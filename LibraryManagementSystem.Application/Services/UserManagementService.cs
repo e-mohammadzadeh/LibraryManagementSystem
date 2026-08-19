@@ -7,6 +7,7 @@ using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
 
+
 namespace LibraryManagementSystem.Application.Services;
 
 public class UserManagementService
@@ -32,7 +33,7 @@ public class UserManagementService
 	}
 
 
-	public ServiceResult<UserDto> AddUser(CreateUserDto dto, ICurrentUserSession session)
+	public ServiceResult<UserDto> AddUser(CreateUserDto dto)
 	{
 		if (!_authorization.HasPermission(Permission.AddUser))
 			return ServiceResult<UserDto>.Fail(Messages.AccessDenied);

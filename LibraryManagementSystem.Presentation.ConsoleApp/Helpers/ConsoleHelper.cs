@@ -211,8 +211,7 @@ public static class ConsoleHelper
 		{
 			var cleaned = part.Trim();
 			if (!int.TryParse(cleaned, out var id)) return (false, null, $"{cleaned} is not a valid number.");
-			if (validOptions.All(o => o.Id != id))
-				return (false, null, string.Format(Messages.InvalidIdSelection, id));
+			if (validOptions.All(o => o.Id != id)) return (false, null, string.Format(Messages.InvalidIdSelection, id));
 			result.Add(id);
 		}
 
@@ -336,7 +335,8 @@ public static class ConsoleHelper
 				ShowError(result.Message ?? "Failed");
 				break;
 			default:
-				throw new ArgumentOutOfRangeException();
+				throw new ArgumentOutOfRangeException(nameof(result), result.Status,
+					$"Unexpected result status: {result.Status}");
 		}
 	}
 
@@ -399,7 +399,8 @@ public static class ConsoleHelper
 		return (LoanStatus)(choice.Value - 1);
 	}
 
-	public static void Pause() 
+
+	public static void Pause()
 	{
 		ShowInfo(Messages.PressToContinue);
 		Console.ReadKey(true);

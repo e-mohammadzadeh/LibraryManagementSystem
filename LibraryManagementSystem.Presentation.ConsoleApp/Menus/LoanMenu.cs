@@ -252,6 +252,7 @@ public static class LoanMenu
 			userId = user.Id;
 		}
 
+		Console.Clear();
 		var result = loanManagementService.GetActiveLoansByUser(userId, session);
 		if (!result.Success)
 		{
