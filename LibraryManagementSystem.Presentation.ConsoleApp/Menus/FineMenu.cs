@@ -211,6 +211,7 @@ public static class FineMenu
 	{
 		while (true)
 		{
+			Console.Clear();
 			Console.WriteLine(new string('=', 36) + " VIEW FINE MENU " + new string('=', 36));
 			Console.WriteLine("1. View Fines By User");
 			Console.WriteLine("2. Back");
@@ -229,6 +230,7 @@ public static class FineMenu
 
 					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
 					if (user is null) break;
+					Console.Clear();
 
 					var fines = fineManagementService.GetFinesByUser(user.Id);
 					DisplayFines(fines, Messages.FineNotFound);
@@ -273,6 +275,7 @@ public static class FineMenu
 	{
 		while (true)
 		{
+			Console.Clear();
 			Console.WriteLine(new string('=', 33) + " VIEW UNPAID FINE MENU " + new string('=', 33));
 			Console.WriteLine("1. View Unpaid Fines By User");
 			Console.WriteLine("2. Back");
@@ -291,6 +294,7 @@ public static class FineMenu
 
 					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
 					if (user is null) break;
+					Console.Clear();
 
 					var fines = fineManagementService.GetUnpaidFinesByUser(user.Id);
 					DisplayFines(fines, Messages.UnpaidFineNotFound);
@@ -319,6 +323,7 @@ public static class FineMenu
 
 		while (true)
 		{
+			Console.Clear();
 			switch (HistoryMenuList(authorization))
 			{
 				case 1:
@@ -393,6 +398,7 @@ public static class FineMenu
 
 		var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
 		if (user is null) return;
+		Console.Clear();
 		var fines = fineManagementService.GetFineHistoryByUser(user.Id, session);
 		DisplayFines(fines, Messages.FineNotFound);
 	}

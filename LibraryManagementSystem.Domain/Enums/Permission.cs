@@ -55,6 +55,7 @@ public enum Permission
 	LoanHistoryByUser,
 	LoanHistoryByBook,
 	FullLibraryHistory,
+	MyFullLoanHistory,
 	SearchLoans,
 	
 

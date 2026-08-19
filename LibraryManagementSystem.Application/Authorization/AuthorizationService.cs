@@ -66,14 +66,14 @@ public class AuthorizationService : IAuthorizationService
 			Permission.MyActiveLoans, Permission.ViewActiveLoansByUser, Permission.ViewActiveLoansByBook,
 			Permission.MyOverdueLoans, Permission.ViewOverdueLoansByUser, Permission.ViewOverdueLoansByBook,
 			Permission.LoanHistoryByUser, Permission.LoanHistoryByBook, Permission.FullLibraryHistory,
-			Permission.SearchLoans);
+			Permission.MyFullLoanHistory, Permission.SearchLoans);
 	}
 
 
 	public bool CanAccessUserManagement()
 	{
 		return HasAnyPermission(Permission.AddUser, Permission.EditUser, Permission.RemoveUser, Permission.SearchUser,
-			Permission.ViewUserDetails, Permission.ViewOwnDetails ,Permission.ViewAllUsers, Permission.ChangePassword,
+			Permission.ViewUserDetails, Permission.ViewOwnDetails, Permission.ViewAllUsers, Permission.ChangePassword,
 			Permission.ChangeOwnPassword, Permission.RenewLibrarianMembership, Permission.RenewMemberMembership);
 	}
 

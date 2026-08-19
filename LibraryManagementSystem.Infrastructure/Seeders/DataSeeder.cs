@@ -177,6 +177,7 @@ public static class DataSeeder
 
 		var member4 = new User("Narges", "Salehi", "3780254908", "n.salehi@example.com", "09120000017",
 			new DateOnly(2001, 2, 28), [memberRole], membershipStartDate: new DateOnly(2025, 10, 1));
+		SetPassword(member4, "Member4@123");
 
 		var member5 = new User("Ali", "Rezaei", "3780254909", "a.rezaei@example.com", "09120000018",
 			new DateOnly(1997, 6, 15), [memberRole]);

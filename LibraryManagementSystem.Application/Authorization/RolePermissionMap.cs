@@ -93,6 +93,7 @@ public static class RolePermissionMap
 			Permission.RenewLoan,
 			Permission.MyActiveLoans,
 			Permission.MyOverdueLoans,
+			Permission.MyFullLoanHistory,
 
 			Permission.ViewOwnDetails,
 			Permission.ChangeOwnPassword,

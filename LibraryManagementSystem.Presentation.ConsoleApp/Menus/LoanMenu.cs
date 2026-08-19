@@ -140,7 +140,7 @@ public static class LoanMenu
 			(4, "Active Loans", authorization.HasAnyPermission(Permission.MyActiveLoans, Permission.ViewActiveLoans)),
 			(5, "Overdue Loans",
 				authorization.HasAnyPermission(Permission.MyOverdueLoans, Permission.ViewOverdueLoans)),
-			(6, "History", authorization.HasPermission(Permission.ViewLoanHistory)),
+			(6, "History", authorization.HasAnyPermission(Permission.ViewLoanHistory, Permission.MyFullLoanHistory)),
 			(7, "Search Loans", authorization.HasPermission(Permission.SearchLoans)),
 			(8, "Back", true)
 		};
@@ -171,6 +171,7 @@ public static class LoanMenu
 			if (userChoice >= 1 && userChoice <= availableItems.Count) return availableItems[userChoice - 1].ActionId;
 
 			ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
+
 		}
 	}
 
@@ -203,6 +204,8 @@ public static class LoanMenu
 			ConsoleHelper.ShowError(Messages.BorrowFailedForUnauthorized);
 			return;
 		}
+
+		Console.Clear();
 
 		var availableBooks = bookManagementService.GetAvailableBooks();
 		if (availableBooks.Count is 0)
@@ -314,6 +317,15 @@ public static class LoanMenu
 			return;
 		}
 
+		if (canViewOwn && !canViewByUser && !canViewByBook)
+		{
+			Console.Clear();
+
+			var loans = loanManagementService.GetAllActiveLoans(session);
+			DisplayLoans(loans, Messages.NoActiveLoans);
+			return;
+		}
+
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
 			(1, "Own Active Loans", canViewOwn),
@@ -332,7 +344,7 @@ public static class LoanMenu
 			Console.WriteLine(new string('=', 82));
 
 			var choice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, availableItems.Count);
-			if (choice == null) return;
+			if (choice is null) return;
 
 			switch (availableItems[choice.Value - 1].ActionId)
 			{
@@ -373,6 +385,7 @@ public static class LoanMenu
 	{
 		var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
 		if (user is null) return;
+		Console.Clear();
 		var result = loanManagementService.GetActiveLoansByUser(user.Id, session);
 		if (!result.Success)
 		{
@@ -489,26 +502,46 @@ public static class LoanMenu
 		UserManagementService userManagementService, BookManagementService bookManagementService,
 		ICurrentUserSession session, IAuthorizationService authorization)
 	{
-		if (!authorization.HasAnyPermission(Permission.LoanHistoryByUser, Permission.LoanHistoryByBook,
-			    Permission.FullLibraryHistory))
+		var canViewOwn = authorization.HasPermission(Permission.MyFullLoanHistory);
+		var canViewByUser = authorization.HasPermission(Permission.LoanHistoryByUser);
+		var canViewByBook = authorization.HasPermission(Permission.LoanHistoryByBook);
+		var canViewFull = authorization.HasPermission(Permission.FullLibraryHistory);
+
+		switch (canViewOwn)
 		{
-			ConsoleHelper.ShowError(Messages.AccessDenied);
-			return;
+			case false when !canViewByUser && !canViewByBook && !canViewFull:
+				ConsoleHelper.ShowError(Messages.AccessDenied);
+				return;
+			case true when !canViewByUser && !canViewByBook && !canViewFull:
+			{
+				var loans = loanManagementService.GetLoansByUser(session.UserId!.Value, session);
+				DisplayLoans(loans, Messages.UserHasNoBorrowedBooks);
+				return;
+			}
 		}
 
-		Console.WriteLine(new string('=', 36) + " HISTORY MENU " + new string('=', 36));
+		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
+		{
+			(1, "History By User", canViewByUser),
+			(2, "History By Book", canViewByBook),
+			(3, "Full Library History", canViewFull),
+			(4, "Back", true)
+		};
+
+		var availableItems = items.Where(i => i.IsAvailable).ToList();
+
 		while (true)
 		{
 			Console.Clear();
-			Console.WriteLine("1. History By User");
-			Console.WriteLine("2. History By Book");
-			Console.WriteLine("3. Full Library History");
-			Console.WriteLine("4. Back");
+			Console.WriteLine(new string('=', 36) + " HISTORY MENU " + new string('=', 36));
+			for (var i = 0; i < availableItems.Count; i++)
+				Console.WriteLine($"{i + 1}. {availableItems[i].DisplayText}");
+			Console.WriteLine(new string('=', 82));
 
-			var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 4);
-			if (editMenuChoice == null) return;
+			var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, availableItems.Count);
+			if (editMenuChoice is null) return;
 
-			switch (editMenuChoice)
+			switch (availableItems[editMenuChoice.Value - 1].ActionId)
 			{
 				case 1:
 				{
