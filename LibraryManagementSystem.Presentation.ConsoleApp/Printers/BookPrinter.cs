@@ -9,6 +9,8 @@ public static class BookPrinter
 {
 	public static void PrintDetails(BookDto book)
 	{
+		Console.Clear();
+
 		var authorsNameDisplay = string.Join(", ", book.Authors.Select(a => a.FullName));
 		var translatorsNameDisplay = string.Join(", ", book.Translators.Select(t => t.FullName));
 		var authorsEmailDisplay = string.Join(", ", book.Authors.Select(a => a.Email));
@@ -38,7 +40,7 @@ public static class BookPrinter
 			ConsoleHelper.ShowError(Messages.NotAvailableBook);
 			return;
 		}
-
+		Console.Clear();
 		Console.WriteLine("\n{0,-3} {1, -60} {2, -50} {3, -20} {4, -30} {5, -6}", "ID", "Book Name", "Author Name",
 			"ISBN", "Translator Name", "Copies");
 		Console.WriteLine(new string('=', 190));

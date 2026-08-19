@@ -282,7 +282,6 @@ public static class TranslatorMenu
 
 			var choice = ConsoleHelper.ReadYesNo(Messages.EditContinuesQuestion);
 			if (choice != true) return;
-			Console.Clear();
 		}
 	}
 

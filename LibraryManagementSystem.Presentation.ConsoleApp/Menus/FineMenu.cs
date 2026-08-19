@@ -398,7 +398,6 @@ public static class FineMenu
 
 		var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
 		if (user is null) return;
-		Console.Clear();
 		var fines = fineManagementService.GetFineHistoryByUser(user.Id, session);
 		DisplayFines(fines, Messages.FineNotFound);
 	}

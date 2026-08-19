@@ -8,6 +8,8 @@ public static class FinePrinter
 {
 	public static void PrintDetails(FineDto fine)
 	{
+		Console.Clear();
+
 		Console.WriteLine("\n\nFine Details:");
 		Console.WriteLine("{0, -20} [{1}]", "Fine ID:", fine.FineId);
 		Console.WriteLine("{0, -20} [{1}]", "Loan ID:", fine.LoanId);
@@ -32,6 +34,7 @@ public static class FinePrinter
 			return;
 		}
 
+		Console.Clear();
 		Console.WriteLine("\n{0,-4} {1,-8} {2,-35} {3,-35} {4,-10} {5,-8} {6,-10}", "ID", "Loan ID", "User", "Book",
 			"Amount", "Days", "Status");
 		Console.WriteLine(new string('=', 130));

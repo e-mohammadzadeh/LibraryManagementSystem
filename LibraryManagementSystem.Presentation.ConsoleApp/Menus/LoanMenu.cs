@@ -205,8 +205,6 @@ public static class LoanMenu
 			return;
 		}
 
-		Console.Clear();
-
 		var availableBooks = bookManagementService.GetAvailableBooks();
 		if (availableBooks.Count is 0)
 		{
@@ -255,7 +253,6 @@ public static class LoanMenu
 			userId = user.Id;
 		}
 
-		Console.Clear();
 		var result = loanManagementService.GetActiveLoansByUser(userId, session);
 		if (!result.Success)
 		{
@@ -319,10 +316,7 @@ public static class LoanMenu
 
 		if (canViewOwn && !canViewByUser && !canViewByBook)
 		{
-			Console.Clear();
-
-			var loans = loanManagementService.GetAllActiveLoans(session);
-			DisplayLoans(loans, Messages.NoActiveLoans);
+			DisplayLoans(loanManagementService.GetAllActiveLoans(session), Messages.NoActiveLoans);
 			return;
 		}
 
@@ -385,7 +379,7 @@ public static class LoanMenu
 	{
 		var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
 		if (user is null) return;
-		Console.Clear();
+		
 		var result = loanManagementService.GetActiveLoansByUser(user.Id, session);
 		if (!result.Success)
 		{

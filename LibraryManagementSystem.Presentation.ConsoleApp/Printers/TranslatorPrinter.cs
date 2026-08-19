@@ -6,7 +6,10 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
 public class TranslatorPrinter
 {
-	public static void PrintDetails(TranslatorDto translator) {
+	public static void PrintDetails(TranslatorDto translator)
+	{
+		Console.Clear();
+
 		Console.WriteLine("\n\nTranslator Details:");
 		Console.WriteLine("{0, -20} [{1}]", "ID:", translator.Id);
 		Console.WriteLine("{0, -20} [{1}]", "Name:", translator.FullName);
@@ -20,13 +23,15 @@ public class TranslatorPrinter
 	}
 
 
-	public static void PrintTable(IReadOnlyList<TranslatorDto> translators) {
+	public static void PrintTable(IReadOnlyList<TranslatorDto> translators)
+	{
 		if (translators.Count == 0)
 		{
 			ConsoleHelper.ShowError(Messages.NotAvailableTranslator);
 			return;
 		}
 
+		Console.Clear();
 		Console.WriteLine("\n{0,-3} {1, -30} {2, -40}", "ID", "Translator Name", "Email Address");
 		Console.WriteLine(new string('=', 90));
 

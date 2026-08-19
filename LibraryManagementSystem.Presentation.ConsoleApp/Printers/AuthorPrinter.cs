@@ -8,6 +8,8 @@ public static class AuthorPrinter
 {
 	public static void PrintDetails(AuthorDto author)
 	{
+		Console.Clear();
+
 		Console.WriteLine("\n\nAuthor Details:");
 		Console.WriteLine("{0, -20} [{1}]", "Name:", author.FullName);
 		Console.WriteLine("{0, -20} [{1}]", "National Code:", author.NationalCode);
@@ -28,7 +30,7 @@ public static class AuthorPrinter
 			ConsoleHelper.ShowError(Messages.NotAvailableAuthor);
 			return;
 		}
-
+		Console.Clear();
 		Console.WriteLine("\n{0,-3} {1, -30} {2, -40}", "ID", "Author Name", "Email Address");
 		Console.WriteLine(new string('=', 90));
 

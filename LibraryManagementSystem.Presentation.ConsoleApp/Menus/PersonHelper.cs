@@ -55,10 +55,7 @@ internal static class PersonHelper
 		Action<TEntity> printDetailsFn, Func<ServiceResult<TEntity>> removeFn) where TEntity : class
 	{
 		if (entity is null)
-		{
-			ConsoleHelper.Pause();
 			return;
-		}
 
 		printDetailsFn(entity);
 		var choice = ConsoleHelper.ReadYesNo($"Are you sure you want to remove {firstName} {lastName}");
@@ -67,6 +64,5 @@ internal static class PersonHelper
 
 		var result = removeFn();
 		ConsoleHelper.ShowResult(result);
-		ConsoleHelper.Pause();
 	}
 }

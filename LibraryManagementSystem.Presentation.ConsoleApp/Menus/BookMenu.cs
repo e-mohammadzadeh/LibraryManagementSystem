@@ -407,17 +407,11 @@ public static class BookMenu
 			}
 
 			var choice = ConsoleHelper.ReadYesNo(Messages.EditContinuesQuestion);
-			if (choice != true)
-			{
-				Console.Clear();
-				return;
-			}
-
+			if (choice != true) return;
+			
 			// Refresh desiredBook details for subsequent edits in loop
 			var refreshedBook = bookManagementService.FindBookById(desiredBook.BookId);
 			if (refreshedBook is not null) desiredBook = refreshedBook;
-
-			Console.Clear();
 		}
 	}
 
