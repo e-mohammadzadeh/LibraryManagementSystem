@@ -58,6 +58,12 @@ public class InMemoryLoanRepository : ILoanRepository
 	public IReadOnlyList<Loan> GetLoansByBook(int bookId) { return [.. _loans.Where(l => l.BookId == bookId)]; }
 
 
+	public IReadOnlyList<Loan> GetLoansByBookAndUser(int bookId, int userId)
+	{
+		return [.. _loans.Where(l => l.BookId == bookId && l.UserId == userId)];
+	}
+
+
 	public IReadOnlyList<Loan> GetOverdueLoans() { return [.. _loans.Where(l => l.IsOverdue)]; }
 
 

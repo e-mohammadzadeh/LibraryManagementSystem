@@ -249,7 +249,8 @@ public class LoanManagementService
 
 	public IReadOnlyList<LoanDto> GetLoanByBook(int bookId, ICurrentUserSession session)
 	{
-		if (session.IsSelfServiceMember) return [];
+		if (session.IsSelfServiceMember)
+			return [.. _loanRepository.GetLoansByBook(bookId).Select(loan => loan.BookId == bookId && loan.UserId == session.UserId.Value)];
 		return [.. _loanRepository.GetLoansByBook(bookId).Select(loan => loan.ToDto())];
 	}
 

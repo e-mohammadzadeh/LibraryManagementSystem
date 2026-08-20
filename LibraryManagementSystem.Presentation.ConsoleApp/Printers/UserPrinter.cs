@@ -10,7 +10,7 @@ public class UserPrinter
 	{
 		Console.Clear();
 
-		Console.WriteLine("\n\nUser Details:");
+		Console.WriteLine("User Details:\n");
 		Console.WriteLine("{0, -20} [{1}]", "ID:", user.Id);
 		Console.WriteLine("{0, -20} [{1}]", "Name:", user.FullName);
 		Console.WriteLine("{0, -20} [{1}]", "National Code:", user.NationalCode);

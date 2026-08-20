@@ -10,7 +10,7 @@ public static class LoanPrinter
 	{
 		Console.Clear();
 
-		Console.WriteLine("\n\nLoan Details:");
+		Console.WriteLine("Loan Details:\n");
 		Console.WriteLine("{0, -20} [{1}]", "ID:", loan.LoanId);
 		Console.WriteLine("{0, -20} [{1}]", "Book Name:", loan.BookName);
 		Console.WriteLine("{0, -20} [{1}]", "Book Id:", loan.BookId);
@@ -36,7 +36,6 @@ public static class LoanPrinter
 			return;
 		}
 
-		Console.Clear();
 		Console.WriteLine("\n{0,-3} {1, -50} {2, -30} {3, -12} {4, -12} {5, -12} {6, -12} {7, -12}", "ID", "Book", "User",
 			"Borrow Date", "Return Date", "Due Date", "Status", "Overdue");
 

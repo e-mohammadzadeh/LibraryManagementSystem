@@ -10,7 +10,7 @@ public static class FinePrinter
 	{
 		Console.Clear();
 
-		Console.WriteLine("\n\nFine Details:");
+		Console.WriteLine("Fine Details:\n");
 		Console.WriteLine("{0, -20} [{1}]", "Fine ID:", fine.FineId);
 		Console.WriteLine("{0, -20} [{1}]", "Loan ID:", fine.LoanId);
 		Console.WriteLine("{0, -20} [{1}]", "User ID:", fine.UserId);

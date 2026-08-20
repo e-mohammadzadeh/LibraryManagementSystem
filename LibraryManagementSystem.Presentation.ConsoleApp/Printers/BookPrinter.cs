@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Application.Common;
+﻿using System.Text;
+using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Application.DTOs.Loans;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
@@ -10,26 +11,33 @@ public static class BookPrinter
 	public static void PrintDetails(BookDto book)
 	{
 		Console.Clear();
+		Console.OutputEncoding = Encoding.UTF8;
 
-		var authorsNameDisplay = string.Join(", ", book.Authors.Select(a => a.FullName));
-		var translatorsNameDisplay = string.Join(", ", book.Translators.Select(t => t.FullName));
-		var authorsEmailDisplay = string.Join(", ", book.Authors.Select(a => a.Email));
-		var translatorsEmailDisplay = string.Join(", ", book.Translators.Select(t => t.Email));
-		Console.WriteLine("\n\nBook Details:");
-		Console.WriteLine("{0, -30} [{1}]", "Name:", book.BookName);
-		Console.WriteLine("{0, -30} [{1}]", "ISBN:", book.ISBN);
-		Console.WriteLine("{0, -30} [{1}]", "Author:", authorsNameDisplay);
-		Console.WriteLine("{0, -30} [{1}]", "Author's Email:", authorsEmailDisplay);
-		Console.WriteLine("{0, -30} [{1}]", "Translator:", translatorsNameDisplay);
-		Console.WriteLine("{0, -30} [{1}]", "Translator's Email:", translatorsEmailDisplay);
-		Console.WriteLine("{0, -30} [{1}]", "Publication Year:", book.PublishDate);
-		Console.WriteLine("{0, -30} [{1}]", "Genre:", book.Genre);
-		Console.WriteLine("{0, -30} [{1}]", "Publisher:", book.Publisher);
-		Console.WriteLine("{0, -30} [{1}]", "Total Copies:", book.TotalCopies);
-		Console.WriteLine("{0, -30} [{1}]", "Available Copies:", book.AvailableCopies);
-		Console.WriteLine("{0, -30} [{1}]", "Description:", book.Description);
-		Console.WriteLine("{0, -30} [{1}]", "Created At:", book.CreatedAt);
-		Console.WriteLine("{0, -30} [{1}]", "Updated At:", book.UpdatedAt);
+		// One name/email per line when there are many (wraps cleanly in the value column)
+		var authorNames = book.Authors.Count == 0 ? ["—"] : book.Authors.Select(a => a.FullName).ToArray();
+		var authorEmails = book.Authors.Count == 0 ? ["—"] : book.Authors.Select(a => a.Email).ToArray();
+		var translatorNames = book.Translators.Count == 0 ? ["—"] : book.Translators.Select(t => t.FullName).ToArray();
+		var translatorEmails = book.Translators.Count == 0 ? ["—"] : book.Translators.Select(t => t.Email).ToArray();
+
+		var rows = new List<(string Label, string[] ValueLines)>
+		{
+			("Name", [book.BookName]),
+			("ISBN", [book.ISBN]),
+			("Author(s)", authorNames),
+			("Author Email(s)", authorEmails),
+			("Translator(s)", translatorNames),
+			("Translator Email(s)", translatorEmails),
+			("Publication Date", [book.PublishDate.ToString("yyyy-MM-dd")]),
+			("Genre", [book.Genre]),
+			("Publisher", [book.Publisher]),
+			("Total Copies", [book.TotalCopies.ToString()]),
+			("Available Copies", [book.AvailableCopies.ToString()]),
+			("Description", string.IsNullOrWhiteSpace(book.Description) ? ["—"] : book.Description.Split('\n')),
+			("Created At", [book.CreatedAt.ToString("yyyy-MM-dd HH:mm")]),
+			("Updated At", [book.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "N/A"]),
+		};
+
+		ConsoleTable.PrintKeyValueTable("Book Details", rows, labelWidth: 22, valueWidth: 55);
 	}
 
 
@@ -40,6 +48,7 @@ public static class BookPrinter
 			ConsoleHelper.ShowError(Messages.NotAvailableBook);
 			return;
 		}
+
 		Console.Clear();
 		Console.WriteLine("\n{0,-3} {1, -60} {2, -50} {3, -20} {4, -30} {5, -6}", "ID", "Book Name", "Author Name",
 			"ISBN", "Translator Name", "Copies");
@@ -60,12 +69,14 @@ public static class BookPrinter
 	}
 
 
-	public static void PrintLoanHistory(IReadOnlyList<LoanDto> loans) {
+	public static void PrintLoanHistory(IReadOnlyList<LoanDto> loans)
+	{
 		if (loans.Count == 0)
 		{
 			ConsoleHelper.ShowInfo(Messages.NoLoanHistoryForBook);
 			return;
 		}
+
 		Console.WriteLine($"\nLoan History ({loans.Count} loans):");
 		LoanPrinter.PrintTable(loans);
 	}

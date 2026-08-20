@@ -10,7 +10,7 @@ public class TranslatorPrinter
 	{
 		Console.Clear();
 
-		Console.WriteLine("\n\nTranslator Details:");
+		Console.WriteLine("Translator Details:\n");
 		Console.WriteLine("{0, -20} [{1}]", "ID:", translator.Id);
 		Console.WriteLine("{0, -20} [{1}]", "Name:", translator.FullName);
 		Console.WriteLine("{0, -20} [{1}]", "National Code:", translator.NationalCode);

@@ -267,6 +267,7 @@ public static class LoanMenu
 			return null;
 		}
 
+		Console.Clear();
 		LoanPrinter.PrintTable(loans);
 		var loanId = ConsoleHelper.ReadInt($"Enter loan id to {purpose}", 1, int.MaxValue);
 		if (loanId is null) return null;
@@ -408,7 +409,7 @@ public static class LoanMenu
 			ConsoleHelper.ShowWarning(emptyMessage);
 			return;
 		}
-
+		Console.Clear();
 		LoanPrinter.PrintTable(loans);
 	}
 
@@ -721,6 +722,7 @@ public static class LoanMenu
 			return;
 		}
 
+		Console.Clear();
 		LoanPrinter.PrintTable(results);
 	}
 }

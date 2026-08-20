@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Application.Common;
+﻿using System.Text;
+using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
@@ -9,17 +10,22 @@ public static class AuthorPrinter
 	public static void PrintDetails(AuthorDto author)
 	{
 		Console.Clear();
+		Console.OutputEncoding = Encoding.UTF8; // Required for box-drawing characters
 
-		Console.WriteLine("\n\nAuthor Details:");
-		Console.WriteLine("{0, -20} [{1}]", "Name:", author.FullName);
-		Console.WriteLine("{0, -20} [{1}]", "National Code:", author.NationalCode);
-		Console.WriteLine("{0, -20} [{1}]", "Email:", author.Email);
-		Console.WriteLine("{0, -20} [{1}]", "Phone Number:", author.PhoneNumber);
-		Console.WriteLine("{0, -20} [{1}]", "Birth Date:", author.BirthDate);
-		Console.WriteLine("{0, -20} [{1}]", "Biography:", author.Biography);
-		Console.WriteLine("{0, -20} [{1} {2}]", "Books:", author.BookCount, "associated books");
-		Console.WriteLine("{0, -20} [{1}]", "Created At:", author.CreatedAt);
-		Console.WriteLine("{0, -20} [{1}]", "Updated At:", author.UpdatedAt);
+		var rows = new List<(string Label, string[] ValueLines)>
+		{
+			("Name", [author.FullName]),
+			("National Code", [author.NationalCode]),
+			("Email", [author.Email]),
+			("Phone Number", [author.PhoneNumber]),
+			("Birth Date", [author.BirthDate.ToString("yyyy-MM-dd")]),
+			("Biography", [author.Biography!]),
+			("Books", [$"{author.BookCount} associated books"]),
+			("Created At", [author.CreatedAt.ToString("yyyy-MM-dd HH:mm")]),
+			("Updated At", [author.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "N/A"]),
+		};
+
+		ConsoleTable.PrintKeyValueTable("Author Details", rows, labelWidth: 18, valueWidth: 55);
 	}
 
 
@@ -30,6 +36,7 @@ public static class AuthorPrinter
 			ConsoleHelper.ShowError(Messages.NotAvailableAuthor);
 			return;
 		}
+
 		Console.Clear();
 		Console.WriteLine("\n{0,-3} {1, -30} {2, -40}", "ID", "Author Name", "Email Address");
 		Console.WriteLine(new string('=', 90));
