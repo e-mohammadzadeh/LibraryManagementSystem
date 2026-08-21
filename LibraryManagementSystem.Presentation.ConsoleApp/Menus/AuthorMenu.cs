@@ -74,7 +74,7 @@ public static class AuthorMenu
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.SearchAuthor, Messages.AccessDenied))
 						break;
-					SearchAuthor(authorManagementService);
+					SearchAuthor(authorManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -306,73 +306,64 @@ public static class AuthorMenu
 	}
 
 
-	private static void SearchAuthor(AuthorManagementService authorManagementService)
+	private static void SearchAuthor(AuthorManagementService authorManagementService,
+		IAuthorizationService authorization)
 	{
+		if (!authorization.HasAnyPermission(Permission.SearchAuthor, Permission.SearchAuthorByName,
+			    Permission.SearchAuthorByNationalCode, Permission.SearchAuthorByEmail,
+			    Permission.SearchAuthorByPhoneNumber))
+		{
+			ConsoleHelper.ShowError(Messages.AccessDenied);
+			return;
+		}
+
 		while (true)
 		{
 			Console.Clear();
 			Console.WriteLine(new string('=', 36) + " SEARCHING AUTHOR MENU " + new string('=', 36));
-			var authorsList = authorManagementService.GetAllAuthors();
-			if (authorsList.Count == 0)
+			if (authorManagementService.GetAllAuthors().Count == 0)
 			{
 				ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
 				return;
 			}
 
-			Console.WriteLine("\n{0, -20}", "1. Name");
-			Console.WriteLine("{0, -20}", "2. National Code");
-			Console.WriteLine("{0, -20}", "3. Email");
-			Console.WriteLine("{0, -20}", "4. Phone Number");
-			Console.WriteLine("5. Back");
-
-			var searchMenuChoice = ConsoleHelper.ReadInt(Messages.SearchMenuQuestion, 1, 5);
-			if (searchMenuChoice is null) return;
-
-			switch (searchMenuChoice)
+			var items = new List<(AuthorSearchField? Field, string Label, Permission Permission)>
 			{
-				case 1:
-				{
-					Console.Clear();
-					PersonHelper.SearchAndDisplay(Messages.SearchName,
-						term => authorManagementService.SearchAuthor(term, AuthorSearchField.Name),
-						AuthorPrinter.PrintTable,
-						Messages.NotAuthorMatched);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case 2:
-				{
-					Console.Clear();
-					PersonHelper.SearchAndDisplay(Messages.SearchNationalCode,
-						term => authorManagementService.SearchAuthor(term, AuthorSearchField.NationalCode),
-						AuthorPrinter.PrintTable, Messages.NotAuthorMatched);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case 3:
-				{
-					Console.Clear();
-					PersonHelper.SearchAndDisplay(Messages.SearchEmail,
-						term => authorManagementService.SearchAuthor(term, AuthorSearchField.Email),
-						AuthorPrinter.PrintTable, Messages.NotAuthorMatched);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case 4:
-				{
-					Console.Clear();
-					PersonHelper.SearchAndDisplay(Messages.SearchPhoneNumber,
-						term => authorManagementService.SearchAuthor(term, AuthorSearchField.PhoneNumber),
-						AuthorPrinter.PrintTable, Messages.NotAuthorMatched);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case 5:
-				{
-					ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "Author"));
-					return;
-				}
+				(AuthorSearchField.Name, "Name", Permission.SearchAuthorByName),
+				(AuthorSearchField.NationalCode, "National Code", Permission.SearchAuthorByNationalCode),
+				(AuthorSearchField.Email, "Email", Permission.SearchAuthorByEmail),
+				(AuthorSearchField.PhoneNumber, "Phone Number", Permission.SearchAuthorByPhoneNumber),
+			};
+			var available = items.Where(i => authorization.HasPermission(i.Permission)).ToList();
+
+			var displayNumber = 1;
+			foreach (var item in available) Console.WriteLine($"{displayNumber++}. {item.Label}");
+			Console.WriteLine($"{displayNumber}. Back");
+
+			var choice = ConsoleHelper.ReadInt(Messages.SearchMenuQuestion, 1, displayNumber);
+			if (choice is null) return;
+
+			if (choice == displayNumber) // Back
+			{
+				ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "Author"));
+				return;
 			}
+
+			var selected = available[choice.Value - 1];
+			var prompt = selected.Field switch
+			{
+				AuthorSearchField.Name => Messages.SearchName,
+				AuthorSearchField.NationalCode => Messages.SearchNationalCode,
+				AuthorSearchField.Email => Messages.SearchEmail,
+				AuthorSearchField.PhoneNumber => Messages.SearchPhoneNumber,
+				_ => "Enter search term"
+			};
+
+			PersonHelper.SearchAndDisplay(prompt,
+				term => authorManagementService.SearchAuthor(term, selected.Field!.Value),
+				AuthorPrinter.PrintTable, Messages.NotAuthorMatched);
+
+			ConsoleHelper.Pause();
 		}
 	}
 

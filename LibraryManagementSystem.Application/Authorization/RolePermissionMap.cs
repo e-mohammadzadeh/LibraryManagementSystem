@@ -14,6 +14,10 @@ public static class RolePermissionMap
 			Permission.AddAuthor,
 			Permission.EditAuthor,
 			Permission.SearchAuthor,
+			Permission.SearchAuthorByName,
+			Permission.SearchAuthorByNationalCode,
+			Permission.SearchAuthorByEmail,
+			Permission.SearchAuthorByPhoneNumber,
 			Permission.ViewAuthorDetails,
 			Permission.ViewAuthorBooks,
 			Permission.ViewAllAuthors,
@@ -71,6 +75,8 @@ public static class RolePermissionMap
 		[LibraryUserRole.Member] =
 		[
 			Permission.SearchAuthor,
+			Permission.SearchAuthorByName,
+			Permission.SearchAuthorByEmail,
 			Permission.ViewAuthorDetails,
 			Permission.ViewAuthorBooks,
 			Permission.ViewAllAuthors,

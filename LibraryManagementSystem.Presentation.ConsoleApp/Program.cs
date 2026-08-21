@@ -40,7 +40,7 @@ public static class Program
 
 
 			// ── Application Services ──────────────────
-			var authorService = new AuthorManagementService(authorRepo);
+			var authorService = new AuthorManagementService(authorRepo, authorization);
 			var translatorService = new TranslatorManagementService(translatorRepo);
 			IUserAutoRemovalService userAutoRemovalService = new UserAutoRemovalService(userRepo, loanRepo, fineRepo);
 			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo, userAutoRemovalService, authorization);

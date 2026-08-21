@@ -36,6 +36,7 @@ internal static class PersonHelper
 	internal static void SearchAndDisplay<TEntity>(string prompt, Func<string, IReadOnlyList<TEntity>> searchFn,
 		Action<IReadOnlyList<TEntity>> printFn, string noResultsMessage)
 	{
+		Console.Clear();
 		var searchItem = ConsoleHelper.ReadString(prompt);
 		if (searchItem is null) return;
 

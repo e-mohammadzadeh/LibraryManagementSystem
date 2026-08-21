@@ -85,7 +85,7 @@ public static class ConsoleTable
 		var innerWidth = widths.Sum() + (colCount - 1); // Sum + inner borders
 
 		// ── Top Border ──
-		DrawHorizontalBorder(DTl, DTr, Mid, Dh, widths);
+		DrawHorizontalBorder(DTl, DTr, Dh, Dh, widths);
 
 		// ── Title ──
 		Console.Write(Dv);
@@ -93,13 +93,13 @@ public static class ConsoleTable
 		Console.WriteLine(Dv);
 
 		// ── Header Separator ──
-		DrawHorizontalBorder(LMidD, RMidD, CrossD, Dh, widths);
+		DrawHorizontalBorder(LMidD, RMidD, Mid, Dh, widths);
 
 		// ── Headers ──
 		Console.Write(Dv);
 		for (var c = 0; c < colCount; c++)
 		{
-			Console.Write(PadCell(headers[c], widths[c]));
+			Console.Write(CenterText(headers[c], widths[c]));
 			if (c < colCount - 1) Console.Write(Sv);
 		}
 

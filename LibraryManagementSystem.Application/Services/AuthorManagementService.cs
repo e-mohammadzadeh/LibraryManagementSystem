@@ -1,6 +1,8 @@
-﻿using LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Application.Authorization;
+using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Application.DTOs.Books;
+using LibraryManagementSystem.Application.DTOs.Fine;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
@@ -11,9 +13,14 @@ namespace LibraryManagementSystem.Application.Services;
 public class AuthorManagementService
 {
 	private readonly IAuthorRepository _authorRepository;
+	private readonly IAuthorizationService _authorization;
 
 
-	public AuthorManagementService(IAuthorRepository authorRepository) { _authorRepository = authorRepository; }
+	public AuthorManagementService(IAuthorRepository authorRepository, IAuthorizationService authorization)
+	{
+		_authorRepository = authorRepository;
+		_authorization = authorization;
+	}
 
 
 	public ServiceResult<AuthorDto> AddAuthor(CreateAuthorDto dto)
@@ -113,6 +120,19 @@ public class AuthorManagementService
 
 	public IReadOnlyList<AuthorDto> SearchAuthor(string searchItem, AuthorSearchField field)
 	{
+		var requiredPermission = field switch
+		{
+			AuthorSearchField.Name => Permission.SearchAuthorByName,
+			AuthorSearchField.NationalCode => Permission.SearchAuthorByNationalCode,
+			AuthorSearchField.Email => Permission.SearchAuthorByEmail,
+			AuthorSearchField.PhoneNumber => Permission.SearchAuthorByPhoneNumber,
+			_ => throw new ArgumentOutOfRangeException(nameof(field))
+		};
+
+		if (!_authorization.HasPermission(requiredPermission) &&
+		    !_authorization.HasPermission(Permission.SearchAuthor))
+			return [];
+
 		Func<Author, string?> selector = field switch
 		{
 			AuthorSearchField.Name => a => $"{a.FirstName} {a.LastName}",

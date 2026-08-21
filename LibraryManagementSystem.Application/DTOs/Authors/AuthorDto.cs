@@ -1,4 +1,6 @@
-﻿namespace LibraryManagementSystem.Application.DTOs.Authors;
+﻿using LibraryManagementSystem.Application.DTOs.Books;
+
+namespace LibraryManagementSystem.Application.DTOs.Authors;
 
 public class AuthorDto
 {
@@ -12,6 +14,7 @@ public class AuthorDto
 	public DateOnly BirthDate { get; init; }
 	public string? Biography { get; init; }
 	public int BookCount { get; init; }
+	public IReadOnlyList<BookSummaryDto> Books { get; init; } = [];
 	public DateTime CreatedAt { get; init; }
 	public DateTime? UpdatedAt { get; init; }
 }
