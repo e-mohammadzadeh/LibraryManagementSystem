@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Application.Common;
+﻿using System.Text;
+using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
@@ -9,21 +10,29 @@ public class UserPrinter
 	public static void PrintDetails(UserDto user)
 	{
 		Console.Clear();
+		Console.OutputEncoding = Encoding.UTF8;
 
-		Console.WriteLine("User Details:\n");
-		Console.WriteLine("{0, -20} [{1}]", "ID:", user.Id);
-		Console.WriteLine("{0, -20} [{1}]", "Name:", user.FullName);
-		Console.WriteLine("{0, -20} [{1}]", "National Code:", user.NationalCode);
-		Console.WriteLine("{0, -20} [{1}]", "Email:", user.Email);
-		Console.WriteLine("{0, -20} [{1}]", "Phone Number:", user.PhoneNumber);
-		Console.WriteLine("{0, -20} [{1}]", "Birth Date:", user.BirthDate);
-		Console.WriteLine("{0, -20} [{1}]", "Role:", string.Join(", ", user.Roles));
-		Console.WriteLine("{0, -20} [{1}]", "Active From:", user.MembershipStartDate);
-		Console.WriteLine("{0, -20} [{1}]", "Active Until:", user.MembershipExpiryDate);
-		Console.WriteLine("{0, -20} [{1}]", "Is Active: ", user.IsActive);
-		Console.WriteLine("{0, -20} [{1}]", "Created At: ", user.CreatedAt);
-		Console.WriteLine("{0, -20} [{1}]", "Updated At: ", user.UpdatedAt);
-		Console.WriteLine("{0, -20} [{1}]", "Last Login Date: ", user.LastLoginDate);
+		var rows = new List<(string Label, string[] ValueLines)>
+		{
+			("ID", [user.Id.ToString()]),
+			("Name", [user.FullName]),
+			("National Code", [user.NationalCode]),
+			("Email", [user.Email]),
+			("Phone Number", [user.PhoneNumber]),
+			("Birth Date", [user.BirthDate.ToString("yyyy-MM-dd")]),
+			("Role", [string.Join(", ", user.Roles)]),
+			("Active From", [user.MembershipStartDate.ToString("yyyy-MM-dd")]),
+			("Active Until", [user.MembershipExpiryDate.ToString("yyyy-MM-dd")]),
+			("Is Active", [user.IsActive ? "Yes" : "No"]),
+			("Created At", [user.CreatedAt.ToString("yyyy-MM-dd HH:mm")]),
+			("Updated At", [user.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "N/A"]),
+			("Last Login", [user.LastLoginDate?.ToString("yyyy-MM-dd HH:mm") ?? "Never"]),
+		};
+
+		// Optional, if you added PreviousLoginDate on UserDto:
+		// ("Previous Login", [user.PreviousLoginDate?.ToString("yyyy-MM-dd HH:mm") ?? "—"]),
+
+		ConsoleTable.PrintKeyValueTable("User Details", rows, labelWidth: 18, valueWidth: 55);
 	}
 
 

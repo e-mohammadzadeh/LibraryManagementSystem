@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Application.Common;
+﻿using System.Text;
+using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Translators;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
@@ -9,17 +10,22 @@ public class TranslatorPrinter
 	public static void PrintDetails(TranslatorDto translator)
 	{
 		Console.Clear();
+		Console.OutputEncoding = Encoding.UTF8;
 
-		Console.WriteLine("Translator Details:\n");
-		Console.WriteLine("{0, -20} [{1}]", "ID:", translator.Id);
-		Console.WriteLine("{0, -20} [{1}]", "Name:", translator.FullName);
-		Console.WriteLine("{0, -20} [{1}]", "National Code:", translator.NationalCode);
-		Console.WriteLine("{0, -20} [{1}]", "Email:", translator.Email);
-		Console.WriteLine("{0, -20} [{1}]", "Phone Number:", translator.PhoneNumber);
-		Console.WriteLine("{0, -20} [{1}]", "Birth Date:", translator.BirthDate);
-		Console.WriteLine("{0, -20} [{1} {2}]", "Books:", translator.BookCount, "associated books");
-		Console.WriteLine("{0, -20} [{1}]", "Created At:", translator.CreatedAt);
-		Console.WriteLine("{0, -20} [{1}]", "Updated At:", translator.UpdatedAt);
+		var rows = new List<(string Label, string[] ValueLines)>
+		{
+			("ID", [translator.Id.ToString()]),
+			("Name", [translator.FullName]),
+			("National Code", [translator.NationalCode]),
+			("Email", [translator.Email]),
+			("Phone Number", [translator.PhoneNumber]),
+			("Birth Date", [translator.BirthDate.ToString("yyyy-MM-dd")]),
+			("Books", [$"{translator.BookCount} associated books"]),
+			("Created At", [translator.CreatedAt.ToString("yyyy-MM-dd HH:mm")]),
+			("Updated At", [translator.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "N/A"]),
+		};
+
+		ConsoleTable.PrintKeyValueTable("Translator Details", rows, labelWidth: 18, valueWidth: 55);
 	}
 
 

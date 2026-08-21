@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Application.Common;
+﻿using System.Text;
+using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Loans;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
@@ -6,24 +7,28 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
 public static class LoanPrinter
 {
-	public static void PrintDetails(LoanDto loan) 
-	{
+	public static void PrintDetails(LoanDto loan) {
 		Console.Clear();
+		Console.OutputEncoding = Encoding.UTF8;
 
-		Console.WriteLine("Loan Details:\n");
-		Console.WriteLine("{0, -20} [{1}]", "ID:", loan.LoanId);
-		Console.WriteLine("{0, -20} [{1}]", "Book Name:", loan.BookName);
-		Console.WriteLine("{0, -20} [{1}]", "Book Id:", loan.BookId);
-		Console.WriteLine("{0, -20} [{1}]", "User Name:", loan.UserName);
-		Console.WriteLine("{0, -20} [{1}]", "User Id:", loan.UserId);
-		Console.WriteLine("{0, -20} [{1}]", "Borrow Date:", loan.BorrowDate);
-		Console.WriteLine("{0, -20} [{1}]", "Due Date:", loan.DueDate);
-		Console.WriteLine("{0, -20} [{1}]", "Return Date:", loan.ReturnDate);
-		Console.WriteLine("{0, -20} [{1}]", "Status:", loan.Status);
-		Console.WriteLine("{0, -20} [{1}]", "Renewal Count:", loan.RenewalCount);
-		Console.WriteLine("{0, -20} [{1}]", "Is Overdue:", loan.IsOverdue);
-		Console.WriteLine("{0, -20} [{1}]", "Created At:", loan.CreatedAt);
-		Console.WriteLine("{0, -20} [{1}]", "Updated At:", loan.UpdatedAt);
+		var rows = new List<(string Label, string[] ValueLines)>
+		{
+			("ID", [loan.LoanId.ToString()]),
+			("Book Name", [loan.BookName]),
+			("Book Id", [loan.BookId.ToString()]),
+			("User Name", [loan.UserName]),
+			("User Id", [loan.UserId.ToString()]),
+			("Borrow Date", [loan.BorrowDate.ToString("yyyy-MM-dd")]),
+			("Due Date", [loan.DueDate.ToString("yyyy-MM-dd")]),
+			("Return Date", [loan.ReturnDate?.ToString("yyyy-MM-dd") ?? "N/A"]),
+			("Status", [loan.Status.ToString()]),
+			("Renewal Count", [loan.RenewalCount.ToString()]),
+			("Is Overdue", [loan.IsOverdue ? "Yes" : "No"]),
+			("Created At", [loan.CreatedAt.ToString("yyyy-MM-dd HH:mm")]),
+			("Updated At", [loan.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "N/A"]),
+		};
+
+		ConsoleTable.PrintKeyValueTable("Loan Details", rows, labelWidth: 18, valueWidth: 55);
 	}
 
 

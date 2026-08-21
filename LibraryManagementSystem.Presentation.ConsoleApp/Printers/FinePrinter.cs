@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Application.Common;
+﻿using System.Text;
+using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Fine;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
@@ -9,20 +10,25 @@ public static class FinePrinter
 	public static void PrintDetails(FineDto fine)
 	{
 		Console.Clear();
+		Console.OutputEncoding = Encoding.UTF8;
 
-		Console.WriteLine("Fine Details:\n");
-		Console.WriteLine("{0, -20} [{1}]", "Fine ID:", fine.FineId);
-		Console.WriteLine("{0, -20} [{1}]", "Loan ID:", fine.LoanId);
-		Console.WriteLine("{0, -20} [{1}]", "User ID:", fine.UserId);
-		Console.WriteLine("{0, -20} [{1}]", "User:", fine.UserFullName);
-		Console.WriteLine("{0, -20} [{1}]", "Book:", fine.BookName);
-		Console.WriteLine("{0, -20} [{1}]", "Overdue Days:", fine.OverdueDays);
-		Console.WriteLine("{0, -20} [{1}]", "Amount:", $"{fine.Amount:F2}");
-		Console.WriteLine("{0, -20} [{1}]", "Status:", fine.Status);
-		Console.WriteLine("{0, -20} [{1}]", "Reason:", fine.Reason);
-		Console.WriteLine("{0, -20} [{1}]", "Created At:", fine.CreatedAt);
-		Console.WriteLine("{0, -20} [{1}]", "Updated At:", fine.UpdatedAt?.ToString() ?? "-");
-		Console.WriteLine("{0, -20} [{1}]", "Paid At:", fine.PaidAt?.ToString() ?? "-");
+		var rows = new List<(string Label, string[] ValueLines)>
+		{
+			("Fine ID", [fine.FineId.ToString()]),
+			("Loan ID", [fine.LoanId.ToString()]),
+			("User ID", [fine.UserId.ToString()]),
+			("User", [fine.UserFullName]),
+			("Book", [fine.BookName]),
+			("Overdue Days", [fine.OverdueDays.ToString()]),
+			("Amount", [$"{fine.Amount:F2}"]),
+			("Status", [fine.Status.ToString()]),
+			("Reason", string.IsNullOrWhiteSpace(fine.Reason) ? ["N/A"] : fine.Reason.Split('\n')),
+			("Created At", [fine.CreatedAt.ToString("yyyy-MM-dd HH:mm")]),
+			("Updated At", [fine.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "N/A"]),
+			("Paid At", [fine.PaidAt?.ToString("yyyy-MM-dd HH:mm") ?? "N/A"]),
+		};
+
+		ConsoleTable.PrintKeyValueTable("Fine Details", rows, labelWidth: 18, valueWidth: 55);
 	}
 
 
@@ -47,6 +53,7 @@ public static class FinePrinter
 			Console.WriteLine("{0,-4} {1,-8} {2,-35} {3,-35} {4,-10} {5,-8} {6,-10}", fine.FineId, fine.LoanId,
 				userName, bookName, $"{fine.Amount:F2}", fine.OverdueDays, fine.Status);
 		}
+
 		Console.WriteLine(new string('=', 130));
 	}
 }

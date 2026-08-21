@@ -781,6 +781,13 @@ public static class BookMenu
 		var desiredBook = SelectExistingBook(bookManagementService);
 		if (desiredBook is null) return;
 		BookPrinter.PrintDetails(desiredBook);
+
+		if (session.IsSelfServiceMember)
+		{
+			var ownLoans = loanManagementService.GetOwnLoansByBook(desiredBook.BookId, session);
+			BookPrinter.PrintLoanHistory(ownLoans);
+			return;
+		}
 		var loans = loanManagementService.GetLoanByBook(desiredBook.BookId, session);
 		BookPrinter.PrintLoanHistory(loans);
 	}
