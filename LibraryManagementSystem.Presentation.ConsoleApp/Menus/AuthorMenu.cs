@@ -36,7 +36,7 @@ public static class AuthorMenu
 				return;
 			}
 
-			Console.Clear();;
+			Console.Clear();
 			if (authorization.CanAccessStatistics())
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
 			else
@@ -47,7 +47,7 @@ public static class AuthorMenu
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.AddAuthor, Messages.AccessDenied))
 						break;
-					Console.Clear();;
+					Console.Clear();
 					AddAuthor(authorManagementService);
 					ConsoleHelper.Pause();
 					break;
@@ -56,7 +56,7 @@ public static class AuthorMenu
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.EditAuthor, Messages.AccessDenied))
 						break;
-					Console.Clear();;
+					Console.Clear();
 					EditAuthor(authorManagementService);
 					ConsoleHelper.Pause();
 					break;
@@ -65,7 +65,7 @@ public static class AuthorMenu
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveAuthor, Messages.AccessDenied))
 						break;
-					Console.Clear();;
+					Console.Clear();
 					RemoveAuthor(authorManagementService);
 					ConsoleHelper.Pause();
 					break;
@@ -83,7 +83,7 @@ public static class AuthorMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAuthorDetails,
 						    Messages.AccessDenied))
 						break;
-					Console.Clear();;
+					Console.Clear();
 					var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
 						MenuHelper.SelectAuthor, Messages.NotAvailableAuthor);
 					if (desiredAuthor is not null) AuthorPrinter.PrintDetails(desiredAuthor);
@@ -92,14 +92,14 @@ public static class AuthorMenu
 				}
 				case 6:
 				{
-					Console.Clear();;
+					Console.Clear();
 					ViewBooksByAuthor(authorManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
 				{
-					Console.Clear();;
+					Console.Clear();
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllAuthors,
 						    Messages.AccessDenied))
 						break;
@@ -200,7 +200,7 @@ public static class AuthorMenu
 
 		while (true)
 		{
-			Console.Clear();;
+			Console.Clear();
 			Console.WriteLine("\n{0, -20} [{1}]", "1. First Name", desiredAuthor.FirstName);
 			Console.WriteLine("{0, -20} [{1}]", "2. Last Name", desiredAuthor.LastName);
 			Console.WriteLine("{0, -20} [{1}]", "3. National Code", desiredAuthor.NationalCode);
@@ -216,7 +216,7 @@ public static class AuthorMenu
 			{
 				case 1:
 				{
-					Console.Clear();;
+					Console.Clear();
 					var authorNewFirstName = ConsoleHelper.GetValidName("Enter new first name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
@@ -227,7 +227,7 @@ public static class AuthorMenu
 				}
 				case 2:
 				{
-					Console.Clear();;
+					Console.Clear();
 					var authorNewLastName = ConsoleHelper.GetValidName("Enter new last name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
@@ -238,7 +238,7 @@ public static class AuthorMenu
 				}
 				case 3:
 				{
-					Console.Clear();;
+					Console.Clear();
 					var authorNewNationalCode = ConsoleHelper.GetValidNationalCode("Enter new national code");
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewNationalCode,
 						v => new UpdateAuthorDto { NationalCode = v });
@@ -247,7 +247,7 @@ public static class AuthorMenu
 				}
 				case 4:
 				{
-					Console.Clear();;
+					Console.Clear();
 					var authorNewEmail = ConsoleHelper.GetValidEmail("Enter new email");
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewEmail,
 						v => new UpdateAuthorDto { Email = v });
@@ -256,7 +256,7 @@ public static class AuthorMenu
 				}
 				case 5:
 				{
-					Console.Clear();;
+					Console.Clear();
 					var authorNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter new phone number");
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewPhoneNumber,
 						v => new UpdateAuthorDto { PhoneNumber = v });
@@ -265,7 +265,7 @@ public static class AuthorMenu
 				}
 				case 6:
 				{
-					Console.Clear();;
+					Console.Clear();
 					var authorNewBirthDate = ConsoleHelper.GetValidBirthDate("Enter new birth date");
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewBirthDate,
 						v => new UpdateAuthorDto { BirthDate = v });
@@ -274,7 +274,7 @@ public static class AuthorMenu
 				}
 				case 7:
 				{
-					Console.Clear();;
+					Console.Clear();
 					var authorNewBiography = ConsoleHelper.ReadString("Enter new biography");
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewBiography,
 						v => new UpdateAuthorDto { Biography = v });
@@ -319,7 +319,7 @@ public static class AuthorMenu
 
 		while (true)
 		{
-			Console.Clear();;
+			Console.Clear();
 			Console.WriteLine(new string('=', 36) + " SEARCHING AUTHOR MENU " + new string('=', 36));
 			if (authorManagementService.GetAllAuthors().Count == 0)
 			{

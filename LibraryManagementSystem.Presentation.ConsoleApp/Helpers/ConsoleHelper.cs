@@ -5,7 +5,6 @@ using LibraryManagementSystem.Application.DTOs.Translators;
 using LibraryManagementSystem.Application.Validators;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
@@ -120,28 +119,39 @@ public static class ConsoleHelper
 	}
 
 
-	private static string ReadPassword(string prompt)
+	private static string? ReadPassword(string prompt)
 	{
-		Console.Write($"{prompt}: ");
-		var password = new System.Text.StringBuilder();
+		Console.Write($"{prompt} (type 'cancel' to abort): ");
+		var password = new StringBuilder();
 		while (true)
 		{
 			var key = Console.ReadKey(intercept: true);
-			if (key.Key == ConsoleKey.Enter) break;
-			if (key.Key == ConsoleKey.Backspace && password.Length > 0)
+
+			// ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
+			switch (key.Key)
 			{
-				password.Remove(password.Length - 1, 1);
-				Console.Write("\b \b");
-			}
-			else if (key.Key != ConsoleKey.Backspace)
-			{
-				password.Append(key.KeyChar);
-				Console.Write("*");
+				case ConsoleKey.Enter:
+				{
+					Console.WriteLine();
+					var value = password.ToString();
+					return value.Equals("cancel", StringComparison.OrdinalIgnoreCase) ? null : value;
+				}
+				case ConsoleKey.Backspace:
+				{
+					if (password.Length > 0)
+					{
+						password.Remove(password.Length - 1, 1);
+						Console.Write("\b \b");
+					}
+
+					continue;
+				}
+				default:
+					password.Append(key.KeyChar);
+					Console.Write("*");
+					break;
 			}
 		}
-
-		Console.WriteLine();
-		return password.ToString();
 	}
 
 
@@ -310,11 +320,12 @@ public static class ConsoleHelper
 	}
 
 
-	public static string GetValidPassword(string prompt)
+	public static string? GetValidPassword(string prompt)
 	{
 		while (true)
 		{
 			var input = ReadPassword(prompt);
+			if (input is null) return null;
 			var validationResult = Validator.PasswordValidator(input);
 			if (validationResult.IsValid) return input;
 
@@ -410,12 +421,13 @@ public static class ConsoleHelper
 		Console.ReadKey(true);
 	}
 
-	public static void ClearConsole() {
+
+	public static void ClearConsole()
+	{
 		// 1. Clear the visible console screen
 		Console.Clear();
 
 		// 2. Send the ANSI escape command to wipe the scrollback buffer
 		Console.Write("\e[3J");
 	}
-
 }

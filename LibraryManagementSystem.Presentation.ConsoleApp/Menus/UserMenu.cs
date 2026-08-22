@@ -147,7 +147,8 @@ public static class UserMenu
 			(2, "Edit User", authorization.HasPermission(Permission.EditUser)),
 			(3, "Remove User", authorization.HasPermission(Permission.RemoveUser)),
 			(4, "Search User", authorization.HasPermission(Permission.SearchUser)),
-			(5, "View User Details", authorization.HasAnyPermission(Permission.ViewUserDetails, Permission.ViewOwnDetails)),
+			(5, "View User Details",
+				authorization.HasAnyPermission(Permission.ViewUserDetails, Permission.ViewOwnDetails)),
 			(6, "View All Users", authorization.HasPermission(Permission.ViewAllUsers)),
 			(7, "Renew Membership",
 				authorization.HasAnyPermission(Permission.RenewMemberMembership, Permission.RenewLibrarianMembership)),
@@ -644,8 +645,11 @@ public static class UserMenu
 		Console.WriteLine(new string('=', 36) + " CHANGE PASSWORD " + new string('=', 36));
 
 		var currentPassword = ConsoleHelper.GetValidPassword(string.Format(Messages.EnterPasswordPrompt, "current"));
+		if (currentPassword is null) return;
 		var newPassword = ConsoleHelper.GetValidPassword(string.Format(Messages.EnterPasswordPrompt, "new"));
+		if (newPassword is null) return;
 		var confirmPassword = ConsoleHelper.GetValidPassword(Messages.PasswordConfirmation);
+		if (confirmPassword is null) return;
 
 		if (newPassword != confirmPassword)
 		{
