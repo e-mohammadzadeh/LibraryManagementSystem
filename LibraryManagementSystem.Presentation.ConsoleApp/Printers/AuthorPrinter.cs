@@ -29,32 +29,6 @@ public static class AuthorPrinter
 	}
 
 
-	//public static void PrintTable(IReadOnlyList<AuthorDto> authors)
-	//{
-	//	if (authors.Count == 0)
-	//	{
-	//		ConsoleHelper.ShowError(Messages.NotAvailableAuthor);
-	//		return;
-	//	}
-
-	//	Console.Clear();
-	//	Console.WriteLine("\n{0,-3} {1, -30} {2, -40} {3, -50} {4, -60}", "ID", "Author Name", "Email Address",
-	//		"Biography", "Books");
-	//	Console.WriteLine(new string('=', 90));
-
-	//	foreach (var author in authors)
-	//	{
-	//		var books = author.Books.Count > 0
-	//			? string.Join(", ", author.Books.Select(book => $"{book.BookName} ({book.ISBN})"))
-	//			: "No books";
-	//		Console.WriteLine("{0,-3} {1, -30} {2, -40} {3, -50} {4, -60}", author.Id, author.FullName, author.Email,
-	//			author.Biography, books);
-	//	}
-
-	//	Console.WriteLine(new string('=', 90));
-	//}
-
-
 	public static void PrintTable(IReadOnlyList<AuthorDto> authors)
 	{
 		if (authors.Count == 0)

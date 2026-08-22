@@ -77,7 +77,6 @@ public static class RolePermissionMap
 			Permission.SearchAuthor,
 			Permission.SearchAuthorByName,
 			Permission.SearchAuthorByEmail,
-			Permission.ViewAuthorDetails,
 			Permission.ViewAuthorBooks,
 			Permission.ViewAllAuthors,
 
@@ -87,7 +86,6 @@ public static class RolePermissionMap
 			Permission.ViewAllTranslators,
 
 			Permission.SearchBook,
-			Permission.ViewBookDetails,
 			Permission.ViewAllBooks,
 
 			Permission.PayFine,

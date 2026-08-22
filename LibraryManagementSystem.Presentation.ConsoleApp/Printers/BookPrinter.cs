@@ -1,8 +1,10 @@
-﻿using System.Text;
+﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Application.DTOs.Loans;
+using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
+using System.Text;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -41,7 +43,7 @@ public static class BookPrinter
 	}
 
 
-	public static void PrintTable(IReadOnlyList<BookDto> books)
+	public static void PrintTable(IReadOnlyList<BookDto> books, IAuthorizationService? authorization = null)
 	{
 		if (books.Count == 0)
 		{
@@ -50,23 +52,105 @@ public static class BookPrinter
 		}
 
 		Console.Clear();
-		Console.WriteLine("\n{0,-3} {1, -60} {2, -50} {3, -20} {4, -30} {5, -6}", "ID", "Book Name", "Author Name",
-			"ISBN", "Translator Name", "Copies");
-		Console.WriteLine(new string('=', 190));
+		Console.OutputEncoding = Encoding.UTF8;
 
-		foreach (var book in books)
+		var showExactCopies = authorization is null
+		                      || authorization.HasPermission(Permission.ViewBookDetails)
+		                      || authorization.HasPermission(Permission.AddBook)
+		                      || authorization.HasPermission(Permission.EditBook);
+
+		var headers = new[]
 		{
-			var authorsDisplay = string.Join(", ", book.Authors.Select(a => a.FullName));
-			authorsDisplay = authorsDisplay.Length > 47 ? authorsDisplay[..45] + "..." : authorsDisplay;
-			var translatorsDisplay = string.Join(", ", book.Translators.Select(t => t.FullName));
-			translatorsDisplay = translatorsDisplay.Length > 27 ? translatorsDisplay[..25] + "..." : translatorsDisplay;
+			"ID",
+			"Book Name",
+			"ISBN",
+			"Author(s)",
+			"Translator(s)",
+			"Genre",
+			"Publish Date",
+			"Description",
+			"Availability"
+		};
 
-			Console.WriteLine("{0,-3} {1, -60} {2, -50} {3, -20} {4, -30} {5, -6}", book.BookId, book.BookName,
-				authorsDisplay, book.ISBN, translatorsDisplay, $"{book.AvailableCopies}/{book.TotalCopies}");
+		var rows = books.Select(book =>
+		{
+			var authors = book.Authors.Count > 0
+				? book.Authors.Select(a => a.FullName).ToArray()
+				: ["—"];
+
+			var translators = book.Translators.Count > 0
+				? book.Translators.Select(t => t.FullName).ToArray()
+				: ["—"];
+
+			var description = string.IsNullOrWhiteSpace(book.Description)
+				? ["—"]
+				: WrapText(book.Description, ValidationConstants.DescriptionWrapWidthInTable);
+
+			var availability = showExactCopies
+				? new[] { $"{book.AvailableCopies}/{book.TotalCopies}" }
+				: new[] { book.AvailableCopies > 0 ? "Available" : "Not available" };
+
+			var bookName = WrapText(book.BookName, ValidationConstants.BookNameWrapWidthInTable);
+
+			return new[]
+			{
+				[book.BookId.ToString()],
+				bookName,
+				[book.ISBN],
+				authors,
+				translators,
+				[book.Genre.ToString()],
+				[book.PublishDate.ToString("yyyy-MM-dd")],
+				description,
+				availability
+			};
+		}).ToList();
+
+		ConsoleTable.PrintTable("Book List", headers, rows);
+	}
+
+
+	private static string[] WrapText(string text, int maxWidth)
+	{
+		if (string.IsNullOrWhiteSpace(text)) return ["—"];
+
+		text = text.Replace("\r\n", " ").Replace('\n', ' ').Replace('\r', ' ');
+		var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+		var lines = new List<string>();
+		var current = "";
+
+		foreach (var word in words)
+		{
+			if (word.Length > maxWidth)
+			{
+				if (current.Length > 0)
+				{
+					lines.Add(current);
+					current = "";
+				}
+
+				// Hard-split very long tokens
+				for (var i = 0; i < word.Length; i += maxWidth)
+					lines.Add(word.Substring(i, Math.Min(maxWidth, word.Length - i)));
+				continue;
+			}
+
+			var candidate = current.Length == 0 ? word : $"{current} {word}";
+			if (candidate.Length <= maxWidth)
+			{
+				current = candidate;
+			}
+			else
+			{
+				lines.Add(current);
+				current = word;
+			}
 		}
 
-		Console.WriteLine(new string('=', 190));
+		if (current.Length > 0) lines.Add(current);
+		return lines.Count > 0 ? lines.ToArray() : ["—"];
 	}
+
 
 
 	public static void PrintLoanHistory(IReadOnlyList<LoanDto> loans)

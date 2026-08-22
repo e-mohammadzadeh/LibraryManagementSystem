@@ -395,6 +395,6 @@ public static class AuthorMenu
 			return;
 		}
 
-		BookPrinter.PrintTable(books);
+		BookPrinter.PrintTable(books, authorization);
 	}
 }
