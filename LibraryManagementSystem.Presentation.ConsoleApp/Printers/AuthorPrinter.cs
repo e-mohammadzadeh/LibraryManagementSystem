@@ -10,7 +10,7 @@ public static class AuthorPrinter
 	public static void PrintDetails(AuthorDto author)
 	{
 		Console.Clear();
-		Console.OutputEncoding = Encoding.UTF8; // Required for box-drawing characters
+		Console.OutputEncoding = Encoding.UTF8;
 
 		var rows = new List<(string Label, string[] ValueLines)>
 		{

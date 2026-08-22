@@ -299,71 +299,68 @@ public static class TranslatorMenu
 	}
 
 
-	private static void SearchTranslator(TranslatorManagementService translatorManagementService)
+	private static void SearchTranslator(TranslatorManagementService translatorManagementService,
+		IAuthorizationService authorization)
 	{
+		if (!authorization.HasAnyPermission(Permission.SearchTranslator, Permission.SearchTranslatorByName,
+			    Permission.SearchTranslatorByNationalCode, Permission.SearchTranslatorByEmail,
+			    Permission.SearchTranslatorByPhoneNumber))
+		{
+			ConsoleHelper.ShowError(Messages.AccessDenied);
+			return;
+		}
+
 		while (true)
 		{
 			Console.Clear();
 			Console.WriteLine(new string('=', 36) + " SEARCHING TRANSLATOR MENU " + new string('=', 36));
-			var translatorsList = translatorManagementService.GetAllTranslators();
-			if (translatorsList.Count == 0)
+
+			if (translatorManagementService.GetAllTranslators().Count == 0)
 			{
 				ConsoleHelper.ShowWarning(Messages.NotAvailableTranslator);
 				return;
 			}
-			Console.WriteLine("\n{0, -20}", "1. Name");
-			Console.WriteLine("{0, -20}", "2. National Code");
-			Console.WriteLine("{0, -20}", "3. Email");
-			Console.WriteLine("{0, -20}", "4. Phone Number");
-			Console.WriteLine("5. Back");
 
-			var searchMenuChoice = ConsoleHelper.ReadInt(Messages.SearchMenuQuestion, 1, 5);
-			if (searchMenuChoice is null) return;
-
-			switch (searchMenuChoice)
+			var items = new List<(TranslatorSearchField? Field, string Label, Permission Permission)>
 			{
-				case 1:
-				{
-					Console.Clear();
-					PersonHelper.SearchAndDisplay(Messages.SearchName,
-						term => translatorManagementService.SearchTranslator(term, TranslatorSearchField.Name),
-						TranslatorPrinter.PrintTable, Messages.NotTranslatorMatched);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case 2:
-				{
-					Console.Clear();
-					PersonHelper.SearchAndDisplay(Messages.SearchNationalCode,
-						term => translatorManagementService.SearchTranslator(term, TranslatorSearchField.NationalCode),
-						TranslatorPrinter.PrintTable, Messages.NotTranslatorMatched);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case 3:
-				{
-					Console.Clear();
-					PersonHelper.SearchAndDisplay(Messages.SearchEmail,
-						term => translatorManagementService.SearchTranslator(term, TranslatorSearchField.Email),
-						TranslatorPrinter.PrintTable, Messages.NotTranslatorMatched);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case 4:
-				{
-					Console.Clear();
-					PersonHelper.SearchAndDisplay(Messages.SearchPhoneNumber,
-						term => translatorManagementService.SearchTranslator(term, TranslatorSearchField.PhoneNumber),
-						TranslatorPrinter.PrintTable, Messages.NotTranslatorMatched);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case 5:
-				{
-					ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "Translator"));
-					return;
-				}
+				(TranslatorSearchField.Name, "Name", Permission.SearchTranslatorByName),
+				(TranslatorSearchField.NationalCode, "National Code", Permission.SearchTranslatorByNationalCode),
+				(TranslatorSearchField.Email, "Email", Permission.SearchTranslatorByEmail),
+				(TranslatorSearchField.PhoneNumber, "Phone Number", Permission.SearchTranslatorByPhoneNumber),
+			};
+
+			var available = items.Where(i => authorization.HasPermission(i.Permission)).ToList();
+
+			var displayNumber = 1;
+			foreach (var item in available) Console.WriteLine($"{displayNumber++}. {item.Label}");
+			Console.WriteLine($"{displayNumber}. Back");
+
+			var choice = ConsoleHelper.ReadInt(Messages.SearchMenuQuestion, 1, displayNumber);
+			if (choice is null) return;
+
+			if (choice == displayNumber) // Back
+			{
+				ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "Translator"));
+				ConsoleHelper.Pause();
+				return;
 			}
+
+			var selected = available[choice.Value - 1];
+
+			var prompt = selected.Field switch
+			{
+				TranslatorSearchField.Name => Messages.SearchName,
+				TranslatorSearchField.NationalCode => Messages.SearchNationalCode,
+				TranslatorSearchField.Email => Messages.SearchEmail,
+				TranslatorSearchField.PhoneNumber => Messages.SearchPhoneNumber,
+				_ => "Enter search term"
+			};
+
+			PersonHelper.SearchAndDisplay(prompt,
+				term => translatorManagementService.SearchTranslator(term, selected.Field!.Value),
+				TranslatorPrinter.PrintTable, Messages.NotTranslatorMatched);
+
+			ConsoleHelper.Pause();
 		}
 	}
 

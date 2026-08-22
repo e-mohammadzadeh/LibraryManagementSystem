@@ -38,16 +38,20 @@ public class TranslatorPrinter
 		}
 
 		Console.Clear();
-		Console.WriteLine("\n{0,-3} {1, -30} {2, -40}", "ID", "Translator Name", "Email Address");
-		Console.WriteLine(new string('=', 90));
+		Console.OutputEncoding = Encoding.UTF8;
 
+		var headers = new[] { "ID", "Translator Name", "Email Address", "Books (ISBN)" };
 
-		foreach (var translator in translators)
+		var rows = translators.Select(translator => new[]
 		{
-			var fullName = translator.FirstName + " " + translator.LastName;
-			Console.WriteLine("{0,-3} {1, -30} {2, -40}", translator.Id, fullName, translator.Email);
-		}
+			[translator.Id.ToString()],
+			[translator.FullName],
+			[translator.Email],
+			translator.Books.Count > 0
+				? translator.Books.Select(b => $"{b.BookName} ({b.ISBN})").ToArray()
+				: ["No books"]
+		}).ToList();
 
-		Console.WriteLine(new string('=', 90));
+		ConsoleTable.PrintTable("Translator Search Result", headers, rows);
 	}
 }

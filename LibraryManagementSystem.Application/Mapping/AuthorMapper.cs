@@ -18,7 +18,6 @@ public static class AuthorMapper
 			PhoneNumber = author.PhoneNumber,
 			BirthDate = author.BirthDate,
 			Biography = author.Biography,
-			BookCount = author.BookAuthors.Count,
 			Books =
 			[
 				.. author.BookAuthors.Select(ba => new BookSummaryDto
@@ -28,6 +27,7 @@ public static class AuthorMapper
 					ISBN = ba.Book.InternationalStandardBookNumber
 				})
 			],
+			BookCount = author.BookAuthors.Count,
 			CreatedAt = author.CreatedAt,
 			UpdatedAt = author.UpdatedAt
 		};

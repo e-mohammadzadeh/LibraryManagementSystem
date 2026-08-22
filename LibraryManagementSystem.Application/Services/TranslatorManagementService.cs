@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Application.Authorization;
+using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Application.DTOs.Translators;
 using LibraryManagementSystem.Application.Mapping;
@@ -11,11 +12,13 @@ namespace LibraryManagementSystem.Application.Services;
 public class TranslatorManagementService
 {
 	private readonly ITranslatorRepository _translatorRepository;
+	private readonly IAuthorizationService _authorization;
 
 
-	public TranslatorManagementService(ITranslatorRepository translatorRepository)
+	public TranslatorManagementService(ITranslatorRepository translatorRepository, IAuthorizationService authorization)
 	{
 		_translatorRepository = translatorRepository;
+		_authorization = authorization;
 	}
 
 
@@ -116,8 +119,20 @@ public class TranslatorManagementService
 	}
 
 
-	public IReadOnlyList<TranslatorDto> SearchTranslator(string searchItem, TranslatorSearchField field)
-	{
+	public IReadOnlyList<TranslatorDto> SearchTranslator(string searchItem, TranslatorSearchField field) {
+		var requiredPermission = field switch
+		{
+			TranslatorSearchField.Name => Permission.SearchTranslatorByName,
+			TranslatorSearchField.NationalCode => Permission.SearchTranslatorByNationalCode,
+			TranslatorSearchField.Email => Permission.SearchTranslatorByEmail,
+			TranslatorSearchField.PhoneNumber => Permission.SearchTranslatorByPhoneNumber,
+			_ => throw new ArgumentOutOfRangeException(nameof(field))
+		};
+
+		if (!_authorization.HasPermission(requiredPermission) &&
+		    !_authorization.HasPermission(Permission.SearchTranslator))
+			return [];
+
 		Func<Translator, string?> selector = field switch
 		{
 			TranslatorSearchField.Name => t => $"{t.FirstName} {t.LastName}",
