@@ -31,8 +31,6 @@ public static class Program
 			ICurrentUserSession currentUserSession = new CurrentUserSession();
 			IAuthorizationService authorization = new AuthorizationService(currentUserSession);
 
-
-			Console.Clear();
 			Console.Title = "Library Management System";
 			// Seed data for development/testing
 			DataSeeder.Seed(authorRepo, translatorRepo, bookRepo, userRepo, loanRepo, roleRepo, fineRepo,
@@ -41,7 +39,7 @@ public static class Program
 
 			// ── Application Services ──────────────────
 			var authorService = new AuthorManagementService(authorRepo, authorization);
-			var translatorService = new TranslatorManagementService(translatorRepo);
+			var translatorService = new TranslatorManagementService(translatorRepo, authorization);
 			IUserAutoRemovalService userAutoRemovalService = new UserAutoRemovalService(userRepo, loanRepo, fineRepo);
 			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo, userAutoRemovalService, authorization);
 			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, fineService, authorization);
@@ -53,7 +51,7 @@ public static class Program
 
 			while (true)
 			{
-				Console.Clear();
+				Console.Clear();;
 				var loggedInUser = LoginMenu.ShowLogin(authService);
 				if (loggedInUser is null) return;
 

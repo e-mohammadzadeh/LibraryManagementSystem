@@ -78,7 +78,7 @@ public static class TranslatorMenu
 						    Messages.AccessDenied))
 						break;
 					Console.Clear();
-					SearchTranslator(translatorManagementService);
+					SearchTranslator(translatorManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -341,7 +341,6 @@ public static class TranslatorMenu
 			if (choice == displayNumber) // Back
 			{
 				ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "Translator"));
-				ConsoleHelper.Pause();
 				return;
 			}
 
@@ -393,6 +392,6 @@ public static class TranslatorMenu
 			return;
 		}
 
-		BookPrinter.PrintTable(books);
+		BookPrinter.PrintTable(books, authorization);
 	}
 }

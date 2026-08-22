@@ -40,7 +40,7 @@ public static class BookMenu
 				return;
 			}
 
-			Console.Clear();
+			ConsoleHelper.ClearConsole();
 			if (authorization.CanAccessStatistics())
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
 			else
@@ -79,7 +79,7 @@ public static class BookMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.SearchBook, Messages.AccessDenied))
 						break;
 					Console.Clear();
-					SearchBook(bookManagementService);
+					SearchBook(bookManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -101,7 +101,7 @@ public static class BookMenu
 					if (bookManagementService.GetAllBooks().Count is 0)
 						ConsoleHelper.ShowWarning(Messages.NotAvailableBook);
 					else
-						BookPrinter.PrintTable(bookManagementService.GetAllBooks());
+						BookPrinter.PrintTable(bookManagementService.GetAllBooks(), authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -655,7 +655,7 @@ public static class BookMenu
 	}
 
 
-	private static void SearchBook(BookManagementService bookManagementService)
+	private static void SearchBook(BookManagementService bookManagementService, IAuthorizationService authorization)
 	{
 		while (true)
 		{
@@ -668,7 +668,7 @@ public static class BookMenu
 				return;
 			}
 
-			Console.WriteLine("\n{0, -20}", "1. Title");
+			Console.WriteLine("{0, -20}", "1. Title");
 			Console.WriteLine("{0, -20}", "2. ISBN");
 			Console.WriteLine("{0, -20}", "3. Author");
 			Console.WriteLine("{0, -20}", "4. Translator");
@@ -688,7 +688,7 @@ public static class BookMenu
 					var searchTerm = ConsoleHelper.ReadString("Enter a title to search");
 					if (string.IsNullOrWhiteSpace(searchTerm)) continue;
 					var results = bookManagementService.SearchBooks(searchTerm, BookSearchField.BookName);
-					DisplayBookResults(results);
+					DisplayBookResults(results, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -698,7 +698,7 @@ public static class BookMenu
 					var searchTerm = ConsoleHelper.ReadISBN("Enter an ISBN to search");
 					if (string.IsNullOrWhiteSpace(searchTerm)) continue;
 					var results = bookManagementService.SearchBooks(searchTerm, BookSearchField.ISBN);
-					DisplayBookResults(results);
+					DisplayBookResults(results, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -708,7 +708,7 @@ public static class BookMenu
 					var searchTerm = ConsoleHelper.ReadString("Enter an author name");
 					if (string.IsNullOrWhiteSpace(searchTerm)) continue;
 					var results = bookManagementService.SearchBooks(searchTerm, BookSearchField.AuthorName);
-					DisplayBookResults(results);
+					DisplayBookResults(results, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -718,7 +718,7 @@ public static class BookMenu
 					var searchTerm = ConsoleHelper.ReadString("Enter a translator name");
 					if (string.IsNullOrWhiteSpace(searchTerm)) continue;
 					var results = bookManagementService.SearchBooks(searchTerm, BookSearchField.TranslatorName);
-					DisplayBookResults(results);
+					DisplayBookResults(results, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -729,7 +729,7 @@ public static class BookMenu
 					if (searchTerm is null) continue;
 					var results = bookManagementService.SearchBooks(searchTerm.Value.ToString("yyyy-MM-dd"),
 						BookSearchField.PublishDate);
-					DisplayBookResults(results);
+					DisplayBookResults(results, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -739,7 +739,7 @@ public static class BookMenu
 					var searchTerm = ConsoleHelper.ReadGenre("Enter a genre to search");
 					if (searchTerm is null) continue;
 					var results = bookManagementService.SearchBooks(searchTerm.Value.ToString(), BookSearchField.Genre);
-					DisplayBookResults(results);
+					DisplayBookResults(results, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -749,7 +749,7 @@ public static class BookMenu
 					var searchTerm = ConsoleHelper.ReadString("Enter a publisher to search");
 					if (string.IsNullOrWhiteSpace(searchTerm)) continue;
 					var results = bookManagementService.SearchBooks(searchTerm, BookSearchField.Publisher);
-					DisplayBookResults(results);
+					DisplayBookResults(results, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -763,7 +763,7 @@ public static class BookMenu
 	}
 
 
-	private static void DisplayBookResults(IReadOnlyList<BookDto> result)
+	private static void DisplayBookResults(IReadOnlyList<BookDto> result, IAuthorizationService authorization)
 	{
 		if (result.Count == 0)
 		{
@@ -771,7 +771,7 @@ public static class BookMenu
 			return;
 		}
 
-		BookPrinter.PrintTable(result);
+		BookPrinter.PrintTable(result, authorization);
 	}
 
 

@@ -33,7 +33,7 @@ public static class FineMenu
 		var continueProgram = true;
 		while (continueProgram)
 		{
-			Console.Clear();
+			Console.Clear();;
 			if (!session.IsAuthenticated)
 			{
 				ConsoleHelper.ShowError(Messages.SessionExpired);
@@ -50,7 +50,7 @@ public static class FineMenu
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.PayFine, Messages.AccessDenied))
 						break;
-					Console.Clear();
+					Console.Clear();;
 					PayFine(fineManagementService, session);
 					ConsoleHelper.Pause();
 					break;
@@ -59,28 +59,28 @@ public static class FineMenu
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.WaiveFine, Messages.AccessDenied))
 						break;
-					Console.Clear();
+					Console.Clear();;
 					WaiveFine(fineManagementService, session);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
 				{
-					Console.Clear();
+					Console.Clear();;
 					ViewFines(fineManagementService, userManagementService, session, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
 				{
-					Console.Clear();
+					Console.Clear();;
 					ViewUnpaidFines(fineManagementService, userManagementService, session, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 5:
 				{
-					Console.Clear();
+					Console.Clear();;
 					History(fineManagementService, userManagementService, session, authorization);
 					ConsoleHelper.Pause();
 					break;
@@ -211,7 +211,7 @@ public static class FineMenu
 	{
 		while (true)
 		{
-			Console.Clear();
+			Console.Clear();;
 			Console.WriteLine(new string('=', 36) + " VIEW FINE MENU " + new string('=', 36));
 			Console.WriteLine("1. View Fines By User");
 			Console.WriteLine("2. Back");
@@ -223,14 +223,14 @@ public static class FineMenu
 			{
 				case 1:
 				{
-					Console.Clear();
+					Console.Clear();;
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewFinesByUser,
 						    Messages.AccessDenied))
 						break;
 
 					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
 					if (user is null) break;
-					Console.Clear();
+					Console.Clear();;
 
 					var fines = fineManagementService.GetFinesByUser(user.Id);
 					DisplayFines(fines, Messages.FineNotFound);
@@ -275,7 +275,7 @@ public static class FineMenu
 	{
 		while (true)
 		{
-			Console.Clear();
+			Console.Clear();;
 			Console.WriteLine(new string('=', 33) + " VIEW UNPAID FINE MENU " + new string('=', 33));
 			Console.WriteLine("1. View Unpaid Fines By User");
 			Console.WriteLine("2. Back");
@@ -287,14 +287,14 @@ public static class FineMenu
 			{
 				case 1:
 				{
-					Console.Clear();
+					Console.Clear();;
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewUnpaidFinesByUser,
 						    Messages.AccessDenied))
 						break;
 
 					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
 					if (user is null) break;
-					Console.Clear();
+					Console.Clear();;
 
 					var fines = fineManagementService.GetUnpaidFinesByUser(user.Id);
 					DisplayFines(fines, Messages.UnpaidFineNotFound);
@@ -323,19 +323,19 @@ public static class FineMenu
 
 		while (true)
 		{
-			Console.Clear();
+			Console.Clear();;
 			switch (HistoryMenuList(authorization))
 			{
 				case 1:
 				{
-					Console.Clear();
+					Console.Clear();;
 					ViewFineHistoryByUser(fineManagementService, userManagementService, session, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
-					Console.Clear();
+					Console.Clear();;
 					ViewFullFineHistory(fineManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;

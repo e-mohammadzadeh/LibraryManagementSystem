@@ -212,7 +212,7 @@ public static class LoanMenu
 			return;
 		}
 
-		BookPrinter.PrintTable(availableBooks);
+		BookPrinter.PrintTable(availableBooks, authorization);
 		int bookId;
 		while (true)
 		{

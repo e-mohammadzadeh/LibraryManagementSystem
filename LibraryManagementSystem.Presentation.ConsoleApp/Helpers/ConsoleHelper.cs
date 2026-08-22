@@ -5,6 +5,8 @@ using LibraryManagementSystem.Application.DTOs.Translators;
 using LibraryManagementSystem.Application.Validators;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
@@ -375,15 +377,17 @@ public static class ConsoleHelper
 
 	public static void DisplayGenres()
 	{
-		Console.WriteLine("\n{0,3} {1, 15}", "ID", "Genre Name");
-		Console.WriteLine("============================");
+		Console.OutputEncoding = Encoding.UTF8;
+		var headers = new[] { "ID", "Genre Name" };
 		var values = Enum.GetValues<Genre>();
-		for (var i = 0; i < values.Length; i++)
-		{
-			Console.WriteLine("{0,3} {1, 15}", i + 1, values.GetValue(i));
-		}
+		var rows = values.Select((t, i) => (string[][])[[(i + 1).ToString()], [SplitCamelCase(t.ToString())]]).ToList();
+		ConsoleTable.PrintTable("Genre List", headers, rows);
+	}
 
-		Console.WriteLine("============================");
+
+	private static string SplitCamelCase(string input)
+	{
+		return System.Text.RegularExpressions.Regex.Replace(input, "([a-z])([A-Z])", "$1 $2");
 	}
 
 
@@ -405,4 +409,13 @@ public static class ConsoleHelper
 		ShowInfo(Messages.PressToContinue);
 		Console.ReadKey(true);
 	}
+
+	public static void ClearConsole() {
+		// 1. Clear the visible console screen
+		Console.Clear();
+
+		// 2. Send the ANSI escape command to wipe the scrollback buffer
+		Console.Write("\e[3J");
+	}
+
 }
