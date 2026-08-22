@@ -88,6 +88,16 @@ public static class UserMenu
 				}
 				case 5:
 				{
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewMemberDetails,
+						    Messages.AccessDenied))
+						break;
+					Console.Clear();
+					ViewOwnDetails(userManagementService, session);
+					ConsoleHelper.Pause();
+					break;
+				}
+				case 6:
+				{
 					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
 						    Permission.ViewUserDetails, Permission.ViewOwnDetails))
 						break;
@@ -96,7 +106,7 @@ public static class UserMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 6:
+				case 7:
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllUsers, Messages.AccessDenied))
 						break;
@@ -108,7 +118,7 @@ public static class UserMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 7:
+				case 8:
 				{
 					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
 						    Permission.RenewLibrarianMembership, Permission.RenewMemberMembership))
@@ -118,7 +128,7 @@ public static class UserMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 8:
+				case 9:
 				{
 					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
 						    Permission.ChangePassword, Permission.ChangeOwnPassword))
@@ -128,7 +138,7 @@ public static class UserMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 9:
+				case 10:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					continueProgram = false;
@@ -147,14 +157,15 @@ public static class UserMenu
 			(2, "Edit User", authorization.HasPermission(Permission.EditUser)),
 			(3, "Remove User", authorization.HasPermission(Permission.RemoveUser)),
 			(4, "Search User", authorization.HasPermission(Permission.SearchUser)),
-			(5, "View User Details",
+			(5, "View Own Details", authorization.HasPermission(Permission.ViewMemberDetails)),
+			(6, "View User Details",
 				authorization.HasAnyPermission(Permission.ViewUserDetails, Permission.ViewOwnDetails)),
-			(6, "View All Users", authorization.HasPermission(Permission.ViewAllUsers)),
-			(7, "Renew Membership",
+			(7, "View All Users", authorization.HasPermission(Permission.ViewAllUsers)),
+			(8, "Renew Membership",
 				authorization.HasAnyPermission(Permission.RenewMemberMembership, Permission.RenewLibrarianMembership)),
-			(8, "Change Password",
+			(9, "Change Password",
 				authorization.HasAnyPermission(Permission.ChangePassword, Permission.ChangeOwnPassword)),
-			(9, "Back", true)
+			(10, "Back", true)
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
@@ -164,9 +175,9 @@ public static class UserMenu
 			Console.WriteLine(new string('=', 36) + " USER MENU " + new string('=', 36));
 
 			var displayNumber = 1;
-			foreach (var item in availableItems)
+			foreach (var (_, displayText, _) in availableItems)
 			{
-				Console.WriteLine($"{displayNumber}. {item.DisplayText}");
+				Console.WriteLine($"{displayNumber}. {displayText}");
 				displayNumber++;
 			}
 
@@ -286,12 +297,12 @@ public static class UserMenu
 			items.Add((8, "Back", ""));
 
 			var displayNumber = 1;
-			foreach (var item in items)
+			foreach (var (actionId, label, value) in items)
 			{
-				if (item.ActionId == 8)
-					Console.WriteLine("{0}. {1}", displayNumber, item.Label);
+				if (actionId == 8)
+					Console.WriteLine("{0}. {1}", displayNumber, label);
 				else
-					Console.WriteLine("{0}. {1, -20} [{2}]", displayNumber, item.Label, item.Value);
+					Console.WriteLine("{0}. {1, -20} [{2}]", displayNumber, label, value);
 
 				displayNumber++;
 			}
@@ -417,7 +428,7 @@ public static class UserMenu
 			MenuHelper.SelectUser, Messages.NotAvailableUser);
 		if (desiredUser is null) return;
 
-		PersonHelper.PerformRemove(desiredUser, desiredUser.FirstName, desiredUser.LastName, UserPrinter.PrintDetails,
+		PersonHelper.PerformRemove(desiredUser, desiredUser.FirstName, desiredUser.LastName, user=> UserPrinter.PrintDetails(user),
 			() => userManagementService.RemoveUser(desiredUser.Id, session));
 	}
 
@@ -527,18 +538,10 @@ public static class UserMenu
 	private static void ViewUserDetails(UserManagementService userManagementService, ICurrentUserSession session,
 		IAuthorizationService authorization)
 	{
-		var canViewOwn = authorization.HasPermission(Permission.ViewOwnDetails);
-		var canViewOthers = authorization.HasPermission(Permission.ViewUserDetails);
-
-		if (!canViewOwn && !canViewOthers)
+		if (!authorization.HasPermission(Permission.ViewOwnDetails) &&
+		    !authorization.HasPermission(Permission.ViewUserDetails))
 		{
 			ConsoleHelper.ShowError(Messages.AccessDenied);
-			return;
-		}
-
-		if (!canViewOthers)
-		{
-			ViewOwnDetails(userManagementService, session);
 			return;
 		}
 
@@ -598,7 +601,7 @@ public static class UserMenu
 			return;
 		}
 
-		UserPrinter.PrintDetails(userDto);
+		UserPrinter.PrintDetails(userDto, "My Details");
 	}
 
 

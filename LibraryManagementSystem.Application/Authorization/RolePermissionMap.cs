@@ -104,7 +104,7 @@ public static class RolePermissionMap
 			Permission.MyOverdueLoans,
 			Permission.MyFullLoanHistory,
 
-			Permission.ViewOwnDetails,
+			Permission.ViewMemberDetails,
 			Permission.ChangeOwnPassword,
 			Permission.AssignMemberRole
 		]

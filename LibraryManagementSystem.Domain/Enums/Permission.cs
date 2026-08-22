@@ -79,6 +79,7 @@ public enum Permission
 	SearchUser,
 	ViewUserDetails,
 	ViewOwnDetails,
+	ViewMemberDetails,
 	ViewAllUsers,
 	ChangePassword,
 	ChangeOwnPassword,

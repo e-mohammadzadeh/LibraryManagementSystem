@@ -20,5 +20,5 @@ public static class ValidationConstants
 	public const int MinRenewMembershipYear = 1;
 	public const int MaxRenewMembershipYear = 3;
 	public const int DescriptionWrapWidthInTable = 28;
-	public const int BookNameWrapWidthInTable = 25;
+	public const int BookNameWrapWidthInTable = 30;
 }

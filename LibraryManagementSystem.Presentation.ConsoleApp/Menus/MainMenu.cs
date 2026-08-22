@@ -112,9 +112,9 @@ public static class MainMenu
 		{
 			Console.WriteLine(new string('=', 36) + " MAIN MENU " + new string('=', 36));
 			var displayNumber = 1;
-			foreach (var item in availableItems)
+			foreach (var (_, displayText, _) in availableItems)
 			{
-				Console.WriteLine($"{displayNumber}. {item.DisplayText}");
+				Console.WriteLine($"{displayNumber}. {displayText}");
 				displayNumber++;
 			}
 			Console.WriteLine(new string('=', 82));

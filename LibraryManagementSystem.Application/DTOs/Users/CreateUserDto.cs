@@ -9,5 +9,5 @@ public class CreateUserDto
 	public required string PhoneNumber { get; init; }
 	public required DateOnly BirthDate { get; init; }
 	public required List<int> RoleIds { get; init; } = [];
-	public required string Password { get; init; }
+	public required string? Password { get; init; }
 }

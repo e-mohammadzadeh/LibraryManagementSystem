@@ -51,7 +51,7 @@ public static class LoanMenu
 				return;
 			}
 
-			Console.Clear();
+			ConsoleHelper.ClearConsole();
 			if (authorization.CanAccessStatistics())
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
 			else

@@ -7,7 +7,7 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
 public class UserPrinter
 {
-	public static void PrintDetails(UserDto user)
+	public static void PrintDetails(UserDto user, string title="User Details")
 	{
 		Console.Clear();
 		Console.OutputEncoding = Encoding.UTF8;
@@ -29,10 +29,7 @@ public class UserPrinter
 			("Last Login", [user.LastLoginDate?.ToString("yyyy-MM-dd HH:mm") ?? "Never"]),
 		};
 
-		// Optional, if you added PreviousLoginDate on UserDto:
-		// ("Previous Login", [user.PreviousLoginDate?.ToString("yyyy-MM-dd HH:mm") ?? "—"]),
-
-		ConsoleTable.PrintKeyValueTable("User Details", rows, labelWidth: 18, valueWidth: 55);
+		ConsoleTable.PrintKeyValueTable(title, rows, labelWidth: 18, valueWidth: 55);
 	}
 
 
