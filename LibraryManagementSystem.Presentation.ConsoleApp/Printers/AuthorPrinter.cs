@@ -53,4 +53,39 @@ public static class AuthorPrinter
 
 		ConsoleTable.PrintTable("Author Search Result", headers, rows);
 	}
+
+
+	public static void PrintFullTable(IReadOnlyList<AuthorDto> authors)
+	{
+		if (authors.Count == 0)
+		{
+			ConsoleHelper.ShowError(Messages.NotAvailableAuthor);
+			return;
+		}
+
+		Console.Clear();
+		Console.OutputEncoding = Encoding.UTF8;
+
+		var headers = new[]
+		{
+			"ID", "Author Name", "National Code", "Email Address", "Phone Number", "Birth Date", "Biography",
+			"Books (ISBN)"
+		};
+
+		var rows = authors.Select(author => new[]
+		{
+			[author.Id.ToString()],
+			[author.FullName],
+			[author.NationalCode],
+			[author.Email],
+			[author.PhoneNumber],
+			[author.BirthDate.ToString("yyyy-MM-dd")],
+			[author.Biography ?? "N/A"],
+			author.Books.Count > 0
+				? author.Books.Select(book => $"{book.BookName} ({book.ISBN})").ToArray()
+				: ["No books"]
+		}).ToList();
+
+		ConsoleTable.PrintTable("Author Full Information", headers, rows);
+	}
 }

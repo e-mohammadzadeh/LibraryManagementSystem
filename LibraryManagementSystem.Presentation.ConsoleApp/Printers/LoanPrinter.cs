@@ -33,31 +33,6 @@ public static class LoanPrinter
 	}
 
 
-
-	//public static void PrintTable(IReadOnlyList<LoanDto> loans)
-	//{
-	//	if (loans.Count == 0)
-	//	{
-	//		ConsoleHelper.ShowError(Messages.NotAvailableLoan);
-	//		return;
-	//	}
-
-	//	Console.WriteLine("\n{0,-3} {1, -50} {2, -30} {3, -12} {4, -12} {5, -12} {6, -12} {7, -12}", "ID", "Book", "User",
-	//		"Borrow Date", "Return Date", "Due Date", "Status", "Overdue");
-
-	//	Console.WriteLine(new string('=', 170));
-
-	//	foreach (var loan in loans)
-	//	{
-	//		Console.WriteLine("{0,-3} {1, -50} {2, -30} {3, -12} {4, -12} {5, -12} {6, -12} {7, -12}", loan.LoanId,
-	//			loan.BookName, loan.UserName, loan.BorrowDate, loan.ReturnDate, loan.DueDate, loan.Status, loan.IsOverdue? "\u2705": "\u274C");
-	//	}
-
-	//	Console.WriteLine(new string('=', 170));
-	//}
-
-
-
 	public static void PrintTable(IReadOnlyList<LoanDto> loans)
 	{
 		if (loans.Count == 0)

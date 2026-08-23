@@ -110,7 +110,7 @@ public static class TranslatorMenu
 					if (translatorManagementService.GetAllTranslators().Count is 0)
 						ConsoleHelper.ShowWarning(Messages.NotAvailableTranslator);
 					else
-						TranslatorPrinter.PrintTable(translatorManagementService.GetAllTranslators());
+						TranslatorPrinter.PrintFullTable(translatorManagementService.GetAllTranslators());
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -310,6 +310,11 @@ public static class TranslatorMenu
 			return;
 		}
 
+		Action<IReadOnlyList<TranslatorDto>> printer =
+			authorization.HasAnyPermission(Permission.ViewTranslatorDetails, Permission.ViewAllTranslators)
+				? TranslatorPrinter.PrintFullTable
+				: TranslatorPrinter.PrintTable;
+
 		while (true)
 		{
 			Console.Clear();
@@ -356,8 +361,8 @@ public static class TranslatorMenu
 			};
 
 			PersonHelper.SearchAndDisplay(prompt,
-				term => translatorManagementService.SearchTranslator(term, selected.Field!.Value),
-				TranslatorPrinter.PrintTable, Messages.NotTranslatorMatched);
+				term => translatorManagementService.SearchTranslator(term, selected.Field!.Value), printer,
+				Messages.NotTranslatorMatched);
 
 			ConsoleHelper.Pause();
 		}

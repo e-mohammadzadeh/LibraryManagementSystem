@@ -61,14 +61,7 @@ public static class BookPrinter
 
 		var headers = new[]
 		{
-			"ID",
-			"Book Name",
-			"ISBN",
-			"Author(s)",
-			"Translator(s)",
-			"Genre",
-			"Publish Date",
-			"Description",
+			"ID", "Book Name", "ISBN", "Author(s)", "Translator(s)", "Genre", "Publish Date", "Description",
 			"Availability"
 		};
 

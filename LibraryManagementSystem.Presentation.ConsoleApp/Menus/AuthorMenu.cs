@@ -57,7 +57,7 @@ public static class AuthorMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.EditAuthor, Messages.AccessDenied))
 						break;
 					Console.Clear();
-					EditAuthor(authorManagementService);
+					EditAuthor(authorManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -66,7 +66,7 @@ public static class AuthorMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveAuthor, Messages.AccessDenied))
 						break;
 					Console.Clear();
-					RemoveAuthor(authorManagementService);
+					RemoveAuthor(authorManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -85,7 +85,7 @@ public static class AuthorMenu
 						break;
 					Console.Clear();
 					var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
-						MenuHelper.SelectAuthor, Messages.NotAvailableAuthor);
+						author => MenuHelper.SelectAuthor(author, authorization), Messages.NotAvailableAuthor);
 					if (desiredAuthor is not null) AuthorPrinter.PrintDetails(desiredAuthor);
 					ConsoleHelper.Pause();
 					break;
@@ -106,7 +106,7 @@ public static class AuthorMenu
 					if (authorManagementService.GetAllAuthors().Count is 0)
 						ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
 					else
-						AuthorPrinter.PrintTable(authorManagementService.GetAllAuthors());
+						AuthorPrinter.PrintFullTable(authorManagementService.GetAllAuthors());
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -191,10 +191,11 @@ public static class AuthorMenu
 	}
 
 
-	private static void EditAuthor(AuthorManagementService authorManagementService)
+	private static void EditAuthor(AuthorManagementService authorManagementService, IAuthorizationService authorization)
 	{
 		Console.WriteLine(new string('=', 36) + " EDITING AUTHOR MENU " + new string('=', 36));
-		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(), MenuHelper.SelectAuthor,
+		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
+			author => MenuHelper.SelectAuthor(author, authorization),
 			Messages.NotAvailableAuthor);
 		if (desiredAuthor is null) return;
 
@@ -294,11 +295,13 @@ public static class AuthorMenu
 	}
 
 
-	private static void RemoveAuthor(AuthorManagementService authorManagementService)
+	private static void RemoveAuthor(AuthorManagementService authorManagementService,
+		IAuthorizationService authorization)
 	{
 		// TODO	(SQL Server)	Implement SOFT DELETE system with flags like `IsDeleted = true` or `IsActive = False`
 		Console.WriteLine(new string('=', 36) + " REMOVING AUTHOR MENU " + new string('=', 36));
-		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(), MenuHelper.SelectAuthor,
+		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
+			author => MenuHelper.SelectAuthor(author, authorization),
 			Messages.NotAvailableAuthor);
 
 		PersonHelper.PerformRemove(desiredAuthor, desiredAuthor?.FirstName ?? "", desiredAuthor?.LastName ?? "",
@@ -316,6 +319,11 @@ public static class AuthorMenu
 			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
 		}
+
+		Action<IReadOnlyList<AuthorDto>> printer =
+			authorization.HasAnyPermission(Permission.ViewAuthorDetails, Permission.ViewAllAuthors)
+				? AuthorPrinter.PrintFullTable
+				: AuthorPrinter.PrintTable;
 
 		while (true)
 		{
@@ -360,8 +368,8 @@ public static class AuthorMenu
 			};
 
 			PersonHelper.SearchAndDisplay(prompt,
-				term => authorManagementService.SearchAuthor(term, selected.Field!.Value),
-				AuthorPrinter.PrintTable, Messages.NotAuthorMatched);
+				term => authorManagementService.SearchAuthor(term, selected.Field!.Value), printer,
+				Messages.NotAuthorMatched);
 
 			ConsoleHelper.Pause();
 		}
@@ -384,8 +392,8 @@ public static class AuthorMenu
 		IAuthorizationService authorization)
 	{
 		if (!SessionGuard.RequirePermission(authorization, Permission.ViewAuthorBooks, Messages.AccessDenied)) return;
-		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(), MenuHelper.SelectAuthor,
-			Messages.NotAvailableAuthor);
+		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
+			author => MenuHelper.SelectAuthor(author, authorization), Messages.NotAvailableAuthor);
 		if (desiredAuthor is null) return;
 
 		var books = authorManagementService.GetBooksByAuthor(desiredAuthor.Id);

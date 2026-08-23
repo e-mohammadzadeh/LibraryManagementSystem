@@ -1,9 +1,11 @@
-﻿using LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Application.Authorization;
+using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Application.DTOs.Library;
 using LibraryManagementSystem.Application.DTOs.Translators;
 using LibraryManagementSystem.Application.DTOs.Users;
+using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
@@ -45,7 +47,7 @@ public static class MenuHelper
 	}
 
 
-	public static AuthorDto? SelectAuthor(IReadOnlyList<AuthorDto> authorsList)
+	public static AuthorDto? SelectAuthor(IReadOnlyList<AuthorDto> authorsList, IAuthorizationService authorization)
 	{
 		if (authorsList.Count == 0)
 		{
@@ -53,9 +55,13 @@ public static class MenuHelper
 			return null;
 		}
 
+		Action<IReadOnlyList<AuthorDto>> printer =
+			authorization.HasAnyPermission(Permission.ViewAuthorDetails, Permission.ViewAllAuthors)
+				? AuthorPrinter.PrintFullTable
+				: AuthorPrinter.PrintTable;
 		while (true)
 		{
-			AuthorPrinter.PrintTable(authorsList);
+			printer(authorsList);
 			// TODO	Max parameter has some logical issues when authors are removed and new authors are added.
 			var desiredAuthorId = ConsoleHelper.ReadInt("Enter the number of the author you wish", 1,
 				authorsList.Max(a => a.Id));

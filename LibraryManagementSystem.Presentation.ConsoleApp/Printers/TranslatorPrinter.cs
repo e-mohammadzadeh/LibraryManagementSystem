@@ -54,4 +54,35 @@ public class TranslatorPrinter
 
 		ConsoleTable.PrintTable("Translator Search Result", headers, rows);
 	}
+
+
+	public static void PrintFullTable(IReadOnlyList<TranslatorDto> translators)
+	{
+		if (translators.Count == 0)
+		{
+			ConsoleHelper.ShowError(Messages.NotAvailableTranslator);
+			return;
+		}
+
+		Console.Clear();
+		Console.OutputEncoding = Encoding.UTF8;
+
+		var headers = new[]
+			{ "ID", "Translator Name", "National Code", "Email Address", "Phone Number", "Birth Date", "Books (ISBN)" };
+
+		var rows = translators.Select(translator => new[]
+		{
+			[translator.Id.ToString()],
+			[translator.FullName],
+			[translator.NationalCode],
+			[translator.Email],
+			[translator.PhoneNumber],
+			[translator.BirthDate.ToString("yyyy-MM-dd")],
+			translator.Books.Count > 0
+				? translator.Books.Select(book => $"{book.BookName} ({book.ISBN})").ToArray()
+				: ["No books"]
+		}).ToList();
+
+		ConsoleTable.PrintTable("Translator Full Information", headers, rows);
+	}
 }
