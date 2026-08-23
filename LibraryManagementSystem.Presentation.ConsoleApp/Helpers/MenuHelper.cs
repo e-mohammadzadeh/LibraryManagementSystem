@@ -77,7 +77,8 @@ public static class MenuHelper
 
 
 
-	public static TranslatorDto? SelectTranslator(IReadOnlyList<TranslatorDto> translatorsList)
+	public static TranslatorDto? SelectTranslator(IReadOnlyList<TranslatorDto> translatorsList,
+		IAuthorizationService authorization)
 	{
 		if (translatorsList.Count == 0)
 		{
@@ -85,9 +86,14 @@ public static class MenuHelper
 			return null;
 		}
 
+		Action<IReadOnlyList<TranslatorDto>> printer =
+			authorization.HasAnyPermission(Permission.ViewTranslatorDetails, Permission.ViewAllTranslators)
+				? TranslatorPrinter.PrintFullTable
+				: TranslatorPrinter.PrintTable;
+
 		while (true)
 		{
-			TranslatorPrinter.PrintTable(translatorsList);
+			printer(translatorsList);
 			// TODO	Max parameter has some logical issues when authors are removed and new authors are added.
 			var desiredTranslatorId =
 				ConsoleHelper.ReadInt(Messages.SelectTranslatorQuestion, 1, translatorsList.Max(t => t.Id));

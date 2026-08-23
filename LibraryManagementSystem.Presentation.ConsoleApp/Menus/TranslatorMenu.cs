@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Application.Authentication;
+﻿using System.Text;
+using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Translators;
@@ -58,7 +59,7 @@ public static class TranslatorMenu
 						    Messages.AccessDenied))
 						break;
 					Console.Clear();
-					EditTranslator(translatorManagementService);
+					EditTranslator(translatorManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -68,7 +69,7 @@ public static class TranslatorMenu
 						    Messages.AccessDenied))
 						break;
 					Console.Clear();
-					RemoveTranslator(translatorManagementService);
+					RemoveTranslator(translatorManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -89,7 +90,8 @@ public static class TranslatorMenu
 						break;
 					Console.Clear();
 					var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
-						MenuHelper.SelectTranslator, Messages.NotAvailableTranslator);
+						translator => MenuHelper.SelectTranslator(translator, authorization),
+						Messages.NotAvailableTranslator);
 					if (desiredTranslator is not null) TranslatorPrinter.PrintDetails(desiredTranslator);
 					ConsoleHelper.Pause();
 					break;
@@ -146,9 +148,9 @@ public static class TranslatorMenu
 			Console.WriteLine(new string('=', 33) + " TRANSLATOR MENU " + new string('=', 33));
 
 			var displayNumber = 1;
-			foreach (var item in availableItems)
+			foreach (var (_, displayText, _) in availableItems)
 			{
-				Console.WriteLine($"{displayNumber}. {item.DisplayText}");
+				Console.WriteLine($"{displayNumber}. {displayText}");
 				displayNumber++;
 			}
 
@@ -193,23 +195,34 @@ public static class TranslatorMenu
 	}
 
 
-	private static void EditTranslator(TranslatorManagementService translatorManagementService)
+	private static void EditTranslator(TranslatorManagementService translatorManagementService,
+		IAuthorizationService authorization)
 	{
 		Console.WriteLine(new string('=', 36) + " EDITING TRANSLATOR MENU " + new string('=', 36));
 		var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
-			MenuHelper.SelectTranslator, Messages.NotAvailableTranslator);
+			translator => MenuHelper.SelectTranslator(translator, authorization), Messages.NotAvailableTranslator);
 		if (desiredTranslator is null) return;
 
 		while (true)
 		{
 			Console.Clear();
-			Console.WriteLine("\n{0, -20} [{1}]", "1. First Name", desiredTranslator.FirstName);
-			Console.WriteLine("{0, -20} [{1}]", "2. Last Name", desiredTranslator.LastName);
-			Console.WriteLine("{0, -20} [{1}]", "3. National Code", desiredTranslator.NationalCode);
-			Console.WriteLine("{0, -20} [{1}]", "4. Email", desiredTranslator.Email);
-			Console.WriteLine("{0, -20} [{1}]", "5. Phone Number", desiredTranslator.PhoneNumber);
-			Console.WriteLine("{0, -20} [{1}]", "6. Birth Date", desiredTranslator.BirthDate);
-			Console.WriteLine("7. Cancel");
+			Console.OutputEncoding = Encoding.UTF8;
+
+			var headers = new[] { "#", "Field", "Current Value" };
+
+			var rows = new List<string[][]>
+			{
+				new[] { ["1"], ["First Name"], new[] { desiredTranslator.FirstName } },
+				new[] { ["2"], ["Last Name"], new[] { desiredTranslator.LastName } },
+				new[] { ["3"], ["National Code"], new[] { desiredTranslator.NationalCode } },
+				new[] { ["4"], ["Email"], new[] { desiredTranslator.Email } },
+				new[] { ["5"], ["Phone Number"], new[] { desiredTranslator.PhoneNumber } },
+				new[] { ["6"], ["Birth Date"], new[] { desiredTranslator.BirthDate.ToString("yyyy-MM-dd") } },
+				new[] { ["7"], ["Back"], new[] { "—" } }
+			};
+
+			ConsoleTable.PrintTable("Edit Translator", headers, rows);
+
 			var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 7);
 			if (editMenuChoice == null) return;
 
@@ -217,7 +230,6 @@ public static class TranslatorMenu
 			{
 				case 1:
 				{
-					Console.Clear();
 					var translatorNewFirstName = ConsoleHelper.GetValidName("Enter new first name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
@@ -228,7 +240,6 @@ public static class TranslatorMenu
 				}
 				case 2:
 				{
-					Console.Clear();
 					var translatorNewLastName = ConsoleHelper.GetValidName("Enter new last name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
@@ -239,7 +250,6 @@ public static class TranslatorMenu
 				}
 				case 3:
 				{
-					Console.Clear();
 					var translatorNewNationalCode = ConsoleHelper.GetValidNationalCode("Enter new national code");
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
 						translatorNewNationalCode, v => new UpdateTranslatorDto { NationalCode = v });
@@ -248,7 +258,6 @@ public static class TranslatorMenu
 				}
 				case 4:
 				{
-					Console.Clear();
 					var translatorNewEmail = ConsoleHelper.GetValidEmail("Enter new email");
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id, translatorNewEmail,
 						v => new UpdateTranslatorDto { Email = v });
@@ -257,7 +266,6 @@ public static class TranslatorMenu
 				}
 				case 5:
 				{
-					Console.Clear();
 					var translatorNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter new phone number");
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
 						translatorNewPhoneNumber, v => new UpdateTranslatorDto { PhoneNumber = v });
@@ -266,7 +274,6 @@ public static class TranslatorMenu
 				}
 				case 6:
 				{
-					Console.Clear();
 					var translatorNewBirthDate = ConsoleHelper.GetValidBirthDate("Enter new birth date");
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
 						translatorNewBirthDate, v => new UpdateTranslatorDto { BirthDate = v });
@@ -286,12 +293,13 @@ public static class TranslatorMenu
 	}
 
 
-	private static void RemoveTranslator(TranslatorManagementService translatorManagementService)
+	private static void RemoveTranslator(TranslatorManagementService translatorManagementService,
+		IAuthorizationService authorization)
 	{
 		// TODO	(SQL Server)	Implement SOFT DELETE system with flags like `IsDeleted = true` or `IsActive = False`
 		Console.WriteLine(new string('=', 36) + " REMOVING TRANSLATOR MENU " + new string('=', 36));
 		var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
-			MenuHelper.SelectTranslator, Messages.NotAvailableTranslator);
+			translator => MenuHelper.SelectTranslator(translator, authorization), Messages.NotAvailableTranslator);
 
 		PersonHelper.PerformRemove(desiredTranslator, desiredTranslator?.FirstName ?? "",
 			desiredTranslator?.LastName ?? "", TranslatorPrinter.PrintDetails,
@@ -387,7 +395,7 @@ public static class TranslatorMenu
 		if (!SessionGuard.RequirePermission(authorization, Permission.ViewTranslatorBooks, Messages.AccessDenied))
 			return;
 		var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
-			MenuHelper.SelectTranslator, Messages.NotAvailableTranslator);
+			translator => MenuHelper.SelectTranslator(translator, authorization), Messages.NotAvailableTranslator);
 		if (desiredTranslator is null) return;
 
 		var books = translatorManagementService.GetBooksByTranslator(desiredTranslator.Id);
