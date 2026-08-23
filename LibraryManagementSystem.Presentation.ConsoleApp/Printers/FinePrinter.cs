@@ -32,6 +32,32 @@ public static class FinePrinter
 	}
 
 
+	//public static void PrintTable(IReadOnlyList<FineDto> fines)
+	//{
+	//	if (fines.Count == 0)
+	//	{
+	//		ConsoleHelper.ShowError(Messages.FineNotFound);
+	//		return;
+	//	}
+
+	//	Console.Clear();
+	//	Console.WriteLine("\n{0,-4} {1,-8} {2,-35} {3,-35} {4,-10} {5,-8} {6,-10}", "ID", "Loan ID", "User", "Book",
+	//		"Amount", "Days", "Status");
+	//	Console.WriteLine(new string('=', 130));
+
+	//	foreach (var fine in fines)
+	//	{
+	//		var userName = fine.UserFullName.Length > 33 ? fine.UserFullName[..20] + "..." : fine.UserFullName;
+	//		var bookName = fine.BookName.Length > 33 ? fine.BookName[..25] + "..." : fine.BookName;
+
+	//		Console.WriteLine("{0,-4} {1,-8} {2,-35} {3,-35} {4,-10} {5,-8} {6,-10}", fine.FineId, fine.LoanId,
+	//			userName, bookName, $"{fine.Amount:F2}", fine.OverdueDays, fine.Status);
+	//	}
+
+	//	Console.WriteLine(new string('=', 130));
+	//}
+
+
 	public static void PrintTable(IReadOnlyList<FineDto> fines)
 	{
 		if (fines.Count == 0)
@@ -41,19 +67,21 @@ public static class FinePrinter
 		}
 
 		Console.Clear();
-		Console.WriteLine("\n{0,-4} {1,-8} {2,-35} {3,-35} {4,-10} {5,-8} {6,-10}", "ID", "Loan ID", "User", "Book",
-			"Amount", "Days", "Status");
-		Console.WriteLine(new string('=', 130));
+		Console.OutputEncoding = Encoding.UTF8;
 
-		foreach (var fine in fines)
+		var headers = new[] { "ID", "Loan ID", "User", "Book", "Amount", "Days", "Status" };
+
+		var rows = fines.Select(fine => new[]
 		{
-			var userName = fine.UserFullName.Length > 33 ? fine.UserFullName[..20] + "..." : fine.UserFullName;
-			var bookName = fine.BookName.Length > 33 ? fine.BookName[..25] + "..." : fine.BookName;
+			[fine.FineId.ToString()],
+			[fine.LoanId.ToString()],
+			ConsoleTable.WrapText(fine.UserFullName, 24),
+			ConsoleTable.WrapText(fine.BookName, 28),
+			[$"{fine.Amount:F2}"],
+			[fine.OverdueDays.ToString()],
+			[fine.Status.ToString()]
+		}).ToList();
 
-			Console.WriteLine("{0,-4} {1,-8} {2,-35} {3,-35} {4,-10} {5,-8} {6,-10}", fine.FineId, fine.LoanId,
-				userName, bookName, $"{fine.Amount:F2}", fine.OverdueDays, fine.Status);
-		}
-
-		Console.WriteLine(new string('=', 130));
+		ConsoleTable.PrintTable("Fines List", headers, rows);
 	}
 }

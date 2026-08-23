@@ -84,13 +84,13 @@ public static class BookPrinter
 
 			var description = string.IsNullOrWhiteSpace(book.Description)
 				? ["—"]
-				: WrapText(book.Description, ValidationConstants.DescriptionWrapWidthInTable);
+				: ConsoleTable.WrapText(book.Description, ValidationConstants.DescriptionWrapWidthInTable);
 
 			var availability = showExactCopies
 				? new[] { $"{book.AvailableCopies}/{book.TotalCopies}" }
 				: new[] { book.AvailableCopies > 0 ? "Available" : "Not available" };
 
-			var bookName = WrapText(book.BookName, ValidationConstants.BookNameWrapWidthInTable);
+			var bookName = ConsoleTable.WrapText(book.BookName, ValidationConstants.BookNameWrapWidthInTable);
 
 			return new[]
 			{
@@ -107,48 +107,6 @@ public static class BookPrinter
 		}).ToList();
 
 		ConsoleTable.PrintTable("Book List", headers, rows);
-	}
-
-
-	private static string[] WrapText(string text, int maxWidth)
-	{
-		if (string.IsNullOrWhiteSpace(text)) return ["—"];
-
-		text = text.Replace("\r\n", " ").Replace('\n', ' ').Replace('\r', ' ');
-		var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-		var lines = new List<string>();
-		var current = "";
-
-		foreach (var word in words)
-		{
-			if (word.Length > maxWidth)
-			{
-				if (current.Length > 0)
-				{
-					lines.Add(current);
-					current = "";
-				}
-
-				// Hard-split very long tokens
-				for (var i = 0; i < word.Length; i += maxWidth)
-					lines.Add(word.Substring(i, Math.Min(maxWidth, word.Length - i)));
-				continue;
-			}
-
-			var candidate = current.Length == 0 ? word : $"{current} {word}";
-			if (candidate.Length <= maxWidth)
-			{
-				current = candidate;
-			}
-			else
-			{
-				lines.Add(current);
-				current = word;
-			}
-		}
-
-		if (current.Length > 0) lines.Add(current);
-		return lines.Count > 0 ? lines.ToArray() : ["—"];
 	}
 
 

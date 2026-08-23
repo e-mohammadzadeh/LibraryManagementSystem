@@ -152,9 +152,9 @@ public static class LoanMenu
 			Console.WriteLine(new string('=', 36) + " LOAN MENU " + new string('=', 36));
 
 			var displayNumber = 1;
-			foreach (var item in availableItems)
+			foreach (var (_, displayText, _) in availableItems)
 			{
-				Console.WriteLine($"{displayNumber}. {item.DisplayText}");
+				Console.WriteLine($"{displayNumber}. {displayText}");
 				displayNumber++;
 			}
 

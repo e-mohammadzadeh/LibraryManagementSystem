@@ -1,13 +1,14 @@
-﻿using System.Text;
-using LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Loans;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
+using System.Text;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
 public static class LoanPrinter
 {
-	public static void PrintDetails(LoanDto loan) {
+	public static void PrintDetails(LoanDto loan)
+	{
 		Console.Clear();
 		Console.OutputEncoding = Encoding.UTF8;
 
@@ -33,6 +34,30 @@ public static class LoanPrinter
 
 
 
+	//public static void PrintTable(IReadOnlyList<LoanDto> loans)
+	//{
+	//	if (loans.Count == 0)
+	//	{
+	//		ConsoleHelper.ShowError(Messages.NotAvailableLoan);
+	//		return;
+	//	}
+
+	//	Console.WriteLine("\n{0,-3} {1, -50} {2, -30} {3, -12} {4, -12} {5, -12} {6, -12} {7, -12}", "ID", "Book", "User",
+	//		"Borrow Date", "Return Date", "Due Date", "Status", "Overdue");
+
+	//	Console.WriteLine(new string('=', 170));
+
+	//	foreach (var loan in loans)
+	//	{
+	//		Console.WriteLine("{0,-3} {1, -50} {2, -30} {3, -12} {4, -12} {5, -12} {6, -12} {7, -12}", loan.LoanId,
+	//			loan.BookName, loan.UserName, loan.BorrowDate, loan.ReturnDate, loan.DueDate, loan.Status, loan.IsOverdue? "\u2705": "\u274C");
+	//	}
+
+	//	Console.WriteLine(new string('=', 170));
+	//}
+
+
+
 	public static void PrintTable(IReadOnlyList<LoanDto> loans)
 	{
 		if (loans.Count == 0)
@@ -41,17 +66,23 @@ public static class LoanPrinter
 			return;
 		}
 
-		Console.WriteLine("\n{0,-3} {1, -50} {2, -30} {3, -12} {4, -12} {5, -12} {6, -12} {7, -12}", "ID", "Book", "User",
-			"Borrow Date", "Return Date", "Due Date", "Status", "Overdue");
+		Console.Clear();
+		Console.OutputEncoding = Encoding.UTF8;
 
-		Console.WriteLine(new string('=', 170));
+		var headers = new[] { "ID", "Book", "User", "Borrow Date", "Return Date", "Due Date", "Status", "Overdue" };
 
-		foreach (var loan in loans)
+		var rows = loans.Select(loan => new[]
 		{
-			Console.WriteLine("{0,-3} {1, -50} {2, -30} {3, -12} {4, -12} {5, -12} {6, -12} {7, -12}", loan.LoanId,
-				loan.BookName, loan.UserName, loan.BorrowDate, loan.ReturnDate, loan.DueDate, loan.Status, loan.IsOverdue? "\u2705": "\u274C");
-		}
+			[loan.LoanId.ToString()],
+			ConsoleTable.WrapText(loan.BookName, 24),
+			ConsoleTable.WrapText(loan.UserName, 24),
+			[loan.BorrowDate.ToString("yyyy-MM-dd")],
+			[loan.ReturnDate?.ToString("yyyy-MM-dd") ?? "N/A"],
+			[loan.DueDate.ToString("yyyy-MM-dd")],
+			[loan.Status.ToString()],
+			[loan.IsOverdue ? "Yes" : "No"]
+		}).ToList();
 
-		Console.WriteLine(new string('=', 170));
+		ConsoleTable.PrintTable("Loans List", headers, rows);
 	}
 }

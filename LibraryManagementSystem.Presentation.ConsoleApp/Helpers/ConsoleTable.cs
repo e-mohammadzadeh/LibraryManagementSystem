@@ -130,8 +130,7 @@ public static class ConsoleTable
 			}
 
 			// Row separator (unless last row)
-			if (r < rows.Count - 1)
-				DrawHorizontalBorder(LMidS, RMidS, CrossS, Sh, widths);
+			if (r < rows.Count - 1) DrawHorizontalBorder(LMidS, RMidS, CrossS, Sh, widths);
 		}
 
 		// ── Bottom Border ──
@@ -200,5 +199,47 @@ public static class ConsoleTable
 		var rightPad = totalPadding - leftPad;
 
 		return new string(' ', leftPad) + text + new string(' ', rightPad);
+	}
+
+
+	public static string[] WrapText(string text, int maxWidth)
+	{
+		if (string.IsNullOrWhiteSpace(text)) return ["—"];
+
+		text = text.Replace("\r\n", " ").Replace('\n', ' ').Replace('\r', ' ');
+		var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+		var lines = new List<string>();
+		var current = "";
+
+		foreach (var word in words)
+		{
+			if (word.Length > maxWidth)
+			{
+				if (current.Length > 0)
+				{
+					lines.Add(current);
+					current = "";
+				}
+
+				// Hard-split very long tokens
+				for (var i = 0; i < word.Length; i += maxWidth)
+					lines.Add(word.Substring(i, Math.Min(maxWidth, word.Length - i)));
+				continue;
+			}
+
+			var candidate = current.Length == 0 ? word : $"{current} {word}";
+			if (candidate.Length <= maxWidth)
+			{
+				current = candidate;
+			}
+			else
+			{
+				lines.Add(current);
+				current = word;
+			}
+		}
+
+		if (current.Length > 0) lines.Add(current);
+		return lines.Count > 0 ? lines.ToArray() : ["—"];
 	}
 }
