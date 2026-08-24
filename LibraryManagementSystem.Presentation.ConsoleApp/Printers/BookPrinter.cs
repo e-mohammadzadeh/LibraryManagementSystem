@@ -12,7 +12,7 @@ public static class BookPrinter
 {
 	public static void PrintDetails(BookDto book)
 	{
-		Console.Clear();
+		ConsoleHelper.ClearConsole();
 		Console.OutputEncoding = Encoding.UTF8;
 
 		// One name/email per line when there are many (wraps cleanly in the value column)
@@ -43,7 +43,8 @@ public static class BookPrinter
 	}
 
 
-	public static void PrintTable(IReadOnlyList<BookDto> books, IAuthorizationService? authorization = null)
+	public static void PrintTable(IReadOnlyList<BookDto> books, IAuthorizationService? authorization = null,
+		string title = "Book List")
 	{
 		if (books.Count == 0)
 		{
@@ -51,7 +52,7 @@ public static class BookPrinter
 			return;
 		}
 
-		Console.Clear();
+		ConsoleHelper.ClearConsole();
 		Console.OutputEncoding = Encoding.UTF8;
 
 		var showExactCopies = authorization is null
@@ -80,7 +81,7 @@ public static class BookPrinter
 				: ConsoleTable.WrapText(book.Description, ValidationConstants.DescriptionWrapWidthInTable);
 
 			var availability = showExactCopies
-				? new[] { $"{book.AvailableCopies}/{book.TotalCopies}" }
+				? [$"{book.AvailableCopies}/{book.TotalCopies}"]
 				: new[] { book.AvailableCopies > 0 ? "Available" : "Not available" };
 
 			var bookName = ConsoleTable.WrapText(book.BookName, ValidationConstants.BookNameWrapWidthInTable);
@@ -99,7 +100,7 @@ public static class BookPrinter
 			};
 		}).ToList();
 
-		ConsoleTable.PrintTable("Book List", headers, rows);
+		ConsoleTable.PrintTable(title, headers, rows);
 	}
 
 

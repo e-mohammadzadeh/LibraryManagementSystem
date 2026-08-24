@@ -29,7 +29,7 @@ public static class AuthorPrinter
 	}
 
 
-	public static void PrintTable(IReadOnlyList<AuthorDto> authors)
+	public static void PrintTable(IReadOnlyList<AuthorDto> authors, string title= "Author List")
 	{
 		if (authors.Count == 0)
 		{
@@ -51,11 +51,11 @@ public static class AuthorPrinter
 			author.Books.Count > 0 ? author.Books.Select(b => $"{b.BookName} ({b.ISBN})").ToArray() : ["No books"]
 		}).ToList();
 
-		ConsoleTable.PrintTable("Author Search Result", headers, rows);
+		ConsoleTable.PrintTable(title, headers, rows);
 	}
 
 
-	public static void PrintFullTable(IReadOnlyList<AuthorDto> authors)
+	public static void PrintFullTable(IReadOnlyList<AuthorDto> authors, string title= "Author Full Information")
 	{
 		if (authors.Count == 0)
 		{
@@ -86,6 +86,6 @@ public static class AuthorPrinter
 				: ["No books"]
 		}).ToList();
 
-		ConsoleTable.PrintTable("Author Full Information", headers, rows);
+		ConsoleTable.PrintTable(title, headers, rows);
 	}
 }

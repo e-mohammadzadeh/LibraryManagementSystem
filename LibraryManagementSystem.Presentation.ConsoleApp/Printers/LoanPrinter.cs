@@ -41,7 +41,6 @@ public static class LoanPrinter
 			return;
 		}
 
-		Console.Clear();
 		Console.OutputEncoding = Encoding.UTF8;
 
 		var headers = new[] { "ID", "Book", "User", "Borrow Date", "Return Date", "Due Date", "Status", "Overdue" };

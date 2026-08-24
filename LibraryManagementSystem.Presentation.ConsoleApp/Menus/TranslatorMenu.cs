@@ -37,7 +37,7 @@ public static class TranslatorMenu
 				return;
 			}
 
-			Console.Clear();
+			ConsoleHelper.ClearConsole();
 			if (authorization.CanAccessStatistics())
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
 			else
@@ -195,6 +195,9 @@ public static class TranslatorMenu
 	}
 
 
+	private static readonly string[] Item = ["—"];
+
+
 	private static void EditTranslator(TranslatorManagementService translatorManagementService,
 		IAuthorizationService authorization)
 	{
@@ -218,7 +221,7 @@ public static class TranslatorMenu
 				new[] { ["4"], ["Email"], new[] { desiredTranslator.Email } },
 				new[] { ["5"], ["Phone Number"], new[] { desiredTranslator.PhoneNumber } },
 				new[] { ["6"], ["Birth Date"], new[] { desiredTranslator.BirthDate.ToString("yyyy-MM-dd") } },
-				new[] { ["7"], ["Back"], new[] { "—" } }
+				new[] { ["7"], ["Back"], Item }
 			};
 
 			ConsoleTable.PrintTable("Edit Translator", headers, rows);
@@ -230,7 +233,7 @@ public static class TranslatorMenu
 			{
 				case 1:
 				{
-					var translatorNewFirstName = ConsoleHelper.GetValidName("Enter new first name",
+					var translatorNewFirstName = ConsoleHelper.GetValidName("\nEnter new first name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
@@ -240,7 +243,7 @@ public static class TranslatorMenu
 				}
 				case 2:
 				{
-					var translatorNewLastName = ConsoleHelper.GetValidName("Enter new last name",
+					var translatorNewLastName = ConsoleHelper.GetValidName("\nEnter new last name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
@@ -250,7 +253,7 @@ public static class TranslatorMenu
 				}
 				case 3:
 				{
-					var translatorNewNationalCode = ConsoleHelper.GetValidNationalCode("Enter new national code");
+					var translatorNewNationalCode = ConsoleHelper.GetValidNationalCode("\nEnter new national code");
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
 						translatorNewNationalCode, v => new UpdateTranslatorDto { NationalCode = v });
 					if (updated is not null) desiredTranslator = updated;
@@ -258,7 +261,7 @@ public static class TranslatorMenu
 				}
 				case 4:
 				{
-					var translatorNewEmail = ConsoleHelper.GetValidEmail("Enter new email");
+					var translatorNewEmail = ConsoleHelper.GetValidEmail("\nEnter new email");
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id, translatorNewEmail,
 						v => new UpdateTranslatorDto { Email = v });
 					if (updated is not null) desiredTranslator = updated;
@@ -266,7 +269,7 @@ public static class TranslatorMenu
 				}
 				case 5:
 				{
-					var translatorNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter new phone number");
+					var translatorNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number");
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
 						translatorNewPhoneNumber, v => new UpdateTranslatorDto { PhoneNumber = v });
 					if (updated is not null) desiredTranslator = updated;
@@ -274,7 +277,7 @@ public static class TranslatorMenu
 				}
 				case 6:
 				{
-					var translatorNewBirthDate = ConsoleHelper.GetValidBirthDate("Enter new birth date");
+					var translatorNewBirthDate = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
 						translatorNewBirthDate, v => new UpdateTranslatorDto { BirthDate = v });
 					if (updated is not null) desiredTranslator = updated;
@@ -320,8 +323,8 @@ public static class TranslatorMenu
 
 		Action<IReadOnlyList<TranslatorDto>> printer =
 			authorization.HasAnyPermission(Permission.ViewTranslatorDetails, Permission.ViewAllTranslators)
-				? TranslatorPrinter.PrintFullTable
-				: TranslatorPrinter.PrintTable;
+				? translator => TranslatorPrinter.PrintFullTable(translator,"Search Result")
+				: translator => TranslatorPrinter.PrintTable(translator, "Search Result");
 
 		while (true)
 		{

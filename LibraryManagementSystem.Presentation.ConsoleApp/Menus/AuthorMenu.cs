@@ -37,7 +37,7 @@ public static class AuthorMenu
 				return;
 			}
 
-			Console.Clear();
+			ConsoleHelper.ClearConsole();
 			if (authorization.CanAccessStatistics())
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
 			else
@@ -191,6 +191,7 @@ public static class AuthorMenu
 		ConsoleHelper.ShowResult(result);
 	}
 
+	private static readonly string[] Item = ["—"];
 
 	private static void EditAuthor(AuthorManagementService authorManagementService, IAuthorizationService authorization)
 	{
@@ -222,7 +223,7 @@ public static class AuthorMenu
 						? ["—"]
 						: ConsoleTable.WrapText(desiredAuthor.Biography, 40)
 				},
-				new[] { ["8"], ["Back"], new[] { "—" } }
+				new[] { ["8"], ["Back"], Item }
 			};
 
 			ConsoleTable.PrintTable("Edit Author", headers, rows);
@@ -332,8 +333,8 @@ public static class AuthorMenu
 
 		Action<IReadOnlyList<AuthorDto>> printer =
 			authorization.HasAnyPermission(Permission.ViewAuthorDetails, Permission.ViewAllAuthors)
-				? AuthorPrinter.PrintFullTable
-				: AuthorPrinter.PrintTable;
+				? author => AuthorPrinter.PrintFullTable(author, "Search Result")
+				: author => AuthorPrinter.PrintTable(author, "Search Result");
 
 		while (true)
 		{

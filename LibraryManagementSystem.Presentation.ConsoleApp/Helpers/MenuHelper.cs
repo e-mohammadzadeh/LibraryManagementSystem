@@ -108,7 +108,7 @@ public static class MenuHelper
 	}
 
 
-	public static BookDto? SelectBook(IReadOnlyList<BookDto> booksList)
+	public static BookDto? SelectBook(IReadOnlyList<BookDto> booksList, string title)
 	{
 		if (booksList.Count == 0)
 		{
@@ -118,7 +118,7 @@ public static class MenuHelper
 
 		while (true)
 		{
-			BookPrinter.PrintTable(booksList);
+			BookPrinter.PrintTable(booksList, authorization:null, title);
 			var desiredBookId = ConsoleHelper.ReadInt(Messages.SelectBookQuestion, 1, booksList.Max(b => b.BookId));
 
 			if (desiredBookId is null) return null;

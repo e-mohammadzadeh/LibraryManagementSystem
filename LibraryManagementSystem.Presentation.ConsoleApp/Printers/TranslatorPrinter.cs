@@ -29,7 +29,7 @@ public class TranslatorPrinter
 	}
 
 
-	public static void PrintTable(IReadOnlyList<TranslatorDto> translators)
+	public static void PrintTable(IReadOnlyList<TranslatorDto> translators, string title= "Translator List")
 	{
 		if (translators.Count == 0)
 		{
@@ -52,11 +52,11 @@ public class TranslatorPrinter
 				: ["No books"]
 		}).ToList();
 
-		ConsoleTable.PrintTable("Translator Search Result", headers, rows);
+		ConsoleTable.PrintTable(title, headers, rows);
 	}
 
 
-	public static void PrintFullTable(IReadOnlyList<TranslatorDto> translators)
+	public static void PrintFullTable(IReadOnlyList<TranslatorDto> translators, string title= "Translator Full Information")
 	{
 		if (translators.Count == 0)
 		{
@@ -83,6 +83,6 @@ public class TranslatorPrinter
 				: ["No books"]
 		}).ToList();
 
-		ConsoleTable.PrintTable("Translator Full Information", headers, rows);
+		ConsoleTable.PrintTable(title, headers, rows);
 	}
 }

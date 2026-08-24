@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Application.Authentication;
+﻿using System.Text;
+using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Authors;
@@ -101,7 +102,7 @@ public static class BookMenu
 					if (bookManagementService.GetAllBooks().Count is 0)
 						ConsoleHelper.ShowWarning(Messages.NotAvailableBook);
 					else
-						BookPrinter.PrintTable(bookManagementService.GetAllBooks(), authorization);
+						BookPrinter.PrintTable(bookManagementService.GetAllBooks(), authorization, "All Books");
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -136,9 +137,9 @@ public static class BookMenu
 			Console.WriteLine(new string('=', 36) + " BOOK MENU " + new string('=', 36));
 
 			var displayNumber = 1;
-			foreach (var item in availableItems)
+			foreach (var (_, displayText, _) in availableItems)
 			{
-				Console.WriteLine($"{displayNumber}. {item.DisplayText}");
+				Console.WriteLine($"{displayNumber}. {displayText}");
 				displayNumber++;
 			}
 
@@ -282,30 +283,46 @@ public static class BookMenu
 	}
 
 
-
 	private static void EditBook(AuthorManagementService authorManagementService,
 		TranslatorManagementService translatorManagementService, BookManagementService bookManagementService)
 	{
-		Console.WriteLine(new string('=', 36) + " EDITING BOOK MENU " + new string('=', 36));
-		var desiredBook = SelectExistingBook(bookManagementService);
+		var desiredBook = SelectExistingBook(bookManagementService, "EDITING BOOK MENU");
 		if (desiredBook is null) return;
 
 		while (true)
 		{
-			Console.Clear();
-			var authorNameDisplay = string.Join(", ", desiredBook.Authors.Select(a => a.FullName));
-			var translatorNameDisplay = string.Join(", ", desiredBook.Translators.Select(t => t.FullName));
-			Console.WriteLine("\n{0, -30} [{1}]", "1. Book Name", desiredBook.BookName);
-			Console.WriteLine("{0, -30} [{1}]", "2. ISBN", desiredBook.ISBN);
-			Console.WriteLine("{0, -30} [{1}]", "3. Author(s)", authorNameDisplay);
-			Console.WriteLine("{0, -30} [{1}]", "4. Translator(s)",
-				string.IsNullOrWhiteSpace(translatorNameDisplay) ? "None" : translatorNameDisplay);
-			Console.WriteLine("{0, -30} [{1}]", "5. Publish Date", desiredBook.PublishDate);
-			Console.WriteLine("{0, -30} [{1}]", "6. Total Copies", desiredBook.TotalCopies);
-			Console.WriteLine("{0, -30} [{1}]", "7. Genre", desiredBook.Genre);
-			Console.WriteLine("{0, -30} [{1}]", "8. Publisher", desiredBook.Publisher);
-			Console.WriteLine("{0, -30} [{1}]", "9. Description", desiredBook.Description);
-			Console.WriteLine("10. Back");
+			ConsoleHelper.ClearConsole();
+			Console.OutputEncoding = Encoding.UTF8;
+			var headers = new[] { "#", "Field", "Current Value" };
+
+			var authorLines = desiredBook.Authors.Count > 0
+				? desiredBook.Authors.Select(a => a.FullName).ToArray()
+				: ["—"];
+
+			var translatorLines = desiredBook.Translators.Count > 0
+				? desiredBook.Translators.Select(t => t.FullName).ToArray()
+				: ["None"];
+
+			var descriptionLines = string.IsNullOrWhiteSpace(desiredBook.Description)
+				? ["—"]
+				: ConsoleTable.WrapText(desiredBook.Description, 40);
+
+			var rows = new List<string[][]>
+			{
+				new string[][] { ["1"], ["Book Name"], [desiredBook.BookName] },
+				new string[][] { ["2"], ["ISBN"], [desiredBook.ISBN] },
+				new[] { ["3"], ["Author(s)"], authorLines },
+				new[] { ["4"], ["Translator(s)"], translatorLines },
+				new string[][] { ["5"], ["Publish Date"], [desiredBook.PublishDate.ToString("yyyy-MM-dd")] },
+				new string[][] { ["6"], ["Total Copies"], [desiredBook.TotalCopies.ToString()] },
+				new string[][] { ["7"], ["Genre"], [desiredBook.Genre] },
+				new string[][] { ["8"], ["Publisher"], [desiredBook.Publisher] },
+				new[] { ["9"], ["Description"], descriptionLines },
+				new string[][] { ["10"], ["Back"], ["—"] }
+			};
+
+			ConsoleTable.PrintTable("Edit Book", headers, rows);
+
 			var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 10);
 			if (editMenuChoice is null) return;
 
@@ -313,8 +330,7 @@ public static class BookMenu
 			{
 				case 1:
 				{
-					Console.Clear();
-					var bookName = ConsoleHelper.GetValidName("Enter the new book name",
+					var bookName = ConsoleHelper.GetValidName("\nEnter the new book name",
 						ValidationConstants.MinBookNameLength, ValidationConstants.MaxBookNameLength);
 
 					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, bookName,
@@ -324,8 +340,7 @@ public static class BookMenu
 				}
 				case 2:
 				{
-					Console.Clear();
-					var isbn = ConsoleHelper.ReadISBN("Enter the new ISBN");
+					var isbn = ConsoleHelper.ReadISBN("\nEnter the new ISBN");
 					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, isbn,
 						v => new UpdateBookDto { ISBN = v });
 					if (updated is not null) desiredBook = updated;
@@ -333,14 +348,12 @@ public static class BookMenu
 				}
 				case 3:
 				{
-					Console.Clear();
 					var updated = AuthorSubMenu(desiredBook.BookId, authorManagementService, bookManagementService);
 					if (updated is not null) desiredBook = updated;
 					break;
 				}
 				case 4:
 				{
-					Console.Clear();
 					var updated = TranslatorSubMenu(desiredBook.BookId, translatorManagementService,
 						bookManagementService);
 					if (updated is not null) desiredBook = updated;
@@ -348,8 +361,7 @@ public static class BookMenu
 				}
 				case 5:
 				{
-					Console.Clear();
-					var publishDate = ConsoleHelper.GetValidDate("Enter the new publish date");
+					var publishDate = ConsoleHelper.GetValidDate("\nEnter the new publish date");
 					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, publishDate,
 						v => new UpdateBookDto { PublishDate = v });
 					if (updated is not null) desiredBook = updated;
@@ -357,8 +369,7 @@ public static class BookMenu
 				}
 				case 6:
 				{
-					Console.Clear();
-					var totalCopies = ConsoleHelper.ReadInt("Enter the new total copies",
+					var totalCopies = ConsoleHelper.ReadInt("\nEnter the new total copies",
 						ValidationConstants.MinBookCopies, ValidationConstants.MaxBookCopies);
 
 					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, totalCopies,
@@ -368,10 +379,9 @@ public static class BookMenu
 				}
 				case 7:
 				{
-					Console.Clear();
 					ConsoleHelper.DisplayGenres();
 					var genreId =
-						ConsoleHelper.ReadInt("Enter the new genre id", 1, Enum.GetValues<Genre>().Length + 1);
+						ConsoleHelper.ReadInt("\nEnter the new genre id", 1, Enum.GetValues<Genre>().Length + 1);
 
 					if (genreId is null) break;
 
@@ -382,8 +392,7 @@ public static class BookMenu
 				}
 				case 8:
 				{
-					Console.Clear();
-					var publisher = ConsoleHelper.GetValidName("Enter the new publisher",
+					var publisher = ConsoleHelper.GetValidName("\nEnter the new publisher",
 						ValidationConstants.MinPublisherNameLength, ValidationConstants.MaxPublisherNameLength);
 					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, publisher,
 						v => new UpdateBookDto { Publisher = v });
@@ -392,8 +401,7 @@ public static class BookMenu
 				}
 				case 9:
 				{
-					Console.Clear();
-					var description = ConsoleHelper.ReadString("Enter the new description");
+					var description = ConsoleHelper.ReadString("\nEnter the new description");
 					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, description,
 						v => new UpdateBookDto { Description = v });
 					if (updated is not null) desiredBook = updated;
@@ -408,7 +416,7 @@ public static class BookMenu
 
 			var choice = ConsoleHelper.ReadYesNo(Messages.EditContinuesQuestion);
 			if (choice != true) return;
-			
+
 			// Refresh desiredBook details for subsequent edits in loop
 			var refreshedBook = bookManagementService.FindBookById(desiredBook.BookId);
 			if (refreshedBook is not null) desiredBook = refreshedBook;
@@ -416,10 +424,10 @@ public static class BookMenu
 	}
 
 
-	private static BookDto? SelectExistingBook(BookManagementService bookManagementService)
+	private static BookDto? SelectExistingBook(BookManagementService bookManagementService, string title)
 	{
 		var bookList = bookManagementService.GetAllBooks();
-		if (bookList.Count is not 0) return MenuHelper.SelectBook(bookList);
+		if (bookList.Count is not 0) return MenuHelper.SelectBook(bookList, title);
 
 		ConsoleHelper.ShowWarning(Messages.NotAvailableBook);
 		return null;
@@ -449,9 +457,7 @@ public static class BookMenu
 		}
 
 		var currentAuthorIds = currentBook.Authors.Select(a => a.Id).ToHashSet();
-		var currentAuthorsNames = string.Join(", ", currentBook.Authors.Select(a => a.FullName));
 
-		ConsoleHelper.ShowInfo($"Current authors: {currentAuthorsNames}\n");
 		Console.WriteLine(Messages.SubMenuPrompt);
 		Console.WriteLine("\t1. Add an author");
 		Console.WriteLine("\t2. Remove an author");
@@ -526,6 +532,7 @@ public static class BookMenu
 				break;
 			}
 		}
+
 		return null;
 	}
 
@@ -540,11 +547,6 @@ public static class BookMenu
 			return null;
 		}
 
-		var currentTranslatorName = currentBook.Translators.Count == 0
-			? "None"
-			: string.Join(", ", currentBook.Translators.Select(t => t.FullName));
-
-		ConsoleHelper.ShowInfo($"Current translators: {currentTranslatorName}\n");
 		Console.WriteLine(Messages.SubMenuPrompt);
 		Console.WriteLine("\t1. Add a translator");
 		Console.WriteLine("\t2. Remove a translator");
@@ -641,8 +643,7 @@ public static class BookMenu
 
 	private static void RemoveBook(BookManagementService bookManagementService)
 	{
-		Console.WriteLine(new string('=', 36) + " REMOVING BOOK MENU " + new string('=', 36));
-		var desiredBook = SelectExistingBook(bookManagementService);
+		var desiredBook = SelectExistingBook(bookManagementService, "REMOVING BOOK MENU");
 		if (desiredBook is null) return;
 
 		BookPrinter.PrintDetails(desiredBook);
@@ -771,14 +772,14 @@ public static class BookMenu
 			return;
 		}
 
-		BookPrinter.PrintTable(result, authorization);
+		BookPrinter.PrintTable(result, authorization, "Search Result");
 	}
 
 
 	private static void ViewBookDetails(BookManagementService bookManagementService,
 		LoanManagementService loanManagementService, ICurrentUserSession session)
 	{
-		var desiredBook = SelectExistingBook(bookManagementService);
+		var desiredBook = SelectExistingBook(bookManagementService, "Book Details");
 		if (desiredBook is null) return;
 		BookPrinter.PrintDetails(desiredBook);
 
@@ -788,6 +789,7 @@ public static class BookMenu
 			BookPrinter.PrintLoanHistory(ownLoans);
 			return;
 		}
+
 		var loans = loanManagementService.GetLoanByBook(desiredBook.BookId, session);
 		BookPrinter.PrintLoanHistory(loans);
 	}

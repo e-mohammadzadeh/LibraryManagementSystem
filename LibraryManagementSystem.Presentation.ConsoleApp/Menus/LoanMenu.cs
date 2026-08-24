@@ -395,7 +395,7 @@ public static class LoanMenu
 	private static void ViewActiveLoansByBook(LoanManagementService loanManagementService,
 		BookManagementService bookManagementService, ICurrentUserSession session)
 	{
-		var book = MenuHelper.SelectBook(bookManagementService.GetAllBooks());
+		var book = MenuHelper.SelectBook(bookManagementService.GetAllBooks(), "Books List");
 		if (book is null) return;
 		var loans = loanManagementService.GetActiveLoansByBook(book.BookId, session);
 		DisplayLoans(loans, Messages.NotAvailableLoan);
@@ -475,7 +475,7 @@ public static class LoanMenu
 						break;
 					}
 
-					var book = MenuHelper.SelectBook(bookManagementService.GetAllBooks());
+					var book = MenuHelper.SelectBook(bookManagementService.GetAllBooks(), "Books List");
 					if (book is null) break;
 					var loans = loanManagementService.GetOverdueLoansByBook(book.BookId, session);
 					DisplayLoans(loans, Messages.NotAvailableLoan);
@@ -552,7 +552,7 @@ public static class LoanMenu
 				case 2:
 				{
 					Console.Clear();
-					var book = MenuHelper.SelectBook(bookManagementService.GetAllBooks());
+					var book = MenuHelper.SelectBook(bookManagementService.GetAllBooks(), "Books List");
 					if (book is null) break;
 
 					var loans = loanManagementService.GetLoanByBook(book.BookId, session);
