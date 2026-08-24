@@ -280,43 +280,35 @@ public static class UserMenu
 		while (true)
 		{
 			Console.Clear();
+			var headers = new[] { "#", "Field", "Current Value" };
 
-			var items = new List<(int ActionId, string Label, string Value)>
+			var rows = new List<string[][]>
 			{
-				(1, "First Name", desiredUser.FirstName),
-				(2, "Last Name", desiredUser.LastName),
-				(3, "National Code", desiredUser.NationalCode),
-				(4, "Email", desiredUser.Email),
-				(5, "Phone Number", desiredUser.PhoneNumber),
-				(6, "Birth Date", desiredUser.BirthDate.ToString()),
+				new string[][] { ["1"], ["First Name"], [desiredUser.FirstName] },
+				new string[][] { ["2"], ["Last Name"], [desiredUser.LastName] },
+				new string[][]{ ["3"], ["National Code"], [desiredUser.NationalCode] },
+				new string[][] { ["4"], ["Email"], [desiredUser.Email] },
+				new string[][]{ ["5"], ["Phone Number"], [desiredUser.PhoneNumber] },
+				new string[][] { ["6"], ["Birth Date"], [desiredUser.BirthDate.ToString("yyyy-MM-dd")] },
 			};
 
 			if (authorization.HasPermission(Permission.ChangeUserRoles))
-				items.Add((7, "Role", string.Join(", ", desiredUser.Roles)));
+				rows.Add(new string[][] { ["7"], ["Roles"], [string.Join(", ", desiredUser.Roles)] });
+			rows.Add(new string[][] { [(rows.Count + 1).ToString()], ["Back"], [] });
 
-			items.Add((8, "Back", ""));
+			ConsoleTable.PrintTable("Edit User", headers, rows);
 
-			var displayNumber = 1;
-			foreach (var (actionId, label, value) in items)
-			{
-				if (actionId == 8)
-					Console.WriteLine("{0}. {1}", displayNumber, label);
-				else
-					Console.WriteLine("{0}. {1, -20} [{2}]", displayNumber, label, value);
-
-				displayNumber++;
-			}
-
-
-			var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, items.Count);
+			var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, rows.Count);
 			if (editMenuChoice == null) return;
 
-			switch (items[editMenuChoice.Value - 1].ActionId)
+			var selectedRow = rows[editMenuChoice.Value - 1];
+			var actionId = int.Parse(selectedRow[0][0]);
+
+			switch (actionId)
 			{
 				case 1:
 				{
-					Console.Clear();
-					var userNewFirstName = ConsoleHelper.GetValidName("Enter new first name",
+					var userNewFirstName = ConsoleHelper.GetValidName("\nEnter new first name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewFirstName,
@@ -326,8 +318,7 @@ public static class UserMenu
 				}
 				case 2:
 				{
-					Console.Clear();
-					var userNewLastName = ConsoleHelper.GetValidName("Enter new last name",
+					var userNewLastName = ConsoleHelper.GetValidName("\nEnter new last name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewLastName,
@@ -337,8 +328,7 @@ public static class UserMenu
 				}
 				case 3:
 				{
-					Console.Clear();
-					var userNewNationalCode = ConsoleHelper.GetValidNationalCode("Enter new national code");
+					var userNewNationalCode = ConsoleHelper.GetValidNationalCode("\nEnter new national code");
 					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewNationalCode,
 						v => new UpdateUserDto { NationalCode = v });
 					if (updated is not null) desiredUser = updated;
@@ -346,8 +336,7 @@ public static class UserMenu
 				}
 				case 4:
 				{
-					Console.Clear();
-					var userNewEmail = ConsoleHelper.GetValidEmail("Enter new email");
+					var userNewEmail = ConsoleHelper.GetValidEmail("\nEnter new email");
 					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewEmail,
 						v => new UpdateUserDto { Email = v });
 					if (updated is not null) desiredUser = updated;
@@ -355,8 +344,7 @@ public static class UserMenu
 				}
 				case 5:
 				{
-					Console.Clear();
-					var userNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter new phone number");
+					var userNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number");
 					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewPhoneNumber,
 						v => new UpdateUserDto { PhoneNumber = v });
 					if (updated is not null) desiredUser = updated;
@@ -364,8 +352,7 @@ public static class UserMenu
 				}
 				case 6:
 				{
-					Console.Clear();
-					var userNewBirthDate = ConsoleHelper.GetValidBirthDate("Enter new birth date");
+					var userNewBirthDate = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
 					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewBirthDate,
 						v => new UpdateUserDto { BirthDate = v });
 					if (updated is not null) desiredUser = updated;
@@ -380,9 +367,8 @@ public static class UserMenu
 						break;
 					}
 
-					Console.Clear();
 					var availableRoles = userManagementService.GetAllRoles();
-					var roleIds = ConsoleHelper.ReadRoles("Select role(s) for this user", availableRoles);
+					var roleIds = ConsoleHelper.ReadRoles("\nSelect role(s) for this user", availableRoles);
 					if (roleIds is null) break;
 
 					var result =

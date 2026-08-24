@@ -7,7 +7,7 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
 public class UserPrinter
 {
-	public static void PrintDetails(UserDto user, string title="User Details")
+	public static void PrintDetails(UserDto user, string title = "User Details")
 	{
 		Console.Clear();
 		Console.OutputEncoding = Encoding.UTF8;
@@ -42,16 +42,30 @@ public class UserPrinter
 		}
 
 		Console.Clear();
-		Console.WriteLine("\n{0,-3} {1, -30} {2, -12} {3, -40} {4, -15} {5, -9}", "ID", "User Name", "National Code",
-			"Email Address", "Phone Number", "Role");
+		Console.OutputEncoding = Encoding.UTF8;
 
-		Console.WriteLine(new string('=', 130));
+		var headers = new[]
+		{
+			"ID", "User Name", "National Code", "Email", "Phone", "Role", "Active From", "Active Until", "Is Active",
+			"Should Remove", "Last Login", "Updated At"
+		};
 
-		foreach (var user in users)
-			Console.WriteLine("{0,-3} {1, -30} {2, -12} {3, -40} {4, -15} {5, -9}", user.Id, user.FullName,
-				user.NationalCode, user.Email, user.PhoneNumber, string.Join(", ", user.Roles));
+		var rows = users.Select(user => new[]
+		{
+			[user.Id.ToString()],
+			ConsoleTable.WrapText(user.FullName, 18),
+			[user.NationalCode],
+			ConsoleTable.WrapText(user.Email, 22),
+			[user.PhoneNumber],
+			user.Roles.Count > 0 ? user.Roles.Select(r => r.ToString()).ToArray() : ["—"],
+			[user.MembershipStartDate.ToString("yyyy-MM-dd")],
+			[user.MembershipExpiryDate.ToString("yyyy-MM-dd")],
+			[user.IsActive ? "Yes" : "No"],
+			[user.ShouldRemove ? "Yes" : "No"],
+			[user.LastLoginDate?.ToString("yyyy-MM-dd HH:mm") ?? "Never"],
+			[user.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "—"]
+		}).ToList();
 
-
-		Console.WriteLine(new string('=', 130));
+		ConsoleTable.PrintTable("Users List", headers, rows);
 	}
 }

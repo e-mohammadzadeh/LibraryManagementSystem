@@ -57,8 +57,8 @@ public static class MenuHelper
 
 		Action<IReadOnlyList<AuthorDto>> printer =
 			authorization.HasAnyPermission(Permission.ViewAuthorDetails, Permission.ViewAllAuthors)
-				? AuthorPrinter.PrintFullTable
-				: AuthorPrinter.PrintTable;
+				? author => AuthorPrinter.PrintFullTable(author)
+				: author => AuthorPrinter.PrintTable(author);
 		while (true)
 		{
 			printer(authorsList);
@@ -88,8 +88,8 @@ public static class MenuHelper
 
 		Action<IReadOnlyList<TranslatorDto>> printer =
 			authorization.HasAnyPermission(Permission.ViewTranslatorDetails, Permission.ViewAllTranslators)
-				? TranslatorPrinter.PrintFullTable
-				: TranslatorPrinter.PrintTable;
+				? translator => TranslatorPrinter.PrintFullTable(translator)
+				: translator => TranslatorPrinter.PrintTable(translator);
 
 		while (true)
 		{
@@ -118,7 +118,7 @@ public static class MenuHelper
 
 		while (true)
 		{
-			BookPrinter.PrintTable(booksList, authorization:null, title);
+			BookPrinter.PrintTable(booksList, authorization: null, title);
 			var desiredBookId = ConsoleHelper.ReadInt(Messages.SelectBookQuestion, 1, booksList.Max(b => b.BookId));
 
 			if (desiredBookId is null) return null;
