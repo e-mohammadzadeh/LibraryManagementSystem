@@ -48,7 +48,7 @@ public static class UserMenu
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
 			else
 				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
-			switch (UserMenuList(authorization))
+			switch (UserMenuList(authorization, session))
 			{
 				case 1:
 				{
@@ -88,9 +88,12 @@ public static class UserMenu
 				}
 				case 5:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewMemberDetails,
-						    Messages.AccessDenied))
+					if (!session.IsSelfServiceMember)
+					{
+						ConsoleHelper.ShowError(Messages.AccessDenied);
 						break;
+					}
+
 					Console.Clear();
 					ViewOwnDetails(userManagementService, session);
 					ConsoleHelper.Pause();
@@ -114,7 +117,7 @@ public static class UserMenu
 					if (userManagementService.GetAllUsers().Count is 0)
 						ConsoleHelper.ShowWarning(Messages.NotAvailableUser);
 					else
-						UserPrinter.PrintTable(userManagementService.GetAllUsers());
+						UserPrinter.PrintFullTable(userManagementService.GetAllUsers());
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -149,7 +152,7 @@ public static class UserMenu
 	}
 
 
-	private static int UserMenuList(IAuthorizationService authorization)
+	private static int UserMenuList(IAuthorizationService authorization, ICurrentUserSession session)
 	{
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
@@ -157,7 +160,7 @@ public static class UserMenu
 			(2, "Edit User", authorization.HasPermission(Permission.EditUser)),
 			(3, "Remove User", authorization.HasPermission(Permission.RemoveUser)),
 			(4, "Search User", authorization.HasPermission(Permission.SearchUser)),
-			(5, "View Own Details", authorization.HasPermission(Permission.ViewMemberDetails)),
+			(5, "View Own Details", session.IsSelfServiceMember),
 			(6, "View User Details",
 				authorization.HasAnyPermission(Permission.ViewUserDetails, Permission.ViewOwnDetails)),
 			(7, "View All Users", authorization.HasPermission(Permission.ViewAllUsers)),
@@ -286,15 +289,15 @@ public static class UserMenu
 			{
 				new string[][] { ["1"], ["First Name"], [desiredUser.FirstName] },
 				new string[][] { ["2"], ["Last Name"], [desiredUser.LastName] },
-				new string[][]{ ["3"], ["National Code"], [desiredUser.NationalCode] },
+				new string[][] { ["3"], ["National Code"], [desiredUser.NationalCode] },
 				new string[][] { ["4"], ["Email"], [desiredUser.Email] },
-				new string[][]{ ["5"], ["Phone Number"], [desiredUser.PhoneNumber] },
+				new string[][] { ["5"], ["Phone Number"], [desiredUser.PhoneNumber] },
 				new string[][] { ["6"], ["Birth Date"], [desiredUser.BirthDate.ToString("yyyy-MM-dd")] },
 			};
 
 			if (authorization.HasPermission(Permission.ChangeUserRoles))
 				rows.Add(new string[][] { ["7"], ["Roles"], [string.Join(", ", desiredUser.Roles)] });
-			rows.Add(new string[][] { [(rows.Count + 1).ToString()], ["Back"], [] });
+			rows.Add(new string[][] { [(rows.Count + 1).ToString()], ["Back"], ["-"] });
 
 			ConsoleTable.PrintTable("Edit User", headers, rows);
 
@@ -414,7 +417,8 @@ public static class UserMenu
 			MenuHelper.SelectUser, Messages.NotAvailableUser);
 		if (desiredUser is null) return;
 
-		PersonHelper.PerformRemove(desiredUser, desiredUser.FirstName, desiredUser.LastName, user=> UserPrinter.PrintDetails(user),
+		PersonHelper.PerformRemove(desiredUser, desiredUser.FirstName, desiredUser.LastName,
+			user => UserPrinter.PrintDetails(user),
 			() => userManagementService.RemoveUser(desiredUser.Id, session));
 	}
 
@@ -438,7 +442,7 @@ public static class UserMenu
 				return;
 			}
 
-			Console.WriteLine("\n{0, -20}", "1. Name");
+			Console.WriteLine("{0, -20}", "1. Name");
 			Console.WriteLine("{0, -20}", "2. National Code");
 			Console.WriteLine("{0, -20}", "3. Email");
 			Console.WriteLine("{0, -20}", "4. Phone Number");
@@ -454,7 +458,7 @@ public static class UserMenu
 				{
 					PersonHelper.SearchAndDisplay(Messages.SearchName,
 						term => userManagementService.SearchUser(term, user => $"{user.FirstName} {user.LastName}"),
-						UserPrinter.PrintTable, Messages.NotUserMatched);
+						UserPrinter.PrintFullTable, Messages.NotUserMatched);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -462,7 +466,7 @@ public static class UserMenu
 				{
 					PersonHelper.SearchAndDisplay(Messages.SearchNationalCode,
 						term => userManagementService.SearchUser(term, user => user.NationalCode),
-						UserPrinter.PrintTable, Messages.NotUserMatched);
+						UserPrinter.PrintFullTable, Messages.NotUserMatched);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -470,7 +474,7 @@ public static class UserMenu
 				{
 					PersonHelper.SearchAndDisplay(Messages.SearchEmail,
 						term => userManagementService.SearchUser(term, user => user.Email),
-						UserPrinter.PrintTable, Messages.NotUserMatched);
+						UserPrinter.PrintFullTable, Messages.NotUserMatched);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -478,7 +482,7 @@ public static class UserMenu
 				{
 					PersonHelper.SearchAndDisplay(Messages.SearchPhoneNumber,
 						term => userManagementService.SearchUser(term, user => user.PhoneNumber),
-						UserPrinter.PrintTable, Messages.NotUserMatched);
+						UserPrinter.PrintFullTable, Messages.NotUserMatched);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -517,7 +521,7 @@ public static class UserMenu
 			return;
 		}
 
-		UserPrinter.PrintTable(result);
+		UserPrinter.PrintFullTable(result);
 	}
 
 
@@ -602,8 +606,16 @@ public static class UserMenu
 		var allUsers = userManagementService.GetAllUsers();
 
 		var renewableUsers = allUsers
-			.Where(u => (canRenewMembers && u.Roles.Contains(LibraryUserRole.Member)) ||
-			            (canRenewLibrarians && u.Roles.Contains(LibraryUserRole.Librarian))).ToList();
+			.Where(u =>
+			{
+				var allRolesRenewable = u.Roles.All(role =>
+					(role == LibraryUserRole.Member && canRenewMembers) ||
+					(role == LibraryUserRole.Librarian && canRenewLibrarians));
+
+				var hasRenewableRole = u.Roles.Any(role => role is LibraryUserRole.Member or LibraryUserRole.Librarian);
+
+				return allRolesRenewable && hasRenewableRole;
+			}).ToList();
 
 		if (renewableUsers.Count == 0)
 		{

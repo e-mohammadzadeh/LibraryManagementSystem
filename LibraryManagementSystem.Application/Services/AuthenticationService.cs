@@ -64,6 +64,9 @@ public class AuthenticationService
 		if (!_currentUserSession.IsAuthenticated) return ServiceResult<string>.Fail(Messages.NoUserLoggedIn);
 
 		var username = _currentUserSession.CurrentUser?.FullName ?? "User";
+		var currentUserEmail = _currentUserSession.CurrentUser!.Email;
+		var user = _userRepository.FindByEmail(currentUserEmail);
+		user?.UpdateLastLoginInLogout();
 		_currentUserSession.Logout();
 
 		return ServiceResult<string>.Ok(username, $"\n{username} " + Messages.LogoutSuccess);

@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Threading.Channels;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
@@ -46,6 +47,35 @@ public class UserPrinter
 
 		var headers = new[]
 		{
+			"ID", "User Name", "Email", "Role", "Is Active",
+		};
+
+		var rows = users.Select(user => new[]
+		{
+			[user.Id.ToString()],
+			ConsoleTable.WrapText(user.FullName, 20),
+			ConsoleTable.WrapText(user.Email, 30),
+			user.Roles.Count > 0 ? user.Roles.Select(r => r.ToString()).ToArray() : ["—"],
+			[user.IsActive ? "Yes" : "No"],
+		}).ToList();
+
+		ConsoleTable.PrintTable("Users List", headers, rows);
+	}
+
+
+	public static void PrintFullTable(IReadOnlyList<UserDto> users)
+	{
+		if (users.Count == 0)
+		{
+			ConsoleHelper.ShowError(Messages.NotAvailableUser);
+			return;
+		}
+
+		Console.Clear();
+		Console.OutputEncoding = Encoding.UTF8;
+		
+		var headers = new[]
+		{
 			"ID", "User Name", "National Code", "Email", "Phone", "Role", "Active From", "Active Until", "Is Active",
 			"Should Remove", "Last Login", "Updated At"
 		};
@@ -53,9 +83,9 @@ public class UserPrinter
 		var rows = users.Select(user => new[]
 		{
 			[user.Id.ToString()],
-			ConsoleTable.WrapText(user.FullName, 18),
+			ConsoleTable.WrapText(user.FullName, 20),
 			[user.NationalCode],
-			ConsoleTable.WrapText(user.Email, 22),
+			ConsoleTable.WrapText(user.Email, 30),
 			[user.PhoneNumber],
 			user.Roles.Count > 0 ? user.Roles.Select(r => r.ToString()).ToArray() : ["—"],
 			[user.MembershipStartDate.ToString("yyyy-MM-dd")],

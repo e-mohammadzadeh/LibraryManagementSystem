@@ -131,4 +131,10 @@ public class User : Person
 		LastLoginDate = PreviousLoginDate;
 		PreviousLoginDate = DateTime.Now;
 	}
+
+
+	public void UpdateLastLoginInLogout()
+	{
+		LastLoginDate = PreviousLoginDate;
+	}
 }
