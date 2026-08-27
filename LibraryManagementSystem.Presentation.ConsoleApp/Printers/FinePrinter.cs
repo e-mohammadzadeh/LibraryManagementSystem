@@ -10,8 +10,6 @@ public static class FinePrinter
 	public static void PrintDetails(FineDto fine)
 	{
 		Console.Clear();
-		Console.OutputEncoding = Encoding.UTF8;
-
 		var rows = new List<(string Label, string[] ValueLines)>
 		{
 			("Fine ID", [fine.FineId.ToString()]),
@@ -67,8 +65,6 @@ public static class FinePrinter
 		}
 
 		Console.Clear();
-		Console.OutputEncoding = Encoding.UTF8;
-
 		var headers = new[] { "ID", "Loan ID", "User", "Book", "Amount", "Days", "Status" };
 
 		var rows = fines.Select(fine => new[]

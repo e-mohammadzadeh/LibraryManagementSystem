@@ -52,12 +52,6 @@ public class AuthorManagementService
 	}
 
 
-	public IReadOnlyList<AuthorDto> GetAllAuthors()
-	{
-		return [.. _authorRepository.GetAll().Select(author => author.ToDto())];
-	}
-
-
 	public ServiceResult<AuthorDto> UpdateAuthor(int authorId, UpdateAuthorDto dto)
 	{
 		string? warningMessage = null;
@@ -155,23 +149,25 @@ public class AuthorManagementService
 	}
 
 
-	public IReadOnlyList<AuthorDto> GetAuthorsSorted(AuthorSortField sortField, SortDirection sortDirection)
+	public IReadOnlyList<AuthorDto> GetAllAuthors(AuthorSortField sortField = AuthorSortField.Id,
+		SortDirection sortDirection = SortDirection.Ascending)
 	{
 		var authors = _authorRepository.GetAll().Select(a => a.ToDto());
-		IEnumerable<AuthorDto> sorted = sortField switch
+		Func<AuthorDto, object> keySelector = sortField switch
 		{
-			AuthorSortField.Id => authors.OrderBy(a => a.Id),
-			AuthorSortField.FirstName => authors.OrderBy(a => a.FirstName),
-			AuthorSortField.LastName => authors.OrderBy(a => a.LastName),
-			AuthorSortField.NationalCode => authors.OrderBy(a => a.NationalCode),
-			AuthorSortField.Email => authors.OrderBy(a => a.Email),
-			AuthorSortField.BirthDate => authors.OrderBy(a => a.BirthDate),
-			AuthorSortField.BookCount => authors.OrderBy(a => a.BookCount),
+			AuthorSortField.Id => a => a.Id,
+			AuthorSortField.FirstName => a => a.FirstName,
+			AuthorSortField.LastName => a => a.LastName,
+			AuthorSortField.NationalCode => a => a.NationalCode,
+			AuthorSortField.Email => a => a.Email,
+			AuthorSortField.BirthDate => a => a.BirthDate,
+			AuthorSortField.BookCount => a => a.BookCount,
 			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
 		};
 
-		if (sortDirection == SortDirection.Descending)
-			sorted = sorted.Reverse();
+		var sorted = sortDirection == SortDirection.Ascending
+			? authors.OrderBy(keySelector)
+			: authors.OrderByDescending(keySelector);
 
 		return [.. sorted];
 	}

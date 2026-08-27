@@ -83,7 +83,7 @@ public static class AuthorMenu
 				}
 				case 5:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.SortAuthors, Messages.AccessDenied))
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllAuthors, Messages.AccessDenied))
 						break;
 					Console.Clear();
 					SortAuthors(authorManagementService, authorization);
@@ -141,7 +141,7 @@ public static class AuthorMenu
 			(2, "Edit Author", authorization.HasPermission(Permission.EditAuthor)),
 			(3, "Remove Author", authorization.HasPermission(Permission.RemoveAuthor)),
 			(4, "Search Author", authorization.HasPermission(Permission.SearchAuthor)),
-			(5, "Sort Authors", authorization.HasPermission(Permission.SortAuthors)),
+			(5, "Sort Authors", authorization.HasPermission(Permission.ViewAllAuthors)),
 			(6, "View Author Details", authorization.HasPermission(Permission.ViewAuthorDetails)),
 			(7, "View Author's Books", authorization.HasPermission(Permission.ViewAuthorBooks)),
 			(8, "View All Authors", authorization.HasPermission(Permission.ViewAllAuthors)),
@@ -218,8 +218,6 @@ public static class AuthorMenu
 		while (true)
 		{
 			Console.Clear();
-			Console.OutputEncoding = Encoding.UTF8;
-
 			var headers = new[] { "#", "Field", "Current Value" };
 
 			var rows = new List<string[][]>
@@ -413,25 +411,17 @@ public static class AuthorMenu
 	}
 
 
-	public static void SortAuthors(AuthorManagementService authorManagementService, IAuthorizationService authorization)
+	private static void SortAuthors(AuthorManagementService authorManagementService, IAuthorizationService authorization)
 	{
-		if (!authorization.HasPermission(Permission.SortAuthors))
+		if (!authorization.HasPermission(Permission.ViewAllAuthors))
 		{
 			ConsoleHelper.ShowError(Messages.AccessDenied);
-			return;
-		}
-
-		var authors = authorManagementService.GetAllAuthors();
-		if (authors.Count == 0)
-		{
-			ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
 			return;
 		}
 
 		while (true)
 		{
 			Console.Clear();
-			Console.OutputEncoding = Encoding.UTF8;
 
 			var fieldHeaders = new[] { "#", "Sort By" };
 			var fieldRows = new List<string[][]>
@@ -448,13 +438,13 @@ public static class AuthorMenu
 			ConsoleTable.PrintTable("Sort Authors", fieldHeaders, fieldRows);
 
 			var choice = ConsoleHelper.ReadInt(Messages.SortFieldQuestion, 1, 8);
-			if (choice is null)
-				return;
-
-			if (choice == 8)
+			switch (choice)
 			{
-				ConsoleHelper.ShowInfo(string.Format(Messages.SortCancelled, "Author"));
-				return;
+				case null:
+					return;
+				case 8:
+					ConsoleHelper.ShowInfo(string.Format(Messages.SortCancelled, "Author"));
+					return;
 			}
 
 			var sortField = choice.Value switch
@@ -466,7 +456,7 @@ public static class AuthorMenu
 				5 => AuthorSortField.Email,
 				6 => AuthorSortField.BirthDate,
 				7 => AuthorSortField.BookCount,
-				_ => throw new ArgumentOutOfRangeException()
+				_ => throw new ArgumentOutOfRangeException(nameof(choice))
 			};
 
 			var sortDirection = SelectSortDirection();
@@ -474,24 +464,26 @@ public static class AuthorMenu
 			if (sortDirection is null)
 				continue;
 
-			var sortedAuthors = authorManagementService.GetAuthorsSorted(sortField, sortDirection.Value);
-
-			var isFullView = authorization.HasPermission(Permission.ViewAuthorFullDetails);
-
+			var sortedAuthors = authorManagementService.GetAllAuthors(sortField, sortDirection.Value);
+			if (sortedAuthors.Count == 0)
+			{
+				ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
+				continue;
+			}
+			var isFullView = authorization.HasPermission(Permission.ViewAllAuthors);
+			var sortDescription = $"{sortField} ({sortDirection})";
 			if (isFullView)
-				AuthorPrinter.PrintFullTable(sortedAuthors, "Sorted Authors");
+				AuthorPrinter.PrintFullTable(sortedAuthors, $"Sorted Authors - {sortDescription}");
 			else
-				AuthorPrinter.PrintTable(sortedAuthors, "Sorted Authors");
+				AuthorPrinter.PrintTable(sortedAuthors, $"Sorted Authors - {sortDescription}");
 
 			ConsoleHelper.Pause();
 		}
 	}
 
 
-	private static SortDirection? selectSortDirection()
+	private static SortDirection? SelectSortDirection()
 	{
-		Console.OutputEncoding = Encoding.UTF8;
-
 		var directionHeaders = new[] { "#", "Direction" };
 		var directionRows = new List<string[][]>
 		{
@@ -504,8 +496,13 @@ public static class AuthorMenu
 		var directionChoice = ConsoleHelper.ReadInt(Messages.SortDirectionQuestion, 1, 3);
 		if (directionChoice is null) return null;
 
-		var ascending = directionChoice == 1;
-
+		return directionChoice.Value switch
+		{
+			1 => SortDirection.Ascending,
+			2 => SortDirection.Descending,
+			3 => null,
+			_ => throw new ArgumentOutOfRangeException(nameof(directionChoice))
+		};
 	}
 
 

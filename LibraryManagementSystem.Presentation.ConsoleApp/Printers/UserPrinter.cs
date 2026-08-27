@@ -11,8 +11,6 @@ public class UserPrinter
 	public static void PrintDetails(UserDto user, string title = "User Details")
 	{
 		Console.Clear();
-		Console.OutputEncoding = Encoding.UTF8;
-
 		var rows = new List<(string Label, string[] ValueLines)>
 		{
 			("ID", [user.Id.ToString()]),
@@ -43,8 +41,6 @@ public class UserPrinter
 		}
 
 		Console.Clear();
-		Console.OutputEncoding = Encoding.UTF8;
-
 		var headers = new[]
 		{
 			"ID", "User Name", "Email", "Role", "Is Active",
@@ -72,8 +68,6 @@ public class UserPrinter
 		}
 
 		Console.Clear();
-		Console.OutputEncoding = Encoding.UTF8;
-		
 		var headers = new[]
 		{
 			"ID", "User Name", "National Code", "Email", "Phone", "Role", "Active From", "Active Until", "Is Active",

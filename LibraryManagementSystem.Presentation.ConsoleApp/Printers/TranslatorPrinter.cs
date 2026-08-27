@@ -10,8 +10,6 @@ public class TranslatorPrinter
 	public static void PrintDetails(TranslatorDto translator)
 	{
 		Console.Clear();
-		Console.OutputEncoding = Encoding.UTF8;
-
 		var rows = new List<(string Label, string[] ValueLines)>
 		{
 			("ID", [translator.Id.ToString()]),
@@ -38,8 +36,6 @@ public class TranslatorPrinter
 		}
 
 		Console.Clear();
-		Console.OutputEncoding = Encoding.UTF8;
-
 		var headers = new[] { "ID", "Translator Name", "Email Address", "Books (ISBN)" };
 
 		var rows = translators.Select(translator => new[]
@@ -65,8 +61,6 @@ public class TranslatorPrinter
 		}
 
 		Console.Clear();
-		Console.OutputEncoding = Encoding.UTF8;
-
 		var headers = new[]
 			{ "ID", "Translator Name", "National Code", "Email Address", "Phone Number", "Birth Date", "Books (ISBN)" };
 

@@ -294,6 +294,8 @@ public static class Messages
 	public const string SearchNationalCode = "Enter a national code to search";
 	public const string SearchEmail = "Enter an email to search";
 	public const string SearchPhoneNumber = "Enter a phone number to search";
+	public const string SortFieldQuestion = "Enter the number of the field you want to sort by:";
+	public const string SortDirectionQuestion = "Select the sort direction:";
 
 
 	// 12. Navigation ────────────────────────────────────────────────────────────
@@ -303,10 +305,9 @@ public static class Messages
 	// Exit
 	public const string ExitingProgram = "\nExiting Program...";
 
-	// Search Cancelled
+	// Cancel
 	public const string SearchCancelled = "\n\nSearch cancelled. Returning to {0} Menu...";
-
-	// Edit Cancelled
+	public const string SortCancelled = "{0} sorting cancelled.";
 	public const string EditCancelled = "\n\nEdit cancelled. Returning to {0} Menu...";
 
 }

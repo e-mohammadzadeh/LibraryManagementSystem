@@ -7,6 +7,7 @@ using LibraryManagementSystem.Infrastructure.Security;
 using LibraryManagementSystem.Infrastructure.Seeders;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Menus;
+using System.Text;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp;
 
@@ -14,6 +15,8 @@ public static class Program
 {
 	private static void Main()
 	{
+		Console.OutputEncoding = Encoding.UTF8;
+
 		try
 		{
 			// ── Repositories ──────────────────────────

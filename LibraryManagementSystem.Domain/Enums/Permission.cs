@@ -6,7 +6,6 @@ public enum Permission
 	AddAuthor,
 	EditAuthor,
 	SearchAuthor,
-	SortAuthors,
 	SearchAuthorByName,
 	SearchAuthorByNationalCode,
 	SearchAuthorByEmail,

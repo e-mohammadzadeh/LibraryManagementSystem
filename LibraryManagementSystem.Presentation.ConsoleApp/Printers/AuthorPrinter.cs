@@ -10,8 +10,6 @@ public static class AuthorPrinter
 	public static void PrintDetails(AuthorDto author)
 	{
 		Console.Clear();
-		Console.OutputEncoding = Encoding.UTF8;
-
 		var rows = new List<(string Label, string[] ValueLines)>
 		{
 			("Name", [author.FullName]),
@@ -38,8 +36,6 @@ public static class AuthorPrinter
 		}
 
 		Console.Clear();
-		Console.OutputEncoding = Encoding.UTF8;
-
 		var headers = new[] { "ID", "Author Name", "Email Address", "Biography", "Books (ISBN)" };
 
 		var rows = authors.Select(author => new[]
@@ -64,8 +60,6 @@ public static class AuthorPrinter
 		}
 
 		Console.Clear();
-		Console.OutputEncoding = Encoding.UTF8;
-
 		var headers = new[]
 		{
 			"ID", "Author Name", "National Code", "Email Address", "Phone Number", "Birth Date", "Biography",

@@ -293,7 +293,6 @@ public static class BookMenu
 		while (true)
 		{
 			ConsoleHelper.ClearConsole();
-			Console.OutputEncoding = Encoding.UTF8;
 			var headers = new[] { "#", "Field", "Current Value" };
 
 			var authorLines = desiredBook.Authors.Count > 0

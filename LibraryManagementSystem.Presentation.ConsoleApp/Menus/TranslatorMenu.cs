@@ -210,8 +210,6 @@ public static class TranslatorMenu
 		while (true)
 		{
 			Console.Clear();
-			Console.OutputEncoding = Encoding.UTF8;
-
 			var headers = new[] { "#", "Field", "Current Value" };
 
 			var rows = new List<string[][]>

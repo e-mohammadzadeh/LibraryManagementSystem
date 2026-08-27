@@ -388,7 +388,6 @@ public static class ConsoleHelper
 
 	public static void DisplayGenres()
 	{
-		Console.OutputEncoding = Encoding.UTF8;
 		var headers = new[] { "ID", "Genre Name" };
 		var values = Enum.GetValues<Genre>();
 		var rows = values.Select((t, i) => (string[][])[[(i + 1).ToString()], [SplitCamelCase(t.ToString())]]).ToList();

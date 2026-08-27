@@ -13,7 +13,6 @@ public static class BookPrinter
 	public static void PrintDetails(BookDto book)
 	{
 		ConsoleHelper.ClearConsole();
-		Console.OutputEncoding = Encoding.UTF8;
 
 		// One name/email per line when there are many (wraps cleanly in the value column)
 		var authorNames = book.Authors.Count == 0 ? ["—"] : book.Authors.Select(a => a.FullName).ToArray();
@@ -53,8 +52,6 @@ public static class BookPrinter
 		}
 
 		ConsoleHelper.ClearConsole();
-		Console.OutputEncoding = Encoding.UTF8;
-
 		var showExactCopies = authorization is null
 		                      || authorization.HasPermission(Permission.ViewBookDetails)
 		                      || authorization.HasPermission(Permission.AddBook)

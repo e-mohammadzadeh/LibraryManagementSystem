@@ -10,8 +10,6 @@ public static class LoanPrinter
 	public static void PrintDetails(LoanDto loan)
 	{
 		Console.Clear();
-		Console.OutputEncoding = Encoding.UTF8;
-
 		var rows = new List<(string Label, string[] ValueLines)>
 		{
 			("ID", [loan.LoanId.ToString()]),
@@ -40,8 +38,6 @@ public static class LoanPrinter
 			ConsoleHelper.ShowError(Messages.NotAvailableLoan);
 			return;
 		}
-
-		Console.OutputEncoding = Encoding.UTF8;
 
 		var headers = new[] { "ID", "Book", "User", "Borrow Date", "Return Date", "Due Date", "Status", "Overdue" };
 
