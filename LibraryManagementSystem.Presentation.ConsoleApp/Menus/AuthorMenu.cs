@@ -1,12 +1,14 @@
-﻿using System.Text;
-using LibraryManagementSystem.Application.Authentication;
+﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Domain.Enums.Search;
+using LibraryManagementSystem.Domain.Enums.Sort;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
+using System.Text;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
@@ -81,6 +83,15 @@ public static class AuthorMenu
 				}
 				case 5:
 				{
+					if (!SessionGuard.RequirePermission(authorization, Permission.SortAuthors, Messages.AccessDenied))
+						break;
+					Console.Clear();
+					SortAuthors(authorManagementService, authorization);
+					ConsoleHelper.Pause();
+					break;
+				}
+				case 6:
+				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAuthorDetails,
 						    Messages.AccessDenied))
 						break;
@@ -91,14 +102,14 @@ public static class AuthorMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 6:
+				case 7:
 				{
 					Console.Clear();
 					ViewBooksByAuthor(authorManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 7:
+				case 8:
 				{
 					Console.Clear();
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllAuthors,
@@ -111,7 +122,7 @@ public static class AuthorMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 8:
+				case 9:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					continueProgram = false;
@@ -130,10 +141,11 @@ public static class AuthorMenu
 			(2, "Edit Author", authorization.HasPermission(Permission.EditAuthor)),
 			(3, "Remove Author", authorization.HasPermission(Permission.RemoveAuthor)),
 			(4, "Search Author", authorization.HasPermission(Permission.SearchAuthor)),
-			(5, "View Author Details", authorization.HasPermission(Permission.ViewAuthorDetails)),
-			(6, "View Author's Books", authorization.HasPermission(Permission.ViewAuthorBooks)),
-			(7, "View All Authors", authorization.HasPermission(Permission.ViewAllAuthors)),
-			(8, "Back", true)
+			(5, "Sort Authors", authorization.HasPermission(Permission.SortAuthors)),
+			(6, "View Author Details", authorization.HasPermission(Permission.ViewAuthorDetails)),
+			(7, "View Author's Books", authorization.HasPermission(Permission.ViewAuthorBooks)),
+			(8, "View All Authors", authorization.HasPermission(Permission.ViewAllAuthors)),
+			(9, "Back", true)
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
@@ -191,7 +203,9 @@ public static class AuthorMenu
 		ConsoleHelper.ShowResult(result);
 	}
 
+
 	private static readonly string[] Item = ["—"];
+
 
 	private static void EditAuthor(AuthorManagementService authorManagementService, IAuthorizationService authorization)
 	{
@@ -320,6 +334,18 @@ public static class AuthorMenu
 	}
 
 
+	private static AuthorDto? PerformUpdate<T>(AuthorManagementService authorManagementService, int desiredAuthorId,
+		T? newValue, Func<T, UpdateAuthorDto> buildDto)
+	{
+		if (newValue is null) return null;
+
+		var dto = buildDto(newValue);
+		var result = authorManagementService.UpdateAuthor(desiredAuthorId, dto);
+		ConsoleHelper.ShowResult(result);
+		return result.Data;
+	}
+
+
 	private static void SearchAuthor(AuthorManagementService authorManagementService,
 		IAuthorizationService authorization)
 	{
@@ -387,15 +413,99 @@ public static class AuthorMenu
 	}
 
 
-	private static AuthorDto? PerformUpdate<T>(AuthorManagementService authorManagementService, int desiredAuthorId,
-		T? newValue, Func<T, UpdateAuthorDto> buildDto)
+	public static void SortAuthors(AuthorManagementService authorManagementService, IAuthorizationService authorization)
 	{
-		if (newValue is null) return null;
+		if (!authorization.HasPermission(Permission.SortAuthors))
+		{
+			ConsoleHelper.ShowError(Messages.AccessDenied);
+			return;
+		}
 
-		var dto = buildDto(newValue);
-		var result = authorManagementService.UpdateAuthor(desiredAuthorId, dto);
-		ConsoleHelper.ShowResult(result);
-		return result.Data;
+		var authors = authorManagementService.GetAllAuthors();
+		if (authors.Count == 0)
+		{
+			ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
+			return;
+		}
+
+		while (true)
+		{
+			Console.Clear();
+			Console.OutputEncoding = Encoding.UTF8;
+
+			var fieldHeaders = new[] { "#", "Sort By" };
+			var fieldRows = new List<string[][]>
+			{
+				new string[][] { ["1"], ["ID"] },
+				new string[][] { ["2"], ["First Name"] },
+				new string[][] { ["3"], ["Last Name"] },
+				new string[][] { ["4"], ["National Code"] },
+				new string[][] { ["5"], ["Email"] },
+				new string[][] { ["6"], ["Birth Date"] },
+				new string[][] { ["7"], ["Book Count"] },
+				new string[][] { ["8"], ["Back"] }
+			};
+			ConsoleTable.PrintTable("Sort Authors", fieldHeaders, fieldRows);
+
+			var choice = ConsoleHelper.ReadInt(Messages.SortFieldQuestion, 1, 8);
+			if (choice is null)
+				return;
+
+			if (choice == 8)
+			{
+				ConsoleHelper.ShowInfo(string.Format(Messages.SortCancelled, "Author"));
+				return;
+			}
+
+			var sortField = choice.Value switch
+			{
+				1 => AuthorSortField.Id,
+				2 => AuthorSortField.FirstName,
+				3 => AuthorSortField.LastName,
+				4 => AuthorSortField.NationalCode,
+				5 => AuthorSortField.Email,
+				6 => AuthorSortField.BirthDate,
+				7 => AuthorSortField.BookCount,
+				_ => throw new ArgumentOutOfRangeException()
+			};
+
+			var sortDirection = SelectSortDirection();
+
+			if (sortDirection is null)
+				continue;
+
+			var sortedAuthors = authorManagementService.GetAuthorsSorted(sortField, sortDirection.Value);
+
+			var isFullView = authorization.HasPermission(Permission.ViewAuthorFullDetails);
+
+			if (isFullView)
+				AuthorPrinter.PrintFullTable(sortedAuthors, "Sorted Authors");
+			else
+				AuthorPrinter.PrintTable(sortedAuthors, "Sorted Authors");
+
+			ConsoleHelper.Pause();
+		}
+	}
+
+
+	private static SortDirection? selectSortDirection()
+	{
+		Console.OutputEncoding = Encoding.UTF8;
+
+		var directionHeaders = new[] { "#", "Direction" };
+		var directionRows = new List<string[][]>
+		{
+			new string[][] { ["1"], ["Ascending"] },
+			new string[][] { ["2"], ["Descending"] },
+			new string[][] { ["3"], ["Back"] }
+		};
+		ConsoleTable.PrintTable("Sort Direction", directionHeaders, directionRows);
+
+		var directionChoice = ConsoleHelper.ReadInt(Messages.SortDirectionQuestion, 1, 3);
+		if (directionChoice is null) return null;
+
+		var ascending = directionChoice == 1;
+
 	}
 
 

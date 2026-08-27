@@ -14,6 +14,7 @@ public static class RolePermissionMap
 			Permission.AddAuthor,
 			Permission.EditAuthor,
 			Permission.SearchAuthor,
+			Permission.SortAuthors,
 			Permission.SearchAuthorByName,
 			Permission.SearchAuthorByNationalCode,
 			Permission.SearchAuthorByEmail,

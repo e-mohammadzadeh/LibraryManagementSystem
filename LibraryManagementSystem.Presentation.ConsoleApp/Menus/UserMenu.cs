@@ -43,7 +43,7 @@ public static class UserMenu
 				return;
 			}
 
-			Console.Clear();
+			ConsoleHelper.ClearConsole();
 			if (authorization.CanAccessStatistics())
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
 			else

@@ -5,6 +5,8 @@ using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Domain.Enums.Search;
+using LibraryManagementSystem.Domain.Enums.Sort;
 using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
@@ -150,5 +152,27 @@ public class AuthorManagementService
 		var author = _authorRepository.FindById(authorId);
 		if (author is null) return [];
 		return [.. author.BookAuthors.Select(ba => ba.Book.ToDto())];
+	}
+
+
+	public IReadOnlyList<AuthorDto> GetAuthorsSorted(AuthorSortField sortField, SortDirection sortDirection)
+	{
+		var authors = _authorRepository.GetAll().Select(a => a.ToDto());
+		IEnumerable<AuthorDto> sorted = sortField switch
+		{
+			AuthorSortField.Id => authors.OrderBy(a => a.Id),
+			AuthorSortField.FirstName => authors.OrderBy(a => a.FirstName),
+			AuthorSortField.LastName => authors.OrderBy(a => a.LastName),
+			AuthorSortField.NationalCode => authors.OrderBy(a => a.NationalCode),
+			AuthorSortField.Email => authors.OrderBy(a => a.Email),
+			AuthorSortField.BirthDate => authors.OrderBy(a => a.BirthDate),
+			AuthorSortField.BookCount => authors.OrderBy(a => a.BookCount),
+			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
+		};
+
+		if (sortDirection == SortDirection.Descending)
+			sorted = sorted.Reverse();
+
+		return [.. sorted];
 	}
 }

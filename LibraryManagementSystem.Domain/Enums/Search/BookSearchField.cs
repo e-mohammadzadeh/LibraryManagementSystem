@@ -1,4 +1,4 @@
-﻿namespace LibraryManagementSystem.Domain.Enums;
+﻿namespace LibraryManagementSystem.Domain.Enums.Search;
 
 public enum BookSearchField
 {

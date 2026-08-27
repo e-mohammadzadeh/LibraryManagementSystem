@@ -75,8 +75,8 @@ public static class FinePrinter
 		{
 			[fine.FineId.ToString()],
 			[fine.LoanId.ToString()],
-			ConsoleTable.WrapText(fine.UserFullName, 24),
-			ConsoleTable.WrapText(fine.BookName, 28),
+			ConsoleTable.WrapText(fine.UserFullName, 28),
+			ConsoleTable.WrapText(fine.BookName, 35),
 			[$"{fine.Amount:F2}"],
 			[fine.OverdueDays.ToString()],
 			[fine.Status.ToString()]
