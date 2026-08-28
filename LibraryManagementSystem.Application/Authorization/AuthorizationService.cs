@@ -40,8 +40,9 @@ public class AuthorizationService : IAuthorizationService
 
 	public bool CanAccessTranslatorManagement()
 	{
-		return HasAnyPermission(Permission.AddTranslator, Permission.EditTranslator, Permission.SearchTranslator,
-			Permission.ViewTranslatorDetails, Permission.ViewAllTranslators);
+		return HasAnyPermission(Permission.AddTranslator, Permission.EditTranslator,
+			Permission.SearchTranslatorForMember, Permission.FullSearchTranslator, Permission.SortTranslatorForMember,
+			Permission.FullSortTranslator, Permission.ViewTranslatorDetails, Permission.ViewAllTranslators);
 	}
 
 

@@ -3,8 +3,10 @@ using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Translators;
 using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Enums.Search;
+using LibraryManagementSystem.Domain.Enums.Sort;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -20,7 +22,11 @@ public static class TranslatorMenu
 			    Messages.AccessDenied,
 			    Permission.AddTranslator,
 			    Permission.EditTranslator,
-			    Permission.SearchTranslator,
+			    Permission.RemoveTranslator,
+			    Permission.SearchTranslatorForMember,
+			    Permission.FullSearchTranslator,
+			    Permission.SortTranslatorForMember,
+			    Permission.FullSortTranslator,
 			    Permission.ViewTranslatorDetails,
 			    Permission.ViewAllTranslators))
 		{
@@ -75,8 +81,8 @@ public static class TranslatorMenu
 				}
 				case 4:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.SearchTranslator,
-						    Messages.AccessDenied))
+					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
+						    Permission.SearchTranslatorForMember, Permission.FullSearchTranslator))
 						break;
 					Console.Clear();
 					SearchTranslator(translatorManagementService, authorization);
@@ -84,6 +90,16 @@ public static class TranslatorMenu
 					break;
 				}
 				case 5:
+				{
+					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
+						    Permission.SortTranslatorForMember, Permission.FullSortTranslator))
+						break;
+					Console.Clear();
+					SortTranslators(translatorManagementService, authorization);
+					ConsoleHelper.Pause();
+					break;
+				}
+				case 6:
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewTranslatorDetails,
 						    Messages.AccessDenied))
@@ -96,27 +112,30 @@ public static class TranslatorMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 6:
+				case 7:
 				{
 					Console.Clear();
 					ViewBooksByTranslator(translatorManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 7:
+				case 8:
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllTranslators,
 						    Messages.AccessDenied))
 						break;
 					Console.Clear();
-					if (translatorManagementService.GetAllTranslators().Count is 0)
+					var translators = translatorManagementService.GetAllTranslators();
+					if (translators.Count == 0)
 						ConsoleHelper.ShowWarning(Messages.NotAvailableTranslator);
+					else if (authorization.HasPermission(Permission.ViewTranslatorFullDetails))
+						TranslatorPrinter.PrintFullTable(translators);
 					else
-						TranslatorPrinter.PrintFullTable(translatorManagementService.GetAllTranslators());
+						TranslatorPrinter.PrintTable(translators);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 8:
+				case 9:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					continueProgram = false;
@@ -134,11 +153,14 @@ public static class TranslatorMenu
 			(1, "Add Translator", authorization.HasPermission(Permission.AddTranslator)),
 			(2, "Edit Translator", authorization.HasPermission(Permission.EditTranslator)),
 			(3, "Remove Translator", authorization.HasPermission(Permission.RemoveTranslator)),
-			(4, "Search Translator", authorization.HasPermission(Permission.SearchTranslator)),
-			(5, "View Translator Details", authorization.HasPermission(Permission.ViewTranslatorDetails)),
-			(6, "View Translator's Books", authorization.HasPermission(Permission.ViewTranslatorBooks)),
-			(7, "View All Translators", authorization.HasPermission(Permission.ViewAllTranslators)),
-			(8, "Back", true)
+			(4, "Search Translator",
+				authorization.HasAnyPermission(Permission.SearchTranslatorForMember, Permission.FullSearchTranslator)),
+			(5, "Sort Translator",
+				authorization.HasAnyPermission(Permission.SortTranslatorForMember, Permission.FullSortTranslator)),
+			(6, "View Translator Details", authorization.HasPermission(Permission.ViewTranslatorDetails)),
+			(7, "View Translator's Books", authorization.HasPermission(Permission.ViewTranslatorBooks)),
+			(8, "View All Translators", authorization.HasPermission(Permission.ViewAllTranslators)),
+			(9, "Back", true)
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
@@ -294,6 +316,18 @@ public static class TranslatorMenu
 	}
 
 
+	private static TranslatorDto? PerformUpdate<T>(TranslatorManagementService translatorManagementService,
+		int desiredTranslatorId, T? newValue, Func<T, UpdateTranslatorDto> buildDto)
+	{
+		if (newValue is null) return null;
+
+		var dto = buildDto(newValue);
+		var result = translatorManagementService.UpdateTranslator(desiredTranslatorId, dto);
+		ConsoleHelper.ShowResult(result);
+		return result.Data;
+	}
+
+
 	private static void RemoveTranslator(TranslatorManagementService translatorManagementService,
 		IAuthorizationService authorization)
 	{
@@ -311,17 +345,15 @@ public static class TranslatorMenu
 	private static void SearchTranslator(TranslatorManagementService translatorManagementService,
 		IAuthorizationService authorization)
 	{
-		if (!authorization.HasAnyPermission(Permission.SearchTranslator, Permission.SearchTranslatorByName,
-			    Permission.SearchTranslatorByNationalCode, Permission.SearchTranslatorByEmail,
-			    Permission.SearchTranslatorByPhoneNumber))
+		if (!authorization.HasAnyPermission(Permission.SearchTranslatorForMember, Permission.FullSearchTranslator))
 		{
 			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
 		}
 
 		Action<IReadOnlyList<TranslatorDto>> printer =
-			authorization.HasAnyPermission(Permission.ViewTranslatorDetails, Permission.ViewAllTranslators)
-				? translator => TranslatorPrinter.PrintFullTable(translator,"Search Result")
+			authorization.HasAnyPermission(Permission.ViewTranslatorDetails, Permission.FullSearchTranslator)
+				? translator => TranslatorPrinter.PrintFullTable(translator, "Search Result")
 				: translator => TranslatorPrinter.PrintTable(translator, "Search Result");
 
 		while (true)
@@ -335,15 +367,18 @@ public static class TranslatorMenu
 				return;
 			}
 
-			var items = new List<(TranslatorSearchField? Field, string Label, Permission Permission)>
+			var items = new List<(TranslatorSearchField? Field, string Label, Permission[] RequiredPermissions)>
 			{
-				(TranslatorSearchField.Name, "Name", Permission.SearchTranslatorByName),
-				(TranslatorSearchField.NationalCode, "National Code", Permission.SearchTranslatorByNationalCode),
-				(TranslatorSearchField.Email, "Email", Permission.SearchTranslatorByEmail),
-				(TranslatorSearchField.PhoneNumber, "Phone Number", Permission.SearchTranslatorByPhoneNumber),
+				(TranslatorSearchField.Name, "Name",
+					[Permission.FullSearchTranslator, Permission.SearchTranslatorForMember]),
+				(TranslatorSearchField.NationalCode, "National Code", [Permission.FullSearchTranslator]),
+				(TranslatorSearchField.Email, "Email",
+					[Permission.FullSearchTranslator, Permission.SearchTranslatorForMember]),
+				(TranslatorSearchField.PhoneNumber, "Phone Number", [Permission.FullSearchTranslator]),
 			};
 
-			var available = items.Where(i => authorization.HasPermission(i.Permission)).ToList();
+			var available = items.Where(i =>
+				i.RequiredPermissions.Length == 0 || authorization.HasAnyPermission(i.RequiredPermissions)).ToList();
 
 			var displayNumber = 1;
 			foreach (var item in available) Console.WriteLine($"{displayNumber++}. {item.Label}");
@@ -378,15 +413,81 @@ public static class TranslatorMenu
 	}
 
 
-	private static TranslatorDto? PerformUpdate<T>(TranslatorManagementService translatorManagementService,
-		int desiredTranslatorId, T? newValue, Func<T, UpdateTranslatorDto> buildDto)
+	private static void SortTranslator(TranslatorManagementService translatorManagementService,
+		IAuthorizationService authorization)
 	{
-		if (newValue is null) return null;
+		if (!authorization.HasAnyPermission(Permission.SortTranslatorForMember, Permission.FullSortTranslator))
+		{
+			ConsoleHelper.ShowError(Messages.AccessDenied);
+			return;
+		}
 
-		var dto = buildDto(newValue);
-		var result = translatorManagementService.UpdateTranslator(desiredTranslatorId, dto);
-		ConsoleHelper.ShowResult(result);
-		return result.Data;
+		var sortFields = GetAvailableTranslatorSortFields(authorization);
+		while (true)
+		{
+			Console.Clear();
+			var fieldHeaders = new[] { "#", "Sort By" };
+			var fieldRows = sortFields
+				.Select((field, index) => new string[][] { [(index + 1).ToString()], [field.Label] }).ToList();
+			fieldRows.Add([[(sortFields.Count + 1).ToString()], ["Back"]]);
+
+
+			ConsoleTable.PrintTable("Sort Translator", fieldHeaders, fieldRows);
+
+			var backOption = sortFields.Count + 1;
+			var choice = ConsoleHelper.ReadInt(Messages.SortFieldQuestion, 1, backOption);
+			if (choice is null) return;
+
+			if (choice == backOption)
+			{
+				ConsoleHelper.ShowInfo(string.Format(Messages.SortCancelled, "Translator"));
+				return;
+			}
+
+			var selectedField = sortFields[choice.Value - 1];
+			var sortDirection = SelectSortDirection();
+			if (sortDirection is null) continue;
+
+			var sortedTranslators =
+				translatorManagementService.GetAllTranslators(selectedField.Field, sortDirection.Value);
+			if (sortedTranslators.Count == 0)
+			{
+				ConsoleHelper.ShowWarning(Messages.NotAvailableTranslator);
+				continue;
+			}
+
+			var sortDescription = $"{selectedField.Field} ({sortDirection})";
+
+			var canViewFullDetails = authorization.HasPermission(Permission.FullSortTranslator);
+			if (canViewFullDetails)
+				TranslatorPrinter.PrintFullTable(sortedTranslators, $"Sorted Translators - {sortDescription}");
+			else
+				TranslatorPrinter.PrintTable(sortedTranslators, $"Sorted Translators - {sortDescription}");
+
+			ConsoleHelper.Pause();
+		}
+	}
+
+
+	private static List<(TranslatorSortField Field, string Label)> GetAvailableTranslatorSortFields(
+		IAuthorizationService authorization)
+	{
+		var fields = new List<(TranslatorSortField Field, string Label)>
+		{
+			(TranslatorSortField.Id, "ID"),
+			(TranslatorSortField.FirstName, "First Name"),
+			(TranslatorSortField.LastName, "Last Name"),
+			(TranslatorSortField.Email, "Email")
+		};
+
+		if (authorization.HasPermission(Permission.FullSortAuthor))
+		{
+			fields.Insert(3, (TranslatorSortField.NationalCode, "National Code"));
+			fields.Add((TranslatorSortField.BirthDate, "Birth Date"));
+			fields.Add((TranslatorSortField.BookCount, "Book Count"));
+		}
+
+		return fields;
 	}
 
 

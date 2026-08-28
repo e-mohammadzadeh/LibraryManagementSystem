@@ -12,21 +12,21 @@ public enum Permission
 	ViewAuthorDetails,
 	ViewAuthorBooks,
 	ViewAllAuthors,
-
+	ViewAuthorFullDetails,
+	RemoveAuthor,
 	
 
 	// Translators
 	AddTranslator,
 	EditTranslator,
-	SearchTranslator,
-	SearchTranslatorByName,
-	SearchTranslatorByNationalCode,
-	SearchTranslatorByEmail,
-	SearchTranslatorByPhoneNumber,
+	SearchTranslatorForMember,
+	FullSearchTranslator,
+	SortTranslatorForMember,
+	FullSortTranslator,
 	ViewTranslatorDetails,
 	ViewTranslatorBooks,
 	ViewAllTranslators,
-	RemoveAuthor,
+	ViewTranslatorFullDetails,
 	RemoveTranslator,
 
 	

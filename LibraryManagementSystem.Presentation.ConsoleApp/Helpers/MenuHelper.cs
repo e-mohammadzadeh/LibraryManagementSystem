@@ -56,7 +56,7 @@ public static class MenuHelper
 		}
 
 		Action<IReadOnlyList<AuthorDto>> printer =
-			authorization.HasAnyPermission(Permission.ViewAuthorDetails, Permission.ViewAllAuthors)
+			authorization.HasPermission(Permission.ViewAuthorFullDetails)
 				? author => AuthorPrinter.PrintFullTable(author)
 				: author => AuthorPrinter.PrintTable(author);
 		while (true)

@@ -18,16 +18,18 @@ public static class RolePermissionMap
 			Permission.ViewAuthorDetails,
 			Permission.ViewAuthorBooks,
 			Permission.ViewAllAuthors,
+			Permission.ViewAuthorFullDetails,
+
+
 			Permission.AddTranslator,
 			Permission.EditTranslator,
-			Permission.SearchTranslator,
-			Permission.SearchTranslatorByName,
-			Permission.SearchTranslatorByNationalCode,
-			Permission.SearchTranslatorByEmail,
-			Permission.SearchTranslatorByPhoneNumber,
+			Permission.FullSearchTranslator,
+			Permission.FullSortTranslator,
 			Permission.ViewTranslatorDetails,
 			Permission.ViewTranslatorBooks,
 			Permission.ViewAllTranslators,
+			Permission.ViewTranslatorFullDetails,
+
 
 			Permission.AddBook,
 			Permission.EditBook,
@@ -77,11 +79,12 @@ public static class RolePermissionMap
 			Permission.SearchAuthorForMember,
 			Permission.SortAuthorForMember,
 			Permission.ViewAuthorBooks,
+			Permission.ViewAllAuthors,
 
-			Permission.SearchTranslator,
-			Permission.SearchTranslatorByName,
-			Permission.SearchTranslatorByEmail,
+			Permission.SearchTranslatorForMember,
+			Permission.SortTranslatorForMember,
 			Permission.ViewTranslatorBooks,
+			Permission.ViewAllTranslators,
 
 			Permission.SearchBook,
 			Permission.ViewAllBooks,

@@ -115,14 +115,19 @@ public static class AuthorMenu
 				}
 				case 8:
 				{
-					Console.Clear();
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllAuthors,
 						    Messages.AccessDenied))
 						break;
-					if (authorManagementService.GetAllAuthors().Count is 0)
+
+					Console.Clear();
+					var authors = authorManagementService.GetAllAuthors();
+
+					if (authors.Count == 0)
 						ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
+					else if (authorization.HasPermission(Permission.ViewAuthorFullDetails))
+						AuthorPrinter.PrintFullTable(authors);
 					else
-						AuthorPrinter.PrintFullTable(authorManagementService.GetAllAuthors());
+						AuthorPrinter.PrintTable(authors);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -459,7 +464,7 @@ public static class AuthorMenu
 
 			var sortDescription = $"{selectedField.Field} ({sortDirection})";
 
-			var canViewFullDetails = authorization.HasPermission(Permission.ViewAllAuthors);
+			var canViewFullDetails = authorization.HasPermission(Permission.FullSortAuthor);
 			if (canViewFullDetails)
 				AuthorPrinter.PrintFullTable(sortedAuthors, $"Sorted Authors - {sortDescription}");
 			else
@@ -481,7 +486,7 @@ public static class AuthorMenu
 			(AuthorSortField.Email, "Email")
 		};
 
-		if (authorization.HasPermission(Permission.ViewAllAuthors))
+		if (authorization.HasPermission(Permission.FullSortAuthor))
 		{
 			fields.Insert(3, (AuthorSortField.NationalCode, "National Code"));
 			fields.Add((AuthorSortField.BirthDate, "Birth Date"));
