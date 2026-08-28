@@ -1,5 +1,4 @@
-﻿using System.Text;
-using LibraryManagementSystem.Application.Authentication;
+﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Translators;

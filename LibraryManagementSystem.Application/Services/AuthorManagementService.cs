@@ -117,16 +117,14 @@ public class AuthorManagementService
 	{
 		var requiredPermission = field switch
 		{
-			AuthorSearchField.Name => Permission.SearchAuthorByName,
-			AuthorSearchField.NationalCode => Permission.SearchAuthorByNationalCode,
-			AuthorSearchField.Email => Permission.SearchAuthorByEmail,
-			AuthorSearchField.PhoneNumber => Permission.SearchAuthorByPhoneNumber,
+			AuthorSearchField.Name => new[] {Permission.SearchAuthorForMember, Permission.FullSearchAuthor},
+			AuthorSearchField.NationalCode => new[] {Permission.FullSearchAuthor},
+			AuthorSearchField.Email => new[] { Permission.SearchAuthorForMember, Permission.FullSearchAuthor},
+			AuthorSearchField.PhoneNumber => new[] {Permission.FullSearchAuthor},
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};
 
-		if (!_authorization.HasPermission(requiredPermission) &&
-		    !_authorization.HasPermission(Permission.SearchAuthor))
-			return [];
+		if (!_authorization.HasAnyPermission(requiredPermission)) return [];
 
 		Func<Author, string?> selector = field switch
 		{

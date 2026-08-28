@@ -8,7 +8,6 @@ using LibraryManagementSystem.Domain.Enums.Search;
 using LibraryManagementSystem.Domain.Enums.Sort;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
-using System.Text;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
@@ -23,7 +22,10 @@ public static class AuthorMenu
 			    Permission.AddAuthor,
 			    Permission.EditAuthor,
 			    Permission.RemoveAuthor,
-			    Permission.SearchAuthor,
+			    Permission.SearchAuthorForMember,
+			    Permission.FullSearchAuthor,
+			    Permission.SortAuthorForMember,
+			    Permission.FullSortAuthor,
 			    Permission.ViewAuthorDetails,
 			    Permission.ViewAllAuthors))
 		{
@@ -75,7 +77,8 @@ public static class AuthorMenu
 				}
 				case 4:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.SearchAuthor, Messages.AccessDenied))
+					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
+						    Permission.SearchAuthorForMember, Permission.FullSearchAuthor))
 						break;
 					SearchAuthor(authorManagementService, authorization);
 					ConsoleHelper.Pause();
@@ -83,7 +86,8 @@ public static class AuthorMenu
 				}
 				case 5:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllAuthors, Messages.AccessDenied))
+					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
+						    Permission.SortAuthorForMember, Permission.FullSortAuthor))
 						break;
 					Console.Clear();
 					SortAuthors(authorManagementService, authorization);
@@ -140,8 +144,10 @@ public static class AuthorMenu
 			(1, "Add Author", authorization.HasPermission(Permission.AddAuthor)),
 			(2, "Edit Author", authorization.HasPermission(Permission.EditAuthor)),
 			(3, "Remove Author", authorization.HasPermission(Permission.RemoveAuthor)),
-			(4, "Search Author", authorization.HasPermission(Permission.SearchAuthor)),
-			(5, "Sort Authors", authorization.HasPermission(Permission.ViewAllAuthors)),
+			(4, "Search Author",
+				authorization.HasAnyPermission(Permission.SearchAuthorForMember, Permission.FullSearchAuthor)),
+			(5, "Sort Authors",
+				authorization.HasAnyPermission(Permission.SortAuthorForMember, Permission.FullSortAuthor)),
 			(6, "View Author Details", authorization.HasPermission(Permission.ViewAuthorDetails)),
 			(7, "View Author's Books", authorization.HasPermission(Permission.ViewAuthorBooks)),
 			(8, "View All Authors", authorization.HasPermission(Permission.ViewAllAuthors)),
@@ -347,18 +353,15 @@ public static class AuthorMenu
 	private static void SearchAuthor(AuthorManagementService authorManagementService,
 		IAuthorizationService authorization)
 	{
-		if (!authorization.HasAnyPermission(Permission.SearchAuthor, Permission.SearchAuthorByName,
-			    Permission.SearchAuthorByNationalCode, Permission.SearchAuthorByEmail,
-			    Permission.SearchAuthorByPhoneNumber))
+		if (!authorization.HasAnyPermission(Permission.SearchAuthorForMember, Permission.FullSearchAuthor))
 		{
 			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
 		}
 
-		Action<IReadOnlyList<AuthorDto>> printer =
-			authorization.HasAnyPermission(Permission.ViewAuthorDetails, Permission.ViewAllAuthors)
-				? author => AuthorPrinter.PrintFullTable(author, "Search Result")
-				: author => AuthorPrinter.PrintTable(author, "Search Result");
+		Action<IReadOnlyList<AuthorDto>> printer = authorization.HasAnyPermission(Permission.FullSearchAuthor)
+			? author => AuthorPrinter.PrintFullTable(author, "Search Result")
+			: author => AuthorPrinter.PrintTable(author, "Search Result");
 
 		while (true)
 		{
@@ -370,14 +373,15 @@ public static class AuthorMenu
 				return;
 			}
 
-			var items = new List<(AuthorSearchField? Field, string Label, Permission Permission)>
+			var items = new List<(AuthorSearchField? Field, string Label, Permission[] RequiredPermissions)>
 			{
-				(AuthorSearchField.Name, "Name", Permission.SearchAuthorByName),
-				(AuthorSearchField.NationalCode, "National Code", Permission.SearchAuthorByNationalCode),
-				(AuthorSearchField.Email, "Email", Permission.SearchAuthorByEmail),
-				(AuthorSearchField.PhoneNumber, "Phone Number", Permission.SearchAuthorByPhoneNumber),
+				(AuthorSearchField.Name, "Name", [Permission.FullSearchAuthor, Permission.SearchAuthorForMember]),
+				(AuthorSearchField.NationalCode, "National Code", [Permission.FullSearchAuthor]),
+				(AuthorSearchField.Email, "Email", [Permission.FullSearchAuthor, Permission.SearchAuthorForMember]),
+				(AuthorSearchField.PhoneNumber, "Phone Number", [Permission.FullSearchAuthor]),
 			};
-			var available = items.Where(i => authorization.HasPermission(i.Permission)).ToList();
+			var available = items.Where(i =>
+				i.RequiredPermissions.Length == 0 || authorization.HasAnyPermission(i.RequiredPermissions)).ToList();
 
 			var displayNumber = 1;
 			foreach (var item in available) Console.WriteLine($"{displayNumber++}. {item.Label}");
@@ -411,68 +415,52 @@ public static class AuthorMenu
 	}
 
 
-	private static void SortAuthors(AuthorManagementService authorManagementService, IAuthorizationService authorization)
+	private static void SortAuthors(AuthorManagementService authorManagementService,
+		IAuthorizationService authorization)
 	{
-		if (!authorization.HasPermission(Permission.ViewAllAuthors))
+		if (!authorization.HasAnyPermission(Permission.SortAuthorForMember, Permission.FullSortAuthor))
 		{
 			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
 		}
 
+		var sortFields = GetAvailableAuthorSortFields(authorization);
 		while (true)
 		{
 			Console.Clear();
-
 			var fieldHeaders = new[] { "#", "Sort By" };
-			var fieldRows = new List<string[][]>
-			{
-				new string[][] { ["1"], ["ID"] },
-				new string[][] { ["2"], ["First Name"] },
-				new string[][] { ["3"], ["Last Name"] },
-				new string[][] { ["4"], ["National Code"] },
-				new string[][] { ["5"], ["Email"] },
-				new string[][] { ["6"], ["Birth Date"] },
-				new string[][] { ["7"], ["Book Count"] },
-				new string[][] { ["8"], ["Back"] }
-			};
+			var fieldRows = sortFields
+				.Select((field, index) => new string[][] { [(index + 1).ToString()], [field.Label] }).ToList();
+			fieldRows.Add([[(sortFields.Count + 1).ToString()], ["Back"]]);
+
+
 			ConsoleTable.PrintTable("Sort Authors", fieldHeaders, fieldRows);
 
-			var choice = ConsoleHelper.ReadInt(Messages.SortFieldQuestion, 1, 8);
-			switch (choice)
+			var backOption = sortFields.Count + 1;
+			var choice = ConsoleHelper.ReadInt(Messages.SortFieldQuestion, 1, backOption);
+			if (choice is null) return;
+
+			if (choice == backOption)
 			{
-				case null:
-					return;
-				case 8:
-					ConsoleHelper.ShowInfo(string.Format(Messages.SortCancelled, "Author"));
-					return;
+				ConsoleHelper.ShowInfo(string.Format(Messages.SortCancelled, "Author"));
+				return;
 			}
 
-			var sortField = choice.Value switch
-			{
-				1 => AuthorSortField.Id,
-				2 => AuthorSortField.FirstName,
-				3 => AuthorSortField.LastName,
-				4 => AuthorSortField.NationalCode,
-				5 => AuthorSortField.Email,
-				6 => AuthorSortField.BirthDate,
-				7 => AuthorSortField.BookCount,
-				_ => throw new ArgumentOutOfRangeException(nameof(choice))
-			};
-
+			var selectedField = sortFields[choice.Value - 1];
 			var sortDirection = SelectSortDirection();
+			if (sortDirection is null) continue;
 
-			if (sortDirection is null)
-				continue;
-
-			var sortedAuthors = authorManagementService.GetAllAuthors(sortField, sortDirection.Value);
+			var sortedAuthors = authorManagementService.GetAllAuthors(selectedField.Field, sortDirection.Value);
 			if (sortedAuthors.Count == 0)
 			{
 				ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
 				continue;
 			}
-			var isFullView = authorization.HasPermission(Permission.ViewAllAuthors);
-			var sortDescription = $"{sortField} ({sortDirection})";
-			if (isFullView)
+
+			var sortDescription = $"{selectedField.Field} ({sortDirection})";
+
+			var canViewFullDetails = authorization.HasPermission(Permission.ViewAllAuthors);
+			if (canViewFullDetails)
 				AuthorPrinter.PrintFullTable(sortedAuthors, $"Sorted Authors - {sortDescription}");
 			else
 				AuthorPrinter.PrintTable(sortedAuthors, $"Sorted Authors - {sortDescription}");
@@ -480,6 +468,29 @@ public static class AuthorMenu
 			ConsoleHelper.Pause();
 		}
 	}
+
+
+	private static List<(AuthorSortField Field, string Label)> GetAvailableAuthorSortFields(
+		IAuthorizationService authorization)
+	{
+		var fields = new List<(AuthorSortField Field, string Label)>
+		{
+			(AuthorSortField.Id, "ID"),
+			(AuthorSortField.FirstName, "First Name"),
+			(AuthorSortField.LastName, "Last Name"),
+			(AuthorSortField.Email, "Email")
+		};
+
+		if (authorization.HasPermission(Permission.ViewAllAuthors))
+		{
+			fields.Insert(3, (AuthorSortField.NationalCode, "National Code"));
+			fields.Add((AuthorSortField.BirthDate, "Birth Date"));
+			fields.Add((AuthorSortField.BookCount, "Book Count"));
+		}
+
+		return fields;
+	}
+
 
 
 	private static SortDirection? SelectSortDirection()
@@ -500,8 +511,7 @@ public static class AuthorMenu
 		{
 			1 => SortDirection.Ascending,
 			2 => SortDirection.Descending,
-			3 => null,
-			_ => throw new ArgumentOutOfRangeException(nameof(directionChoice))
+			_ => null
 		};
 	}
 

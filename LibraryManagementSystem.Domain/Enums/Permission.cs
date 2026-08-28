@@ -2,17 +2,20 @@
 
 public enum Permission
 {
-	// Authors / Translators
+	// Authors
 	AddAuthor,
 	EditAuthor,
-	SearchAuthor,
-	SearchAuthorByName,
-	SearchAuthorByNationalCode,
-	SearchAuthorByEmail,
-	SearchAuthorByPhoneNumber,
+	SearchAuthorForMember,
+	FullSearchAuthor,
+	SortAuthorForMember,
+	FullSortAuthor,
 	ViewAuthorDetails,
 	ViewAuthorBooks,
 	ViewAllAuthors,
+
+	
+
+	// Translators
 	AddTranslator,
 	EditTranslator,
 	SearchTranslator,
@@ -66,7 +69,6 @@ public enum Permission
 	MyFullLoanHistory,
 	SearchLoans,
 	
-
 
 	// Users
 	AddUser,

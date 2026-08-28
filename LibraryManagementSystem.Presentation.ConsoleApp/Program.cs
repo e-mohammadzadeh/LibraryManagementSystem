@@ -54,7 +54,7 @@ public static class Program
 
 			while (true)
 			{
-				Console.Clear();;
+				Console.Clear();
 				var loggedInUser = LoginMenu.ShowLogin(authService);
 				if (loggedInUser is null) return;
 

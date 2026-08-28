@@ -32,9 +32,9 @@ public class AuthorizationService : IAuthorizationService
 
 	public bool CanAccessAuthorManagement()
 	{
-		return HasAnyPermission(Permission.AddAuthor, Permission.EditAuthor, Permission.SearchAuthor,
-			Permission.SearchAuthorByName, Permission.SearchAuthorByNationalCode, Permission.SearchAuthorByEmail,
-			Permission.SearchAuthorByPhoneNumber, Permission.ViewAuthorDetails, Permission.ViewAllAuthors);
+		return HasAnyPermission(Permission.AddAuthor, Permission.EditAuthor, Permission.SearchAuthorForMember,
+			Permission.FullSearchAuthor, Permission.SortAuthorForMember, Permission.FullSortAuthor,
+			Permission.ViewAuthorDetails, Permission.ViewAllAuthors);
 	}
 
 

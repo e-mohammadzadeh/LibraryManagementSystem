@@ -13,15 +13,11 @@ public static class RolePermissionMap
 		[
 			Permission.AddAuthor,
 			Permission.EditAuthor,
-			Permission.SearchAuthor,
-			Permission.SearchAuthorByName,
-			Permission.SearchAuthorByNationalCode,
-			Permission.SearchAuthorByEmail,
-			Permission.SearchAuthorByPhoneNumber,
+			Permission.FullSearchAuthor,
+			Permission.FullSortAuthor,
 			Permission.ViewAuthorDetails,
 			Permission.ViewAuthorBooks,
 			Permission.ViewAllAuthors,
-
 			Permission.AddTranslator,
 			Permission.EditTranslator,
 			Permission.SearchTranslator,
@@ -78,17 +74,14 @@ public static class RolePermissionMap
 
 		[LibraryUserRole.Member] =
 		[
-			Permission.SearchAuthor,
-			Permission.SearchAuthorByName,
-			Permission.SearchAuthorByEmail,
+			Permission.SearchAuthorForMember,
+			Permission.SortAuthorForMember,
 			Permission.ViewAuthorBooks,
-			Permission.ViewAllAuthors,
 
 			Permission.SearchTranslator,
 			Permission.SearchTranslatorByName,
 			Permission.SearchTranslatorByEmail,
 			Permission.ViewTranslatorBooks,
-			Permission.ViewAllTranslators,
 
 			Permission.SearchBook,
 			Permission.ViewAllBooks,
