@@ -4,6 +4,7 @@ using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Enums.Search;
 using LibraryManagementSystem.Domain.Enums.Sort;
@@ -739,11 +740,8 @@ public static class BookMenu
 				case 5:
 				{
 					Console.Clear();
-					var searchTerm = ConsoleHelper.ReadDateOnly("Enter a publish date to search");
-					if (searchTerm is null) continue;
-					var results = bookManagementService.SearchBooks(searchTerm.Value.ToString("yyyy-MM-dd"),
-						BookSearchField.PublishDate);
-					DisplayBookResults(results, authorization);
+					var results = SearchByPublishDate(bookManagementService);
+					DisplayBookResults(results!, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -789,6 +787,76 @@ public static class BookMenu
 	}
 
 
+	private static IReadOnlyList<BookDto>? SearchByPublishDate(BookManagementService bookManagementService)
+	{
+		Console.WriteLine("Search by Publish Date:");
+		Console.WriteLine("1. Exact date");
+		Console.WriteLine("2. Before date");
+		Console.WriteLine("3. After date");
+		Console.WriteLine("4. Date range");
+		Console.WriteLine("5. Back");
+
+		var modeChoice = ConsoleHelper.ReadInt(Messages.SortFieldQuestion, 1, 5);
+		if (modeChoice is null or 5) return null;
+
+		var mode = (DateSearchMode)(modeChoice.Value - 1);
+
+		DateOnly from;
+		DateOnly to;
+
+		switch (mode)
+		{
+			case DateSearchMode.Exact:
+			{
+				var date = ConsoleHelper.ReadDateOnly("Enter a publish date to search");
+				if (date is null) return null;
+				from = date.Value;
+				to = date.Value;
+				break;
+			}
+			case DateSearchMode.Before:
+			{
+				var date = ConsoleHelper.ReadDateOnly("Enter date (find books published before this date)");
+				if (date is null) return null;
+				from = DateOnly.MinValue;
+				to = date.Value;
+				break;
+			}
+			case DateSearchMode.After:
+			{
+				var date = ConsoleHelper.ReadDateOnly("Enter date (find books published after this date)");
+				if (date is null) return null;
+				from = date.Value;
+				to = DateOnly.MaxValue;
+				break;
+			}
+			case DateSearchMode.Range:
+			{
+				var startDate = ConsoleHelper.ReadDateOnly("Enter start date");
+				if (startDate is null) return null;
+
+				var endDate = ConsoleHelper.ReadDateOnly("Enter end date");
+				if (endDate is null) return null;
+
+				if (endDate.Value < startDate.Value)
+				{
+					ConsoleHelper.ShowError("End date cannot be before start date.");
+					return null;
+				}
+
+				from = startDate.Value;
+				to = endDate.Value;
+				break;
+			}
+			default:
+				return null;
+		}
+
+		return bookManagementService.SearchBooksByDate(from, to, book => book.PublishDate);
+	}
+
+
+
 	private static void SortTranslator(BookManagementService bookManagementService, IAuthorizationService authorization)
 	{
 		if (!authorization.HasAnyPermission(Permission.SortBookForMember, Permission.FullSortBook))
@@ -831,7 +899,7 @@ public static class BookMenu
 
 			var sortDescription = $"{selectedField.Field} ({sortDirection})";
 
-			BookPrinter.PrintTable(sortedBooks, authorization,$"Sorted Books - {sortDescription}");
+			BookPrinter.PrintTable(sortedBooks, authorization, $"Sorted Books - {sortDescription}");
 
 			ConsoleHelper.Pause();
 		}

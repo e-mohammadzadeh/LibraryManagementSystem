@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Application.Common;
+﻿using System.Runtime.InteropServices.JavaScript;
+using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
@@ -244,6 +245,11 @@ public class BookManagementService
 		return [.. _bookRepository.Search(searchTerm, selector).Select(book => book.ToDto())];
 	}
 
+
+	public IReadOnlyList<BookDto> SearchBooksByDate(DateOnly from, DateOnly to, Func<Book, DateOnly> selector)
+	{
+		return [.. _bookRepository.SearchByDate(from, to, selector).Select(book => book.ToDto())];
+	}
 
 
 	public IReadOnlyList<BookDto> GetAvailableBooks()
