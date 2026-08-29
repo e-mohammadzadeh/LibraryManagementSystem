@@ -3,7 +3,6 @@ using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Translators;
 using LibraryManagementSystem.Application.Services;
-using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Enums.Search;
 using LibraryManagementSystem.Domain.Enums.Sort;
@@ -413,7 +412,7 @@ public static class TranslatorMenu
 	}
 
 
-	private static void SortTranslator(TranslatorManagementService translatorManagementService,
+	private static void SortTranslators(TranslatorManagementService translatorManagementService,
 		IAuthorizationService authorization)
 	{
 		if (!authorization.HasAnyPermission(Permission.SortTranslatorForMember, Permission.FullSortTranslator))
@@ -480,14 +479,34 @@ public static class TranslatorMenu
 			(TranslatorSortField.Email, "Email")
 		};
 
-		if (authorization.HasPermission(Permission.FullSortAuthor))
-		{
-			fields.Insert(3, (TranslatorSortField.NationalCode, "National Code"));
-			fields.Add((TranslatorSortField.BirthDate, "Birth Date"));
-			fields.Add((TranslatorSortField.BookCount, "Book Count"));
-		}
-
+		if (!authorization.HasPermission(Permission.FullSortAuthor)) return fields;
+		fields.Insert(3, (TranslatorSortField.NationalCode, "National Code"));
+		fields.Add((TranslatorSortField.BirthDate, "Birth Date"));
+		fields.Add((TranslatorSortField.BookCount, "Book Count"));
 		return fields;
+	}
+
+
+	private static SortDirection? SelectSortDirection()
+	{
+		var directionHeaders = new[] { "#", "Direction" };
+		var directionRows = new List<string[][]>
+		{
+			new string[][] { ["1"], ["Ascending"] },
+			new string[][] { ["2"], ["Descending"] },
+			new string[][] { ["3"], ["Back"] }
+		};
+		ConsoleTable.PrintTable("Sort Direction", directionHeaders, directionRows);
+
+		var directionChoice = ConsoleHelper.ReadInt(Messages.SortDirectionQuestion, 1, 3);
+		if (directionChoice is null) return null;
+
+		return directionChoice.Value switch
+		{
+			1 => SortDirection.Ascending,
+			2 => SortDirection.Descending,
+			_ => null
+		};
 	}
 
 

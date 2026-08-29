@@ -1,11 +1,13 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Application.DTOs.Translators;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Enums.Search;
+using LibraryManagementSystem.Domain.Enums.Sort;
 using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
@@ -50,9 +52,27 @@ public class TranslatorManagementService
 	}
 
 
-	public IReadOnlyList<TranslatorDto> GetAllTranslators()
+	public IReadOnlyList<TranslatorDto> GetAllTranslators(TranslatorSortField sortField = TranslatorSortField.Id,
+		SortDirection sortDirection = SortDirection.Ascending)
 	{
-		return [.. _translatorRepository.GetAll().Select(translator => translator.ToDto())];
+		var translators = _translatorRepository.GetAll().Select(t => t.ToDto());
+		Func<TranslatorDto, object> keySelector = sortField switch
+		{
+			TranslatorSortField.Id => a => a.Id,
+			TranslatorSortField.FirstName => a => a.FirstName,
+			TranslatorSortField.LastName => a => a.LastName,
+			TranslatorSortField.NationalCode => a => a.NationalCode,
+			TranslatorSortField.Email => a => a.Email,
+			TranslatorSortField.BirthDate => a => a.BirthDate,
+			TranslatorSortField.BookCount => a => a.BookCount,
+			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
+		};
+
+		var sorted = sortDirection == SortDirection.Ascending
+			? translators.OrderBy(keySelector)
+			: translators.OrderByDescending(keySelector);
+
+		return [.. sorted];
 	}
 
 
@@ -120,19 +140,18 @@ public class TranslatorManagementService
 	}
 
 
-	public IReadOnlyList<TranslatorDto> SearchTranslator(string searchItem, TranslatorSearchField field) {
+	public IReadOnlyList<TranslatorDto> SearchTranslator(string searchItem, TranslatorSearchField field)
+	{
 		var requiredPermission = field switch
 		{
-			TranslatorSearchField.Name => Permission.SearchTranslatorByName,
-			TranslatorSearchField.NationalCode => Permission.SearchTranslatorByNationalCode,
-			TranslatorSearchField.Email => Permission.SearchTranslatorByEmail,
-			TranslatorSearchField.PhoneNumber => Permission.SearchTranslatorByPhoneNumber,
+			TranslatorSearchField.Name => new[] {Permission.SearchTranslatorForMember, Permission.FullSearchTranslator},
+			TranslatorSearchField.NationalCode => new[] {Permission.FullSearchTranslator},
+			TranslatorSearchField.Email => new[] { Permission.SearchTranslatorForMember, Permission.FullSearchTranslator },
+			TranslatorSearchField.PhoneNumber => new[] { Permission.FullSearchTranslator },
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};
 
-		if (!_authorization.HasPermission(requiredPermission) &&
-		    !_authorization.HasPermission(Permission.SearchTranslator))
-			return [];
+		if (!_authorization.HasAnyPermission(requiredPermission)) return [];
 
 		Func<Translator, string?> selector = field switch
 		{

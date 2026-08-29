@@ -35,6 +35,8 @@ public enum Permission
 	EditBook,
 	RemoveBook,
 	SearchBook,
+	SortBookForMember,
+	FullSortBook,
 	ViewBookDetails,
 	ViewAllBooks,
 

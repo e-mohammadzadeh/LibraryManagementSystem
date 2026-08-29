@@ -4,7 +4,6 @@ using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Application.DTOs.Loans;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
-using System.Text;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -59,7 +58,7 @@ public static class BookPrinter
 
 		var headers = new[]
 		{
-			"ID", "Book Name", "ISBN", "Author(s)", "Translator(s)", "Genre", "Publish Date", "Description",
+			"ID", "Book Name", "ISBN", "Author(s)", "Translator(s)", "Genre", "Publish Date", "Description", "Publisher",
 			"Availability"
 		};
 
@@ -76,6 +75,10 @@ public static class BookPrinter
 			var description = string.IsNullOrWhiteSpace(book.Description)
 				? ["—"]
 				: ConsoleTable.WrapText(book.Description, ValidationConstants.DescriptionWrapWidthInTable);
+
+			var publisher = string.IsNullOrWhiteSpace(book.Publisher)
+				? ["-"]
+				: ConsoleTable.WrapText(book.Publisher, ValidationConstants.DescriptionWrapWidthInTable);
 
 			var availability = showExactCopies
 				? [$"{book.AvailableCopies}/{book.TotalCopies}"]
@@ -97,6 +100,19 @@ public static class BookPrinter
 			};
 		}).ToList();
 
+		foreach (var row in rows)
+		{
+			Console.WriteLine(row);
+			foreach (var s in row)
+			{
+				Console.WriteLine(s);
+				foreach (var s1 in s)
+				{
+					Console.WriteLine(s1);
+				}
+			}
+		}
+		
 		ConsoleTable.PrintTable(title, headers, rows);
 	}
 

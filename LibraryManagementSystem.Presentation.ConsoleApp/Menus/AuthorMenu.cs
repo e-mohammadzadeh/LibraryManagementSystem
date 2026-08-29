@@ -486,13 +486,10 @@ public static class AuthorMenu
 			(AuthorSortField.Email, "Email")
 		};
 
-		if (authorization.HasPermission(Permission.FullSortAuthor))
-		{
-			fields.Insert(3, (AuthorSortField.NationalCode, "National Code"));
-			fields.Add((AuthorSortField.BirthDate, "Birth Date"));
-			fields.Add((AuthorSortField.BookCount, "Book Count"));
-		}
-
+		if (!authorization.HasPermission(Permission.FullSortAuthor)) return fields;
+		fields.Insert(3, (AuthorSortField.NationalCode, "National Code"));
+		fields.Add((AuthorSortField.BirthDate, "Birth Date"));
+		fields.Add((AuthorSortField.BookCount, "Book Count"));
 		return fields;
 	}
 

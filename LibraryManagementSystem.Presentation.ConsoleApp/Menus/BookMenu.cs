@@ -1,5 +1,4 @@
-﻿using System.Text;
-using LibraryManagementSystem.Application.Authentication;
+﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Authors;
@@ -7,6 +6,7 @@ using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Enums.Search;
+using LibraryManagementSystem.Domain.Enums.Sort;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -26,6 +26,8 @@ public static class BookMenu
 			    Permission.EditBook,
 			    Permission.RemoveBook,
 			    Permission.SearchBook,
+			    Permission.SortBookForMember,
+			    Permission.FullSortBook,
 			    Permission.ViewBookDetails,
 			    Permission.ViewAllBooks))
 		{
@@ -87,6 +89,16 @@ public static class BookMenu
 				}
 				case 5:
 				{
+					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
+						    Permission.SortBookForMember, Permission.FullSortBook))
+						break;
+					Console.Clear();
+					SortTranslator(bookManagementService, authorization);
+					ConsoleHelper.Pause();
+					break;
+				}
+				case 6:
+				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewBookDetails,
 						    Messages.AccessDenied))
 						break;
@@ -95,7 +107,7 @@ public static class BookMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 6:
+				case 7:
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllBooks, Messages.AccessDenied))
 						break;
@@ -107,7 +119,7 @@ public static class BookMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 7:
+				case 8:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					continueProgram = false;
@@ -126,9 +138,10 @@ public static class BookMenu
 			(2, "Edit Book", authorization.HasPermission(Permission.EditBook)),
 			(3, "Remove Book", authorization.HasPermission(Permission.RemoveBook)),
 			(4, "Search Book", authorization.HasPermission(Permission.SearchBook)),
-			(5, "View Book Details", authorization.HasPermission(Permission.ViewBookDetails)),
-			(6, "View All Books", authorization.HasPermission(Permission.ViewAllBooks)),
-			(7, "Back", true)
+			(5, "Sort Book", authorization.HasAnyPermission(Permission.SortBookForMember, Permission.FullSortBook)),
+			(6, "View Book Details", authorization.HasPermission(Permission.ViewBookDetails)),
+			(7, "View All Books", authorization.HasPermission(Permission.ViewAllBooks)),
+			(8, "Back", true)
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
@@ -774,6 +787,105 @@ public static class BookMenu
 
 		BookPrinter.PrintTable(result, authorization, "Search Result");
 	}
+
+
+	private static void SortTranslator(BookManagementService bookManagementService, IAuthorizationService authorization)
+	{
+		if (!authorization.HasAnyPermission(Permission.SortBookForMember, Permission.FullSortBook))
+		{
+			ConsoleHelper.ShowError(Messages.AccessDenied);
+			return;
+		}
+
+		var sortFields = GetAvailableBookSortFields(authorization);
+		while (true)
+		{
+			Console.Clear();
+			var fieldHeaders = new[] { "#", "Sort By" };
+			var fieldRows = sortFields
+				.Select((field, index) => new string[][] { [(index + 1).ToString()], [field.Label] }).ToList();
+			fieldRows.Add([[(sortFields.Count + 1).ToString()], ["Back"]]);
+
+			ConsoleTable.PrintTable("Sort Book", fieldHeaders, fieldRows);
+
+			var backOption = sortFields.Count + 1;
+			var choice = ConsoleHelper.ReadInt(Messages.SortFieldQuestion, 1, backOption);
+			if (choice is null) return;
+
+			if (choice == backOption)
+			{
+				ConsoleHelper.ShowInfo(string.Format(Messages.SortCancelled, "Book"));
+				return;
+			}
+
+			var selectedField = sortFields[choice.Value - 1];
+			var sortDirection = SelectSortDirection();
+			if (sortDirection is null) continue;
+
+			var sortedBooks = bookManagementService.GetAllBooks(selectedField.Field, sortDirection.Value);
+			if (sortedBooks.Count == 0)
+			{
+				ConsoleHelper.ShowWarning(Messages.NotAvailableBook);
+				continue;
+			}
+
+			var sortDescription = $"{selectedField.Field} ({sortDirection})";
+
+			//var canViewFullDetails = authorization.HasPermission(Permission.FullSortTranslator);
+			//if (canViewFullDetails)
+			//	BookPrinter.PrintFullTable(sortedBooks, $"Sorted Books - {sortDescription}");
+			//else
+			BookPrinter.PrintTable(sortedBooks, authorization,$"Sorted Books - {sortDescription}");
+
+			ConsoleHelper.Pause();
+		}
+	}
+
+
+	private static List<(BookSortField Field, string Label)> GetAvailableBookSortFields(
+		IAuthorizationService authorization)
+	{
+		var fields = new List<(BookSortField Field, string Label)>
+		{
+			(BookSortField.Id, "ID"),
+			(BookSortField.Name, "Name"),
+			(BookSortField.ISBN, "ISBN"),
+			(BookSortField.Author, "Author"),
+			(BookSortField.Translator, "Translator"),
+			(BookSortField.PublishDate, "Publish Date"),
+			(BookSortField.Genre, "Genre"),
+			(BookSortField.Publisher, "Publisher"),
+		};
+
+		if (!authorization.HasPermission(Permission.FullSortBook)) return fields;
+		fields.Insert(8, (BookSortField.AvailableCopies, "Available Copies"));
+		return fields;
+	}
+
+
+
+	private static SortDirection? SelectSortDirection()
+	{
+		var directionHeaders = new[] { "#", "Direction" };
+		var directionRows = new List<string[][]>
+		{
+			new string[][] { ["1"], ["Ascending"] },
+			new string[][] { ["2"], ["Descending"] },
+			new string[][] { ["3"], ["Back"] }
+		};
+		ConsoleTable.PrintTable("Sort Direction", directionHeaders, directionRows);
+
+		var directionChoice = ConsoleHelper.ReadInt(Messages.SortDirectionQuestion, 1, 3);
+		if (directionChoice is null) return null;
+
+		return directionChoice.Value switch
+		{
+			1 => SortDirection.Ascending,
+			2 => SortDirection.Descending,
+			_ => null
+		};
+	}
+
 
 
 	private static void ViewBookDetails(BookManagementService bookManagementService,

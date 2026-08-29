@@ -4,6 +4,7 @@ using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Enums.Search;
+using LibraryManagementSystem.Domain.Enums.Sort;
 using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
@@ -73,7 +74,29 @@ public class BookManagementService
 	}
 
 
-	public IReadOnlyList<BookDto> GetAllBooks() { return [.. _bookRepository.GetAll().Select(book => book.ToDto())]; }
+	public IReadOnlyList<BookDto> GetAllBooks(BookSortField sortField = BookSortField.Id, SortDirection sortDirection = SortDirection.Ascending)
+	{
+		var books = _bookRepository.GetAll().Select(t => t.ToDto());
+		Func<BookDto, object> keySelector = sortField switch
+		{
+			BookSortField.Id => a => a.BookId,
+			BookSortField.Name => a => a.BookName,
+			BookSortField.ISBN => a => a.ISBN,
+			BookSortField.Author => a => a.Authors,
+			BookSortField.Translator => a => a.Translators,
+			BookSortField.PublishDate => a => a.PublishDate,
+			BookSortField.Genre => a => a.Genre,
+			BookSortField.AvailableCopies => a => a.AvailableCopies,
+			BookSortField.Publisher => a => a.Publisher,
+			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
+		};
+
+		var sorted = sortDirection == SortDirection.Ascending
+			? books.OrderBy(keySelector)
+			: books.OrderByDescending(keySelector);
+
+		return [.. sorted];
+	}
 
 
 	public BookDto? FindBookById(int id)

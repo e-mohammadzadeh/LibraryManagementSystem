@@ -35,6 +35,7 @@ public static class RolePermissionMap
 			Permission.EditBook,
 			Permission.RemoveBook,
 			Permission.SearchBook,
+			Permission.FullSortBook,
 			Permission.ViewBookDetails,
 			Permission.ViewAllBooks,
 
@@ -87,6 +88,7 @@ public static class RolePermissionMap
 			Permission.ViewAllTranslators,
 
 			Permission.SearchBook,
+			Permission.SortBookForMember,
 			Permission.ViewAllBooks,
 
 			Permission.PayFine,
