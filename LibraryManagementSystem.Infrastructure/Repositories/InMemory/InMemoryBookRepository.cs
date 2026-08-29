@@ -72,6 +72,20 @@ public class InMemoryBookRepository : IBookRepository
 		];
 	}
 
+
+	public IReadOnlyList<Book> SearchByDate(DateOnly from, DateOnly to, Func<Book, DateOnly> selector)
+	{
+		return
+		[
+			.. _books.Where(book =>
+			{
+				var value = selector(book);
+				return value >= from && value <= to;
+			})
+		];
+	}
+
+
 	public void Update(Book book)
 	{
 		// In-memory collections update by reference automatically.

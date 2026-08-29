@@ -831,10 +831,6 @@ public static class BookMenu
 
 			var sortDescription = $"{selectedField.Field} ({sortDirection})";
 
-			//var canViewFullDetails = authorization.HasPermission(Permission.FullSortTranslator);
-			//if (canViewFullDetails)
-			//	BookPrinter.PrintFullTable(sortedBooks, $"Sorted Books - {sortDescription}");
-			//else
 			BookPrinter.PrintTable(sortedBooks, authorization,$"Sorted Books - {sortDescription}");
 
 			ConsoleHelper.Pause();

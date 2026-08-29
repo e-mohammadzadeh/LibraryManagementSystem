@@ -74,28 +74,31 @@ public class BookManagementService
 	}
 
 
-	public IReadOnlyList<BookDto> GetAllBooks(BookSortField sortField = BookSortField.Id, SortDirection sortDirection = SortDirection.Ascending)
+	public IReadOnlyList<BookDto> GetAllBooks(BookSortField sortField = BookSortField.Id,
+		SortDirection sortDirection = SortDirection.Ascending)
 	{
-		var books = _bookRepository.GetAll().Select(t => t.ToDto());
+		var books = _bookRepository.GetAll().Select(book => book.ToDto());
+
 		Func<BookDto, object> keySelector = sortField switch
 		{
-			BookSortField.Id => a => a.BookId,
-			BookSortField.Name => a => a.BookName,
-			BookSortField.ISBN => a => a.ISBN,
-			BookSortField.Author => a => a.Authors,
-			BookSortField.Translator => a => a.Translators,
-			BookSortField.PublishDate => a => a.PublishDate,
-			BookSortField.Genre => a => a.Genre,
-			BookSortField.AvailableCopies => a => a.AvailableCopies,
-			BookSortField.Publisher => a => a.Publisher,
+			BookSortField.Id => b => b.BookId,
+			BookSortField.Name => b => b.BookName,
+			BookSortField.ISBN => b => b.ISBN,
+			BookSortField.PublishDate => b => b.PublishDate,
+			BookSortField.Genre => b => b.Genre.ToString(),
+			BookSortField.Publisher => b => b.Publisher,
+			BookSortField.AvailableCopies => b => b.AvailableCopies,
+			BookSortField.Author => b => string.Join(", ", b.Authors.Select(a => a.FullName).Order()),
+			BookSortField.Translator => b => string.Join(", ", b.Translators.Select(t => t.FullName).Order()),
 			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
 		};
 
-		var sorted = sortDirection == SortDirection.Ascending
-			? books.OrderBy(keySelector)
-			: books.OrderByDescending(keySelector);
-
-		return [.. sorted];
+		return
+		[
+			.. (sortDirection == SortDirection.Ascending
+				? books.OrderBy(keySelector)
+				: books.OrderByDescending(keySelector))
+		];
 	}
 
 

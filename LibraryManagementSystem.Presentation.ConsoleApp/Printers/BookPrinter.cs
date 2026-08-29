@@ -96,22 +96,10 @@ public static class BookPrinter
 				[book.Genre.ToString()],
 				[book.PublishDate.ToString("yyyy-MM-dd")],
 				description,
+				publisher,
 				availability
 			};
 		}).ToList();
-
-		foreach (var row in rows)
-		{
-			Console.WriteLine(row);
-			foreach (var s in row)
-			{
-				Console.WriteLine(s);
-				foreach (var s1 in s)
-				{
-					Console.WriteLine(s1);
-				}
-			}
-		}
 		
 		ConsoleTable.PrintTable(title, headers, rows);
 	}
