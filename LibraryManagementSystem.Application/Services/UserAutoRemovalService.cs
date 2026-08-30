@@ -22,7 +22,9 @@ public class UserAutoRemovalService : IUserAutoRemovalService
 	public bool CanBeAutoRemoved(int userId)
 	{
 		var user = _userRepository.FindById(userId);
-		if (user is null || !user.ShouldRemove) return false;
+
+		if (user is null) return false;
+		if (!user.ShouldRemove) return false;
 		if (_loanRepository.GetActiveLoansByUser(userId).Count > 0) return false;
 		return !_fineRepository.HasUnpaidFines(userId);
 	}

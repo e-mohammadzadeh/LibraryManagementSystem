@@ -202,7 +202,7 @@ public static class Messages
 	public const string ReturnedSuccessfully = "Book returned successfully.";
 	public const string RenewedSuccessfully = "Loan renewed successfully.";
 	public const string LoanNotYetReturned = "Loan has not been returned yet.";
-	public const string FlaggedForRemoval = "This account has been flagged for removal due to reaching the maximum fine limit. Borrowing is disabled.";
+	public const string FlaggedForRemoval = "This account has been flagged for removal due to reaching the maximum fine limit. {0} is disabled.";
 	public const string BorrowFailedForFine = "You cannot borrow books while you have unpaid fines. Please pay your fines first.";
 
 	// Search / Availability

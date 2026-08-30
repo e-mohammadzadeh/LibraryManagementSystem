@@ -60,7 +60,10 @@ public class InMemoryUserRepository : IUserRepository
 	}
 
 
-	public void Remove(User user) { _users.Remove(user); }
+	public void Remove(User user)
+	{
+		user.DeleteUser();
+	}
 
 
 	public IReadOnlyList<User> Search(string searchTerm, Func<User, string?> selector)

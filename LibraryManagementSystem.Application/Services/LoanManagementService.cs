@@ -15,18 +15,21 @@ public class LoanManagementService
 	private readonly IUserRepository _userRepository;
 	private readonly IBookRepository _bookRepository;
 	private readonly IFineManagementService _fineService;
+	private readonly IUserAutoRemovalService _userAutoRemovalService;
 	private readonly IAuthorizationService _authorization;
 	private readonly ILoanHistoryManagementService _loanHistoryManagementService;
 
 
 	public LoanManagementService(ILoanRepository loanRepository, IUserRepository userRepository,
 		IBookRepository bookRepository, IFineManagementService fineManagementService,
-		IAuthorizationService authorization, ILoanHistoryManagementService loanHistoryManagementService)
+		IUserAutoRemovalService userAutoRemovalService, IAuthorizationService authorization,
+		ILoanHistoryManagementService loanHistoryManagementService)
 	{
 		_loanRepository = loanRepository;
 		_userRepository = userRepository;
 		_bookRepository = bookRepository;
 		_fineService = fineManagementService;
+		_userAutoRemovalService = userAutoRemovalService;
 		_authorization = authorization;
 		_loanHistoryManagementService = loanHistoryManagementService;
 	}
@@ -42,7 +45,7 @@ public class LoanManagementService
 
 		if (!user.IsActive) return ServiceResult<LoanDto>.Fail(Messages.MembershipExpired);
 
-		if (user.ShouldRemove) return ServiceResult<LoanDto>.Fail(Messages.FlaggedForRemoval);
+		if (user.ShouldRemove) return ServiceResult<LoanDto>.Fail(string.Format(Messages.FlaggedForRemoval, "Borrowing"));
 
 		if (_fineService.HasUnpaidFines(dto.UserId)) return ServiceResult<LoanDto>.Fail(Messages.BorrowFailedForFine);
 
@@ -83,6 +86,7 @@ public class LoanManagementService
 		_loanRepository.Update(loan);
 		_bookRepository.Update(loan.Book);
 		_loanHistoryManagementService.Record(loan, LoanHistoryAction.Returned);
+		_userAutoRemovalService.TryAutoRemove(loan.UserId);
 
 		var fineResult = _fineService.CreateFineForLoan(loanId);
 		if (!fineResult.Success && fineResult.Message != Messages.NoFine)
@@ -110,6 +114,10 @@ public class LoanManagementService
 
 		if (session.IsSelfServiceMember && session.UserId != loan.UserId)
 			return ServiceResult<LoanDto>.Fail(Messages.RenewOwnLoans);
+
+		if (loan.User.ShouldRemove)
+			return ServiceResult<LoanDto>.Fail(string.Format(Messages.FlaggedForRemoval, "Renewing"));
+
 
 		if (!loan.CanRenew(out var errorMessage)) return ServiceResult<LoanDto>.Fail(errorMessage);
 
