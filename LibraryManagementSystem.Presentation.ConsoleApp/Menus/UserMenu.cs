@@ -3,11 +3,12 @@ using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Domain.Enums.Search;
+using LibraryManagementSystem.Domain.Enums.Sort;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
-using LibraryManagementSystem.Domain.Entities;
-using LibraryManagementSystem.Domain.Enums.Sort;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
@@ -75,7 +76,7 @@ public static class UserMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveUser, Messages.AccessDenied))
 						break;
 					Console.Clear();
-					RemoveUser(userManagementService, session);
+					RemoveUser(userManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -84,7 +85,7 @@ public static class UserMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.SearchUser, Messages.AccessDenied))
 						break;
 					Console.Clear();
-					SearchUser(userManagementService, session);
+					SearchUser(userManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -125,10 +126,11 @@ public static class UserMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllUsers, Messages.AccessDenied))
 						break;
 					Console.Clear();
-					if (userManagementService.GetAllUsers().Count is 0)
+					var users = userManagementService.GetAllUsers();
+					if (users.Count is 0)
 						ConsoleHelper.ShowWarning(Messages.NotAvailableUser);
 					else
-						UserPrinter.PrintFullTable(userManagementService.GetAllUsers());
+						UserPrinter.PrintFullTable(users);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -190,11 +192,7 @@ public static class UserMenu
 			Console.WriteLine(new string('=', 36) + " USER MENU " + new string('=', 36));
 
 			var displayNumber = 1;
-			foreach (var (_, displayText, _) in availableItems)
-			{
-				Console.WriteLine($"{displayNumber}. {displayText}");
-				displayNumber++;
-			}
+			foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
 
 			Console.WriteLine(new string('=', 82));
 			Console.Write(Messages.MainMenuQuestion);
@@ -247,11 +245,12 @@ public static class UserMenu
 
 		var roleIds =
 			ConsoleHelper.ReadRoles("Select role(s) for this user", availableRoles, allowMultiple: allowMultiple);
-		if (roleIds == null) return null;
+		if (roleIds is null) return null;
 
 		var password = ConsoleHelper.GetValidPassword(Messages.PasswordPrompt);
+		if (password is null) return null;
 
-		return new CreateUserDto()
+		return new CreateUserDto
 		{
 			FirstName = fields.FirstName, LastName = fields.LastName, NationalCode = fields.NationalCode,
 			Email = fields.Email, PhoneNumber = fields.PhoneNumber, BirthDate = fields.BirthDate, RoleIds = roleIds,
@@ -314,7 +313,7 @@ public static class UserMenu
 			ConsoleTable.PrintTable("Edit User", headers, rows);
 
 			var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, rows.Count);
-			if (editMenuChoice == null) return;
+			if (editMenuChoice is null) return;
 
 			var selectedRow = rows[editMenuChoice.Value - 1];
 			var actionId = int.Parse(selectedRow[0][0]);
@@ -416,9 +415,10 @@ public static class UserMenu
 	}
 
 
-	private static void RemoveUser(UserManagementService userManagementService, ICurrentUserSession session)
+	private static void RemoveUser(UserManagementService userManagementService, IAuthorizationService authorization,
+		ICurrentUserSession session)
 	{
-		if (session is { IsAdmin: false, IsLibrarian: false })
+		if (!authorization.HasPermission(Permission.RemoveUser))
 		{
 			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
@@ -429,15 +429,22 @@ public static class UserMenu
 			MenuHelper.SelectUser, Messages.NotAvailableUser);
 		if (desiredUser is null) return;
 
+		// Block removing self
+		if (session.UserId == desiredUser.Id)
+		{
+			ConsoleHelper.ShowError(Messages.CannotRemoveYourself);
+			return;
+		}
+
 		PersonHelper.PerformRemove(desiredUser, desiredUser.FirstName, desiredUser.LastName,
 			user => UserPrinter.PrintDetails(user),
 			() => userManagementService.RemoveUser(desiredUser.Id, session));
 	}
 
 
-	private static void SearchUser(UserManagementService userManagementService, ICurrentUserSession session)
+	private static void SearchUser(UserManagementService userManagementService, IAuthorizationService authorization)
 	{
-		if (session is { IsAdmin: false, IsLibrarian: false })
+		if (!authorization.HasPermission(Permission.SearchUser))
 		{
 			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
@@ -454,47 +461,53 @@ public static class UserMenu
 				return;
 			}
 
-			Console.WriteLine("{0, -20}", "1. Name");
-			Console.WriteLine("{0, -20}", "2. National Code");
-			Console.WriteLine("{0, -20}", "3. Email");
-			Console.WriteLine("{0, -20}", "4. Phone Number");
-			Console.WriteLine("{0, -20}", "5. Role");
-			Console.WriteLine("6. Back");
+			var items = new List<(int Id, string Label)>
+			{
+				(1, "Name"),
+				(2, "National Code"),
+				(3, "Email"),
+				(4, "Phone Number"),
+				(5, "Role"),
+				(6, "Back")
+			};
+
+			for (var i = 0; i < items.Count; i++)
+				Console.WriteLine($"{i + 1}. {items[i].Label}");
 
 			var searchMenuChoice = ConsoleHelper.ReadInt(Messages.SearchMenuQuestion, 1, 6);
 			if (searchMenuChoice is null) return;
 
-			switch (searchMenuChoice)
+			switch (items[searchMenuChoice.Value - 1].Id)
 			{
 				case 1:
 				{
 					PersonHelper.SearchAndDisplay(Messages.SearchName,
-						term => userManagementService.SearchUser(term, user => $"{user.FirstName} {user.LastName}"),
-						UserPrinter.PrintFullTable, Messages.NotUserMatched);
+						term => userManagementService.SearchUser(term, UserSearchField.Name),
+						u => UserPrinter.PrintFullTable(u), Messages.NotUserMatched);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
 					PersonHelper.SearchAndDisplay(Messages.SearchNationalCode,
-						term => userManagementService.SearchUser(term, user => user.NationalCode),
-						UserPrinter.PrintFullTable, Messages.NotUserMatched);
+						term => userManagementService.SearchUser(term, UserSearchField.NationalCode),
+						u => UserPrinter.PrintFullTable(u), Messages.NotUserMatched);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
 				{
 					PersonHelper.SearchAndDisplay(Messages.SearchEmail,
-						term => userManagementService.SearchUser(term, user => user.Email),
-						UserPrinter.PrintFullTable, Messages.NotUserMatched);
+						term => userManagementService.SearchUser(term, UserSearchField.Email),
+						u => UserPrinter.PrintFullTable(u), Messages.NotUserMatched);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 4:
 				{
 					PersonHelper.SearchAndDisplay(Messages.SearchPhoneNumber,
-						term => userManagementService.SearchUser(term, user => user.PhoneNumber),
-						UserPrinter.PrintFullTable, Messages.NotUserMatched);
+						term => userManagementService.SearchUser(term, UserSearchField.PhoneNumber),
+						u => UserPrinter.PrintFullTable(u), Messages.NotUserMatched);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -545,7 +558,7 @@ public static class UserMenu
 			return;
 		}
 
-		var sortFields = GetAvailableAuthorSortFields();
+		var sortFields = GetAvailableUserSortFields();
 		while (true)
 		{
 			Console.Clear();
@@ -571,27 +584,20 @@ public static class UserMenu
 			var sortDirection = SelectSortDirection();
 			if (sortDirection is null) continue;
 
-			var sortedAuthors = userManagementService.GetAllUsers(selectedField.Field, sortDirection.Value);
-			if (sortedAuthors.Count == 0)
+			var sortedUsers = userManagementService.GetAllUsers(selectedField.Field, sortDirection.Value);
+			if (sortedUsers.Count == 0)
 			{
-				ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
+				ConsoleHelper.ShowWarning(Messages.NotAvailableUser);
 				continue;
 			}
 
-			var sortDescription = $"{selectedField.Field} ({sortDirection})";
-
-			var canViewFullDetails = authorization.HasPermission(Permission.FullSortAuthor);
-			if (canViewFullDetails)
-				AuthorPrinter.PrintFullTable(sortedAuthors, $"Sorted Authors - {sortDescription}");
-			else
-				AuthorPrinter.PrintTable(sortedAuthors, $"Sorted Authors - {sortDescription}");
-
+			UserPrinter.PrintFullTable(sortedUsers, $"Sorted Users - {selectedField.Field} ({sortDirection})");
 			ConsoleHelper.Pause();
 		}
 	}
 
 
-	private static List<(UserSortField Field, string Label)> GetAvailableAuthorSortFields()
+	private static List<(UserSortField Field, string Label)> GetAvailableUserSortFields()
 	{
 		return
 		[

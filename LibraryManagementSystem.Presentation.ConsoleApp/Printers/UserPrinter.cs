@@ -32,7 +32,7 @@ public class UserPrinter
 	}
 
 
-	public static void PrintTable(IReadOnlyList<UserDto> users)
+	public static void PrintTable(IReadOnlyList<UserDto> users, string title = "Users List")
 	{
 		if (users.Count == 0)
 		{
@@ -55,11 +55,11 @@ public class UserPrinter
 			[user.IsActive ? "Yes" : "No"],
 		}).ToList();
 
-		ConsoleTable.PrintTable("Users List", headers, rows);
+		ConsoleTable.PrintTable(title, headers, rows);
 	}
 
 
-	public static void PrintFullTable(IReadOnlyList<UserDto> users)
+	public static void PrintFullTable(IReadOnlyList<UserDto> users, string title = "User Full Information")
 	{
 		if (users.Count == 0)
 		{
@@ -90,6 +90,6 @@ public class UserPrinter
 			[user.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "—"]
 		}).ToList();
 
-		ConsoleTable.PrintTable("Users List", headers, rows);
+		ConsoleTable.PrintTable(title, headers, rows);
 	}
 }
