@@ -27,13 +27,11 @@ public class User : Person
 		// Should set a suitable end date based on business logic
 		MembershipExpiryDate = MembershipStartDate.AddYears(1);
 		ShouldRemove = false;
-		if (roles == null || !roles.Any())
-		{
-			throw new ArgumentException("A user must have at least one role.");
-		}
 
 		var rolesList = roles.ToList();
-		if (rolesList.Count == 0) throw new ArgumentException("A user must have at least one role.");
+		if (roles == null || rolesList.Count == 0)
+			throw new ArgumentException("A user must have at least one role.");
+
 		foreach (var role in rolesList) AssignRole(role);
 	}
 

@@ -178,7 +178,7 @@ public static class Messages
 
 	// Membership
 	public const string MembershipExpired = "Membership expired. Please renew your membership.";
-	public const string InactiveAccount = "This account is inactive.";
+	public const string InactiveAccount = "This account is inactive. Please contact an administrator.";
 	public const string InvalidMembershipRenewalPeriod = "Invalid membership renewal period. Please enter a valid period.";
 	public const string LibrarianCanRenewMembersOnly = "Librarians can Only renew member accounts.";
 	public const string MembershipRenewedSuccessfully = "Membership renewed successfully.";
@@ -223,7 +223,7 @@ public static class Messages
 	public const string NoLoanHistoryForUser = "This user has no loan history.";
 	public const string NoLoanHistoryForBook = "\nThis book has no loan history.";
 	public const string UserHasUnpaidFines = "You cannot renew a loan while you have unpaid fines. Please pay your fines first.";
-	public const string BorrowFailedForUnauthorized = "You cannot borrow books. Check membership status or account flags.";
+	public const string BorrowBlockedDueToOverdue = "You have overdue loans. Please return all overdue books before borrowing more.";
 
 	// Copy Availability
 	public const string NotEnoughCopiesAvailable = "Not enough copies available for this book.";
@@ -260,7 +260,6 @@ public static class Messages
 	public const string MemberRoleRequired = "Access denied. Member role required.";
 	public const string AdminOrLibrarianRoleRequired = "Access denied. Admin or Librarian role required.";
 	public const string LibraryStatisticsAccessDenied = "Access denied. Only Admin or Librarian can view library statistics.";
-	public const string CannotBorrowBooks = "You are not eligible to borrow books. Please check your membership status and outstanding fines.";
 	public const string NoUserLoggedIn = "No user is currently logged in.";
 	public const string BorrowBookForYourself = "You can only borrow books for yourself.";
 	public const string ReturnOwnLoans = "You can only return your own loans.";

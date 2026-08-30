@@ -1,14 +1,22 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Application.Authorization;
 
 public class AuthorizationService : IAuthorizationService
 {
 	private readonly ICurrentUserSession _session;
+	private readonly ILoanRepository _loanRepository;
 
-	public AuthorizationService(ICurrentUserSession session) { _session = session; }
+
+	public AuthorizationService(ICurrentUserSession session, ILoanRepository loanRepository)
+	{
+		_session = session;
+		_loanRepository = loanRepository;
+	}
 
 
 	public bool HasPermission(Permission permission)
@@ -22,11 +30,22 @@ public class AuthorizationService : IAuthorizationService
 	public bool HasAnyPermission(params Permission[] permissions) => permissions.Any(HasPermission);
 
 
-	public bool CanBorrowBooks(UserDto? user)
+	public ServiceResult<string> CheckBorrowEligibility(UserDto user)
 	{
-		if (!_session.IsAuthenticated || user is null) return false;
-		return user is { IsActive: true, ShouldRemove: false } &&
-		       user.MembershipExpiryDate >= DateOnly.FromDateTime(DateTime.Today);
+		if (!_session.IsAuthenticated) return ServiceResult<string>.Fail(Messages.AuthenticationRequired);
+
+		if (!user.IsActive)
+			return ServiceResult<string>.Fail(Messages.InactiveAccount);
+
+		if (user.ShouldRemove)
+			return ServiceResult<string>.Fail(Messages.UserAutoRemovedSuccessfully);
+
+		if (user.MembershipExpiryDate < DateOnly.FromDateTime(DateTime.Today))
+			return ServiceResult<string>.Fail(Messages.MembershipExpired);
+
+		return _loanRepository.HasOverdueLoans(user.Id)
+			? ServiceResult<string>.Fail(Messages.BorrowBlockedDueToOverdue)
+			: ServiceResult<string>.Ok("Eligible to borrow.", "Borrowing allowed.");
 	}
 
 

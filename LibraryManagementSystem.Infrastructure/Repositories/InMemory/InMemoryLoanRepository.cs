@@ -27,7 +27,6 @@ public class InMemoryLoanRepository : ILoanRepository
 	public Loan? GetActiveLoanById(int loanId) { return _loans.FirstOrDefault(l => l.LoanId == loanId && l.IsActive); }
 
 
-
 	public IReadOnlyList<Loan> GetActiveLoansByUser(int userId)
 	{
 		return [.. _loans.Where(l => l.UserId == userId && l.IsActive)];
@@ -46,9 +45,15 @@ public class InMemoryLoanRepository : ILoanRepository
 	public int CountActiveLoansByUser(int userId) { return _loans.Count(l => l.UserId == userId && l.IsActive); }
 
 
-	public bool HasActiveLoan(int userId, int bookId)
+	public bool HasActiveLoans(int userId, int bookId)
 	{
 		return _loans.Any(l => l.UserId == userId && l.BookId == bookId && l.IsActive);
+	}
+
+
+	public bool HasOverdueLoans(int userId)
+	{
+		return _loans.Any(l => l.UserId == userId && l is { IsActive: true, IsOverdue: true });
 	}
 
 

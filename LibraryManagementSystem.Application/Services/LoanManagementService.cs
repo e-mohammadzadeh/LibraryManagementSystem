@@ -49,12 +49,15 @@ public class LoanManagementService
 		if (_loanRepository.CountActiveLoansByUser(dto.UserId) >= ValidationConstants.MaxActiveLoansPerUser)
 			return ServiceResult<LoanDto>.Fail(Messages.MaximumLoansReached);
 
+		if (_loanRepository.GetActiveLoansByUser(dto.UserId).Any(l => l.IsOverdue))
+			return ServiceResult<LoanDto>.Fail(Messages.BorrowBlockedDueToOverdue);
+
 		var book = _bookRepository.FindById(dto.BookId);
 		if (book is null) return ServiceResult<LoanDto>.Fail(Messages.NotBookMatched);
 
 		if (book.AvailableCopies <= 0) return ServiceResult<LoanDto>.Fail(Messages.NotEnoughCopiesAvailable);
 
-		if (_loanRepository.HasActiveLoan(dto.UserId, dto.BookId))
+		if (_loanRepository.HasActiveLoans(dto.UserId, dto.BookId))
 			return ServiceResult<LoanDto>.Fail(Messages.BookAlreadyBorrowed);
 
 		var loan = new Loan(book, user, DateOnly.FromDateTime(DateTime.Today));
@@ -285,11 +288,5 @@ public class LoanManagementService
 		}
 
 		return [.. _loanRepository.GetActiveLoans().Select(loan => loan.ToDto())];
-	}
-
-
-	public IReadOnlyList<LoanDto> GetFullLibraryHistory()
-	{
-		return [.. _loanRepository.GetAll().Select(loan => loan.ToDto())];
 	}
 }

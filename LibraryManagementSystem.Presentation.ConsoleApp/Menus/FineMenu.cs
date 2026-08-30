@@ -115,9 +115,9 @@ public static class FineMenu
 			Console.WriteLine(new string('=', 36) + " FINE MENU " + new string('=', 36));
 
 			var displayNumber = 1;
-			foreach (var item in availableItems)
+			foreach (var (_, displayText, _) in availableItems)
 			{
-				Console.WriteLine($"{displayNumber}. {item.DisplayText}");
+				Console.WriteLine($"{displayNumber}. {displayText}");
 				displayNumber++;
 			}
 
@@ -367,9 +367,9 @@ public static class FineMenu
 
 			var displayNumber = 1;
 
-			foreach (var item in availableItems)
+			foreach (var (_, displayText, _) in availableItems)
 			{
-				Console.WriteLine($"{displayNumber}. {item.DisplayText}");
+				Console.WriteLine($"{displayNumber}. {displayText}");
 				displayNumber++;
 			}
 

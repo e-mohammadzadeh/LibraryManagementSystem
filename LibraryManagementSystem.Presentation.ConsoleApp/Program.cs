@@ -33,7 +33,7 @@ public static class Program
 			// ── Infrastructure Services ───────────────
 			var passwordHasher = new PasswordHasher();
 			ICurrentUserSession currentUserSession = new CurrentUserSession();
-			IAuthorizationService authorization = new AuthorizationService(currentUserSession);
+			IAuthorizationService authorization = new AuthorizationService(currentUserSession, loanRepo);
 
 			Console.Title = "Library Management System";
 			// Seed data for development/testing
@@ -41,13 +41,16 @@ public static class Program
 				passwordHasher);
 
 
-			// ── Application Services ──────────────────
-			var authorService = new AuthorManagementService(authorRepo, authorization);
-			var translatorService = new TranslatorManagementService(translatorRepo, authorization);
+			// ── Application Interfaces ──────────────────
 			IUserAutoRemovalService userAutoRemovalService = new UserAutoRemovalService(userRepo, loanRepo, fineRepo);
 			ILoanHistoryManagementService loanHistoryService = new LoanHistoryManagementService(loanHistoryRepo);
 			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo,
 				userAutoRemovalService, authorization, loanHistoryService);
+
+
+			// ── Application Services ──────────────────
+			var authorService = new AuthorManagementService(authorRepo, authorization);
+			var translatorService = new TranslatorManagementService(translatorRepo, authorization);
 			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, fineService, authorization,
 				loanHistoryService);
 			var loanHistory = new LoanHistoryManagementService(loanHistoryRepo);

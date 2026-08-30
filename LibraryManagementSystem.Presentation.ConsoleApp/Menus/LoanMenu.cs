@@ -105,18 +105,18 @@ public static class LoanMenu
 				}
 				case 6:
 				{
+					if (!SessionGuard.RequirePermission(authorization, Permission.SearchLoans, Messages.AccessDenied))
+						break;
 					Console.Clear();
-					History(loanManagementService, userManagementService, bookManagementService, session,
-						authorization, loanHistoryManagementService);
+					SearchLoan(loanManagementService, session);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.SearchLoans, Messages.AccessDenied))
-						break;
 					Console.Clear();
-					SearchLoan(loanManagementService, session);
+					History(loanManagementService, userManagementService, bookManagementService, session,
+						authorization, loanHistoryManagementService);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -141,8 +141,8 @@ public static class LoanMenu
 			(4, "Active Loans", authorization.HasAnyPermission(Permission.MyActiveLoans, Permission.ViewActiveLoans)),
 			(5, "Overdue Loans",
 				authorization.HasAnyPermission(Permission.MyOverdueLoans, Permission.ViewOverdueLoans)),
-			(6, "History", authorization.HasAnyPermission(Permission.ViewLoanHistory, Permission.MyFullLoanHistory)),
-			(7, "Search Loans", authorization.HasPermission(Permission.SearchLoans)),
+			(6, "Search Loans", authorization.HasPermission(Permission.SearchLoans)),
+			(7, "History", authorization.HasAnyPermission(Permission.ViewLoanHistory, Permission.MyFullLoanHistory)),
 			(8, "Back", true)
 		};
 
@@ -199,9 +199,10 @@ public static class LoanMenu
 			userId = user.Id;
 		}
 
-		if (!authorization.CanBorrowBooks(user!))
+		var eligibilityResult = authorization.CheckBorrowEligibility(user!);
+		if (!eligibilityResult.Success)
 		{
-			ConsoleHelper.ShowError(Messages.BorrowFailedForUnauthorized);
+			ConsoleHelper.ShowError(eligibilityResult.Message!);
 			return;
 		}
 
@@ -504,17 +505,20 @@ public static class LoanMenu
 		var canViewByBook = authorization.HasPermission(Permission.LoanHistoryByBook);
 		var canViewFull = authorization.HasPermission(Permission.FullLibraryHistory);
 
-		switch (canViewOwn)
+		var hasNoPermissions = !canViewOwn && !canViewByUser && !canViewByBook && !canViewFull;
+		var hasOnlyOwnPermission = canViewOwn && !canViewByUser && !canViewByBook && !canViewFull;
+
+		if (hasNoPermissions)
 		{
-			case false when !canViewByUser && !canViewByBook && !canViewFull:
-				ConsoleHelper.ShowError(Messages.AccessDenied);
-				return;
-			case true when !canViewByUser && !canViewByBook && !canViewFull:
-			{
-				var loans = loanManagementService.GetLoansByUser(session.UserId!.Value, session);
-				DisplayLoans(loans, Messages.UserHasNoBorrowedBooks);
-				return;
-			}
+			ConsoleHelper.ShowError(Messages.AccessDenied);
+			return;
+		}
+
+		if (hasOnlyOwnPermission)
+		{
+			var loans = loanManagementService.GetLoansByUser(session.UserId!.Value, session);
+			DisplayLoans(loans, Messages.UserHasNoBorrowedBooks);
+			return;
 		}
 
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
