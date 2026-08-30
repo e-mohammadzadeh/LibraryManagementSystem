@@ -7,6 +7,7 @@ using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums.Sort;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
@@ -22,6 +23,7 @@ public static class UserMenu
 			    Permission.EditUser,
 			    Permission.RemoveUser,
 			    Permission.SearchUser,
+			    Permission.SortUser,
 			    Permission.ViewUserDetails,
 			    Permission.ViewOwnDetails,
 			    Permission.ViewAllUsers,
@@ -88,6 +90,15 @@ public static class UserMenu
 				}
 				case 5:
 				{
+					if (!SessionGuard.RequirePermission(authorization, Permission.SortUser, Messages.AccessDenied))
+						break;
+					Console.Clear();
+					SortUsers(userManagementService, authorization);
+					ConsoleHelper.Pause();
+					break;
+				}
+				case 6:
+				{
 					if (!session.IsSelfServiceMember)
 					{
 						ConsoleHelper.ShowError(Messages.AccessDenied);
@@ -99,7 +110,7 @@ public static class UserMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 6:
+				case 7:
 				{
 					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
 						    Permission.ViewUserDetails, Permission.ViewOwnDetails))
@@ -109,7 +120,7 @@ public static class UserMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 7:
+				case 8:
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllUsers, Messages.AccessDenied))
 						break;
@@ -121,7 +132,7 @@ public static class UserMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 8:
+				case 9:
 				{
 					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
 						    Permission.RenewLibrarianMembership, Permission.RenewMemberMembership))
@@ -131,7 +142,7 @@ public static class UserMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 9:
+				case 10:
 				{
 					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
 						    Permission.ChangePassword, Permission.ChangeOwnPassword))
@@ -141,7 +152,7 @@ public static class UserMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 10:
+				case 11:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					continueProgram = false;
@@ -160,15 +171,16 @@ public static class UserMenu
 			(2, "Edit User", authorization.HasPermission(Permission.EditUser)),
 			(3, "Remove User", authorization.HasPermission(Permission.RemoveUser)),
 			(4, "Search User", authorization.HasPermission(Permission.SearchUser)),
-			(5, "View Own Details", session.IsSelfServiceMember),
-			(6, "View User Details",
+			(5, "Sort User", authorization.HasPermission(Permission.SortUser)),
+			(6, "View Own Details", session.IsSelfServiceMember),
+			(7, "View User Details",
 				authorization.HasAnyPermission(Permission.ViewUserDetails, Permission.ViewOwnDetails)),
-			(7, "View All Users", authorization.HasPermission(Permission.ViewAllUsers)),
-			(8, "Renew Membership",
+			(8, "View All Users", authorization.HasPermission(Permission.ViewAllUsers)),
+			(9, "Renew Membership",
 				authorization.HasAnyPermission(Permission.RenewMemberMembership, Permission.RenewLibrarianMembership)),
-			(9, "Change Password",
+			(10, "Change Password",
 				authorization.HasAnyPermission(Permission.ChangePassword, Permission.ChangeOwnPassword)),
-			(10, "Back", true)
+			(11, "Back", true)
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
@@ -522,6 +534,104 @@ public static class UserMenu
 		}
 
 		UserPrinter.PrintFullTable(result);
+	}
+
+
+	private static void SortUsers(UserManagementService userManagementService, IAuthorizationService authorization)
+	{
+		if (!authorization.HasPermission(Permission.SortUser))
+		{
+			ConsoleHelper.ShowError(Messages.AccessDenied);
+			return;
+		}
+
+		var sortFields = GetAvailableAuthorSortFields();
+		while (true)
+		{
+			Console.Clear();
+			var fieldHeaders = new[] { "#", "Sort By" };
+			var fieldRows = sortFields
+				.Select((field, index) => new string[][] { [(index + 1).ToString()], [field.Label] }).ToList();
+			fieldRows.Add([[(sortFields.Count + 1).ToString()], ["Back"]]);
+
+
+			ConsoleTable.PrintTable("Sort Users", fieldHeaders, fieldRows);
+
+			var backOption = sortFields.Count + 1;
+			var choice = ConsoleHelper.ReadInt(Messages.SortFieldQuestion, 1, backOption);
+			if (choice is null) return;
+
+			if (choice == backOption)
+			{
+				ConsoleHelper.ShowInfo(string.Format(Messages.SortCancelled, "User"));
+				return;
+			}
+
+			var selectedField = sortFields[choice.Value - 1];
+			var sortDirection = SelectSortDirection();
+			if (sortDirection is null) continue;
+
+			var sortedAuthors = userManagementService.GetAllUsers(selectedField.Field, sortDirection.Value);
+			if (sortedAuthors.Count == 0)
+			{
+				ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
+				continue;
+			}
+
+			var sortDescription = $"{selectedField.Field} ({sortDirection})";
+
+			var canViewFullDetails = authorization.HasPermission(Permission.FullSortAuthor);
+			if (canViewFullDetails)
+				AuthorPrinter.PrintFullTable(sortedAuthors, $"Sorted Authors - {sortDescription}");
+			else
+				AuthorPrinter.PrintTable(sortedAuthors, $"Sorted Authors - {sortDescription}");
+
+			ConsoleHelper.Pause();
+		}
+	}
+
+
+	private static List<(UserSortField Field, string Label)> GetAvailableAuthorSortFields()
+	{
+		return
+		[
+			(UserSortField.Id, "ID"),
+			(UserSortField.FirstName, "First Name"),
+			(UserSortField.LastName, "Last Name"),
+			(UserSortField.FullName, "Full Name"),
+			(UserSortField.NationalCode, "National Code"),
+			(UserSortField.Email, "Email"),
+			(UserSortField.BirthDate, "Birth Date"),
+			(UserSortField.Roles, "Roles"),
+			(UserSortField.MembershipStartDate, "Membership Start Date"),
+			(UserSortField.MembershipExpiryDate, "Membership Expiry Date"),
+			(UserSortField.IsActive, "Is Active"),
+			(UserSortField.LastLoginDate, "Last Login Date")
+		];
+	}
+
+
+
+	private static SortDirection? SelectSortDirection()
+	{
+		var directionHeaders = new[] { "#", "Direction" };
+		var directionRows = new List<string[][]>
+		{
+			new string[][] { ["1"], ["Ascending"] },
+			new string[][] { ["2"], ["Descending"] },
+			new string[][] { ["3"], ["Back"] }
+		};
+		ConsoleTable.PrintTable("Sort Direction", directionHeaders, directionRows);
+
+		var directionChoice = ConsoleHelper.ReadInt(Messages.SortDirectionQuestion, 1, 3);
+		if (directionChoice is null) return null;
+
+		return directionChoice.Value switch
+		{
+			1 => SortDirection.Ascending,
+			2 => SortDirection.Descending,
+			_ => null
+		};
 	}
 
 

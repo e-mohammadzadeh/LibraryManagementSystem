@@ -1,10 +1,12 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Domain.Enums.Sort;
 using LibraryManagementSystem.Domain.Interfaces;
 
 
@@ -68,7 +70,7 @@ public class UserManagementService
 			return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
 		}
 
-		var result = _passwordHasher.CreatePasswordHash(dto.Password);
+		var result = _passwordHasher.CreatePasswordHash(dto.Password!);
 
 		var newUser = new User(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
 			roles);
@@ -81,10 +83,34 @@ public class UserManagementService
 	}
 
 
-	public IReadOnlyList<UserDto> GetAllUsers()
+	public IReadOnlyList<UserDto> GetAllUsers(UserSortField sortField = UserSortField.Id,
+		SortDirection sortDirection = SortDirection.Ascending)
 	{
 		if (!_authorization.HasPermission(Permission.ViewAllUsers)) return [];
-		return [.. _userRepository.GetAll().Select(user => user.ToDto())];
+
+		var users = _userRepository.GetAll().Select(a => a.ToDto());
+		Func<UserDto, object> keySelector = sortField switch
+		{
+			UserSortField.Id => u => u.Id,
+			UserSortField.FirstName => u => u.FirstName,
+			UserSortField.LastName => u => u.LastName,
+			UserSortField.FullName => u => u.FullName,
+			UserSortField.NationalCode => u => u.NationalCode,
+			UserSortField.Email => u => u.Email,
+			UserSortField.BirthDate => u => u.BirthDate,
+			UserSortField.Roles => u => u.Roles,
+			UserSortField.MembershipStartDate => u => u.MembershipStartDate,
+			UserSortField.MembershipExpiryDate => u => u.MembershipExpiryDate,
+			UserSortField.IsActive => u => u.IsActive,
+			UserSortField.LastLoginDate => u => u.LastLoginDate,
+			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
+		};
+
+		var sorted = sortDirection == SortDirection.Ascending
+			? users.OrderBy(keySelector)
+			: users.OrderByDescending(keySelector);
+
+		return [.. sorted];
 	}
 
 

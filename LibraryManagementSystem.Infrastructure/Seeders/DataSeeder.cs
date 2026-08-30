@@ -238,7 +238,7 @@ public static class DataSeeder
 		CreateActiveLoan(GetUser(6), GetBook(10), loanRepository, today);
 		CreateActiveLoan(GetUser(8), GetBook(3), loanRepository, today.AddDays(-40));
 		CreateActiveLoan(GetUser(7), GetBook(4), loanRepository, today);
-		CreateActiveLoan(GetUser(4), GetBook(10), loanRepository, today.AddDays(-100));
+		CreateActiveLoan(GetUser(4), GetBook(10), loanRepository, today.AddDays(-80));
 
 
 		CreateReturnedLoan(GetUser(4), GetBook(6), loanRepository, fineRepository, today.AddDays(-45),
@@ -248,7 +248,7 @@ public static class DataSeeder
 		CreateReturnedLoan(GetUser(9), GetBook(7), loanRepository, fineRepository, today.AddDays(-55),
 			today.AddDays(-30));
 		CreateReturnedLoan(GetUser(9), GetBook(11), loanRepository, fineRepository, today.AddDays(-22), today);
-		CreateReturnedLoan(GetUser(4), GetBook(12), loanRepository, fineRepository, today.AddDays(-160),
+		CreateReturnedLoan(GetUser(4), GetBook(12), loanRepository, fineRepository, today.AddDays(-100),
 			today.AddDays(-5));
 		return;
 

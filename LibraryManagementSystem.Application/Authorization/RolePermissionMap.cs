@@ -37,6 +37,18 @@ public static class RolePermissionMap
 			Permission.ViewBookDetails,
 			Permission.ViewAllBooks,
 
+
+			Permission.AddUser,
+			Permission.EditUser,
+			Permission.SearchUser,
+			Permission.SortUser,
+			Permission.ViewUserDetails,
+			Permission.ViewOwnDetails,
+			Permission.ViewAllUsers,
+			Permission.ChangePassword,
+			Permission.RenewMemberMembership,
+
+
 			Permission.PayFine,
 			Permission.ViewFines,
 			Permission.ViewFinesByUser,
@@ -60,15 +72,6 @@ public static class RolePermissionMap
 			Permission.LoanHistoryByBook,
 			Permission.FullLibraryHistory,
 			Permission.SearchLoans,
-
-			Permission.AddUser,
-			Permission.EditUser,
-			Permission.SearchUser,
-			Permission.ViewUserDetails,
-			Permission.ViewOwnDetails,
-			Permission.ViewAllUsers,
-			Permission.ChangePassword,
-			Permission.RenewMemberMembership,
 
 			Permission.ViewStatistics
 		],

@@ -51,8 +51,8 @@ public static class Program
 			// ── Application Services ──────────────────
 			var authorService = new AuthorManagementService(authorRepo, authorization);
 			var translatorService = new TranslatorManagementService(translatorRepo, authorization);
-			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, fineService, authorization,
-				loanHistoryService);
+			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, fineService,
+				userAutoRemovalService, authorization, loanHistoryService);
 			var loanHistory = new LoanHistoryManagementService(loanHistoryRepo);
 			var userService =
 				new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher, authorization);

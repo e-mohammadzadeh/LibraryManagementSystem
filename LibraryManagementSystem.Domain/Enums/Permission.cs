@@ -41,6 +41,28 @@ public enum Permission
 	ViewAllBooks,
 
 
+
+	// Users
+	AddUser,
+	AssignMemberRole,
+	AssignLibrarianRole,
+	AssignAdminRole,
+	EditUser,
+	ChangeUserRoles,
+	RemoveUser,
+	SearchUser,
+	SortUser,
+	ViewUserDetails,
+	ViewOwnDetails,
+	ViewMemberDetails,
+	ViewAllUsers,
+	ChangePassword,
+	ChangeOwnPassword,
+	RenewLibrarianMembership,
+	RenewMemberMembership,
+
+
+
 	// Fines
 	PayFine,
 	WaiveFine,
@@ -70,25 +92,6 @@ public enum Permission
 	FullLibraryHistory,
 	MyFullLoanHistory,
 	SearchLoans,
-	
-
-	// Users
-	AddUser,
-	AssignMemberRole,
-	AssignLibrarianRole,
-	AssignAdminRole,
-	EditUser,
-	ChangeUserRoles,
-	RemoveUser,
-	SearchUser,
-	ViewUserDetails,
-	ViewOwnDetails,
-	ViewMemberDetails,
-	ViewAllUsers,
-	ChangePassword,
-	ChangeOwnPassword,
-	RenewLibrarianMembership,
-	RenewMemberMembership,
 
 
 	// System

@@ -109,7 +109,11 @@ public class User : Person
 	}
 
 
-	public void FlagForRemoval() { ShouldRemove = true; }
+	public void FlagForRemoval()
+	{
+		IsActive = false;
+		ShouldRemove = true;
+	}
 
 
 	public void DeleteUser()

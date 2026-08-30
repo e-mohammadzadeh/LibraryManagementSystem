@@ -45,11 +45,9 @@ public class FineManagementService : IFineManagementService
 		if (existing.Count > 0) return ServiceResult<FineDto>.Fail(Messages.FineAlreadyExists);
 
 		var fine = new Fine(loan);
-		Console.WriteLine("before: " + _fineRepository.GetTotalUnpaidAmount(loan.UserId));
 		_fineRepository.Add(fine);
 
 		var totalUnpaid = _fineRepository.GetTotalUnpaidAmount(loan.UserId);
-		Console.WriteLine("after: " + totalUnpaid);
 		if (fine.Amount >= ValidationConstants.MaxUnpaidFineThreshold ||
 		    totalUnpaid >= ValidationConstants.MaxUnpaidFineThreshold)
 		{
@@ -75,7 +73,6 @@ public class FineManagementService : IFineManagementService
 
 		if (session.IsSelfServiceMember && session.UserId != fine.UserId)
 			return ServiceResult<FineDto>.Fail(Messages.CanPayOwnFine);
-		Console.WriteLine("be: " + fine.Amount);
 		try
 		{
 			fine.Pay();
@@ -85,8 +82,6 @@ public class FineManagementService : IFineManagementService
 			_loanHistoryManagementService.Record(fine.Loan, LoanHistoryAction.FinePaid);
 			var message = Messages.FinePaidSuccessfully;
 			if (removalResult.Success) message = $"{message} | {removalResult.Message}";
-			Console.WriteLine("af: " + fine.Amount);
-
 			return ServiceResult<FineDto>.Ok(fine.ToDto(), message);
 		}
 		catch (InvalidOperationException ex)
