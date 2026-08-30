@@ -26,6 +26,7 @@ public static class Program
 			var bookRepo = new InMemoryBookRepository();
 			var roleRepo = new InMemoryRoleRepository();
 			var loanRepo = new InMemoryLoanRepository();
+			var loanHistoryRepo = new InMemoryLoanHistory();
 			var fineRepo = new InMemoryFineRepository();
 
 
@@ -49,8 +50,7 @@ public static class Program
 			var userService = new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher, authorization);
 			var bookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo);
 			var authService = new AuthenticationService(userRepo, passwordHasher, currentUserSession);
-			var statisticsService =
-				new LibraryStatisticsService(bookRepo, authorRepo, translatorRepo, userRepo, loanRepo);
+			var statisticsService = new LibraryStatisticsService(bookRepo, authorRepo, translatorRepo, userRepo, loanRepo);
 
 			while (true)
 			{

@@ -1,5 +1,4 @@
-﻿using System.Net.NetworkInformation;
-using LibraryManagementSystem.Domain.Enums;
+﻿using LibraryManagementSystem.Domain.Enums;
 
 namespace LibraryManagementSystem.Domain.Entities;
 
@@ -12,8 +11,8 @@ public class LoanHistory
 		UserId = loan.UserId;
 		BookId = loan.BookId;
 		Action = action;
-		description = description ?? action.GetDefaultDescription();
 		OccurredAt = DateTime.Now;
+		Description = description ?? action.GetDefaultDescription();
 		
 	}
 

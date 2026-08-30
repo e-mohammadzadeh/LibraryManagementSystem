@@ -23,6 +23,7 @@ public class Loan
 	private const int LoanPeriodDays = 14;
 	private const int MaxRenewals = 1;
 	private static int _nextLoanId;
+	private readonly List<LoanHistory> _history = [];
 	public int LoanId { get; private set; }
 	public Book Book { get; private set; }
 	public int BookId { get; private set; }
@@ -37,6 +38,7 @@ public class Loan
 	public bool IsActive => ReturnDate is null;
 	public DateTime CreatedAt { get; }
 	public DateTime? UpdatedAt { get; private set; }
+	public IReadOnlyList<LoanHistory> History => _history.AsReadOnly();
 
 
 	public void MarkAsReturned(DateOnly? returnDate = null)
