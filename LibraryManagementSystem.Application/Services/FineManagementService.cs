@@ -16,17 +16,19 @@ public class FineManagementService : IFineManagementService
 	private readonly IUserRepository _userRepository;
 	private readonly IUserAutoRemovalService _userAutoRemovalService;
 	private readonly IAuthorizationService _authorization;
+	private readonly ILoanHistoryManagementService _loanHistoryManagementService;
 
 
 	public FineManagementService(IFineRepository fineRepository, ILoanRepository loanRepository,
 		IUserRepository userRepository, IUserAutoRemovalService userAutoRemovalService,
-		IAuthorizationService authorization)
+		IAuthorizationService authorization, ILoanHistoryManagementService loanHistoryManagementService)
 	{
 		_fineRepository = fineRepository;
 		_loanRepository = loanRepository;
 		_userRepository = userRepository;
 		_userAutoRemovalService = userAutoRemovalService;
 		_authorization = authorization;
+		_loanHistoryManagementService = loanHistoryManagementService;
 	}
 
 
@@ -71,13 +73,14 @@ public class FineManagementService : IFineManagementService
 
 		if (session.IsSelfServiceMember && session.UserId != fine.UserId)
 			return ServiceResult<FineDto>.Fail(Messages.CanPayOwnFine);
-
+		
 		try
 		{
 			fine.Pay();
 			_fineRepository.Update(fine);
-
+			
 			var removalResult = _userAutoRemovalService.TryAutoRemove(fine.UserId);
+			_loanHistoryManagementService.Record(fine.Loan, LoanHistoryAction.PaidFine);
 			var message = Messages.FinePaidSuccessfully;
 			if (removalResult.Success) message = $"{message} | {removalResult.Message}";
 

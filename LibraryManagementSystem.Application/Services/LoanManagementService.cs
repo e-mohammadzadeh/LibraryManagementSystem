@@ -6,7 +6,6 @@ using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Application.Authorization;
-using LibraryManagementSystem.Application.DTOs.Authors;
 
 namespace LibraryManagementSystem.Application.Services;
 
@@ -17,17 +16,19 @@ public class LoanManagementService
 	private readonly IBookRepository _bookRepository;
 	private readonly IFineManagementService _fineService;
 	private readonly IAuthorizationService _authorization;
+	private readonly ILoanHistoryManagementService _loanHistoryManagementService;
 
 
 	public LoanManagementService(ILoanRepository loanRepository, IUserRepository userRepository,
 		IBookRepository bookRepository, IFineManagementService fineManagementService,
-		IAuthorizationService authorization)
+		IAuthorizationService authorization, ILoanHistoryManagementService loanHistoryManagementService)
 	{
 		_loanRepository = loanRepository;
 		_userRepository = userRepository;
 		_bookRepository = bookRepository;
 		_fineService = fineManagementService;
 		_authorization = authorization;
+		_loanHistoryManagementService = loanHistoryManagementService;
 	}
 
 
@@ -60,7 +61,8 @@ public class LoanManagementService
 		book.BorrowCopy();
 		_loanRepository.Add(loan);
 		_bookRepository.Update(book);
-		// update loan history
+		_loanHistoryManagementService.Record(loan, LoanHistoryAction.Borrowed);
+
 		return ServiceResult<LoanDto>.Ok(loan.ToDto(), Messages.BorrowedSuccessfully);
 	}
 
@@ -77,7 +79,7 @@ public class LoanManagementService
 		loan.Book.ReturnCopy();
 		_loanRepository.Update(loan);
 		_bookRepository.Update(loan.Book);
-		// update loan history
+		_loanHistoryManagementService.Record(loan, LoanHistoryAction.Returned);
 
 		var fineResult = _fineService.CreateFineForLoan(loanId);
 		if (!fineResult.Success && fineResult.Message != Messages.NoFine)
@@ -112,7 +114,7 @@ public class LoanManagementService
 
 		loan.Renew();
 		_loanRepository.Update(loan);
-		// update loan history
+		_loanHistoryManagementService.Record(loan, LoanHistoryAction.Renewed);
 
 		return ServiceResult<LoanDto>.Ok(loan.ToDto(), Messages.RenewedSuccessfully);
 	}
