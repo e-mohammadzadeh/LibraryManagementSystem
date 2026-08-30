@@ -12,7 +12,8 @@ public static class MainMenu
 		TranslatorManagementService translatorManagementService, UserManagementService userManagementService,
 		BookManagementService bookManagementService, LoanManagementService loanManagementService,
 		IFineManagementService fineManagementService, AuthenticationService authenticationService,
-		ICurrentUserSession session, IAuthorizationService authorization ,LibraryStatisticsService statisticsService)
+		ICurrentUserSession session, IAuthorizationService authorization, LibraryStatisticsService statisticsService,
+		LoanHistoryManagementService loanHistoryManagementService)
 	{
 		while (true)
 		{
@@ -40,7 +41,8 @@ public static class MainMenu
 				case 2:
 				{
 					Console.Clear();
-					TranslatorMenu.TranslatorMenuController(translatorManagementService, statisticsService, session, authorization);
+					TranslatorMenu.TranslatorMenuController(translatorManagementService, statisticsService, session,
+						authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -63,7 +65,7 @@ public static class MainMenu
 				{
 					Console.Clear();
 					LoanMenu.LoanMenuController(loanManagementService, userManagementService, bookManagementService,
-						statisticsService, session, authorization);
+						statisticsService, session, authorization, loanHistoryManagementService);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -107,7 +109,6 @@ public static class MainMenu
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
 
 
-
 		while (true)
 		{
 			Console.WriteLine(new string('=', 36) + " MAIN MENU " + new string('=', 36));
@@ -117,6 +118,7 @@ public static class MainMenu
 				Console.WriteLine($"{displayNumber}. {displayText}");
 				displayNumber++;
 			}
+
 			Console.WriteLine(new string('=', 82));
 			Console.Write(Messages.MainMenuQuestion);
 
@@ -131,6 +133,7 @@ public static class MainMenu
 			{
 				return availableItems[userChoice - 1].ActionId;
 			}
+
 			ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
 		}
 	}

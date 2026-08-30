@@ -2,7 +2,6 @@
 using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
-using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Repositories.InMemory;
 using LibraryManagementSystem.Infrastructure.Security;
 using LibraryManagementSystem.Infrastructure.Seeders;
@@ -46,13 +45,19 @@ public static class Program
 			var authorService = new AuthorManagementService(authorRepo, authorization);
 			var translatorService = new TranslatorManagementService(translatorRepo, authorization);
 			IUserAutoRemovalService userAutoRemovalService = new UserAutoRemovalService(userRepo, loanRepo, fineRepo);
-			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo, userAutoRemovalService, authorization);
-			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, fineService, authorization, );
-			var userService = new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher, authorization);
+			ILoanHistoryManagementService loanHistoryService = new LoanHistoryManagementService(loanHistoryRepo);
+			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo,
+				userAutoRemovalService, authorization, loanHistoryService);
+			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, fineService, authorization,
+				loanHistoryService);
+			var loanHistory = new LoanHistoryManagementService(loanHistoryRepo);
+			var userService =
+				new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher, authorization);
 			var bookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo);
 			var authService = new AuthenticationService(userRepo, passwordHasher, currentUserSession);
-			var statisticsService = new LibraryStatisticsService(bookRepo, authorRepo, translatorRepo, userRepo, loanRepo);
-			
+			var statisticsService =
+				new LibraryStatisticsService(bookRepo, authorRepo, translatorRepo, userRepo, loanRepo);
+
 			while (true)
 			{
 				Console.Clear();
@@ -60,7 +65,8 @@ public static class Program
 				if (loggedInUser is null) return;
 
 				var result = MainMenu.MainMenuController(authorService, translatorService, userService, bookService,
-					loanService, fineService, authService, currentUserSession, authorization, statisticsService);
+					loanService, fineService, authService, currentUserSession, authorization, statisticsService,
+					loanHistory);
 
 				if (result == MainMenuResult.Exit) return;
 				ConsoleHelper.Pause();

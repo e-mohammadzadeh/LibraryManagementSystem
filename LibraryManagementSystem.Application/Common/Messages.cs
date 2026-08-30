@@ -213,6 +213,7 @@ public static class Messages
 	public const string NoOverdueLoans = "No overdue loans at the moment.";
 	public const string NotAvailableActionLoan = "No actionable loans found.";
 	public const string LoansRetrievedSuccessfully = "Loans retrieved successfully.";
+	public const string NotAvailableLoanHistory = "No loan history records found.";
 
 	// User‑specific Loan Errors
 	public const string MaximumLoansReached = "Borrowing failed. This user has reached the maximum number of active loans.";

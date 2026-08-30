@@ -10,7 +10,8 @@ public static class LoanHistoryActionExtensions
 			LoanHistoryAction.Returned => "Book returned.",
 			LoanHistoryAction.Renewed => "Loan renewed.",
 			LoanHistoryAction.Lost => "Book marked as lost.",
-			LoanHistoryAction.PaidFine => "Fine paid.",
+			LoanHistoryAction.FinePaid => "Fine paid.",
+			LoanHistoryAction.FineWaived => "Fine waived by admin.",
 			_ => "Action performed."
 		};
 	}

@@ -31,8 +31,8 @@ public class LoanHistoryPrinter
 			{
 				[history.Id.ToString()],
 				[history.LoanId.ToString()],
-				[history.BookName],
-				[history.UserName],
+				ConsoleTable.WrapText(history.BookName, 30),
+				ConsoleTable.WrapText(history.UserName, 25),
 				[history.Action.ToString()],
 				[history.OccurredAt.ToString("yyyy-MM-dd HH:mm")],
 				description

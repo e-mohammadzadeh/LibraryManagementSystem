@@ -17,17 +17,17 @@ public class LoanHistory
 		BookId = loan.BookId;
 		Action = action;
 		OccurredAt = DateTime.Now;
-		Description = description ?? LoanHistoryActionExtensions.GetDefaultDescription();
+		Description = description ?? action.GetDefaultDescription();
 		
 	}
 
 	private static int _nextId;
 	public int Id { get; private set; }
-	public Loan Loan { get; private set; } = null!;
+	public Loan Loan { get; private set; }
 	public int LoanId { get; private set; }
-	public User User { get; private set; } = null!;
+	public User User { get; private set; }
 	public int UserId { get; private set; }
-	public Book Book { get; private set; } = null!;
+	public Book Book { get; private set; }
 	public int BookId { get; private set; }
 	public LoanHistoryAction Action { get; private set; }
 	public DateTime OccurredAt { get; private set; }

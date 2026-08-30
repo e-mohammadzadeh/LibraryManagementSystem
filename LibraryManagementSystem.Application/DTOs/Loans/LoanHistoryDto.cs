@@ -12,7 +12,9 @@ public class LoanHistoryDto
 	public string UserName { get; init; } = string.Empty;
 	public string BookName { get; init; } = string.Empty;
 
+	// TODO (ASP.NET Core): Convert to string for API responses
 	public LoanHistoryAction Action { get; init; }
+	public string ActionDisplay => Action.GetDefaultDescription();
 
 	public DateTime OccurredAt { get; init; }
 
