@@ -47,7 +47,7 @@ public static class Program
 			var translatorService = new TranslatorManagementService(translatorRepo, authorization);
 			IUserAutoRemovalService userAutoRemovalService = new UserAutoRemovalService(userRepo, loanRepo, fineRepo);
 			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo, userAutoRemovalService, authorization);
-			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, fineService, authorization);
+			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, fineService, authorization, );
 			var userService = new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher, authorization);
 			var bookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo);
 			var authService = new AuthenticationService(userRepo, passwordHasher, currentUserSession);

@@ -15,7 +15,8 @@ public static class LoanMenu
 {
 	public static void LoanMenuController(LoanManagementService loanManagementService,
 		UserManagementService userManagementService, BookManagementService bookManagementService,
-		LibraryStatisticsService statisticsService, ICurrentUserSession session, IAuthorizationService authorization)
+		LibraryStatisticsService statisticsService, ICurrentUserSession session, IAuthorizationService authorization,
+		LoanHistoryManagementService loanHistoryManagementService)
 	{
 		if (!SessionGuard.RequireAnyPermission(
 			    authorization,
@@ -106,7 +107,7 @@ public static class LoanMenu
 				{
 					Console.Clear();
 					History(loanManagementService, userManagementService, bookManagementService, session,
-						authorization);
+						authorization, loanHistoryManagementService);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -171,7 +172,6 @@ public static class LoanMenu
 			if (userChoice >= 1 && userChoice <= availableItems.Count) return availableItems[userChoice - 1].ActionId;
 
 			ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
-
 		}
 	}
 
@@ -380,7 +380,7 @@ public static class LoanMenu
 	{
 		var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
 		if (user is null) return;
-		
+
 		var result = loanManagementService.GetActiveLoansByUser(user.Id, session);
 		if (!result.Success)
 		{
@@ -409,6 +409,7 @@ public static class LoanMenu
 			ConsoleHelper.ShowWarning(emptyMessage);
 			return;
 		}
+
 		Console.Clear();
 		LoanPrinter.PrintTable(loans);
 	}
@@ -495,7 +496,8 @@ public static class LoanMenu
 
 	private static void History(LoanManagementService loanManagementService,
 		UserManagementService userManagementService, BookManagementService bookManagementService,
-		ICurrentUserSession session, IAuthorizationService authorization)
+		ICurrentUserSession session, IAuthorizationService authorization,
+		LoanHistoryManagementService loanHistoryManagementService)
 	{
 		var canViewOwn = authorization.HasPermission(Permission.MyFullLoanHistory);
 		var canViewByUser = authorization.HasPermission(Permission.LoanHistoryByUser);
@@ -544,8 +546,8 @@ public static class LoanMenu
 					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
 					if (user is null) break;
 
-					DisplayLoans(loanManagementService.GetLoansByUser(user.Id, session),
-						Messages.UserHasNoBorrowedBooks);
+					var histories = loanHistoryManagementService.GetByUserId(user.Id);
+					LoanHistoryPrinter.PrintTable(histories, $"Loan History - {user.FullName}");
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -555,16 +557,16 @@ public static class LoanMenu
 					var book = MenuHelper.SelectBook(bookManagementService.GetAllBooks(), "Books List");
 					if (book is null) break;
 
-					var loans = loanManagementService.GetLoanByBook(book.BookId, session);
-					DisplayLoans(loans, Messages.NotAvailableLoan);
+					var histories = loanHistoryManagementService.GetByBookId(book.BookId);
+					LoanHistoryPrinter.PrintTable(histories, $"Loan History - {book.BookName}");
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
 				{
 					Console.Clear();
-					var allLoans = loanManagementService.GetFullLibraryHistory();
-					DisplayLoans(allLoans, Messages.NotAvailableLoan);
+					var histories = loanHistoryManagementService.GetAll();
+					LoanHistoryPrinter.PrintTable(histories, "Full Library Loan History");
 					ConsoleHelper.Pause();
 					break;
 				}

@@ -80,7 +80,7 @@ public class FineManagementService : IFineManagementService
 			_fineRepository.Update(fine);
 			
 			var removalResult = _userAutoRemovalService.TryAutoRemove(fine.UserId);
-			_loanHistoryManagementService.Record(fine.Loan, LoanHistoryAction.PaidFine);
+			_loanHistoryManagementService.Record(fine.Loan, LoanHistoryAction.FinePaid);
 			var message = Messages.FinePaidSuccessfully;
 			if (removalResult.Success) message = $"{message} | {removalResult.Message}";
 
@@ -105,6 +105,7 @@ public class FineManagementService : IFineManagementService
 		{
 			fine.Waive();
 			_fineRepository.Update(fine);
+			_loanHistoryManagementService.Record(fine.Loan, LoanHistoryAction.FineWaived);
 
 			var removalResult = _userAutoRemovalService.TryAutoRemove(fine.UserId);
 			var message = Messages.FineWaivedSuccessfully;

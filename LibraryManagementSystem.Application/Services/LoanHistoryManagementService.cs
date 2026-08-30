@@ -9,6 +9,8 @@ namespace LibraryManagementSystem.Application.Services;
 public class LoanHistoryManagementService : ILoanHistoryManagementService
 {
 	private readonly ILoanHistoryRepository _loanHistoryRepository;
+	private readonly UserManagementService _userManagementService;
+	private readonly BookManagementService _bookManagementService;
 
 
 	public LoanHistoryManagementService(ILoanHistoryRepository loanHistoryRepository)
@@ -26,7 +28,17 @@ public class LoanHistoryManagementService : ILoanHistoryManagementService
 
 	public IReadOnlyList<LoanHistoryDto> GetAll()
 	{
-		return [.. _loanHistoryRepository.GetAll().Select(history => history.ToDto())];
+		return [
+			.. _loanHistoryRepository.GetAll().Select(history =>
+			{
+				var user = _userManagementService.FindUserById(history.UserId);
+				var book = _bookManagementService.FindBookById(history.BookId);
+
+				return history.ToDto(
+					user?.FullName ?? "Unknown User",
+					book?.BookName ?? "Unknown Book");
+			})
+		];
 	}
 
 
