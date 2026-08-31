@@ -141,18 +141,8 @@ public static class AuthorMenu
 			foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
 
 			Console.WriteLine(new string('=', 82));
-			Console.Write(Messages.MainMenuQuestion);
-
-			var option = Console.ReadLine();
-			if (!int.TryParse(option, out var userChoice))
-			{
-				ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
-				continue;
-			}
-
-			if (userChoice >= 1 && userChoice <= availableItems.Count) return availableItems[userChoice - 1].ActionId;
-
-			ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
+			var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
+			return availableItems[choice!.Value - 1].ActionId;
 		}
 	}
 
@@ -583,18 +573,8 @@ public static class AuthorMenu
 			foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
 
 			Console.WriteLine(new string('=', 82));
-			Console.Write(Messages.MainMenuQuestion);
-
-			var option = Console.ReadLine();
-			if (!int.TryParse(option, out var userChoice))
-			{
-				ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
-				continue;
-			}
-
-			if (userChoice >= 1 && userChoice <= availableItems.Count) return availableItems[userChoice - 1].ActionId;
-
-			ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
+			var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
+			return availableItems[choice!.Value - 1].ActionId;
 		}
 	}
 

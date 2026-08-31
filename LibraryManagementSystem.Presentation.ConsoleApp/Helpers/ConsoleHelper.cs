@@ -12,14 +12,15 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 // This static class loop until valid input is received.
 public static class ConsoleHelper
 {
-	public static int? ReadInt(string prompt, int min, int max)
+	public static int? ReadInt(string prompt, int min, int max, bool allowCancel = true)
 	{
 		while (true)
 		{
-			Console.Write($"{prompt} (type 'cancel' to abort): ");
+			Console.Write($"{prompt}{(allowCancel ? " (type 'cancel' to abort)" : "")}: ");
 			var input = Console.ReadLine() ?? string.Empty;
 
-			if (input.Trim().Equals("cancel", StringComparison.OrdinalIgnoreCase)) return null;
+			if (allowCancel && input.Trim().Equals("cancel", StringComparison.OrdinalIgnoreCase)) return null;
+
 			if (int.TryParse(input, out var value))
 			{
 				if (value >= min && value <= max) return value;

@@ -51,7 +51,7 @@ public static class UserMenu
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
 			else
 				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
-			switch (UserMenuList(authorization, session))
+			switch (UserMenuList(authorization))
 			{
 				case 1:
 				{
@@ -140,7 +140,7 @@ public static class UserMenu
 	}
 
 
-	private static int UserMenuList(IAuthorizationService authorization, ICurrentUserSession session)
+	private static int UserMenuList(IAuthorizationService authorization)
 	{
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
@@ -169,18 +169,8 @@ public static class UserMenu
 			foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
 
 			Console.WriteLine(new string('=', 82));
-			Console.Write(Messages.MainMenuQuestion);
-
-			var option = Console.ReadLine();
-			if (!int.TryParse(option, out var userChoice))
-			{
-				ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
-				continue;
-			}
-
-			if (userChoice >= 1 && userChoice <= availableItems.Count) return availableItems[userChoice - 1].ActionId;
-
-			ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
+			var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
+			return availableItems[choice!.Value - 1].ActionId;
 		}
 	}
 
@@ -640,28 +630,40 @@ public static class UserMenu
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
 			else
 				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
-			switch (ViewUserMenuList(authorization, session))
+			switch (ViewUserMenuList(authorization))
 			{
 				case 1:
 				{
-					if (!session.IsSelfServiceMember)
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewOwnDetails,
+						    Messages.AccessDenied))
+						break;
+					Console.Clear();
+					if (session.UserId is null)
 					{
-						ConsoleHelper.ShowError(Messages.AccessDenied);
+						ConsoleHelper.ShowError(Messages.AuthenticationRequired);
+						return;
+					}
+
+					var userDto = userManagementService.FindUserById(session.UserId.Value);
+					if (userDto is null)
+					{
+						ConsoleHelper.ShowError(Messages.NotUserMatched);
 						break;
 					}
 
-					Console.Clear();
-					ViewOwnDetails(userManagementService, session);
+					UserPrinter.PrintDetails(userDto, "My Details");
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
-					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-						    Permission.ViewUserDetails, Permission.ViewOwnDetails))
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewUserDetails, Messages.AccessDenied))
 						break;
 					Console.Clear();
-					ViewUserDetails(userManagementService, session, authorization);
+					var userDto = MenuHelper.SelectExisting(userManagementService.GetAllUsers(), MenuHelper.SelectUser,
+						Messages.NotAvailableUser);
+					if (userDto is null) return;
+					UserPrinter.PrintDetails(userDto);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -704,13 +706,12 @@ public static class UserMenu
 
 
 
-	private static int ViewUserMenuList(IAuthorizationService authorization, ICurrentUserSession session)
+	private static int ViewUserMenuList(IAuthorizationService authorization)
 	{
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
-			(1, "View Own Details", session.IsSelfServiceMember),
-			(2, "View User Details",
-				authorization.HasAnyPermission(Permission.ViewUserDetails, Permission.ViewOwnDetails)),
+			(1, "View Own Details", authorization.HasPermission(Permission.ViewOwnDetails)),
+			(2, "View User Details", authorization.HasPermission(Permission.ViewUserDetails)),
 			(3, "View All Users", authorization.HasPermission(Permission.ViewAllUsers)),
 			(4, "View Removed Users", authorization.HasPermission(Permission.ViewRemovedUsers)),
 			(5, "Back", true)
@@ -720,90 +721,15 @@ public static class UserMenu
 
 		while (true)
 		{
-			Console.WriteLine(new string('=', 36) + " USER MENU " + new string('=', 36));
+			Console.WriteLine(new string('=', 36) + " VIEW USER MENU " + new string('=', 36));
 
 			var displayNumber = 1;
 			foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
 
 			Console.WriteLine(new string('=', 82));
-			Console.Write(Messages.MainMenuQuestion);
-
-			var option = Console.ReadLine();
-			if (!int.TryParse(option, out var userChoice))
-			{
-				ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
-				continue;
-			}
-
-			if (userChoice >= 1 && userChoice <= availableItems.Count) return availableItems[userChoice - 1].ActionId;
-
-			ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
+			var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
+			return availableItems[choice!.Value - 1].ActionId;
 		}
-	}
-
-
-	private static void ViewUserDetails(UserManagementService userManagementService, ICurrentUserSession session,
-		IAuthorizationService authorization)
-	{
-		if (!authorization.HasPermission(Permission.ViewOwnDetails) &&
-		    !authorization.HasPermission(Permission.ViewUserDetails))
-		{
-			ConsoleHelper.ShowError(Messages.AccessDenied);
-			return;
-		}
-
-		while (true)
-		{
-			Console.Clear();
-			Console.WriteLine(new string('=', 36) + " USER DETAILS " + new string('=', 36));
-			Console.WriteLine("1. View Own Details");
-			Console.WriteLine("2. View User Details");
-			Console.WriteLine("3. Back");
-			Console.WriteLine(new string('=', 82));
-
-			var choice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 3);
-			if (choice is null or 3) return;
-			switch (choice)
-			{
-				case 1:
-				{
-					Console.Clear();
-					ViewOwnDetails(userManagementService, session);
-					ConsoleHelper.Pause();
-					break;
-				}
-
-				case 2:
-				{
-					Console.Clear();
-					var userDto = MenuHelper.SelectExisting(userManagementService.GetAllUsers(), MenuHelper.SelectUser,
-						Messages.NotAvailableUser);
-					if (userDto is null) return;
-					UserPrinter.PrintDetails(userDto);
-					ConsoleHelper.Pause();
-					break;
-				}
-			}
-		}
-	}
-
-
-	private static void ViewOwnDetails(UserManagementService userManagementService, ICurrentUserSession session)
-	{
-		if (session.UserId is null)
-		{
-			ConsoleHelper.ShowError(Messages.AuthenticationRequired);
-			return;
-		}
-
-		var userDto = userManagementService.FindUserById(session.UserId.Value);
-		if (userDto is null)
-		{
-			ConsoleHelper.ShowError(Messages.NotUserMatched);
-			return;
-		}
-
-		UserPrinter.PrintDetails(userDto, "My Details");
 	}
 
 
