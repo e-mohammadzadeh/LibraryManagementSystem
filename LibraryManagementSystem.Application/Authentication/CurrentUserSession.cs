@@ -11,23 +11,11 @@ public class CurrentUserSession : ICurrentUserSession
 	public IReadOnlySet<Permission> Permissions => CurrentUser?.Permissions ?? new HashSet<Permission>();
 
 
-	public void Login(AuthUserDto user)
-	{
-		CurrentUser = user ?? throw new ArgumentNullException(nameof(user));
-	}
+	public void Login(AuthUserDto user) { CurrentUser = user ?? throw new ArgumentNullException(nameof(user)); }
 
 	public void Logout() => CurrentUser = null;
 
 	public bool HasRole(LibraryUserRole role) { return CurrentUser?.Roles.Contains(role) ?? false; }
-
-
-	public bool HasAnyRole(params LibraryUserRole[]? roles)
-	{
-		if (CurrentUser is null || roles is null || roles.Length == 0) return false;
-
-		return roles.Any(r => CurrentUser.Roles.Contains(r));
-	}
-
 
 	public bool IsAdmin => HasRole(LibraryUserRole.Admin);
 	public bool IsLibrarian => HasRole(LibraryUserRole.Librarian);

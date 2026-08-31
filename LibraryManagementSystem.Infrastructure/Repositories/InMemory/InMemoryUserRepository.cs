@@ -81,7 +81,7 @@ public class InMemoryUserRepository : IUserRepository
 	}
 
 
-	public IReadOnlyList<User> SearchByRole(List<int> roleIds)
+	public IReadOnlyList<User> SearchByRole(IReadOnlyList<int> roleIds)
 	{
 		ArgumentNullException.ThrowIfNull(roleIds);
 

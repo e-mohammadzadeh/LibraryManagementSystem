@@ -389,7 +389,7 @@ public static class AuthorMenu
 				i.RequiredPermissions.Length == 0 || authorization.HasAnyPermission(i.RequiredPermissions)).ToList();
 
 			var displayNumber = 1;
-			foreach (var item in available) Console.WriteLine($"{displayNumber++}. {item.Label}");
+			foreach (var (_, label, _) in available) Console.WriteLine($"{displayNumber++}. {label}");
 			Console.WriteLine($"{displayNumber}. Back");
 
 			var choice = ConsoleHelper.ReadInt(Messages.SearchMenuQuestion, 1, displayNumber);
@@ -401,8 +401,8 @@ public static class AuthorMenu
 				return;
 			}
 
-			var selected = available[choice.Value - 1];
-			var prompt = selected.Field switch
+			var (field, _, _) = available[choice.Value - 1];
+			var prompt = field switch
 			{
 				AuthorSearchField.Name => Messages.SearchName,
 				AuthorSearchField.NationalCode => Messages.SearchNationalCode,
@@ -412,7 +412,7 @@ public static class AuthorMenu
 			};
 
 			PersonHelper.SearchAndDisplay(prompt,
-				term => authorManagementService.SearchAuthor(term, selected.Field!.Value), printer,
+				term => authorManagementService.SearchAuthor(term, field!.Value), printer,
 				Messages.NotAuthorMatched);
 
 			ConsoleHelper.Pause();
@@ -451,18 +451,18 @@ public static class AuthorMenu
 				return;
 			}
 
-			var selectedField = sortFields[choice.Value - 1];
+			var (field, _) = sortFields[choice.Value - 1];
 			var sortDirection = SelectSortDirection();
 			if (sortDirection is null) continue;
 
-			var sortedAuthors = authorManagementService.GetAllAuthors(selectedField.Field, sortDirection.Value);
+			var sortedAuthors = authorManagementService.GetAllAuthors(field, sortDirection.Value);
 			if (sortedAuthors.Count == 0)
 			{
 				ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
 				continue;
 			}
 
-			var sortDescription = $"{selectedField.Field} ({sortDirection})";
+			var sortDescription = $"{field} ({sortDirection})";
 
 			var canViewFullDetails = authorization.HasPermission(Permission.FullSortAuthor);
 			if (canViewFullDetails)

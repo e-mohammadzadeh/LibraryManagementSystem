@@ -76,7 +76,7 @@ public static class UserMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveUser, Messages.AccessDenied))
 						break;
 					Console.Clear();
-					RemoveUser(userManagementService, authorization);
+					RemoveUser(userManagementService, authorization, session);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -454,8 +454,7 @@ public static class UserMenu
 		{
 			Console.Clear();
 			Console.WriteLine(new string('=', 36) + " SEARCHING USER MENU " + new string('=', 36));
-			var usersList = userManagementService.GetAllUsers();
-			if (usersList.Count == 0)
+			if (userManagementService.GetAllUsers().Count == 0)
 			{
 				ConsoleHelper.ShowWarning(Messages.NotAvailableUser);
 				return;
@@ -482,7 +481,7 @@ public static class UserMenu
 				case 1:
 				{
 					PersonHelper.SearchAndDisplay(Messages.SearchName,
-						term => userManagementService.SearchUser(term, UserSearchField.Name),
+						term => userManagementService.SearchUser(term, UserSearchField.FullName),
 						u => UserPrinter.PrintFullTable(u), Messages.NotUserMatched);
 					ConsoleHelper.Pause();
 					break;
@@ -530,10 +529,10 @@ public static class UserMenu
 	private static void SearchRoleAndDisplay(UserManagementService userManagementService, string prompt)
 	{
 		var availableRoles = userManagementService.GetAllRoles();
-		var roleId = ConsoleHelper.ReadRoles(prompt, availableRoles, false);
-		if (roleId is null) return;
+		var roleIds = ConsoleHelper.ReadRoles(prompt, availableRoles, false);
+		if (roleIds is null || roleIds.Count == 0) return;
 
-		var result = userManagementService.SearchByRole(roleId);
+		var result = userManagementService.SearchByRole(roleIds);
 		DisplayUserResults(result);
 	}
 
@@ -661,7 +660,7 @@ public static class UserMenu
 			Console.WriteLine(new string('=', 82));
 
 			var choice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 3);
-			if (choice is null) return;
+			if (choice is null or 3) return;
 			switch (choice)
 			{
 				case 1:
@@ -681,11 +680,6 @@ public static class UserMenu
 					UserPrinter.PrintDetails(userDto);
 					ConsoleHelper.Pause();
 					break;
-				}
-
-				case 3:
-				{
-					return;
 				}
 			}
 		}

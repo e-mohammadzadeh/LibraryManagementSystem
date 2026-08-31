@@ -5,6 +5,7 @@ using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Domain.Enums.Search;
 using LibraryManagementSystem.Domain.Enums.Sort;
 using LibraryManagementSystem.Domain.Interfaces;
 
@@ -101,7 +102,7 @@ public class UserManagementService
 			UserSortField.MembershipStartDate => u => u.MembershipStartDate,
 			UserSortField.MembershipExpiryDate => u => u.MembershipExpiryDate,
 			UserSortField.IsActive => u => u.IsActive,
-			UserSortField.LastLoginDate => u => u.LastLoginDate,
+			UserSortField.LastLoginDate => u => u.LastLoginDate ?? (object)DateTime.MinValue,
 			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
 		};
 
@@ -238,15 +239,26 @@ public class UserManagementService
 	}
 
 
-	public IReadOnlyList<UserDto> SearchUser(string searchTerm, Func<User, string?> selector)
+	public IReadOnlyList<UserDto> SearchUser(string searchTerm, UserSearchField field)
 	{
+		if (string.IsNullOrWhiteSpace(searchTerm)) return [];
+		Func<User, string?> selector = field switch
+		{
+			UserSearchField.FullName => u => $"{u.FirstName} {u.LastName}",
+			UserSearchField.NationalCode => u => u.NationalCode,
+			UserSearchField.Email => u => u.Email,
+			UserSearchField.PhoneNumber => u => u.PhoneNumber,
+			UserSearchField.Role => u => string.Join(", ", u.UserRoles.Select(r => r.Role.Name)),
+			_ => throw new ArgumentOutOfRangeException(nameof(field))
+		};
+
 		return [.. _userRepository.Search(searchTerm, selector).Select(user => user.ToDto())];
 	}
 
 
-	public IReadOnlyList<UserDto> SearchByRole(List<int> role)
+	public IReadOnlyList<UserDto> SearchByRole(IReadOnlyList<int> roleIds)
 	{
-		return [.. _userRepository.SearchByRole(role).Select(user => user.ToDto())];
+		return [.. _userRepository.SearchByRole(roleIds).Select(user => user.ToDto())];
 	}
 
 

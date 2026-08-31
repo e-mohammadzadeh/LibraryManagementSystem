@@ -2,7 +2,7 @@
 
 public enum UserSearchField
 {
-	Name,
+	FullName,
 	NationalCode,
 	Email,
 	PhoneNumber,

@@ -182,7 +182,7 @@ public static class ConsoleHelper
 				? "Enter numbers separated by commas (e.g., 1,2,3 or type 'cancel' to abort)"
 				: "Enter a single number (type 'cancel' to abort)";
 
-			Console.Write($"{prompt} .{instruction}: ");
+			Console.Write($"{prompt}. {instruction}: ");
 			var input = Console.ReadLine() ?? string.Empty;
 			var trimmed = input.Trim();
 
@@ -249,7 +249,7 @@ public static class ConsoleHelper
 	}
 
 
-	public static List<int>? ReadRoles(string prompt, IReadOnlyList<Role> roles, bool allowMultiple = true,
+	public static IReadOnlyList<int>? ReadRoles(string prompt, IReadOnlyList<Role> roles, bool allowMultiple = true,
 		bool allowEmpty = false)
 	{
 		return ReadMultiSelect(prompt, roles, idSelector: r => r.Id, displayNameSelector: r => r.Name.ToString(),

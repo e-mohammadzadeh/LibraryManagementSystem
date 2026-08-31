@@ -11,8 +11,6 @@ public interface ICurrentUserSession
 
 	void Login(AuthUserDto user);
 	void Logout();
-	bool HasRole(LibraryUserRole role);
-	bool HasAnyRole(params LibraryUserRole[] roles);
 	IReadOnlySet<Permission> Permissions { get; }
 	bool IsAdmin { get; }
 	bool IsLibrarian { get; }
