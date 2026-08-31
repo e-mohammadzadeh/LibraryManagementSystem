@@ -103,7 +103,7 @@ public static class RolePermissionMap
 			Permission.MyOverdueLoans,
 			Permission.MyFullLoanHistory,
 
-			Permission.ViewMemberDetails,
+			Permission.ViewOwnDetails,
 			Permission.ChangeOwnPassword,
 			Permission.AssignMemberRole
 		]

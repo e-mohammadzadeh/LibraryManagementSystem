@@ -17,24 +17,12 @@ public static class UserMenu
 	public static void UserMenuController(UserManagementService userManagementService,
 		LibraryStatisticsService statisticsService, ICurrentUserSession session, IAuthorizationService authorization)
 	{
-		if (!SessionGuard.RequireAnyPermission(
-			    authorization,
-			    Messages.AccessDenied,
-			    Permission.AddUser,
-			    Permission.EditUser,
-			    Permission.RemoveUser,
-			    Permission.SearchUser,
-			    Permission.SortUser,
-			    Permission.ViewUserDetails,
-			    Permission.ViewOwnDetails,
-			    Permission.ViewAllUsers,
-			    Permission.ChangePassword,
-			    Permission.ChangeOwnPassword,
-			    Permission.RenewLibrarianMembership,
+		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied, Permission.AddUser,
+			    Permission.EditUser, Permission.RemoveUser, Permission.SearchUser, Permission.SortUser,
+			    Permission.ViewUserDetails, Permission.ViewOwnDetails, Permission.ViewAllUsers,
+			    Permission.ChangePassword, Permission.ChangeOwnPassword, Permission.RenewLibrarianMembership,
 			    Permission.RenewMemberMembership))
-		{
 			return;
-		}
 
 		while (true)
 		{
@@ -649,7 +637,8 @@ public static class UserMenu
 				}
 				case 2:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewUserDetails, Messages.AccessDenied))
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewUserDetails,
+						    Messages.AccessDenied))
 						break;
 					Console.Clear();
 					var userDto = MenuHelper.SelectExisting(userManagementService.GetAllUsers(), MenuHelper.SelectUser,

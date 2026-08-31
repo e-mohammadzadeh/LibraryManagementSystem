@@ -54,7 +54,6 @@ public enum Permission
 	SortUser,
 	ViewUserDetails,
 	ViewOwnDetails,
-	ViewMemberDetails,
 	ViewAllUsers,
 	ViewRemovedUsers,
 	ChangePassword,
