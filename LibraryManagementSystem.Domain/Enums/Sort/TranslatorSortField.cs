@@ -5,6 +5,7 @@ public enum TranslatorSortField
 	Id,
 	FirstName,
 	LastName,
+	FullName,
 	NationalCode,
 	Email,
 	BirthDate,

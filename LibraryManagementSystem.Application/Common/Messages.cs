@@ -301,6 +301,8 @@ public static class Messages
 	// 12. Navigation ────────────────────────────────────────────────────────────
 	// Back
 	public const string BackToMainMenu = "\nBacking to main menu...";
+	public const string BackToAuthorMenu = "\nBacking to Author Menu...";
+	public const string BackToTranslatorMenu = "\nBacking to Translator Menu...";
 
 	// Exit
 	public const string ExitingProgram = "\nExiting Program...";

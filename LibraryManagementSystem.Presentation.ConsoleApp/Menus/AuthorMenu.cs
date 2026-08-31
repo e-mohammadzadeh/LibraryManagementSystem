@@ -16,9 +16,7 @@ public static class AuthorMenu
 	public static void AuthorMenuController(AuthorManagementService authorManagementService,
 		LibraryStatisticsService statisticsService, ICurrentUserSession session, IAuthorizationService authorization)
 	{
-		if (!SessionGuard.RequireAnyPermission(
-			    authorization,
-			    Messages.AccessDenied,
+		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
 			    Permission.AddAuthor,
 			    Permission.EditAuthor,
 			    Permission.RemoveAuthor,
@@ -96,42 +94,16 @@ public static class AuthorMenu
 				}
 				case 6:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAuthorDetails,
-						    Messages.AccessDenied))
+					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
+						    Permission.ViewAuthorDetails, Permission.ViewAuthorBooks,
+						    Permission.ViewAllAuthors))
 						break;
 					Console.Clear();
-					var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
-						author => MenuHelper.SelectAuthor(author, authorization), Messages.NotAvailableAuthor);
-					if (desiredAuthor is not null) AuthorPrinter.PrintDetails(desiredAuthor);
+					ViewAuthorMenu(authorManagementService, authorization, session, statisticsService);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
-				{
-					Console.Clear();
-					ViewBooksByAuthor(authorManagementService, authorization);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case 8:
-				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllAuthors,
-						    Messages.AccessDenied))
-						break;
-
-					Console.Clear();
-					var authors = authorManagementService.GetAllAuthors();
-
-					if (authors.Count == 0)
-						ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
-					else if (authorization.HasPermission(Permission.ViewAuthorFullDetails))
-						AuthorPrinter.PrintFullTable(authors);
-					else
-						AuthorPrinter.PrintTable(authors);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case 9:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					continueProgram = false;
@@ -153,10 +125,10 @@ public static class AuthorMenu
 				authorization.HasAnyPermission(Permission.SearchAuthorForMember, Permission.FullSearchAuthor)),
 			(5, "Sort Authors",
 				authorization.HasAnyPermission(Permission.SortAuthorForMember, Permission.FullSortAuthor)),
-			(6, "View Author Details", authorization.HasPermission(Permission.ViewAuthorDetails)),
-			(7, "View Author's Books", authorization.HasPermission(Permission.ViewAuthorBooks)),
-			(8, "View All Authors", authorization.HasPermission(Permission.ViewAllAuthors)),
-			(9, "Back", true)
+			(6, "View Authors",
+				authorization.HasAnyPermission(Permission.ViewAuthorDetails, Permission.ViewAuthorBooks,
+					Permission.ViewAllAuthors)),
+			(7, "Back", true)
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
@@ -166,11 +138,7 @@ public static class AuthorMenu
 			Console.WriteLine(new string('=', 35) + " AUTHOR MENU " + new string('=', 35));
 
 			var displayNumber = 1;
-			foreach (var (_, displayText, _) in availableItems)
-			{
-				Console.WriteLine($"{displayNumber}. {displayText}");
-				displayNumber++;
-			}
+			foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
 
 			Console.WriteLine(new string('=', 82));
 			Console.Write(Messages.MainMenuQuestion);
@@ -435,7 +403,7 @@ public static class AuthorMenu
 			Console.Clear();
 			var fieldHeaders = new[] { "#", "Sort By" };
 			var fieldRows = sortFields
-				.Select((field, index) => new string[][] { [(index + 1).ToString()], [field.Label] }).ToList();
+				.Select((f, index) => new string[][] { [(index + 1).ToString()], [f.Label] }).ToList();
 			fieldRows.Add([[(sortFields.Count + 1).ToString()], ["Back"]]);
 
 
@@ -483,6 +451,7 @@ public static class AuthorMenu
 			(AuthorSortField.Id, "ID"),
 			(AuthorSortField.FirstName, "First Name"),
 			(AuthorSortField.LastName, "Last Name"),
+			(AuthorSortField.FullName, "Full Name"),
 			(AuthorSortField.Email, "Email")
 		};
 
@@ -515,6 +484,118 @@ public static class AuthorMenu
 			2 => SortDirection.Descending,
 			_ => null
 		};
+	}
+
+
+
+	private static void ViewAuthorMenu(AuthorManagementService authorManagementService,
+		IAuthorizationService authorization, ICurrentUserSession session, LibraryStatisticsService statisticsService)
+	{
+		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
+			    Permission.ViewAuthorDetails,
+			    Permission.ViewAuthorBooks,
+			    Permission.ViewAllAuthors))
+		{
+			return;
+		}
+
+		var continueProgram = true;
+		while (continueProgram)
+		{
+			if (!session.IsAuthenticated)
+			{
+				ConsoleHelper.ShowError(Messages.SessionExpired);
+				return;
+			}
+
+			ConsoleHelper.ClearConsole();
+			if (authorization.CanAccessStatistics())
+				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
+			else
+				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
+			switch (ViewAuthorMenuList(authorization))
+			{
+				case 1:
+				{
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAuthorDetails,
+						    Messages.AccessDenied))
+						break;
+					Console.Clear();
+					var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
+						author => MenuHelper.SelectAuthor(author, authorization), Messages.NotAvailableAuthor);
+					if (desiredAuthor is not null) AuthorPrinter.PrintDetails(desiredAuthor);
+					ConsoleHelper.Pause();
+					break;
+				}
+				case 2:
+				{
+					Console.Clear();
+					ViewBooksByAuthor(authorManagementService, authorization);
+					ConsoleHelper.Pause();
+					break;
+				}
+				case 3:
+				{
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllAuthors,
+						    Messages.AccessDenied))
+						break;
+
+					Console.Clear();
+					var authors = authorManagementService.GetAllAuthors();
+
+					if (authors.Count == 0)
+						ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
+					else if (authorization.HasPermission(Permission.ViewAuthorFullDetails))
+						AuthorPrinter.PrintFullTable(authors);
+					else
+						AuthorPrinter.PrintTable(authors);
+					ConsoleHelper.Pause();
+					break;
+				}
+				case 4:
+				{
+					ConsoleHelper.ShowInfo(Messages.BackToAuthorMenu);
+					continueProgram = false;
+					break;
+				}
+			}
+		}
+	}
+
+
+	private static int ViewAuthorMenuList(IAuthorizationService authorization)
+	{
+		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
+		{
+			(1, "View Author Details", authorization.HasPermission(Permission.ViewAuthorDetails)),
+			(2, "View Author's Books", authorization.HasPermission(Permission.ViewAuthorBooks)),
+			(3, "View All Authors", authorization.HasPermission(Permission.ViewAllAuthors)),
+			(4, "Back", true)
+		};
+
+		var availableItems = items.Where(i => i.IsAvailable).ToList();
+
+		while (true)
+		{
+			Console.WriteLine(new string('=', 35) + " VIEW AUTHOR MENU " + new string('=', 35));
+
+			var displayNumber = 1;
+			foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
+
+			Console.WriteLine(new string('=', 82));
+			Console.Write(Messages.MainMenuQuestion);
+
+			var option = Console.ReadLine();
+			if (!int.TryParse(option, out var userChoice))
+			{
+				ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
+				continue;
+			}
+
+			if (userChoice >= 1 && userChoice <= availableItems.Count) return availableItems[userChoice - 1].ActionId;
+
+			ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
+		}
 	}
 
 

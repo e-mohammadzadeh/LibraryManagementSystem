@@ -173,7 +173,7 @@ public static class UserMenu
 			(2, "Edit User", authorization.HasPermission(Permission.EditUser)),
 			(3, "Remove User", authorization.HasPermission(Permission.RemoveUser)),
 			(4, "Search User", authorization.HasPermission(Permission.SearchUser)),
-			(5, "Sort User", authorization.HasPermission(Permission.SortUser)),
+			(5, "Sort Users", authorization.HasPermission(Permission.SortUser)),
 			(6, "View Own Details", session.IsSelfServiceMember),
 			(7, "View User Details",
 				authorization.HasAnyPermission(Permission.ViewUserDetails, Permission.ViewOwnDetails)),
@@ -307,8 +307,8 @@ public static class UserMenu
 			};
 
 			if (authorization.HasPermission(Permission.ChangeUserRoles))
-				rows.Add(new string[][] { ["7"], ["Roles"], [string.Join(", ", desiredUser.Roles)] });
-			rows.Add(new string[][] { [(rows.Count + 1).ToString()], ["Back"], ["-"] });
+				rows.Add([["7"], ["Roles"], [string.Join(", ", desiredUser.Roles)]]);
+			rows.Add([[(rows.Count + 1).ToString()], ["Back"], ["-"]]);
 
 			ConsoleTable.PrintTable("Edit User", headers, rows);
 
@@ -579,18 +579,18 @@ public static class UserMenu
 				return;
 			}
 
-			var selectedField = sortFields[choice.Value - 1];
+			var (field, _) = sortFields[choice.Value - 1];
 			var sortDirection = SelectSortDirection();
 			if (sortDirection is null) continue;
 
-			var sortedUsers = userManagementService.GetAllUsers(selectedField.Field, sortDirection.Value);
+			var sortedUsers = userManagementService.GetAllUsers(field, sortDirection.Value);
 			if (sortedUsers.Count == 0)
 			{
 				ConsoleHelper.ShowWarning(Messages.NotAvailableUser);
 				continue;
 			}
 
-			UserPrinter.PrintFullTable(sortedUsers, $"Sorted Users - {selectedField.Field} ({sortDirection})");
+			UserPrinter.PrintFullTable(sortedUsers, $"Sorted Users - {field} ({sortDirection})");
 			ConsoleHelper.Pause();
 		}
 	}

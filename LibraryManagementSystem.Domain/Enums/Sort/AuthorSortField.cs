@@ -5,6 +5,7 @@ public enum AuthorSortField
 	Id,
 	FirstName,
 	LastName,
+	FullName,
 	NationalCode,
 	Email,
 	BirthDate,

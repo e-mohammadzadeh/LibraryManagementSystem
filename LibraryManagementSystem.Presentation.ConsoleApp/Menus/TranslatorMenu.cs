@@ -100,41 +100,16 @@ public static class TranslatorMenu
 				}
 				case 6:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewTranslatorDetails,
-						    Messages.AccessDenied))
+					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
+						    Permission.ViewTranslatorDetails, Permission.ViewTranslatorBooks,
+						    Permission.ViewAllTranslators))
 						break;
 					Console.Clear();
-					var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
-						translator => MenuHelper.SelectTranslator(translator, authorization),
-						Messages.NotAvailableTranslator);
-					if (desiredTranslator is not null) TranslatorPrinter.PrintDetails(desiredTranslator);
+					ViewTranslatorMenu(translatorManagementService, authorization, session, statisticsService);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
-				{
-					Console.Clear();
-					ViewBooksByTranslator(translatorManagementService, authorization);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case 8:
-				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllTranslators,
-						    Messages.AccessDenied))
-						break;
-					Console.Clear();
-					var translators = translatorManagementService.GetAllTranslators();
-					if (translators.Count == 0)
-						ConsoleHelper.ShowWarning(Messages.NotAvailableTranslator);
-					else if (authorization.HasPermission(Permission.ViewTranslatorFullDetails))
-						TranslatorPrinter.PrintFullTable(translators);
-					else
-						TranslatorPrinter.PrintTable(translators);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case 9:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					continueProgram = false;
@@ -154,12 +129,12 @@ public static class TranslatorMenu
 			(3, "Remove Translator", authorization.HasPermission(Permission.RemoveTranslator)),
 			(4, "Search Translator",
 				authorization.HasAnyPermission(Permission.SearchTranslatorForMember, Permission.FullSearchTranslator)),
-			(5, "Sort Translator",
+			(5, "Sort Translators",
 				authorization.HasAnyPermission(Permission.SortTranslatorForMember, Permission.FullSortTranslator)),
-			(6, "View Translator Details", authorization.HasPermission(Permission.ViewTranslatorDetails)),
-			(7, "View Translator's Books", authorization.HasPermission(Permission.ViewTranslatorBooks)),
-			(8, "View All Translators", authorization.HasPermission(Permission.ViewAllTranslators)),
-			(9, "Back", true)
+			(6, "View Translators",
+				authorization.HasAnyPermission(Permission.ViewTranslatorDetails, Permission.ViewTranslatorBooks,
+					Permission.ViewAllTranslators)),
+			(7, "Back", true)
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
@@ -476,6 +451,7 @@ public static class TranslatorMenu
 			(TranslatorSortField.Id, "ID"),
 			(TranslatorSortField.FirstName, "First Name"),
 			(TranslatorSortField.LastName, "Last Name"),
+			(TranslatorSortField.FullName, "Full Name"),
 			(TranslatorSortField.Email, "Email")
 		};
 
@@ -507,6 +483,122 @@ public static class TranslatorMenu
 			2 => SortDirection.Descending,
 			_ => null
 		};
+	}
+
+
+	private static void ViewTranslatorMenu(TranslatorManagementService translatorManagementService,
+		IAuthorizationService authorization, ICurrentUserSession session, LibraryStatisticsService statisticsService)
+	{
+		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
+			    Permission.ViewTranslatorDetails,
+			    Permission.ViewTranslatorBooks,
+			    Permission.ViewAllTranslators))
+		{
+			return;
+		}
+
+		var continueProgram = true;
+		while (continueProgram)
+		{
+			if (!session.IsAuthenticated)
+			{
+				ConsoleHelper.ShowError(Messages.SessionExpired);
+				ConsoleHelper.Pause();
+				return;
+			}
+
+			ConsoleHelper.ClearConsole();
+			if (authorization.CanAccessStatistics())
+				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
+			else
+				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
+			switch (ViewTranslatorMenuList(authorization))
+			{
+				case 1:
+				{
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewTranslatorDetails,
+						    Messages.AccessDenied))
+						break;
+					Console.Clear();
+					var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
+						translator => MenuHelper.SelectTranslator(translator, authorization),
+						Messages.NotAvailableTranslator);
+					if (desiredTranslator is not null) TranslatorPrinter.PrintDetails(desiredTranslator);
+					ConsoleHelper.Pause();
+					break;
+				}
+				case 2:
+				{
+					Console.Clear();
+					ViewBooksByTranslator(translatorManagementService, authorization);
+					ConsoleHelper.Pause();
+					break;
+				}
+				case 3:
+				{
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllTranslators,
+						    Messages.AccessDenied))
+						break;
+					Console.Clear();
+					var translators = translatorManagementService.GetAllTranslators();
+					if (translators.Count == 0)
+						ConsoleHelper.ShowWarning(Messages.NotAvailableTranslator);
+					else if (authorization.HasPermission(Permission.ViewTranslatorFullDetails))
+						TranslatorPrinter.PrintFullTable(translators);
+					else
+						TranslatorPrinter.PrintTable(translators);
+					ConsoleHelper.Pause();
+					break;
+				}
+				case 4:
+				{
+					ConsoleHelper.ShowInfo(Messages.BackToTranslatorMenu);
+					continueProgram = false;
+					break;
+				}
+			}
+		}
+	}
+
+
+	private static int ViewTranslatorMenuList(IAuthorizationService authorization)
+	{
+		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
+		{
+			(1, "View Translator Details", authorization.HasPermission(Permission.ViewTranslatorDetails)),
+			(2, "View Translator's Books", authorization.HasPermission(Permission.ViewTranslatorBooks)),
+			(3, "View All Translators", authorization.HasPermission(Permission.ViewAllTranslators)),
+			(4, "Back", true)
+		};
+
+		var availableItems = items.Where(i => i.IsAvailable).ToList();
+
+		while (true)
+		{
+			Console.WriteLine(new string('=', 33) + " VIEW TRANSLATOR MENU " + new string('=', 33));
+
+			var displayNumber = 1;
+			foreach (var (_, displayText, _) in availableItems)
+			{
+				Console.WriteLine($"{displayNumber}. {displayText}");
+				displayNumber++;
+			}
+
+			Console.WriteLine(new string('=', 82));
+			Console.Write(Messages.MainMenuQuestion);
+
+			var option = Console.ReadLine();
+			if (!int.TryParse(option, out var userChoice))
+			{
+				ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
+				continue;
+			}
+
+			if (userChoice >= 1 && userChoice <= availableItems.Count)
+				return availableItems[userChoice - 1].ActionId;
+
+			ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
+		}
 	}
 
 

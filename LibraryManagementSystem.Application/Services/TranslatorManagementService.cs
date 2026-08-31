@@ -58,13 +58,14 @@ public class TranslatorManagementService
 		var translators = _translatorRepository.GetAll().Select(t => t.ToDto());
 		Func<TranslatorDto, object> keySelector = sortField switch
 		{
-			TranslatorSortField.Id => a => a.Id,
-			TranslatorSortField.FirstName => a => a.FirstName,
-			TranslatorSortField.LastName => a => a.LastName,
-			TranslatorSortField.NationalCode => a => a.NationalCode,
-			TranslatorSortField.Email => a => a.Email,
-			TranslatorSortField.BirthDate => a => a.BirthDate,
-			TranslatorSortField.BookCount => a => a.BookCount,
+			TranslatorSortField.Id => t => t.Id,
+			TranslatorSortField.FirstName => t => t.FirstName,
+			TranslatorSortField.LastName => t => t.LastName,
+			TranslatorSortField.FullName => t => t.FullName,
+			TranslatorSortField.NationalCode => t => t.NationalCode,
+			TranslatorSortField.Email => t => t.Email,
+			TranslatorSortField.BirthDate => t => t.BirthDate,
+			TranslatorSortField.BookCount => t => t.BookCount,
 			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
 		};
 

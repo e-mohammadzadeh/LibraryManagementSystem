@@ -120,7 +120,7 @@ public class AuthorManagementService
 			AuthorSearchField.Name => [Permission.SearchAuthorForMember, Permission.FullSearchAuthor],
 			AuthorSearchField.NationalCode => [Permission.FullSearchAuthor],
 			AuthorSearchField.Email => [Permission.SearchAuthorForMember, Permission.FullSearchAuthor],
-			AuthorSearchField.PhoneNumber => new[] {Permission.FullSearchAuthor},
+			AuthorSearchField.PhoneNumber => new[] { Permission.FullSearchAuthor },
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};
 
@@ -156,6 +156,7 @@ public class AuthorManagementService
 			AuthorSortField.Id => a => a.Id,
 			AuthorSortField.FirstName => a => a.FirstName,
 			AuthorSortField.LastName => a => a.LastName,
+			AuthorSortField.FullName => a => a.FullName,
 			AuthorSortField.NationalCode => a => a.NationalCode,
 			AuthorSortField.Email => a => a.Email,
 			AuthorSortField.BirthDate => a => a.BirthDate,
