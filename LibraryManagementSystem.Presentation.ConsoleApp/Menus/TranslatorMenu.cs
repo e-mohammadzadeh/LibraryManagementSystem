@@ -32,8 +32,7 @@ public static class TranslatorMenu
 			return;
 		}
 
-		var continueProgram = true;
-		while (continueProgram)
+		while (true)
 		{
 			if (!session.IsAuthenticated)
 			{
@@ -112,8 +111,7 @@ public static class TranslatorMenu
 				case 7:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
-					continueProgram = false;
-					break;
+					return;
 				}
 			}
 		}
@@ -138,22 +136,14 @@ public static class TranslatorMenu
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
+		Console.WriteLine(new string('=', 33) + " TRANSLATOR MENU " + new string('=', 33));
+		var displayNumber = 1;
+		foreach (var (_, displayText, _) in availableItems)
+			Console.WriteLine($"{displayNumber++}. {displayText}");
 
-		while (true)
-		{
-			Console.WriteLine(new string('=', 33) + " TRANSLATOR MENU " + new string('=', 33));
-
-			var displayNumber = 1;
-			foreach (var (_, displayText, _) in availableItems)
-			{
-				Console.WriteLine($"{displayNumber}. {displayText}");
-				displayNumber++;
-			}
-
-			Console.WriteLine(new string('=', 82));
-			var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
-			return availableItems[choice!.Value - 1].ActionId;
-		}
+		Console.WriteLine(new string('=', 82));
+		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
+		return availableItems[choice!.Value - 1].ActionId;
 	}
 
 
@@ -345,7 +335,8 @@ public static class TranslatorMenu
 				i.RequiredPermissions.Length == 0 || authorization.HasAnyPermission(i.RequiredPermissions)).ToList();
 
 			var displayNumber = 1;
-			foreach (var item in available) Console.WriteLine($"{displayNumber++}. {item.Label}");
+			foreach (var (_, label, _) in available)
+				Console.WriteLine($"{displayNumber++}. {label}");
 			Console.WriteLine($"{displayNumber}. Back");
 
 			var choice = ConsoleHelper.ReadInt(Messages.SearchMenuQuestion, 1, displayNumber);
@@ -357,9 +348,9 @@ public static class TranslatorMenu
 				return;
 			}
 
-			var selected = available[choice.Value - 1];
+			var (field, _, _) = available[choice.Value - 1];
 
-			var prompt = selected.Field switch
+			var prompt = field switch
 			{
 				TranslatorSearchField.Name => Messages.SearchName,
 				TranslatorSearchField.NationalCode => Messages.SearchNationalCode,
@@ -369,7 +360,7 @@ public static class TranslatorMenu
 			};
 
 			PersonHelper.SearchAndDisplay(prompt,
-				term => translatorManagementService.SearchTranslator(term, selected.Field!.Value), printer,
+				term => translatorManagementService.SearchTranslator(term, field!.Value), printer,
 				Messages.NotTranslatorMatched);
 
 			ConsoleHelper.Pause();
@@ -408,19 +399,19 @@ public static class TranslatorMenu
 				return;
 			}
 
-			var selectedField = sortFields[choice.Value - 1];
+			var (selectedField, _) = sortFields[choice.Value - 1];
 			var sortDirection = SelectSortDirection();
 			if (sortDirection is null) continue;
 
 			var sortedTranslators =
-				translatorManagementService.GetAllTranslators(selectedField.Field, sortDirection.Value);
+				translatorManagementService.GetAllTranslators(selectedField, sortDirection.Value);
 			if (sortedTranslators.Count == 0)
 			{
 				ConsoleHelper.ShowWarning(Messages.NotAvailableTranslator);
 				continue;
 			}
 
-			var sortDescription = $"{selectedField.Field} ({sortDirection})";
+			var sortDescription = $"{selectedField} ({sortDirection})";
 
 			var canViewFullDetails = authorization.HasPermission(Permission.FullSortTranslator);
 			if (canViewFullDetails)
@@ -487,8 +478,7 @@ public static class TranslatorMenu
 			return;
 		}
 
-		var continueProgram = true;
-		while (continueProgram)
+		while (true)
 		{
 			if (!session.IsAuthenticated)
 			{
@@ -543,8 +533,7 @@ public static class TranslatorMenu
 				case 4:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToTranslatorMenu);
-					continueProgram = false;
-					break;
+					return;
 				}
 			}
 		}
@@ -562,22 +551,14 @@ public static class TranslatorMenu
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
+		Console.WriteLine(new string('=', 33) + " VIEW TRANSLATOR MENU " + new string('=', 33));
+		var displayNumber = 1;
+		foreach (var (_, displayText, _) in availableItems)
+			Console.WriteLine($"{displayNumber++}. {displayText}");
 
-		while (true)
-		{
-			Console.WriteLine(new string('=', 33) + " VIEW TRANSLATOR MENU " + new string('=', 33));
-
-			var displayNumber = 1;
-			foreach (var (_, displayText, _) in availableItems)
-			{
-				Console.WriteLine($"{displayNumber}. {displayText}");
-				displayNumber++;
-			}
-
-			Console.WriteLine(new string('=', 82));
-			var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
-			return availableItems[choice!.Value - 1].ActionId;
-		}
+		Console.WriteLine(new string('=', 82));
+		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
+		return availableItems[choice!.Value - 1].ActionId;
 	}
 
 

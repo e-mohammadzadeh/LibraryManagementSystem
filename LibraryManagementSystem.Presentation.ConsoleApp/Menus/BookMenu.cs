@@ -34,8 +34,7 @@ public static class BookMenu
 			return;
 		}
 
-		var continueProgram = true;
-		while (continueProgram)
+		while (true)
 		{
 			if (!session.IsAuthenticated)
 			{
@@ -122,8 +121,7 @@ public static class BookMenu
 				case 8:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
-					continueProgram = false;
-					break;
+					return;
 				}
 			}
 		}
@@ -145,22 +143,14 @@ public static class BookMenu
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
+		Console.WriteLine(new string('=', 36) + " BOOK MENU " + new string('=', 36));
+		var displayNumber = 1;
+		foreach (var (_, displayText, _) in availableItems)
+			Console.WriteLine($"{displayNumber++}. {displayText}");
 
-		while (true)
-		{
-			Console.WriteLine(new string('=', 36) + " BOOK MENU " + new string('=', 36));
-
-			var displayNumber = 1;
-			foreach (var (_, displayText, _) in availableItems)
-			{
-				Console.WriteLine($"{displayNumber}. {displayText}");
-				displayNumber++;
-			}
-
-			Console.WriteLine(new string('=', 82));
-			var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
-			return availableItems[choice!.Value - 1].ActionId;
-		}
+		Console.WriteLine(new string('=', 82));
+		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
+		return availableItems[choice!.Value - 1].ActionId;
 	}
 
 
@@ -875,18 +865,18 @@ public static class BookMenu
 				return;
 			}
 
-			var selectedField = sortFields[choice.Value - 1];
+			var (field, _) = sortFields[choice.Value - 1];
 			var sortDirection = SelectSortDirection();
 			if (sortDirection is null) continue;
 
-			var sortedBooks = bookManagementService.GetAllBooks(selectedField.Field, sortDirection.Value);
+			var sortedBooks = bookManagementService.GetAllBooks(field, sortDirection.Value);
 			if (sortedBooks.Count == 0)
 			{
 				ConsoleHelper.ShowWarning(Messages.NotAvailableBook);
 				continue;
 			}
 
-			var sortDescription = $"{selectedField.Field} ({sortDirection})";
+			var sortDescription = $"{field} ({sortDirection})";
 
 			BookPrinter.PrintTable(sortedBooks, authorization, $"Sorted Books - {sortDescription}");
 

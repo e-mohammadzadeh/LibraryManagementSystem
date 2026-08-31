@@ -36,8 +36,7 @@ public static class UserMenu
 			return;
 		}
 
-		var continueProgram = true;
-		while (continueProgram)
+		while (true)
 		{
 			if (!session.IsAuthenticated)
 			{
@@ -132,8 +131,7 @@ public static class UserMenu
 				case 9:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
-					continueProgram = false;
-					break;
+					return;
 				}
 			}
 		}
@@ -160,18 +158,13 @@ public static class UserMenu
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
+		Console.WriteLine(new string('=', 36) + " USER MENU " + new string('=', 36));
+		var displayNumber = 1;
+		foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
 
-		while (true)
-		{
-			Console.WriteLine(new string('=', 36) + " USER MENU " + new string('=', 36));
-
-			var displayNumber = 1;
-			foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
-
-			Console.WriteLine(new string('=', 82));
-			var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
-			return availableItems[choice!.Value - 1].ActionId;
-		}
+		Console.WriteLine(new string('=', 82));
+		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
+		return availableItems[choice!.Value - 1].ActionId;
 	}
 
 
@@ -526,7 +519,7 @@ public static class UserMenu
 			Console.Clear();
 			var fieldHeaders = new[] { "#", "Sort By" };
 			var fieldRows = sortFields
-				.Select((field, index) => new string[][] { [(index + 1).ToString()], [field.Label] }).ToList();
+				.Select((f, index) => new string[][] { [(index + 1).ToString()], [f.Label] }).ToList();
 			fieldRows.Add([[(sortFields.Count + 1).ToString()], ["Back"]]);
 
 
@@ -615,8 +608,7 @@ public static class UserMenu
 			return;
 		}
 
-		var continueProgram = true;
-		while (continueProgram)
+		while (true)
 		{
 			if (!session.IsAuthenticated)
 			{
@@ -662,7 +654,7 @@ public static class UserMenu
 					Console.Clear();
 					var userDto = MenuHelper.SelectExisting(userManagementService.GetAllUsers(), MenuHelper.SelectUser,
 						Messages.NotAvailableUser);
-					if (userDto is null) return;
+					if (userDto is null) break;
 					UserPrinter.PrintDetails(userDto);
 					ConsoleHelper.Pause();
 					break;
@@ -697,8 +689,7 @@ public static class UserMenu
 				case 5:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToUserMenu);
-					continueProgram = false;
-					break;
+					return;
 				}
 			}
 		}
@@ -719,17 +710,13 @@ public static class UserMenu
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
 
-		while (true)
-		{
-			Console.WriteLine(new string('=', 36) + " VIEW USER MENU " + new string('=', 36));
+		Console.WriteLine(new string('=', 36) + " VIEW USER MENU " + new string('=', 36));
+		var displayNumber = 1;
+		foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
 
-			var displayNumber = 1;
-			foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
-
-			Console.WriteLine(new string('=', 82));
-			var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
-			return availableItems[choice!.Value - 1].ActionId;
-		}
+		Console.WriteLine(new string('=', 82));
+		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
+		return availableItems[choice!.Value - 1].ActionId;
 	}
 
 

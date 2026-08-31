@@ -30,8 +30,7 @@ public static class FineMenu
 			return;
 		}
 
-		var continueProgram = true;
-		while (continueProgram)
+		while (true)
 		{
 			if (!session.IsAuthenticated)
 			{
@@ -88,8 +87,7 @@ public static class FineMenu
 				case 6:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
-					continueProgram = false;
-					break;
+					return;
 				}
 			}
 		}
@@ -109,22 +107,14 @@ public static class FineMenu
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
+		Console.WriteLine(new string('=', 36) + " FINE MENU " + new string('=', 36));
+		var displayNumber = 1;
+		foreach (var (_, displayText, _) in availableItems)
+			Console.WriteLine($"{displayNumber++}. {displayText}");
 
-		while (true)
-		{
-			Console.WriteLine(new string('=', 36) + " FINE MENU " + new string('=', 36));
-
-			var displayNumber = 1;
-			foreach (var (_, displayText, _) in availableItems)
-			{
-				Console.WriteLine($"{displayNumber}. {displayText}");
-				displayNumber++;
-			}
-
-			Console.WriteLine(new string('=', 82));
-			var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
-			return availableItems[choice!.Value - 1].ActionId;
-		}
+		Console.WriteLine(new string('=', 82));
+		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
+		return availableItems[choice!.Value - 1].ActionId;
 	}
 
 
@@ -351,35 +341,15 @@ public static class FineMenu
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
+		Console.WriteLine(new string('=', 36) + " HISTORY MENU " + new string('=', 36));
+		var displayNumber = 1;
+		foreach (var (_, displayText, _) in availableItems)
+			Console.WriteLine($"{displayNumber++}. {displayText}");
 
-		while (true)
-		{
-			Console.WriteLine(new string('=', 36) + " HISTORY MENU " + new string('=', 36));
-
-			var displayNumber = 1;
-
-			foreach (var (_, displayText, _) in availableItems)
-			{
-				Console.WriteLine($"{displayNumber}. {displayText}");
-				displayNumber++;
-			}
-
-			Console.WriteLine(new string('=', 82));
-			Console.Write(Messages.MainMenuQuestion);
-
-			var option = Console.ReadLine();
-
-			if (!int.TryParse(option, out var userChoice))
-			{
-				ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
-				continue;
-			}
-
-			if (userChoice >= 1 && userChoice <= availableItems.Count) return availableItems[userChoice - 1].ActionId;
-
-			ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
+		Console.WriteLine(new string('=', 82));
+		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
+		return availableItems[choice!.Value - 1].ActionId;
 		}
-	}
 
 
 	private static void ViewFineHistoryByUser(IFineManagementService fineManagementService,

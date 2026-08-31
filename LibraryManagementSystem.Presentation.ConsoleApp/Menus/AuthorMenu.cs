@@ -30,8 +30,7 @@ public static class AuthorMenu
 			return;
 		}
 
-		var continueProgram = true;
-		while (continueProgram)
+		while (true)
 		{
 			if (!session.IsAuthenticated)
 			{
@@ -106,8 +105,7 @@ public static class AuthorMenu
 				case 7:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
-					continueProgram = false;
-					break;
+					return;
 				}
 			}
 		}
@@ -132,18 +130,14 @@ public static class AuthorMenu
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
+		Console.WriteLine(new string('=', 35) + " AUTHOR MENU " + new string('=', 35));
 
-		while (true)
-		{
-			Console.WriteLine(new string('=', 35) + " AUTHOR MENU " + new string('=', 35));
+		var displayNumber = 1;
+		foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
 
-			var displayNumber = 1;
-			foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
-
-			Console.WriteLine(new string('=', 82));
-			var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
-			return availableItems[choice!.Value - 1].ActionId;
-		}
+		Console.WriteLine(new string('=', 82));
+		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
+		return availableItems[choice!.Value - 1].ActionId;
 	}
 
 
@@ -489,8 +483,7 @@ public static class AuthorMenu
 			return;
 		}
 
-		var continueProgram = true;
-		while (continueProgram)
+		while (true)
 		{
 			if (!session.IsAuthenticated)
 			{
@@ -545,8 +538,7 @@ public static class AuthorMenu
 				case 4:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToAuthorMenu);
-					continueProgram = false;
-					break;
+					return;
 				}
 			}
 		}
@@ -564,18 +556,14 @@ public static class AuthorMenu
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
+		Console.WriteLine(new string('=', 35) + " VIEW AUTHOR MENU " + new string('=', 35));
 
-		while (true)
-		{
-			Console.WriteLine(new string('=', 35) + " VIEW AUTHOR MENU " + new string('=', 35));
+		var displayNumber = 1;
+		foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
 
-			var displayNumber = 1;
-			foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
-
-			Console.WriteLine(new string('=', 82));
-			var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
-			return availableItems[choice!.Value - 1].ActionId;
-		}
+		Console.WriteLine(new string('=', 82));
+		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
+		return availableItems[choice!.Value - 1].ActionId;
 	}
 
 
