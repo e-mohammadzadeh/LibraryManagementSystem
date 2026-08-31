@@ -56,6 +56,7 @@ public enum Permission
 	ViewOwnDetails,
 	ViewMemberDetails,
 	ViewAllUsers,
+	ViewRemovedUsers,
 	ChangePassword,
 	ChangeOwnPassword,
 	RenewLibrarianMembership,

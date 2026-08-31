@@ -100,41 +100,16 @@ public static class UserMenu
 				}
 				case 6:
 				{
-					if (!session.IsSelfServiceMember)
-					{
-						ConsoleHelper.ShowError(Messages.AccessDenied);
+					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
+						    Permission.ViewUserDetails, Permission.ViewOwnDetails, Permission.ViewAllUsers,
+						    Permission.ViewRemovedUsers))
 						break;
-					}
-
 					Console.Clear();
-					ViewOwnDetails(userManagementService, session);
+					ViewUsers(userManagementService, authorization, session, statisticsService);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
-				{
-					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-						    Permission.ViewUserDetails, Permission.ViewOwnDetails))
-						break;
-					Console.Clear();
-					ViewUserDetails(userManagementService, session, authorization);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case 8:
-				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllUsers, Messages.AccessDenied))
-						break;
-					Console.Clear();
-					var users = userManagementService.GetAllUsers();
-					if (users.Count is 0)
-						ConsoleHelper.ShowWarning(Messages.NotAvailableUser);
-					else
-						UserPrinter.PrintFullTable(users);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case 9:
 				{
 					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
 						    Permission.RenewLibrarianMembership, Permission.RenewMemberMembership))
@@ -144,7 +119,7 @@ public static class UserMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 10:
+				case 8:
 				{
 					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
 						    Permission.ChangePassword, Permission.ChangeOwnPassword))
@@ -154,7 +129,7 @@ public static class UserMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 11:
+				case 9:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					continueProgram = false;
@@ -174,15 +149,14 @@ public static class UserMenu
 			(3, "Remove User", authorization.HasPermission(Permission.RemoveUser)),
 			(4, "Search User", authorization.HasPermission(Permission.SearchUser)),
 			(5, "Sort Users", authorization.HasPermission(Permission.SortUser)),
-			(6, "View Own Details", session.IsSelfServiceMember),
-			(7, "View User Details",
-				authorization.HasAnyPermission(Permission.ViewUserDetails, Permission.ViewOwnDetails)),
-			(8, "View All Users", authorization.HasPermission(Permission.ViewAllUsers)),
-			(9, "Renew Membership",
+			(6, "View Users",
+				authorization.HasAnyPermission(Permission.ViewUserDetails, Permission.ViewOwnDetails,
+					Permission.ViewAllUsers, Permission.ViewRemovedUsers)),
+			(7, "Renew Membership",
 				authorization.HasAnyPermission(Permission.RenewMemberMembership, Permission.RenewLibrarianMembership)),
-			(10, "Change Password",
+			(8, "Change Password",
 				authorization.HasAnyPermission(Permission.ChangePassword, Permission.ChangeOwnPassword)),
-			(11, "Back", true)
+			(9, "Back", true)
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
@@ -470,8 +444,7 @@ public static class UserMenu
 				(6, "Back")
 			};
 
-			for (var i = 0; i < items.Count; i++)
-				Console.WriteLine($"{i + 1}. {items[i].Label}");
+			for (var i = 0; i < items.Count; i++) Console.WriteLine($"{i + 1}. {items[i].Label}");
 
 			var searchMenuChoice = ConsoleHelper.ReadInt(Messages.SearchMenuQuestion, 1, 6);
 			if (searchMenuChoice is null) return;
@@ -637,6 +610,135 @@ public static class UserMenu
 			2 => SortDirection.Descending,
 			_ => null
 		};
+	}
+
+
+	private static void ViewUsers(UserManagementService userManagementService, IAuthorizationService authorization,
+		ICurrentUserSession session, LibraryStatisticsService statisticsService)
+	{
+		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
+			    Permission.ViewUserDetails,
+			    Permission.ViewOwnDetails,
+			    Permission.ViewAllUsers,
+			    Permission.ViewRemovedUsers))
+		{
+			return;
+		}
+
+		var continueProgram = true;
+		while (continueProgram)
+		{
+			if (!session.IsAuthenticated)
+			{
+				ConsoleHelper.ShowError(Messages.SessionExpired);
+				ConsoleHelper.Pause();
+				return;
+			}
+
+			ConsoleHelper.ClearConsole();
+			if (authorization.CanAccessStatistics())
+				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
+			else
+				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
+			switch (ViewUserMenuList(authorization, session))
+			{
+				case 1:
+				{
+					if (!session.IsSelfServiceMember)
+					{
+						ConsoleHelper.ShowError(Messages.AccessDenied);
+						break;
+					}
+
+					Console.Clear();
+					ViewOwnDetails(userManagementService, session);
+					ConsoleHelper.Pause();
+					break;
+				}
+				case 2:
+				{
+					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
+						    Permission.ViewUserDetails, Permission.ViewOwnDetails))
+						break;
+					Console.Clear();
+					ViewUserDetails(userManagementService, session, authorization);
+					ConsoleHelper.Pause();
+					break;
+				}
+				case 3:
+				{
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllUsers, Messages.AccessDenied))
+						break;
+					Console.Clear();
+					var users = userManagementService.GetAllUsers();
+					if (users.Count is 0)
+						ConsoleHelper.ShowWarning(Messages.NotAvailableUser);
+					else
+						UserPrinter.PrintFullTable(users);
+					ConsoleHelper.Pause();
+					break;
+				}
+				case 4:
+				{
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewRemovedUsers,
+						    Messages.AccessDenied))
+						break;
+					Console.Clear();
+					var removedUsers = userManagementService.GetRemovedUsers();
+					if (removedUsers.Count is 0)
+						ConsoleHelper.ShowWarning(Messages.NotAvailableRemovedUser);
+					else
+						UserPrinter.PrintFullTable(removedUsers);
+					ConsoleHelper.Pause();
+					break;
+				}
+				case 5:
+				{
+					ConsoleHelper.ShowInfo(Messages.BackToUserMenu);
+					continueProgram = false;
+					break;
+				}
+			}
+		}
+	}
+
+
+
+	private static int ViewUserMenuList(IAuthorizationService authorization, ICurrentUserSession session)
+	{
+		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
+		{
+			(1, "View Own Details", session.IsSelfServiceMember),
+			(2, "View User Details",
+				authorization.HasAnyPermission(Permission.ViewUserDetails, Permission.ViewOwnDetails)),
+			(3, "View All Users", authorization.HasPermission(Permission.ViewAllUsers)),
+			(4, "View Removed Users", authorization.HasPermission(Permission.ViewRemovedUsers)),
+			(5, "Back", true)
+		};
+
+		var availableItems = items.Where(i => i.IsAvailable).ToList();
+
+		while (true)
+		{
+			Console.WriteLine(new string('=', 36) + " USER MENU " + new string('=', 36));
+
+			var displayNumber = 1;
+			foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
+
+			Console.WriteLine(new string('=', 82));
+			Console.Write(Messages.MainMenuQuestion);
+
+			var option = Console.ReadLine();
+			if (!int.TryParse(option, out var userChoice))
+			{
+				ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
+				continue;
+			}
+
+			if (userChoice >= 1 && userChoice <= availableItems.Count) return availableItems[userChoice - 1].ActionId;
+
+			ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
+		}
 	}
 
 

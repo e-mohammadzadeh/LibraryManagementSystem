@@ -88,7 +88,7 @@ public class UserManagementService
 	{
 		if (!_authorization.HasPermission(Permission.ViewAllUsers)) return [];
 
-		var users = _userRepository.GetAll().Select(a => a.ToDto());
+		var users = _userRepository.GetAll().Where(u => !u.IsRemoved).Select(a => a.ToDto());
 		Func<UserDto, object> keySelector = sortField switch
 		{
 			UserSortField.Id => u => u.Id,
@@ -111,6 +111,13 @@ public class UserManagementService
 			: users.OrderByDescending(keySelector);
 
 		return [.. sorted];
+	}
+
+
+	public IReadOnlyList<UserDto> GetRemovedUsers()
+	{
+		if (!_authorization.HasPermission(Permission.ViewRemovedUsers)) return [];
+		return [.. _userRepository.GetAll().Where(u => u.IsRemoved).Select(a => a.ToDto())];
 	}
 
 

@@ -21,6 +21,7 @@ public static class UserMapper
 			MembershipExpiryDate = user.MembershipExpiryDate,
 			ShouldRemove = user.ShouldRemove,
 			IsActive = user.IsActive,
+			IsRemoved = user.IsRemoved,
 			CreatedAt = user.CreatedAt,
 			UpdatedAt = user.UpdatedAt,
 			LastLoginDate = user.LastLoginDate

@@ -111,7 +111,6 @@ public class User : Person
 
 	public void FlagForRemoval()
 	{
-		IsActive = false;
 		ShouldRemove = true;
 	}
 

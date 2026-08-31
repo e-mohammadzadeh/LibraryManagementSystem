@@ -167,6 +167,7 @@ public static class Messages
 
 	// Search
 	public const string NotAvailableUser = "No users found. Please add a new user first.";
+	public const string NotAvailableRemovedUser = "No removed users found.";
 	public const string NotUserMatched = "No users matched your search.";
 	public const string UserNotFound = "User not found.";
 
@@ -303,6 +304,7 @@ public static class Messages
 	public const string BackToMainMenu = "\nBacking to main menu...";
 	public const string BackToAuthorMenu = "\nBacking to Author Menu...";
 	public const string BackToTranslatorMenu = "\nBacking to Translator Menu...";
+	public const string BackToUserMenu = "\nBacking to User Menu...";
 
 	// Exit
 	public const string ExitingProgram = "\nExiting Program...";
