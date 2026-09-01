@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Library;
+using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
@@ -36,7 +37,7 @@ public class LibraryStatisticsService
 			TotalBooks = _bookRepository.GetAll().Count,
 			TotalAuthors = _authorRepository.GetAll().Count,
 			TotalTranslators = _translatorRepository.GetAll().Count,
-			TotalUsers = _userRepository.GetAll().Count,
+			TotalUsers = _userRepository.GetAll(UserFilter.Active).Count,
 			TotalActiveLoans = _loanRepository.CountActiveLoans(),
 		};
 		return ServiceResult<LibraryStatisticsDto>.Ok(stats, "Computed successfully");

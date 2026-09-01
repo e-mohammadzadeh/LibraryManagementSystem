@@ -5,6 +5,7 @@ using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Enums.Search;
 using LibraryManagementSystem.Domain.Enums.Sort;
 using LibraryManagementSystem.Domain.Interfaces;
@@ -88,7 +89,7 @@ public class UserManagementService
 	{
 		if (!_authorization.HasPermission(Permission.ViewAllUsers)) return [];
 
-		var users = _userRepository.GetAll().Where(u => !u.IsRemoved).Select(a => a.ToDto());
+		var users = _userRepository.GetAll(UserFilter.Active).Select(a => a.ToDto());
 		Func<UserDto, object> keySelector = sortField switch
 		{
 			UserSortField.Id => u => u.Id,
@@ -117,7 +118,7 @@ public class UserManagementService
 	public IReadOnlyList<UserDto> GetRemovedUsers()
 	{
 		if (!_authorization.HasPermission(Permission.ViewRemovedUsers)) return [];
-		return [.. _userRepository.GetAll().Where(u => u.IsRemoved).Select(a => a.ToDto())];
+		return [.. _userRepository.GetAll(UserFilter.Removed).Select(a => a.ToDto())];
 	}
 
 
@@ -274,19 +275,19 @@ public class UserManagementService
 	{
 		var isOwn = session.UserId == userId;
 
-		if (isOwn)
+		switch (isOwn)
 		{
-			if (!_authorization.HasPermission(Permission.ChangeOwnPassword))
+			case true when !_authorization.HasPermission(Permission.ChangeOwnPassword):
 				return ServiceResult<string>.Fail(Messages.AccessDenied);
-		}
-		else
-		{
-			if (!_authorization.HasPermission(Permission.ChangePassword))
+			case false when !_authorization.HasPermission(Permission.ChangePassword):
 				return ServiceResult<string>.Fail(Messages.OnlyAdminCanResetPassword);
 		}
 
 		var user = _userRepository.FindById(userId);
 		if (user is null || user.IsRemoved) return ServiceResult<string>.Fail(Messages.UserNotFound);
+
+		if (user.ShouldRemove)
+			return ServiceResult<string>.Fail(Messages.UserFlaggedForRemoval);
 
 		// Own change: verify current password
 		if (isOwn)

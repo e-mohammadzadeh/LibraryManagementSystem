@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Interfaces;
 
 // ReSharper disable StringLiteralTypo
@@ -226,7 +227,7 @@ public static class DataSeeder
 	private static void SeedLoans(IUserRepository userRepository, IBookRepository bookRepository,
 		ILoanRepository loanRepository, IFineRepository fineRepository)
 	{
-		var users = userRepository.GetAll();
+		var users = userRepository.GetAll(UserFilter.Active);
 		var books = bookRepository.GetAll();
 		var today = DateOnly.FromDateTime(DateTime.Today);
 

@@ -29,7 +29,7 @@ public static class Messages
 
 
 	// 3. Password Validation ────────────────────────────────────────────────────────────
-	public const string MinimumPasswordLength = "Password must contain at least 8 characters.";
+	public static readonly string MinimumPasswordLength = $"Password must contain at least {ValidationConstants.MinPasswordLength} characters.";
 	public const string MaximumPasswordLength = "Password cannot contain more than 64 characters.";
 	public const string OneUppercaseLetter = "Password must contain at least one uppercase letter.";
 	public const string OneLowercaseLetter = "Password must contain at least one lowercase letter.";
@@ -43,6 +43,7 @@ public static class Messages
 	public const string SelectDifferentNewPassword = "New password must be different from the current password.";
 	public const string PasswordResetSuccessfully = "Password was reset successfully.";
 	public const string OnlyAdminCanResetPassword = "Only an administrator can reset another user's password.";
+	public const string UserFlaggedForRemoval = "This account is flagged for removal. You cannot change the password.";
 
 
 	// 4. AUTHOR MESSAGES ────────────────────────────────────────────────────────────

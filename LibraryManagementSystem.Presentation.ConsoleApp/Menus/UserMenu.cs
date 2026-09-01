@@ -112,7 +112,7 @@ public static class UserMenu
 						    Permission.ChangePassword, Permission.ChangeOwnPassword))
 						break;
 					Console.Clear();
-					ChangePassword(userManagementService, session);
+					ChangePassword(userManagementService, session, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -798,6 +798,12 @@ public static class UserMenu
 					Messages.NotAvailableUser);
 				if (user is null) return;
 
+				if (user.ShouldRemove)
+				{
+					ConsoleHelper.ShowError(Messages.UserFlaggedForRemoval);
+					return;
+				}
+
 				targetUserId = user.Id;
 				isOwn = session.UserId == targetUserId;
 			}
@@ -842,7 +848,7 @@ public static class UserMenu
 			return;
 		}
 
-		var result = userManagementService.ChangePassword(targetUserId, currentPassword, newPassword, session);
+		var result = userManagementService.ChangePassword(targetUserId, currentPassword!, newPassword, session);
 		ConsoleHelper.ShowResult(result);
 	}
 }

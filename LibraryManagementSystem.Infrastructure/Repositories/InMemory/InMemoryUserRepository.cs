@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Infrastructure.Repositories.InMemory;
@@ -32,7 +33,27 @@ public class InMemoryUserRepository : IUserRepository
 	}
 
 
-	public IReadOnlyList<User> GetAll() { return _users.AsReadOnly(); }
+	public IReadOnlyList<User> GetAll(UserFilter filter = UserFilter.Active)
+	{
+		var query = _users.AsEnumerable();
+
+		switch (filter)
+		{
+			case UserFilter.Active:
+				query = query.Where(u => !u.IsRemoved);
+				break;
+			case UserFilter.Removed:
+				query = query.Where(u => u.IsRemoved);
+				break;
+			case UserFilter.All:
+				// No filter – include everyone
+				break;
+			default:
+				throw new ArgumentOutOfRangeException(nameof(filter), filter, null);
+		}
+
+		return [.. query];
+	}
 
 
 	public bool ExistsByNationalCode(string nationalCode, int excludeId = -1)
@@ -60,10 +81,7 @@ public class InMemoryUserRepository : IUserRepository
 	}
 
 
-	public void Remove(User user)
-	{
-		user.DeleteUser();
-	}
+	public void Remove(User user) { user.DeleteUser(); }
 
 
 	public IReadOnlyList<User> Search(string searchTerm, Func<User, string?> selector)
