@@ -82,9 +82,7 @@ public class Book
 	private void RemoveAuthor(int authorId)
 	{
 		if (_bookAuthors.Count <= 1) throw new InvalidOperationException("A book must have at least one author.");
-
 		RemoveAuthorInternal(authorId);
-		MarkAsUpdated();
 	}
 
 
@@ -95,6 +93,7 @@ public class Book
 
 		_bookAuthors.Remove(bookAuthor);
 		bookAuthor.Author.RemoveBookAuthor(bookAuthor);
+		MarkAsUpdated();
 	}
 
 
@@ -103,6 +102,7 @@ public class Book
 	{
 		foreach (var bookAuthor in _bookAuthors.ToList()) bookAuthor.Author.RemoveBookAuthor(bookAuthor);
 		_bookAuthors.Clear();
+		MarkAsUpdated();
 	}
 
 
@@ -134,6 +134,7 @@ public class Book
 	{
 		foreach (var bookTranslator in _bookTranslators.ToList()) RemoveTranslator(bookTranslator.TranslatorId);
 		_bookTranslators.Clear();
+		MarkAsUpdated();
 	}
 
 

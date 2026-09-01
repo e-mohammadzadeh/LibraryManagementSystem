@@ -17,6 +17,7 @@ public class Translator : Person
 	{
 		if (_bookTranslators.Any(bt => bt.BookId == bookTranslator.BookId)) return;
 		_bookTranslators.Add(bookTranslator);
+		MarkAsUpdated();
 	}
 
 
@@ -24,6 +25,7 @@ public class Translator : Person
 	{
 		var existing = _bookTranslators.FirstOrDefault(bt => bt.BookId == bookTranslator.BookId);
 		if (existing is not null) _bookTranslators.Remove(existing);
+		MarkAsUpdated();
 	}
 
 

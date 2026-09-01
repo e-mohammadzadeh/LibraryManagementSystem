@@ -20,6 +20,7 @@ public class Author : Person
 		ArgumentNullException.ThrowIfNull(bookAuthor);
 		if (_bookAuthors.Any(ba => ba.BookId == bookAuthor.BookId)) return;
 		_bookAuthors.Add(bookAuthor);
+		MarkAsUpdated();
 	}
 
 
@@ -28,6 +29,7 @@ public class Author : Person
 		ArgumentNullException.ThrowIfNull(bookAuthor);
 		var existing = _bookAuthors.FirstOrDefault(ba => ba.BookId == bookAuthor.BookId);
 		if (existing is not null) _bookAuthors.Remove(existing);
+		MarkAsUpdated();
 	}
 
 

@@ -60,6 +60,7 @@ public class User : Person
 
 		_userRoles.Add(userRole);
 		role.AddUserRole(userRole);
+		MarkAsUpdated();
 	}
 
 
@@ -73,6 +74,7 @@ public class User : Person
 
 		_userRoles.Remove(userRole);
 		userRole.Role.RemoveUserRole(userRole);
+		MarkAsUpdated();
 	}
 
 
@@ -90,10 +92,9 @@ public class User : Person
 		}
 
 		// add new roles correctly
-		foreach (var role in roles)
-		{
-			AssignRole(role);
-		}
+		foreach (var role in roles) AssignRole(role);
+		MarkAsUpdated();
+
 	}
 
 
@@ -113,6 +114,7 @@ public class User : Person
 	public void FlagForRemoval()
 	{
 		ShouldRemove = true;
+		MarkAsUpdated();
 	}
 
 
@@ -120,6 +122,7 @@ public class User : Person
 	{
 		IsRemoved = true;
 		IsActive = false;
+		MarkAsUpdated();
 	}
 
 
@@ -143,5 +146,9 @@ public class User : Person
 	}
 
 
-	public void UpdateLastLoginInLogout() { LastLoginDate = PreviousLoginDate; }
+	public void UpdateLastLoginInLogout()
+	{
+		LastLoginDate = PreviousLoginDate;
+		MarkAsUpdated();
+	}
 }
