@@ -26,7 +26,7 @@ public abstract class Person
 	public DateTime? UpdatedAt { get; private set; }
 
 
-	private void MarkAsUpdated() { UpdatedAt = DateTime.Now; }
+	protected void MarkAsUpdated() { UpdatedAt = DateTime.Now; }
 
 
 	protected void UpdateCore(string? firstName, string? lastName, string? nationalCode, string? email,

@@ -60,6 +60,7 @@ public enum Permission
 	ChangeOwnPassword,
 	RenewLibrarianMembership,
 	RenewMemberMembership,
+	RenewInactiveMembership,
 
 
 

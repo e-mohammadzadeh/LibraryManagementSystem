@@ -233,7 +233,7 @@ public static class UserMenu
 
 		Console.WriteLine(new string('=', 36) + " EDITING USER MENU " + new string('=', 36));
 		var desiredUser = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
-			MenuHelper.SelectUser, Messages.NotAvailableUser);
+			list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)), Messages.NotAvailableUser);
 		if (desiredUser == null) return;
 
 		while (true)
@@ -371,7 +371,7 @@ public static class UserMenu
 
 		Console.WriteLine(new string('=', 36) + " REMOVING USER MENU " + new string('=', 36));
 		var desiredUser = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
-			MenuHelper.SelectUser, Messages.NotAvailableUser);
+			list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)), Messages.NotAvailableUser);
 		if (desiredUser is null) return;
 
 		// Block removing self
@@ -641,7 +641,8 @@ public static class UserMenu
 						    Messages.AccessDenied))
 						break;
 					Console.Clear();
-					var userDto = MenuHelper.SelectExisting(userManagementService.GetAllUsers(), MenuHelper.SelectUser,
+					var userDto = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
+						list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)),
 						Messages.NotAvailableUser);
 					if (userDto is null) break;
 					UserPrinter.PrintDetails(userDto);
@@ -722,6 +723,8 @@ public static class UserMenu
 		var renewableUsers = allUsers
 			.Where(u =>
 			{
+				if (u.ShouldRemove) return false;
+
 				var allRolesRenewable = u.Roles.All(role =>
 					(role == LibraryUserRole.Member && canRenewMembers) ||
 					(role == LibraryUserRole.Librarian && canRenewLibrarians));
@@ -737,7 +740,9 @@ public static class UserMenu
 			return;
 		}
 
-		var selectedUser = MenuHelper.SelectExisting(renewableUsers, MenuHelper.SelectUser, Messages.NotAvailableUser);
+		var selectedUser = MenuHelper.SelectExisting(renewableUsers,
+			list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTableForRenewingMembership(users)),
+			Messages.NotAvailableUser);
 		if (selectedUser is null) return;
 
 		var years = ConsoleHelper.ReadInt(Messages.EnterYearForRenewMembership,

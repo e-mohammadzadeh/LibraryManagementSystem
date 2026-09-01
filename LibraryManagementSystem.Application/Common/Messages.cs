@@ -150,7 +150,6 @@ public static class Messages
 	public const string UserAddedSuccessfully = "User added successfully.";
 	public const string DuplicateUserNameWarning = "A user with the same name already exists (ID: {0}).";
 
-
 	// Update
 	public const string UserUpdatedSuccessfully = "User updated successfully.";
 	public const string UserUpdateFailed = "Failed to update user.";
@@ -164,6 +163,8 @@ public static class Messages
 	public const string UserAutoRemovedSuccessfully = "User has been automatically removed from the system after settling all obligations.";
 	public const string UserEligibleForRemoval = "User {0} {1} has been flagged for removal. They must pay all fines and return all books before their account is deleted.";
 	public const string UserAutoRemoveNotEligible = "User does not meet auto-removal conditions.";
+	public const string UserMarkedForRemoval = "User {0} has been flagged for removal. You can't renew membership.";
+
 
 	// Search
 	public const string NotAvailableUser = "No users found. Please add a new user first.";
@@ -184,6 +185,7 @@ public static class Messages
 	public const string LibrarianCanRenewMembersOnly = "Librarians can Only renew member accounts.";
 	public const string MembershipRenewedSuccessfully = "Membership renewed successfully.";
 	public const string NoRenewableUser = "No renewable users found";
+	public const string RenewInactiveMembership = "Only an administrator can renew the membership of an inactive user.";
 
 	// Role
 	public const string FailureDuplicateRolesSelected = "Duplicate roles selected.";

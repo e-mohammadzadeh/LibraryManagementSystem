@@ -59,6 +59,34 @@ public class UserPrinter
 	}
 
 
+	public static void PrintTableForRenewingMembership(IReadOnlyList<UserDto> users, string title = "Users List") {
+		if (users.Count == 0)
+		{
+			ConsoleHelper.ShowError(Messages.NotAvailableUser);
+			return;
+		}
+
+		Console.Clear();
+		var headers = new[]
+		{
+			"ID", "User Name", "Email", "Role", "Is Active", "Active From", "Active Until",
+		};
+
+		var rows = users.Select(user => new[]
+		{
+			[user.Id.ToString()],
+			ConsoleTable.WrapText(user.FullName, 20),
+			ConsoleTable.WrapText(user.Email, 30),
+			user.Roles.Count > 0 ? user.Roles.Select(r => r.ToString()).ToArray() : ["—"],
+			[user.IsActive ? "Yes" : "No"],
+			[user.MembershipStartDate.ToString("yyyy-MM-dd")],
+			[user.MembershipExpiryDate.ToString("yyyy-MM-dd")]
+		}).ToList();
+
+		ConsoleTable.PrintTable(title, headers, rows);
+	}
+
+
 	public static void PrintFullTable(IReadOnlyList<UserDto> users, string title = "User Full Information")
 	{
 		if (users.Count == 0)

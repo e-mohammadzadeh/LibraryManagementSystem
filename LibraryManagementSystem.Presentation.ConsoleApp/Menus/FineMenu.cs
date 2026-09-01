@@ -109,8 +109,7 @@ public static class FineMenu
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
 		Console.WriteLine(new string('=', 36) + " FINE MENU " + new string('=', 36));
 		var displayNumber = 1;
-		foreach (var (_, displayText, _) in availableItems)
-			Console.WriteLine($"{displayNumber++}. {displayText}");
+		foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
 
 		Console.WriteLine(new string('=', 82));
 		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
@@ -129,6 +128,7 @@ public static class FineMenu
 			ConsoleHelper.ShowWarning(Messages.UnpaidFineNotFound);
 			return;
 		}
+
 		FinePrinter.PrintTable(unpaidFines);
 
 
@@ -209,7 +209,8 @@ public static class FineMenu
 						    Messages.AccessDenied))
 						break;
 
-					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
+					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(),
+						list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)));
 					if (user is null) break;
 					Console.Clear();
 
@@ -273,7 +274,8 @@ public static class FineMenu
 						    Messages.AccessDenied))
 						break;
 
-					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
+					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(),
+						list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)));
 					if (user is null) break;
 					Console.Clear();
 
@@ -343,13 +345,12 @@ public static class FineMenu
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
 		Console.WriteLine(new string('=', 36) + " HISTORY MENU " + new string('=', 36));
 		var displayNumber = 1;
-		foreach (var (_, displayText, _) in availableItems)
-			Console.WriteLine($"{displayNumber++}. {displayText}");
+		foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
 
 		Console.WriteLine(new string('=', 82));
 		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
 		return availableItems[choice!.Value - 1].ActionId;
-		}
+	}
 
 
 	private static void ViewFineHistoryByUser(IFineManagementService fineManagementService,
@@ -357,7 +358,8 @@ public static class FineMenu
 	{
 		if (!SessionGuard.RequirePermission(authorization, Permission.FineHistoryByUser, Messages.AccessDenied)) return;
 
-		var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
+		var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(),
+			list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)));
 		if (user is null) return;
 		var fines = fineManagementService.GetFineHistoryByUser(user.Id, session);
 		DisplayFines(fines, Messages.FineNotFound);

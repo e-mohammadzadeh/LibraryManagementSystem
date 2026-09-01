@@ -131,7 +131,7 @@ public static class MenuHelper
 	}
 
 
-	public static UserDto? SelectUser(IReadOnlyList<UserDto> usersList)
+	public static UserDto? SelectUser(IReadOnlyList<UserDto> usersList, Action<IReadOnlyList<UserDto>> printer)
 	{
 		if (usersList.Count is 0)
 		{
@@ -141,7 +141,7 @@ public static class MenuHelper
 
 		while (true)
 		{
-			UserPrinter.PrintTable(usersList);
+			printer(usersList);
 			// TODO	Max parameter has some logical issues when authors are removed and new authors are added.
 			var desiredMemberId = ConsoleHelper.ReadInt(Messages.SelectMemberQuestion, 1, usersList.Max(u => u.Id));
 

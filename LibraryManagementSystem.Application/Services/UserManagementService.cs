@@ -297,9 +297,18 @@ public class UserManagementService
 	{
 		var user = _userRepository.FindById(userId);
 		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserNotFound);
+
+		if (user.ShouldRemove)
+			return ServiceResult<UserDto>.Fail(string.Format(Messages.UserMarkedForRemoval,
+				$"{user.FirstName} {user.LastName}"));
+
 		if (years <= 0) return ServiceResult<UserDto>.Fail(Messages.InvalidMembershipRenewalPeriod);
 
 		var targetRoles = user.UserRoles.Select(ur => ur.Role.Name).ToList();
+
+		if (!_authorization.HasPermission(Permission.RenewInactiveMembership) && !user.IsActive)
+			return ServiceResult<UserDto>.Fail(Messages.RenewInactiveMembership);
+
 
 		if (targetRoles.Contains(LibraryUserRole.Librarian))
 		{

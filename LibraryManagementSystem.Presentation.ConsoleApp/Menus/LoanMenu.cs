@@ -153,11 +153,7 @@ public static class LoanMenu
 			Console.WriteLine(new string('=', 36) + " LOAN MENU " + new string('=', 36));
 
 			var displayNumber = 1;
-			foreach (var (_, displayText, _) in availableItems)
-			{
-				Console.WriteLine($"{displayNumber}. {displayText}");
-				displayNumber++;
-			}
+			foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
 
 			Console.WriteLine(new string('=', 83));
 			var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
@@ -179,7 +175,8 @@ public static class LoanMenu
 		}
 		else
 		{
-			user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
+			user = MenuHelper.SelectUser(userManagementService.GetAllUsers(),
+				list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)));
 			if (user is null)
 			{
 				ConsoleHelper.ShowWarning(Messages.UserNotFound);
@@ -234,7 +231,7 @@ public static class LoanMenu
 			userId = session.UserId!.Value;
 		else
 		{
-			var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
+			var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(), list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)));
 			if (user is null)
 			{
 				ConsoleHelper.ShowWarning(Messages.UserNotFound);
@@ -369,7 +366,8 @@ public static class LoanMenu
 	private static void ViewActiveLoansByUser(LoanManagementService loanManagementService,
 		UserManagementService userManagementService, ICurrentUserSession session)
 	{
-		var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
+		var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(),
+			list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)));
 		if (user is null) return;
 
 		var result = loanManagementService.GetActiveLoansByUser(user.Id, session);
@@ -444,7 +442,7 @@ public static class LoanMenu
 						break;
 					}
 
-					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
+					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(), list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)));
 					if (user is null) break;
 
 					var result = loanManagementService.GetOverdueLoansByUser(user.Id, session);
@@ -537,7 +535,7 @@ public static class LoanMenu
 				case 1:
 				{
 					Console.Clear();
-					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers());
+					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(), list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)));
 					if (user is null) break;
 
 					var histories = loanHistoryManagementService.GetByUserId(user.Id);

@@ -106,6 +106,7 @@ public class User : Person
 
 		MembershipExpiryDate = renewalBase.AddYears(years);
 		if (!IsActive) IsActive = true;
+		MarkAsUpdated();
 	}
 
 
