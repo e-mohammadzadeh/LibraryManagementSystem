@@ -41,10 +41,10 @@ public class Fine
 
 	private static decimal FineCalculator(int overdueDays)
 	{
-		const decimal maxUnpaidFineThreshold = 150m; // 15 days hits cap
-		const decimal initialDailyRate = 1m;
-		const int fixedRateDays = 3;
-		const decimal geometricRatio = 1.5m;
+		const decimal maxUnpaidFineThreshold = 150m; // 47 days hits cap
+		const decimal initialDailyRate = 0.50m;
+		const int fixedRateDays = 5;
+		const decimal geometricRatio = 1.08m;
 
 		if (overdueDays <= 0) return 0m;
 

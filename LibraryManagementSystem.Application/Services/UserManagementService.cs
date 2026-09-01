@@ -272,24 +272,42 @@ public class UserManagementService
 	public ServiceResult<string> ChangePassword(int userId, string currentPassword, string newPassword,
 		ICurrentUserSession session)
 	{
-		if (session.UserId != userId) return ServiceResult<string>.Fail(Messages.CanChangeOwnPassword);
+		var isOwn = session.UserId == userId;
+
+		if (isOwn)
+		{
+			if (!_authorization.HasPermission(Permission.ChangeOwnPassword))
+				return ServiceResult<string>.Fail(Messages.AccessDenied);
+		}
+		else
+		{
+			if (!_authorization.HasPermission(Permission.ChangePassword))
+				return ServiceResult<string>.Fail(Messages.OnlyAdminCanResetPassword);
+		}
 
 		var user = _userRepository.FindById(userId);
-		if (user is null) return ServiceResult<string>.Fail(Messages.UserNotFound);
+		if (user is null || user.IsRemoved) return ServiceResult<string>.Fail(Messages.UserNotFound);
 
-		if (!_passwordHasher.VerifyPassword(currentPassword, user.PasswordHash, user.PasswordSalt))
-			return ServiceResult<string>.Fail(Messages.PasswordChangeFailed);
+		// Own change: verify current password
+		if (isOwn)
+		{
+			if (string.IsNullOrWhiteSpace(currentPassword) ||
+			    !_passwordHasher.VerifyPassword(currentPassword, user.PasswordHash, user.PasswordSalt))
+				return ServiceResult<string>.Fail(Messages.PasswordChangeFailed);
 
-		if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 8)
+			if (newPassword == currentPassword) return ServiceResult<string>.Fail(Messages.SelectDifferentNewPassword);
+		}
+
+		if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < ValidationConstants.MinPasswordLength)
 			return ServiceResult<string>.Fail(Messages.MinimumPasswordLength);
-
-		if (newPassword == currentPassword) return ServiceResult<string>.Fail(Messages.SelectDifferentNewPassword);
 
 		var hashResult = _passwordHasher.CreatePasswordHash(newPassword);
 		user.SetPasswordHash(hashResult.Hash, hashResult.Salt);
 		_userRepository.Update(user);
 
-		return ServiceResult<string>.Ok(user.Email, Messages.PasswordChangedSuccessfully);
+		var message = isOwn ? Messages.PasswordChangedSuccessfully : Messages.PasswordResetSuccessfully;
+
+		return ServiceResult<string>.Ok(user.Email, message);
 	}
 
 

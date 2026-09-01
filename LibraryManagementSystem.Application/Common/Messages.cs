@@ -41,6 +41,8 @@ public static class Messages
 	public const string CanChangeOwnPassword = "You can only change your own password.";
 	public const string PasswordMatchedFailed = "\nNew password and confirmation do not match.";
 	public const string SelectDifferentNewPassword = "New password must be different from the current password.";
+	public const string PasswordResetSuccessfully = "Password was reset successfully.";
+	public const string OnlyAdminCanResetPassword = "Only an administrator can reset another user's password.";
 
 
 	// 4. AUTHOR MESSAGES ────────────────────────────────────────────────────────────
@@ -164,7 +166,7 @@ public static class Messages
 	public const string UserEligibleForRemoval = "User {0} {1} has been flagged for removal. They must pay all fines and return all books before their account is deleted.";
 	public const string UserAutoRemoveNotEligible = "User does not meet auto-removal conditions.";
 	public const string UserMarkedForRemoval = "User {0} has been flagged for removal. You can't renew membership.";
-
+	public const string AccountScheduledForRemoval = "Your account is scheduled for removal because your unpaid fines have reached the maximum allowed limit. Please settle your outstanding fines and return all borrowed books to avoid removal.";
 
 	// Search
 	public const string NotAvailableUser = "No users found. Please add a new user first.";

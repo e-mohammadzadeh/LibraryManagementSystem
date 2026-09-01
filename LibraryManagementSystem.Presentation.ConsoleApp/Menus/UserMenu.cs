@@ -632,6 +632,9 @@ public static class UserMenu
 					}
 
 					UserPrinter.PrintDetails(userDto, "My Details");
+
+					if (userDto.ShouldRemove) ConsoleHelper.ShowError(Messages.AccountScheduledForRemoval);
+
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -754,20 +757,82 @@ public static class UserMenu
 	}
 
 
-	private static void ChangePassword(UserManagementService userManagementService, ICurrentUserSession session)
+	private static void ChangePassword(UserManagementService userManagementService, ICurrentUserSession session,
+		IAuthorizationService authorization)
 	{
-		if (!session.IsAuthenticated || session.UserId == null)
+		var canOwn = authorization.HasPermission(Permission.ChangeOwnPassword);
+		var canResetOthers = authorization.HasPermission(Permission.ChangePassword);
+
+		if (!canOwn && !canResetOthers)
 		{
-			ConsoleHelper.ShowError(Messages.SessionExpired);
+			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
 		}
 
 		Console.WriteLine(new string('=', 36) + " CHANGE PASSWORD " + new string('=', 36));
 
-		var currentPassword = ConsoleHelper.GetValidPassword(string.Format(Messages.EnterPasswordPrompt, "current"));
-		if (currentPassword is null) return;
+		int targetUserId;
+		var isOwn = true;
+
+		if (canResetOthers && canOwn)
+		{
+			Console.WriteLine("1. Change my password");
+			Console.WriteLine("2. Reset another user's password");
+			var choice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 2);
+			if (choice is null) return;
+
+			if (choice == 1)
+			{
+				if (session.UserId is null)
+				{
+					ConsoleHelper.ShowError(Messages.SessionExpired);
+					return;
+				}
+
+				targetUserId = session.UserId.Value;
+			}
+			else
+			{
+				var user = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
+					list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)),
+					Messages.NotAvailableUser);
+				if (user is null) return;
+
+				targetUserId = user.Id;
+				isOwn = session.UserId == targetUserId;
+			}
+		}
+		else if (canResetOthers) // admin-only path without own permission (rare)
+		{
+			var user = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
+				list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)),
+				Messages.NotAvailableUser);
+			if (user is null) return;
+
+			targetUserId = user.Id;
+			isOwn = session.UserId == targetUserId;
+		}
+		else // own only
+		{
+			if (session.UserId is null)
+			{
+				ConsoleHelper.ShowError(Messages.SessionExpired);
+				return;
+			}
+
+			targetUserId = session.UserId.Value;
+		}
+
+		string? currentPassword = null;
+		if (isOwn)
+		{
+			currentPassword = ConsoleHelper.GetValidPassword(string.Format(Messages.EnterPasswordPrompt, "current"));
+			if (currentPassword is null) return;
+		}
+
 		var newPassword = ConsoleHelper.GetValidPassword(string.Format(Messages.EnterPasswordPrompt, "new"));
 		if (newPassword is null) return;
+
 		var confirmPassword = ConsoleHelper.GetValidPassword(Messages.PasswordConfirmation);
 		if (confirmPassword is null) return;
 
@@ -777,7 +842,7 @@ public static class UserMenu
 			return;
 		}
 
-		var result = userManagementService.ChangePassword(session.UserId.Value, currentPassword, newPassword, session);
+		var result = userManagementService.ChangePassword(targetUserId, currentPassword, newPassword, session);
 		ConsoleHelper.ShowResult(result);
 	}
 }
