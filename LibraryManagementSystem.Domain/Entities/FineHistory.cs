@@ -11,6 +11,7 @@ public class FineHistory
 		FineId = fine.FineId;
 		Loan = fine.Loan;
 		LoanId = fine.LoanId;
+		User = fine.Loan.User;
 		UserId = fine.UserId;
 		OverdueDays = fine.OverdueDays;
 		Amount = fine.Amount;

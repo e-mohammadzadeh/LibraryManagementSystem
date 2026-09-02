@@ -16,6 +16,7 @@ public static class FineHistoryMapper
 			UserName = $"{history.User.FirstName} {history.User.LastName}".Trim(),
 			Action = history.Action,
 			OccurredAt = history.OccurredAt,
+			Amount = history.Amount,
 			Description = history.Description
 		};
 	}

@@ -12,5 +12,6 @@ public class FineHistoryDto
 	public FineHistoryAction Action { get; init; }
 	public string ActionDisplay => Action.GetDefaultDescription();
 	public DateTime OccurredAt { get; init; }
+	public decimal Amount { get; init; }
 	public string? Description { get; init; }
 }
