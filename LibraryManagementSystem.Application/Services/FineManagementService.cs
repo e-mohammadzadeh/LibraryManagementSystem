@@ -17,11 +17,13 @@ public class FineManagementService : IFineManagementService
 	private readonly IUserAutoRemovalService _userAutoRemovalService;
 	private readonly IAuthorizationService _authorization;
 	private readonly ILoanHistoryManagementService _loanHistoryManagementService;
+	private readonly IFineHistoryManagementService _fineHistoryManagementService;
 
 
 	public FineManagementService(IFineRepository fineRepository, ILoanRepository loanRepository,
 		IUserRepository userRepository, IUserAutoRemovalService userAutoRemovalService,
-		IAuthorizationService authorization, ILoanHistoryManagementService loanHistoryManagementService)
+		IAuthorizationService authorization, ILoanHistoryManagementService loanHistoryManagementService,
+		IFineHistoryManagementService fineHistoryManagementService)
 	{
 		_fineRepository = fineRepository;
 		_loanRepository = loanRepository;
@@ -29,6 +31,7 @@ public class FineManagementService : IFineManagementService
 		_userAutoRemovalService = userAutoRemovalService;
 		_authorization = authorization;
 		_loanHistoryManagementService = loanHistoryManagementService;
+		_fineHistoryManagementService = fineHistoryManagementService;
 	}
 
 
@@ -46,6 +49,7 @@ public class FineManagementService : IFineManagementService
 
 		var fine = new Fine(loan);
 		_fineRepository.Add(fine);
+		_fineHistoryManagementService.Record(fine, FineHistoryAction.CreateFine);
 
 		var totalUnpaid = _fineRepository.GetTotalUnpaidAmount(loan.UserId);
 		if (fine.Amount >= ValidationConstants.MaxUnpaidFineThreshold ||
@@ -60,7 +64,6 @@ public class FineManagementService : IFineManagementService
 					string.Format(Messages.UserEligibleForRemoval, user.FirstName, user.LastName));
 			}
 		}
-
 		return ServiceResult<FineDto>.Ok(fine.ToDto(), Messages.FineCreatedSuccessfully);
 	}
 
@@ -77,9 +80,10 @@ public class FineManagementService : IFineManagementService
 		{
 			fine.Pay();
 			_fineRepository.Update(fine);
-			
-			var removalResult = _userAutoRemovalService.TryAutoRemove(fine.UserId);
 			_loanHistoryManagementService.Record(fine.Loan, LoanHistoryAction.FinePaid);
+			_fineHistoryManagementService.Record(fine, FineHistoryAction.FinePaid);
+
+			var removalResult = _userAutoRemovalService.TryAutoRemove(fine.UserId);
 			var message = Messages.FinePaidSuccessfully;
 			if (removalResult.Success) message = $"{message} | {removalResult.Message}";
 			return ServiceResult<FineDto>.Ok(fine.ToDto(), message);
@@ -104,6 +108,7 @@ public class FineManagementService : IFineManagementService
 			fine.Waive();
 			_fineRepository.Update(fine);
 			_loanHistoryManagementService.Record(fine.Loan, LoanHistoryAction.FineWaived);
+			_fineHistoryManagementService.Record(fine, FineHistoryAction.FineWaived);
 
 			var removalResult = _userAutoRemovalService.TryAutoRemove(fine.UserId);
 			var message = Messages.FineWaivedSuccessfully;

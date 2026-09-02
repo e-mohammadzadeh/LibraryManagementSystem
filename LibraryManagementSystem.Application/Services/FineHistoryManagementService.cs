@@ -6,7 +6,7 @@ using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
 
-public class FineHistoryManagementService
+public class FineHistoryManagementService: IFineHistoryManagementService
 {
 	private readonly IFineHistoryRepository _fineHistoryRepository;
 

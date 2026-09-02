@@ -13,7 +13,8 @@ public static class MainMenu
 		BookManagementService bookManagementService, LoanManagementService loanManagementService,
 		IFineManagementService fineManagementService, AuthenticationService authenticationService,
 		ICurrentUserSession session, IAuthorizationService authorization, LibraryStatisticsService statisticsService,
-		LoanHistoryManagementService loanHistoryManagementService)
+		LoanHistoryManagementService loanHistoryManagementService,
+		FineHistoryManagementService fineHistoryManagementService)
 	{
 		while (true)
 		{
@@ -73,7 +74,7 @@ public static class MainMenu
 				{
 					Console.Clear();
 					FineMenu.FineMenuController(fineManagementService, userManagementService, session,
-						statisticsService, authorization);
+						statisticsService, authorization, fineHistoryManagementService);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -110,8 +111,7 @@ public static class MainMenu
 
 		Console.WriteLine(new string('=', 36) + " MAIN MENU " + new string('=', 36));
 		var displayNumber = 1;
-		foreach (var (_, displayText, _) in availableItems)
-			Console.WriteLine($"{displayNumber++}. {displayText}");
+		foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
 
 		Console.WriteLine(new string('=', 82));
 		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);

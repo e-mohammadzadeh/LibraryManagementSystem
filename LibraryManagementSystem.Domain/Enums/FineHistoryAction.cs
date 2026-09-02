@@ -2,6 +2,7 @@
 
 public enum FineHistoryAction
 {
+	CreateFine,
 	FinePaid,
 	FineWaived
 }

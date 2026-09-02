@@ -6,6 +6,7 @@ public static class FineHistoryActionExtensions
 	{
 		return action switch
 		{
+			FineHistoryAction.CreateFine => "Fine Created.",
 			FineHistoryAction.FinePaid => "Fine Paid.",
 			FineHistoryAction.FineWaived => "Fine waived.",
 			_ => "Action performed."

@@ -13,7 +13,8 @@ public static class FineMenu
 {
 	public static void FineMenuController(IFineManagementService fineManagementService,
 		UserManagementService userManagementService, ICurrentUserSession session,
-		LibraryStatisticsService statisticsService, IAuthorizationService authorization)
+		LibraryStatisticsService statisticsService, IAuthorizationService authorization,
+		FineHistoryManagementService fineHistoryManagementService)
 	{
 		if (!SessionGuard.RequireAnyPermission(
 			    authorization,

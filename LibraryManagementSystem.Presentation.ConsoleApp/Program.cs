@@ -28,6 +28,7 @@ public static class Program
 			var loanRepo = new InMemoryLoanRepository();
 			var loanHistoryRepo = new InMemoryLoanHistory();
 			var fineRepo = new InMemoryFineRepository();
+			var fineHistoryRepo = new InMemoryFineHistory();
 
 
 			// ── Infrastructure Services ───────────────
@@ -44,8 +45,9 @@ public static class Program
 			// ── Application Interfaces ──────────────────
 			IUserAutoRemovalService userAutoRemovalService = new UserAutoRemovalService(userRepo, loanRepo, fineRepo);
 			ILoanHistoryManagementService loanHistoryService = new LoanHistoryManagementService(loanHistoryRepo);
+			IFineHistoryManagementService fineHistoryService = new FineHistoryManagementService(fineHistoryRepo);
 			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo,
-				userAutoRemovalService, authorization, loanHistoryService);
+				userAutoRemovalService, authorization, loanHistoryService, fineHistoryService);
 
 
 			// ── Application Services ──────────────────
@@ -54,6 +56,7 @@ public static class Program
 			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, fineService,
 				userAutoRemovalService, authorization, loanHistoryService);
 			var loanHistory = new LoanHistoryManagementService(loanHistoryRepo);
+			var fineHistory = new FineHistoryManagementService(fineHistoryRepo);
 			var userService =
 				new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher, authorization);
 			var bookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo);
@@ -69,7 +72,7 @@ public static class Program
 
 				var result = MainMenu.MainMenuController(authorService, translatorService, userService, bookService,
 					loanService, fineService, authService, currentUserSession, authorization, statisticsService,
-					loanHistory);
+					loanHistory, fineHistory);
 
 				if (result == MainMenuResult.Exit) return;
 				ConsoleHelper.Pause();
