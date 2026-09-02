@@ -18,7 +18,7 @@ public class FineHistoryPrinter
 		Console.Clear();
 		Console.OutputEncoding = Encoding.UTF8;
 
-		var headers = new[] { "ID", "Fine ID", "Loan ID", "Action", "Date & Time", "Description" };
+		var headers = new[] { "ID", "Fine ID", "Loan ID",  "Date & Time", "Description" };
 		var rows = histories.Select(history =>
 		{
 			var description = string.IsNullOrWhiteSpace(history.Description)
@@ -30,7 +30,8 @@ public class FineHistoryPrinter
 				[history.Id.ToString()],
 				[history.FineId.ToString()],
 				[history.LoanId.ToString()],
-				[history.Action.ToString()],
+				ConsoleTable.WrapText(history.BookName, 30),
+				ConsoleTable.WrapText(history.UserName, 25),
 				[history.OccurredAt.ToString("yyyy-MM-dd HH:mm")],
 				description
 			};

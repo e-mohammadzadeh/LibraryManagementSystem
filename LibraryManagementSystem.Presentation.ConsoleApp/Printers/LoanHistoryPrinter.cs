@@ -18,7 +18,7 @@ public class LoanHistoryPrinter
 		Console.Clear();
 		Console.OutputEncoding = Encoding.UTF8;
 
-		var headers = new[] { "ID", "Loan ID", "Book", "User", "Action", "Date & Time", "Description" };
+		var headers = new[] { "ID", "Loan ID", "Book", "User", "Date & Time", "Description" };
 		var rows = histories.Select(history =>
 		{
 			var description = string.IsNullOrWhiteSpace(history.Description)
@@ -31,7 +31,6 @@ public class LoanHistoryPrinter
 				[history.LoanId.ToString()],
 				ConsoleTable.WrapText(history.BookName, 30),
 				ConsoleTable.WrapText(history.UserName, 25),
-				[history.Action.ToString()],
 				[history.OccurredAt.ToString("yyyy-MM-dd HH:mm")],
 				description
 			};

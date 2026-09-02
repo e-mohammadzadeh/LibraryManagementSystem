@@ -81,8 +81,7 @@ public static class FineMenu
 				case 5:
 				{
 					Console.Clear();
-					History(fineManagementService, userManagementService, session, authorization,
-						fineHistoryManagementService);
+					History(fineHistoryManagementService, userManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -309,9 +308,8 @@ public static class FineMenu
 
 
 
-	private static void History(IFineManagementService fineManagementService,
-		UserManagementService userManagementService, ICurrentUserSession session, IAuthorizationService authorization,
-		FineHistoryManagementService fineHistoryManagementService)
+	private static void History(FineHistoryManagementService fineHistoryManagementService,
+		UserManagementService userManagementService, IAuthorizationService authorization)
 	{
 		if (!authorization.HasAnyPermission(Permission.ViewFineHistory, Permission.FineHistoryByUser))
 		{

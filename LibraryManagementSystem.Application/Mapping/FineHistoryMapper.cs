@@ -13,8 +13,9 @@ public static class FineHistoryMapper
 			FineId = history.FineId,
 			LoanId = history.LoanId,
 			UserId = history.UserId,
+			UserName = $"{history.User.FirstName} {history.User.LastName}".Trim(),
 			Action = history.Action,
-			OccuredAt = history.OccurredAt,
+			OccurredAt = history.OccurredAt,
 			Description = history.Description
 		};
 	}
