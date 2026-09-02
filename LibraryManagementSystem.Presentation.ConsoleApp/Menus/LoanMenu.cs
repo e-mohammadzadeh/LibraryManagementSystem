@@ -175,8 +175,7 @@ public static class LoanMenu
 		}
 		else
 		{
-			user = MenuHelper.SelectUser(userManagementService.GetAllUsers(),
-				list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)));
+			user = MenuHelper.SelectUser(userManagementService.GetAllUsers(), users => UserPrinter.PrintTable(users));
 			if (user is null)
 			{
 				ConsoleHelper.ShowWarning(Messages.UserNotFound);
@@ -231,7 +230,8 @@ public static class LoanMenu
 			userId = session.UserId!.Value;
 		else
 		{
-			var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(), list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)));
+			var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(),
+				users => UserPrinter.PrintTable(users));
 			if (user is null)
 			{
 				ConsoleHelper.ShowWarning(Messages.UserNotFound);
@@ -366,8 +366,7 @@ public static class LoanMenu
 	private static void ViewActiveLoansByUser(LoanManagementService loanManagementService,
 		UserManagementService userManagementService, ICurrentUserSession session)
 	{
-		var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(),
-			list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)));
+		var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(), users => UserPrinter.PrintTable(users));
 		if (user is null) return;
 
 		var result = loanManagementService.GetActiveLoansByUser(user.Id, session);
@@ -442,7 +441,8 @@ public static class LoanMenu
 						break;
 					}
 
-					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(), list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)));
+					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(),
+						users => UserPrinter.PrintTable(users));
 					if (user is null) break;
 
 					var result = loanManagementService.GetOverdueLoansByUser(user.Id, session);
@@ -504,6 +504,12 @@ public static class LoanMenu
 
 		if (hasOnlyOwnPermission)
 		{
+			if (session.UserId is null)
+			{
+				ConsoleHelper.ShowError(Messages.AuthenticationRequired);
+				return;
+			}
+
 			var loans = loanManagementService.GetLoansByUser(session.UserId!.Value, session);
 			DisplayLoans(loans, Messages.UserHasNoBorrowedBooks);
 			return;
@@ -535,7 +541,8 @@ public static class LoanMenu
 				case 1:
 				{
 					Console.Clear();
-					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(), list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)));
+					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(),
+						users => UserPrinter.PrintTable(users));
 					if (user is null) break;
 
 					var histories = loanHistoryManagementService.GetByUserId(user.Id);

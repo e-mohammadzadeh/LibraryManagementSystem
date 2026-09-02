@@ -10,6 +10,6 @@ public class FineHistoryDto
 	public int UserId { get; init; }
 	public FineHistoryAction Action { get; init; }
 	public string ActionDisplay => Action.GetDefaultDescription();
-	public DateTime OccuredAt { get; init; }
+	public DateTime OccurredAt { get; init; }
 	public string? Description { get; init; }
 }

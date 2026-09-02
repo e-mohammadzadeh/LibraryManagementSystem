@@ -81,7 +81,8 @@ public static class FineMenu
 				case 5:
 				{
 					Console.Clear();
-					History(fineManagementService, userManagementService, session, authorization);
+					History(fineManagementService, userManagementService, session, authorization,
+						fineHistoryManagementService);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -211,7 +212,7 @@ public static class FineMenu
 						break;
 
 					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(),
-						list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)));
+						users => UserPrinter.PrintTable(users));
 					if (user is null) break;
 					Console.Clear();
 
@@ -276,7 +277,7 @@ public static class FineMenu
 						break;
 
 					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(),
-						list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)));
+						users => UserPrinter.PrintTable(users));
 					if (user is null) break;
 					Console.Clear();
 
@@ -295,8 +296,22 @@ public static class FineMenu
 	}
 
 
+	private static void DisplayFines(IReadOnlyList<FineDto> fines, string emptyMessage)
+	{
+		if (fines.Count == 0)
+		{
+			ConsoleHelper.ShowWarning(emptyMessage);
+			return;
+		}
+
+		FinePrinter.PrintTable(fines);
+	}
+
+
+
 	private static void History(IFineManagementService fineManagementService,
-		UserManagementService userManagementService, ICurrentUserSession session, IAuthorizationService authorization)
+		UserManagementService userManagementService, ICurrentUserSession session, IAuthorizationService authorization,
+		FineHistoryManagementService fineHistoryManagementService)
 	{
 		if (!authorization.HasAnyPermission(Permission.ViewFineHistory, Permission.FineHistoryByUser))
 		{
@@ -313,14 +328,14 @@ public static class FineMenu
 				case 1:
 				{
 					Console.Clear();
-					ViewFineHistoryByUser(fineManagementService, userManagementService, session, authorization);
+					ViewFineHistoryByUser(fineHistoryManagementService, userManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
 					Console.Clear();
-					ViewFullFineHistory(fineManagementService, authorization);
+					ViewFullFineHistory(fineHistoryManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -354,37 +369,36 @@ public static class FineMenu
 	}
 
 
-	private static void ViewFineHistoryByUser(IFineManagementService fineManagementService,
-		UserManagementService userManagementService, ICurrentUserSession session, IAuthorizationService authorization)
+	private static void ViewFineHistoryByUser(FineHistoryManagementService fineHistoryManagementService,
+		UserManagementService userManagementService, IAuthorizationService authorization)
 	{
 		if (!SessionGuard.RequirePermission(authorization, Permission.FineHistoryByUser, Messages.AccessDenied)) return;
 
-		var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(),
-			list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)));
+		var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(), users => UserPrinter.PrintTable(users));
 		if (user is null) return;
-		var fines = fineManagementService.GetFineHistoryByUser(user.Id, session);
-		DisplayFines(fines, Messages.FineNotFound);
+		var histories = fineHistoryManagementService.GetByUserId(user.Id);
+		DisplayFineHistories(histories, Messages.FineNotFound);
 	}
 
 
-	private static void ViewFullFineHistory(IFineManagementService fineManagementService,
+	private static void ViewFullFineHistory(FineHistoryManagementService fineHistoryManagementService,
 		IAuthorizationService authorization)
 	{
 		if (!SessionGuard.RequirePermission(authorization, Permission.ViewFineHistory, Messages.AccessDenied)) return;
-		var fines = fineManagementService.GetFineHistory();
-		DisplayFines(fines, Messages.FineNotFound);
+		var histories = fineHistoryManagementService.GetAll();
+		DisplayFineHistories(histories, Messages.FineNotFound);
 	}
 
 
 
-	private static void DisplayFines(IReadOnlyList<FineDto> fines, string emptyMessage)
+	private static void DisplayFineHistories(IReadOnlyList<FineHistoryDto> histories, string emptyMessage)
 	{
-		if (fines.Count == 0)
+		if (histories.Count == 0)
 		{
 			ConsoleHelper.ShowWarning(emptyMessage);
 			return;
 		}
 
-		FinePrinter.PrintTable(fines);
+		FineHistoryPrinter.PrintTable(histories);
 	}
 }

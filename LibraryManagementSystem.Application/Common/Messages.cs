@@ -249,6 +249,8 @@ public static class Messages
 	public const string FineAlreadyExists = "An unpaid fine already exists for this loan.";
 	public const string CanPayOwnFine = "You can only pay your own fines";
 	public const string AdminOnlyWaive = "Only Admin can waive fines.";
+	public const string NotAvailableFineHistory = "No Fine history records found.";
+
 
 
 

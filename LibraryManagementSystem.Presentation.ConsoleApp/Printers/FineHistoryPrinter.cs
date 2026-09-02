@@ -1,24 +1,24 @@
 ﻿using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.DTOs.Loans;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using System.Text;
+using LibraryManagementSystem.Application.DTOs.Fine;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
-public class LoanHistoryPrinter
+public class FineHistoryPrinter
 {
-	public static void PrintTable(IReadOnlyList<LoanHistoryDto> histories, string title = "Loan History")
+	public static void PrintTable(IReadOnlyList<FineHistoryDto> histories, string title = "Fine History")
 	{
 		if (histories.Count == 0)
 		{
-			ConsoleHelper.ShowError(Messages.NotAvailableLoanHistory);
+			ConsoleHelper.ShowError(Messages.NotAvailableFineHistory);
 			return;
 		}
 
 		Console.Clear();
 		Console.OutputEncoding = Encoding.UTF8;
 
-		var headers = new[] { "ID", "Loan ID", "Book", "User", "Action", "Date & Time", "Description" };
+		var headers = new[] { "ID", "Fine ID", "Loan ID", "Action", "Date & Time", "Description" };
 		var rows = histories.Select(history =>
 		{
 			var description = string.IsNullOrWhiteSpace(history.Description)
@@ -28,9 +28,8 @@ public class LoanHistoryPrinter
 			return new[]
 			{
 				[history.Id.ToString()],
+				[history.FineId.ToString()],
 				[history.LoanId.ToString()],
-				ConsoleTable.WrapText(history.BookName, 30),
-				ConsoleTable.WrapText(history.UserName, 25),
 				[history.Action.ToString()],
 				[history.OccurredAt.ToString("yyyy-MM-dd HH:mm")],
 				description
