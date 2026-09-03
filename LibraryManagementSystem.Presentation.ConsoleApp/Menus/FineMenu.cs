@@ -6,7 +6,6 @@ using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
-using static System.Collections.Specialized.BitVector32;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
@@ -82,7 +81,7 @@ public static class FineMenu
 				case 5:
 				{
 					Console.Clear();
-					History(fineHistoryManagementService, userManagementService, authorization);
+					History(fineHistoryManagementService, userManagementService, authorization, session);
 					ConsoleHelper.Pause();
 					break;
 				}

@@ -33,6 +33,13 @@ public class Author : Person
 	}
 
 
+	public void DeleteAuthor()
+	{
+		IsRemoved = true;
+		MarkAsUpdated();
+	}
+
+
 	public void Update(string? firstName, string? lastName, string? nationalCode, string? email, string? phoneNumber,
 		DateOnly? birthDate, string? biography)
 	{

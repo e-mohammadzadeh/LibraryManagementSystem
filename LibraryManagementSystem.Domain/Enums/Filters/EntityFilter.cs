@@ -1,6 +1,6 @@
 ﻿namespace LibraryManagementSystem.Domain.Enums.Filters;
 
-public enum UserFilter
+public enum EntityFilter
 {
 	All,      // All users (including removed)
 	Active,   // Only active users (not removed) – default

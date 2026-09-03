@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums.Filters;
 
 namespace LibraryManagementSystem.Domain.Interfaces;
 
@@ -7,7 +8,7 @@ public interface IAuthorRepository
 	void Add(Author author);
 	Author? FindById(int id);
 	Author? FindByName(string firstName, string lastName);
-	IReadOnlyList<Author> GetAll();
+	IReadOnlyList<Author> GetAll(EntityFilter filter);
 	bool ExistsByNationalCode(string nationalCode, int excludeId = -1);
 	bool ExistsByEmail(string email, int excludeId = -1);
 	bool ExistsByPhoneNumber(string phoneNumber, int excludeId = -1);

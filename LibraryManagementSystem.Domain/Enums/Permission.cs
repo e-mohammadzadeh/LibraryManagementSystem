@@ -12,6 +12,7 @@ public enum Permission
 	ViewAuthorDetails,
 	ViewAuthorBooks,
 	ViewAllAuthors,
+	ViewRemovedAuthors,
 	ViewAuthorFullDetails,
 	RemoveAuthor,
 	
@@ -26,6 +27,7 @@ public enum Permission
 	ViewTranslatorDetails,
 	ViewTranslatorBooks,
 	ViewAllTranslators,
+	ViewRemovedTranslators,
 	ViewTranslatorFullDetails,
 	RemoveTranslator,
 

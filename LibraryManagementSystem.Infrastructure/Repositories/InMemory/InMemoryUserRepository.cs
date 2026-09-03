@@ -33,19 +33,19 @@ public class InMemoryUserRepository : IUserRepository
 	}
 
 
-	public IReadOnlyList<User> GetAll(UserFilter filter = UserFilter.Active)
+	public IReadOnlyList<User> GetAll(EntityFilter filter = EntityFilter.Active)
 	{
 		var query = _users.AsEnumerable();
 
 		switch (filter)
 		{
-			case UserFilter.Active:
+			case EntityFilter.Active:
 				query = query.Where(u => !u.IsRemoved);
 				break;
-			case UserFilter.Removed:
+			case EntityFilter.Removed:
 				query = query.Where(u => u.IsRemoved);
 				break;
-			case UserFilter.All:
+			case EntityFilter.All:
 				// No filter – include everyone
 				break;
 			default:

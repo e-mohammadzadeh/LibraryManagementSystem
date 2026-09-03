@@ -10,7 +10,6 @@ public class User : Person
 	public bool ShouldRemove { get; private set; }
 	public byte[]? PasswordHash { get; private set; }
 	public byte[]? PasswordSalt { get; private set; }
-	public bool IsRemoved { get; private set; }
 	public DateTime? LastLoginDate { get; private set; }
 	private DateTime? PreviousLoginDate { get; set; }
 
@@ -28,7 +27,6 @@ public class User : Person
 		// Should set a suitable end date based on business logic
 		MembershipExpiryDate = MembershipStartDate.AddYears(1);
 		ShouldRemove = false;
-		IsRemoved = false;
 
 		var rolesList = roles.ToList();
 		if (roles == null || rolesList.Count == 0) throw new ArgumentException("A user must have at least one role.");

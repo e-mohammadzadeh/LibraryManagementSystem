@@ -12,6 +12,7 @@ public abstract class Person
 		PhoneNumber = phoneNumber;
 		BirthDate = birthDate;
 		CreatedAt = DateTime.Now;
+		IsRemoved = false;
 	}
 
 
@@ -24,6 +25,7 @@ public abstract class Person
 	public DateOnly BirthDate { get; private set; }
 	public DateTime CreatedAt { get; }
 	public DateTime? UpdatedAt { get; private set; }
+	public bool IsRemoved { get; protected set; }
 
 
 	protected void MarkAsUpdated() { UpdatedAt = DateTime.Now; }

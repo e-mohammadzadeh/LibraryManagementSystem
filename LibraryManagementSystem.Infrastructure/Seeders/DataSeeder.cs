@@ -227,7 +227,7 @@ public static class DataSeeder
 	private static void SeedLoans(IUserRepository userRepository, IBookRepository bookRepository,
 		ILoanRepository loanRepository, IFineRepository fineRepository)
 	{
-		var users = userRepository.GetAll(UserFilter.Active);
+		var users = userRepository.GetAll(EntityFilter.Active);
 		var books = bookRepository.GetAll();
 		var today = DateOnly.FromDateTime(DateTime.Today);
 

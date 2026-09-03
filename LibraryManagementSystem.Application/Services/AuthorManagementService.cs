@@ -2,9 +2,11 @@
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Application.DTOs.Books;
+using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Enums.Search;
 using LibraryManagementSystem.Domain.Enums.Sort;
 using LibraryManagementSystem.Domain.Interfaces;
@@ -150,7 +152,9 @@ public class AuthorManagementService
 	public IReadOnlyList<AuthorDto> GetAllAuthors(AuthorSortField sortField = AuthorSortField.Id,
 		SortDirection sortDirection = SortDirection.Ascending)
 	{
-		var authors = _authorRepository.GetAll().Select(a => a.ToDto());
+		if (!_authorization.HasPermission(Permission.ViewAllUsers)) return [];
+
+		var authors = _authorRepository.GetAll(EntityFilter.Active).Select(a => a.ToDto());
 		Func<AuthorDto, object> keySelector = sortField switch
 		{
 			AuthorSortField.Id => a => a.Id,
@@ -169,5 +173,12 @@ public class AuthorManagementService
 			: authors.OrderByDescending(keySelector);
 
 		return [.. sorted];
+	}
+
+
+	public IReadOnlyList<AuthorDto> GetRemovedAuthors()
+	{
+		if (!_authorization.HasPermission(Permission.ViewRemovedAuthors)) return [];
+		return [.. _authorRepository.GetAll(EntityFilter.Removed).Select(a => a.ToDto())];
 	}
 }

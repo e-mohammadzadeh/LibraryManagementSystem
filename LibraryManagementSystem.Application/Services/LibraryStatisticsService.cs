@@ -35,9 +35,9 @@ public class LibraryStatisticsService
 		var stats = new LibraryStatisticsDto
 		{
 			TotalBooks = _bookRepository.GetAll().Count,
-			TotalAuthors = _authorRepository.GetAll().Count,
-			TotalTranslators = _translatorRepository.GetAll().Count,
-			TotalUsers = _userRepository.GetAll(UserFilter.Active).Count,
+			TotalAuthors = _authorRepository.GetAll(EntityFilter.Active).Count,
+			TotalTranslators = _translatorRepository.GetAll(EntityFilter.Active).Count,
+			TotalUsers = _userRepository.GetAll(EntityFilter.Active).Count,
 			TotalActiveLoans = _loanRepository.CountActiveLoans(),
 		};
 		return ServiceResult<LibraryStatisticsDto>.Ok(stats, "Computed successfully");
