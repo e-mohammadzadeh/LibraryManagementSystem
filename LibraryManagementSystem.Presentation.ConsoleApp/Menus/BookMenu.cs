@@ -4,6 +4,7 @@ using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Enums.Search;
 using LibraryManagementSystem.Domain.Enums.Sort;
@@ -307,7 +308,7 @@ public static class BookMenu
 				new[] { ["3"], ["Author(s)"], authorLines },
 				new[] { ["4"], ["Translator(s)"], translatorLines },
 				new string[][] { ["5"], ["Publish Date"], [desiredBook.PublishDate.ToString("yyyy-MM-dd")] },
-				new string[][] { ["6"], ["Total Copies"], [desiredBook.TotalCopies.ToString()] },
+				new string[][] { ["6"], ["Total Copies"], [desiredBook.TotalCopies + $" ({desiredBook.AvailableCopies} available)"] },
 				new string[][] { ["7"], ["Genre"], [desiredBook.Genre] },
 				new string[][] { ["8"], ["Publisher"], [desiredBook.Publisher] },
 				new[] { ["9"], ["Description"], descriptionLines },

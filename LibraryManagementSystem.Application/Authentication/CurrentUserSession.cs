@@ -12,9 +12,11 @@ public class CurrentUserSession : ICurrentUserSession
 
 
 	public void Login(AuthUserDto user) { CurrentUser = user ?? throw new ArgumentNullException(nameof(user)); }
-
 	public void Logout() => CurrentUser = null;
-
+	public void UpdateCurrentUser(AuthUserDto user)
+	{
+		CurrentUser = user ?? throw new ArgumentNullException(nameof(user));
+	}
 	public bool HasRole(LibraryUserRole role) { return CurrentUser?.Roles.Contains(role) ?? false; }
 
 	public bool IsAdmin => HasRole(LibraryUserRole.Admin);

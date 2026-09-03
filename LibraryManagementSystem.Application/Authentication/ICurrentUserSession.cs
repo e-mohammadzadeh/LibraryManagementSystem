@@ -11,6 +11,7 @@ public interface ICurrentUserSession
 
 	void Login(AuthUserDto user);
 	void Logout();
+	void UpdateCurrentUser(AuthUserDto user);
 	IReadOnlySet<Permission> Permissions { get; }
 	bool IsAdmin { get; }
 	bool IsLibrarian { get; }

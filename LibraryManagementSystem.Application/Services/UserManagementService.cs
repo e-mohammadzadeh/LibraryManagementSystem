@@ -125,7 +125,7 @@ public class UserManagementService
 	public IReadOnlyList<Role> GetAllRoles() { return _roleRepository.GetAllRoles(); }
 
 
-	public ServiceResult<UserDto> UpdateUser(int userId, UpdateUserDto dto)
+	public ServiceResult<UserDto> UpdateUser(int userId, UpdateUserDto dto, ICurrentUserSession session)
 	{
 		string? warningMessage = null;
 
@@ -180,6 +180,11 @@ public class UserManagementService
 		user.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
 			resolvedRoles);
 		_userRepository.Update(user);
+
+		if (session.UserId == userId)
+		{
+			session.UpdateCurrentUser(user.ToAuthUserDto());
+		}
 
 		return warningMessage is not null
 			? ServiceResult<UserDto>.Warning(user.ToDto(), warningMessage)

@@ -54,7 +54,7 @@ public static class UserMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.EditUser, Messages.AccessDenied))
 						break;
 					Console.Clear();
-					EditUser(userManagementService, authorization);
+					EditUser(userManagementService, authorization, session);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -223,7 +223,7 @@ public static class UserMenu
 
 
 
-	private static void EditUser(UserManagementService userManagementService, IAuthorizationService authorization)
+	private static void EditUser(UserManagementService userManagementService, IAuthorizationService authorization, ICurrentUserSession session)
 	{
 		if (!authorization.HasPermission(Permission.EditUser))
 		{
@@ -261,63 +261,63 @@ public static class UserMenu
 			if (editMenuChoice is null) return;
 
 			var selectedRow = rows[editMenuChoice.Value - 1];
-			var actionId = int.Parse(selectedRow[0][0]);
+			var fieldName = selectedRow[1][0];
 
-			switch (actionId)
+			switch (fieldName)
 			{
-				case 1:
+				case "First Name":
 				{
 					var userNewFirstName = ConsoleHelper.GetValidName("\nEnter new first name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewFirstName,
-						v => new UpdateUserDto { FirstName = v });
+						v => new UpdateUserDto { FirstName = v }, session);
 					if (updated is not null) desiredUser = updated;
 					break;
 				}
-				case 2:
+				case "Last Name":
 				{
 					var userNewLastName = ConsoleHelper.GetValidName("\nEnter new last name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewLastName,
-						v => new UpdateUserDto { LastName = v });
+						v => new UpdateUserDto { LastName = v }, session);
 					if (updated is not null) desiredUser = updated;
 					break;
 				}
-				case 3:
+				case "National Code":
 				{
 					var userNewNationalCode = ConsoleHelper.GetValidNationalCode("\nEnter new national code");
 					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewNationalCode,
-						v => new UpdateUserDto { NationalCode = v });
+						v => new UpdateUserDto { NationalCode = v }, session);
 					if (updated is not null) desiredUser = updated;
 					break;
 				}
-				case 4:
+				case "Email":
 				{
 					var userNewEmail = ConsoleHelper.GetValidEmail("\nEnter new email");
 					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewEmail,
-						v => new UpdateUserDto { Email = v });
+						v => new UpdateUserDto { Email = v }, session);
 					if (updated is not null) desiredUser = updated;
 					break;
 				}
-				case 5:
+				case "Phone Number":
 				{
 					var userNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number");
 					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewPhoneNumber,
-						v => new UpdateUserDto { PhoneNumber = v });
+						v => new UpdateUserDto { PhoneNumber = v }, session);
 					if (updated is not null) desiredUser = updated;
 					break;
 				}
-				case 6:
+				case "Birth Date":
 				{
 					var userNewBirthDate = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
 					var updated = PerformUpdate(userManagementService, desiredUser.Id, userNewBirthDate,
-						v => new UpdateUserDto { BirthDate = v });
+						v => new UpdateUserDto { BirthDate = v }, session);
 					if (updated is not null) desiredUser = updated;
 					break;
 				}
-				case 7:
+				case "Roles":
 				{
 					if (!authorization.HasPermission(Permission.ChangeUserRoles) &&
 					    !authorization.HasAnyPermission(Permission.AssignLibrarianRole, Permission.AssignAdminRole))
@@ -331,11 +331,12 @@ public static class UserMenu
 					if (roleIds is null) break;
 
 					var result =
-						userManagementService.UpdateUser(desiredUser.Id, new UpdateUserDto { RoleIds = roleIds });
+						userManagementService.UpdateUser(desiredUser.Id, new UpdateUserDto { RoleIds = roleIds }, session);
+					if (result.IsSuccess) desiredUser = result.Data;
 					ConsoleHelper.ShowResult(result);
 					break;
 				}
-				case 8:
+				case "Back":
 				{
 					ConsoleHelper.ShowInfo(string.Format(Messages.EditCancelled, "User"));
 					return;
@@ -349,12 +350,11 @@ public static class UserMenu
 
 
 	private static UserDto? PerformUpdate<T>(UserManagementService userManagementService, int desiredMemberId,
-		T? newValue,
-		Func<T, UpdateUserDto> buildDto)
+		T? newValue, Func<T, UpdateUserDto> buildDto, ICurrentUserSession session)
 	{
 		if (newValue is null) return null;
 		var dto = buildDto(newValue);
-		var result = userManagementService.UpdateUser(desiredMemberId, dto);
+		var result = userManagementService.UpdateUser(desiredMemberId, dto, session);
 		ConsoleHelper.ShowResult(result);
 		return result.Data;
 	}
