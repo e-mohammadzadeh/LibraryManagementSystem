@@ -243,7 +243,7 @@ public static class UserMenu
 
 			var rows = new List<string[][]>
 			{
-				new string[][] { ["1"], ["First Name"], [desiredUser.FirstName] },
+				new string[][] { ["1"], ["First Name"], [desiredUser!.FirstName] },
 				new string[][] { ["2"], ["Last Name"], [desiredUser.LastName] },
 				new string[][] { ["3"], ["National Code"], [desiredUser.NationalCode] },
 				new string[][] { ["4"], ["Email"], [desiredUser.Email] },

@@ -6,6 +6,7 @@ using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
+using static System.Collections.Specialized.BitVector32;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
@@ -309,7 +310,7 @@ public static class FineMenu
 
 
 	private static void History(FineHistoryManagementService fineHistoryManagementService,
-		UserManagementService userManagementService, IAuthorizationService authorization)
+		UserManagementService userManagementService, IAuthorizationService authorization, ICurrentUserSession session)
 	{
 		if (!authorization.HasAnyPermission(Permission.ViewFineHistory, Permission.FineHistoryByUser))
 		{
@@ -317,6 +318,20 @@ public static class FineMenu
 			ConsoleHelper.Pause();
 			return;
 		}
+
+		if (authorization.HasPermission(Permission.MyFullLoanHistory))
+		{
+			if (session.UserId is null)
+			{
+				ConsoleHelper.ShowError(Messages.AuthenticationRequired);
+				return;
+			}
+
+			var histories = fineHistoryManagementService.GetByUserId(session.UserId!.Value);
+			DisplayFineHistories(histories, Messages.NotAvailableFineHistory);
+			return;
+		}
+
 
 		while (true)
 		{
@@ -326,14 +341,26 @@ public static class FineMenu
 				case 1:
 				{
 					Console.Clear();
-					ViewFineHistoryByUser(fineHistoryManagementService, userManagementService, authorization);
+					if (!SessionGuard.RequirePermission(authorization, Permission.FineHistoryByUser,
+						    Messages.AccessDenied))
+						return;
+
+					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(),
+						users => UserPrinter.PrintTable(users));
+					if (user is null) return;
+					var histories = fineHistoryManagementService.GetByUserId(user.Id);
+					DisplayFineHistories(histories, Messages.FineNotFound);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 2:
 				{
 					Console.Clear();
-					ViewFullFineHistory(fineHistoryManagementService, authorization);
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewFineHistory,
+						    Messages.AccessDenied))
+						return;
+					var histories = fineHistoryManagementService.GetAll();
+					DisplayFineHistories(histories, Messages.FineNotFound);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -364,27 +391,6 @@ public static class FineMenu
 		Console.WriteLine(new string('=', 82));
 		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
 		return availableItems[choice!.Value - 1].ActionId;
-	}
-
-
-	private static void ViewFineHistoryByUser(FineHistoryManagementService fineHistoryManagementService,
-		UserManagementService userManagementService, IAuthorizationService authorization)
-	{
-		if (!SessionGuard.RequirePermission(authorization, Permission.FineHistoryByUser, Messages.AccessDenied)) return;
-
-		var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(), users => UserPrinter.PrintTable(users));
-		if (user is null) return;
-		var histories = fineHistoryManagementService.GetByUserId(user.Id);
-		DisplayFineHistories(histories, Messages.FineNotFound);
-	}
-
-
-	private static void ViewFullFineHistory(FineHistoryManagementService fineHistoryManagementService,
-		IAuthorizationService authorization)
-	{
-		if (!SessionGuard.RequirePermission(authorization, Permission.ViewFineHistory, Messages.AccessDenied)) return;
-		var histories = fineHistoryManagementService.GetAll();
-		DisplayFineHistories(histories, Messages.FineNotFound);
 	}
 
 

@@ -18,7 +18,7 @@ public static class LoginMenu
 			if (email is null) return null;
 
 			var password = ConsoleHelper.GetValidPassword(string.Format(Messages.EnterPasswordPrompt, "").Replace("  ", " "));
-
+			if (password == null) return null;
 			var result = authenticationService.Login(email, password);
 			if (result is { Success: true, Data: not null })
 			{

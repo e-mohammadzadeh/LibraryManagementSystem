@@ -115,7 +115,7 @@ public static class LoanMenu
 				case 7:
 				{
 					Console.Clear();
-					History(loanManagementService, userManagementService, bookManagementService, session,
+					History(userManagementService, bookManagementService, session,
 						authorization, loanHistoryManagementService);
 					ConsoleHelper.Pause();
 					break;
@@ -403,6 +403,18 @@ public static class LoanMenu
 	}
 
 
+	private static void DisplayLoanHistories(IReadOnlyList<LoanHistoryDto> histories, string emptyMessage)
+	{
+		if (histories.Count == 0)
+		{
+			ConsoleHelper.ShowWarning(emptyMessage);
+			return;
+		}
+
+		LoanHistoryPrinter.PrintTable(histories);
+	}
+
+
 	private static void OverdueLoans(LoanManagementService loanManagementService,
 		UserManagementService userManagementService, BookManagementService bookManagementService,
 		ICurrentUserSession session, IAuthorizationService authorization)
@@ -483,9 +495,8 @@ public static class LoanMenu
 
 
 
-	private static void History(LoanManagementService loanManagementService,
-		UserManagementService userManagementService, BookManagementService bookManagementService,
-		ICurrentUserSession session, IAuthorizationService authorization,
+	private static void History(UserManagementService userManagementService,
+		BookManagementService bookManagementService, ICurrentUserSession session, IAuthorizationService authorization,
 		LoanHistoryManagementService loanHistoryManagementService)
 	{
 		var canViewOwn = authorization.HasPermission(Permission.MyFullLoanHistory);
@@ -510,8 +521,8 @@ public static class LoanMenu
 				return;
 			}
 
-			var loans = loanManagementService.GetLoansByUser(session.UserId!.Value, session);
-			DisplayLoans(loans, Messages.UserHasNoBorrowedBooks);
+			var histories = loanHistoryManagementService.GetByUserId(session.UserId!.Value);
+			DisplayLoanHistories(histories, Messages.NotAvailableLoanHistory);
 			return;
 		}
 
