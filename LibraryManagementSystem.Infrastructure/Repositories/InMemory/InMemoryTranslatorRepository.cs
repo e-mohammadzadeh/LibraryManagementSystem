@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Infrastructure.Repositories.InMemory;
@@ -26,7 +27,26 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 	}
 
 
-	public IReadOnlyList<Translator> GetAll() { return _translators.AsReadOnly(); }
+	public IReadOnlyList<Translator> GetAll(EntityFilter filter = EntityFilter.Active)
+	{
+		var query = _translators.AsEnumerable();
+		switch (filter)
+		{
+			case EntityFilter.Active:
+				query = query.Where(a => !a.IsRemoved);
+				break;
+			case EntityFilter.Removed:
+				query = query.Where(a => a.IsRemoved);
+				break;
+			case EntityFilter.All:
+				// No filter – include everyone
+				break;
+			default:
+				throw new ArgumentOutOfRangeException(nameof(filter), filter, null);
+		}
+
+		return [.. query];
+	}
 
 
 	public bool ExistsByNationalCode(string nationalCode, int excludeId = -1)
@@ -50,7 +70,7 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 	}
 
 
-	public void Remove(Translator translator) { _translators.Remove(translator); }
+	public void Remove(Translator translator) { translator.DeleteTranslator(); }
 
 
 	public IReadOnlyList<Translator> Search(string searchItem, Func<Translator, string?> selector)

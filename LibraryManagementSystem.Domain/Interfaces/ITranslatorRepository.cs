@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums.Filters;
 
 namespace LibraryManagementSystem.Domain.Interfaces;
 
@@ -7,7 +8,7 @@ public interface ITranslatorRepository
 	void Add(Translator translator);
 	Translator? FindById(int id);
 	Translator? FindByName(string firstName, string lastName);
-	IReadOnlyList<Translator> GetAll();
+	IReadOnlyList<Translator> GetAll(EntityFilter filter);
 	bool ExistsByNationalCode(string nationalCode, int excludeId = -1);
 	bool ExistsByEmail(string email, int excludeId = -1);
 	bool ExistsByPhoneNumber(string phoneNumber, int excludeId = -1);

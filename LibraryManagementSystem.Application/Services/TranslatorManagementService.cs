@@ -6,6 +6,7 @@ using LibraryManagementSystem.Application.DTOs.Translators;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Enums.Search;
 using LibraryManagementSystem.Domain.Enums.Sort;
 using LibraryManagementSystem.Domain.Interfaces;
@@ -55,7 +56,7 @@ public class TranslatorManagementService
 	public IReadOnlyList<TranslatorDto> GetAllTranslators(TranslatorSortField sortField = TranslatorSortField.Id,
 		SortDirection sortDirection = SortDirection.Ascending)
 	{
-		var translators = _translatorRepository.GetAll().Select(t => t.ToDto());
+		var translators = _translatorRepository.GetAll(EntityFilter.Active).Select(t => t.ToDto());
 		Func<TranslatorDto, object> keySelector = sortField switch
 		{
 			TranslatorSortField.Id => t => t.Id,
@@ -75,6 +76,14 @@ public class TranslatorManagementService
 
 		return [.. sorted];
 	}
+
+
+	public IReadOnlyList<TranslatorDto> GetRemovedTranslators()
+	{
+		if (!_authorization.HasPermission(Permission.ViewRemovedTranslators)) return [];
+		return [.. _translatorRepository.GetAll(EntityFilter.Removed).Select(a => a.ToDto())];
+	}
+
 
 
 	private Translator? FindTranslatorById(int id) { return _translatorRepository.FindById(id); }
@@ -145,9 +154,11 @@ public class TranslatorManagementService
 	{
 		var requiredPermission = field switch
 		{
-			TranslatorSearchField.Name => new[] {Permission.SearchTranslatorForMember, Permission.FullSearchTranslator},
-			TranslatorSearchField.NationalCode => new[] {Permission.FullSearchTranslator},
-			TranslatorSearchField.Email => new[] { Permission.SearchTranslatorForMember, Permission.FullSearchTranslator },
+			TranslatorSearchField.Name => new[]
+				{ Permission.SearchTranslatorForMember, Permission.FullSearchTranslator },
+			TranslatorSearchField.NationalCode => new[] { Permission.FullSearchTranslator },
+			TranslatorSearchField.Email => new[]
+				{ Permission.SearchTranslatorForMember, Permission.FullSearchTranslator },
 			TranslatorSearchField.PhoneNumber => new[] { Permission.FullSearchTranslator },
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};

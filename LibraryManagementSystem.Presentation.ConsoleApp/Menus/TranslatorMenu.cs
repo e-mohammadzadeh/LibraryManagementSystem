@@ -104,7 +104,7 @@ public static class TranslatorMenu
 						    Permission.ViewAllTranslators))
 						break;
 					Console.Clear();
-					ViewTranslatorMenu(translatorManagementService, authorization, session, statisticsService);
+					ViewTranslators(translatorManagementService, authorization, session, statisticsService);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -467,7 +467,7 @@ public static class TranslatorMenu
 	}
 
 
-	private static void ViewTranslatorMenu(TranslatorManagementService translatorManagementService,
+	private static void ViewTranslators(TranslatorManagementService translatorManagementService,
 		IAuthorizationService authorization, ICurrentUserSession session, LibraryStatisticsService statisticsService)
 	{
 		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
@@ -532,6 +532,20 @@ public static class TranslatorMenu
 				}
 				case 4:
 				{
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewRemovedTranslators,
+						    Messages.AccessDenied))
+						break;
+					Console.Clear();
+					var removedTranslators = translatorManagementService.GetRemovedTranslators();
+					if (removedTranslators.Count is 0)
+						ConsoleHelper.ShowWarning(Messages.NotAvailableRemovedTranslator);
+					else
+						TranslatorPrinter.PrintFullTable(removedTranslators);
+					ConsoleHelper.Pause();
+					break;
+				}
+				case 5:
+				{
 					ConsoleHelper.ShowInfo(Messages.BackToTranslatorMenu);
 					return;
 				}
@@ -547,7 +561,8 @@ public static class TranslatorMenu
 			(1, "View Translator Details", authorization.HasPermission(Permission.ViewTranslatorDetails)),
 			(2, "View Translator's Books", authorization.HasPermission(Permission.ViewTranslatorBooks)),
 			(3, "View All Translators", authorization.HasPermission(Permission.ViewAllTranslators)),
-			(4, "Back", true)
+			(4, "View Removed Translators", authorization.HasPermission(Permission.ViewRemovedTranslators)),
+			(5, "Back", true)
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();

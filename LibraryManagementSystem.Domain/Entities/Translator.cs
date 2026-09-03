@@ -32,6 +32,13 @@ public class Translator : Person
 	public IReadOnlyList<BookTranslator> BookTranslators => _bookTranslators.AsReadOnly();
 
 
+	public void DeleteTranslator()
+	{
+		IsRemoved = true;
+		MarkAsUpdated();
+	}
+
+
 	public void Update(string? firstName, string? lastName, string? nationalCode, string? email, string? phoneNumber,
 		DateOnly? birthDate)
 	{

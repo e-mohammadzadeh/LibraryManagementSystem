@@ -66,6 +66,8 @@ public static class Messages
 	public const string NotAuthorMatched = "No authors matched your search.";
 	public const string AuthorNotFoundFormat = "Author with ID {0} was not found.";
 	public const string AuthorNotFound = "Author not found.";
+	public const string NotAvailableRemovedAuthor = "No removed authors found.";
+
 
 
 	// Duplicate
@@ -101,6 +103,8 @@ public static class Messages
 	public const string NotTranslatorMatched = "No translators matched your search.";
 	public const string TranslatorNotFoundFormat = "Translator with ID {0} was not found.";
 	public const string TranslatorNotFound = "Translator not found.";
+	public const string NotAvailableRemovedTranslator = "No removed translators found.";
+
 
 
 	// Duplicate

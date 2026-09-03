@@ -98,7 +98,7 @@ public static class AuthorMenu
 						    Permission.ViewAllAuthors))
 						break;
 					Console.Clear();
-					ViewAuthorMenu(authorManagementService, authorization, session, statisticsService);
+					ViewAuthors(authorManagementService, authorization, session, statisticsService);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -472,7 +472,7 @@ public static class AuthorMenu
 
 
 
-	private static void ViewAuthorMenu(AuthorManagementService authorManagementService,
+	private static void ViewAuthors(AuthorManagementService authorManagementService,
 		IAuthorizationService authorization, ICurrentUserSession session, LibraryStatisticsService statisticsService)
 	{
 		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
@@ -537,6 +537,20 @@ public static class AuthorMenu
 				}
 				case 4:
 				{
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewRemovedAuthors,
+						    Messages.AccessDenied))
+						break;
+					Console.Clear();
+					var removedAuthors = authorManagementService.GetRemovedAuthors();
+					if (removedAuthors.Count is 0)
+						ConsoleHelper.ShowWarning(Messages.NotAvailableRemovedAuthor);
+					else
+						AuthorPrinter.PrintFullTable(removedAuthors);
+					ConsoleHelper.Pause();
+					break;
+				}
+				case 5:
+				{
 					ConsoleHelper.ShowInfo(Messages.BackToAuthorMenu);
 					return;
 				}
@@ -552,7 +566,8 @@ public static class AuthorMenu
 			(1, "View Author Details", authorization.HasPermission(Permission.ViewAuthorDetails)),
 			(2, "View Author's Books", authorization.HasPermission(Permission.ViewAuthorBooks)),
 			(3, "View All Authors", authorization.HasPermission(Permission.ViewAllAuthors)),
-			(4, "Back", true)
+			(4, "View Removed Authors", authorization.HasPermission(Permission.ViewRemovedAuthors)),
+			(5, "Back", true)
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
