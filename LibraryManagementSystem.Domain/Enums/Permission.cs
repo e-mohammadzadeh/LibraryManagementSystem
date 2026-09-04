@@ -98,5 +98,6 @@ public enum Permission
 
 
 	// System
-	ViewStatistics
+	ViewStatistics,
+	ViewAuditLog
 }

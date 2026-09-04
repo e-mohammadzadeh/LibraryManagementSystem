@@ -9,15 +9,15 @@ public class InMemoryAuditLogRepository : IAuditLogRepository
 	public IReadOnlyList<AuditLog> GetAll() { return _auditLogs; }
 
 
-	public IReadOnlyList<AuditLog> GetByUserId(int userId)
-	{
-		return [.. _auditLogs.Where(a => a.EntityType == "User" && a.EntityId == userId)];
-	}
-
-
 	public IReadOnlyList<AuditLog> GetByPerformedByUserId(int userId)
 	{
 		return [.. _auditLogs.Where(a => a.PerformedByUserId == userId)];
+	}
+
+
+	public IReadOnlyList<AuditLog> GetByEntity(string entityType, int entityId)
+	{
+		return [.. _auditLogs.Where(a => a.EntityType == entityType && a.EntityId == entityId)];
 	}
 
 
