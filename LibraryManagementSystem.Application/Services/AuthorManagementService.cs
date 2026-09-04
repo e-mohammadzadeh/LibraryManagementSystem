@@ -120,7 +120,8 @@ public class AuthorManagementService
 		if (author.BookAuthors.Count != 0) return ServiceResult<AuthorDto>.Fail(Messages.AuthorHasAssociatedBooks);
 
 		_authorRepository.Remove(author);
-		_auditLog.Record(AuditAction.AuthorRemoved, "Author", );
+		_auditLog.Record(AuditAction.AuthorRemoved, "Author", authorId, "Author removed.");
+
 		return ServiceResult<AuthorDto>.Ok(author.ToDto(), Messages.AuthorRemovedSuccessfully);
 	}
 
