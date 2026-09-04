@@ -282,7 +282,12 @@ public static class Messages
 
 
 
-	// 11. UI Prompts & Questions ────────────────────────────────────────────────────────────
+	// 12. AuditLog ────────────────────────────────────────────────────────────
+	public const string NotAvailableAuditLog = "No audit logs found.";
+
+
+
+	// 13. UI Prompts & Questions ────────────────────────────────────────────────────────────
 	public const string MainMenuQuestion = "Please enter a number: ";
 	public const string AuthorSelectionForRemove = "Select the author you want to remove";
 	public const string EditMenuQuestion = "Enter the number of the field you wish to edit";
@@ -311,7 +316,7 @@ public static class Messages
 	public const string SortDirectionQuestion = "Select the sort direction:";
 
 
-	// 12. Navigation ────────────────────────────────────────────────────────────
+	// 14. Navigation ────────────────────────────────────────────────────────────
 	// Back
 	public const string BackToMainMenu = "\nBacking to main menu...";
 	public const string BackToAuthorMenu = "\nBacking to Author Menu...";

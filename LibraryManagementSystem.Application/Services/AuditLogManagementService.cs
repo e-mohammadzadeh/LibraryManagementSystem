@@ -4,7 +4,6 @@ using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
-using Microsoft.Win32.SafeHandles;
 
 namespace LibraryManagementSystem.Application.Services;
 
@@ -38,7 +37,7 @@ public class AuditLogManagementService : IAuditLogManagementService
 
 	public IReadOnlyList<AuditLogDto> GetByPerformedByUserId(int userId)
 	{
-		return MapToDto(_auditLogRepository.GetByPerformedByUserId(userId)));
+		return MapToDto(_auditLogRepository.GetByPerformedByUserId(userId));
 	}
 
 

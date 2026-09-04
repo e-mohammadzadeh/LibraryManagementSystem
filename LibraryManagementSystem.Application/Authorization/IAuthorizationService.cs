@@ -15,5 +15,6 @@ public interface IAuthorizationService
 	bool CanAccessFineManagement();
 	bool CanAccessLoanManagement();
 	bool CanAccessUserManagement();
+	bool canAccessAuditLogManagement();
 	bool CanAccessStatistics();
 }

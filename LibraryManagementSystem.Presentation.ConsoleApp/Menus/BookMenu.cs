@@ -4,7 +4,6 @@ using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Application.Services;
-using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Enums.Search;
 using LibraryManagementSystem.Domain.Enums.Sort;
@@ -851,7 +850,7 @@ public static class BookMenu
 			Console.Clear();
 			var fieldHeaders = new[] { "#", "Sort By" };
 			var fieldRows = sortFields
-				.Select((field, index) => new string[][] { [(index + 1).ToString()], [field.Label] }).ToList();
+				.Select((f, index) => new string[][] { [(index + 1).ToString()], [f.Label] }).ToList();
 			fieldRows.Add([[(sortFields.Count + 1).ToString()], ["Back"]]);
 
 			ConsoleTable.PrintTable("Sort Book", fieldHeaders, fieldRows);

@@ -14,7 +14,7 @@ public static class MainMenu
 		IFineManagementService fineManagementService, AuthenticationService authenticationService,
 		ICurrentUserSession session, IAuthorizationService authorization, LibraryStatisticsService statisticsService,
 		LoanHistoryManagementService loanHistoryManagementService,
-		FineHistoryManagementService fineHistoryManagementService)
+		FineHistoryManagementService fineHistoryManagementService, IAuditLogManagementService auditLogManagementService)
 	{
 		while (true)
 		{
@@ -80,10 +80,18 @@ public static class MainMenu
 				}
 				case 7:
 				{
+					Console.Clear();
+					AuditLogMenu.AuditLogMenuController(auditLogManagementService, authorization, session,
+						statisticsService);
+					ConsoleHelper.Pause();
+					break;
+				}
+				case 8:
+				{
 					ConsoleHelper.ShowResult(authenticationService.Logout());
 					return MainMenuResult.Logout;
 				}
-				case 8:
+				case 9:
 				{
 					ConsoleHelper.ShowInfo(Messages.ExitingProgram);
 					return MainMenuResult.Exit;
@@ -103,8 +111,9 @@ public static class MainMenu
 			(4, "Members", authorization.CanAccessUserManagement()),
 			(5, "Loans", authorization.CanAccessLoanManagement()),
 			(6, "Fines", authorization.CanAccessFineManagement()),
-			(7, "Logout", true),
-			(8, "Exit Application", true)
+			(7, "Audit Log", authorization.canAccessAuditLogManagement()),
+			(8, "Logout", true),
+			(9, "Exit Application", true)
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();

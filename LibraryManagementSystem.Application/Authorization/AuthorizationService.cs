@@ -100,5 +100,11 @@ public class AuthorizationService : IAuthorizationService
 	}
 
 
+	public bool canAccessAuditLogManagement()
+	{
+		return HasAnyPermission(Permission.ViewAuditLog);
+	}
+
+
 	public bool CanAccessStatistics() { return HasAnyPermission(Permission.ViewStatistics); }
 }
