@@ -65,14 +65,15 @@ public static class Program
 					auditLogService);
 			var bookService =
 				new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo, auditLogService);
-			var authService = new AuthenticationService(userRepo, passwordHasher, currentUserSession, auditLogService);
+			var authService =
+				new AuthenticationService(userRepo, roleRepo, passwordHasher, currentUserSession, auditLogService);
 			var statisticsService =
 				new LibraryStatisticsService(bookRepo, authorRepo, translatorRepo, userRepo, loanRepo);
 
 			while (true)
 			{
 				Console.Clear();
-				var loggedInUser = LoginMenu.ShowLogin(authService);
+				var loggedInUser = LoginMenu.ShowLoginMenu(authService);
 				if (loggedInUser is null) return;
 
 				var result = MainMenu.MainMenuController(authorService, translatorService, userService, bookService,

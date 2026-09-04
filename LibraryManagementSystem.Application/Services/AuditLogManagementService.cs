@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
+using LibraryManagementSystem.Application.DTOs.AuditLog;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
@@ -25,4 +26,13 @@ public class AuditLogManagementService : IAuditLogManagementService
 		var auditLog = new AuditLog(_currentUserSession.UserId.Value, action, entityType, entityId, details);
 		_auditLogRepository.Add(auditLog);
 	}
+
+
+	IReadOnlyList<AuditLogDto> GetAll();
+
+	IReadOnlyList<AuditLogDto> GetByPerformedByUserId(int userId);
+
+	IReadOnlyList<AuditLogDto> GetByEntity(
+		string entityType,
+		int entityId);
 }

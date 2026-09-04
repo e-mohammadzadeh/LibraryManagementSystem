@@ -1,34 +1,40 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Application.Services;
-using LibraryManagementSystem.Domain.Enums.Sort;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
 public static class LoginMenu
 {
-	public static AuthUserDto? ShowLogin(AuthenticationService authenticationService)
+	public static AuthUserDto? ShowLoginMenu(AuthenticationService authenticationService)
 	{
-		var directionRows = new List<string[][]>
+		while (true)
 		{
-			new string[][] { ["1"], ["Login"] },
-			new string[][] { ["2"], ["Create Account"] },
-			new string[][] { ["3"], ["Exit"] }
-		};
-		ConsoleTable.PrintTable("Sort Direction", directionRows);
+			Console.Clear();
+			Console.WriteLine(new string('=', 35) + " LOGIN MENU " + new string('=', 35));
+			Console.WriteLine("1. Login");
+			Console.WriteLine("2. Create Account");
+			Console.WriteLine("3. Exit");
+			Console.WriteLine(new string('=', 82));
 
-		var choice = ConsoleHelper.ReadInt(Messages.SortDirectionQuestion, 1, 3);
-		if (choice is null) return null;
+			var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, 3, allowCancel: false);
+			if (choice is null) return null;
 
-		switch (choice.Value)
-		{
-			case 1:
-				return PerformLogin(authenticationService);
-			case 2:
-				return RegisterMenu.Show(authenticationService);
-			case 3:
-				return null;
+			switch (choice.Value)
+			{
+				case 1:
+					var loggedInUser = PerformLogin(authenticationService);
+					if (loggedInUser is not null) return loggedInUser;
+					break;
+				case 2:
+					var registeredUser = RegisterMenu.Show(authenticationService);
+					if (registeredUser is not null) return registeredUser;
+					break;
+				case 3:
+					ConsoleHelper.ShowInfo(Messages.ExitingProgram);
+					return null;
+			}
 		}
 	}
 
@@ -38,6 +44,7 @@ public static class LoginMenu
 	{
 		while (true)
 		{
+			Console.Clear();
 			Console.WriteLine(new string('=', 35) + " LOGIN MENU " + new string('=', 35));
 
 			Console.WriteLine("Please log in to access the Library Management System.\n");

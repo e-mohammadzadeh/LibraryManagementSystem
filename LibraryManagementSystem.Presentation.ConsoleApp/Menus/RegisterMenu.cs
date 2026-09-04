@@ -12,7 +12,6 @@ public static class RegisterMenu
 		Console.Clear();
 		Console.WriteLine(new string('=', 30) + " CREATE ACCOUNT " + new string('=', 30));
 
-		// 1. Prompt for person details
 		var fields = PersonHelper.PromptForPersonFields("user");
 		if (fields is null)
 		{
@@ -20,17 +19,15 @@ public static class RegisterMenu
 			return null;
 		}
 
-		// 2. Read password
 		var newPassword = ConsoleHelper.GetValidPassword(string.Format(Messages.EnterPasswordPrompt, "new"));
 		if (newPassword is null) return null;
 
-		var confirmPassword = ConsoleHelper.GetValidPassword(Messages.PasswordConfirmation);
-		if (confirmPassword is null) return null;
-
-		if (newPassword != confirmPassword)
+		while (true)
 		{
+			var confirmPassword = ConsoleHelper.GetValidPassword(Messages.PasswordConfirmation);
+			if (confirmPassword is null) return null;
+			if (newPassword == confirmPassword) break;
 			ConsoleHelper.ShowError(Messages.PasswordMatchedFailed);
-			return null;
 		}
 
 		var user = new CreateUserDto
@@ -41,14 +38,12 @@ public static class RegisterMenu
 			Email = fields.Email,
 			PhoneNumber = fields.PhoneNumber,
 			BirthDate = fields.BirthDate,
-			RoleIds = [3],
+			RoleIds = [1],
 			Password = newPassword
 		};
 
-		// 5. Call the registration service
 		var result = authenticationService.Register(user);
 
-		// 6. Show result
 		if (result.Success)
 		{
 			ConsoleHelper.ShowSuccess("Account created successfully! You can now log in.");

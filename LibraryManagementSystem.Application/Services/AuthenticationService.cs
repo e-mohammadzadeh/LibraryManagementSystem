@@ -47,7 +47,7 @@ public class AuthenticationService
 		_userRepository.Update(user);
 		var authUser = user.ToAuthUserDto();
 		_currentUserSession.Login(authUser);
-		_auditLog.Record(AuditAction.UserLoggedIn, "Login", user.Id, "User loggedIn.");
+		_auditLog.Record(AuditAction.UserLoggedIn, "User", user.Id, "User loggedIn.");
 
 		return ServiceResult<AuthUserDto>.Ok(authUser, Messages.LoginSuccess);
 	}
@@ -57,11 +57,12 @@ public class AuthenticationService
 	{
 		if (!_currentUserSession.IsAuthenticated) return ServiceResult<string>.Fail(Messages.NoUserLoggedIn);
 
-		var username = _currentUserSession.CurrentUser?.FullName ?? "User";
-		var currentUserEmail = _currentUserSession.CurrentUser!.Email;
-		var user = _userRepository.FindByEmail(currentUserEmail);
-		_auditLog.Record(AuditAction.UserLoggedOut, "Logout", user!.Id, "User loggedOut.");
-		user.UpdateLastLoginInLogout();
+		var currentUser = _currentUserSession.CurrentUser!;
+		var username = currentUser.FullName;
+		var user = _userRepository.FindByEmail(currentUser.Email);
+
+		_auditLog.Record(AuditAction.UserLoggedOut, "User", currentUser.Id, "User loggedOut.");
+		user!.UpdateLastLoginInLogout();
 		_currentUserSession.Logout();
 
 		return ServiceResult<string>.Ok(username, $"\n{username} " + Messages.LogoutSuccess);
