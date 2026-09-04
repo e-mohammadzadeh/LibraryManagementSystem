@@ -15,15 +15,17 @@ public class BookManagementService
 	private readonly ITranslatorRepository _translatorRepository;
 	private readonly IBookRepository _bookRepository;
 	private readonly ILoanRepository _loanRepository;
+	private readonly IAuditLogManagementService _auditLog;
 
 
 	public BookManagementService(IAuthorRepository authorRepository, ITranslatorRepository translatorRepository,
-		IBookRepository bookRepository, ILoanRepository loanRepository)
+		IBookRepository bookRepository, ILoanRepository loanRepository, IAuditLogManagementService auditLog)
 	{
 		_authorRepository = authorRepository;
 		_translatorRepository = translatorRepository;
 		_bookRepository = bookRepository;
 		_loanRepository = loanRepository;
+		_auditLog = auditLog;
 	}
 
 
@@ -70,6 +72,8 @@ public class BookManagementService
 			dto.Publisher, dto.Description);
 
 		_bookRepository.Add(newBook);
+		_auditLog.Record(AuditAction.BookCreated, "Book", newBook.BookId, "Book created.");
+
 		return ServiceResult<BookDto>.Ok(newBook.ToDto(), Messages.BookAddedSuccessfully);
 	}
 
@@ -164,6 +168,8 @@ public class BookManagementService
 		}
 
 		Genre? genre = dto.GenreId.HasValue ? (Genre)dto.GenreId.Value : null;
+		var auditDetails =
+			BookUpdateAuditDetailsBuilder.BuildBookUpdateAuditDetails(book, dto, resolvedAuthors, resolvedTranslators);
 
 		if (!book.Update(dto.BookName, dto.ISBN, dto.PublishDate, genre, dto.Publisher, dto.TotalCopies,
 			    dto.Description))
@@ -174,6 +180,8 @@ public class BookManagementService
 		if (resolvedTranslators is not null) book.ReplaceTranslators(resolvedTranslators);
 
 		_bookRepository.Update(book);
+		_auditLog.Record(AuditAction.BookUpdated, "Book", bookId, auditDetails ?? "Book updated.");
+
 		return ServiceResult<BookDto>.Ok(book.ToDto(), Messages.BookUpdatedSuccessfully);
 	}
 
@@ -218,6 +226,8 @@ public class BookManagementService
 		book.DetachFromAuthors();
 		book.DetachFromTranslators();
 		_bookRepository.Remove(book);
+		_auditLog.Record(AuditAction.BookRemoved, "Book", bookId, "Book removed.");
+
 		return ServiceResult<BookDto>.Ok(book.ToDto(), Messages.BookRemovedSuccessfully);
 	}
 

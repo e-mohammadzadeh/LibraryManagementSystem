@@ -18,7 +18,7 @@ public enum AuditAction
 
 	BookCreated,
 	BookUpdated,
-	BookRetired,
+	BookRemoved,
 
 	LoanBorrowed,
 	LoanReturned,
