@@ -1,6 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Application.DTOs.Translators;
 using LibraryManagementSystem.Application.Mapping;
@@ -17,12 +16,15 @@ public class TranslatorManagementService
 {
 	private readonly ITranslatorRepository _translatorRepository;
 	private readonly IAuthorizationService _authorization;
+	private readonly IAuditLogManagementService _auditLog;
 
 
-	public TranslatorManagementService(ITranslatorRepository translatorRepository, IAuthorizationService authorization)
+	public TranslatorManagementService(ITranslatorRepository translatorRepository, IAuthorizationService authorization,
+		IAuditLogManagementService auditLog)
 	{
 		_translatorRepository = translatorRepository;
 		_authorization = authorization;
+		_auditLog = auditLog;
 	}
 
 
@@ -47,6 +49,8 @@ public class TranslatorManagementService
 			dto.BirthDate);
 
 		_translatorRepository.Add(newTranslator);
+		_auditLog.Record(AuditAction.TranslatorCreated, "Translator", newTranslator.Id, "Translator created.");
+
 		return warningMessage is not null
 			? ServiceResult<TranslatorDto>.Warning(newTranslator.ToDto(), warningMessage)
 			: ServiceResult<TranslatorDto>.Ok(newTranslator.ToDto(), Messages.TranslatorAddedSuccessfully);
@@ -117,9 +121,13 @@ public class TranslatorManagementService
 		if (dto.PhoneNumber is not null && _translatorRepository.ExistsByPhoneNumber(dto.PhoneNumber, translatorId))
 			return ServiceResult<TranslatorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByPhoneNumber);
 
+		var auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(translator, dto);
+
 		translator.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate);
 
 		_translatorRepository.Update(translator);
+		_auditLog.Record(AuditAction.TranslatorUpdated, "Translator", translatorId, auditDetails ?? "Translator updated.");
+
 		return warningMessage is not null
 			? ServiceResult<TranslatorDto>.Warning(translator.ToDto(), warningMessage)
 			: ServiceResult<TranslatorDto>.Ok(translator.ToDto(), Messages.TranslatorUpdatedSuccessfully);
@@ -146,6 +154,8 @@ public class TranslatorManagementService
 			return ServiceResult<TranslatorDto>.Fail(Messages.TranslatorHasAssociatedBooks);
 
 		_translatorRepository.Remove(translator);
+		_auditLog.Record(AuditAction.TranslatorRemoved, "Translator", translatorId, "Translator removed.");
+
 		return ServiceResult<TranslatorDto>.Ok(translator.ToDto(), Messages.TranslatorRemovedSuccessfully);
 	}
 
