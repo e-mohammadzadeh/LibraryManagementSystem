@@ -155,6 +155,7 @@ public static class Messages
 	// 7. USER (Member/Admin/Manager) MESSAGES ────────────────────────────────────────────────────────────
 	// Add
 	public const string UserAddedSuccessfully = "User added successfully.";
+	public const string UserRegisterationSuccessfully = "Registration successful.";
 	public const string DuplicateUserNameWarning = "A user with the same name already exists (ID: {0}).";
 
 	// Update
@@ -324,5 +325,6 @@ public static class Messages
 	public const string SearchCancelled = "\n\nSearch cancelled. Returning to {0} Menu...";
 	public const string SortCancelled = "{0} sorting cancelled.";
 	public const string EditCancelled = "\n\nEdit cancelled. Returning to {0} Menu...";
+	public const string RegistrationCancelled = "\nRegistration cancelled";
 
 }

@@ -192,15 +192,21 @@ public static class UserMenu
 			ConsoleHelper.ReadRoles("Select role(s) for this user", availableRoles, allowMultiple: allowMultiple);
 		if (roleIds is null) return null;
 
-		var password = ConsoleHelper.GetValidPassword(Messages.PasswordPrompt);
-		if (password is null) return null;
+		var newPassword = ConsoleHelper.GetValidPassword(string.Format(Messages.EnterPasswordPrompt, "new"));
+		if (newPassword is null) return null;
 
-		return new CreateUserDto
-		{
-			FirstName = fields.FirstName, LastName = fields.LastName, NationalCode = fields.NationalCode,
-			Email = fields.Email, PhoneNumber = fields.PhoneNumber, BirthDate = fields.BirthDate, RoleIds = roleIds,
-			Password = password
-		};
+		var confirmPassword = ConsoleHelper.GetValidPassword(Messages.PasswordConfirmation);
+		if (confirmPassword is null) return null;
+
+		if (newPassword == confirmPassword)
+			return new CreateUserDto
+			{
+				FirstName = fields.FirstName, LastName = fields.LastName, NationalCode = fields.NationalCode,
+				Email = fields.Email, PhoneNumber = fields.PhoneNumber, BirthDate = fields.BirthDate, RoleIds = roleIds,
+				Password = newPassword
+			};
+		ConsoleHelper.ShowError(Messages.PasswordMatchedFailed);
+		return null;
 	}
 
 
@@ -223,7 +229,8 @@ public static class UserMenu
 
 
 
-	private static void EditUser(UserManagementService userManagementService, IAuthorizationService authorization, ICurrentUserSession session)
+	private static void EditUser(UserManagementService userManagementService, IAuthorizationService authorization,
+		ICurrentUserSession session)
 	{
 		if (!authorization.HasPermission(Permission.EditUser))
 		{
@@ -331,7 +338,8 @@ public static class UserMenu
 					if (roleIds is null) break;
 
 					var result =
-						userManagementService.UpdateUser(desiredUser.Id, new UpdateUserDto { RoleIds = roleIds }, session);
+						userManagementService.UpdateUser(desiredUser.Id, new UpdateUserDto { RoleIds = roleIds },
+							session);
 					if (result.IsSuccess) desiredUser = result.Data;
 					ConsoleHelper.ShowResult(result);
 					break;

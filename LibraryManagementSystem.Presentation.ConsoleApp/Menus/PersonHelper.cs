@@ -27,9 +27,9 @@ internal static class PersonHelper
 		if (phoneNumber is null) return null;
 
 		var birthDate = ConsoleHelper.GetValidBirthDate($"Enter {label}birth date");
-		if (birthDate is null) return null;
-
-		return new PersonFieldsResult(firstName, lastName, nationalCode, email, phoneNumber, birthDate.Value);
+		return birthDate is null
+			? null
+			: new PersonFieldsResult(firstName, lastName, nationalCode, email, phoneNumber, birthDate.Value);
 	}
 
 
@@ -55,8 +55,7 @@ internal static class PersonHelper
 	internal static void PerformRemove<TEntity>(TEntity? entity, string firstName, string lastName,
 		Action<TEntity> printDetailsFn, Func<ServiceResult<TEntity>> removeFn) where TEntity : class
 	{
-		if (entity is null)
-			return;
+		if (entity is null) return;
 
 		printDetailsFn(entity);
 		var choice = ConsoleHelper.ReadYesNo($"Are you sure you want to remove {firstName} {lastName}");
