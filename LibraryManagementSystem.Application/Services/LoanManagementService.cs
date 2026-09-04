@@ -18,12 +18,13 @@ public class LoanManagementService
 	private readonly IUserAutoRemovalService _userAutoRemovalService;
 	private readonly IAuthorizationService _authorization;
 	private readonly ILoanHistoryManagementService _loanHistoryManagementService;
+	private readonly IAuditLogManagementService _auditLog;
 
 
 	public LoanManagementService(ILoanRepository loanRepository, IUserRepository userRepository,
 		IBookRepository bookRepository, IFineManagementService fineManagementService,
 		IUserAutoRemovalService userAutoRemovalService, IAuthorizationService authorization,
-		ILoanHistoryManagementService loanHistoryManagementService)
+		ILoanHistoryManagementService loanHistoryManagementService, IAuditLogManagementService auditLog)
 	{
 		_loanRepository = loanRepository;
 		_userRepository = userRepository;
@@ -32,6 +33,7 @@ public class LoanManagementService
 		_userAutoRemovalService = userAutoRemovalService;
 		_authorization = authorization;
 		_loanHistoryManagementService = loanHistoryManagementService;
+		_auditLog = auditLog;
 	}
 
 
@@ -45,7 +47,8 @@ public class LoanManagementService
 
 		if (!user.IsActive) return ServiceResult<LoanDto>.Fail(Messages.MembershipExpired);
 
-		if (user.ShouldRemove) return ServiceResult<LoanDto>.Fail(string.Format(Messages.FlaggedForRemoval, "Borrowing"));
+		if (user.ShouldRemove)
+			return ServiceResult<LoanDto>.Fail(string.Format(Messages.FlaggedForRemoval, "Borrowing"));
 
 		if (_fineService.HasUnpaidFines(dto.UserId)) return ServiceResult<LoanDto>.Fail(Messages.BorrowFailedForFine);
 
@@ -68,6 +71,7 @@ public class LoanManagementService
 		_loanRepository.Add(loan);
 		_bookRepository.Update(book);
 		_loanHistoryManagementService.Record(loan, LoanHistoryAction.Borrowed);
+		_auditLog.Record(AuditAction.LoanBorrowed, "Loan", loan.LoanId, "Loan borrowed.");
 
 		return ServiceResult<LoanDto>.Ok(loan.ToDto(), Messages.BorrowedSuccessfully);
 	}
@@ -87,6 +91,7 @@ public class LoanManagementService
 		_bookRepository.Update(loan.Book);
 		_loanHistoryManagementService.Record(loan, LoanHistoryAction.Returned);
 		_userAutoRemovalService.TryAutoRemove(loan.UserId);
+		_auditLog.Record(AuditAction.LoanReturned, "Loan", loanId, "Loan returned.");
 
 		var fineResult = _fineService.CreateFineForLoan(loanId);
 		if (!fineResult.Success && fineResult.Message != Messages.NoFine)
@@ -126,6 +131,7 @@ public class LoanManagementService
 		loan.Renew();
 		_loanRepository.Update(loan);
 		_loanHistoryManagementService.Record(loan, LoanHistoryAction.Renewed);
+		_auditLog.Record(AuditAction.LoanRenewed, "Loan", loanId, "Loan renewed.");
 
 		return ServiceResult<LoanDto>.Ok(loan.ToDto(), Messages.RenewedSuccessfully);
 	}

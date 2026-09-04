@@ -23,7 +23,6 @@ public enum AuditAction
 	LoanBorrowed,
 	LoanReturned,
 	LoanRenewed,
-	LoanMarkedLost,
 
 	FineCreated,
 	FinePaid,

@@ -57,13 +57,15 @@ public static class Program
 			var authorService = new AuthorManagementService(authorRepo, authorization, auditLogService);
 			var translatorService = new TranslatorManagementService(translatorRepo, authorization, auditLogService);
 			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, fineService,
-				userAutoRemovalService, authorization, loanHistoryService);
+				userAutoRemovalService, authorization, loanHistoryService, auditLogService);
 			var loanHistory = new LoanHistoryManagementService(loanHistoryRepo);
 			var fineHistory = new FineHistoryManagementService(fineHistoryRepo);
 			var userService =
-				new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher, authorization, auditLogService);
-			var bookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo);
-			var authService = new AuthenticationService(userRepo, passwordHasher, currentUserSession);
+				new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher, authorization,
+					auditLogService);
+			var bookService =
+				new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo, auditLogService);
+			var authService = new AuthenticationService(userRepo, passwordHasher, currentUserSession, auditLogService);
 			var statisticsService =
 				new LibraryStatisticsService(bookRepo, authorRepo, translatorRepo, userRepo, loanRepo);
 
