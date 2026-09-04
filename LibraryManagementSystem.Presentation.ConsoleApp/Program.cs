@@ -47,10 +47,10 @@ public static class Program
 			IUserAutoRemovalService userAutoRemovalService = new UserAutoRemovalService(userRepo, loanRepo, fineRepo);
 			ILoanHistoryManagementService loanHistoryService = new LoanHistoryManagementService(loanHistoryRepo);
 			IFineHistoryManagementService fineHistoryService = new FineHistoryManagementService(fineHistoryRepo);
-			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo,
-				userAutoRemovalService, authorization, loanHistoryService, fineHistoryService);
 			IAuditLogManagementService auditLogService =
 				new AuditLogManagementService(auditLogRepo, currentUserSession);
+			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo,
+				userAutoRemovalService, authorization, loanHistoryService, fineHistoryService, auditLogService);
 
 
 			// ── Application Services ──────────────────
