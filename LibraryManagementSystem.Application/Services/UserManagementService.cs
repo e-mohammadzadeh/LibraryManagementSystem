@@ -21,11 +21,12 @@ public class UserManagementService
 	private readonly IFineRepository _fineRepository;
 	private readonly IPasswordHasher _passwordHasher;
 	private readonly IAuthorizationService _authorization;
+	private readonly IAuditLogManagementService _auditLog;
 
 
 	public UserManagementService(IUserRepository userRepository, IRoleRepository roleRepository,
 		ILoanRepository loanRepository, IFineRepository fineRepository, IPasswordHasher passwordHasher,
-		IAuthorizationService authorization)
+		IAuthorizationService authorization, IAuditLogManagementService auditLog)
 	{
 		_userRepository = userRepository;
 		_roleRepository = roleRepository;
@@ -33,6 +34,7 @@ public class UserManagementService
 		_fineRepository = fineRepository;
 		_passwordHasher = passwordHasher;
 		_authorization = authorization;
+		_auditLog = auditLog;
 	}
 
 
@@ -78,6 +80,8 @@ public class UserManagementService
 
 		newUser.SetPasswordHash(result.Hash, result.Salt);
 		_userRepository.Add(newUser);
+		_auditLog.Record(AuditAction.UserCreated, "User", newUser.Id, "New user created.");
+
 		return warningMessage is not null
 			? ServiceResult<UserDto>.Warning(newUser.ToDto(), warningMessage)
 			: ServiceResult<UserDto>.Ok(newUser.ToDto(), Messages.UserAddedSuccessfully);
@@ -176,6 +180,7 @@ public class UserManagementService
 				return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
 			}
 		}
+		var auditDetails = UserUpdateAuditDetailsBuilder.BuildUserUpdateAuditDetails(user, dto, resolvedRoles);
 
 		user.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
 			resolvedRoles);
@@ -185,6 +190,8 @@ public class UserManagementService
 		{
 			session.UpdateCurrentUser(user.ToAuthUserDto());
 		}
+
+		_auditLog.Record(AuditAction.UserUpdated, "User", userId, auditDetails ?? "User updated.");
 
 		return warningMessage is not null
 			? ServiceResult<UserDto>.Warning(user.ToDto(), warningMessage)
@@ -231,6 +238,7 @@ public class UserManagementService
 			return ServiceResult<UserDto>.Fail(Messages.UserRemovalFailedByUnpaidFines);
 
 		_userRepository.Remove(user);
+		_auditLog.Record(AuditAction.UserRemoved, "User", userId, "User removed.");
 		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.UserRemovedSuccessfully);
 	}
 
@@ -312,7 +320,7 @@ public class UserManagementService
 		_userRepository.Update(user);
 
 		var message = isOwn ? Messages.PasswordChangedSuccessfully : Messages.PasswordResetSuccessfully;
-
+		_auditLog.Record(AuditAction.UserPasswordChanged, "User", userId, "User password changed.");
 		return ServiceResult<string>.Ok(user.Email, message);
 	}
 
@@ -351,6 +359,7 @@ public class UserManagementService
 
 		user.RenewMembership(years);
 		_userRepository.Update(user);
+		_auditLog.Record(AuditAction.MembershipRenewed, "User", userId, "User membership renewed.");
 		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.MembershipRenewedSuccessfully);
 	}
 }

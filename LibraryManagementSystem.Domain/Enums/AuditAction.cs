@@ -5,7 +5,8 @@ public enum AuditAction
 	UserCreated,
 	UserUpdated,
 	UserRemoved,
-	UserRoleChanged,
+	UserPasswordChanged,
+	MembershipRenewed,
 
 	AuthorCreated,
 	AuthorUpdated,
@@ -27,8 +28,6 @@ public enum AuditAction
 	FineCreated,
 	FinePaid,
 	FineWaived,
-
-	MembershipRenewed,
 
 	UserLoggedIn,
 	UserLoggedOut

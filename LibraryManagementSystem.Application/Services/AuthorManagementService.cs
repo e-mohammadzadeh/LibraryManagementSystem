@@ -17,12 +17,14 @@ public class AuthorManagementService
 {
 	private readonly IAuthorRepository _authorRepository;
 	private readonly IAuthorizationService _authorization;
+	private readonly IAuditLogManagementService _auditLog;
 
 
-	public AuthorManagementService(IAuthorRepository authorRepository, IAuthorizationService authorization)
+	public AuthorManagementService(IAuthorRepository authorRepository, IAuthorizationService authorization, IAuditLogManagementService auditLog)
 	{
 		_authorRepository = authorRepository;
 		_authorization = authorization;
+		_auditLog = auditLog;
 	}
 
 
@@ -48,6 +50,8 @@ public class AuthorManagementService
 			dto.BirthDate, dto.Biography);
 
 		_authorRepository.Add(newAuthor);
+		_auditLog.Record(AuditAction.AuthorCreated, "Author", newAuthor.Id, "Author created.");
+
 		return warningMessage is not null
 			? ServiceResult<AuthorDto>.Warning(newAuthor.ToDto(), warningMessage)
 			: ServiceResult<AuthorDto>.Ok(newAuthor.ToDto(), Messages.AuthorAddedSuccessfully);
@@ -81,10 +85,15 @@ public class AuthorManagementService
 		if (dto.PhoneNumber is not null && _authorRepository.ExistsByPhoneNumber(dto.PhoneNumber, authorId))
 			return ServiceResult<AuthorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByPhoneNumber);
 
+		var auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(author, dto);
+
 		author.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
 			dto.Biography);
 
 		_authorRepository.Update(author);
+
+		_auditLog.Record(AuditAction.AuthorUpdated, "Author", authorId, auditDetails ?? "Author updated.");
+
 		return warningMessage is not null
 			? ServiceResult<AuthorDto>.Warning(author.ToDto(), warningMessage)
 			: ServiceResult<AuthorDto>.Ok(author.ToDto(), Messages.AuthorUpdatedSuccessfully);
@@ -111,6 +120,7 @@ public class AuthorManagementService
 		if (author.BookAuthors.Count != 0) return ServiceResult<AuthorDto>.Fail(Messages.AuthorHasAssociatedBooks);
 
 		_authorRepository.Remove(author);
+		_auditLog.Record(AuditAction.AuthorRemoved, "Author", );
 		return ServiceResult<AuthorDto>.Ok(author.ToDto(), Messages.AuthorRemovedSuccessfully);
 	}
 

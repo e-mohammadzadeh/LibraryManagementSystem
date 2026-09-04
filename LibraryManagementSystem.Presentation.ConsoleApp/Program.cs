@@ -29,6 +29,7 @@ public static class Program
 			var loanHistoryRepo = new InMemoryLoanHistory();
 			var fineRepo = new InMemoryFineRepository();
 			var fineHistoryRepo = new InMemoryFineHistory();
+			var auditLogRepo = new InMemoryAuditLogRepository();
 
 
 			// ── Infrastructure Services ───────────────
@@ -48,17 +49,19 @@ public static class Program
 			IFineHistoryManagementService fineHistoryService = new FineHistoryManagementService(fineHistoryRepo);
 			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo,
 				userAutoRemovalService, authorization, loanHistoryService, fineHistoryService);
+			IAuditLogManagementService auditLogService =
+				new AuditLogManagementService(auditLogRepo, currentUserSession);
 
 
 			// ── Application Services ──────────────────
-			var authorService = new AuthorManagementService(authorRepo, authorization);
-			var translatorService = new TranslatorManagementService(translatorRepo, authorization);
+			var authorService = new AuthorManagementService(authorRepo, authorization, auditLogService);
+			var translatorService = new TranslatorManagementService(translatorRepo, authorization, auditLogService);
 			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, fineService,
 				userAutoRemovalService, authorization, loanHistoryService);
 			var loanHistory = new LoanHistoryManagementService(loanHistoryRepo);
 			var fineHistory = new FineHistoryManagementService(fineHistoryRepo);
 			var userService =
-				new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher, authorization);
+				new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher, authorization, auditLogService);
 			var bookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo);
 			var authService = new AuthenticationService(userRepo, passwordHasher, currentUserSession);
 			var statisticsService =

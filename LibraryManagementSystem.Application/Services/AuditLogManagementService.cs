@@ -5,7 +5,7 @@ using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
 
-public class AuditLogManagementService
+public class AuditLogManagementService : IAuditLogManagementService
 {
 	private readonly IAuditLogRepository _auditLogRepository;
 	private readonly ICurrentUserSession _currentUserSession;
