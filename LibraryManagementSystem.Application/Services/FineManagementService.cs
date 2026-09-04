@@ -18,12 +18,13 @@ public class FineManagementService : IFineManagementService
 	private readonly IAuthorizationService _authorization;
 	private readonly ILoanHistoryManagementService _loanHistoryManagementService;
 	private readonly IFineHistoryManagementService _fineHistoryManagementService;
+	private readonly IAuditLogManagementService _auditLog;
 
 
 	public FineManagementService(IFineRepository fineRepository, ILoanRepository loanRepository,
 		IUserRepository userRepository, IUserAutoRemovalService userAutoRemovalService,
 		IAuthorizationService authorization, ILoanHistoryManagementService loanHistoryManagementService,
-		IFineHistoryManagementService fineHistoryManagementService)
+		IFineHistoryManagementService fineHistoryManagementService, IAuditLogManagementService auditLog)
 	{
 		_fineRepository = fineRepository;
 		_loanRepository = loanRepository;
@@ -32,6 +33,7 @@ public class FineManagementService : IFineManagementService
 		_authorization = authorization;
 		_loanHistoryManagementService = loanHistoryManagementService;
 		_fineHistoryManagementService = fineHistoryManagementService;
+		_auditLog = auditLog;
 	}
 
 
@@ -64,6 +66,8 @@ public class FineManagementService : IFineManagementService
 					string.Format(Messages.UserEligibleForRemoval, user.FirstName, user.LastName));
 			}
 		}
+		_auditLog.Record(AuditAction.FineCreated, "Fine", fine.FineId, "Fine created.");
+
 		return ServiceResult<FineDto>.Ok(fine.ToDto(), Messages.FineCreatedSuccessfully);
 	}
 
@@ -82,6 +86,7 @@ public class FineManagementService : IFineManagementService
 			_fineRepository.Update(fine);
 			_loanHistoryManagementService.Record(fine.Loan, LoanHistoryAction.FinePaid);
 			_fineHistoryManagementService.Record(fine, FineHistoryAction.FinePaid);
+			_auditLog.Record(AuditAction.FinePaid, "Fine", fineId, "Fine paid.");
 
 			var removalResult = _userAutoRemovalService.TryAutoRemove(fine.UserId);
 			var message = Messages.FinePaidSuccessfully;
@@ -109,6 +114,7 @@ public class FineManagementService : IFineManagementService
 			_fineRepository.Update(fine);
 			_loanHistoryManagementService.Record(fine.Loan, LoanHistoryAction.FineWaived);
 			_fineHistoryManagementService.Record(fine, FineHistoryAction.FineWaived);
+			_auditLog.Record(AuditAction.FineWaived, "Fine", fineId, "Fine waived.");
 
 			var removalResult = _userAutoRemovalService.TryAutoRemove(fine.UserId);
 			var message = Messages.FineWaivedSuccessfully;
