@@ -30,7 +30,7 @@ public static class RegisterMenu
 			ConsoleHelper.ShowError(Messages.PasswordMatchedFailed);
 		}
 
-		var user = new CreateUserDto
+		var dto = new CreateUserDto
 		{
 			FirstName = fields.FirstName,
 			LastName = fields.LastName,
@@ -38,23 +38,25 @@ public static class RegisterMenu
 			Email = fields.Email,
 			PhoneNumber = fields.PhoneNumber,
 			BirthDate = fields.BirthDate,
-			RoleIds = [1],
+			RoleIds = [1], // Force role to be Member
 			Password = newPassword
 		};
 
-		var result = authenticationService.Register(user);
+		var result = authenticationService.Register(dto);
 
-		if (result.Success)
+		if (!result.Success || result.Data is null)
 		{
-			ConsoleHelper.ShowSuccess("Account created successfully! You can now log in.");
-			ConsoleHelper.Pause();
-			return result.Data; // Return the newly created AuthUserDto (optional)
-		}
-		else
-		{
-			ConsoleHelper.ShowError(result.Message ?? "Registration failed. Please try again.");
-			ConsoleHelper.Pause();
+			ConsoleHelper.ShowError(result.Message ?? Messages.UserRegistrationFailed);
 			return null;
 		}
+
+		if (result.IsWarning)
+			ConsoleHelper.ShowWarning(result.Message!);
+		else
+			ConsoleHelper.ShowSuccess(result.Message ?? Messages.UserRegistrationSuccessfully);
+
+		ConsoleHelper.ShowSuccess(
+			$"\nWelcome, {result.Data.FullName}! Your account was created and you are now logged in.");
+		return result.Data;
 	}
 }

@@ -53,14 +53,13 @@ public static class LoginMenu
 
 			var password =
 				ConsoleHelper.GetValidPassword(string.Format(Messages.EnterPasswordPrompt, "").Replace("  ", " "));
-			if (password == null) return null;
+			if (password is null) return null;
 			var result = authenticationService.Login(email, password);
 			if (result is { Success: true, Data: not null })
 			{
 				ConsoleHelper.ShowSuccess(result.Data.LastLoginDate is not null
 					? $"\nWelcome back, {result.Data.FullName}! Your last login was on {result.Data.LastLoginDate.Value.ToLocalTime():f}."
 					: $"\nWelcome, {result.Data.FullName}! This is your first login.");
-				ConsoleHelper.Pause();
 				return result.Data;
 			}
 

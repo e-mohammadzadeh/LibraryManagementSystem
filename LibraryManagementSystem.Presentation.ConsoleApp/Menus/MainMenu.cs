@@ -111,7 +111,7 @@ public static class MainMenu
 			(4, "Members", authorization.CanAccessUserManagement()),
 			(5, "Loans", authorization.CanAccessLoanManagement()),
 			(6, "Fines", authorization.CanAccessFineManagement()),
-			(7, "Audit Log", authorization.canAccessAuditLogManagement()),
+			(7, "Audit Log", authorization.CanAccessAuditLogManagement()),
 			(8, "Logout", true),
 			(9, "Exit Application", true)
 		};

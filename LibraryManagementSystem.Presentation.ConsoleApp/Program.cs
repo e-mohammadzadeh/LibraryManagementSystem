@@ -48,7 +48,7 @@ public static class Program
 			ILoanHistoryManagementService loanHistoryService = new LoanHistoryManagementService(loanHistoryRepo);
 			IFineHistoryManagementService fineHistoryService = new FineHistoryManagementService(fineHistoryRepo);
 			IAuditLogManagementService auditLogService =
-				new AuditLogManagementService(auditLogRepo, currentUserSession);
+				new AuditLogManagementService(userRepo, auditLogRepo, currentUserSession);
 			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo,
 				userAutoRemovalService, authorization, loanHistoryService, fineHistoryService, auditLogService);
 
@@ -78,7 +78,7 @@ public static class Program
 
 				var result = MainMenu.MainMenuController(authorService, translatorService, userService, bookService,
 					loanService, fineService, authService, currentUserSession, authorization, statisticsService,
-					loanHistory, fineHistory);
+					loanHistory, fineHistory, auditLogService);
 
 				if (result == MainMenuResult.Exit) return;
 				ConsoleHelper.Pause();

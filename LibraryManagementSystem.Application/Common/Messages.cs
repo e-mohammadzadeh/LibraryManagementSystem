@@ -155,8 +155,9 @@ public static class Messages
 	// 7. USER (Member/Admin/Manager) MESSAGES ────────────────────────────────────────────────────────────
 	// Add
 	public const string UserAddedSuccessfully = "User added successfully.";
-	public const string UserRegisterationSuccessfully = "Registration successful.";
+	public const string UserRegistrationSuccessfully = "Registration successful.";
 	public const string DuplicateUserNameWarning = "A user with the same name already exists (ID: {0}).";
+	public const string UserRegistrationFailed =  "Registration failed. Please try again.";
 
 	// Update
 	public const string UserUpdatedSuccessfully = "User updated successfully.";
@@ -262,7 +263,7 @@ public static class Messages
 	// 10. Authentication & Authorization ────────────────────────────────────────────────────────────
 	public const string LoginSuccess = "Login successful.";
 	public const string LoginFailed = "Login failed.";
-	public const string LogoutSuccess = "Logged out successfully.";
+	public const string LogoutSuccess = "{0} Logged out successfully.";
 	public const string LoginInputRequired = "Email and password are required.";
 	public const string InvalidLoginInput = "Invalid email or password.";
 	public const string AccessDenied = "Access denied. You do not have permission to perform this action.";
@@ -279,6 +280,7 @@ public static class Messages
 	public const string RenewOwnLoans = "You can only renew your own loans.";
 	public const string ViewOwnLoans = "You can only view your own loans.";
 	public const string NotAuthorized = "You are not authorized to access this menu.\n";
+	public const string RegistrationSuccessLoginPrompt = "Account created successfully! You can now log in.";
 
 
 

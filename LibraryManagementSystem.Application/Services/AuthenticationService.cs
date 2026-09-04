@@ -35,10 +35,13 @@ public class AuthenticationService
 			return ServiceResult<AuthUserDto>.Fail(Messages.LoginInputRequired);
 
 		var user = _userRepository.FindByEmail(email);
-		if (user is null || !_passwordHasher.VerifyPassword(password, user.PasswordHash, user.PasswordSalt))
+		if (user is null || user.IsRemoved ||
+		    !_passwordHasher.VerifyPassword(password, user.PasswordHash, user.PasswordSalt))
 			return ServiceResult<AuthUserDto>.Fail(Messages.InvalidLoginInput);
 
 		if (!user.IsActive) return ServiceResult<AuthUserDto>.Fail(Messages.InactiveAccount);
+
+		if (user.ShouldRemove) return ServiceResult<AuthUserDto>.Fail(Messages.UserFlaggedForRemoval);
 
 		if (user.MembershipExpiryDate < DateOnly.FromDateTime(DateTime.Today))
 			return ServiceResult<AuthUserDto>.Fail(Messages.MembershipExpired);
@@ -47,7 +50,7 @@ public class AuthenticationService
 		_userRepository.Update(user);
 		var authUser = user.ToAuthUserDto();
 		_currentUserSession.Login(authUser);
-		_auditLog.Record(AuditAction.UserLoggedIn, "User", user.Id, "User loggedIn.");
+		_auditLog.Record(AuditAction.UserLoggedIn, "User", user.Id, "User logged in.");
 
 		return ServiceResult<AuthUserDto>.Ok(authUser, Messages.LoginSuccess);
 	}
@@ -61,11 +64,14 @@ public class AuthenticationService
 		var username = currentUser.FullName;
 		var user = _userRepository.FindByEmail(currentUser.Email);
 
-		_auditLog.Record(AuditAction.UserLoggedOut, "User", currentUser.Id, "User loggedOut.");
-		user!.UpdateLastLoginInLogout();
-		_currentUserSession.Logout();
+		_auditLog.Record(AuditAction.UserLoggedOut, "User", currentUser.Id, "User logged out.");
+		if (user is not null)
+		{
+			user.UpdateLastLoginInLogout();
+			_currentUserSession.Logout();
+		}
 
-		return ServiceResult<string>.Ok(username, $"\n{username} " + Messages.LogoutSuccess);
+		return ServiceResult<string>.Ok(username, string.Format(Messages.LogoutSuccess, username));
 	}
 
 
@@ -92,10 +98,14 @@ public class AuthenticationService
 
 		newUser.SetPasswordHash(result.Hash, result.Salt);
 		_userRepository.Add(newUser);
-		_auditLog.Record(AuditAction.UserCreated, "User", newUser.Id, "New user created.");
+		_auditLog.Record(AuditAction.UserCreated, "User", newUser.Id, "New user registered.");
+
+		var authUser = newUser.ToAuthUserDto();
+		_currentUserSession.Login(authUser);
+		_auditLog.Record(AuditAction.UserLoggedIn, "User", newUser.Id, "User logged in after registration.");
 
 		return warningMessage is not null
-			? ServiceResult<AuthUserDto>.Warning(newUser.ToAuthUserDto(), warningMessage)
-			: ServiceResult<AuthUserDto>.Ok(newUser.ToAuthUserDto(), Messages.UserRegisterationSuccessfully);
+			? ServiceResult<AuthUserDto>.Warning(authUser, warningMessage)
+			: ServiceResult<AuthUserDto>.Ok(authUser, Messages.UserRegistrationSuccessfully);
 	}
 }
