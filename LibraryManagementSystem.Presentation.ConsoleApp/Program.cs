@@ -74,6 +74,7 @@ public static class Program
 			{
 				Console.Clear();
 				var loggedInUser = LoginMenu.ShowLoginMenu(authService);
+				ConsoleHelper.Pause();
 				if (loggedInUser is null) return;
 
 				var result = MainMenu.MainMenuController(authorService, translatorService, userService, bookService,

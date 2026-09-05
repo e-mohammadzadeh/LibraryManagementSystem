@@ -14,7 +14,7 @@ public class AuditLogPrinter
 			return;
 		}
 
-		var headers = new[] { "ID", "Date & Time", "Performed By", "Action", "Entity", "Entity ID", "Details" };
+		var headers = new[] { "ID", "Date & Time", "Performed By", "User ID", "Action", "Entity", "Entity ID", "Details" };
 		var rows = auditLogs.Select(log =>
 			{
 				var details = string.IsNullOrWhiteSpace(log.Details)
@@ -26,6 +26,7 @@ public class AuditLogPrinter
 					[log.Id.ToString()],
 					[log.OccurredAt.ToString("yyyy-MM-dd HH:mm")],
 					ConsoleTable.WrapText(log.PerformedByName, 25),
+					[log.PerformedByUserId.ToString()],
 					ConsoleTable.WrapText(log.Action.ToString(), 20),
 					[log.EntityType],
 					[log.EntityId.ToString()],

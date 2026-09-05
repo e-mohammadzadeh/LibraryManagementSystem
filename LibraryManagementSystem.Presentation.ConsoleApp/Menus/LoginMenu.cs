@@ -24,16 +24,26 @@ public static class LoginMenu
 			switch (choice.Value)
 			{
 				case 1:
+				{
+					Console.Clear();
 					var loggedInUser = PerformLogin(authenticationService);
 					if (loggedInUser is not null) return loggedInUser;
+					ConsoleHelper.Pause();
 					break;
+				}
 				case 2:
+				{
+					Console.Clear();
 					var registeredUser = RegisterMenu.Show(authenticationService);
 					if (registeredUser is not null) return registeredUser;
+					ConsoleHelper.Pause();
 					break;
+				}
 				case 3:
+				{
 					ConsoleHelper.ShowInfo(Messages.ExitingProgram);
 					return null;
+				}
 			}
 		}
 	}
@@ -44,9 +54,7 @@ public static class LoginMenu
 	{
 		while (true)
 		{
-			Console.Clear();
 			Console.WriteLine(new string('=', 35) + " LOGIN MENU " + new string('=', 35));
-
 			Console.WriteLine("Please log in to access the Library Management System.\n");
 			var email = ConsoleHelper.GetValidEmail(Messages.EnterEmailPrompt);
 			if (email is null) return null;

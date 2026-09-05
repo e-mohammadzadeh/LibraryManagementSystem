@@ -17,7 +17,9 @@ public class CurrentUserSession : ICurrentUserSession
 	{
 		CurrentUser = user ?? throw new ArgumentNullException(nameof(user));
 	}
-	public bool HasRole(LibraryUserRole role) { return CurrentUser?.Roles.Contains(role) ?? false; }
+
+
+	private bool HasRole(LibraryUserRole role) { return CurrentUser?.Roles.Contains(role) ?? false; }
 
 	public bool IsAdmin => HasRole(LibraryUserRole.Admin);
 	public bool IsLibrarian => HasRole(LibraryUserRole.Librarian);

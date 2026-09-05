@@ -137,13 +137,6 @@ public static class DataSeeder
 	private static void SeedUsers(IUserRepository userRepository, IRoleRepository roleRepository,
 		IPasswordHasher passwordHasher)
 	{
-		void SetPassword(User user, string password)
-		{
-			var result = passwordHasher.CreatePasswordHash(password);
-			user.SetPasswordHash(result.Hash, result.Salt);
-		}
-
-
 		// Seed users
 		var allRoles = roleRepository.GetAllRoles();
 		var adminRole = allRoles.First(r => r.Name == LibraryUserRole.Admin);
@@ -220,6 +213,13 @@ public static class DataSeeder
 		userRepository.Add(member10);
 		userRepository.Add(member11);
 		userRepository.Add(member12);
+		return;
+
+		void SetPassword(User user, string password)
+		{
+			var result = passwordHasher.CreatePasswordHash(password);
+			user.SetPasswordHash(result.Hash, result.Salt);
+		}
 	}
 
 
