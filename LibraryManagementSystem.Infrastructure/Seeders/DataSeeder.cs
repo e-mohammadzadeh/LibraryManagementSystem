@@ -282,15 +282,4 @@ public static class DataSeeder
 		var fine = new Fine(loan);
 		fineRepository.Add(fine);
 	}
-
-
-	//private static void SeedFines(ILoanRepository loanRepository, IFineRepository fineRepository)
-	//{
-	//	var overdueReturnedLoans = loanRepository.GetReturnedLoans().Where(loan => loan.ReturnDate > loan.DueDate);
-
-	//	foreach (var loan in overdueReturnedLoans)
-	//	{
-	//		fineRepository.Add(new Fine(loan));
-	//	}
-	//}
 }

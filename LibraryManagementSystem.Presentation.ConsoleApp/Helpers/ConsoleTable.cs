@@ -240,6 +240,6 @@ public static class ConsoleTable
 		}
 
 		if (current.Length > 0) lines.Add(current);
-		return lines.Count > 0 ? lines.ToArray() : ["—"];
+		return lines.Count > 0 ? [.. lines] : ["—"];
 	}
 }

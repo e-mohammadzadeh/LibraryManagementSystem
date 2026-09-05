@@ -1,5 +1,4 @@
-﻿using System.Text;
-using LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Translators;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
@@ -27,7 +26,7 @@ public class TranslatorPrinter
 	}
 
 
-	public static void PrintTable(IReadOnlyList<TranslatorDto> translators, string title= "Translator List")
+	public static void PrintTable(IReadOnlyList<TranslatorDto> translators, string title = "Translator List")
 	{
 		if (translators.Count == 0)
 		{
@@ -52,7 +51,8 @@ public class TranslatorPrinter
 	}
 
 
-	public static void PrintFullTable(IReadOnlyList<TranslatorDto> translators, string title= "Translator Full Information")
+	public static void PrintFullTable(IReadOnlyList<TranslatorDto> translators,
+		string title = "Translator Full Information")
 	{
 		if (translators.Count == 0)
 		{

@@ -1,5 +1,4 @@
-﻿using LibraryManagementSystem.Application.Authentication;
-using LibraryManagementSystem.Application.Authorization;
+﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Domain.Enums;
 
@@ -15,12 +14,6 @@ public static class SessionGuard
 	}
 
 
-	public static bool RequireAuthentication(ICurrentUserSession session)
-	{
-		return session.IsAuthenticated || Fail(Messages.AuthenticationRequired);
-	}
-
-
 	public static bool RequirePermission(IAuthorizationService auth, Permission permission, string? message = null)
 	{
 		return auth.HasPermission(permission) || Fail(message ?? Messages.AccessDenied);
@@ -31,12 +24,5 @@ public static class SessionGuard
 		params Permission[] permissions)
 	{
 		return auth.HasAnyPermission(permissions) || Fail(message ?? Messages.AccessDenied);
-	}
-
-
-	public static bool RequireAllPermissions(IAuthorizationService auth, string? message = null,
-		params Permission[] permissions)
-	{
-		return permissions.All(auth.HasPermission) || Fail(message ?? Messages.AccessDenied);
 	}
 }

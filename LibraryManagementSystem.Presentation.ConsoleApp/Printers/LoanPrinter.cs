@@ -1,7 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Loans;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
-using System.Text;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 

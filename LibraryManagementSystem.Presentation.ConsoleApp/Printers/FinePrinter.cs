@@ -1,5 +1,4 @@
-﻿using System.Text;
-using LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Fine;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
@@ -28,32 +27,6 @@ public static class FinePrinter
 
 		ConsoleTable.PrintKeyValueTable("Fine Details", rows, labelWidth: 18, valueWidth: 55);
 	}
-
-
-	//public static void PrintTable(IReadOnlyList<FineDto> fines)
-	//{
-	//	if (fines.Count == 0)
-	//	{
-	//		ConsoleHelper.ShowError(Messages.FineNotFound);
-	//		return;
-	//	}
-
-	//	Console.Clear();
-	//	Console.WriteLine("\n{0,-4} {1,-8} {2,-35} {3,-35} {4,-10} {5,-8} {6,-10}", "ID", "Loan ID", "User", "Book",
-	//		"Amount", "Days", "Status");
-	//	Console.WriteLine(new string('=', 130));
-
-	//	foreach (var fine in fines)
-	//	{
-	//		var userName = fine.UserFullName.Length > 33 ? fine.UserFullName[..20] + "..." : fine.UserFullName;
-	//		var bookName = fine.BookName.Length > 33 ? fine.BookName[..25] + "..." : fine.BookName;
-
-	//		Console.WriteLine("{0,-4} {1,-8} {2,-35} {3,-35} {4,-10} {5,-8} {6,-10}", fine.FineId, fine.LoanId,
-	//			userName, bookName, $"{fine.Amount:F2}", fine.OverdueDays, fine.Status);
-	//	}
-
-	//	Console.WriteLine(new string('=', 130));
-	//}
 
 
 	public static void PrintTable(IReadOnlyList<FineDto> fines)
