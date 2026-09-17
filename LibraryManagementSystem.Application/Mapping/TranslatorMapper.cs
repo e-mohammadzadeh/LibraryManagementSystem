@@ -1,14 +1,13 @@
-﻿using LibraryManagementSystem.Application.DTOs.Books;
-using LibraryManagementSystem.Application.DTOs.Translators;
+﻿using LibraryManagementSystem.Application.DTOs.Contributor;
 using LibraryManagementSystem.Domain.Entities;
 
 namespace LibraryManagementSystem.Application.Mapping;
 
 public static class TranslatorMapper
 {
-	public static TranslatorDto ToDto(this Translator translator)
+	public static ContributorDto ToDto(this Translator translator)
 	{
-		return new TranslatorDto
+		return new ContributorDto
 		{
 			Id = translator.Id,
 			FirstName = translator.FirstName,
@@ -17,16 +16,7 @@ public static class TranslatorMapper
 			Email = translator.Email,
 			PhoneNumber = translator.PhoneNumber,
 			BirthDate = translator.BirthDate,
-			Books =
-			[
-				.. translator.BookTranslators.Select(ba => new BookSummaryDto
-				{
-					BookId = ba.BookId,
-					BookName = ba.Book.Title,
-					ISBN = ba.Book.InternationalStandardBookNumber
-				})
-			],
-			BookCount = translator.BookTranslators.Count,
+			Biography = translator.Biography,
 			CreatedAt = translator.CreatedAt,
 			UpdatedAt = translator.UpdatedAt
 		};

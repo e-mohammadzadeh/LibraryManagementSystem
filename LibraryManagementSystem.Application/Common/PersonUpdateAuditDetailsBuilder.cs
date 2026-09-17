@@ -1,12 +1,11 @@
-﻿using LibraryManagementSystem.Application.DTOs.Authors;
-using LibraryManagementSystem.Application.DTOs.Translators;
+﻿using LibraryManagementSystem.Application.DTOs.Contributor;
 using LibraryManagementSystem.Domain.Entities;
 
 namespace LibraryManagementSystem.Application.Common;
 
 public static class PersonUpdateAuditDetailsBuilder
 {
-	public static string? BuildPersonUpdateAuditDetails(Author author, UpdateAuthorDto dto)
+	public static string? BuildPersonUpdateAuditDetails(Author author, UpdateContributorDto dto)
 	{
 		return BuildPersonUpdateAuditDetails(
 			author.FirstName, dto.FirstName,
@@ -19,7 +18,7 @@ public static class PersonUpdateAuditDetailsBuilder
 	}
 
 
-	public static string? BuildPersonUpdateAuditDetails(Translator translator, UpdateTranslatorDto dto)
+	public static string? BuildPersonUpdateAuditDetails(Translator translator, UpdateContributorDto dto)
 	{
 		return BuildPersonUpdateAuditDetails(
 			translator.FirstName, dto.FirstName,

@@ -1,13 +1,13 @@
-﻿using LibraryManagementSystem.Application.DTOs.Authors;
+﻿using LibraryManagementSystem.Application.DTOs.Contributor;
 using LibraryManagementSystem.Domain.Entities;
 
 namespace LibraryManagementSystem.Application.Mapping;
 
 public static class AuthorMapper
 {
-	public static AuthorDto ToDto(this Author author)
+	public static ContributorDto ToDto(this Author author)
 	{
-		return new AuthorDto
+		return new ContributorDto
 		{
 			Id = author.Id,
 			FirstName = author.FirstName,

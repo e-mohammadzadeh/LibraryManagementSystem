@@ -3,43 +3,48 @@
 public class Translator : Person
 {
 	public Translator(string firstName, string lastName, string nationalCode, string email, string phoneNumber,
-		DateOnly birthDate) : base(firstName, lastName, nationalCode, email, phoneNumber, birthDate)
+		DateOnly birthDate, string? biography) : base(firstName, lastName, nationalCode, email, phoneNumber, birthDate)
 	{
+		Biography = biography;
 	}
 
 
-	//private readonly List<BookTranslator> _bookTranslators = [];
+	public string? Biography { get; private set; }
 
 
-	//internal void AddBookTranslator(BookTranslator bookTranslator)
-	//{
-	//	if (_bookTranslators.Any(bt => bt.BookId == bookTranslator.BookId)) return;
-	//	_bookTranslators.Add(bookTranslator);
-	//	MarkAsUpdated();
-	//}
+
+//private readonly List<BookTranslator> _bookTranslators = [];
 
 
-	//internal void RemoveBookTranslator(BookTranslator bookTranslator)
-	//{
-	//	var existing = _bookTranslators.FirstOrDefault(bt => bt.BookId == bookTranslator.BookId);
-	//	if (existing is not null) _bookTranslators.Remove(existing);
-	//	MarkAsUpdated();
-	//}
+//internal void AddBookTranslator(BookTranslator bookTranslator)
+//{
+//	if (_bookTranslators.Any(bt => bt.BookId == bookTranslator.BookId)) return;
+//	_bookTranslators.Add(bookTranslator);
+//	MarkAsUpdated();
+//}
 
 
-	//public IReadOnlyList<BookTranslator> BookTranslators => _bookTranslators.AsReadOnly();
+//internal void RemoveBookTranslator(BookTranslator bookTranslator)
+//{
+//	var existing = _bookTranslators.FirstOrDefault(bt => bt.BookId == bookTranslator.BookId);
+//	if (existing is not null) _bookTranslators.Remove(existing);
+//	MarkAsUpdated();
+//}
 
 
-	//public void DeleteTranslator()
-	//{
-	//	IsRemoved = true;
-	//	MarkAsUpdated();
-	//}
+//public IReadOnlyList<BookTranslator> BookTranslators => _bookTranslators.AsReadOnly();
 
 
-	//public void Update(string? firstName, string? lastName, string? nationalCode, string? email, string? phoneNumber,
-	//	DateOnly? birthDate)
-	//{
-	//	UpdateCore(firstName, lastName, nationalCode, email, phoneNumber, birthDate);
-	//}
+//public void DeleteTranslator()
+//{
+//	IsRemoved = true;
+//	MarkAsUpdated();
+//}
+
+
+//public void Update(string? firstName, string? lastName, string? nationalCode, string? email, string? phoneNumber,
+//	DateOnly? birthDate)
+//{
+//	UpdateCore(firstName, lastName, nationalCode, email, phoneNumber, birthDate);
+//}
 }
