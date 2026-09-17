@@ -13,6 +13,7 @@ public class InMemoryAuthorRepository : IAuthorRepository
 	{
 		ArgumentNullException.ThrowIfNull(author);
 		_authors.Add(author);
+		author.UpdatedAt = DateTime.UtcNow;
 	}
 
 
@@ -71,7 +72,11 @@ public class InMemoryAuthorRepository : IAuthorRepository
 	}
 
 
-	public void Remove(Author author) { author.IsRemoved = true; }
+	public void Remove(Author author)
+	{
+		author.IsRemoved = true;
+		author.UpdatedAt = DateTime.UtcNow;
+	}
 
 
 	public IReadOnlyList<Author> Search(string searchItem, Func<Author, string?> selector)
@@ -95,6 +100,6 @@ public class InMemoryAuthorRepository : IAuthorRepository
 		var existingAuthorIndex = _authors.FindIndex(a => a.Id == author.Id);
 		if (existingAuthorIndex == -1) throw new KeyNotFoundException($"Author with ID {author.Id} was not found.");
 		_authors[existingAuthorIndex] = author;
-		author.UpdatedAt = DateTime.Now;
+		author.UpdatedAt = DateTime.UtcNow;
 	}
 }

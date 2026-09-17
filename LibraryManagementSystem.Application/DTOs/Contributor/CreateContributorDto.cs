@@ -1,6 +1,6 @@
-﻿namespace LibraryManagementSystem.Application.DTOs.Authors;
+﻿namespace LibraryManagementSystem.Application.DTOs.Contributor;
 
-public class CreateAuthorDto
+public class CreateContributorDto
 {
 	public required string FirstName { get; init; }
 	public required string LastName { get; init; }

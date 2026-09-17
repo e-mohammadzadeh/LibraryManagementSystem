@@ -1,19 +1,15 @@
-﻿using LibraryManagementSystem.Application.DTOs.Books;
+﻿namespace LibraryManagementSystem.Application.DTOs.Contributor;
 
-namespace LibraryManagementSystem.Application.DTOs.Translators;
-
-public class TranslatorDto
+public class ContributorDto
 {
 	public Guid Id { get; init; }
 	public string FirstName { get; init; } = null!;
 	public string LastName { get; init; } = null!;
-	public string FullName => $"{FirstName} {LastName}";
 	public string NationalCode { get; init; } = null!;
 	public string Email { get; init; } = null!;
 	public string PhoneNumber { get; init; } = null!;
 	public DateOnly BirthDate { get; init; }
-	public IReadOnlyList<BookSummaryDto> Books { get; init; } = [];
-	public int BookCount { get; init; }
+	public string? Biography { get; init; }
 	public DateTime CreatedAt { get; init; }
 	public DateTime? UpdatedAt { get; init; }
 }
