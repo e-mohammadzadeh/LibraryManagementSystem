@@ -72,7 +72,7 @@ public class BookManagementService
 			dto.Publisher, dto.Description);
 
 		_bookRepository.Add(newBook);
-		_auditLog.Record(AuditAction.BookCreated, "Book", newBook.BookId, "Book created.");
+		_auditLog.Record(AuditAction.BookCreated, "Book", newBook.Id, "Book created.");
 
 		return ServiceResult<BookDto>.Ok(newBook.ToDto(), Messages.BookAddedSuccessfully);
 	}

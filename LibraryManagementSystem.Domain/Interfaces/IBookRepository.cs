@@ -7,7 +7,7 @@ public interface IBookRepository
 	void Add(Book book);
 	Book? FindById(int id);
 	IReadOnlyList<Book> GetAll();
-
+	IReadOnlyList<Book> GetByAuthorId(Guid authorId);
 	bool ExistsByName(string name, int excludeBookId = -1);
 	bool ExistsByISBN(string isbn, int excludeBookId = -1);
 

@@ -1,6 +1,4 @@
-﻿using LibraryManagementSystem.Application.DTOs.Books;
-
-namespace LibraryManagementSystem.Application.DTOs.Authors;
+﻿namespace LibraryManagementSystem.Application.DTOs.Authors;
 
 public class AuthorDto
 {

@@ -8,7 +8,7 @@ public class Book
 		IEnumerable<Translator>? translators, DateOnly publishDate, int totalCopies, Genre genre, string publisher,
 		string? description)
 	{
-		BookId = ++_nextBookId;
+		Id = Guid.CreateVersion7();
 		InternationalStandardBookNumber = internationalStandardBookNumber;
 		BookName = bookName;
 
@@ -36,8 +36,7 @@ public class Book
 
 
 	//TODO	(SQL Server)	When switch into SQL Server, IDs will generate by SQL Server itself and should remove static ones
-	private static int _nextBookId;
-	public int BookId { get; private set; }
+	public Guid Id { get; private set; }
 	public string BookName { get; private set; }
 	public string InternationalStandardBookNumber { get; private set; }
 	private readonly List<BookAuthor> _bookAuthors = [];

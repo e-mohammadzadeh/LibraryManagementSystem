@@ -15,10 +15,14 @@ public class InMemoryBookRepository : IBookRepository
 	}
 
 
-	public Book? FindById(int id) { return _books.FirstOrDefault(b => b.BookId == id); }
+	public Book? FindById(int id) { return _books.FirstOrDefault(b => b.Id == id); }
 
 
 	public IReadOnlyList<Book> GetAll() { return _books.AsReadOnly(); }
+	public IReadOnlyList<Book> GetByAuthorId(Guid authorId)
+	{
+		return [.. _books.Where(b => b.BookAuthors.Any(ba => ba.AuthorId == authorId))];
+	}
 
 
 	public bool ExistsByName(string name, int excludeBookId = -1)
@@ -26,7 +30,7 @@ public class InMemoryBookRepository : IBookRepository
 		if (string.IsNullOrWhiteSpace(name)) return false;
 
 		return _books.Any(b =>
-			b.BookId != excludeBookId && b.BookName.Equals(name, StringComparison.OrdinalIgnoreCase));
+			b.Id != excludeBookId && b.BookName.Equals(name, StringComparison.OrdinalIgnoreCase));
 	}
 
 
@@ -35,7 +39,7 @@ public class InMemoryBookRepository : IBookRepository
 		if (string.IsNullOrWhiteSpace(isbn)) return false;
 
 		return _books.Any(b =>
-			b.BookId != excludeBookId &&
+			b.Id != excludeBookId &&
 			b.InternationalStandardBookNumber.Equals(isbn, StringComparison.OrdinalIgnoreCase));
 	}
 
@@ -75,8 +79,8 @@ public class InMemoryBookRepository : IBookRepository
 	public void Update(Book book)
 	{
 		ArgumentNullException.ThrowIfNull(book);
-		var existingBookIndex = _books.FindIndex(b => b.BookId == book.BookId);
-		if (existingBookIndex == -1) throw new KeyNotFoundException($"Book with ID {book.BookId} was not found.");
+		var existingBookIndex = _books.FindIndex(b => b.Id == book.Id);
+		if (existingBookIndex == -1) throw new KeyNotFoundException($"Book with ID {book.Id} was not found.");
 		_books[existingBookIndex] = book;
 	}
 }

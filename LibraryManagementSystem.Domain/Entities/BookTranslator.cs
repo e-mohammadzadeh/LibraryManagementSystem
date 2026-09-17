@@ -7,7 +7,7 @@ public class BookTranslator
 		Book = book ?? throw new ArgumentNullException(nameof(book));
 		Translator = translator ?? throw new ArgumentNullException(nameof(translator));
 
-		BookId = book.BookId;
+		BookId = book.Id;
 		TranslatorId = translator.Id;
 	}
 

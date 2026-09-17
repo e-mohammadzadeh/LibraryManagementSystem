@@ -17,7 +17,7 @@ public class Author : Person
 	//internal void AddBookAuthor(BookAuthor bookAuthor)
 	//{
 	//	ArgumentNullException.ThrowIfNull(bookAuthor);
-	//	if (_bookAuthors.Any(ba => ba.BookId == bookAuthor.BookId)) return;
+	//	if (_bookAuthors.Any(ba => ba.Id == bookAuthor.Id)) return;
 	//	_bookAuthors.Add(bookAuthor);
 	//	MarkAsUpdated();
 	//}
@@ -26,7 +26,7 @@ public class Author : Person
 	//internal void RemoveBookAuthor(BookAuthor bookAuthor)
 	//{
 	//	ArgumentNullException.ThrowIfNull(bookAuthor);
-	//	var existing = _bookAuthors.FirstOrDefault(ba => ba.BookId == bookAuthor.BookId);
+	//	var existing = _bookAuthors.FirstOrDefault(ba => ba.Id == bookAuthor.Id);
 	//	if (existing is not null) _bookAuthors.Remove(existing);
 	//	MarkAsUpdated();
 	//}

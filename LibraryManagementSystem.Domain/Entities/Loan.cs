@@ -8,7 +8,7 @@ public class Loan
 	{
 		LoanId = ++_nextLoanId;
 		Book = book;
-		BookId = book.BookId;
+		BookId = book.Id;
 		User = user;
 		UserId = user.Id;
 		BorrowDate = borrowDate ?? DateOnly.FromDateTime(DateTime.Today);

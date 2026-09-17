@@ -2,7 +2,8 @@
 
 public class BookSummaryDto
 {
-	public int BookId { get; init; }
+	public Guid BookId { get; init; }
 	public string BookName { get; init; } = null!;
 	public string ISBN { get; init; } = null!;
+	public int AvailableCopies { get; init; }
 }

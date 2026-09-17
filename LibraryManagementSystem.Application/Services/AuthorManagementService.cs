@@ -31,13 +31,13 @@ public class AuthorManagementService
 	{
 		string? warningMessage = null;
 
-		if (_authorRepository.ExistsByNationalCode(dto.NationalCode))
+		if (_authorRepository.ExistsByNationalCode(dto.NationalCode, null))
 			return ServiceResult<AuthorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByNationalCode);
 
-		if (_authorRepository.ExistsByEmail(dto.Email))
+		if (_authorRepository.ExistsByEmail(dto.Email, null))
 			return ServiceResult<AuthorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByEmail);
 
-		if (_authorRepository.ExistsByPhoneNumber(dto.PhoneNumber))
+		if (_authorRepository.ExistsByPhoneNumber(dto.PhoneNumber, null))
 			return ServiceResult<AuthorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByPhoneNumber);
 
 		var existingSameName = _authorRepository.FindByName(dto.FirstName, dto.LastName);
@@ -57,7 +57,7 @@ public class AuthorManagementService
 	}
 
 
-	public ServiceResult<AuthorDto> UpdateAuthor(int authorId, UpdateAuthorDto dto)
+	public ServiceResult<AuthorDto> UpdateAuthor(Guid authorId, UpdateAuthorDto dto)
 	{
 		string? warningMessage = null;
 
@@ -86,16 +86,15 @@ public class AuthorManagementService
 
 		var auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(author, dto);
 
-		author.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
-			dto.Biography);
+		var updatedAuthor = new Author(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate.Value, dto.Biography);
 
-		_authorRepository.Update(author);
+		_authorRepository.Update(updatedAuthor);
 
 		_auditLog.Record(AuditAction.AuthorUpdated, "Author", authorId, auditDetails ?? "Author updated.");
 
 		return warningMessage is not null
-			? ServiceResult<AuthorDto>.Warning(author.ToDto(), warningMessage)
-			: ServiceResult<AuthorDto>.Ok(author.ToDto(), Messages.AuthorUpdatedSuccessfully);
+			? ServiceResult<AuthorDto>.Warning(updatedAuthor.ToDto(), warningMessage)
+			: ServiceResult<AuthorDto>.Ok(updatedAuthor.ToDto(), Messages.AuthorUpdatedSuccessfully);
 	}
 
 
@@ -111,7 +110,7 @@ public class AuthorManagementService
 	}
 
 
-	public ServiceResult<AuthorDto> RemoveAuthor(int authorId)
+	public ServiceResult<AuthorDto> RemoveAuthor(Guid authorId)
 	{
 		var author = _authorRepository.FindById(authorId);
 		if (author is null) return ServiceResult<AuthorDto>.Fail(Messages.AuthorRemoveFailed);
