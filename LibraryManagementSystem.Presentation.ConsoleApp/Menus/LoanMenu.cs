@@ -205,7 +205,7 @@ public static class LoanMenu
 		{
 			var input = ConsoleHelper.ReadInt("Enter your desired book id to borrow", 1, int.MaxValue);
 			if (input is null) return;
-			var selectedBook = availableBooks.FirstOrDefault(b => b.BookId == input);
+			var selectedBook = availableBooks.FirstOrDefault(b => b.Id == input);
 			if (selectedBook is null)
 			{
 				ConsoleHelper.ShowError(string.Format(Messages.InvalidIdSelection, ""));
@@ -385,7 +385,7 @@ public static class LoanMenu
 	{
 		var book = MenuHelper.SelectBook(bookManagementService.GetAllBooks(), "Books List");
 		if (book is null) return;
-		var loans = loanManagementService.GetActiveLoansByBook(book.BookId, session);
+		var loans = loanManagementService.GetActiveLoansByBook(book.Id, session);
 		DisplayLoans(loans, Messages.NotAvailableLoan);
 	}
 
@@ -479,7 +479,7 @@ public static class LoanMenu
 
 					var book = MenuHelper.SelectBook(bookManagementService.GetAllBooks(), "Books List");
 					if (book is null) break;
-					var loans = loanManagementService.GetOverdueLoansByBook(book.BookId, session);
+					var loans = loanManagementService.GetOverdueLoansByBook(book.Id, session);
 					DisplayLoans(loans, Messages.NotAvailableLoan);
 					ConsoleHelper.Pause();
 					break;
@@ -567,8 +567,8 @@ public static class LoanMenu
 					var book = MenuHelper.SelectBook(bookManagementService.GetAllBooks(), "Books List");
 					if (book is null) break;
 
-					var histories = loanHistoryManagementService.GetByBookId(book.BookId);
-					LoanHistoryPrinter.PrintTable(histories, $"Loan History - {book.BookName}");
+					var histories = loanHistoryManagementService.GetByBookId(book.Id);
+					LoanHistoryPrinter.PrintTable(histories, $"Loan History - {book.Title}");
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -634,7 +634,7 @@ public static class LoanMenu
 					SearchLoanAndDisplay(
 						p => ConsoleHelper.GetValidName(p, ValidationConstants.MinBookNameLength,
 							ValidationConstants.MaxBookNameLength), "Enter a book title to search",
-						loan => loan.Book.BookName,
+						loan => loan.Book.Title,
 						(search, value) => value.Contains(search, StringComparison.OrdinalIgnoreCase),
 						activeOnly,
 						loanManagementService, session);

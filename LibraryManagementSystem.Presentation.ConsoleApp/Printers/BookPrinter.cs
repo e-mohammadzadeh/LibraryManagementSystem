@@ -21,7 +21,7 @@ public static class BookPrinter
 
 		var rows = new List<(string Label, string[] ValueLines)>
 		{
-			("Name", [book.BookName]),
+			("Name", [book.Title]),
 			("ISBN", [book.ISBN]),
 			("Author(s)", authorNames),
 			("Author Email(s)", authorEmails),
@@ -84,11 +84,11 @@ public static class BookPrinter
 				? [$"{book.AvailableCopies}/{book.TotalCopies}"]
 				: new[] { book.AvailableCopies > 0 ? "Available" : "Not available" };
 
-			var bookName = ConsoleTable.WrapText(book.BookName, ValidationConstants.BookNameWrapWidthInTable);
+			var bookName = ConsoleTable.WrapText(book.Title, ValidationConstants.BookNameWrapWidthInTable);
 
 			return new[]
 			{
-				[book.BookId.ToString()],
+				[book.Id.ToString()],
 				bookName,
 				[book.ISBN],
 				authors,

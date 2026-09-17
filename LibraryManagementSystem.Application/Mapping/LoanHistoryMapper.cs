@@ -14,7 +14,7 @@ public static class LoanHistoryMapper
 			UserId = history.UserId,
 			BookId = history.BookId,
 			UserName = $"{history.User.FirstName} {history.User.LastName}".Trim(),
-			BookName = history.Book.BookName,
+			BookName = history.Book.Title,
 			Action = history.Action,
 			OccurredAt = history.OccurredAt,
 			Description = history.Description

@@ -13,7 +13,7 @@ public static class FineMapper
 			LoanId = fine.LoanId,
 			UserId = fine.UserId,
 			UserFullName = $"{fine.Loan.User.FirstName} {fine.Loan.User.LastName}",
-			BookName = fine.Loan.Book.BookName,
+			BookName = fine.Loan.Book.Title,
 			OverdueDays = fine.OverdueDays,
 			Amount = fine.Amount,
 			Status = fine.Status,

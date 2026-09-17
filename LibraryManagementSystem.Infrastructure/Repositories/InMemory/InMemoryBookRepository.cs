@@ -30,7 +30,7 @@ public class InMemoryBookRepository : IBookRepository
 		if (string.IsNullOrWhiteSpace(name)) return false;
 
 		return _books.Any(b =>
-			b.Id != excludeBookId && b.BookName.Equals(name, StringComparison.OrdinalIgnoreCase));
+			b.Id != excludeBookId && b.Title.Equals(name, StringComparison.OrdinalIgnoreCase));
 	}
 
 

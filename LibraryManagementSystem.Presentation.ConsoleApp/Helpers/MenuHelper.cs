@@ -119,11 +119,11 @@ public static class MenuHelper
 		while (true)
 		{
 			BookPrinter.PrintTable(booksList, authorization: null, title);
-			var desiredBookId = ConsoleHelper.ReadInt(Messages.SelectBookQuestion, 1, booksList.Max(b => b.BookId));
+			var desiredBookId = ConsoleHelper.ReadInt(Messages.SelectBookQuestion, 1, booksList.Max(b => b.Id));
 
 			if (desiredBookId is null) return null;
 
-			var desiredBook = booksList.FirstOrDefault(b => b.BookId == desiredBookId.Value);
+			var desiredBook = booksList.FirstOrDefault(b => b.Id == desiredBookId.Value);
 			if (desiredBook != null) return desiredBook;
 
 			ConsoleHelper.ShowError(Messages.BookNotFound);

@@ -11,8 +11,8 @@ public static class BookUpdateAuditDetailsBuilder
 	{
 		var changes = new List<string>();
 
-		if (dto.BookName is not null && dto.BookName != book.BookName)
-			changes.Add($"Changed book name from '{book.BookName}' to '{dto.BookName}'.");
+		if (dto.BookName is not null && dto.BookName != book.Title)
+			changes.Add($"Changed book name from '{book.Title}' to '{dto.BookName}'.");
 
 		if (dto.ISBN is not null && dto.ISBN != book.InternationalStandardBookNumber)
 			changes.Add($"Changed ISBN from '{book.InternationalStandardBookNumber}' to '{dto.ISBN}'.");

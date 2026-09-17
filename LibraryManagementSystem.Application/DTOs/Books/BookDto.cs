@@ -5,8 +5,8 @@ namespace LibraryManagementSystem.Application.DTOs.Books;
 
 public class BookDto
 {
-	public int BookId { get; init; }
-	public string BookName { get; init; } = null!;
+	public Guid Id { get; init; }
+	public string Title { get; init; } = null!;
 	public string ISBN { get; init; } = null!;
 	public IReadOnlyList<AuthorDto> Authors { get; init; } = [];
 	public IReadOnlyList<TranslatorDto> Translators { get; init; } = [];

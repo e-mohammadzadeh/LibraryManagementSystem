@@ -302,7 +302,7 @@ public static class BookMenu
 
 			var rows = new List<string[][]>
 			{
-				new string[][] { ["1"], ["Book Name"], [desiredBook.BookName] },
+				new string[][] { ["1"], ["Book Name"], [desiredBook.Title] },
 				new string[][] { ["2"], ["ISBN"], [desiredBook.ISBN] },
 				new[] { ["3"], ["Author(s)"], authorLines },
 				new[] { ["4"], ["Translator(s)"], translatorLines },
@@ -326,7 +326,7 @@ public static class BookMenu
 					var bookName = ConsoleHelper.GetValidName("\nEnter the new book name",
 						ValidationConstants.MinBookNameLength, ValidationConstants.MaxBookNameLength);
 
-					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, bookName,
+					var updated = PerformUpdate(bookManagementService, desiredBook.Id, bookName,
 						v => new UpdateBookDto { BookName = v });
 					if (updated is not null) desiredBook = updated;
 					break;
@@ -334,20 +334,20 @@ public static class BookMenu
 				case 2:
 				{
 					var isbn = ConsoleHelper.ReadISBN("\nEnter the new ISBN");
-					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, isbn,
+					var updated = PerformUpdate(bookManagementService, desiredBook.Id, isbn,
 						v => new UpdateBookDto { ISBN = v });
 					if (updated is not null) desiredBook = updated;
 					break;
 				}
 				case 3:
 				{
-					var updated = AuthorSubMenu(desiredBook.BookId, authorManagementService, bookManagementService);
+					var updated = AuthorSubMenu(desiredBook.Id, authorManagementService, bookManagementService);
 					if (updated is not null) desiredBook = updated;
 					break;
 				}
 				case 4:
 				{
-					var updated = TranslatorSubMenu(desiredBook.BookId, translatorManagementService,
+					var updated = TranslatorSubMenu(desiredBook.Id, translatorManagementService,
 						bookManagementService);
 					if (updated is not null) desiredBook = updated;
 					break;
@@ -355,7 +355,7 @@ public static class BookMenu
 				case 5:
 				{
 					var publishDate = ConsoleHelper.GetValidDate("\nEnter the new publish date");
-					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, publishDate,
+					var updated = PerformUpdate(bookManagementService, desiredBook.Id, publishDate,
 						v => new UpdateBookDto { PublishDate = v });
 					if (updated is not null) desiredBook = updated;
 					break;
@@ -365,7 +365,7 @@ public static class BookMenu
 					var totalCopies = ConsoleHelper.ReadInt("\nEnter the new total copies",
 						ValidationConstants.MinBookCopies, ValidationConstants.MaxBookCopies);
 
-					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, totalCopies,
+					var updated = PerformUpdate(bookManagementService, desiredBook.Id, totalCopies,
 						v => new UpdateBookDto { TotalCopies = v });
 					if (updated is not null) desiredBook = updated;
 					break;
@@ -378,7 +378,7 @@ public static class BookMenu
 
 					if (genreId is null) break;
 
-					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, genreId - 1,
+					var updated = PerformUpdate(bookManagementService, desiredBook.Id, genreId - 1,
 						v => new UpdateBookDto { GenreId = v });
 					if (updated is not null) desiredBook = updated;
 					break;
@@ -387,7 +387,7 @@ public static class BookMenu
 				{
 					var publisher = ConsoleHelper.GetValidName("\nEnter the new publisher",
 						ValidationConstants.MinPublisherNameLength, ValidationConstants.MaxPublisherNameLength);
-					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, publisher,
+					var updated = PerformUpdate(bookManagementService, desiredBook.Id, publisher,
 						v => new UpdateBookDto { Publisher = v });
 					if (updated is not null) desiredBook = updated;
 					break;
@@ -395,7 +395,7 @@ public static class BookMenu
 				case 9:
 				{
 					var description = ConsoleHelper.ReadString("\nEnter the new description");
-					var updated = PerformUpdate(bookManagementService, desiredBook.BookId, description,
+					var updated = PerformUpdate(bookManagementService, desiredBook.Id, description,
 						v => new UpdateBookDto { Description = v });
 					if (updated is not null) desiredBook = updated;
 					break;
@@ -411,7 +411,7 @@ public static class BookMenu
 			if (choice != true) return;
 
 			// Refresh desiredBook details for subsequent edits in loop
-			var refreshedBook = bookManagementService.FindBookById(desiredBook.BookId);
+			var refreshedBook = bookManagementService.FindBookById(desiredBook.Id);
 			if (refreshedBook is not null) desiredBook = refreshedBook;
 		}
 	}
@@ -641,10 +641,10 @@ public static class BookMenu
 
 		BookPrinter.PrintDetails(desiredBook);
 		var choice =
-			ConsoleHelper.ReadYesNo(string.Format(Messages.BookRemoveConfirmation, desiredBook.BookName));
+			ConsoleHelper.ReadYesNo(string.Format(Messages.BookRemoveConfirmation, desiredBook.Title));
 
 		if (choice != true) return;
-		var result = bookManagementService.RemoveBook(desiredBook.BookId);
+		var result = bookManagementService.RemoveBook(desiredBook.Id);
 		ConsoleHelper.ShowResult(result);
 	}
 
@@ -940,12 +940,12 @@ public static class BookMenu
 
 		if (session.IsSelfServiceMember)
 		{
-			var ownLoans = loanManagementService.GetOwnLoansByBook(desiredBook.BookId, session);
+			var ownLoans = loanManagementService.GetOwnLoansByBook(desiredBook.Id, session);
 			BookPrinter.PrintLoanHistory(ownLoans);
 			return;
 		}
 
-		var loans = loanManagementService.GetLoanByBook(desiredBook.BookId, session);
+		var loans = loanManagementService.GetLoanByBook(desiredBook.Id, session);
 		BookPrinter.PrintLoanHistory(loans);
 	}
 }

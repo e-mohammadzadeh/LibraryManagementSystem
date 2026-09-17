@@ -10,7 +10,7 @@ public static class LoanMapper
 		return new LoanDto
 		{
 			LoanId = loan.LoanId,
-			BookName = loan.Book.BookName,
+			BookName = loan.Book.Title,
 			BookId = loan.BookId,
 			BookISBN = loan.Book.InternationalStandardBookNumber,
 			UserName = $"{loan.User.FirstName} {loan.User.LastName}",

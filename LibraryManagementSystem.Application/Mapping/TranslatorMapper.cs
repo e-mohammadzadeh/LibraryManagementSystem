@@ -22,7 +22,7 @@ public static class TranslatorMapper
 				.. translator.BookTranslators.Select(ba => new BookSummaryDto
 				{
 					BookId = ba.BookId,
-					BookName = ba.Book.BookName,
+					BookName = ba.Book.Title,
 					ISBN = ba.Book.InternationalStandardBookNumber
 				})
 			],

@@ -85,8 +85,8 @@ public class BookManagementService
 
 		Func<BookDto, object> keySelector = sortField switch
 		{
-			BookSortField.Id => b => b.BookId,
-			BookSortField.Name => b => b.BookName,
+			BookSortField.Id => b => b.Id,
+			BookSortField.Name => b => b.Title,
 			BookSortField.ISBN => b => b.ISBN,
 			BookSortField.PublishDate => b => b.PublishDate,
 			BookSortField.Genre => b => b.Genre.ToString(),
@@ -188,7 +188,7 @@ public class BookManagementService
 
 	private static bool IsNoOpUpdateBook(Book book, UpdateBookDto dto)
 	{
-		return (dto.BookName == null || dto.BookName == book.BookName) &&
+		return (dto.BookName == null || dto.BookName == book.Title) &&
 		       (dto.ISBN == null || dto.ISBN == book.InternationalStandardBookNumber) &&
 		       (dto.AuthorIds == null || SameIds(dto.AuthorIds, book.BookAuthors.Select(ba => ba.AuthorId))) &&
 		       (dto.TranslatorIds == null ||
@@ -236,7 +236,7 @@ public class BookManagementService
 	{
 		Func<Book, string?> selector = field switch
 		{
-			BookSearchField.BookName => b => b.BookName,
+			BookSearchField.BookName => b => b.Title,
 			BookSearchField.ISBN => b => b.InternationalStandardBookNumber,
 			BookSearchField.AuthorName => b =>
 				string.Join(", ", b.BookAuthors.Select(ba => $"{ba.Author.FirstName} {ba.Author.LastName}")),

@@ -4,13 +4,13 @@ namespace LibraryManagementSystem.Domain.Entities;
 
 public class Book
 {
-	public Book(string internationalStandardBookNumber, string bookName, IEnumerable<Author> authors,
+	public Book(string internationalStandardBookNumber, string title, IEnumerable<Author> authors,
 		IEnumerable<Translator>? translators, DateOnly publishDate, int totalCopies, Genre genre, string publisher,
 		string? description)
 	{
 		Id = Guid.CreateVersion7();
 		InternationalStandardBookNumber = internationalStandardBookNumber;
-		BookName = bookName;
+		Title = title;
 
 		ArgumentNullException.ThrowIfNull(authors);
 		var authorList = authors.DistinctBy(a => a.Id).ToList();
@@ -37,7 +37,7 @@ public class Book
 
 	//TODO	(SQL Server)	When switch into SQL Server, IDs will generate by SQL Server itself and should remove static ones
 	public Guid Id { get; private set; }
-	public string BookName { get; private set; }
+	public string Title { get; private set; }
 	public string InternationalStandardBookNumber { get; private set; }
 	private readonly List<BookAuthor> _bookAuthors = [];
 	private readonly List<BookTranslator> _bookTranslators = [];
@@ -163,7 +163,7 @@ public class Book
 			AvailableCopies += difference;
 		}
 
-		BookName = bookName ?? BookName;
+		Title = bookName ?? Title;
 		InternationalStandardBookNumber = isbn ?? InternationalStandardBookNumber;
 		PublishDate = publishDate ?? PublishDate;
 		Genre = genreId ?? Genre;

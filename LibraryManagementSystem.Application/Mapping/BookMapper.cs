@@ -9,8 +9,8 @@ public static class BookMapper
 	{
 		return new BookDto
 		{
-			BookId = book.Id,
-			BookName = book.BookName,
+			Id = book.Id,
+			Title = book.Title,
 			ISBN = book.InternationalStandardBookNumber,
 			Authors = [.. book.BookAuthors.Select(ba => ba.Author.ToDto())],
 			Translators = [.. book.BookTranslators.Select(bt => bt.Translator.ToDto())],
@@ -30,7 +30,7 @@ public static class BookMapper
 		return new BookSummaryDto
 		{
 			BookId = book.Id,
-			BookName = book.BookName,
+			BookName = book.Title,
 			ISBN = book.InternationalStandardBookNumber,
 			AvailableCopies = book.AvailableCopies
 		};
