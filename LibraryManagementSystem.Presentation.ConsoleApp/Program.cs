@@ -2,12 +2,12 @@
 using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
-using LibraryManagementSystem.Infrastructure.Repositories.InMemory;
 using LibraryManagementSystem.Infrastructure.Security;
 using LibraryManagementSystem.Infrastructure.Seeders;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 using System.Text;
+using LibraryManagementSystem.Application.Repositories.InMemory;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp;
 

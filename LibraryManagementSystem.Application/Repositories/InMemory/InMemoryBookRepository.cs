@@ -1,7 +1,7 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 
-namespace LibraryManagementSystem.Infrastructure.Repositories.InMemory;
+namespace LibraryManagementSystem.Application.Repositories.InMemory;
 
 public class InMemoryBookRepository : IBookRepository
 {

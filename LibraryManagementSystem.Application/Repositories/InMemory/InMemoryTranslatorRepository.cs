@@ -2,7 +2,7 @@
 using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Interfaces;
 
-namespace LibraryManagementSystem.Infrastructure.Repositories.InMemory;
+namespace LibraryManagementSystem.Application.Repositories.InMemory;
 
 public class InMemoryTranslatorRepository : ITranslatorRepository
 {
