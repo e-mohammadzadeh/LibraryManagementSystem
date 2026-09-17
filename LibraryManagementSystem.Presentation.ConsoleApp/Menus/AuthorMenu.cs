@@ -295,7 +295,7 @@ public static class AuthorMenu
 	}
 
 
-	private static AuthorDto? PerformUpdate<T>(AuthorManagementService authorManagementService, int desiredAuthorId,
+	private static AuthorDto? PerformUpdate<T>(AuthorManagementService authorManagementService, Guid desiredAuthorId,
 		T? newValue, Func<T, UpdateAuthorDto> buildDto)
 	{
 		if (newValue is null) return null;

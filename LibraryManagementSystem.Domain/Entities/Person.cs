@@ -25,7 +25,7 @@ public abstract class Person
 	public string PhoneNumber { get; private set; }
 	public DateOnly BirthDate { get; private set; }
 	public DateTime CreatedAt { get; private set; }
-	public DateTime? UpdatedAt { get; private set; }
+	public DateTime? UpdatedAt { get; set; }
 	public bool IsRemoved { get; set; }
 
 

@@ -95,5 +95,6 @@ public class InMemoryAuthorRepository : IAuthorRepository
 		var existingAuthorIndex = _authors.FindIndex(a => a.Id == author.Id);
 		if (existingAuthorIndex == -1) throw new KeyNotFoundException($"Author with ID {author.Id} was not found.");
 		_authors[existingAuthorIndex] = author;
+		author.UpdatedAt = DateTime.Now;
 	}
 }

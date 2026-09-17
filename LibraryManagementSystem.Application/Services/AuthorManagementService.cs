@@ -15,13 +15,16 @@ namespace LibraryManagementSystem.Application.Services;
 public class AuthorManagementService
 {
 	private readonly IAuthorRepository _authorRepository;
+	private readonly IBookRepository _bookRepository;
 	private readonly IAuthorizationService _authorization;
 	private readonly IAuditLogManagementService _auditLog;
 
 
-	public AuthorManagementService(IAuthorRepository authorRepository, IAuthorizationService authorization, IAuditLogManagementService auditLog)
+	public AuthorManagementService(IAuthorRepository authorRepository, IBookRepository bookRepository,
+		IAuthorizationService authorization, IAuditLogManagementService auditLog)
 	{
 		_authorRepository = authorRepository;
+		_bookRepository = bookRepository;
 		_authorization = authorization;
 		_auditLog = auditLog;
 	}
@@ -86,7 +89,8 @@ public class AuthorManagementService
 
 		var auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(author, dto);
 
-		var updatedAuthor = new Author(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate.Value, dto.Biography);
+		var updatedAuthor = new Author(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber,
+			dto.BirthDate.Value, dto.Biography);
 
 		_authorRepository.Update(updatedAuthor);
 
@@ -115,7 +119,8 @@ public class AuthorManagementService
 		var author = _authorRepository.FindById(authorId);
 		if (author is null) return ServiceResult<AuthorDto>.Fail(Messages.AuthorRemoveFailed);
 
-		if (author.BookAuthors.Count != 0) return ServiceResult<AuthorDto>.Fail(Messages.AuthorHasAssociatedBooks);
+		var booksByAuthor = _bookRepository.GetByAuthorId(authorId);
+		if (booksByAuthor.Count != 0) return ServiceResult<AuthorDto>.Fail(Messages.AuthorHasAssociatedBooks);
 
 		_authorRepository.Remove(author);
 		_auditLog.Record(AuditAction.AuthorRemoved, "Author", authorId, "Author removed.");
@@ -150,11 +155,11 @@ public class AuthorManagementService
 	}
 
 
-	public IReadOnlyList<BookDto> GetBooksByAuthor(int authorId)
+	public IReadOnlyList<BookDto> GetBooksByAuthor(Guid authorId)
 	{
 		var author = _authorRepository.FindById(authorId);
 		if (author is null) return [];
-		return [.. author.BookAuthors.Select(ba => ba.Book.ToDto())];
+		return [.. _bookRepository.GetByAuthorId(authorId).Select(b => b.ToDto())];
 	}
 
 
@@ -169,11 +174,11 @@ public class AuthorManagementService
 			AuthorSortField.Id => a => a.Id,
 			AuthorSortField.FirstName => a => a.FirstName,
 			AuthorSortField.LastName => a => a.LastName,
-			AuthorSortField.FullName => a => a.FullName,
+			AuthorSortField.FullName => a => $"{a.FirstName} {a.LastName}",
 			AuthorSortField.NationalCode => a => a.NationalCode,
 			AuthorSortField.Email => a => a.Email,
 			AuthorSortField.BirthDate => a => a.BirthDate,
-			AuthorSortField.BookCount => a => a.BookCount,
+			AuthorSortField.BookCount => a => _bookRepository.GetByAuthorId(a.Id).Count,
 			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
 		};
 

@@ -48,7 +48,7 @@ public class Book
 	public int AvailableCopies { get; private set; }
 	public string? Description { get; private set; }
 	public DateTime CreatedAt { get; }
-	public DateTime? UpdatedAt { get; private set; }
+	public DateTime? UpdatedAt { get; set; }
 
 
 	private void MarkAsUpdated() { UpdatedAt = DateTime.Now; }

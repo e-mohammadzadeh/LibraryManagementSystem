@@ -2,7 +2,6 @@
 
 public class User : Person
 {
-	private static int _nextUserId;
 	private readonly List<UserRole> _userRoles = [];
 	public bool IsActive { get; private set; }
 	public DateOnly MembershipStartDate { get; }
@@ -21,7 +20,6 @@ public class User : Person
 		DateOnly birthDate, IEnumerable<Role> roles, DateOnly? membershipStartDate = null) : base(firstName, lastName,
 		nationalCode, email, phoneNumber, birthDate)
 	{
-		Id = ++_nextUserId;
 		IsActive = true;
 		MembershipStartDate = membershipStartDate ?? DateOnly.FromDateTime(DateTime.Today);
 		// Should set a suitable end date based on business logic
@@ -36,15 +34,15 @@ public class User : Person
 
 
 
-	public void Update(string? firstName, string? lastName, string? nationalCode, string? email, string? phoneNumber,
-		DateOnly? birthDate, IEnumerable<Role>? roles)
-	{
-		UpdateCore(firstName, lastName, nationalCode, email, phoneNumber, birthDate);
-		if (roles is not null)
-		{
-			ReplaceRoles(roles);
-		}
-	}
+	//public void Update(string? firstName, string? lastName, string? nationalCode, string? email, string? phoneNumber,
+	//	DateOnly? birthDate, IEnumerable<Role>? roles)
+	//{
+	//	UpdateCore(firstName, lastName, nationalCode, email, phoneNumber, birthDate);
+	//	if (roles is not null)
+	//	{
+	//		ReplaceRoles(roles);
+	//	}
+	//}
 
 
 	private void AssignRole(Role role)

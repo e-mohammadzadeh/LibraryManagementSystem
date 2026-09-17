@@ -16,7 +16,7 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 	}
 
 
-	public Translator? FindById(int id) { return _translators.FirstOrDefault(translator => translator.Id == id); }
+	public Translator? FindById(Guid id) { return _translators.FirstOrDefault(translator => translator.Id == id); }
 
 
 	public Translator? FindByName(string firstName, string lastName)
@@ -49,21 +49,21 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 	}
 
 
-	public bool ExistsByNationalCode(string nationalCode, int excludeId = -1)
+	public bool ExistsByNationalCode(string nationalCode, Guid? excludeId = null)
 	{
 		return _translators.Any(translator => translator.Id != excludeId &&
 		                                      translator.NationalCode.Equals(nationalCode));
 	}
 
 
-	public bool ExistsByEmail(string email, int excludeId = -1)
+	public bool ExistsByEmail(string email, Guid? excludeId = null)
 	{
 		return _translators.Any(translator => translator.Id != excludeId &&
 		                                      translator.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
 	}
 
 
-	public bool ExistsByPhoneNumber(string phoneNumber, int excludeId = -1)
+	public bool ExistsByPhoneNumber(string phoneNumber, Guid? excludeId = null)
 	{
 		return _translators.Any(translator => translator.Id != excludeId &&
 		                                      translator.PhoneNumber.Equals(phoneNumber));
@@ -95,5 +95,6 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 		if (existingTranslatorIndex == -1)
 			throw new KeyNotFoundException($"Translator with ID {translator.Id} was not found.");
 		_translators[existingTranslatorIndex] = translator;
+		translator.UpdatedAt = DateTime.Now;
 	}
 }

@@ -76,8 +76,11 @@ public class InMemoryUserRepository : IUserRepository
 
 	public void Update(User user)
 	{
-		// Nothing to do.
-		// The object reference has already been updated.
+		ArgumentNullException.ThrowIfNull(user);
+		var existingUserIndex = _users.FindIndex(u => u.Id == user.Id);
+		if (existingUserIndex == -1) throw new KeyNotFoundException($"User with ID {user.Id} was not found.");
+		_users[existingUserIndex] = user;
+		user.UpdatedAt = DateTime.Now;
 	}
 
 
