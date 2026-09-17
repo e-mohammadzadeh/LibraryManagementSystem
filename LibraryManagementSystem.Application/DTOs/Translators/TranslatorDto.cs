@@ -4,7 +4,7 @@ namespace LibraryManagementSystem.Application.DTOs.Translators;
 
 public class TranslatorDto
 {
-	public int Id { get; init; }
+	public Guid Id { get; init; }
 	public string FirstName { get; init; } = null!;
 	public string LastName { get; init; } = null!;
 	public string FullName => $"{FirstName} {LastName}";

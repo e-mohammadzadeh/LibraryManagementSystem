@@ -31,7 +31,7 @@ public class Book
 		Genre = genre;
 		Publisher = publisher;
 		Description = description;
-		CreatedAt = DateTime.Now;
+		CreatedAt = DateTime.UtcNow;
 	}
 
 
@@ -51,155 +51,153 @@ public class Book
 	public DateTime? UpdatedAt { get; set; }
 
 
-	private void MarkAsUpdated() { UpdatedAt = DateTime.Now; }
-
-
-	private void AddAuthor(Author author)
-	{
-		ArgumentNullException.ThrowIfNull(author);
-		if (_bookAuthors.Any(ba => ba.AuthorId == author.Id)) return;
-
-		var bookAuthor = new BookAuthor(this, author);
-		_bookAuthors.Add(bookAuthor);
-		author.AddBookAuthor(bookAuthor);
-		MarkAsUpdated();
-	}
-
-
-	public void ReplaceAuthors(IEnumerable<Author> authors)
-	{
-		ArgumentNullException.ThrowIfNull(authors);
-		var authorList = authors.DistinctBy(a => a.Id).ToList();
-		if (authorList.Count == 0) throw new ArgumentException("A book must have at least one author.");
-
-		foreach (var bookAuthor in _bookAuthors.ToList()) RemoveAuthorInternal(bookAuthor.AuthorId);
-		foreach (var author in authorList) AddAuthor(author);
-		MarkAsUpdated();
-	}
-
-
-	private void RemoveAuthor(int authorId)
-	{
-		if (_bookAuthors.Count <= 1) throw new InvalidOperationException("A book must have at least one author.");
-		RemoveAuthorInternal(authorId);
-	}
-
-
-	private void RemoveAuthorInternal(int authorId)
-	{
-		var bookAuthor = _bookAuthors.FirstOrDefault(ba => ba.AuthorId == authorId);
-		if (bookAuthor is null) return;
-
-		_bookAuthors.Remove(bookAuthor);
-		bookAuthor.Author.RemoveBookAuthor(bookAuthor);
-		MarkAsUpdated();
-	}
-
-
-
-	public void DetachFromAuthors()
-	{
-		foreach (var bookAuthor in _bookAuthors.ToList()) bookAuthor.Author.RemoveBookAuthor(bookAuthor);
-		_bookAuthors.Clear();
-		MarkAsUpdated();
-	}
-
-
-	private void AddTranslator(Translator translator)
-	{
-		ArgumentNullException.ThrowIfNull(translator);
-		if (_bookTranslators.Any(ba => ba.TranslatorId == translator.Id)) return;
-
-		var bookTranslator = new BookTranslator(this, translator);
-		_bookTranslators.Add(bookTranslator);
-		translator.AddBookTranslator(bookTranslator);
-		MarkAsUpdated();
-	}
-
-
-	private void RemoveTranslator(int translatorId)
-	{
-		var bookTranslator = _bookTranslators.FirstOrDefault(ba => ba.TranslatorId == translatorId);
-
-		if (bookTranslator is null) return;
-		_bookTranslators.Remove(bookTranslator);
-		bookTranslator.Translator.RemoveBookTranslator(bookTranslator);
-		MarkAsUpdated();
-	}
-
-
-
-	public void DetachFromTranslators()
-	{
-		foreach (var bookTranslator in _bookTranslators.ToList()) RemoveTranslator(bookTranslator.TranslatorId);
-		_bookTranslators.Clear();
-		MarkAsUpdated();
-	}
-
-
-	public void ReplaceTranslators(IEnumerable<Translator> translators)
-	{
-		ArgumentNullException.ThrowIfNull(translators);
-		foreach (var bookTranslator in _bookTranslators.ToList()) RemoveTranslator(bookTranslator.TranslatorId);
-		foreach (var translator in translators.DistinctBy(t => t.Id)) AddTranslator(translator);
-		MarkAsUpdated();
-	}
-
-
-
-	public bool Update(string? bookName, string? isbn, DateOnly? publishDate, Genre? genreId, string? publisher,
-		int? totalCopies, string? description)
-	{
-		if (totalCopies.HasValue)
-		{
-			var difference = totalCopies.Value - TotalCopies;
-			if (AvailableCopies + difference < 0) return false;
-		}
-
-		if (totalCopies.HasValue)
-		{
-			var difference = totalCopies.Value - TotalCopies;
-			TotalCopies = totalCopies.Value;
-			AvailableCopies += difference;
-		}
-
-		Title = bookName ?? Title;
-		InternationalStandardBookNumber = isbn ?? InternationalStandardBookNumber;
-		PublishDate = publishDate ?? PublishDate;
-		Genre = genreId ?? Genre;
-		Publisher = publisher ?? Publisher;
-		Description = description ?? Description;
-		MarkAsUpdated();
-		return true;
-	}
-
-
-	private static int ValidateTotalCopies(int totalCopies)
-	{
-		return totalCopies > 0 ? totalCopies : throw new ArgumentException("Invalid total copy value.Please try again");
-	}
-
-
-	public void BorrowCopy()
-	{
-		if (AvailableCopies <= 0) throw new InvalidOperationException("No copies are available.");
-		AvailableCopies--;
-		//TODO	(Web API)	Raise an event: a signal to the rest of the system that says "this book is now out of stock"
-	}
-
-
-	public void ReturnCopy()
-	{
-		if (AvailableCopies >= TotalCopies)
-			throw new InvalidOperationException("Cannot return a copy because all copies are already in the library.");
-
-		AvailableCopies++;
-	}
-
-
 	public IReadOnlyList<BookAuthor> BookAuthors => _bookAuthors.AsReadOnly();
 
 	public IReadOnlyList<BookTranslator> BookTranslators => _bookTranslators.AsReadOnly();
 
 	public bool CanBeRemoved() { return TotalCopies == AvailableCopies; }
+
+	//private void MarkAsUpdated() { UpdatedAt = DateTime.Now; }
+
+
+	//private void AddAuthor(Author author)
+	//{
+	//	ArgumentNullException.ThrowIfNull(author);
+	//	if (_bookAuthors.Any(ba => ba.AuthorId == author.Id)) return;
+
+	//	var bookAuthor = new BookAuthor(this, author);
+	//	_bookAuthors.Add(bookAuthor);
+	//	author.AddBookAuthor(bookAuthor);
+	//	MarkAsUpdated();
+	//}
+
+
+	//public void ReplaceAuthors(IEnumerable<Author> authors)
+	//{
+	//	ArgumentNullException.ThrowIfNull(authors);
+	//	var authorList = authors.DistinctBy(a => a.Id).ToList();
+	//	if (authorList.Count == 0) throw new ArgumentException("A book must have at least one author.");
+
+	//	foreach (var bookAuthor in _bookAuthors.ToList()) RemoveAuthorInternal(bookAuthor.AuthorId);
+	//	foreach (var author in authorList) AddAuthor(author);
+	//	MarkAsUpdated();
+	//}
+
+
+	//private void RemoveAuthor(int authorId)
+	//{
+	//	if (_bookAuthors.Count <= 1) throw new InvalidOperationException("A book must have at least one author.");
+	//	RemoveAuthorInternal(authorId);
+	//}
+
+
+	//private void RemoveAuthorInternal(int authorId)
+	//{
+	//	var bookAuthor = _bookAuthors.FirstOrDefault(ba => ba.AuthorId == authorId);
+	//	if (bookAuthor is null) return;
+
+	//	_bookAuthors.Remove(bookAuthor);
+	//	bookAuthor.Author.RemoveBookAuthor(bookAuthor);
+	//	MarkAsUpdated();
+	//}
+
+
+
+	//public void DetachFromAuthors()
+	//{
+	//	foreach (var bookAuthor in _bookAuthors.ToList()) bookAuthor.Author.RemoveBookAuthor(bookAuthor);
+	//	_bookAuthors.Clear();
+	//	MarkAsUpdated();
+	//}
+
+
+	//private void AddTranslator(Translator translator)
+	//{
+	//	ArgumentNullException.ThrowIfNull(translator);
+	//	if (_bookTranslators.Any(ba => ba.TranslatorId == translator.Id)) return;
+
+	//	var bookTranslator = new BookTranslator(this, translator);
+	//	_bookTranslators.Add(bookTranslator);
+	//	translator.AddBookTranslator(bookTranslator);
+	//	MarkAsUpdated();
+	//}
+
+
+	//private void RemoveTranslator(int translatorId)
+	//{
+	//	var bookTranslator = _bookTranslators.FirstOrDefault(ba => ba.TranslatorId == translatorId);
+
+	//	if (bookTranslator is null) return;
+	//	_bookTranslators.Remove(bookTranslator);
+	//	bookTranslator.Translator.RemoveBookTranslator(bookTranslator);
+	//	MarkAsUpdated();
+	//}
+
+
+
+	//public void DetachFromTranslators()
+	//{
+	//	foreach (var bookTranslator in _bookTranslators.ToList()) RemoveTranslator(bookTranslator.TranslatorId);
+	//	_bookTranslators.Clear();
+	//	MarkAsUpdated();
+	//}
+
+
+	//public void ReplaceTranslators(IEnumerable<Translator> translators)
+	//{
+	//	ArgumentNullException.ThrowIfNull(translators);
+	//	foreach (var bookTranslator in _bookTranslators.ToList()) RemoveTranslator(bookTranslator.TranslatorId);
+	//	foreach (var translator in translators.DistinctBy(t => t.Id)) AddTranslator(translator);
+	//	MarkAsUpdated();
+	//}
+
+
+
+	//public bool Update(string? bookName, string? isbn, DateOnly? publishDate, Genre? genreId, string? publisher,
+	//	int? totalCopies, string? description)
+	//{
+	//	if (totalCopies.HasValue)
+	//	{
+	//		var difference = totalCopies.Value - TotalCopies;
+	//		if (AvailableCopies + difference < 0) return false;
+	//	}
+
+	//	if (totalCopies.HasValue)
+	//	{
+	//		var difference = totalCopies.Value - TotalCopies;
+	//		TotalCopies = totalCopies.Value;
+	//		AvailableCopies += difference;
+	//	}
+
+	//	Title = bookName ?? Title;
+	//	InternationalStandardBookNumber = isbn ?? InternationalStandardBookNumber;
+	//	PublishDate = publishDate ?? PublishDate;
+	//	Genre = genreId ?? Genre;
+	//	Publisher = publisher ?? Publisher;
+	//	Description = description ?? Description;
+	//	MarkAsUpdated();
+	//	return true;
+	//}
+
+
+	private static int ValidateTotalCopies(int totalCopies) {
+		return totalCopies > 0 ? totalCopies : throw new ArgumentException("Invalid total copy value.Please try again");
+	}
+
+
+	//public void BorrowCopy()
+	//{
+	//	if (AvailableCopies <= 0) throw new InvalidOperationException("No copies are available.");
+	//	AvailableCopies--;
+	//	//TODO	(Web API)	Raise an event: a signal to the rest of the system that says "this book is now out of stock"
+	//}
+
+
+	//public void ReturnCopy()
+	//{
+	//	if (AvailableCopies >= TotalCopies)
+	//		throw new InvalidOperationException("Cannot return a copy because all copies are already in the library.");
+
+	//	AvailableCopies++;
+	//}
 }

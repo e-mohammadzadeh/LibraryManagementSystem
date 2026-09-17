@@ -6,6 +6,7 @@ using LibraryManagementSystem.Application.DTOs.Library;
 using LibraryManagementSystem.Application.DTOs.Translators;
 using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
@@ -63,8 +64,7 @@ public static class MenuHelper
 		{
 			printer(authorsList);
 			// TODO	Max parameter has some logical issues when authors are removed and new authors are added.
-			var desiredAuthorId = ConsoleHelper.ReadInt("Enter the number of the author you wish", 1,
-				authorsList.Max(a => a.Id));
+			var desiredAuthorId = ConsoleHelper.ReadInt("Enter the number of the author you wish", 1, 1000);
 
 			if (desiredAuthorId is null) return null;
 

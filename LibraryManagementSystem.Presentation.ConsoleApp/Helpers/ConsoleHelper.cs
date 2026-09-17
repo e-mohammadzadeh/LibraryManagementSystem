@@ -6,6 +6,7 @@ using LibraryManagementSystem.Application.Validators;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using System.Text;
+using LibraryManagementSystem.Infrastructure.Common;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
@@ -156,7 +157,7 @@ public static class ConsoleHelper
 	}
 
 
-	private static List<int>? ReadMultiSelect<T>(string prompt, IReadOnlyList<T>? items, Func<T, int> idSelector,
+	private static List<int>? ReadMultiSelect<T>(string prompt, IReadOnlyList<T>? items, Func<T, Guid> idSelector,
 		Func<T, string> displayNameSelector, bool allowMultiple = true, bool allowEmpty = false)
 	{
 		if (items == null || items.Count == 0)

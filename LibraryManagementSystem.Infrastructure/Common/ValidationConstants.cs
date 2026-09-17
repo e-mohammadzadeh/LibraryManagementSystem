@@ -1,4 +1,4 @@
-﻿namespace LibraryManagementSystem.Application.Common;
+﻿namespace LibraryManagementSystem.Infrastructure.Common;
 
 public static class ValidationConstants
 {

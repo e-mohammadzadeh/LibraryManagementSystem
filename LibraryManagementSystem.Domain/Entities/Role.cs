@@ -6,15 +6,14 @@ public class Role
 {
 	public Role(LibraryUserRole name, string description)
 	{
+		Id = Guid.CreateVersion7();
 		Name = name;
 		Description = description;
-		Id = ++_nextRoleId;
 	}
 
 
-	private static int _nextRoleId;
 	private readonly List<UserRole> _userRoles = [];
-	public int Id { get; private set; }
+	public Guid Id { get;  set; }
 	public LibraryUserRole Name { get; }
 	public string Description { get; private set; }
 

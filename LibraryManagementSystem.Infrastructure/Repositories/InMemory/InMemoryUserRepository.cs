@@ -16,7 +16,7 @@ public class InMemoryUserRepository : IUserRepository
 	}
 
 
-	public User? FindById(int id) { return _users.FirstOrDefault(u => u.Id == id); }
+	public User? FindById(Guid id) { return _users.FirstOrDefault(u => u.Id == id); }
 
 
 	public User? FindByName(string firstName, string lastName)
@@ -56,19 +56,19 @@ public class InMemoryUserRepository : IUserRepository
 	}
 
 
-	public bool ExistsByNationalCode(string nationalCode, int excludeId = -1)
+	public bool ExistsByNationalCode(string nationalCode, Guid? excludeId = null)
 	{
 		return _users.Any(u => u.Id != excludeId && u.NationalCode.Equals(nationalCode));
 	}
 
 
-	public bool ExistsByEmail(string email, int excludeId = -1)
+	public bool ExistsByEmail(string email, Guid? excludeId = null)
 	{
 		return _users.Any(u => u.Id != excludeId && u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
 	}
 
 
-	public bool ExistsByPhoneNumber(string phoneNumber, int excludeId = -1)
+	public bool ExistsByPhoneNumber(string phoneNumber, Guid? excludeId = null)
 	{
 		return _users.Any(u => u.Id != excludeId && u.PhoneNumber.Equals(phoneNumber));
 	}
