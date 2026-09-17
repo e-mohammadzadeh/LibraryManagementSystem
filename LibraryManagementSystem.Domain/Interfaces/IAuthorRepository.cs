@@ -6,12 +6,12 @@ namespace LibraryManagementSystem.Domain.Interfaces;
 public interface IAuthorRepository
 {
 	void Add(Author author);
-	Author? FindById(int id);
+	Author? FindById(Guid id);
 	Author? FindByName(string firstName, string lastName);
 	IReadOnlyList<Author> GetAll(EntityFilter filter);
-	bool ExistsByNationalCode(string nationalCode, int excludeId = -1);
-	bool ExistsByEmail(string email, int excludeId = -1);
-	bool ExistsByPhoneNumber(string phoneNumber, int excludeId = -1);
+	bool ExistsByNationalCode(string nationalCode, Guid? excludeId);
+	bool ExistsByEmail(string email, Guid? excludeId);
+	bool ExistsByPhoneNumber(string phoneNumber, Guid? excludeId);
 	void Remove(Author author);
 	IReadOnlyList<Author> Search(string searchItem, Func<Author, string?> selector);
 	void Update(Author author);

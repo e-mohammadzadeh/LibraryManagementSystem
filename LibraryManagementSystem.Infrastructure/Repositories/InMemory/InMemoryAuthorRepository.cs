@@ -16,7 +16,7 @@ public class InMemoryAuthorRepository : IAuthorRepository
 	}
 
 
-	public Author? FindById(int id) { return _authors.FirstOrDefault(author => author.Id == id); }
+	public Author? FindById(Guid id) { return _authors.FirstOrDefault(author => author.Id == id); }
 
 
 	public Author? FindByName(string firstName, string lastName)
@@ -49,26 +49,29 @@ public class InMemoryAuthorRepository : IAuthorRepository
 	}
 
 
-	public bool ExistsByNationalCode(string nationalCode, int excludeId = -1)
-	{
-		return _authors.Any(author => author.Id != excludeId && author.NationalCode.Equals(nationalCode));
-	}
-
-
-	public bool ExistsByEmail(string email, int excludeId = -1)
+	public bool ExistsByNationalCode(string nationalCode, Guid? excludeId = null)
 	{
 		return _authors.Any(author =>
-			author.Id != excludeId && author.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+			author.NationalCode.Equals(nationalCode) && (excludeId is null || author.Id != excludeId));
 	}
 
 
-	public bool ExistsByPhoneNumber(string phoneNumber, int excludeId = -1)
+	public bool ExistsByEmail(string email, Guid? excludeId = null)
 	{
-		return _authors.Any(author => author.Id != excludeId && author.PhoneNumber.Equals(phoneNumber));
+		return _authors.Any(author =>
+			author.Email.Equals(email, StringComparison.OrdinalIgnoreCase) &&
+			(excludeId is null || author.Id != excludeId));
 	}
 
 
-	public void Remove(Author author) { author.DeleteAuthor(); }
+	public bool ExistsByPhoneNumber(string phoneNumber, Guid? excludeId = null)
+	{
+		return _authors.Any(author =>
+			author.PhoneNumber.Equals(phoneNumber) && (excludeId is null || author.Id != excludeId));
+	}
+
+
+	public void Remove(Author author) { author.IsRemoved = true; }
 
 
 	public IReadOnlyList<Author> Search(string searchItem, Func<Author, string?> selector)
@@ -88,9 +91,9 @@ public class InMemoryAuthorRepository : IAuthorRepository
 
 	public void Update(Author author)
 	{
-		// In-memory collections update by reference automatically.
-		// However, we leave this method empty rather than throwing an exception 
-		// so that the Service layer can safely call _repository.Update() 
-		// without crashing, simulating a real database save operation.
+		ArgumentNullException.ThrowIfNull(author);
+		var existingAuthorIndex = _authors.FindIndex(a => a.Id == author.Id);
+		if (existingAuthorIndex == -1) throw new KeyNotFoundException($"Author with ID {author.Id} was not found.");
+		_authors[existingAuthorIndex] = author;
 	}
 }

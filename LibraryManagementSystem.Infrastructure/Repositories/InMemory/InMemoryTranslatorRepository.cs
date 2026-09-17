@@ -90,9 +90,10 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 
 	public void Update(Translator translator)
 	{
-		// In-memory collections update by reference automatically.
-		// However, we leave this method empty rather than throwing an exception 
-		// so that the Service layer can safely call _repository.Update() 
-		// without crashing, simulating a real database save operation.
+		ArgumentNullException.ThrowIfNull(translator);
+		var existingTranslatorIndex = _translators.FindIndex(t => t.Id == translator.Id);
+		if (existingTranslatorIndex == -1)
+			throw new KeyNotFoundException($"Translator with ID {translator.Id} was not found.");
+		_translators[existingTranslatorIndex] = translator;
 	}
 }

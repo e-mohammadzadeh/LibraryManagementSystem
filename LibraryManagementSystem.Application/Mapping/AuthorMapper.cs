@@ -1,5 +1,4 @@
 ﻿using LibraryManagementSystem.Application.DTOs.Authors;
-using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Domain.Entities;
 
 namespace LibraryManagementSystem.Application.Mapping;
@@ -18,16 +17,6 @@ public static class AuthorMapper
 			PhoneNumber = author.PhoneNumber,
 			BirthDate = author.BirthDate,
 			Biography = author.Biography,
-			Books =
-			[
-				.. author.BookAuthors.Select(ba => new BookSummaryDto
-				{
-					BookId = ba.BookId,
-					BookName = ba.Book.BookName,
-					ISBN = ba.Book.InternationalStandardBookNumber
-				})
-			],
-			BookCount = author.BookAuthors.Count,
 			CreatedAt = author.CreatedAt,
 			UpdatedAt = author.UpdatedAt
 		};

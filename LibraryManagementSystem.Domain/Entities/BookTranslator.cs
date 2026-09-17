@@ -16,4 +16,5 @@ public class BookTranslator
 	public Book Book { get; private set; }
 	public int TranslatorId { get; private set; }
 	public Translator Translator { get; private set; }
+	public string Language { get; private set; }
 }

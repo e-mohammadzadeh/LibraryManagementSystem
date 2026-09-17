@@ -15,22 +15,15 @@ public class InMemoryBookRepository : IBookRepository
 	}
 
 
-	public Book? FindById(int id)
-	{
-		return _books.FirstOrDefault(b => b.BookId == id);
-	}
+	public Book? FindById(int id) { return _books.FirstOrDefault(b => b.BookId == id); }
 
 
-	public IReadOnlyList<Book> GetAll()
-	{
-		return _books.AsReadOnly();
-	}
+	public IReadOnlyList<Book> GetAll() { return _books.AsReadOnly(); }
 
 
 	public bool ExistsByName(string name, int excludeBookId = -1)
 	{
-		if (string.IsNullOrWhiteSpace(name))
-			return false;
+		if (string.IsNullOrWhiteSpace(name)) return false;
 
 		return _books.Any(b =>
 			b.BookId != excludeBookId && b.BookName.Equals(name, StringComparison.OrdinalIgnoreCase));
@@ -39,8 +32,7 @@ public class InMemoryBookRepository : IBookRepository
 
 	public bool ExistsByISBN(string isbn, int excludeBookId = -1)
 	{
-		if (string.IsNullOrWhiteSpace(isbn))
-			return false;
+		if (string.IsNullOrWhiteSpace(isbn)) return false;
 
 		return _books.Any(b =>
 			b.BookId != excludeBookId &&
@@ -48,16 +40,10 @@ public class InMemoryBookRepository : IBookRepository
 	}
 
 
-	public IReadOnlyList<Book> GetAvailableBooks()
-	{
-		return [.. _books.Where(b => b.AvailableCopies > 0)];
-	}
+	public IReadOnlyList<Book> GetAvailableBooks() { return [.. _books.Where(b => b.AvailableCopies > 0)]; }
 
 
-	public void Remove(Book book)
-	{
-		_books.Remove(book);
-	}
+	public void Remove(Book book) { _books.Remove(book); }
 
 
 	public IReadOnlyList<Book> Search(string searchTerm, Func<Book, string?> selector)
@@ -88,9 +74,9 @@ public class InMemoryBookRepository : IBookRepository
 
 	public void Update(Book book)
 	{
-		// In-memory collections update by reference automatically.
-		// However, we leave this method empty rather than throwing an exception 
-		// so that the Service layer can safely call _repository.Update() 
-		// without crashing, simulating a real database save operation.
+		ArgumentNullException.ThrowIfNull(book);
+		var existingBookIndex = _books.FindIndex(b => b.BookId == book.BookId);
+		if (existingBookIndex == -1) throw new KeyNotFoundException($"Book with ID {book.BookId} was not found.");
+		_books[existingBookIndex] = book;
 	}
 }
