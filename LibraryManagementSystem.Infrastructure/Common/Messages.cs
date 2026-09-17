@@ -1,4 +1,6 @@
-﻿namespace LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Infrastructure.Common;
+
+namespace LibraryManagementSystem.Application.Common;
 
 public static class Messages
 {
