@@ -8,7 +8,7 @@ public class LoanHistory
 	{
 		ArgumentNullException.ThrowIfNull(loan);
 
-		Id = ++_nextId;
+		Id = Guid.CreateVersion7();
 		Loan = loan;
 		LoanId = loan.LoanId;
 		User = loan.User;
@@ -21,14 +21,13 @@ public class LoanHistory
 		
 	}
 
-	private static int _nextId;
-	public int Id { get; private set; }
+	public Guid Id { get; private set; }
 	public Loan Loan { get; private set; }
-	public int LoanId { get; private set; }
+	public Guid LoanId { get; private set; }
 	public User User { get; private set; }
-	public int UserId { get; private set; }
+	public Guid UserId { get; private set; }
 	public Book Book { get; private set; }
-	public int BookId { get; private set; }
+	public Guid BookId { get; private set; }
 	public LoanHistoryAction Action { get; private set; }
 	public DateTime OccurredAt { get; private set; }
 	public string? Description { get; private set; }

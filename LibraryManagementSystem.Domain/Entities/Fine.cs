@@ -11,7 +11,7 @@ public class Fine
 		var overdueDays = loan.ReturnDate.Value.DayNumber - loan.DueDate.DayNumber;
 		if (overdueDays <= 0) throw new ArgumentException("Cannot create a fine for a loan that was not returned late.");
 
-		FineId = ++_nextFineId;
+		FineId = Guid.CreateVersion7();
 		Loan = loan;
 		LoanId = loan.LoanId;
 		UserId = loan.UserId;
@@ -24,11 +24,10 @@ public class Fine
 	}
 
 
-	private static int _nextFineId;
-	public int FineId { get; private set; }
-	public int LoanId { get; private set; }
+	public Guid FineId { get; private set; }
+	public Guid LoanId { get; private set; }
 	public Loan Loan { get; private set; }
-	public int UserId { get; private set; }
+	public Guid UserId { get; private set; }
 	public int OverdueDays { get; private set; }
 	public decimal Amount { get; private set; }
 	public FineStatus Status { get; private set; }

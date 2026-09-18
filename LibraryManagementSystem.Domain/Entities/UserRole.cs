@@ -12,8 +12,8 @@ public class UserRole
 	}
 
 
-	public int UserId { get; }
+	public Guid UserId { get; }
 	public User User { get; }
-	public int RoleId { get; }
+	public Guid RoleId { get; }
 	public Role Role { get; }
 }

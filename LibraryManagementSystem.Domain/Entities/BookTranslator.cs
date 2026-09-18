@@ -12,9 +12,9 @@ public class BookTranslator
 	}
 
 
-	public int BookId { get; private set; }
+	public Guid BookId { get; private set; }
 	public Book Book { get; private set; }
-	public int TranslatorId { get; private set; }
+	public Guid TranslatorId { get; private set; }
 	public Translator Translator { get; private set; }
 	public string Language { get; private set; }
 }

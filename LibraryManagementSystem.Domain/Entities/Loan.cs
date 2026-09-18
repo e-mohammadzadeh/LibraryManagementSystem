@@ -6,7 +6,7 @@ public class Loan
 {
 	public Loan(Book book, User user, DateOnly? borrowDate)
 	{
-		LoanId = ++_nextLoanId;
+		LoanId = Guid.CreateVersion7();
 		Book = book;
 		BookId = book.Id;
 		User = user;
@@ -22,12 +22,11 @@ public class Loan
 
 	private const int LoanPeriodDays = 14;
 	private const int MaxRenewals = 1;
-	private static int _nextLoanId;
-	public int LoanId { get; private set; }
+	public Guid LoanId { get; private set; }
 	public Book Book { get; private set; }
-	public int BookId { get; private set; }
+	public Guid BookId { get; private set; }
 	public User User { get; private set; }
-	public int UserId { get; private set; }
+	public Guid UserId { get; private set; }
 	public DateOnly BorrowDate { get; }
 	public DateOnly DueDate { get; private set; }
 	public DateOnly? ReturnDate { get; private set; }

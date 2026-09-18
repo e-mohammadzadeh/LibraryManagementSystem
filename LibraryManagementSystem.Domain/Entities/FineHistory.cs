@@ -6,7 +6,7 @@ public class FineHistory
 {
 	public FineHistory(Fine fine, FineHistoryAction action, string? description = null)
 	{
-		Id = ++_nextId;
+		Id = Guid.CreateVersion7();
 		Fine = fine;
 		FineId = fine.FineId;
 		Loan = fine.Loan;
@@ -22,14 +22,13 @@ public class FineHistory
 	}
 
 
-	private static int _nextId;
-	public int Id { get; private set; }
+	public Guid Id { get; private set; }
 	public Fine Fine { get; private set; }
-	public int FineId { get; private set; }
+	public Guid FineId { get; private set; }
 	public Loan Loan { get; private set; }
-	public int LoanId { get; private set; }
+	public Guid LoanId { get; private set; }
 	public User User { get; private set; }
-	public int UserId { get; private set; }
+	public Guid UserId { get; private set; }
 	public int OverdueDays { get; private set; }
 	public decimal Amount { get; private set; }
 	public FineStatus Status { get; private set; }

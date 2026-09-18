@@ -11,7 +11,7 @@ public class BookAuthor
 		AuthorId = author.Id;
 	}
 
-	public int BookId { get; private set; }
+	public Guid BookId { get; private set; }
 	public Book Book { get; private set; }
 	public Guid AuthorId { get; private set; }
 	public Author Author { get; private set; }
