@@ -19,7 +19,7 @@ public class InMemoryRoleRepository : IRoleRepository
 	}
 
 
-	public IReadOnlyList<Role> FindByIds(IEnumerable<int> ids)
+	public IReadOnlyList<Role> FindByIds(IEnumerable<Guid> ids)
 	{
 		return [.. _roles.Where(role => ids.Contains(role.Id))];
 	}

@@ -12,19 +12,19 @@ public class InMemoryLoanHistory : ILoanHistoryRepository
 	}
 
 
-	public IReadOnlyList<LoanHistory> GetByLoanId(int loanId)
+	public IReadOnlyList<LoanHistory> GetByLoanId(Guid loanId)
 	{
 		return [.. _histories.Where(history => history.LoanId == loanId)];
 	}
 
 
-	public IReadOnlyList<LoanHistory> GetByUserId(int userId)
+	public IReadOnlyList<LoanHistory> GetByUserId(Guid userId)
 	{
 		return [.. _histories.Where(history => history.UserId == userId)];
 	}
 
 
-	public IReadOnlyList<LoanHistory> GetByBookId(int bookId)
+	public IReadOnlyList<LoanHistory> GetByBookId(Guid bookId)
 	{
 		return [.. _histories.Where(history => history.BookId == bookId)];
 	}

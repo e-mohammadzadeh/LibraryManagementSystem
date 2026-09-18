@@ -13,6 +13,7 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 	{
 		ArgumentNullException.ThrowIfNull(translator);
 		_translators.Add(translator);
+		translator.UpdatedAt = DateTime.UtcNow;
 	}
 
 
@@ -70,7 +71,10 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 	}
 
 
-	public void Remove(Translator translator) { translator.DeleteTranslator(); }
+	public void Remove(Translator translator) {
+		translator.IsRemoved = true;
+		translator.UpdatedAt = DateTime.UtcNow;
+	}
 
 
 	public IReadOnlyList<Translator> Search(string searchItem, Func<Translator, string?> selector)
@@ -95,6 +99,6 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 		if (existingTranslatorIndex == -1)
 			throw new KeyNotFoundException($"Translator with ID {translator.Id} was not found.");
 		_translators[existingTranslatorIndex] = translator;
-		translator.UpdatedAt = DateTime.Now;
+		translator.UpdatedAt = DateTime.UtcNow;
 	}
 }

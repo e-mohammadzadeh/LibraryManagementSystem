@@ -13,19 +13,19 @@ public class InMemoryFineHistory : IFineHistoryRepository
 	}
 
 
-	public IReadOnlyList<FineHistory> GetByFineId(int fineId)
+	public IReadOnlyList<FineHistory> GetByFineId(Guid fineId)
 	{
 		return [.. _histories.Where(history => history.FineId == fineId)];
 	}
 
 
-	public IReadOnlyList<FineHistory> GetByLoanId(int loanId)
+	public IReadOnlyList<FineHistory> GetByLoanId(Guid loanId)
 	{
 		return [.. _histories.Where(history => history.LoanId == loanId)];
 	}
 
 
-	public IReadOnlyList<FineHistory> GetByUserId(int userId)
+	public IReadOnlyList<FineHistory> GetByUserId(Guid userId)
 	{
 		return [.. _histories.Where(history => history.UserId == userId)];
 	}

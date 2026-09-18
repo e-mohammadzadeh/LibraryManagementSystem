@@ -15,25 +15,25 @@ public class InMemoryLoanRepository : ILoanRepository
 	}
 
 
-	public Loan? FindById(int id) { return _loans.FirstOrDefault(l => l.LoanId == id); }
+	public Loan? FindById(Guid id) { return _loans.FirstOrDefault(l => l.LoanId == id); }
 
 
 	public IReadOnlyList<Loan> GetAll() { return _loans.AsReadOnly(); }
 
 
-	public IReadOnlyList<Loan> GetAllByUser(int userId) { return [.. _loans.Where(l => l.UserId == userId)]; }
+	public IReadOnlyList<Loan> GetAllByUser(Guid userId) { return [.. _loans.Where(l => l.UserId == userId)]; }
 
 
-	public Loan? GetActiveLoanById(int loanId) { return _loans.FirstOrDefault(l => l.LoanId == loanId && l.IsActive); }
+	public Loan? GetActiveLoanById(Guid loanId) { return _loans.FirstOrDefault(l => l.LoanId == loanId && l.IsActive); }
 
 
-	public IReadOnlyList<Loan> GetActiveLoansByUser(int userId)
+	public IReadOnlyList<Loan> GetActiveLoansByUser(Guid userId)
 	{
 		return [.. _loans.Where(l => l.UserId == userId && l.IsActive)];
 	}
 
 
-	public IReadOnlyList<Loan> GetActiveLoansByBook(int bookId)
+	public IReadOnlyList<Loan> GetActiveLoansByBook(Guid bookId)
 	{
 		return [.. _loans.Where(l => l.BookId == bookId && l.IsActive)];
 	}
@@ -42,16 +42,16 @@ public class InMemoryLoanRepository : ILoanRepository
 	public IReadOnlyList<Loan> GetReturnedLoans() { return [.. _loans.Where(loan => loan.ReturnDate.HasValue)]; }
 
 
-	public int CountActiveLoansByUser(int userId) { return _loans.Count(l => l.UserId == userId && l.IsActive); }
+	public int CountActiveLoansByUser(Guid userId) { return _loans.Count(l => l.UserId == userId && l.IsActive); }
 
 
-	public bool HasActiveLoans(int userId, int bookId)
+	public bool HasActiveLoans(Guid userId, Guid bookId)
 	{
 		return _loans.Any(l => l.UserId == userId && l.BookId == bookId && l.IsActive);
 	}
 
 
-	public bool HasOverdueLoans(int userId)
+	public bool HasOverdueLoans(Guid userId)
 	{
 		return _loans.Any(l => l.UserId == userId && l is { IsActive: true, IsOverdue: true });
 	}
@@ -60,10 +60,10 @@ public class InMemoryLoanRepository : ILoanRepository
 	public IReadOnlyList<Loan> GetActiveLoans() { return [.. _loans.Where(l => l.IsActive)]; }
 
 
-	public IReadOnlyList<Loan> GetLoansByBook(int bookId) { return [.. _loans.Where(l => l.BookId == bookId)]; }
+	public IReadOnlyList<Loan> GetLoansByBook(Guid bookId) { return [.. _loans.Where(l => l.BookId == bookId)]; }
 
 
-	public IReadOnlyList<Loan> GetLoansByBookAndUser(int bookId, int userId)
+	public IReadOnlyList<Loan> GetLoansByBookAndUser(Guid bookId, Guid userId)
 	{
 		return [.. _loans.Where(l => l.BookId == bookId && l.UserId == userId)];
 	}

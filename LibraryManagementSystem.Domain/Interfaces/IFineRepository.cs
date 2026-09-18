@@ -5,15 +5,15 @@ namespace LibraryManagementSystem.Domain.Interfaces;
 public interface IFineRepository
 {
 	void Add(Fine fine);
-	Fine? FindById(int fineId);
+	Fine? FindById(Guid fineId);
 	IReadOnlyList<Fine> GetAllUnpaid();
-	IReadOnlyList<Fine> GetByLoanId(int loanId);
-	IReadOnlyList<Fine> GetByUserId(int userId);
-	IReadOnlyList<Fine> GetUnpaidByUserId(int userId);
-	bool HasUnpaidFines(int userId);
-	decimal GetTotalUnpaidAmount(int userId);
+	IReadOnlyList<Fine> GetByLoanId(Guid loanId);
+	IReadOnlyList<Fine> GetByUserId(Guid userId);
+	IReadOnlyList<Fine> GetUnpaidByUserId(Guid userId);
+	bool HasUnpaidFines(Guid userId);
+	decimal GetTotalUnpaidAmount(Guid userId);
 	IReadOnlyList<Fine> GetHistory();
-	IReadOnlyList<Fine> GetHistoryByUserId(int userId);
+	IReadOnlyList<Fine> GetHistoryByUserId(Guid userId);
 	void Update(Fine fine);
 
 }

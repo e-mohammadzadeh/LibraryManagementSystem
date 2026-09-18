@@ -23,7 +23,7 @@ public class AuditLogManagementService : IAuditLogManagementService
 	}
 
 
-	public void Record(AuditAction action, string entityType, int entityId, string? details = null)
+	public void Record(AuditAction action, string entityType, Guid entityId, string? details = null)
 	{
 		if (!_currentUserSession.IsAuthenticated || !_currentUserSession.UserId.HasValue) return;
 

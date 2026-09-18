@@ -5,8 +5,8 @@ namespace LibraryManagementSystem.Domain.Interfaces;
 public interface IFineHistoryRepository
 {
 	void Add(FineHistory history);
-	IReadOnlyList<FineHistory> GetByFineId(int fineId);
-	IReadOnlyList<FineHistory> GetByLoanId(int loanId);
-	IReadOnlyList<FineHistory> GetByUserId(int userId);
+	IReadOnlyList<FineHistory> GetByFineId(Guid fineId);
+	IReadOnlyList<FineHistory> GetByLoanId(Guid loanId);
+	IReadOnlyList<FineHistory> GetByUserId(Guid userId);
 	IReadOnlyList<FineHistory> GetAll();
 }
