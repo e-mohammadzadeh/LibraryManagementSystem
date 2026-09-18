@@ -1,5 +1,5 @@
-﻿using LibraryManagementSystem.Application.DTOs.AuditLog;
-using LibraryManagementSystem.Domain.Entities;
+﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Infrastructure.DTOs.AuditLog;
 
 namespace LibraryManagementSystem.Application.Mapping;
 

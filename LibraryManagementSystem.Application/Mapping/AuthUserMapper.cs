@@ -1,6 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
-using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Infrastructure.DTOs.Users;
 
 namespace LibraryManagementSystem.Application.Mapping;
 

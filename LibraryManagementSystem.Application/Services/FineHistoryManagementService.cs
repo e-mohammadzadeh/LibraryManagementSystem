@@ -1,8 +1,8 @@
-﻿using LibraryManagementSystem.Application.DTOs.Fine;
-using LibraryManagementSystem.Application.Mapping;
+﻿using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Infrastructure.DTOs.Fine;
 
 namespace LibraryManagementSystem.Application.Services;
 

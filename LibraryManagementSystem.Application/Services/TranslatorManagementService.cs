@@ -1,6 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.DTOs.Books;
 using LibraryManagementSystem.Application.DTOs.Translators;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
@@ -9,6 +8,7 @@ using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Enums.Search;
 using LibraryManagementSystem.Domain.Enums.Sort;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Infrastructure.DTOs.Books;
 
 namespace LibraryManagementSystem.Application.Services;
 

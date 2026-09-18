@@ -1,6 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.DTOs.AuditLog;
 using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.DTOs.AuditLog;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;

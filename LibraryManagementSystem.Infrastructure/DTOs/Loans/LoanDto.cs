@@ -1,6 +1,4 @@
-﻿using LibraryManagementSystem.Domain.Enums;
-
-namespace LibraryManagementSystem.Application.DTOs.Loans;
+﻿namespace LibraryManagementSystem.Infrastructure.DTOs.Loans;
 
 public class LoanDto
 {

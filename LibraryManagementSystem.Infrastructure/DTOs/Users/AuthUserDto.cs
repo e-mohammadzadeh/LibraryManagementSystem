@@ -1,6 +1,4 @@
-﻿using LibraryManagementSystem.Domain.Enums;
-
-namespace LibraryManagementSystem.Application.DTOs.Users;
+﻿namespace LibraryManagementSystem.Infrastructure.DTOs.Users;
 
 public class AuthUserDto
 {

@@ -1,4 +1,4 @@
-﻿namespace LibraryManagementSystem.Application.DTOs.Contributor;
+﻿namespace LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 
 public class ContributorDto
 {

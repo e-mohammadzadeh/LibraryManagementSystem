@@ -1,6 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.DTOs.Fine;
+using LibraryManagementSystem.Infrastructure.DTOs.Fine;
 
 namespace LibraryManagementSystem.Application.Services;
 

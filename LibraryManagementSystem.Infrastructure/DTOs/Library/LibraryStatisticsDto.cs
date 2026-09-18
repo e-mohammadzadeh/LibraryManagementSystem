@@ -1,4 +1,4 @@
-﻿namespace LibraryManagementSystem.Application.DTOs.Library;
+﻿namespace LibraryManagementSystem.Infrastructure.DTOs.Library;
 
 public class LibraryStatisticsDto
 {

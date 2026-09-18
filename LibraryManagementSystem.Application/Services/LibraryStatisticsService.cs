@@ -1,8 +1,8 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.DTOs.Library;
 using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Infrastructure.DTOs.Library;
 
 namespace LibraryManagementSystem.Application.Services;
 

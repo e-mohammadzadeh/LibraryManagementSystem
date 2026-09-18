@@ -1,5 +1,5 @@
-﻿using LibraryManagementSystem.Application.DTOs.Loans;
-using LibraryManagementSystem.Domain.Entities;
+﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Infrastructure.DTOs.Loans;
 
 namespace LibraryManagementSystem.Application.Mapping;
 

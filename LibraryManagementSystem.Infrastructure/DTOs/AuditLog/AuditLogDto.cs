@@ -1,6 +1,4 @@
-﻿using LibraryManagementSystem.Domain.Enums;
-
-namespace LibraryManagementSystem.Application.DTOs.AuditLog;
+﻿namespace LibraryManagementSystem.Infrastructure.DTOs.AuditLog;
 
 public class AuditLogDto
 {

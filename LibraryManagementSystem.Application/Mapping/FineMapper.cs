@@ -1,5 +1,5 @@
-﻿using LibraryManagementSystem.Application.DTOs.Fine;
-using LibraryManagementSystem.Domain.Entities;
+﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Infrastructure.DTOs.Fine;
 
 namespace LibraryManagementSystem.Application.Mapping;
 

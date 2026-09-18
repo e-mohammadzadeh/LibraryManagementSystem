@@ -1,5 +1,5 @@
-﻿using LibraryManagementSystem.Application.DTOs.Contributor;
-using LibraryManagementSystem.Domain.Entities;
+﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 
 namespace LibraryManagementSystem.Application.Mapping;
 

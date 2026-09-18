@@ -1,7 +1,4 @@
-﻿using LibraryManagementSystem.Application.DTOs.Authors;
-using LibraryManagementSystem.Application.DTOs.Translators;
-
-namespace LibraryManagementSystem.Application.DTOs.Books;
+﻿namespace LibraryManagementSystem.Infrastructure.DTOs.Books;
 
 public class BookDto
 {

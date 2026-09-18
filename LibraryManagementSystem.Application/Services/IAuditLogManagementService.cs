@@ -1,5 +1,5 @@
-﻿using LibraryManagementSystem.Application.DTOs.AuditLog;
-using LibraryManagementSystem.Domain.Enums;
+﻿using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Infrastructure.DTOs.AuditLog;
 
 namespace LibraryManagementSystem.Application.Services;
 

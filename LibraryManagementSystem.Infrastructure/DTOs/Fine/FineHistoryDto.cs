@@ -1,0 +1,15 @@
+﻿namespace LibraryManagementSystem.Infrastructure.DTOs.Fine;
+
+public class FineHistoryDto
+{
+	public int Id { get; init; }
+	public int FineId { get; init; }
+	public int LoanId { get; init; }
+	public int UserId { get; init; }
+	public string UserName { get; init; } = string.Empty;
+	public FineHistoryAction Action { get; init; }
+	public string ActionDisplay => Action.GetDefaultDescription();
+	public DateTime OccurredAt { get; init; }
+	public decimal Amount { get; init; }
+	public string? Description { get; init; }
+}

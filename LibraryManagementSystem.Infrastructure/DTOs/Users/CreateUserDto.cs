@@ -1,4 +1,4 @@
-﻿namespace LibraryManagementSystem.Application.DTOs.Users;
+﻿namespace LibraryManagementSystem.Infrastructure.DTOs.Users;
 
 public class CreateUserDto
 {

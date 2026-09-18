@@ -1,9 +1,9 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
-using LibraryManagementSystem.Application.DTOs.AuditLog;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Infrastructure.DTOs.AuditLog;
 
 namespace LibraryManagementSystem.Application.Services;
 

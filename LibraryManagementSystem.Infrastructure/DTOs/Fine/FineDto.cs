@@ -1,6 +1,4 @@
-﻿using LibraryManagementSystem.Domain.Enums;
-
-namespace LibraryManagementSystem.Application.DTOs.Fine;
+﻿namespace LibraryManagementSystem.Infrastructure.DTOs.Fine;
 
 public class FineDto
 {

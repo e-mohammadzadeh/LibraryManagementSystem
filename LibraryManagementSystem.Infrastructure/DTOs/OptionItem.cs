@@ -1,4 +1,4 @@
-﻿namespace LibraryManagementSystem.Application.DTOs;
+﻿namespace LibraryManagementSystem.Infrastructure.DTOs;
 
 public class OptionItem
 {
