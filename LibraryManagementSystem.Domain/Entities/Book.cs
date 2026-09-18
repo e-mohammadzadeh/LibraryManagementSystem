@@ -52,9 +52,25 @@ public class Book
 		return totalCopies > 0 ? totalCopies : throw new ArgumentException("Invalid total copy value.Please try again");
 	}
 
-	
+	internal void AddBookAuthorInternal(BookAuthor bookAuthor) {
+		_bookAuthors.Add(bookAuthor);
+	}
+
+	internal void RemoveBookAuthorInternal(BookAuthor bookAuthor) {
+		_bookAuthors.Remove(bookAuthor);
+	}
+
+	internal void AddBookTranslatorInternal(BookTranslator bookTranslator) {
+		_bookTranslators.Add(bookTranslator);
+	}
+
+	internal void RemoveBookTranslatorInternal(BookTranslator bookTranslator) {
+		_bookTranslators.Remove(bookTranslator);
+	}
+
+
 	//public bool CanBeRemoved() { return TotalCopies == AvailableCopies; }
-	
+
 
 	//public void DetachFromAuthors()
 	//{
