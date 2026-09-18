@@ -171,6 +171,23 @@ public class BookManagementService
 		var auditDetails =
 			BookUpdateAuditDetailsBuilder.BuildBookUpdateAuditDetails(book, dto, resolvedAuthors, resolvedTranslators);
 
+		// check these business validations
+		//if (totalCopies.HasValue)
+		//{
+		//	var difference = totalCopies.Value - TotalCopies;
+		//	if (AvailableCopies + difference < 0)
+		//		return false;
+		//}
+
+		//if (totalCopies.HasValue)
+		//{
+		//	var difference = totalCopies.Value - TotalCopies;
+		//	TotalCopies = totalCopies.Value;
+		//	AvailableCopies += difference;
+		}
+
+
+
 		if (!book.Update(dto.BookName, dto.ISBN, dto.PublishDate, genre, dto.Publisher, dto.TotalCopies,
 			    dto.Description))
 			return ServiceResult<BookDto>.Fail(Messages.TotalCopiesUpdateInvalid);

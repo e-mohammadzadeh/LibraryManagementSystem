@@ -12,6 +12,7 @@ public class InMemoryBookRepository : IBookRepository
 	{
 		ArgumentNullException.ThrowIfNull(book);
 		_books.Add(book);
+		book.UpdatedAt = DateTime.UtcNow;
 	}
 
 
@@ -44,7 +45,11 @@ public class InMemoryBookRepository : IBookRepository
 	public IReadOnlyList<Book> GetAvailableBooks() { return [.. _books.Where(b => b.AvailableCopies > 0)]; }
 
 
-	public void Remove(Book book) { _books.Remove(book); }
+	public void Remove(Book book)
+	{
+		book.IsRemoved = true;
+		book.UpdatedAt = DateTime.UtcNow;
+	}
 
 
 	public IReadOnlyList<Book> Search(string searchTerm, Func<Book, string?> selector)

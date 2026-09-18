@@ -4,25 +4,14 @@ namespace LibraryManagementSystem.Domain.Entities;
 
 public class Book
 {
-	public Book(string internationalStandardBookNumber, string title, IEnumerable<Author> authors,
-		IEnumerable<Translator>? translators, DateOnly publishDate, int totalCopies, Genre genre, string publisher,
+	public Book(string internationalStandardBookNumber, string title, DateOnly publishDate, int totalCopies,
+		Genre genre, string publisher,
 		string? description)
 	{
 		Id = Guid.CreateVersion7();
 		InternationalStandardBookNumber = internationalStandardBookNumber;
 		Title = title;
 
-		ArgumentNullException.ThrowIfNull(authors);
-		var authorList = authors.DistinctBy(a => a.Id).ToList();
-		if (authorList.Count == 0) throw new ArgumentException("A book must have at least one author.");
-		foreach (var author in authorList) AddAuthor(author);
-
-
-		if (translators is not null)
-		{
-			var translatorList = translators.DistinctBy(t => t.Id).ToList();
-			foreach (var translator in translatorList) AddTranslator(translator);
-		}
 
 		PublishDate = publishDate;
 		var copies = ValidateTotalCopies(totalCopies);
@@ -32,6 +21,7 @@ public class Book
 		Publisher = publisher;
 		Description = description;
 		CreatedAt = DateTime.UtcNow;
+		IsRemoved = false;
 	}
 
 
@@ -49,59 +39,22 @@ public class Book
 	public string? Description { get; private set; }
 	public DateTime CreatedAt { get; }
 	public DateTime? UpdatedAt { get; set; }
+	public bool IsRemoved { get; set; }
 
 
 	public IReadOnlyList<BookAuthor> BookAuthors => _bookAuthors.AsReadOnly();
 
 	public IReadOnlyList<BookTranslator> BookTranslators => _bookTranslators.AsReadOnly();
 
-	public bool CanBeRemoved() { return TotalCopies == AvailableCopies; }
 
-	//private void MarkAsUpdated() { UpdatedAt = DateTime.Now; }
+	private static int ValidateTotalCopies(int totalCopies)
+	{
+		return totalCopies > 0 ? totalCopies : throw new ArgumentException("Invalid total copy value.Please try again");
+	}
 
-
-	//private void AddAuthor(Author author)
-	//{
-	//	ArgumentNullException.ThrowIfNull(author);
-	//	if (_bookAuthors.Any(ba => ba.AuthorId == author.Id)) return;
-
-	//	var bookAuthor = new BookAuthor(this, author);
-	//	_bookAuthors.Add(bookAuthor);
-	//	author.AddBookAuthor(bookAuthor);
-	//	MarkAsUpdated();
-	//}
-
-
-	//public void ReplaceAuthors(IEnumerable<Author> authors)
-	//{
-	//	ArgumentNullException.ThrowIfNull(authors);
-	//	var authorList = authors.DistinctBy(a => a.Id).ToList();
-	//	if (authorList.Count == 0) throw new ArgumentException("A book must have at least one author.");
-
-	//	foreach (var bookAuthor in _bookAuthors.ToList()) RemoveAuthorInternal(bookAuthor.AuthorId);
-	//	foreach (var author in authorList) AddAuthor(author);
-	//	MarkAsUpdated();
-	//}
-
-
-	//private void RemoveAuthor(int authorId)
-	//{
-	//	if (_bookAuthors.Count <= 1) throw new InvalidOperationException("A book must have at least one author.");
-	//	RemoveAuthorInternal(authorId);
-	//}
-
-
-	//private void RemoveAuthorInternal(int authorId)
-	//{
-	//	var bookAuthor = _bookAuthors.FirstOrDefault(ba => ba.AuthorId == authorId);
-	//	if (bookAuthor is null) return;
-
-	//	_bookAuthors.Remove(bookAuthor);
-	//	bookAuthor.Author.RemoveBookAuthor(bookAuthor);
-	//	MarkAsUpdated();
-	//}
-
-
+	
+	//public bool CanBeRemoved() { return TotalCopies == AvailableCopies; }
+	
 
 	//public void DetachFromAuthors()
 	//{
@@ -109,80 +62,6 @@ public class Book
 	//	_bookAuthors.Clear();
 	//	MarkAsUpdated();
 	//}
-
-
-	//private void AddTranslator(Translator translator)
-	//{
-	//	ArgumentNullException.ThrowIfNull(translator);
-	//	if (_bookTranslators.Any(ba => ba.TranslatorId == translator.Id)) return;
-
-	//	var bookTranslator = new BookTranslator(this, translator);
-	//	_bookTranslators.Add(bookTranslator);
-	//	translator.AddBookTranslator(bookTranslator);
-	//	MarkAsUpdated();
-	//}
-
-
-	//private void RemoveTranslator(int translatorId)
-	//{
-	//	var bookTranslator = _bookTranslators.FirstOrDefault(ba => ba.TranslatorId == translatorId);
-
-	//	if (bookTranslator is null) return;
-	//	_bookTranslators.Remove(bookTranslator);
-	//	bookTranslator.Translator.RemoveBookTranslator(bookTranslator);
-	//	MarkAsUpdated();
-	//}
-
-
-
-	//public void DetachFromTranslators()
-	//{
-	//	foreach (var bookTranslator in _bookTranslators.ToList()) RemoveTranslator(bookTranslator.TranslatorId);
-	//	_bookTranslators.Clear();
-	//	MarkAsUpdated();
-	//}
-
-
-	//public void ReplaceTranslators(IEnumerable<Translator> translators)
-	//{
-	//	ArgumentNullException.ThrowIfNull(translators);
-	//	foreach (var bookTranslator in _bookTranslators.ToList()) RemoveTranslator(bookTranslator.TranslatorId);
-	//	foreach (var translator in translators.DistinctBy(t => t.Id)) AddTranslator(translator);
-	//	MarkAsUpdated();
-	//}
-
-
-
-	//public bool Update(string? bookName, string? isbn, DateOnly? publishDate, Genre? genreId, string? publisher,
-	//	int? totalCopies, string? description)
-	//{
-	//	if (totalCopies.HasValue)
-	//	{
-	//		var difference = totalCopies.Value - TotalCopies;
-	//		if (AvailableCopies + difference < 0) return false;
-	//	}
-
-	//	if (totalCopies.HasValue)
-	//	{
-	//		var difference = totalCopies.Value - TotalCopies;
-	//		TotalCopies = totalCopies.Value;
-	//		AvailableCopies += difference;
-	//	}
-
-	//	Title = bookName ?? Title;
-	//	InternationalStandardBookNumber = isbn ?? InternationalStandardBookNumber;
-	//	PublishDate = publishDate ?? PublishDate;
-	//	Genre = genreId ?? Genre;
-	//	Publisher = publisher ?? Publisher;
-	//	Description = description ?? Description;
-	//	MarkAsUpdated();
-	//	return true;
-	//}
-
-
-	private static int ValidateTotalCopies(int totalCopies) {
-		return totalCopies > 0 ? totalCopies : throw new ArgumentException("Invalid total copy value.Please try again");
-	}
 
 
 	//public void BorrowCopy()
