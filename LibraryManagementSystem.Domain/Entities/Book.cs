@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Domain.Enums;
+﻿using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Domain.Enums;
 
 namespace LibraryManagementSystem.Domain.Entities;
 
@@ -52,20 +53,56 @@ public class Book
 		return totalCopies > 0 ? totalCopies : throw new ArgumentException("Invalid total copy value.Please try again");
 	}
 
-	internal void AddBookAuthorInternal(BookAuthor bookAuthor) {
-		_bookAuthors.Add(bookAuthor);
+
+	public void AddAuthor(Author author)
+	{
+		ArgumentNullException.ThrowIfNull(author);
+
+		if (_bookAuthors.Any(ba => ba.AuthorId == author.Id)) return;
+
+		_bookAuthors.Add(new BookAuthor(this, author));
+		UpdatedAt = DateTime.UtcNow;
 	}
 
-	internal void RemoveBookAuthorInternal(BookAuthor bookAuthor) {
+
+	public void AddTranslator(Translator translator)
+	{
+		ArgumentNullException.ThrowIfNull(translator);
+
+		if (_bookTranslators.Any(bt => bt.TranslatorId == translator.Id)) return;
+
+		_bookTranslators.Add(new BookTranslator(this, translator));
+		UpdatedAt = DateTime.UtcNow;
+	}
+
+
+	public void RemoveAuthor(Guid authorId)
+	{
+		if (_bookAuthors.Count <= 1)
+		{
+			throw new InvalidOperationException(
+				Messages.BookRequiresAtLeastOneAuthor);
+		}
+
+		var bookAuthor = _bookAuthors
+			.FirstOrDefault(ba => ba.AuthorId == authorId);
+
+		if (bookAuthor is null) return;
+
 		_bookAuthors.Remove(bookAuthor);
+		UpdatedAt = DateTime.UtcNow;
 	}
 
-	internal void AddBookTranslatorInternal(BookTranslator bookTranslator) {
-		_bookTranslators.Add(bookTranslator);
-	}
 
-	internal void RemoveBookTranslatorInternal(BookTranslator bookTranslator) {
+	public void RemoveTranslator(Guid translatorId)
+	{
+		var bookTranslator = _bookTranslators
+			.FirstOrDefault(bt => bt.TranslatorId == translatorId);
+
+		if (bookTranslator is null) return;
+
 		_bookTranslators.Remove(bookTranslator);
+		UpdatedAt = DateTime.UtcNow;
 	}
 
 

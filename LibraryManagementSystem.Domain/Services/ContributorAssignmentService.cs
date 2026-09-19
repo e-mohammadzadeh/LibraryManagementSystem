@@ -7,100 +7,58 @@ public class ContributorAssignmentService
 {
 	public void AssignAuthorsToBook(Book book, IEnumerable<Author> authors)
 	{
+		ArgumentNullException.ThrowIfNull(book);
 		ArgumentNullException.ThrowIfNull(authors);
-		var authorList = authors.DistinctBy(a => a.Id).ToList();
-		if (authorList.Count == 0 && !book.BookAuthors.Any())
-			throw new ArgumentException(Messages.BookRequiresAtLeastOneAuthor);
-		foreach (var author in authorList)
-		{
-			if (book.BookAuthors.Any(ba => ba.AuthorId == author.Id)) continue;
-			var bookAuthor = new BookAuthor(book, author);
-			book.AddBookAuthorInternal(bookAuthor);
-		}
 
-		book.UpdatedAt = DateTime.UtcNow;
+		var authorList = authors.DistinctBy(a => a.Id).ToList();
+		foreach (var author in authorList) book.AddAuthor(author);
 	}
 
 
 	public void AssignTranslatorsToBook(Book book, IEnumerable<Translator>? translators)
 	{
+		ArgumentNullException.ThrowIfNull(book);
+
 		if (translators is null) return;
-		var translatorList = translators.DistinctBy(t => t.Id).ToList();
-		foreach (var translator in translatorList)
-		{
-			if (book.BookTranslators.Any(bt => bt.TranslatorId == translator.Id)) continue;
-
-			var bookTranslator = new BookTranslator(book, translator);
-			book.AddBookTranslatorInternal(bookTranslator);
-		}
-
-		book.UpdatedAt = DateTime.UtcNow;
+		foreach (var translator in translators.DistinctBy(t => t.Id)) book.AddTranslator(translator);
 	}
 
 
 	public void ReplaceAuthors(Book book, IEnumerable<Author> authors)
 	{
+		ArgumentNullException.ThrowIfNull(book);
 		ArgumentNullException.ThrowIfNull(authors);
+
 		var authorList = authors.DistinctBy(a => a.Id).ToList();
 		if (authorList.Count == 0) throw new ArgumentException(Messages.BookRequiresAtLeastOneAuthor);
 
-		var incomingAuthorIds = authorList.Select(a => a.Id).ToList();
-		var authorsToRemove = book.BookAuthors.Where(ba => !incomingAuthorIds.Contains(ba.AuthorId)).ToList();
+		var incomingIds = authorList.Select(a => a.Id).ToHashSet();
+		var existingIds = book.BookAuthors.Select(ba => ba.AuthorId).ToHashSet();
 
-		foreach (var ba in authorsToRemove) RemoveAuthorFromBook(book, ba.AuthorId);
-		AssignAuthorsToBook(book, authorList);
+		foreach (var authorId in existingIds.Except(incomingIds)) book.RemoveAuthor(authorId);
+		foreach (var author in authorList) book.AddAuthor(author);
 	}
 
 
 	public void ReplaceTranslators(Book book, IEnumerable<Translator> translators)
 	{
+		ArgumentNullException.ThrowIfNull(book);
 		ArgumentNullException.ThrowIfNull(translators);
+
 		var translatorList = translators.DistinctBy(t => t.Id).ToList();
+		var incomingIds = translatorList.Select(t => t.Id).ToHashSet();
+		var existingIds = book.BookTranslators.Select(bt => bt.TranslatorId).ToHashSet();
 
-		var incomingTranslatorIds = translatorList.Select(t => t.Id).ToList();
-		var translatorsToRemove = book.BookTranslators.Where(bt => !incomingTranslatorIds.Contains(bt.TranslatorId)).ToList();
-
-		foreach (var bt in translatorsToRemove) RemoveTranslatorFromBook(book, bt.TranslatorId);
-		AssignTranslatorsToBook(book, translatorList);
+		foreach (var translatorId in existingIds.Except(incomingIds)) book.RemoveTranslator(translatorId);
+		foreach (var translator in translatorList) book.AddTranslator(translator);
 	}
 
 
-	public void DetachFromTranslators() 
+	public void DetachFromTranslators(Book book)
 	{
-		foreach (var bookTranslator in _bookTranslators.ToList())
-			RemoveTranslator(bookTranslator.TranslatorId);
-		_bookTranslators.Clear();
-		MarkAsUpdated();
-	}
+		ArgumentNullException.ThrowIfNull(book);
 
-
-
-
-	private void RemoveAuthor(Book book, int authorId)
-	{
-		if (_bookAuthors.Count <= 1) throw new InvalidOperationException("A book must have at least one author.");
-		RemoveAuthorInternal(authorId);
-	}
-
-
-	private void RemoveAuthorInternal(int authorId)
-	{
-		var bookAuthor = _bookAuthors.FirstOrDefault(ba => ba.AuthorId == authorId);
-		if (bookAuthor is null) return;
-
-		_bookAuthors.Remove(bookAuthor);
-		bookAuthor.Author.RemoveBookAuthor(bookAuthor);
-		MarkAsUpdated();
-	}
-
-
-	private void RemoveTranslator(int translatorId)
-	{
-		var bookTranslator = _bookTranslators.FirstOrDefault(ba => ba.TranslatorId == translatorId);
-
-		if (bookTranslator is null) return;
-		_bookTranslators.Remove(bookTranslator);
-		bookTranslator.Translator.RemoveBookTranslator(bookTranslator);
-		MarkAsUpdated();
+		foreach (var translatorId in book.BookTranslators.Select(bt => bt.TranslatorId).ToList())
+			book.RemoveTranslator(translatorId);
 	}
 }

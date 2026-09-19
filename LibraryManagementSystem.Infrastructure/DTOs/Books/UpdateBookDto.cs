@@ -4,8 +4,8 @@ public class UpdateBookDto
 {
 	public string? BookName { get; init; }
 	public string? ISBN { get; init; }
-	public List<int>? AuthorIds { get; init; }
-	public List<int>? TranslatorIds { get; init; }
+	public List<Guid>? AuthorIds { get; init; }
+	public List<Guid>? TranslatorIds { get; init; }
 	public DateOnly? PublishDate { get; init; }
 	public int? GenreId { get; init; }
 	public string? Publisher { get; init; }

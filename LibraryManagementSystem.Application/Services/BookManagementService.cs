@@ -5,6 +5,7 @@ using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Enums.Search;
 using LibraryManagementSystem.Domain.Enums.Sort;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Domain.Services;
 using LibraryManagementSystem.Infrastructure.DTOs.Books;
 
 namespace LibraryManagementSystem.Application.Services;
@@ -16,25 +17,28 @@ public class BookManagementService
 	private readonly IBookRepository _bookRepository;
 	private readonly ILoanRepository _loanRepository;
 	private readonly IAuditLogManagementService _auditLog;
+	private readonly ContributorAssignmentService _contributorAssignmentService;
 
 
 	public BookManagementService(IAuthorRepository authorRepository, ITranslatorRepository translatorRepository,
-		IBookRepository bookRepository, ILoanRepository loanRepository, IAuditLogManagementService auditLog)
+		IBookRepository bookRepository, ILoanRepository loanRepository, IAuditLogManagementService auditLog,
+		ContributorAssignmentService contributorAssignmentService)
 	{
 		_authorRepository = authorRepository;
 		_translatorRepository = translatorRepository;
 		_bookRepository = bookRepository;
 		_loanRepository = loanRepository;
 		_auditLog = auditLog;
+		_contributorAssignmentService = contributorAssignmentService;
 	}
 
 
 	public ServiceResult<BookDto> AddBook(CreateBookDto dto)
 	{
-		if (_bookRepository.ExistsByName(dto.BookName))
+		if (_bookRepository.ExistsByName(dto.BookName, null))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByName);
 
-		if (_bookRepository.ExistsByISBN(dto.ISBN))
+		if (_bookRepository.ExistsByISBN(dto.ISBN, null))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByISBN);
 
 		if (!Enum.IsDefined(typeof(Genre), dto.GenreId)) return ServiceResult<BookDto>.Fail(Messages.InvalidGenre);
@@ -54,6 +58,8 @@ public class BookManagementService
 			authors.Add(author);
 		}
 
+		if (authors.Count == 0) return ServiceResult<BookDto>.Fail(Messages.BookRequiresAtLeastOneAuthor);
+
 		if (dto.TranslatorIds.Count != dto.TranslatorIds.Distinct().Count())
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateTranslatorsNotAllowed);
 
@@ -67,10 +73,11 @@ public class BookManagementService
 
 		if (dto.TotalCopies <= 0) return ServiceResult<BookDto>.Fail(Messages.WrongTotalCopies);
 
+		var newBook = new Book(dto.ISBN, dto.BookName, dto.PublishDate, dto.TotalCopies, genre, dto.Publisher,
+			dto.Description);
 
-		var newBook = new Book(dto.ISBN, dto.BookName, authors, translators, dto.PublishDate, dto.TotalCopies, genre,
-			dto.Publisher, dto.Description);
-
+		_contributorAssignmentService.AssignAuthorsToBook(newBook, authors);
+		_contributorAssignmentService.AssignTranslatorsToBook(newBook, translators);
 		_bookRepository.Add(newBook);
 		_auditLog.Record(AuditAction.BookCreated, "Book", newBook.Id, "Book created.");
 
@@ -106,14 +113,14 @@ public class BookManagementService
 	}
 
 
-	public BookDto? FindBookById(int id)
+	public BookDto? FindBookById(Guid id)
 	{
 		var book = _bookRepository.FindById(id);
 		return book?.ToDto();
 	}
 
 
-	public ServiceResult<BookDto> UpdateBook(int bookId, UpdateBookDto dto)
+	public ServiceResult<BookDto> UpdateBook(Guid bookId, UpdateBookDto dto)
 	{
 		var book = _bookRepository.FindById(bookId);
 		if (book is null) return ServiceResult<BookDto>.Fail(Messages.NotAvailableBook);
@@ -184,102 +191,99 @@ public class BookManagementService
 		//	var difference = totalCopies.Value - TotalCopies;
 		//	TotalCopies = totalCopies.Value;
 		//	AvailableCopies += difference;
-		}
-
-
-
-		if (!book.Update(dto.BookName, dto.ISBN, dto.PublishDate, genre, dto.Publisher, dto.TotalCopies,
-			    dto.Description))
-			return ServiceResult<BookDto>.Fail(Messages.TotalCopiesUpdateInvalid);
-
-		if (resolvedAuthors is not null) book.ReplaceAuthors(resolvedAuthors);
-
-		if (resolvedTranslators is not null) book.ReplaceTranslators(resolvedTranslators);
-
-		_bookRepository.Update(book);
-		_auditLog.Record(AuditAction.BookUpdated, "Book", bookId, auditDetails ?? "Book updated.");
-
-		return ServiceResult<BookDto>.Ok(book.ToDto(), Messages.BookUpdatedSuccessfully);
 	}
+	if (!book.Update(dto.BookName, dto.ISBN, dto.PublishDate, genre, dto.Publisher, dto.TotalCopies,
+		dto.Description))
+	return ServiceResult<BookDto>.Fail(Messages.TotalCopiesUpdateInvalid);
+
+	if (resolvedAuthors is not null) book.ReplaceAuthors(resolvedAuthors);
+
+	if (resolvedTranslators is not null) book.ReplaceTranslators(resolvedTranslators);
+
+	_bookRepository.Update(book);
+	_auditLog.Record(AuditAction.BookUpdated, "Book", bookId, auditDetails ?? "Book updated.");
+	return ServiceResult<BookDto>.Ok(book.ToDto(), Messages.BookUpdatedSuccessfully);
+}
 
 
-	private static bool IsNoOpUpdateBook(Book book, UpdateBookDto dto)
+private static bool IsNoOpUpdateBook(Book book, UpdateBookDto dto)
+{
+	return (dto.BookName == null || dto.BookName == book.Title) &&
+	       (dto.ISBN == null || dto.ISBN == book.InternationalStandardBookNumber) &&
+	       (dto.AuthorIds == null || SameIds(dto.AuthorIds, book.BookAuthors.Select(ba => ba.AuthorId))) &&
+	       (dto.TranslatorIds == null ||
+	        SameIds(dto.TranslatorIds, book.BookTranslators.Select(bt => bt.TranslatorId))) &&
+	       (dto.PublishDate == null || dto.PublishDate == book.PublishDate) &&
+	       (dto.GenreId == null || dto.GenreId == (int)book.Genre) &&
+	       (dto.Publisher == null || dto.Publisher == book.Publisher) &&
+	       (dto.TotalCopies == null || dto.TotalCopies == book.TotalCopies) &&
+	       (dto.Description == null || dto.Description == book.Description);
+}
+
+
+private static bool SameIds(IEnumerable<int> left, IEnumerable<int> right)
+{
+	var a = left.Distinct().OrderBy(x => x).ToList();
+	var b = right.Distinct().OrderBy(x => x).ToList();
+	return a.SequenceEqual(b);
+}
+
+
+public ServiceResult<BookDto> RemoveBook(int bookId)
+{
+	var book = _bookRepository.FindById(bookId);
+	if (book is null) return ServiceResult<BookDto>.Fail(Messages.BookRemoveFailed);
+
+	var activeLoans = _loanRepository.GetActiveLoansByBook(bookId);
+	if (activeLoans.Count > 0)
 	{
-		return (dto.BookName == null || dto.BookName == book.Title) &&
-		       (dto.ISBN == null || dto.ISBN == book.InternationalStandardBookNumber) &&
-		       (dto.AuthorIds == null || SameIds(dto.AuthorIds, book.BookAuthors.Select(ba => ba.AuthorId))) &&
-		       (dto.TranslatorIds == null ||
-		        SameIds(dto.TranslatorIds, book.BookTranslators.Select(bt => bt.TranslatorId))) &&
-		       (dto.PublishDate == null || dto.PublishDate == book.PublishDate) &&
-		       (dto.GenreId == null || dto.GenreId == (int)book.Genre) &&
-		       (dto.Publisher == null || dto.Publisher == book.Publisher) &&
-		       (dto.TotalCopies == null || dto.TotalCopies == book.TotalCopies) &&
-		       (dto.Description == null || dto.Description == book.Description);
+		var borrowersId = string.Join(", ", activeLoans.Select(al => al.UserId));
+		return ServiceResult<BookDto>.Fail(string.Format(Messages.BookRemoveFailedBorrowed, borrowersId));
 	}
 
+	if (!book.CanBeRemoved()) return ServiceResult<BookDto>.Fail(Messages.BookRemoveFailed);
 
-	private static bool SameIds(IEnumerable<int> left, IEnumerable<int> right)
+	book.DetachFromAuthors();
+	book.DetachFromTranslators();
+	_bookRepository.Remove(book);
+	_auditLog.Record(AuditAction.BookRemoved, "Book", bookId, "Book removed.");
+
+	return ServiceResult<BookDto>.Ok(book.ToDto(), Messages.BookRemovedSuccessfully);
+}
+
+
+public IReadOnlyList<BookDto> SearchBooks(string searchTerm, BookSearchField field)
+{
+	Func<Book, string?> selector = field switch
 	{
-		var a = left.Distinct().OrderBy(x => x).ToList();
-		var b = right.Distinct().OrderBy(x => x).ToList();
-		return a.SequenceEqual(b);
-	}
+		BookSearchField.BookName => b => b.Title,
+		BookSearchField.ISBN => b => b.InternationalStandardBookNumber,
+		BookSearchField.AuthorName => b =>
+			string.Join(", ", b.BookAuthors.Select(ba => $"{ba.Author.FirstName} {ba.Author.LastName}")),
+		BookSearchField.TranslatorName => b =>
+			b.BookTranslators.Count == 0
+				? null
+				: string.Join(", ",
+					b.BookTranslators.Select(bt => $"{bt.Translator.FirstName} {bt.Translator.LastName}")),
+		BookSearchField.PublishDate => b => b.PublishDate.ToString("yyyy-MM-dd"),
+		BookSearchField.Genre => b => b.Genre.ToString(),
+		BookSearchField.Publisher => b => b.Publisher,
+		_ => throw new ArgumentOutOfRangeException(nameof(field))
+	};
+
+	return [.. _bookRepository.Search(searchTerm, selector).Select(book => book.ToDto())];
+}
 
 
-	public ServiceResult<BookDto> RemoveBook(int bookId)
-	{
-		var book = _bookRepository.FindById(bookId);
-		if (book is null) return ServiceResult<BookDto>.Fail(Messages.BookRemoveFailed);
-
-		var activeLoans = _loanRepository.GetActiveLoansByBook(bookId);
-		if (activeLoans.Count > 0)
-		{
-			var borrowersId = string.Join(", ", activeLoans.Select(al => al.UserId));
-			return ServiceResult<BookDto>.Fail(string.Format(Messages.BookRemoveFailedBorrowed, borrowersId));
-		}
-
-		if (!book.CanBeRemoved()) return ServiceResult<BookDto>.Fail(Messages.BookRemoveFailed);
-
-		book.DetachFromAuthors();
-		book.DetachFromTranslators();
-		_bookRepository.Remove(book);
-		_auditLog.Record(AuditAction.BookRemoved, "Book", bookId, "Book removed.");
-
-		return ServiceResult<BookDto>.Ok(book.ToDto(), Messages.BookRemovedSuccessfully);
-	}
+public IReadOnlyList<BookDto> SearchBooksByDate(DateOnly from, DateOnly to, Func<Book, DateOnly> selector)
+{
+	return [.. _bookRepository.SearchByDate(from, to, selector).Select(book => book.ToDto())];
+}
 
 
-	public IReadOnlyList<BookDto> SearchBooks(string searchTerm, BookSearchField field)
-	{
-		Func<Book, string?> selector = field switch
-		{
-			BookSearchField.BookName => b => b.Title,
-			BookSearchField.ISBN => b => b.InternationalStandardBookNumber,
-			BookSearchField.AuthorName => b =>
-				string.Join(", ", b.BookAuthors.Select(ba => $"{ba.Author.FirstName} {ba.Author.LastName}")),
-			BookSearchField.TranslatorName => b =>
-				b.BookTranslators.Count == 0
-					? null
-					: string.Join(", ",
-						b.BookTranslators.Select(bt => $"{bt.Translator.FirstName} {bt.Translator.LastName}")),
-			BookSearchField.PublishDate => b => b.PublishDate.ToString("yyyy-MM-dd"),
-			BookSearchField.Genre => b => b.Genre.ToString(),
-			BookSearchField.Publisher => b => b.Publisher,
-			_ => throw new ArgumentOutOfRangeException(nameof(field))
-		};
+public IReadOnlyList<BookDto> GetAvailableBooks()
+{
+	return [.. _bookRepository.GetAvailableBooks().Select(book => book.ToDto())];
+}
 
-		return [.. _bookRepository.Search(searchTerm, selector).Select(book => book.ToDto())];
-	}
-
-
-	public IReadOnlyList<BookDto> SearchBooksByDate(DateOnly from, DateOnly to, Func<Book, DateOnly> selector)
-	{
-		return [.. _bookRepository.SearchByDate(from, to, selector).Select(book => book.ToDto())];
-	}
-
-
-	public IReadOnlyList<BookDto> GetAvailableBooks()
-	{
-		return [.. _bookRepository.GetAvailableBooks().Select(book => book.ToDto())];
-	}
 }
