@@ -106,8 +106,6 @@ public class Book
 	}
 
 
-	//public bool CanBeRemoved() { return TotalCopies == AvailableCopies; }
-
 
 	//public void DetachFromAuthors()
 	//{

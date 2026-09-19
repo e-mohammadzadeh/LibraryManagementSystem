@@ -27,20 +27,4 @@ public abstract class Person
 	public DateTime CreatedAt { get; private set; }
 	public DateTime? UpdatedAt { get; set; }
 	public bool IsRemoved { get; set; }
-
-
-	//protected void MarkAsUpdated() { UpdatedAt = DateTime.Now; }
-
-
-	//protected void UpdateCore(string? firstName, string? lastName, string? nationalCode, string? email,
-	//	string? phoneNumber, DateOnly? birthDate)
-	//{
-	//	MarkAsUpdated();
-	//	FirstName = firstName ?? FirstName;
-	//	LastName = lastName ?? LastName;
-	//	NationalCode = nationalCode ?? NationalCode;
-	//	Email = email ?? Email;
-	//	PhoneNumber = phoneNumber ?? PhoneNumber;
-	//	BirthDate = birthDate ?? BirthDate;
-	//}
 }

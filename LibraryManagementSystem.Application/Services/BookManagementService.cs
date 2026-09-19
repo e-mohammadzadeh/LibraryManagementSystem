@@ -1,12 +1,16 @@
-﻿using LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Application.Authorization;
+using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Enums.Search;
 using LibraryManagementSystem.Domain.Enums.Sort;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Domain.Services;
 using LibraryManagementSystem.Infrastructure.DTOs.Books;
+using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
+using System.Net;
 
 namespace LibraryManagementSystem.Application.Services;
 
@@ -18,11 +22,12 @@ public class BookManagementService
 	private readonly ILoanRepository _loanRepository;
 	private readonly IAuditLogManagementService _auditLog;
 	private readonly ContributorAssignmentService _contributorAssignmentService;
+	private readonly IAuthorizationService _authorization;
 
 
 	public BookManagementService(IAuthorRepository authorRepository, ITranslatorRepository translatorRepository,
 		IBookRepository bookRepository, ILoanRepository loanRepository, IAuditLogManagementService auditLog,
-		ContributorAssignmentService contributorAssignmentService)
+		ContributorAssignmentService contributorAssignmentService, IAuthorizationService authorizationService)
 	{
 		_authorRepository = authorRepository;
 		_translatorRepository = translatorRepository;
@@ -30,6 +35,7 @@ public class BookManagementService
 		_loanRepository = loanRepository;
 		_auditLog = auditLog;
 		_contributorAssignmentService = contributorAssignmentService;
+		_authorization = authorizationService;
 	}
 
 
@@ -88,7 +94,7 @@ public class BookManagementService
 	public IReadOnlyList<BookDto> GetAllBooks(BookSortField sortField = BookSortField.Id,
 		SortDirection sortDirection = SortDirection.Ascending)
 	{
-		var books = _bookRepository.GetAll().Select(book => book.ToDto());
+		var books = _bookRepository.GetAll(EntityFilter.Active).Select(book => book.ToDto());
 
 		Func<BookDto, object> keySelector = sortField switch
 		{
@@ -232,7 +238,7 @@ public class BookManagementService
 	public ServiceResult<BookDto> RemoveBook(Guid bookId)
 	{
 		var book = _bookRepository.FindById(bookId);
-		if (book is null) return ServiceResult<BookDto>.Fail(Messages.BookRemoveFailed);
+		if (book is null || book.IsRemoved) return ServiceResult<BookDto>.Fail(Messages.BookRemoveFailed);
 
 		var activeLoans = _loanRepository.GetActiveLoansByBook(bookId);
 		if (activeLoans.Count > 0)
@@ -241,7 +247,7 @@ public class BookManagementService
 			return ServiceResult<BookDto>.Fail(string.Format(Messages.BookRemoveFailedBorrowed, borrowersId));
 		}
 
-		if (!book.CanBeRemoved()) return ServiceResult<BookDto>.Fail(Messages.BookRemoveFailed);
+		if (book.TotalCopies != book.AvailableCopies) return ServiceResult<BookDto>.Fail(Messages.BookRemoveFailed);
 
 		_bookRepository.Remove(book);
 		_auditLog.Record(AuditAction.BookRemoved, "Book", bookId, "Book removed.");
@@ -282,5 +288,12 @@ public class BookManagementService
 	public IReadOnlyList<BookDto> GetAvailableBooks()
 	{
 		return [.. _bookRepository.GetAvailableBooks().Select(book => book.ToDto())];
+	}
+
+
+	public IReadOnlyList<BookDto> GetRemovedBooks()
+	{
+		if (!_authorization.HasPermission(Permission.ViewRemovedAuthors)) return [];
+		return [.. _bookRepository.GetAll(EntityFilter.Removed).Select(a => a.ToDto())];
 	}
 }

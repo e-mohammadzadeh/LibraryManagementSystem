@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums.Filters;
 
 namespace LibraryManagementSystem.Domain.Interfaces;
 
@@ -6,7 +7,7 @@ public interface IBookRepository
 {
 	void Add(Book book);
 	Book? FindById(Guid id);
-	IReadOnlyList<Book> GetAll();
+	IReadOnlyList<Book> GetAll(EntityFilter filter);
 	IReadOnlyList<Book> GetByAuthorId(Guid authorId);
 	bool ExistsByName(string name, Guid? excludeId);
 	bool ExistsByISBN(string isbn, Guid? excludeId);

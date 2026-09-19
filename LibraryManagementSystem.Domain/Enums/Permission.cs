@@ -41,6 +41,7 @@ public enum Permission
 	FullSortBook,
 	ViewBookDetails,
 	ViewAllBooks,
+	ViewRemovedBooks,
 
 
 

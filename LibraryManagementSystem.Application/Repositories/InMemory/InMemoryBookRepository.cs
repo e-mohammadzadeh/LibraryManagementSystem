@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Application.Repositories.InMemory;
@@ -19,7 +20,26 @@ public class InMemoryBookRepository : IBookRepository
 	public Book? FindById(Guid id) { return _books.FirstOrDefault(book => book.Id == id); }
 
 
-	public IReadOnlyList<Book> GetAll() { return _books.AsReadOnly(); }
+	public IReadOnlyList<Book> GetAll(EntityFilter filter = EntityFilter.Active)
+	{
+		var query = _books.AsEnumerable();
+		switch (filter)
+		{
+			case EntityFilter.Active:
+				query = query.Where(b => !b.IsRemoved);
+				break;
+			case EntityFilter.Removed:
+				query = query.Where(b => b.IsRemoved);
+				break;
+			case EntityFilter.All:
+				// No filter – include everyone
+				break;
+			default:
+				throw new ArgumentOutOfRangeException(nameof(filter), filter, null);
+		}
+
+		return [.. query];
+	}
 
 
 	public IReadOnlyList<Book> GetByAuthorId(Guid authorId)
@@ -46,7 +66,10 @@ public class InMemoryBookRepository : IBookRepository
 	}
 
 
-	public IReadOnlyList<Book> GetAvailableBooks() { return [.. _books.Where(b => b.AvailableCopies > 0)]; }
+	public IReadOnlyList<Book> GetAvailableBooks()
+	{
+		return [.. _books.Where(b => b is { AvailableCopies: > 0, IsRemoved: false })];
+	}
 
 
 	public void Remove(Book book)
