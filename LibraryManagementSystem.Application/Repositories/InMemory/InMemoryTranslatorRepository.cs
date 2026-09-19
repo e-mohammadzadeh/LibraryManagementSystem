@@ -71,7 +71,9 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 	}
 
 
-	public void Remove(Translator translator) {
+	public void Remove(Translator translator)
+	{
+		if (translator.IsRemoved) return;
 		translator.IsRemoved = true;
 		translator.UpdatedAt = DateTime.UtcNow;
 	}

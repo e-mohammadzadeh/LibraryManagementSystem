@@ -74,6 +74,8 @@ public class InMemoryAuthorRepository : IAuthorRepository
 
 	public void Remove(Author author)
 	{
+		if (author.IsRemoved)
+			return;
 		author.IsRemoved = true;
 		author.UpdatedAt = DateTime.UtcNow;
 	}

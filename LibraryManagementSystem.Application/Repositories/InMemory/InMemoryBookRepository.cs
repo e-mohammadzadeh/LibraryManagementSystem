@@ -20,6 +20,8 @@ public class InMemoryBookRepository : IBookRepository
 
 
 	public IReadOnlyList<Book> GetAll() { return _books.AsReadOnly(); }
+
+
 	public IReadOnlyList<Book> GetByAuthorId(Guid authorId)
 	{
 		return [.. _books.Where(book => book.BookAuthors.Any(ba => ba.AuthorId == authorId))];
@@ -38,7 +40,9 @@ public class InMemoryBookRepository : IBookRepository
 	{
 		if (string.IsNullOrWhiteSpace(isbn)) return false;
 
-		return _books.Any(book => book.Id != excludeId && book.InternationalStandardBookNumber.Equals(isbn, StringComparison.OrdinalIgnoreCase));
+		return _books.Any(book =>
+			book.Id != excludeId &&
+			book.InternationalStandardBookNumber.Equals(isbn, StringComparison.OrdinalIgnoreCase));
 	}
 
 
@@ -47,6 +51,7 @@ public class InMemoryBookRepository : IBookRepository
 
 	public void Remove(Book book)
 	{
+		if (book.IsRemoved) return;
 		book.IsRemoved = true;
 		book.UpdatedAt = DateTime.UtcNow;
 	}

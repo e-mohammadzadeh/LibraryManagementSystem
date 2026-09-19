@@ -84,7 +84,13 @@ public class InMemoryUserRepository : IUserRepository
 	}
 
 
-	public void Remove(User user) { user.DeleteUser(); }
+	public void Remove(User user)
+	{
+		if (user.IsRemoved) return;
+		user.IsRemoved = true;
+		user.IsActive = false;
+		user.UpdatedAt = DateTime.UtcNow;
+	}
 
 
 	public IReadOnlyList<User> Search(string searchTerm, Func<User, string?> selector)

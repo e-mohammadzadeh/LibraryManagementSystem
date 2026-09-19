@@ -3,7 +3,7 @@
 public class User : Person
 {
 	private readonly List<UserRole> _userRoles = [];
-	public bool IsActive { get; private set; }
+	public bool IsActive { get; set; }
 	public DateOnly MembershipStartDate { get; }
 	public DateOnly MembershipExpiryDate { get; private set; }
 	public bool ShouldRemove { get; private set; }
@@ -114,12 +114,12 @@ public class User : Person
 	}
 
 
-	public void DeleteUser()
-	{
-		IsRemoved = true;
-		IsActive = false;
-		MarkAsUpdated();
-	}
+	//public void DeleteUser()
+	//{
+	//	IsRemoved = true;
+	//	IsActive = false;
+	//	MarkAsUpdated();
+	//}
 
 
 	public void SetPasswordHash(byte[] passwordHash, byte[] passwordSalt)
