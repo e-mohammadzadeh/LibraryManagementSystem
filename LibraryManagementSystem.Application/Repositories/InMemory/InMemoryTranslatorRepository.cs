@@ -18,12 +18,16 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 	}
 
 
-	public Translator? FindById(Guid id) { return _translators.FirstOrDefault(translator => translator.Id == id); }
+	public Translator? FindById(Guid id)
+	{
+		return _translators.FirstOrDefault(translator => translator.Id == id && !translator.IsRemoved);
+	}
 
 
 	public Translator? FindByName(string firstName, string lastName)
 	{
 		return _translators.FirstOrDefault(translator =>
+			!translator.IsRemoved &&
 			translator.FirstName.Equals(firstName, StringComparison.OrdinalIgnoreCase) &&
 			translator.LastName.Equals(lastName, StringComparison.OrdinalIgnoreCase));
 	}
@@ -53,22 +57,28 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 
 	public bool ExistsByNationalCode(string nationalCode, Guid? excludeId = null)
 	{
-		return _translators.Any(translator => translator.Id != excludeId &&
-		                                      translator.NationalCode.Equals(nationalCode));
+		return _translators.Any(translator =>
+			translator.Id != excludeId &&
+			!translator.IsRemoved &&
+			translator.NationalCode.Equals(nationalCode));
 	}
 
 
 	public bool ExistsByEmail(string email, Guid? excludeId = null)
 	{
-		return _translators.Any(translator => translator.Id != excludeId &&
-		                                      translator.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+		return _translators.Any(translator =>
+			translator.Id != excludeId &&
+			!translator.IsRemoved &&
+			translator.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
 	}
 
 
 	public bool ExistsByPhoneNumber(string phoneNumber, Guid? excludeId = null)
 	{
-		return _translators.Any(translator => translator.Id != excludeId &&
-		                                      translator.PhoneNumber.Equals(phoneNumber));
+		return _translators.Any(translator =>
+			translator.Id != excludeId &&
+			!translator.IsRemoved &&
+			translator.PhoneNumber.Equals(phoneNumber));
 	}
 
 

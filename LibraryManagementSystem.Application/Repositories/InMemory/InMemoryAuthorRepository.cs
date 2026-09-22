@@ -18,12 +18,13 @@ public class InMemoryAuthorRepository : IAuthorRepository
 	}
 
 
-	public Author? FindById(Guid id) { return _authors.FirstOrDefault(author => author.Id == id); }
+	public Author? FindById(Guid id) { return _authors.FirstOrDefault(author => author.Id == id && !author.IsRemoved); }
 
 
 	public Author? FindByName(string firstName, string lastName)
 	{
 		return _authors.FirstOrDefault(author =>
+			!author.IsRemoved &&
 			author.FirstName.Equals(firstName, StringComparison.OrdinalIgnoreCase) &&
 			author.LastName.Equals(lastName, StringComparison.OrdinalIgnoreCase));
 	}
@@ -54,7 +55,9 @@ public class InMemoryAuthorRepository : IAuthorRepository
 	public bool ExistsByNationalCode(string nationalCode, Guid? excludeId = null)
 	{
 		return _authors.Any(author =>
-			author.NationalCode.Equals(nationalCode) && (excludeId is null || author.Id != excludeId));
+			author.NationalCode.Equals(nationalCode) &&
+			!author.IsRemoved &&
+			(excludeId is null || author.Id != excludeId));
 	}
 
 
@@ -62,6 +65,7 @@ public class InMemoryAuthorRepository : IAuthorRepository
 	{
 		return _authors.Any(author =>
 			author.Email.Equals(email, StringComparison.OrdinalIgnoreCase) &&
+			!author.IsRemoved && 
 			(excludeId is null || author.Id != excludeId));
 	}
 
@@ -69,14 +73,15 @@ public class InMemoryAuthorRepository : IAuthorRepository
 	public bool ExistsByPhoneNumber(string phoneNumber, Guid? excludeId = null)
 	{
 		return _authors.Any(author =>
-			author.PhoneNumber.Equals(phoneNumber) && (excludeId is null || author.Id != excludeId));
+			author.PhoneNumber.Equals(phoneNumber) &&
+			!author.IsRemoved &&
+			(excludeId is null || author.Id != excludeId));
 	}
 
 
 	public void Remove(Author author)
 	{
-		if (author.IsRemoved)
-			return;
+		if (author.IsRemoved) return;
 		author.IsRemoved = true;
 		author.UpdatedAt = DateTime.UtcNow;
 	}

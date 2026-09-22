@@ -19,4 +19,8 @@ public interface IBookRepository
 	IReadOnlyList<Book> Search(string searchTerm, Func<Book, string?> selector);
 	IReadOnlyList<Book> SearchByDate(DateOnly from, DateOnly to, Func<Book, DateOnly> selector);
 	void Update(Book book, UpdateBookDto dto);
+	void AssignAuthorsToBook(Book book, IEnumerable<Author> authors);
+	void AssignTranslatorsToBook(Book book, IEnumerable<Translator> translators);
+	void ReplaceAuthors(Book book, IEnumerable<Author> authors);
+	void ReplaceTranslators(Book book, IEnumerable<Translator> translators);
 }

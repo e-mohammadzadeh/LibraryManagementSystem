@@ -2,12 +2,11 @@
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Domain.Rules;
 using LibraryManagementSystem.Infrastructure.DTOs.Books;
-using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
-using System.Net;
 using LibraryManagementSystem.Infrastructure.Enums;
-using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
 
@@ -20,20 +19,18 @@ public class BookManagementService
 	private readonly IBookRepository _bookRepository;
 	private readonly ILoanRepository _loanRepository;
 	private readonly IAuditLogManagementService _auditLog;
-	private readonly ContributorAssignmentService _contributorAssignmentService;
 	private readonly IAuthorizationService _authorization;
 
 
 	public BookManagementService(IAuthorRepository authorRepository, ITranslatorRepository translatorRepository,
 		IBookRepository bookRepository, ILoanRepository loanRepository, IAuditLogManagementService auditLog,
-		ContributorAssignmentService contributorAssignmentService, IAuthorizationService authorizationService)
+		IAuthorizationService authorizationService)
 	{
 		_authorRepository = authorRepository;
 		_translatorRepository = translatorRepository;
 		_bookRepository = bookRepository;
 		_loanRepository = loanRepository;
 		_auditLog = auditLog;
-		_contributorAssignmentService = contributorAssignmentService;
 		_authorization = authorizationService;
 	}
 
@@ -81,8 +78,8 @@ public class BookManagementService
 		var newBook = new Book(dto.ISBN, dto.BookName, dto.PublishDate, dto.TotalCopies, genre, dto.Publisher,
 			dto.Description);
 
-		_contributorAssignmentService.AssignAuthorsToBook(newBook, authors);
-		_contributorAssignmentService.AssignTranslatorsToBook(newBook, translators);
+		_bookRepository.AssignAuthorsToBook(newBook, authors);
+		_bookRepository.AssignTranslatorsToBook(newBook, translators);
 		_bookRepository.Add(newBook);
 		_auditLog.Record(AuditAction.BookCreated, "Book", newBook.Id, "Book created.");
 
@@ -152,7 +149,7 @@ public class BookManagementService
 		if (dto.ISBN != null && _bookRepository.ExistsByISBN(dto.ISBN, bookId))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByISBN);
 
-		if (dto.GenreId != null && !Enum.IsDefined(typeof(Genre), dto.GenreId))
+		if (dto.Genre != null && !Enum.IsDefined(dto.Genre.Value))
 			return ServiceResult<BookDto>.Fail(Messages.InvalidGenre);
 
 		if (dto.TotalCopies is <= 0) return ServiceResult<BookDto>.Fail(Messages.WrongTotalCopies);
@@ -165,9 +162,8 @@ public class BookManagementService
 			if (dto.AuthorIds.Count != dto.AuthorIds.Distinct().Count())
 				return ServiceResult<BookDto>.Fail(Messages.DuplicateAuthorsNotAllowed);
 
-
 			resolvedAuthors = [];
-			foreach (var id in dto.AuthorIds.Distinct())
+			foreach (var id in dto.AuthorIds)
 			{
 				var author = _authorRepository.FindById(id);
 				if (author is null)
@@ -193,20 +189,22 @@ public class BookManagementService
 			}
 		}
 
-		Genre? genre = dto.GenreId.HasValue ? (Genre)dto.GenreId.Value : null;
-		var auditDetails =
-			BookUpdateAuditDetailsBuilder.BuildBookUpdateAuditDetails(book, dto, resolvedAuthors, resolvedTranslators);
+		var auditDetails = BookUpdateAuditDetailsBuilder.BuildBookUpdateAuditDetails(book, dto, resolvedAuthors, resolvedTranslators);
 
-		if (dto.TotalCopies.HasValue && !TryUpdateTotalCopies(book, dto.TotalCopies.Value))
-			return ServiceResult<BookDto>.Fail(Messages.TotalCopiesUpdateInvalid);
+		if (dto.TotalCopies.HasValue)
+		{
+			var newTotalCopies = dto.TotalCopies.Value;
+			if (!BookInventoryRules.CanChangeTotalCopies(book.TotalCopies, book.AvailableCopies, newTotalCopies))
+				return ServiceResult<BookDto>.Fail(Messages.TotalCopiesUpdateInvalid);
+			var difference = newTotalCopies - book.TotalCopies;
+			book.TotalCopies = newTotalCopies;
+			book.AvailableCopies += difference;
+		}
 
+		if (resolvedAuthors is not null) _bookRepository.ReplaceAuthors(book, resolvedAuthors);
+		if (resolvedTranslators is not null) _bookRepository.ReplaceTranslators(book, resolvedTranslators);
 
-		if (resolvedAuthors is not null) _contributorAssignmentService.ReplaceAuthors(book, resolvedAuthors);
-
-		if (resolvedTranslators is not null)
-			_contributorAssignmentService.ReplaceTranslators(book, resolvedTranslators);
-
-		_bookRepository.Update(book);
+		_bookRepository.Update(book, dto);
 		_auditLog.Record(AuditAction.BookUpdated, "Book", bookId, auditDetails ?? "Book updated.");
 		return ServiceResult<BookDto>.Ok(book.ToDto(), Messages.BookUpdatedSuccessfully);
 	}
@@ -220,7 +218,7 @@ public class BookManagementService
 		       (dto.TranslatorIds == null ||
 		        SameIds(dto.TranslatorIds, book.BookTranslators.Select(bt => bt.TranslatorId))) &&
 		       (dto.PublishDate == null || dto.PublishDate == book.PublishDate) &&
-		       (dto.GenreId == null || dto.GenreId == (int)book.Genre) &&
+		       (dto.Genre == null || dto.Genre == book.Genre) &&
 		       (dto.Publisher == null || dto.Publisher == book.Publisher) &&
 		       (dto.TotalCopies == null || dto.TotalCopies == book.TotalCopies) &&
 		       (dto.Description == null || dto.Description == book.Description);
@@ -232,29 +230,6 @@ public class BookManagementService
 		var a = left.Distinct().OrderBy(x => x).ToList();
 		var b = right.Distinct().OrderBy(x => x).ToList();
 		return a.SequenceEqual(b);
-	}
-
-
-	private static bool CanUpdateTotalCopies(
-		Book book,
-		int newTotalCopies)
-	{
-		if (newTotalCopies <= 0) return false;
-
-		var difference = newTotalCopies - book.TotalCopies;
-
-		return book.AvailableCopies + difference >= 0;
-	}
-
-
-	private static void UpdateTotalCopies(
-		Book book,
-		int newTotalCopies)
-	{
-		var difference = newTotalCopies - book.TotalCopies;
-
-		book.TotalCopies = newTotalCopies;
-		book.AvailableCopies += difference;
 	}
 
 

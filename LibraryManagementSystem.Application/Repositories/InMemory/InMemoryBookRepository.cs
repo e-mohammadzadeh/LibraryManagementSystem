@@ -21,7 +21,7 @@ public class InMemoryBookRepository : IBookRepository
 	}
 
 
-	public Book? FindById(Guid id) { return _books.FirstOrDefault(book => book.Id == id); }
+	public Book? FindById(Guid id) { return _books.FirstOrDefault(book => book.Id == id && !book.IsRemoved); }
 
 
 	public IReadOnlyList<Book> GetAll(EntityFilter filter = EntityFilter.Active)
@@ -62,7 +62,10 @@ public class InMemoryBookRepository : IBookRepository
 	{
 		if (string.IsNullOrWhiteSpace(name)) return false;
 
-		return _books.Any(book => book.Id != excludeId && book.Title.Equals(name, StringComparison.OrdinalIgnoreCase));
+		return _books.Any(book =>
+			book.Id != excludeId &&
+			!book.IsRemoved &&
+			book.Title.Equals(name, StringComparison.OrdinalIgnoreCase));
 	}
 
 
@@ -72,6 +75,7 @@ public class InMemoryBookRepository : IBookRepository
 
 		return _books.Any(book =>
 			book.Id != excludeId &&
+			!book.IsRemoved &&
 			book.InternationalStandardBookNumber.Equals(isbn, StringComparison.OrdinalIgnoreCase));
 	}
 
@@ -131,8 +135,6 @@ public class InMemoryBookRepository : IBookRepository
 
 	private void AddAuthor(Book book, Author author)
 	{
-		ArgumentNullException.ThrowIfNull(author);
-
 		if (_bookAuthors.Any(ba => ba.AuthorId == author.Id)) return;
 
 		_bookAuthors.Add(new BookAuthor(book, author));
@@ -142,8 +144,6 @@ public class InMemoryBookRepository : IBookRepository
 
 	private void AddTranslator(Book book, Translator translator)
 	{
-		ArgumentNullException.ThrowIfNull(translator);
-
 		if (_bookTranslators.Any(bt => bt.TranslatorId == translator.Id)) return;
 
 		_bookTranslators.Add(new BookTranslator(book, translator));
