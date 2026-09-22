@@ -10,6 +10,7 @@ public interface IBookRepository
 	Book? FindById(Guid id);
 	IReadOnlyList<Book> GetAll(EntityFilter filter);
 	IReadOnlyList<Book> GetByAuthorId(Guid authorId);
+	IReadOnlyList<Book> GetByTranslatorId(Guid translatorId);
 	bool ExistsByName(string name, Guid? excludeId);
 	bool ExistsByISBN(string isbn, Guid? excludeId);
 	IReadOnlyList<Book> GetAvailableBooks();

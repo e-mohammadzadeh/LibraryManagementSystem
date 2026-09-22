@@ -52,6 +52,12 @@ public class InMemoryBookRepository : IBookRepository
 	}
 
 
+	public IReadOnlyList<Book> GetByTranslatorId(Guid translatorId)
+	{
+		return [.. _books.Where(book => book.BookTranslators.Any(bt => bt.TranslatorId == translatorId))];
+	}
+
+
 	public bool ExistsByName(string name, Guid? excludeId = null)
 	{
 		if (string.IsNullOrWhiteSpace(name)) return false;

@@ -2,11 +2,11 @@
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.DTOs.Books;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.Enums;
-using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
 
@@ -89,16 +89,12 @@ public class AuthorManagementService
 
 		var auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(author, dto);
 
-		var updatedAuthor = new Author(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber,
-			dto.BirthDate.Value, dto.Biography);
-
-		_authorRepository.Update(updatedAuthor);
-
+		_authorRepository.Update(author, dto);
 		_auditLog.Record(AuditAction.AuthorUpdated, "Author", authorId, auditDetails ?? "Author updated.");
 
 		return warningMessage is not null
-			? ServiceResult<ContributorDto>.Warning(updatedAuthor.ToDto(), warningMessage)
-			: ServiceResult<ContributorDto>.Ok(updatedAuthor.ToDto(), Messages.AuthorUpdatedSuccessfully);
+			? ServiceResult<ContributorDto>.Warning(author.ToDto(), warningMessage)
+			: ServiceResult<ContributorDto>.Ok(author.ToDto(), Messages.AuthorUpdatedSuccessfully);
 	}
 
 
