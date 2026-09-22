@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
-using LibraryManagementSystem.Domain.Enums.Filters;
+using LibraryManagementSystem.Infrastructure.DTOs.Books;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
 
 namespace LibraryManagementSystem.Domain.Interfaces;
 
@@ -16,5 +17,5 @@ public interface IBookRepository
 	//	TODO Split search methods into some methods to support search books by author - search books by translator - search books by publisher - search books by genre - search books by multiple authors
 	IReadOnlyList<Book> Search(string searchTerm, Func<Book, string?> selector);
 	IReadOnlyList<Book> SearchByDate(DateOnly from, DateOnly to, Func<Book, DateOnly> selector);
-	void Update(Book book);
+	void Update(Book book, UpdateBookDto dto);
 }

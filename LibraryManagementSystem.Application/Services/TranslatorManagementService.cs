@@ -3,12 +3,12 @@ using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Translators;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
-using LibraryManagementSystem.Domain.Enums;
-using LibraryManagementSystem.Domain.Enums.Filters;
-using LibraryManagementSystem.Domain.Enums.Search;
-using LibraryManagementSystem.Domain.Enums.Sort;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.DTOs.Books;
+using LibraryManagementSystem.Infrastructure.Enums;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
+using LibraryManagementSystem.Infrastructure.Enums.Search;
+using LibraryManagementSystem.Infrastructure.Enums.Sort;
 
 namespace LibraryManagementSystem.Application.Services;
 

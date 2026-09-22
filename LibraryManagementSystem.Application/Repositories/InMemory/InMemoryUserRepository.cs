@@ -1,6 +1,6 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
-using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
 
 namespace LibraryManagementSystem.Application.Repositories.InMemory;
 

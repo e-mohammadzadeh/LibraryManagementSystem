@@ -1,5 +1,5 @@
-﻿using LibraryManagementSystem.Domain.Enums;
-using LibraryManagementSystem.Infrastructure.DTOs.Users;
+﻿using LibraryManagementSystem.Infrastructure.DTOs.Users;
+using LibraryManagementSystem.Infrastructure.Enums;
 
 namespace LibraryManagementSystem.Application.Authentication;
 

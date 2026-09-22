@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
-using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Infrastructure.DTOs.Books;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
 
 namespace LibraryManagementSystem.Application.Repositories.InMemory;
 
@@ -106,12 +107,15 @@ public class InMemoryBookRepository : IBookRepository
 	}
 
 
-	public void Update(Book book)
+	public void Update(Book book, UpdateBookDto dto)
 	{
-		ArgumentNullException.ThrowIfNull(book);
-		var existingBookIndex = _books.FindIndex(b => b.Id == book.Id);
-		if (existingBookIndex == -1) throw new KeyNotFoundException($"Book with ID {book.Id} was not found.");
-		_books[existingBookIndex] = book;
-		book.UpdatedAt = DateTime.Now;
+		book.Title = dto.BookName ?? book.Title;
+		book.InternationalStandardBookNumber = dto.ISBN ?? book.InternationalStandardBookNumber;
+		Author
+		translator
+		book.PublishDate = dto.PublishDate ?? book.PublishDate;
+		book.Genre = dto.Genre ?? book.Genre;
+		book.Publisher = dto.Publisher ?? book.Publisher;
+
 	}
 }

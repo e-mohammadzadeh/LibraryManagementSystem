@@ -1,4 +1,4 @@
-﻿namespace LibraryManagementSystem.Domain.Enums;
+﻿namespace LibraryManagementSystem.Infrastructure.Enums;
 
 public enum Permission
 {

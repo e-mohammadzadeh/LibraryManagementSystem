@@ -1,5 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Infrastructure.Enums;
 
 namespace LibraryManagementSystem.Domain.Entities;
 
@@ -27,16 +27,16 @@ public class Book
 
 	//TODO	(SQL Server)	When switch into SQL Server, IDs will generate by SQL Server itself and should remove static ones
 	public Guid Id { get; private set; }
-	public string Title { get; private set; }
-	public string InternationalStandardBookNumber { get; private set; }
+	public string Title { get;  set; }
+	public string InternationalStandardBookNumber { get;  set; }
 	private readonly List<BookAuthor> _bookAuthors = [];
 	private readonly List<BookTranslator> _bookTranslators = [];
-	public DateOnly PublishDate { get; private set; }
-	public Genre Genre { get; private set; }
-	public string Publisher { get; private set; }
+	public DateOnly PublishDate { get;  set; }
+	public Genre Genre { get;  set; }
+	public string Publisher { get;  set; }
 	public int TotalCopies { get;  set; }
 	public int AvailableCopies { get;  set; }
-	public string? Description { get; private set; }
+	public string? Description { get;  set; }
 	public DateTime CreatedAt { get; }
 	public DateTime? UpdatedAt { get; set; }
 	public bool IsRemoved { get; set; }

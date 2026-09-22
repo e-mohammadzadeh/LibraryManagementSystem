@@ -2,11 +2,11 @@
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Application.DTOs.Translators;
-using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Books;
 using LibraryManagementSystem.Infrastructure.DTOs.Library;
 using LibraryManagementSystem.Infrastructure.DTOs.Users;
+using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;

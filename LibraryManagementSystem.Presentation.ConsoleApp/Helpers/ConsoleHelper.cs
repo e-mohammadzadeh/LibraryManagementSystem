@@ -3,10 +3,10 @@ using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Application.DTOs.Translators;
 using LibraryManagementSystem.Application.Validators;
 using LibraryManagementSystem.Domain.Entities;
-using LibraryManagementSystem.Domain.Enums;
 using System.Text;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs;
+using LibraryManagementSystem.Infrastructure.Enums;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 

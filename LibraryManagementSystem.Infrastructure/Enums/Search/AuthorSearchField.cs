@@ -1,4 +1,4 @@
-﻿namespace LibraryManagementSystem.Domain.Enums.Search;
+﻿namespace LibraryManagementSystem.Infrastructure.Enums.Search;
 
 public enum AuthorSearchField
 {
