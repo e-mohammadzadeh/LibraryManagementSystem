@@ -79,10 +79,10 @@ public class AuthenticationService
 	{
 		string? warningMessage = null;
 
-		if (_userRepository.ExistsByNationalCode(dto.NationalCode))
+		if (_userRepository.ExistsByNationalCode(dto.NationalCode, null))
 			return ServiceResult<AuthUserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
 
-		if (_userRepository.ExistsByEmail(dto.Email))
+		if (_userRepository.ExistsByEmail(dto.Email, null))
 			return ServiceResult<AuthUserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
 
 		var existingSameName = _userRepository.FindByName(dto.FirstName, dto.LastName);

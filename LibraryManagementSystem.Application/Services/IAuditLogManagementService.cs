@@ -7,6 +7,6 @@ public interface IAuditLogManagementService
 {
 	void Record(AuditAction action, string entityType, Guid entityId, string? details = null);
 	IReadOnlyList<AuditLogDto> GetAll();
-	IReadOnlyList<AuditLogDto> GetByPerformedByUserId(int userId);
-	IReadOnlyList<AuditLogDto> GetByEntity(string entityType, int entityId);
+	IReadOnlyList<AuditLogDto> GetByPerformedByUserId(Guid userId);
+	IReadOnlyList<AuditLogDto> GetByEntity(string entityType, Guid entityId);
 }

@@ -35,13 +35,13 @@ public class AuditLogManagementService : IAuditLogManagementService
 	public IReadOnlyList<AuditLogDto> GetAll() { return MapToDto(_auditLogRepository.GetAll()); }
 
 
-	public IReadOnlyList<AuditLogDto> GetByPerformedByUserId(int userId)
+	public IReadOnlyList<AuditLogDto> GetByPerformedByUserId(Guid userId)
 	{
 		return MapToDto(_auditLogRepository.GetByPerformedByUserId(userId));
 	}
 
 
-	public IReadOnlyList<AuditLogDto> GetByEntity(string entityType, int entityId)
+	public IReadOnlyList<AuditLogDto> GetByEntity(string entityType, Guid entityId)
 	{
 		return MapToDto(_auditLogRepository.GetByEntity(entityType, entityId));
 	}

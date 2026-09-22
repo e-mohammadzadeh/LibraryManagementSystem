@@ -1,8 +1,10 @@
-﻿namespace LibraryManagementSystem.Infrastructure.DTOs.Users;
+﻿using LibraryManagementSystem.Infrastructure.Enums;
+
+namespace LibraryManagementSystem.Infrastructure.DTOs.Users;
 
 public class AuthUserDto
 {
-	public int Id { get; init; }
+	public Guid Id { get; init; }
 	public string FullName { get; init; } = null!;
 	public string Email { get; init; } = null!;
 	public IReadOnlyList<LibraryUserRole> Roles { get; init; } = [];
