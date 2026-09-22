@@ -60,58 +60,82 @@ public static class DataSeeder
 		translatorRepository.Add(translator4);
 
 		// Seed books
-		var book1 = new Book("978-0-452-28423-4", "1984", [author1],
-			[translator1, translator2, translator3, translator4], new DateOnly(1949, 6, 8), 5,
+		var book1 = new Book("978-0-452-28423-4", "1984", new DateOnly(1949, 6, 8), 5,
 			Genre.ScienceFiction, "HarperCollins", "A dystopian novel.");
+		bookRepository.AssignAuthorsToBook(book1, [author1]);
+		bookRepository.AssignTranslatorsToBook(book1, [translator1, translator2, translator3, translator4]);
 
-		var book2 = new Book("9780060850524", "Brave New World", [author1, author2], [translator2],
-			new DateOnly(1932, 1, 1), 5, Genre.ScienceFiction, "Amir Kabir Publishing", "A dystopian novel.");
+		var book2 = new Book("9780060850524", "Brave New World", new DateOnly(1932, 1, 1), 5, Genre.ScienceFiction,
+			"Amir Kabir Publishing", "A dystopian novel.");
+		bookRepository.AssignAuthorsToBook(book2, [author1, author2]);
+		bookRepository.AssignTranslatorsToBook(book2, [translator2]);
 
-		var book3 = new Book("9781451673319", "Fahrenheit 451", [author2, author3, author4], [translator3, translator2],
-			new DateOnly(1953, 1, 1), 5, Genre.Horror, "Oxford University Press", "A dystopian novel.");
+		var book3 = new Book("9781451673319", "Fahrenheit 451", new DateOnly(1953, 1, 1), 5, Genre.Horror,
+			"Oxford University Press", "A dystopian novel.");
+		bookRepository.AssignAuthorsToBook(book3, [author2, author3, author4]);
+		bookRepository.AssignTranslatorsToBook(book3, [translator3, translator2]);
 
-		var book4 = new Book("978-0-7475-3269-9", "Harry Potter and the Philosopher's Stone", [author2], [translator4],
+		var book4 = new Book("978-0-7475-3269-9", "Harry Potter and the Philosopher's Stone",
 			new DateOnly(1997, 6, 26), 3, Genre.Fantasy, "HarperCollins",
 			"A young wizard discovers his magical heritage.");
+		bookRepository.AssignAuthorsToBook(book4, [author2]);
+		bookRepository.AssignTranslatorsToBook(book4, [translator4]);
 
-		var book5 = new Book("978-0-452-28424-1", "Animal Farm", [author1, author2, author3, author4], [translator1],
-			new DateOnly(1945, 8, 17), 4, Genre.Historical, "Oxford University Press", "An allegorical novella.");
+		var book5 = new Book("978-0-452-28424-1", "Animal Farm", new DateOnly(1945, 8, 17), 4, Genre.Historical,
+			"Oxford University Press", "An allegorical novella.");
+		bookRepository.AssignAuthorsToBook(book5, [author1, author2, author3, author4]);
+		bookRepository.AssignTranslatorsToBook(book5, [translator1]);
 
-		var book6 = new Book("9780061120084", "To Kill a Mockingbird", [author4, author1],
-			[translator2, translator3, translator4], new DateOnly(1960, 7, 11), 6, Genre.ScienceFiction,
-			"Amir Kabir Publishing", "A story about racism and justice in the American South.");
+		var book6 = new Book("9780061120084", "To Kill a Mockingbird", new DateOnly(1960, 7, 11), 6,
+			Genre.ScienceFiction, "Amir Kabir Publishing",
+			"A story about racism and justice in the American South.");
+		bookRepository.AssignAuthorsToBook(book6, [author4, author1]);
+		bookRepository.AssignTranslatorsToBook(book6, [translator2, translator3, translator4]);
 
-		var book7 = new Book("9780743273565", "The Great Gatsby", [author4], [translator3], new DateOnly(1925, 4, 10),
-			4, Genre.Horror, "Oxford University Press", "A tale of wealth, love, and the American Dream.");
+		var book7 = new Book("9780743273565", "The Great Gatsby", new DateOnly(1925, 4, 10), 4, Genre.Horror,
+			"Oxford University Press", "A tale of wealth, love, and the American Dream.");
+		bookRepository.AssignAuthorsToBook(book7, [author4]);
+		bookRepository.AssignTranslatorsToBook(book7, [translator3]);
 
-		var book8 = new Book("9780141439518", "Pride and Prejudice", [author4], [translator4],
-			new DateOnly(1813, 1, 28), 5, Genre.Romance, "Macmillan Publishers",
-			"A witty story about love and social class.");
+		var book8 = new Book("9780141439518", "Pride and Prejudice", new DateOnly(1813, 1, 28), 5, Genre.Romance,
+			"Macmillan Publishers", "A witty story about love and social class.");
+		bookRepository.AssignAuthorsToBook(book8, [author4]);
+		bookRepository.AssignTranslatorsToBook(book8, [translator4]);
 
-		var book9 = new Book("9780547928210", "The Hobbit", [author4, author3], [translator1, translator2],
-			new DateOnly(1937, 9, 21), 7, Genre.Fantasy, "Amir Kabir Publishing",
-			"A hobbit embarks on an unexpected journey.");
+		var book9 = new Book("9780547928210", "The Hobbit", new DateOnly(1937, 9, 21), 7, Genre.Fantasy,
+			"Amir Kabir Publishing", "A hobbit embarks on an unexpected journey.");
+		bookRepository.AssignAuthorsToBook(book9, [author4, author3]);
+		bookRepository.AssignTranslatorsToBook(book9, [translator1, translator2]);
 
-		var book10 = new Book("9780441172719", "Dune", [author4], [translator2], new DateOnly(1965, 8, 1), 4,
-			Genre.ScienceFiction, "HarperCollins", "Epic science fiction on a desert planet.");
+		var book10 = new Book("9780441172719", "Dune", new DateOnly(1965, 8, 1), 4, Genre.ScienceFiction,
+			"HarperCollins", "Epic science fiction on a desert planet.");
+		bookRepository.AssignAuthorsToBook(book10, [author4]);
+		bookRepository.AssignTranslatorsToBook(book10, [translator2]);
 
-		var book11 = new Book("9780062315007", "The Alchemist", [author4], [translator3], new DateOnly(1988, 1, 1), 8,
-			Genre.ScienceFiction, "Macmillan Publishers", "A shepherd's journey to find his personal legend.");
+		var book11 = new Book("9780062315007", "The Alchemist", new DateOnly(1988, 1, 1), 8, Genre.ScienceFiction,
+			"Macmillan Publishers", "A shepherd's journey to find his personal legend.");
+		bookRepository.AssignAuthorsToBook(book11, [author4]);
+		bookRepository.AssignTranslatorsToBook(book11, [translator3]);
 
-		var book12 = new Book("9780062316097", "Sapiens: A Brief History of Humankind", [author4], [translator4],
-			new DateOnly(2011, 1, 1), 3, Genre.Historical, "Macmillan Publishers",
-			"A groundbreaking exploration of human history.");
+		var book12 = new Book("9780062316097", "Sapiens: A Brief History of Humankind", new DateOnly(2011, 1, 1), 3,
+			Genre.Historical, "Macmillan Publishers", "A groundbreaking exploration of human history.");
+		bookRepository.AssignAuthorsToBook(book12, [author4]);
+		bookRepository.AssignTranslatorsToBook(book12, [translator4]);
 
-		var book13 = new Book("9780307474278", "The Da Vinci Code", [author1, author2, author3, author4],
-			[translator1, translator2, translator3, translator4], new DateOnly(2003, 3, 18),
-			5, Genre.Mystery, "Oxford University Press", "A thrilling mystery involving art and secret societies.");
+		var book13 = new Book("9780307474278", "The Da Vinci Code", new DateOnly(2003, 3, 18), 5, Genre.Mystery,
+			"Oxford University Press", "A thrilling mystery involving art and secret societies.");
+		bookRepository.AssignAuthorsToBook(book13, [author1, author2, author3, author4]);
+		bookRepository.AssignTranslatorsToBook(book13, [translator1, translator2, translator3, translator4]);
 
-		var book14 = new Book("9780062420091", "Educated: A Memoir", [author4], [translator2],
-			new DateOnly(2018, 2, 20), 4,
-			Genre.Biography, "Amir Kabir Publishing", "A story of self-invention and overcoming adversity.");
+		var book14 = new Book("9780062420091", "Educated: A Memoir", new DateOnly(2018, 2, 20), 4, Genre.Biography,
+			"Amir Kabir Publishing", "A story of self-invention and overcoming adversity.");
+		bookRepository.AssignAuthorsToBook(book14, [author4]);
+		bookRepository.AssignTranslatorsToBook(book14, [translator2]);
 
-		var book15 = new Book("9781250301697", "The Silent Patient", [author4], [translator3], new DateOnly(2019, 2, 5),
-			6, Genre.Thriller, "Oxford University Press", "A woman shoots her husband and never speaks again.");
+		var book15 = new Book("9781250301697", "The Silent Patient", new DateOnly(2019, 2, 5), 6, Genre.Thriller,
+			"Oxford University Press", "A woman shoots her husband and never speaks again.");
+		bookRepository.AssignAuthorsToBook(book15, [author4]);
+		bookRepository.AssignTranslatorsToBook(book15, [translator3]);
 
 		bookRepository.Add(book1);
 		bookRepository.Add(book2);

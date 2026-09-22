@@ -1,7 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.Enums;

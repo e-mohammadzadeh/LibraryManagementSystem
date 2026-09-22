@@ -1,9 +1,7 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.DTOs.Authors;
-using LibraryManagementSystem.Application.DTOs.Translators;
-using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Books;
+using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.DTOs.Library;
 using LibraryManagementSystem.Infrastructure.DTOs.Users;
 using LibraryManagementSystem.Infrastructure.Enums;
@@ -48,7 +46,7 @@ public static class MenuHelper
 	}
 
 
-	public static AuthorDto? SelectAuthor(IReadOnlyList<AuthorDto> authorsList, IAuthorizationService authorization)
+	public static ContributorDto? SelectAuthor(IReadOnlyList<ContributorDto> authorsList, IAuthorizationService authorization)
 	{
 		if (authorsList.Count == 0)
 		{
@@ -56,7 +54,7 @@ public static class MenuHelper
 			return null;
 		}
 
-		Action<IReadOnlyList<AuthorDto>> printer =
+		Action<IReadOnlyList<ContributorDto>> printer =
 			authorization.HasPermission(Permission.ViewAuthorFullDetails)
 				? author => AuthorPrinter.PrintFullTable(author)
 				: author => AuthorPrinter.PrintTable(author);
@@ -77,7 +75,7 @@ public static class MenuHelper
 
 
 
-	public static TranslatorDto? SelectTranslator(IReadOnlyList<TranslatorDto> translatorsList,
+	public static ContributorDto? SelectTranslator(IReadOnlyList<ContributorDto> translatorsList,
 		IAuthorizationService authorization)
 	{
 		if (translatorsList.Count == 0)
@@ -86,7 +84,7 @@ public static class MenuHelper
 			return null;
 		}
 
-		Action<IReadOnlyList<TranslatorDto>> printer =
+		Action<IReadOnlyList<ContributorDto>> printer =
 			authorization.HasAnyPermission(Permission.ViewTranslatorDetails, Permission.ViewAllTranslators)
 				? translator => TranslatorPrinter.PrintFullTable(translator)
 				: translator => TranslatorPrinter.PrintTable(translator);

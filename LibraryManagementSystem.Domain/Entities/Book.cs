@@ -27,16 +27,16 @@ public class Book
 
 	//TODO	(SQL Server)	When switch into SQL Server, IDs will generate by SQL Server itself and should remove static ones
 	public Guid Id { get; private set; }
-	public string Title { get;  set; }
-	public string InternationalStandardBookNumber { get;  set; }
+	public string Title { get; set; }
+	public string InternationalStandardBookNumber { get; set; }
 	private readonly List<BookAuthor> _bookAuthors = [];
 	private readonly List<BookTranslator> _bookTranslators = [];
-	public DateOnly PublishDate { get;  set; }
-	public Genre Genre { get;  set; }
-	public string Publisher { get;  set; }
-	public int TotalCopies { get;  set; }
-	public int AvailableCopies { get;  set; }
-	public string? Description { get;  set; }
+	public DateOnly PublishDate { get; set; }
+	public Genre Genre { get; set; }
+	public string Publisher { get; set; }
+	public int TotalCopies { get; set; }
+	public int AvailableCopies { get; set; }
+	public string? Description { get; set; }
 	public DateTime CreatedAt { get; }
 	public DateTime? UpdatedAt { get; set; }
 	public bool IsRemoved { get; set; }
@@ -53,52 +53,19 @@ public class Book
 	}
 
 
-	
-
-
-	public void RemoveAuthor(Guid authorId)
+	public void BorrowCopy()
 	{
-		if (_bookAuthors.Count <= 1)
-		{
-			throw new InvalidOperationException(
-				Messages.BookRequiresAtLeastOneAuthor);
-		}
-
-		var bookAuthor = _bookAuthors
-			.FirstOrDefault(ba => ba.AuthorId == authorId);
-
-		if (bookAuthor is null) return;
-
-		_bookAuthors.Remove(bookAuthor);
-		UpdatedAt = DateTime.UtcNow;
+		if (AvailableCopies <= 0) throw new InvalidOperationException("No copies are available.");
+		AvailableCopies--;
+		//TODO	(Web API)	Raise an event: a signal to the rest of the system that says "this book is now out of stock"
 	}
 
 
-	public void RemoveTranslator(Guid translatorId)
+	public void ReturnCopy()
 	{
-		var bookTranslator = _bookTranslators
-			.FirstOrDefault(bt => bt.TranslatorId == translatorId);
+		if (AvailableCopies >= TotalCopies)
+			throw new InvalidOperationException("Cannot return a copy because all copies are already in the library.");
 
-		if (bookTranslator is null) return;
-
-		_bookTranslators.Remove(bookTranslator);
-		UpdatedAt = DateTime.UtcNow;
+		AvailableCopies++;
 	}
-	
-
-	//public void BorrowCopy()
-	//{
-	//	if (AvailableCopies <= 0) throw new InvalidOperationException("No copies are available.");
-	//	AvailableCopies--;
-	//	//TODO	(Web API)	Raise an event: a signal to the rest of the system that says "this book is now out of stock"
-	//}
-
-
-	//public void ReturnCopy()
-	//{
-	//	if (AvailableCopies >= TotalCopies)
-	//		throw new InvalidOperationException("Cannot return a copy because all copies are already in the library.");
-
-	//	AvailableCopies++;
-	//}
 }

@@ -1,11 +1,9 @@
 ﻿using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.DTOs.Authors;
-using LibraryManagementSystem.Application.DTOs.Translators;
 using LibraryManagementSystem.Application.Validators;
 using LibraryManagementSystem.Domain.Entities;
 using System.Text;
-using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs;
+using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.Enums;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
@@ -234,7 +232,7 @@ public static class ConsoleHelper
 	}
 
 
-	public static List<int>? ReadAuthors(string prompt, IReadOnlyList<AuthorDto> authors, bool allowMultiple = true,
+	public static List<int>? ReadAuthors(string prompt, IReadOnlyList<ContributorDto> authors, bool allowMultiple = true,
 		bool allowEmpty = false)
 	{
 		return ReadMultiSelect(prompt, authors, idSelector: a => a.Id,
@@ -243,7 +241,7 @@ public static class ConsoleHelper
 	}
 
 
-	public static List<int>? ReadTranslators(string prompt, IReadOnlyList<TranslatorDto> translators,
+	public static List<int>? ReadTranslators(string prompt, IReadOnlyList<ContributorDto> translators,
 		bool allowMultiple = true, bool allowEmpty = true)
 	{
 		return ReadMultiSelect(prompt, translators, idSelector: t => t.Id,

@@ -170,6 +170,30 @@ public class InMemoryBookRepository : IBookRepository
 	}
 
 
+	public void RemoveAuthor(Guid authorId)
+	{
+		if (_bookAuthors.Count <= 1)
+			throw new InvalidOperationException(Messages.BookRequiresAtLeastOneAuthor);
+
+		var bookAuthor = _bookAuthors.FirstOrDefault(ba => ba.AuthorId == authorId);
+
+		if (bookAuthor is null) return;
+
+		_bookAuthors.Remove(bookAuthor);
+		UpdatedAt = DateTime.UtcNow;
+	}
+
+
+	public void RemoveTranslator(Guid translatorId)
+	{
+		var bookTranslator = _bookTranslators.FirstOrDefault(bt => bt.TranslatorId == translatorId);
+
+		if (bookTranslator is null) return;
+
+		_bookTranslators.Remove(bookTranslator);
+		UpdatedAt = DateTime.UtcNow;
+	}
+
 
 	public void ReplaceAuthors(Book book, IEnumerable<Author> authors)
 	{

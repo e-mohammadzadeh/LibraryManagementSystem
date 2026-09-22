@@ -60,7 +60,7 @@ public class User : Person
 	}
 
 
-	public void RemoveRole(int roleId)
+	public void RemoveRole(Guid roleId)
 	{
 		if (_userRoles.Count == 1) throw new InvalidOperationException("A user must have at least one role.");
 
