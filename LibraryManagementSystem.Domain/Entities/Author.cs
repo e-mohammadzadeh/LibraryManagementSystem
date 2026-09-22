@@ -7,5 +7,5 @@ public class Author : Person
 	{
 		Biography = biography;
 	}
-	public string? Biography { get; private set; }
+	public string? Biography { get; set; }
 }

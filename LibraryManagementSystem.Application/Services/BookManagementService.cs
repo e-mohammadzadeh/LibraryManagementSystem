@@ -94,28 +94,40 @@ public class BookManagementService
 	public IReadOnlyList<BookDto> GetAllBooks(BookSortField sortField = BookSortField.Id,
 		SortDirection sortDirection = SortDirection.Ascending)
 	{
-		var books = _bookRepository.GetAll(EntityFilter.Active).Select(book => book.ToDto());
+		var books = _bookRepository.GetAll(EntityFilter.Active).ToList();
 
-		Func<BookDto, object> keySelector = sortField switch
+		var sortedBooks = sortField switch
 		{
-			BookSortField.Id => b => b.Id,
-			BookSortField.Name => b => b.Title,
-			BookSortField.ISBN => b => b.ISBN,
-			BookSortField.PublishDate => b => b.PublishDate,
-			BookSortField.Genre => b => b.Genre.ToString(),
-			BookSortField.Publisher => b => b.Publisher,
-			BookSortField.AvailableCopies => b => b.AvailableCopies,
-			BookSortField.Author => b => string.Join(", ", b.Authors.Select(a => a.FullName).Order()),
-			BookSortField.Translator => b => string.Join(", ", b.Translators.Select(t => t.FullName).Order()),
+			BookSortField.Id => ApplySort(books, book => book.Id, sortDirection),
+			BookSortField.Name => ApplySort(books, book => book.Title, sortDirection),
+			BookSortField.ISBN => ApplySort(books, book => book.InternationalStandardBookNumber, sortDirection),
+			BookSortField.PublishDate => ApplySort(books, book => book.PublishDate, sortDirection),
+			BookSortField.Genre => ApplySort(books, book => book.Genre, sortDirection),
+			BookSortField.Publisher => ApplySort(books, book => book.Publisher, sortDirection),
+			BookSortField.AvailableCopies => ApplySort(books, book => book.AvailableCopies, sortDirection),
+			BookSortField.Author => ApplySort(books,
+				book => string.Join(", ",
+					book.BookAuthors.Select(ba => $"{ba.Author.FirstName} {ba.Author.LastName}").Order()),
+				sortDirection),
+
+			BookSortField.Translator => ApplySort(books,
+				book => string.Join(", ",
+					book.BookTranslators.Select(bt => $"{bt.Translator.FirstName} {bt.Translator.LastName}").Order()),
+				sortDirection),
+
 			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
 		};
 
-		return
-		[
-			.. (sortDirection == SortDirection.Ascending
-				? books.OrderBy(keySelector)
-				: books.OrderByDescending(keySelector))
-		];
+		return sortedBooks.Select(book => book.ToDto()).ToList();
+	}
+
+
+	private static IOrderedEnumerable<Book> ApplySort<TKey>(IEnumerable<Book> books, Func<Book, TKey> keySelector,
+		SortDirection sortDirection)
+	{
+		return sortDirection == SortDirection.Ascending
+			? books.OrderBy(keySelector)
+			: books.OrderByDescending(keySelector);
 	}
 
 
@@ -128,8 +140,10 @@ public class BookManagementService
 
 	public ServiceResult<BookDto> UpdateBook(Guid bookId, UpdateBookDto dto)
 	{
+		ArgumentNullException.ThrowIfNull(dto);
+
 		var book = _bookRepository.FindById(bookId);
-		if (book is null) return ServiceResult<BookDto>.Fail(Messages.NotAvailableBook);
+		if (book is null || book.IsRemoved) return ServiceResult<BookDto>.Fail(Messages.NotAvailableBook);
 
 		if (IsNoOpUpdateBook(book, dto)) return ServiceResult<BookDto>.Fail(Messages.NoChangesDetected);
 
@@ -184,27 +198,14 @@ public class BookManagementService
 		var auditDetails =
 			BookUpdateAuditDetailsBuilder.BuildBookUpdateAuditDetails(book, dto, resolvedAuthors, resolvedTranslators);
 
-		// check these business validations
-		//if (totalCopies.HasValue)
-		//{
-		//	var difference = totalCopies.Value - TotalCopies;
-		//	if (AvailableCopies + difference < 0)
-		//		return false;
-		//}
-
-		//if (totalCopies.HasValue)
-		//{
-		//	var difference = totalCopies.Value - TotalCopies;
-		//	TotalCopies = totalCopies.Value;
-		//	AvailableCopies += difference;
-
-		if (!book.Update(dto.BookName, dto.ISBN, dto.PublishDate, genre, dto.Publisher, dto.TotalCopies,
-			    dto.Description))
+		if (dto.TotalCopies.HasValue && !TryUpdateTotalCopies(book, dto.TotalCopies.Value))
 			return ServiceResult<BookDto>.Fail(Messages.TotalCopiesUpdateInvalid);
 
-		if (resolvedAuthors is not null) book.ReplaceAuthors(resolvedAuthors);
 
-		if (resolvedTranslators is not null) book.ReplaceTranslators(resolvedTranslators);
+		if (resolvedAuthors is not null) _contributorAssignmentService.ReplaceAuthors(book, resolvedAuthors);
+
+		if (resolvedTranslators is not null)
+			_contributorAssignmentService.ReplaceTranslators(book, resolvedTranslators);
 
 		_bookRepository.Update(book);
 		_auditLog.Record(AuditAction.BookUpdated, "Book", bookId, auditDetails ?? "Book updated.");
@@ -232,6 +233,29 @@ public class BookManagementService
 		var a = left.Distinct().OrderBy(x => x).ToList();
 		var b = right.Distinct().OrderBy(x => x).ToList();
 		return a.SequenceEqual(b);
+	}
+
+
+	private static bool CanUpdateTotalCopies(
+		Book book,
+		int newTotalCopies)
+	{
+		if (newTotalCopies <= 0) return false;
+
+		var difference = newTotalCopies - book.TotalCopies;
+
+		return book.AvailableCopies + difference >= 0;
+	}
+
+
+	private static void UpdateTotalCopies(
+		Book book,
+		int newTotalCopies)
+	{
+		var difference = newTotalCopies - book.TotalCopies;
+
+		book.TotalCopies = newTotalCopies;
+		book.AvailableCopies += difference;
 	}
 
 

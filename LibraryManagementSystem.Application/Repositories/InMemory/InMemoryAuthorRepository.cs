@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 
 namespace LibraryManagementSystem.Application.Repositories.InMemory;
 
@@ -96,12 +97,15 @@ public class InMemoryAuthorRepository : IAuthorRepository
 	}
 
 
-	public void Update(Author author)
+	public void Update(Author author, UpdateContributorDto dto)
 	{
-		ArgumentNullException.ThrowIfNull(author);
-		var existingAuthorIndex = _authors.FindIndex(a => a.Id == author.Id);
-		if (existingAuthorIndex == -1) throw new KeyNotFoundException($"Author with ID {author.Id} was not found.");
-		_authors[existingAuthorIndex] = author;
+		author.FirstName = dto.FirstName ?? author.FirstName;
+		author.LastName = dto.LastName ?? author.LastName;
+		author.NationalCode = dto.NationalCode ?? author.NationalCode;
+		author.Email = dto.Email ?? author.Email;
+		author.PhoneNumber = dto.PhoneNumber ?? author.PhoneNumber;
+		author.BirthDate = dto.BirthDate ?? author.BirthDate;
+		author.Biography = dto.Biography ?? author.Biography;
 		author.UpdatedAt = DateTime.UtcNow;
 	}
 }

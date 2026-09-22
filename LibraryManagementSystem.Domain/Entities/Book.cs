@@ -6,8 +6,7 @@ namespace LibraryManagementSystem.Domain.Entities;
 public class Book
 {
 	public Book(string internationalStandardBookNumber, string title, DateOnly publishDate, int totalCopies,
-		Genre genre, string publisher,
-		string? description)
+		Genre genre, string publisher, string? description)
 	{
 		Id = Guid.CreateVersion7();
 		InternationalStandardBookNumber = internationalStandardBookNumber;
@@ -35,8 +34,8 @@ public class Book
 	public DateOnly PublishDate { get; private set; }
 	public Genre Genre { get; private set; }
 	public string Publisher { get; private set; }
-	public int TotalCopies { get; private set; }
-	public int AvailableCopies { get; private set; }
+	public int TotalCopies { get;  set; }
+	public int AvailableCopies { get;  set; }
 	public string? Description { get; private set; }
 	public DateTime CreatedAt { get; }
 	public DateTime? UpdatedAt { get; set; }
@@ -104,16 +103,7 @@ public class Book
 		_bookTranslators.Remove(bookTranslator);
 		UpdatedAt = DateTime.UtcNow;
 	}
-
-
-
-	//public void DetachFromAuthors()
-	//{
-	//	foreach (var bookAuthor in _bookAuthors.ToList()) bookAuthor.Author.RemoveBookAuthor(bookAuthor);
-	//	_bookAuthors.Clear();
-	//	MarkAsUpdated();
-	//}
-
+	
 
 	//public void BorrowCopy()
 	//{

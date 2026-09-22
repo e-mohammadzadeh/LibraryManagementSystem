@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums.Filters;
+using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 
 namespace LibraryManagementSystem.Domain.Interfaces;
 
@@ -14,5 +15,5 @@ public interface ITranslatorRepository
 	bool ExistsByPhoneNumber(string phoneNumber, Guid? excludeId);
 	void Remove(Translator translator);
 	IReadOnlyList<Translator> Search(string searchItem, Func<Translator, string?> selector);
-	void Update(Translator translator);
+	void Update(Translator translator, UpdateContributorDto dto);
 }

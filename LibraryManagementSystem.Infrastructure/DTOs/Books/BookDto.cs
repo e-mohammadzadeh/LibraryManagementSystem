@@ -5,8 +5,6 @@ public class BookDto
 	public Guid Id { get; init; }
 	public string Title { get; init; } = null!;
 	public string ISBN { get; init; } = null!;
-	public IReadOnlyList<AuthorDto> Authors { get; init; } = [];
-	public IReadOnlyList<TranslatorDto> Translators { get; init; } = [];
 	public DateOnly PublishDate { get; init; }
 	public string Genre { get; init; } = null!;
 	public string Publisher { get; init; } = null!;

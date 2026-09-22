@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 
 namespace LibraryManagementSystem.Application.Repositories.InMemory;
 
@@ -94,13 +95,15 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 	}
 
 
-	public void Update(Translator translator)
+	public void Update(Translator translator, UpdateContributorDto dto)
 	{
-		ArgumentNullException.ThrowIfNull(translator);
-		var existingTranslatorIndex = _translators.FindIndex(t => t.Id == translator.Id);
-		if (existingTranslatorIndex == -1)
-			throw new KeyNotFoundException($"Translator with ID {translator.Id} was not found.");
-		_translators[existingTranslatorIndex] = translator;
+		translator.FirstName = dto.FirstName ?? translator.FirstName;
+		translator.LastName = dto.LastName ?? translator.LastName;
+		translator.NationalCode = dto.NationalCode ?? translator.NationalCode;
+		translator.Email = dto.Email ?? translator.Email;
+		translator.PhoneNumber = dto.PhoneNumber ?? translator.PhoneNumber;
+		translator.BirthDate = dto.BirthDate ?? translator.BirthDate;
+		translator.Biography = dto.Biography ?? translator.Biography;
 		translator.UpdatedAt = DateTime.UtcNow;
 	}
 }

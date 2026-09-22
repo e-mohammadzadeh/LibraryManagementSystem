@@ -17,13 +17,13 @@ public abstract class Person
 	}
 
 
-	public Guid Id { get; private set; }
-	public string FirstName { get; private set; }
-	public string LastName { get; private set; }
-	public string NationalCode { get; private set; }
-	public string Email { get; private set; }
-	public string PhoneNumber { get; private set; }
-	public DateOnly BirthDate { get; private set; }
+	public Guid Id { get;  set; }
+	public string FirstName { get;  set; }
+	public string LastName { get;  set; }
+	public string NationalCode { get;  set; }
+	public string Email { get;  set; }
+	public string PhoneNumber { get;  set; }
+	public DateOnly BirthDate { get;  set; }
 	public DateTime CreatedAt { get; private set; }
 	public DateTime? UpdatedAt { get; set; }
 	public bool IsRemoved { get; set; }
