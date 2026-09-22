@@ -1,11 +1,13 @@
-﻿namespace LibraryManagementSystem.Infrastructure.DTOs.Fine;
+﻿using LibraryManagementSystem.Infrastructure.Enums;
+
+namespace LibraryManagementSystem.Infrastructure.DTOs.Fine;
 
 public class FineHistoryDto
 {
-	public int Id { get; init; }
-	public int FineId { get; init; }
-	public int LoanId { get; init; }
-	public int UserId { get; init; }
+	public Guid Id { get; init; }
+	public Guid FineId { get; init; }
+	public Guid LoanId { get; init; }
+	public Guid UserId { get; init; }
 	public string UserName { get; init; } = string.Empty;
 	public FineHistoryAction Action { get; init; }
 	public string ActionDisplay => Action.GetDefaultDescription();

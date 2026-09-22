@@ -6,7 +6,7 @@ namespace LibraryManagementSystem.Application.Authentication;
 public class CurrentUserSession : ICurrentUserSession
 {
 	public AuthUserDto? CurrentUser { get; private set; }
-	public int? UserId => CurrentUser?.Id;
+	public Guid? UserId => CurrentUser?.Id;
 	public bool IsAuthenticated => CurrentUser is not null;
 	public IReadOnlySet<Permission> Permissions => CurrentUser?.Permissions ?? new HashSet<Permission>();
 

@@ -1,10 +1,12 @@
-﻿namespace LibraryManagementSystem.Infrastructure.DTOs.Fine;
+﻿using LibraryManagementSystem.Infrastructure.Enums;
+
+namespace LibraryManagementSystem.Infrastructure.DTOs.Fine;
 
 public class FineDto
 {
-	public int FineId { get; init; }
-	public int LoanId { get; init; }
-	public int UserId { get; init; }
+	public Guid FineId { get; init; }
+	public Guid LoanId { get; init; }
+	public Guid UserId { get; init; }
 	public string UserFullName { get; init; } = null!;
 	public string BookName { get; init; } = null!;
 	public int OverdueDays { get; init; }

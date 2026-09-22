@@ -1,6 +1,5 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Infrastructure.DTOs.Books;
-using LibraryManagementSystem.Infrastructure.Enums;
 
 namespace LibraryManagementSystem.Application.Common;
 
@@ -24,12 +23,8 @@ public static class BookUpdateAuditDetailsBuilder
 		if (dto.TotalCopies is not null && dto.TotalCopies != book.TotalCopies)
 			changes.Add($"Changed total copies from '{book.TotalCopies}' to '{dto.TotalCopies}'.");
 
-		if (dto.GenreId is not null && dto.GenreId != (int)book.Genre)
-			changes.Add($"Changed genre from '{book.Genre}' to '{(Genre)dto.GenreId.Value}'.");
-
-		// If Genre is stored as enum on DTO instead of GenreId:
-		// if (dto.Genre is not null && dto.Genre != book.Genre)
-		//     changes.Add($"Changed genre from '{book.Genre}' to '{dto.Genre}'.");
+		if (dto.Genre is not null && dto.Genre != book.Genre)
+			changes.Add($"Changed genre from '{book.Genre}' to '{dto.Genre}'.");
 
 		if (dto.Publisher is not null && dto.Publisher != book.Publisher)
 			changes.Add($"Changed publisher from '{book.Publisher}' to '{dto.Publisher}'.");

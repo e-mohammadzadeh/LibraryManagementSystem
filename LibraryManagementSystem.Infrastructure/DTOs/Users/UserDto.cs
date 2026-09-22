@@ -1,8 +1,10 @@
-﻿namespace LibraryManagementSystem.Infrastructure.DTOs.Users;
+﻿using LibraryManagementSystem.Infrastructure.Enums;
+
+namespace LibraryManagementSystem.Infrastructure.DTOs.Users;
 
 public class UserDto
 {
-	public int Id { get; init; }
+	public Guid Id { get; init; }
 	public string FirstName { get; init; } = null!;
 	public string LastName { get; init; } = null!;
 	public string FullName => $"{FirstName} {LastName}";

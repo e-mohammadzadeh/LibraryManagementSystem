@@ -1,11 +1,13 @@
-﻿namespace LibraryManagementSystem.Infrastructure.DTOs.Loans;
+﻿using LibraryManagementSystem.Infrastructure.Enums;
+
+namespace LibraryManagementSystem.Infrastructure.DTOs.Loans;
 
 public class LoanHistoryDto
 {
-	public int Id { get; init; }
-	public int LoanId { get; init; }
-	public int UserId { get; init; }
-	public int BookId { get; init; }
+	public Guid Id { get; init; }
+	public Guid LoanId { get; init; }
+	public Guid UserId { get; init; }
+	public Guid BookId { get; init; }
 
 	public string UserName { get; init; } = string.Empty;
 	public string BookName { get; init; } = string.Empty;
