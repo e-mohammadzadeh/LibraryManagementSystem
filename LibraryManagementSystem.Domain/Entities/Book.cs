@@ -53,26 +53,7 @@ public class Book
 	}
 
 
-	public void AddAuthor(Author author)
-	{
-		ArgumentNullException.ThrowIfNull(author);
-
-		if (_bookAuthors.Any(ba => ba.AuthorId == author.Id)) return;
-
-		_bookAuthors.Add(new BookAuthor(this, author));
-		UpdatedAt = DateTime.UtcNow;
-	}
-
-
-	public void AddTranslator(Translator translator)
-	{
-		ArgumentNullException.ThrowIfNull(translator);
-
-		if (_bookTranslators.Any(bt => bt.TranslatorId == translator.Id)) return;
-
-		_bookTranslators.Add(new BookTranslator(this, translator));
-		UpdatedAt = DateTime.UtcNow;
-	}
+	
 
 
 	public void RemoveAuthor(Guid authorId)
