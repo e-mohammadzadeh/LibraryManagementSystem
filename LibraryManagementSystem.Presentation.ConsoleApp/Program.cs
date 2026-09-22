@@ -3,11 +3,11 @@ using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Infrastructure.Security;
-using LibraryManagementSystem.Infrastructure.Seeders;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 using System.Text;
 using LibraryManagementSystem.Application.Repositories.InMemory;
+using LibraryManagementSystem.Domain.Seeders;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp;
 
@@ -54,8 +54,8 @@ public static class Program
 
 
 			// ── Application Services ──────────────────
-			var authorService = new AuthorManagementService(authorRepo, authorization, auditLogService);
-			var translatorService = new TranslatorManagementService(translatorRepo, authorization, auditLogService);
+			var authorService = new AuthorManagementService(authorRepo, bookRepo, authorization, auditLogService);
+			var translatorService = new TranslatorManagementService(translatorRepo, bookRepo, authorization, auditLogService);
 			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, fineService,
 				userAutoRemovalService, authorization, loanHistoryService, auditLogService);
 			var loanHistory = new LoanHistoryManagementService(loanHistoryRepo);
@@ -64,7 +64,7 @@ public static class Program
 				new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher, authorization,
 					auditLogService);
 			var bookService =
-				new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo, auditLogService);
+				new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo, auditLogService, authorization);
 			var authService =
 				new AuthenticationService(userRepo, roleRepo, passwordHasher, currentUserSession, auditLogService);
 			var statisticsService =

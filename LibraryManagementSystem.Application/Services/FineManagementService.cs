@@ -4,6 +4,7 @@ using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Fine;
 using LibraryManagementSystem.Infrastructure.Enums;
 
@@ -37,7 +38,7 @@ public class FineManagementService : IFineManagementService
 	}
 
 
-	public ServiceResult<FineDto> CreateFineForLoan(int loanId)
+	public ServiceResult<FineDto> CreateFineForLoan(Guid loanId)
 	{
 		var loan = _loanRepository.FindById(loanId);
 		if (loan is null) return ServiceResult<FineDto>.Fail(Messages.NotLoanMatched);
@@ -73,7 +74,7 @@ public class FineManagementService : IFineManagementService
 
 
 
-	public ServiceResult<FineDto> PayFine(int fineId, ICurrentUserSession session)
+	public ServiceResult<FineDto> PayFine(Guid fineId, ICurrentUserSession session)
 	{
 		var fine = _fineRepository.FindById(fineId);
 		if (fine is null) return ServiceResult<FineDto>.Fail(Messages.FineNotFound);
@@ -100,7 +101,7 @@ public class FineManagementService : IFineManagementService
 	}
 
 
-	public ServiceResult<FineDto> WaiveFine(int fineId)
+	public ServiceResult<FineDto> WaiveFine(Guid fineId)
 	{
 		if (!_authorization.HasPermission(Permission.WaiveFine))
 			return ServiceResult<FineDto>.Fail(Messages.AdminOnlyWaive);
@@ -137,17 +138,17 @@ public class FineManagementService : IFineManagementService
 	}
 
 
-	public IReadOnlyList<FineDto> GetFinesByUser(int userId) =>
+	public IReadOnlyList<FineDto> GetFinesByUser(Guid userId) =>
 		[.. _fineRepository.GetByUserId(userId).Select(fine => fine.ToDto())];
 
 
-	public IReadOnlyList<FineDto> GetUnpaidFinesByUser(int userId) =>
+	public IReadOnlyList<FineDto> GetUnpaidFinesByUser(Guid userId) =>
 		[.. _fineRepository.GetUnpaidByUserId(userId).Select(fine => fine.ToDto())];
 
 
-	public decimal GetTotalUnpaidAmount(int userId) => _fineRepository.GetTotalUnpaidAmount(userId);
+	public decimal GetTotalUnpaidAmount(Guid userId) => _fineRepository.GetTotalUnpaidAmount(userId);
 
-	public bool HasUnpaidFines(int userId) => _fineRepository.HasUnpaidFines(userId);
+	public bool HasUnpaidFines(Guid userId) => _fineRepository.HasUnpaidFines(userId);
 
 
 	public IReadOnlyList<FineDto> GetFineHistory()
@@ -158,7 +159,7 @@ public class FineManagementService : IFineManagementService
 	}
 
 
-	public IReadOnlyList<FineDto> GetFineHistoryByUser(int userId, ICurrentUserSession session)
+	public IReadOnlyList<FineDto> GetFineHistoryByUser(Guid userId, ICurrentUserSession session)
 	{
 		if ((session.IsSelfServiceMember && session.UserId != userId) ||
 		    !_authorization.HasAnyPermission(Permission.FineHistoryByUser, Permission.ViewFineHistory))

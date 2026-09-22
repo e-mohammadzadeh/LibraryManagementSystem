@@ -1,8 +1,8 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Domain.Entities;
-using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Infrastructure.Enums;
 
 // ReSharper disable StringLiteralTypo
 
@@ -38,19 +38,16 @@ public static class DataSeeder
 			new DateOnly(1965, 7, 31), "British author of the Harry Potter series.");
 
 		var translator1 = new Translator("Najaf", "Daryabandari", "1234567890", "najaf.daryabandari@example.com",
-			"09123456789",
-			new DateOnly(1921, 6, 12));
+			"09123456789", new DateOnly(1921, 6, 12), "Good Iranian translator.");
 
 		var translator2 = new Translator("Ahmad", "Golshiri", "0987654321", "ahmad.golshiri@example.com", "09127654321",
-			new DateOnly(1940, 3, 25));
+			new DateOnly(1940, 3, 25), "Good Iranian translator.");
 
 		var translator3 = new Translator("Mansoureh", "Pirnia", "1122334455", "mansoureh.pirnia@example.com",
-			"09129876543",
-			new DateOnly(1955, 11, 8));
+			"09129876543", new DateOnly(1955, 11, 8), "Good Iranian translator.");
 
 		var translator4 = new Translator("Reza", "SeyedHosseini", "6677889900", "reza.seyedhosseini@example.com",
-			"09121122334",
-			new DateOnly(1968, 9, 17));
+			"09121122334", new DateOnly(1968, 9, 17), "Good Iranian translator.");
 
 		authorRepository.Add(author1);
 		authorRepository.Add(author2);
@@ -228,7 +225,7 @@ public static class DataSeeder
 		ILoanRepository loanRepository, IFineRepository fineRepository)
 	{
 		var users = userRepository.GetAll(EntityFilter.Active);
-		var books = bookRepository.GetAll();
+		var books = bookRepository.GetAll(EntityFilter.Active);
 		var today = DateOnly.FromDateTime(DateTime.Today);
 
 		CreateActiveLoan(GetUser(4), GetBook(0), loanRepository, today.AddDays(-2));

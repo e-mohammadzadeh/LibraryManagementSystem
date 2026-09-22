@@ -6,13 +6,13 @@ namespace LibraryManagementSystem.Application.Services;
 
 public interface IFineManagementService
 {
-	ServiceResult<FineDto> CreateFineForLoan(int loanId);
-	ServiceResult<FineDto> PayFine(int fineId, ICurrentUserSession session);
-	ServiceResult<FineDto> WaiveFine(int fineId);
+	ServiceResult<FineDto> CreateFineForLoan(Guid loanId);
+	ServiceResult<FineDto> PayFine(Guid fineId, ICurrentUserSession session);
+	ServiceResult<FineDto> WaiveFine(Guid fineId);
 	IReadOnlyList<FineDto> GetAllUnpaidFines(ICurrentUserSession session);
-	IReadOnlyList<FineDto> GetFinesByUser(int userId);
-	IReadOnlyList<FineDto> GetUnpaidFinesByUser(int userId);
-	bool HasUnpaidFines(int userId);
+	IReadOnlyList<FineDto> GetFinesByUser(Guid userId);
+	IReadOnlyList<FineDto> GetUnpaidFinesByUser(Guid userId);
+	bool HasUnpaidFines(Guid userId);
 	IReadOnlyList<FineDto> GetFineHistory();
-	IReadOnlyList<FineDto> GetFineHistoryByUser(int userId, ICurrentUserSession session);
+	IReadOnlyList<FineDto> GetFineHistoryByUser(Guid userId, ICurrentUserSession session);
 }

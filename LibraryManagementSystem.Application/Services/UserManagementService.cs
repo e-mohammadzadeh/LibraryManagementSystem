@@ -3,10 +3,11 @@ using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Users;
 using LibraryManagementSystem.Infrastructure.Enums;
-using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
 
@@ -45,10 +46,10 @@ public class UserManagementService
 
 		string? warningMessage = null;
 
-		if (_userRepository.ExistsByNationalCode(dto.NationalCode))
+		if (_userRepository.ExistsByNationalCode(dto.NationalCode, null))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
 
-		if (_userRepository.ExistsByEmail(dto.Email))
+		if (_userRepository.ExistsByEmail(dto.Email, null))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
 
 		var existingSameName = _userRepository.FindByName(dto.FirstName, dto.LastName);
@@ -129,7 +130,7 @@ public class UserManagementService
 	public IReadOnlyList<Role> GetAllRoles() { return _roleRepository.GetAllRoles(); }
 
 
-	public ServiceResult<UserDto> UpdateUser(int userId, UpdateUserDto dto, ICurrentUserSession session)
+	public ServiceResult<UserDto> UpdateUser(Guid userId, UpdateUserDto dto, ICurrentUserSession session)
 	{
 		string? warningMessage = null;
 
@@ -199,7 +200,7 @@ public class UserManagementService
 	}
 
 
-	public UserDto? FindUserById(int id)
+	public UserDto? FindUserById(Guid id)
 	{
 		var user = _userRepository.FindById(id);
 		return user?.ToDto();
@@ -220,7 +221,7 @@ public class UserManagementService
 	}
 
 
-	public ServiceResult<UserDto> RemoveUser(int userId, ICurrentUserSession? session = null)
+	public ServiceResult<UserDto> RemoveUser(Guid userId, ICurrentUserSession? session = null)
 	{
 		var user = _userRepository.FindById(userId);
 		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserRemoveFailed);
@@ -277,13 +278,13 @@ public class UserManagementService
 	}
 
 
-	public IReadOnlyList<UserDto> SearchByRole(IReadOnlyList<int> roleIds)
+	public IReadOnlyList<UserDto> SearchByRole(IReadOnlyList<Guid> roleIds)
 	{
 		return [.. _userRepository.SearchByRole(roleIds).Select(user => user.ToDto())];
 	}
 
 
-	public ServiceResult<string> ChangePassword(int userId, string currentPassword, string newPassword,
+	public ServiceResult<string> ChangePassword(Guid userId, string currentPassword, string newPassword,
 		ICurrentUserSession session)
 	{
 		var isOwn = session.UserId == userId;
@@ -325,7 +326,7 @@ public class UserManagementService
 	}
 
 
-	public ServiceResult<UserDto> RenewMembership(int userId, int years)
+	public ServiceResult<UserDto> RenewMembership(Guid userId, int years)
 	{
 		var user = _userRepository.FindById(userId);
 		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserNotFound);

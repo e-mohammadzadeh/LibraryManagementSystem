@@ -29,7 +29,7 @@ public class UserAutoRemovalService : IUserAutoRemovalService
 	}
 
 
-	public ServiceResult<string> TryAutoRemove(int userId)
+	public ServiceResult<string> TryAutoRemove(Guid userId)
 	{
 		var user = _userRepository.FindById(userId)!;
 		if (!CanBeAutoRemoved(user)) return ServiceResult<string>.Fail(Messages.UserAutoRemoveNotEligible);

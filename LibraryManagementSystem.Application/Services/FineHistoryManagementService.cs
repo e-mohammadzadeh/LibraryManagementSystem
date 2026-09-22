@@ -30,19 +30,19 @@ public class FineHistoryManagementService: IFineHistoryManagementService
 	}
 
 
-	public IReadOnlyList<FineHistoryDto> GetByFineId(int fineId)
+	public IReadOnlyList<FineHistoryDto> GetByFineId(Guid fineId)
 	{
 		return [.. _fineHistoryRepository.GetByFineId(fineId).Select(history => history.ToDto())];
 	}
 
 
-	public IReadOnlyList<FineHistoryDto> GetByLoanId(int loanId)
+	public IReadOnlyList<FineHistoryDto> GetByLoanId(Guid loanId)
 	{
 		return [.. _fineHistoryRepository.GetByLoanId(loanId).Select(history => history.ToDto())];
 	}
 
 
-	public IReadOnlyList<FineHistoryDto> GetByUserId(int userId)
+	public IReadOnlyList<FineHistoryDto> GetByUserId(Guid userId)
 	{
 		return [.. _fineHistoryRepository.GetByUserId(userId).Select(history => history.ToDto())];
 	}

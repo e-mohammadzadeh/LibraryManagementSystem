@@ -30,19 +30,19 @@ public class LoanHistoryManagementService : ILoanHistoryManagementService
 	}
 
 
-	public IReadOnlyList<LoanHistoryDto> GetByBookId(int bookId)
+	public IReadOnlyList<LoanHistoryDto> GetByBookId(Guid bookId)
 	{
 		return [.. _loanHistoryRepository.GetByBookId(bookId).Select(history => history.ToDto())];
 	}
 
 
-	public IReadOnlyList<LoanHistoryDto> GetByLoanId(int loanId)
+	public IReadOnlyList<LoanHistoryDto> GetByLoanId(Guid loanId)
 	{
 		return [.. _loanHistoryRepository.GetByLoanId(loanId).Select(history => history.ToDto())];
 	}
 
 
-	public IReadOnlyList<LoanHistoryDto> GetByUserId(int userId)
+	public IReadOnlyList<LoanHistoryDto> GetByUserId(Guid userId)
 	{
 		return [.. _loanHistoryRepository.GetByUserId(userId).Select(history => history.ToDto())];
 	}

@@ -1,8 +1,8 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.DTOs.Library;
-using LibraryManagementSystem.Infrastructure.Enums.Filters;
 
 namespace LibraryManagementSystem.Application.Services;
 
@@ -34,7 +34,7 @@ public class LibraryStatisticsService
 
 		var stats = new LibraryStatisticsDto
 		{
-			TotalBooks = _bookRepository.GetAll().Count,
+			TotalBooks = _bookRepository.GetAll(EntityFilter.Active).Count,
 			TotalAuthors = _authorRepository.GetAll(EntityFilter.Active).Count,
 			TotalTranslators = _translatorRepository.GetAll(EntityFilter.Active).Count,
 			TotalUsers = _userRepository.GetAll(EntityFilter.Active).Count,

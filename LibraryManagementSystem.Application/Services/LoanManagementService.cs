@@ -4,6 +4,7 @@ using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Application.Authorization;
+using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Loans;
 using LibraryManagementSystem.Infrastructure.Enums;
 
@@ -69,7 +70,7 @@ public class LoanManagementService
 		var loan = new Loan(book, user, DateOnly.FromDateTime(DateTime.Today));
 		book.BorrowCopy();
 		_loanRepository.Add(loan);
-		_bookRepository.Update(book);
+		_bookRepository.Update(book, dto);
 		_loanHistoryManagementService.Record(loan, LoanHistoryAction.Borrowed);
 		_auditLog.Record(AuditAction.LoanBorrowed, "Loan", loan.LoanId, "Loan borrowed.");
 
@@ -77,7 +78,7 @@ public class LoanManagementService
 	}
 
 
-	public ServiceResult<LoanDto> ReturnBook(int loanId, ICurrentUserSession session)
+	public ServiceResult<LoanDto> ReturnBook(Guid loanId, ICurrentUserSession session)
 	{
 		var loan = _loanRepository.GetActiveLoanById(loanId);
 		if (loan is null) return ServiceResult<LoanDto>.Fail(Messages.ActiveLoanNotFound);
@@ -102,7 +103,7 @@ public class LoanManagementService
 	}
 
 
-	public ServiceResult<IReadOnlyList<LoanDto>> GetActiveLoansByUser(int userId, ICurrentUserSession session)
+	public ServiceResult<IReadOnlyList<LoanDto>> GetActiveLoansByUser(Guid userId, ICurrentUserSession session)
 	{
 		if (session.IsSelfServiceMember && session.UserId != userId)
 			return ServiceResult<IReadOnlyList<LoanDto>>.Fail(Messages.ViewOwnLoans);
@@ -112,7 +113,7 @@ public class LoanManagementService
 	}
 
 
-	public ServiceResult<LoanDto> RenewLoan(int loanId, ICurrentUserSession session)
+	public ServiceResult<LoanDto> RenewLoan(Guid loanId, ICurrentUserSession session)
 	{
 		var loan = _loanRepository.GetActiveLoanById(loanId);
 		if (loan is null) return ServiceResult<LoanDto>.Fail(Messages.ActiveLoanNotFound);
@@ -137,7 +138,7 @@ public class LoanManagementService
 	}
 
 
-	public ServiceResult<IReadOnlyList<LoanDto>> GetOverdueLoansByUser(int userId, ICurrentUserSession session)
+	public ServiceResult<IReadOnlyList<LoanDto>> GetOverdueLoansByUser(Guid userId, ICurrentUserSession session)
 	{
 		if (session.IsSelfServiceMember && session.UserId != userId)
 			return ServiceResult<IReadOnlyList<LoanDto>>.Fail(Messages.ViewOwnLoans);
@@ -151,7 +152,7 @@ public class LoanManagementService
 	}
 
 
-	public IReadOnlyList<LoanDto> GetOverdueLoansByBook(int bookId, ICurrentUserSession session)
+	public IReadOnlyList<LoanDto> GetOverdueLoansByBook(Guid bookId, ICurrentUserSession session)
 	{
 		if (session.IsSelfServiceMember) return [];
 
@@ -175,7 +176,7 @@ public class LoanManagementService
 	}
 
 
-	public IReadOnlyList<LoanDto> GetLoansByUser(int userId, ICurrentUserSession session)
+	public IReadOnlyList<LoanDto> GetLoansByUser(Guid userId, ICurrentUserSession session)
 	{
 		if (session.IsSelfServiceMember && session.UserId != userId) return [];
 		return [.. _loanRepository.GetAllByUser(userId).Select(loan => loan.ToDto())];
@@ -271,21 +272,21 @@ public class LoanManagementService
 	}
 
 
-	public IReadOnlyList<LoanDto> GetLoanByBook(int bookId, ICurrentUserSession session)
+	public IReadOnlyList<LoanDto> GetLoanByBook(Guid bookId, ICurrentUserSession session)
 	{
 		if (session.IsSelfServiceMember) return [];
 		return [.. _loanRepository.GetLoansByBook(bookId).Select(loan => loan.ToDto())];
 	}
 
 
-	public IReadOnlyList<LoanDto> GetOwnLoansByBook(int bookId, ICurrentUserSession session)
+	public IReadOnlyList<LoanDto> GetOwnLoansByBook(Guid bookId, ICurrentUserSession session)
 	{
 		if (!session.IsAuthenticated || session.UserId is null) return [];
 		return [.._loanRepository.GetLoansByBookAndUser(bookId, session.UserId.Value).Select(loan => loan.ToDto())];
 	}
 
 
-	public IReadOnlyList<LoanDto> GetActiveLoansByBook(int bookId, ICurrentUserSession session)
+	public IReadOnlyList<LoanDto> GetActiveLoansByBook(Guid bookId, ICurrentUserSession session)
 	{
 		if (session.IsSelfServiceMember) return [];
 		return [.. _loanRepository.GetActiveLoansByBook(bookId).Select(loan => loan.ToDto())];
