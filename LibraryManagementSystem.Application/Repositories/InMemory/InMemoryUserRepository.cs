@@ -83,7 +83,6 @@ public class InMemoryUserRepository : IUserRepository
 		user.Email = dto.Email ?? user.Email;
 		user.PhoneNumber = dto.PhoneNumber ?? user.PhoneNumber;
 		user.BirthDate = dto.BirthDate ?? user.BirthDate;
-		ReplaceRole(user, dto.RoleIds);
 		user.UpdatedAt = DateTime.UtcNow;
 	}
 
@@ -112,52 +111,15 @@ public class InMemoryUserRepository : IUserRepository
 	}
 
 
-	public IReadOnlyList<User> SearchByRole(IReadOnlyList<Guid> roleIds)
+	public IReadOnlyList<User> SearchByRole(Guid roleIds)
 	{
-		ArgumentNullException.ThrowIfNull(roleIds);
-
-		return
-		[
-			.. roleIds.Count == 0
-				? []
-				: _users.Where(u => u.UserRoles.Any(ur => roleIds.Contains(ur.RoleId)))
-		];
+		return _users.Where(u => u.RoleId == roleIds).ToList();
 	}
 
 
-	private void ReplaceRole(User user, Role newRole) 
+	public void ReplaceRole(User user, Role newRole) 
 	{
 		user.Role = newRole ?? throw new ArgumentNullException(nameof(newRole));
 		user.RoleId = newRole.Id;
-	}
-
-
-	private void AssignRole(Role role) {
-		ArgumentNullException.ThrowIfNull(role);
-
-		// Prevent duplicate roles
-		if (_userRoles.Any(ur => ur.Role.Id == role.Id))
-			return;
-
-		var userRole = new UserRole(this, role);
-
-		_userRoles.Add(userRole);
-		role.AddUserRole(userRole);
-		MarkAsUpdated();
-	}
-
-
-	public void RemoveRole(Guid roleId) {
-		if (_userRoles.Count == 1)
-			throw new InvalidOperationException("A user must have at least one role.");
-
-		var userRole = _userRoles.FirstOrDefault(ur => ur.Role.Id == roleId);
-
-		if (userRole is null)
-			return;
-
-		_userRoles.Remove(userRole);
-		userRole.Role.RemoveUserRole(userRole);
-		MarkAsUpdated();
 	}
 }

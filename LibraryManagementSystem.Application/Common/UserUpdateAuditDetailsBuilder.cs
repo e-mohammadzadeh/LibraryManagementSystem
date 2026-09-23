@@ -5,7 +5,7 @@ namespace LibraryManagementSystem.Application.Common;
 
 public static class UserUpdateAuditDetailsBuilder
 {
-	public static string? BuildUserUpdateAuditDetails(User user, UpdateUserDto dto, IReadOnlyList<Role>? resolvedRoles)
+	public static string? BuildUserUpdateAuditDetails(User user, UpdateUserDto dto, Role resolvedRole)
 	{
 		var changes = new List<string>();
 
@@ -28,10 +28,10 @@ public static class UserUpdateAuditDetailsBuilder
 			changes.Add($"Changed birth date from '{user.BirthDate:yyyy-MM-dd}' to '{dto.BirthDate.Value:yyyy-MM-dd}'.");
 
 		// Roles
-		if (resolvedRoles is not null)
+		if (resolvedRole is not null)
 		{
 			var oldRoles = user.UserRoles.Select(ur => ur.Role.Name).OrderBy(name => name).ToList();
-			var newRoles = resolvedRoles.Select(role => role.Name).OrderBy(name => name).ToList();
+			var newRoles = resolvedRole.Select(role => role.Name).OrderBy(name => name).ToList();
 
 			if (!oldRoles.SequenceEqual(newRoles))
 			{

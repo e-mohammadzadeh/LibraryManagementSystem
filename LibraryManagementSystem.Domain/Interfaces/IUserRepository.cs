@@ -17,5 +17,6 @@ public interface IUserRepository
 	void Update(User user, UpdateUserDto dto);
 	void Remove(User user);
 	IReadOnlyList<User> Search(string searchTerm, Func<User, string?> selector);
-	IReadOnlyList<User> SearchByRole(IReadOnlyList<Guid> roleId);
+	IReadOnlyList<User> SearchByRole(Guid roleId);
+	void ReplaceRole(User user, Role newRole);
 }

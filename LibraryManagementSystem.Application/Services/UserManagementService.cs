@@ -157,40 +157,29 @@ public class UserManagementService
 		if (dto.PhoneNumber is not null && _userRepository.ExistsByPhoneNumber(dto.PhoneNumber, userId))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
 
-		if (dto.RoleIds.Count != dto.RoleIds.Distinct().Count())
-			return ServiceResult<UserDto>.Fail(Messages.FailureDuplicateRolesSelected);
-
-		List<Role>? resolvedRoles = null;
-		if (dto.RoleIds is { Count: > 0 })
+		Role? resolvedRole = null;
+		if (dto.RoleId is not null)
 		{
-			if (dto.RoleIds.Count != dto.RoleIds.Distinct().Count())
-				return ServiceResult<UserDto>.Fail(Messages.FailureDuplicateRolesSelected);
+			resolvedRole = _roleRepository.FindById(dto.RoleId.Value);
+			if (resolvedRole is null) return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
 
-			resolvedRoles = [.. _roleRepository.FindByIds(dto.RoleIds)];
-			if (resolvedRoles.Count != dto.RoleIds.Count)
-				return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
-
-			if (resolvedRoles.Select(role => role.Name switch
-			    {
-				    LibraryUserRole.Member => _authorization.HasPermission(Permission.AssignMemberRole),
-				    LibraryUserRole.Librarian => _authorization.HasPermission(Permission.AssignLibrarianRole),
-				    LibraryUserRole.Admin => _authorization.HasPermission(Permission.AssignAdminRole),
-				    _ => false
-			    }).Any(allowed => !allowed))
+			var allowed = resolvedRole.Name switch
 			{
-				return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
-			}
-		}
-		var auditDetails = UserUpdateAuditDetailsBuilder.BuildUserUpdateAuditDetails(user, dto, resolvedRoles);
+				LibraryUserRole.Member => _authorization.HasPermission(Permission.AssignMemberRole),
+				LibraryUserRole.Librarian => _authorization.HasPermission(Permission.AssignLibrarianRole),
+				LibraryUserRole.Admin => _authorization.HasPermission(Permission.AssignAdminRole),
+				_ => false
+			};
 
-		user.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
-			resolvedRoles);
+			if (!allowed) return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
+		}
+
+		var auditDetails = UserUpdateAuditDetailsBuilder.BuildUserUpdateAuditDetails(user, dto, resolvedRole!);
+
 		_userRepository.Update(user, dto);
-
+		_userRepository.ReplaceRole(user, resolvedRole!);
 		if (session.UserId == userId)
-		{
 			session.UpdateCurrentUser(user.ToAuthUserDto());
-		}
 
 		_auditLog.Record(AuditAction.UserUpdated, "User", userId, auditDetails ?? "User updated.");
 
@@ -209,15 +198,13 @@ public class UserManagementService
 
 	private static bool IsNoOpUpdateUser(User user, UpdateUserDto dto)
 	{
-		var roleChanged = dto.RoleIds.Count != 0 && !dto.RoleIds.OrderBy(i => i)
-			.SequenceEqual(user.UserRoles.Select(ur => ur.RoleId).OrderBy(i => i));
-
 		return (dto.FirstName == null || dto.FirstName == user.FirstName) &&
 		       (dto.LastName == null || dto.LastName == user.LastName) &&
 		       (dto.NationalCode == null || dto.NationalCode == user.NationalCode) &&
 		       (dto.Email == null || dto.Email == user.Email) &&
 		       (dto.PhoneNumber == null || dto.PhoneNumber == user.PhoneNumber) &&
-		       (dto.BirthDate == null || dto.BirthDate == user.BirthDate) && !roleChanged;
+		       (dto.BirthDate == null || dto.BirthDate == user.BirthDate) &&
+		       (dto.RoleId == null || dto.RoleId == user.RoleId);
 	}
 
 
@@ -300,8 +287,7 @@ public class UserManagementService
 		var user = _userRepository.FindById(userId);
 		if (user is null || user.IsRemoved) return ServiceResult<string>.Fail(Messages.UserNotFound);
 
-		if (user.ShouldRemove)
-			return ServiceResult<string>.Fail(Messages.UserFlaggedForRemoval);
+		if (user.ShouldRemove) return ServiceResult<string>.Fail(Messages.UserFlaggedForRemoval);
 
 		// Own change: verify current password
 		if (isOwn)
