@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums.Filters;
+using LibraryManagementSystem.Infrastructure.DTOs.Users;
 
 namespace LibraryManagementSystem.Domain.Interfaces;
 
@@ -13,7 +14,7 @@ public interface IUserRepository
 	bool ExistsByNationalCode(string nationalCode, Guid? excludeId);
 	bool ExistsByEmail(string email, Guid? excludeId);
 	bool ExistsByPhoneNumber(string phoneNumber, Guid? excludeId);
-	void Update(User user);
+	void Update(User user, UpdateUserDto dto);
 	void Remove(User user);
 	IReadOnlyList<User> Search(string searchTerm, Func<User, string?> selector);
 	IReadOnlyList<User> SearchByRole(IReadOnlyList<Guid> roleId);

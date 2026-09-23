@@ -185,7 +185,7 @@ public class UserManagementService
 
 		user.Update(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
 			resolvedRoles);
-		_userRepository.Update(user);
+		_userRepository.Update(user, dto);
 
 		if (session.UserId == userId)
 		{

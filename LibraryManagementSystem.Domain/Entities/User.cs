@@ -2,7 +2,8 @@
 
 public class User : Person
 {
-	private readonly List<UserRole> _userRoles = [];
+	public Guid RoleId { get; set; }
+	public Role Role { get; set; }
 	public bool IsActive { get; set; }
 	public DateOnly MembershipStartDate { get; }
 	public DateOnly MembershipExpiryDate { get; private set; }
@@ -13,85 +14,19 @@ public class User : Person
 	private DateTime? PreviousLoginDate { get; set; }
 
 
-	public IReadOnlyCollection<UserRole> UserRoles => _userRoles.AsReadOnly();
-
-
 	public User(string firstName, string lastName, string nationalCode, string email, string phoneNumber,
-		DateOnly birthDate, IEnumerable<Role> roles, DateOnly? membershipStartDate = null) : base(firstName, lastName,
+		DateOnly birthDate, Role role, DateOnly? membershipStartDate = null) : base(firstName, lastName,
 		nationalCode, email, phoneNumber, birthDate)
 	{
+		Role = role ?? throw new ArgumentNullException(nameof(role), "A user must have a role.");
+		RoleId = role.Id;
 		IsActive = true;
 		MembershipStartDate = membershipStartDate ?? DateOnly.FromDateTime(DateTime.Today);
 		// Should set a suitable end date based on business logic
 		MembershipExpiryDate = MembershipStartDate.AddYears(1);
 		ShouldRemove = false;
-
-		var rolesList = roles.ToList();
-		if (roles == null || rolesList.Count == 0) throw new ArgumentException("A user must have at least one role.");
-
-		foreach (var role in rolesList) AssignRole(role);
 	}
 
-
-
-	//public void Update(string? firstName, string? lastName, string? nationalCode, string? email, string? phoneNumber,
-	//	DateOnly? birthDate, IEnumerable<Role>? roles)
-	//{
-	//	UpdateCore(firstName, lastName, nationalCode, email, phoneNumber, birthDate);
-	//	if (roles is not null)
-	//	{
-	//		ReplaceRoles(roles);
-	//	}
-	//}
-
-
-	private void AssignRole(Role role)
-	{
-		ArgumentNullException.ThrowIfNull(role);
-
-		// Prevent duplicate roles
-		if (_userRoles.Any(ur => ur.Role.Id == role.Id)) return;
-
-		var userRole = new UserRole(this, role);
-
-		_userRoles.Add(userRole);
-		role.AddUserRole(userRole);
-		MarkAsUpdated();
-	}
-
-
-	public void RemoveRole(Guid roleId)
-	{
-		if (_userRoles.Count == 1) throw new InvalidOperationException("A user must have at least one role.");
-
-		var userRole = _userRoles.FirstOrDefault(ur => ur.Role.Id == roleId);
-
-		if (userRole is null) return;
-
-		_userRoles.Remove(userRole);
-		userRole.Role.RemoveUserRole(userRole);
-		MarkAsUpdated();
-	}
-
-
-	private void ReplaceRoles(IEnumerable<Role> newRoles)
-	{
-		ArgumentNullException.ThrowIfNull(newRoles);
-		var roles = newRoles.DistinctBy(r => r.Id).ToList();
-		if (roles.Count == 0) throw new ArgumentException("A user must have at least one role.");
-
-		// remove old roles correctly
-		foreach (var userRole in _userRoles.ToList())
-		{
-			_userRoles.Remove(userRole);
-			userRole.Role.RemoveUserRole(userRole);
-		}
-
-		// add new roles correctly
-		foreach (var role in roles) AssignRole(role);
-		MarkAsUpdated();
-
-	}
 
 
 	public void RenewMembership(int years = 1)
@@ -113,13 +48,6 @@ public class User : Person
 		MarkAsUpdated();
 	}
 
-
-	//public void DeleteUser()
-	//{
-	//	IsRemoved = true;
-	//	IsActive = false;
-	//	MarkAsUpdated();
-	//}
 
 
 	public void SetPasswordHash(byte[] passwordHash, byte[] passwordSalt)

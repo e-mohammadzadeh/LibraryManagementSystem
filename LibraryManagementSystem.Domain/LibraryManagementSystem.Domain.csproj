@@ -10,10 +10,4 @@
     <ProjectReference Include="..\LibraryManagementSystem.Infrastructure\LibraryManagementSystem.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Enums\Filters\" />
-    <Folder Include="Enums\Search\" />
-    <Folder Include="Enums\Sort\" />
-  </ItemGroup>
-
 </Project>

@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Infrastructure.DTOs.Users;
 
 namespace LibraryManagementSystem.Application.Repositories.InMemory;
 
@@ -74,13 +75,16 @@ public class InMemoryUserRepository : IUserRepository
 	}
 
 
-	public void Update(User user)
+	public void Update(User user, UpdateUserDto dto)
 	{
-		ArgumentNullException.ThrowIfNull(user);
-		var existingUserIndex = _users.FindIndex(u => u.Id == user.Id);
-		if (existingUserIndex == -1) throw new KeyNotFoundException($"User with ID {user.Id} was not found.");
-		_users[existingUserIndex] = user;
-		user.UpdatedAt = DateTime.Now;
+		user.FirstName = dto.FirstName ?? user.FirstName;
+		user.LastName = dto.LastName ?? user.LastName;
+		user.NationalCode = dto.NationalCode ?? user.NationalCode;
+		user.Email = dto.Email ?? user.Email;
+		user.PhoneNumber = dto.PhoneNumber ?? user.PhoneNumber;
+		user.BirthDate = dto.BirthDate ?? user.BirthDate;
+		ReplaceRole(user, dto.RoleIds);
+		user.UpdatedAt = DateTime.UtcNow;
 	}
 
 
@@ -118,5 +122,42 @@ public class InMemoryUserRepository : IUserRepository
 				? []
 				: _users.Where(u => u.UserRoles.Any(ur => roleIds.Contains(ur.RoleId)))
 		];
+	}
+
+
+	private void ReplaceRole(User user, Role newRole) 
+	{
+		user.Role = newRole ?? throw new ArgumentNullException(nameof(newRole));
+		user.RoleId = newRole.Id;
+	}
+
+
+	private void AssignRole(Role role) {
+		ArgumentNullException.ThrowIfNull(role);
+
+		// Prevent duplicate roles
+		if (_userRoles.Any(ur => ur.Role.Id == role.Id))
+			return;
+
+		var userRole = new UserRole(this, role);
+
+		_userRoles.Add(userRole);
+		role.AddUserRole(userRole);
+		MarkAsUpdated();
+	}
+
+
+	public void RemoveRole(Guid roleId) {
+		if (_userRoles.Count == 1)
+			throw new InvalidOperationException("A user must have at least one role.");
+
+		var userRole = _userRoles.FirstOrDefault(ur => ur.Role.Id == roleId);
+
+		if (userRole is null)
+			return;
+
+		_userRoles.Remove(userRole);
+		userRole.Role.RemoveUserRole(userRole);
+		MarkAsUpdated();
 	}
 }

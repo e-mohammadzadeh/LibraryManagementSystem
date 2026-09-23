@@ -170,7 +170,7 @@ public class InMemoryBookRepository : IBookRepository
 	}
 
 
-	public void RemoveAuthor(Guid authorId)
+	public void RemoveAuthor(Book book, Guid authorId)
 	{
 		if (_bookAuthors.Count <= 1)
 			throw new InvalidOperationException(Messages.BookRequiresAtLeastOneAuthor);
@@ -180,18 +180,18 @@ public class InMemoryBookRepository : IBookRepository
 		if (bookAuthor is null) return;
 
 		_bookAuthors.Remove(bookAuthor);
-		UpdatedAt = DateTime.UtcNow;
+		book.UpdatedAt = DateTime.UtcNow;
 	}
 
 
-	public void RemoveTranslator(Guid translatorId)
+	public void RemoveTranslator(Book book, Guid translatorId)
 	{
 		var bookTranslator = _bookTranslators.FirstOrDefault(bt => bt.TranslatorId == translatorId);
 
 		if (bookTranslator is null) return;
 
 		_bookTranslators.Remove(bookTranslator);
-		UpdatedAt = DateTime.UtcNow;
+		book.UpdatedAt = DateTime.UtcNow;
 	}
 
 
@@ -206,7 +206,7 @@ public class InMemoryBookRepository : IBookRepository
 		var incomingIds = authorList.Select(a => a.Id).ToHashSet();
 		var existingIds = book.BookAuthors.Select(ba => ba.AuthorId).ToHashSet();
 
-		foreach (var authorId in existingIds.Except(incomingIds)) book.RemoveAuthor(authorId);
+		foreach (var authorId in existingIds.Except(incomingIds)) RemoveAuthor(book, authorId);
 		foreach (var author in authorList) AddAuthor(book, author);
 	}
 
@@ -220,7 +220,7 @@ public class InMemoryBookRepository : IBookRepository
 		var incomingIds = translatorList.Select(t => t.Id).ToHashSet();
 		var existingIds = book.BookTranslators.Select(bt => bt.TranslatorId).ToHashSet();
 
-		foreach (var translatorId in existingIds.Except(incomingIds)) book.RemoveTranslator(translatorId);
+		foreach (var translatorId in existingIds.Except(incomingIds)) RemoveTranslator(book, translatorId);
 		foreach (var translator in translatorList) AddTranslator(book, translator);
 	}
 
@@ -230,6 +230,6 @@ public class InMemoryBookRepository : IBookRepository
 		ArgumentNullException.ThrowIfNull(book);
 
 		foreach (var translatorId in book.BookTranslators.Select(bt => bt.TranslatorId).ToList())
-			book.RemoveTranslator(translatorId);
+			RemoveTranslator(book, translatorId);
 	}
 }
