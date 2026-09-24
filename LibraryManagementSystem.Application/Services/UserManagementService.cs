@@ -76,7 +76,7 @@ public class UserManagementService
 		var newUser = new User(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
 			role);
 
-		newUser.SetPasswordHash(result.Hash, result.Salt);
+		_userRepository.SetPasswordHash(newUser, result.Hash, result.Salt);
 		_userRepository.Add(newUser);
 		_auditLog.Record(AuditAction.UserCreated, "User", newUser.Id, "New user created.");
 
@@ -294,7 +294,7 @@ public class UserManagementService
 			return ServiceResult<string>.Fail(Messages.MinimumPasswordLength);
 
 		var hashResult = _passwordHasher.CreatePasswordHash(newPassword);
-		user.SetPasswordHash(hashResult.Hash, hashResult.Salt);
+		_userRepository.SetPasswordHash(user, hashResult.Hash, hashResult.Salt);
 
 		var message = isOwn ? Messages.PasswordChangedSuccessfully : Messages.PasswordResetSuccessfully;
 		_auditLog.Record(AuditAction.UserPasswordChanged, "User", userId, "User password changed.");

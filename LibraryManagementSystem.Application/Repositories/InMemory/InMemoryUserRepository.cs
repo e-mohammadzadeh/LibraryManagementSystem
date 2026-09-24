@@ -134,8 +134,22 @@ public class InMemoryUserRepository : IUserRepository
 	}
 
 
+
+
 	public void FlagForRemoval(User user)
 	{
 		user.ShouldRemove = true;
+	}
+
+
+	public void SetPasswordHash(User user, byte[] passwordHash, byte[] passwordSalt)
+	{
+		if (passwordHash is null || passwordHash.Length == 0)
+			throw new ArgumentNullException(nameof(passwordHash));
+		if (passwordSalt is null || passwordSalt.Length == 0)
+			throw new ArgumentNullException(nameof(passwordSalt));
+
+		user.PasswordHash = passwordHash;
+		user.PasswordSalt = passwordSalt;
 	}
 }

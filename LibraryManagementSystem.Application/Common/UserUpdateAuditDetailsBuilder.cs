@@ -27,20 +27,8 @@ public static class UserUpdateAuditDetailsBuilder
 		if (dto.BirthDate is not null && dto.BirthDate != user.BirthDate)
 			changes.Add($"Changed birth date from '{user.BirthDate:yyyy-MM-dd}' to '{dto.BirthDate.Value:yyyy-MM-dd}'.");
 
-		// Roles
-		if (resolvedRole is not null)
-		{
-			var oldRoles = user.UserRoles.Select(ur => ur.Role.Name).OrderBy(name => name).ToList();
-			var newRoles = resolvedRole.Select(role => role.Name).OrderBy(name => name).ToList();
-
-			if (!oldRoles.SequenceEqual(newRoles))
-			{
-				var oldRoleText = oldRoles.Count > 0 ? string.Join(", ", oldRoles) : "None";
-				var newRoleText = newRoles.Count > 0 ? string.Join(", ", newRoles) : "None";
-
-				changes.Add($"Changed roles from '{oldRoleText}' to '{newRoleText}'.");
-			}
-		}
+		if (user.Role.Name != resolvedRole.Name)
+			changes.Add($"Changed roles from '{user.Role.Name}' to '{resolvedRole.Name}'.");
 
 		return changes.Count > 0 ? string.Join(" ", changes) : null;
 	}
