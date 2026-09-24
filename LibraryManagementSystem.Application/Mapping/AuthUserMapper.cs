@@ -8,7 +8,7 @@ public static class AuthUserMapper
 {
 	public static AuthUserDto ToAuthUserDto(this User user)
 	{
-		var permissions = user.Role.SelectMany(ur => RolePermissionMap.GetPermissions(ur.Role.Name)).ToHashSet();
+		var permissions = RolePermissionMap.GetPermissions(user.Role.Name).ToHashSet();
 
 		return new AuthUserDto
 		{

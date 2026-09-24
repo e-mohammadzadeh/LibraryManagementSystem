@@ -239,7 +239,7 @@ public static class DataSeeder
 		void SetPassword(User user, string password)
 		{
 			var result = passwordHasher.CreatePasswordHash(password);
-			user.SetPasswordHash(result.Hash, result.Salt);
+			userRepository.SetPasswordHash(user, result.Hash, result.Salt);
 		}
 	}
 

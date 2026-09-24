@@ -10,8 +10,8 @@ public class User : Person
 	public bool ShouldRemove { get; set; }
 	public byte[]? PasswordHash { get; set; }
 	public byte[]? PasswordSalt { get; set; }
-	public DateTime? LastLoginDate { get; private set; }
-	private DateTime? PreviousLoginDate { get; set; }
+	public DateTime? LastLoginDate { get; set; }
+	public DateTime? PreviousLoginDate { get; set; }
 
 
 	public User(string firstName, string lastName, string nationalCode, string email, string phoneNumber,
@@ -25,19 +25,5 @@ public class User : Person
 		// Should set a suitable end date based on business logic
 		MembershipExpiryDate = MembershipStartDate.AddYears(1);
 		ShouldRemove = false;
-	}
-
-
-
-	public void UpdateLastLogin()
-	{
-		LastLoginDate = PreviousLoginDate;
-		PreviousLoginDate = DateTime.Now;
-	}
-
-
-	public void UpdateLastLoginInLogout()
-	{
-		LastLoginDate = PreviousLoginDate;
 	}
 }

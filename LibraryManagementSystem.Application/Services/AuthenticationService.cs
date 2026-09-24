@@ -46,8 +46,8 @@ public class AuthenticationService
 		if (user.MembershipExpiryDate < DateOnly.FromDateTime(DateTime.Today))
 			return ServiceResult<AuthUserDto>.Fail(Messages.MembershipExpired);
 
-		user.UpdateLastLogin();
-		_userRepository.Update(user);
+		_userRepository.UpdateLastLogin(user);
+
 		var authUser = user.ToAuthUserDto();
 		_currentUserSession.Login(authUser);
 		_auditLog.Record(AuditAction.UserLoggedIn, "User", user.Id, "User logged in.");
@@ -67,7 +67,7 @@ public class AuthenticationService
 		_auditLog.Record(AuditAction.UserLoggedOut, "User", currentUser.Id, "User logged out.");
 		if (user is not null)
 		{
-			user.UpdateLastLoginInLogout();
+			_userRepository.UpdateLastLoginInLogout(user);
 			_currentUserSession.Logout();
 		}
 
@@ -89,14 +89,14 @@ public class AuthenticationService
 		if (existingSameName is not null)
 			warningMessage = string.Format(Messages.DuplicateUserNameWarning, existingSameName.Id);
 
-		var role = _roleRepository.FindByIds(dto.RoleIds);
+		var role = _roleRepository.FindById(dto.RoleId);
 
 		var result = _passwordHasher.CreatePasswordHash(dto.Password!);
 
 		var newUser = new User(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
 			role);
 
-		newUser.SetPasswordHash(result.Hash, result.Salt);
+		_userRepository.SetPasswordHash(newUser, result.Hash, result.Salt);
 		_userRepository.Add(newUser);
 		_auditLog.Record(AuditAction.UserCreated, "User", newUser.Id, "New user registered.");
 

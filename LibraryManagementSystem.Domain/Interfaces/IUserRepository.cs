@@ -22,4 +22,6 @@ public interface IUserRepository
 	void RenewMembership(User user, int years);
 	void FlagForRemoval(User user);
 	void SetPasswordHash(User user, byte[] passwordHash, byte[] passwordSalt);
+	void UpdateLastLogin(User user);
+	void UpdateLastLoginInLogout(User user);
 }
