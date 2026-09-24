@@ -61,8 +61,7 @@ public class FineManagementService : IFineManagementService
 			var user = _userRepository.FindById(loan.UserId);
 			if (user is not null && !user.ShouldRemove)
 			{
-				user.FlagForRemoval();
-				_userRepository.Update(user);
+				_userRepository.FlagForRemoval(user);
 				return ServiceResult<FineDto>.Warning(fine.ToDto(),
 					string.Format(Messages.UserEligibleForRemoval, user.FirstName, user.LastName));
 			}

@@ -1,12 +1,11 @@
-﻿using LibraryManagementSystem.Application.Authentication;
-using LibraryManagementSystem.Domain.Entities;
+﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Enums;
 
 // ReSharper disable StringLiteralTypo
 
-namespace LibraryManagementSystem.Infrastructure.Seeders;
+namespace LibraryManagementSystem.Application.Seeders;
 
 public static class DataSeeder
 {

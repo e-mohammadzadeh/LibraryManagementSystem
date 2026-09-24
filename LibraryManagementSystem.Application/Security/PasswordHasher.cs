@@ -4,7 +4,7 @@ using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Domain.Interfaces;
 
-namespace LibraryManagementSystem.Infrastructure.Security;
+namespace LibraryManagementSystem.Application.Security;
 
 public class PasswordHasher : IPasswordHasher
 {

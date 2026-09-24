@@ -135,7 +135,11 @@ public class InMemoryUserRepository : IUserRepository
 
 
 
-	public void FlagForRemoval(User user) { user.ShouldRemove = true; }
+	public void FlagForRemoval(User user)
+	{
+		user.ShouldRemove = true;
+		user.UpdatedAt = DateTime.UtcNow;
+	}
 
 
 	public void SetPasswordHash(User user, byte[] passwordHash, byte[] passwordSalt)

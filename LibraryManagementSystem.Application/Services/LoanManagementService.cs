@@ -5,6 +5,7 @@ using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.DTOs.Books;
 using LibraryManagementSystem.Infrastructure.DTOs.Loans;
 using LibraryManagementSystem.Infrastructure.Enums;
 
@@ -68,9 +69,21 @@ public class LoanManagementService
 			return ServiceResult<LoanDto>.Fail(Messages.BookAlreadyBorrowed);
 
 		var loan = new Loan(book, user, DateOnly.FromDateTime(DateTime.Today));
+		UpdateBookDto updateBookDto = new UpdateBookDto
+		{
+			BookName = book.Title,
+			AuthorIds = [.. book.BookAuthors.Select(ba => ba.AuthorId)],
+			TranslatorIds = [.. book.BookTranslators.Select(bt => bt.TranslatorId)],
+			PublishDate = book.PublishDate,
+			Genre = book.Genre,
+			Publisher = book.Publisher,
+			TotalCopies = book.TotalCopies -1,
+			Description = book.Description
+
+		};
 		book.BorrowCopy();
 		_loanRepository.Add(loan);
-		_bookRepository.Update(book, dto);
+		_bookRepository.Update(book, updateBookDto);
 		_loanHistoryManagementService.Record(loan, LoanHistoryAction.Borrowed);
 		_auditLog.Record(AuditAction.LoanBorrowed, "Loan", loan.LoanId, "Loan borrowed.");
 
