@@ -132,4 +132,10 @@ public class InMemoryUserRepository : IUserRepository
 		if (!user.IsActive) user.IsActive = true;
 		user.UpdatedAt = DateTime.UtcNow;
 	}
+
+
+	public void FlagForRemoval(User user)
+	{
+		user.ShouldRemove = true;
+	}
 }

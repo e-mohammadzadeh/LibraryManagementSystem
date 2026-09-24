@@ -58,15 +58,15 @@ public class UserManagementService
 			warningMessage = string.Format(Messages.DuplicateUserNameWarning, existingSameName.Id);
 
 		var role = _roleRepository.FindById(dto.RoleId);
-		if (role) return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
+		if (role is null) return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
 
-		if (role.Select(role => role.Name switch
+		if (!(role.Name switch
 		    {
 			    LibraryUserRole.Member => _authorization.HasPermission(Permission.AssignMemberRole),
 			    LibraryUserRole.Librarian => _authorization.HasPermission(Permission.AssignLibrarianRole),
 			    LibraryUserRole.Admin => _authorization.HasPermission(Permission.AssignAdminRole),
 			    _ => false
-		    }).Any(allowed => !allowed))
+		    }))
 		{
 			return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
 		}
@@ -74,7 +74,7 @@ public class UserManagementService
 		var result = _passwordHasher.CreatePasswordHash(dto.Password!);
 
 		var newUser = new User(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
-			roles);
+			role);
 
 		newUser.SetPasswordHash(result.Hash, result.Salt);
 		_userRepository.Add(newUser);

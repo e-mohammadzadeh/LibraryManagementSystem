@@ -190,7 +190,7 @@ public static class UserMenu
 		var allowMultiple = authorization.HasAnyPermission(Permission.AssignLibrarianRole, Permission.AssignAdminRole);
 
 		var roleIds =
-			ConsoleHelper.ReadRoles("Select role(s) for this user", availableRoles, allowMultiple: allowMultiple);
+			ConsoleHelper.ReadRoles("Select role for this user", availableRoles, allowMultiple: false);
 		if (roleIds is null) return null;
 
 		var newPassword = ConsoleHelper.GetValidPassword(string.Format(Messages.EnterPasswordPrompt, "new"));
@@ -203,7 +203,8 @@ public static class UserMenu
 			return new CreateUserDto
 			{
 				FirstName = fields.FirstName, LastName = fields.LastName, NationalCode = fields.NationalCode,
-				Email = fields.Email, PhoneNumber = fields.PhoneNumber, BirthDate = fields.BirthDate, RoleIds = roleIds,
+				Email = fields.Email, PhoneNumber = fields.PhoneNumber, BirthDate = fields.BirthDate,
+				RoleId = roleIds[0],
 				Password = newPassword
 			};
 		ConsoleHelper.ShowError(Messages.PasswordMatchedFailed);
@@ -335,11 +336,12 @@ public static class UserMenu
 					}
 
 					var availableRoles = userManagementService.GetAllRoles();
-					var roleIds = ConsoleHelper.ReadRoles("\nSelect role(s) for this user", availableRoles);
+					var roleIds = ConsoleHelper.ReadRoles("\nSelect role for this user", availableRoles,
+						allowMultiple: false);
 					if (roleIds is null) break;
 
 					var result =
-						userManagementService.UpdateUser(desiredUser.Id, new UpdateUserDto { RoleIds = roleIds },
+						userManagementService.UpdateUser(desiredUser.Id, new UpdateUserDto { RoleId = roleIds[0] },
 							session);
 					if (result.IsSuccess) desiredUser = result.Data;
 					ConsoleHelper.ShowResult(result);
@@ -358,7 +360,7 @@ public static class UserMenu
 	}
 
 
-	private static UserDto? PerformUpdate<T>(UserManagementService userManagementService, int desiredMemberId,
+	private static UserDto? PerformUpdate<T>(UserManagementService userManagementService, Guid desiredMemberId,
 		T? newValue, Func<T, UpdateUserDto> buildDto, ICurrentUserSession session)
 	{
 		if (newValue is null) return null;
@@ -482,10 +484,10 @@ public static class UserMenu
 	private static void SearchRoleAndDisplay(UserManagementService userManagementService, string prompt)
 	{
 		var availableRoles = userManagementService.GetAllRoles();
-		var roleIds = ConsoleHelper.ReadRoles(prompt, availableRoles, false);
+		var roleIds = ConsoleHelper.ReadRoles(prompt, availableRoles, allowMultiple: false);
 		if (roleIds is null || roleIds.Count == 0) return;
 
-		var result = userManagementService.SearchByRole(roleIds);
+		var result = userManagementService.SearchByRole(roleIds[0]);
 		DisplayUserResults(result);
 	}
 
@@ -780,7 +782,7 @@ public static class UserMenu
 
 		Console.WriteLine(new string('=', 36) + " CHANGE PASSWORD " + new string('=', 36));
 
-		int targetUserId;
+		Guid targetUserId;
 		var isOwn = true;
 
 		if (canResetOthers && canOwn)

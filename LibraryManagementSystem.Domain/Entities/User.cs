@@ -7,7 +7,7 @@ public class User : Person
 	public bool IsActive { get; set; }
 	public DateOnly MembershipStartDate { get; }
 	public DateOnly MembershipExpiryDate { get; set; }
-	public bool ShouldRemove { get; private set; }
+	public bool ShouldRemove { get; set; }
 	public byte[]? PasswordHash { get; private set; }
 	public byte[]? PasswordSalt { get; private set; }
 	public DateTime? LastLoginDate { get; private set; }
@@ -29,11 +29,7 @@ public class User : Person
 
 
 
-	public void FlagForRemoval()
-	{
-		ShouldRemove = true;
-		MarkAsUpdated();
-	}
+
 
 
 
@@ -60,6 +56,5 @@ public class User : Person
 	public void UpdateLastLoginInLogout()
 	{
 		LastLoginDate = PreviousLoginDate;
-		MarkAsUpdated();
 	}
 }

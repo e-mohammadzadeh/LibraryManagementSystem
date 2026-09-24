@@ -20,4 +20,5 @@ public interface IUserRepository
 	IReadOnlyList<User> SearchByRole(Guid roleId);
 	void ReplaceRole(User user, Role newRole);
 	void RenewMembership(User user, int years);
+	void FlagForRemoval();
 }

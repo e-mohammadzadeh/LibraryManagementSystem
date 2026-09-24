@@ -165,58 +165,58 @@ public static class DataSeeder
 		var librarianRole = allRoles.First(r => r.Name == LibraryUserRole.Librarian);
 
 		var admin = new User("Sara", "Admin", "3780254901", "admin@library.com", "09120000010",
-			new DateOnly(1985, 3, 15), [adminRole]);
+			new DateOnly(1985, 3, 15), adminRole);
 		SetPassword(admin, "Admin@123");
 
 		var librarian1 = new User("Ali", "Librarian", "3780254902", "librarian@library.com", "09120000011",
-			new DateOnly(1990, 5, 20), [librarianRole, memberRole]);
+			new DateOnly(1990, 5, 20), librarianRole);
 		SetPassword(librarian1, "Librarian1@123");
 
 		var librarian2 = new User("Reza", "Karimi", "3780254903", "reza.karimi@library.com", "09120000014",
-			new DateOnly(1988, 11, 5), [librarianRole], membershipStartDate: new DateOnly(2026, 1, 15));
+			new DateOnly(1988, 11, 5), librarianRole, membershipStartDate: new DateOnly(2026, 1, 15));
 		SetPassword(librarian2, "Librarian2@123");
 
 		var librarian3 = new User("Zahra", "Rahimi", "3780254904", "zahra.rahimi@library.com", "09120000015",
-			new DateOnly(1992, 4, 18), [librarianRole]);
+			new DateOnly(1992, 4, 18), librarianRole);
 		SetPassword(librarian3, "Librarian3@123");
 
 		var member1 = new User("Mohammad", "Ahmadi", "3780254905", "m.ahmadi@example.com", "09120000012",
-			new DateOnly(1998, 1, 10), [memberRole]);
+			new DateOnly(1998, 1, 10), memberRole);
 		SetPassword(member1, "Member1@123");
 
 		var member2 = new User("Fateme", "Hosseini", "3780254906", "f.hosseini@example.com", "09120000013",
-			new DateOnly(2000, 7, 25), [memberRole], membershipStartDate: new DateOnly(2026, 9, 1));
+			new DateOnly(2000, 7, 25), memberRole, membershipStartDate: new DateOnly(2026, 9, 1));
 
 		var member3 = new User("Hossein", "Moradi", "3780254907", "h.moradi@example.com", "09120000016",
-			new DateOnly(1995, 9, 12), [memberRole]);
+			new DateOnly(1995, 9, 12), memberRole);
 
 		var member4 = new User("Narges", "Salehi", "3780254908", "n.salehi@example.com", "09120000017",
-			new DateOnly(2001, 2, 28), [memberRole], membershipStartDate: new DateOnly(2025, 10, 1));
+			new DateOnly(2001, 2, 28), memberRole, membershipStartDate: new DateOnly(2025, 10, 1));
 		SetPassword(member4, "Member4@123");
 
 		var member5 = new User("Ali", "Rezaei", "3780254909", "a.rezaei@example.com", "09120000018",
-			new DateOnly(1997, 6, 15), [memberRole]);
+			new DateOnly(1997, 6, 15), memberRole);
 
 		var member6 = new User("Maryam", "Khalili", "3780254910", "maryam.khalili@example.com", "09120000019",
-			new DateOnly(1999, 10, 3), [memberRole], membershipStartDate: new DateOnly(2025, 9, 10));
+			new DateOnly(1999, 10, 3), memberRole, membershipStartDate: new DateOnly(2025, 9, 10));
 
 		var member7 = new User("Seyed", "Mousavi", "3780254911", "s.mousavi@example.com", "09120000020",
-			new DateOnly(1987, 12, 22), [memberRole]);
+			new DateOnly(1987, 12, 22), memberRole);
 
 		var member8 = new User("Leila", "Pourahmadi", "3780254912", "leila.pourahmadi@example.com", "09120000021",
-			new DateOnly(2002, 5, 7), [memberRole], membershipStartDate: new DateOnly(2026, 10, 1));
+			new DateOnly(2002, 5, 7), memberRole, membershipStartDate: new DateOnly(2026, 10, 1));
 
 		var member9 = new User("Mehdi", "Hashemi", "3780254913", "mehdi.hashemi@example.com", "09120000022",
-			new DateOnly(1996, 8, 19), [memberRole]);
+			new DateOnly(1996, 8, 19), memberRole);
 
 		var member10 = new User("Sara", "Nikoo", "3780254914", "s.nikoo@example.com", "09120000023",
-			new DateOnly(2003, 3, 30), [memberRole], membershipStartDate: new DateOnly(2025, 12, 1));
+			new DateOnly(2003, 3, 30), memberRole, membershipStartDate: new DateOnly(2025, 12, 1));
 
 		var member11 = new User("Amir", "Jafari", "3780254915", "amir.jafari@example.com", "09120000024",
-			new DateOnly(1994, 7, 14), [memberRole]);
+			new DateOnly(1994, 7, 14), memberRole);
 
 		var member12 = new User("Fatemeh", "Ebrahimi", "3780254916", "f.ebrahimi@example.com", "09120000025",
-			new DateOnly(1991, 11, 9), [memberRole], membershipStartDate: new DateOnly(2026, 1, 1));
+			new DateOnly(1991, 11, 9), memberRole, membershipStartDate: new DateOnly(2026, 1, 1));
 
 		userRepository.Add(admin);
 		userRepository.Add(librarian1);
