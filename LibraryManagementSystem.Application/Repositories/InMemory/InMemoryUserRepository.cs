@@ -111,15 +111,25 @@ public class InMemoryUserRepository : IUserRepository
 	}
 
 
-	public IReadOnlyList<User> SearchByRole(Guid roleIds)
-	{
-		return _users.Where(u => u.RoleId == roleIds).ToList();
-	}
+	public IReadOnlyList<User> SearchByRole(Guid roleIds) { return _users.Where(u => u.RoleId == roleIds).ToList(); }
 
 
-	public void ReplaceRole(User user, Role newRole) 
+	public void ReplaceRole(User user, Role newRole)
 	{
 		user.Role = newRole ?? throw new ArgumentNullException(nameof(newRole));
 		user.RoleId = newRole.Id;
+	}
+
+
+	public void RenewMembership(User user, int years = 1)
+	{
+		var today = DateOnly.FromDateTime(DateTime.Today);
+		var renewalBase = user.MembershipExpiryDate > today
+			? user.MembershipExpiryDate // extend from current expiry if not yet expired
+			: today; // restart from today if already expired
+
+		user.MembershipExpiryDate = renewalBase.AddYears(years);
+		if (!user.IsActive) user.IsActive = true;
+		user.UpdatedAt = DateTime.UtcNow;
 	}
 }

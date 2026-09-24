@@ -6,7 +6,7 @@ public class User : Person
 	public Role Role { get; set; }
 	public bool IsActive { get; set; }
 	public DateOnly MembershipStartDate { get; }
-	public DateOnly MembershipExpiryDate { get; private set; }
+	public DateOnly MembershipExpiryDate { get; set; }
 	public bool ShouldRemove { get; private set; }
 	public byte[]? PasswordHash { get; private set; }
 	public byte[]? PasswordSalt { get; private set; }
@@ -27,19 +27,6 @@ public class User : Person
 		ShouldRemove = false;
 	}
 
-
-
-	public void RenewMembership(int years = 1)
-	{
-		var today = DateOnly.FromDateTime(DateTime.Today);
-		var renewalBase = MembershipExpiryDate > today
-			? MembershipExpiryDate // extend from current expiry if not yet expired
-			: today; // restart from today if already expired
-
-		MembershipExpiryDate = renewalBase.AddYears(years);
-		if (!IsActive) IsActive = true;
-		MarkAsUpdated();
-	}
 
 
 	public void FlagForRemoval()

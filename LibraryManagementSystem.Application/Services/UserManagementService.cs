@@ -57,13 +57,10 @@ public class UserManagementService
 		if (existingSameName is not null)
 			warningMessage = string.Format(Messages.DuplicateUserNameWarning, existingSameName.Id);
 
-		if (dto.RoleIds.Count != dto.RoleIds.Distinct().Count())
-			return ServiceResult<UserDto>.Fail(Messages.FailureDuplicateRolesSelected);
+		var role = _roleRepository.FindById(dto.RoleId);
+		if (role) return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
 
-		var roles = _roleRepository.FindByIds(dto.RoleIds);
-		if (roles.Count != dto.RoleIds.Count) return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
-
-		if (roles.Select(role => role.Name switch
+		if (role.Select(role => role.Name switch
 		    {
 			    LibraryUserRole.Member => _authorization.HasPermission(Permission.AssignMemberRole),
 			    LibraryUserRole.Librarian => _authorization.HasPermission(Permission.AssignLibrarianRole),
@@ -178,8 +175,7 @@ public class UserManagementService
 
 		_userRepository.Update(user, dto);
 		_userRepository.ReplaceRole(user, resolvedRole!);
-		if (session.UserId == userId)
-			session.UpdateCurrentUser(user.ToAuthUserDto());
+		if (session.UserId == userId) session.UpdateCurrentUser(user.ToAuthUserDto());
 
 		_auditLog.Record(AuditAction.UserUpdated, "User", userId, auditDetails ?? "User updated.");
 
@@ -231,19 +227,14 @@ public class UserManagementService
 	}
 
 
-	private bool CanRemoveUser(ICurrentUserSession session, User targetUser)
+	private bool CanRemoveUser(ICurrentUserSession session, User user)
 	{
 		if (!_authorization.HasPermission(Permission.RemoveUser)) return false;
 
-		var targetRoles = targetUser.UserRoles.Select(ur => ur.Role.Name).ToList();
+		var targetRole = user.Role.Name;
 
-		if (session.IsAdmin) return !targetRoles.Contains(LibraryUserRole.Admin);
-
-		if (session.IsLibrarian)
-			return targetRoles.Contains(LibraryUserRole.Member)
-			       && !targetRoles.Contains(LibraryUserRole.Librarian)
-			       && !targetRoles.Contains(LibraryUserRole.Admin);
-
+		if (session.IsAdmin) return targetRole != LibraryUserRole.Admin;
+		if (session.IsLibrarian) return targetRole == LibraryUserRole.Member;
 		return false;
 	}
 
@@ -257,7 +248,7 @@ public class UserManagementService
 			UserSearchField.NationalCode => u => u.NationalCode,
 			UserSearchField.Email => u => u.Email,
 			UserSearchField.PhoneNumber => u => u.PhoneNumber,
-			UserSearchField.Role => u => string.Join(", ", u.UserRoles.Select(r => r.Role.Name)),
+			UserSearchField.Role => u => string.Join(", ", u.Role.Name),
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};
 
@@ -265,9 +256,9 @@ public class UserManagementService
 	}
 
 
-	public IReadOnlyList<UserDto> SearchByRole(IReadOnlyList<Guid> roleIds)
+	public IReadOnlyList<UserDto> SearchByRole(Guid roleId)
 	{
-		return [.. _userRepository.SearchByRole(roleIds).Select(user => user.ToDto())];
+		return [.. _userRepository.SearchByRole(roleId).Select(user => user.ToDto())];
 	}
 
 
@@ -304,7 +295,6 @@ public class UserManagementService
 
 		var hashResult = _passwordHasher.CreatePasswordHash(newPassword);
 		user.SetPasswordHash(hashResult.Hash, hashResult.Salt);
-		_userRepository.Update(user);
 
 		var message = isOwn ? Messages.PasswordChangedSuccessfully : Messages.PasswordResetSuccessfully;
 		_auditLog.Record(AuditAction.UserPasswordChanged, "User", userId, "User password changed.");
@@ -323,29 +313,31 @@ public class UserManagementService
 
 		if (years <= 0) return ServiceResult<UserDto>.Fail(Messages.InvalidMembershipRenewalPeriod);
 
-		var targetRoles = user.UserRoles.Select(ur => ur.Role.Name).ToList();
+		var targetRole = user.Role.Name;
 
 		if (!_authorization.HasPermission(Permission.RenewInactiveMembership) && !user.IsActive)
 			return ServiceResult<UserDto>.Fail(Messages.RenewInactiveMembership);
 
 
-		if (targetRoles.Contains(LibraryUserRole.Librarian))
+		switch (targetRole)
 		{
-			if (!_authorization.HasPermission(Permission.RenewLibrarianMembership))
+			case LibraryUserRole.Librarian:
+			{
+				if (!_authorization.HasPermission(Permission.RenewLibrarianMembership))
+					return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
+				break;
+			}
+			case LibraryUserRole.Member:
+			{
+				if (!_authorization.HasPermission(Permission.RenewMemberMembership))
+					return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
+				break;
+			}
+			default:
 				return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
-		}
-		else if (targetRoles.Contains(LibraryUserRole.Member))
-		{
-			if (!_authorization.HasPermission(Permission.RenewMemberMembership))
-				return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
-		}
-		else
-		{
-			return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
 		}
 
-		user.RenewMembership(years);
-		_userRepository.Update(user);
+		_userRepository.RenewMembership(user, years);
 		_auditLog.Record(AuditAction.MembershipRenewed, "User", userId, "User membership renewed.");
 		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.MembershipRenewedSuccessfully);
 	}

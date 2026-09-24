@@ -19,4 +19,5 @@ public interface IUserRepository
 	IReadOnlyList<User> Search(string searchTerm, Func<User, string?> selector);
 	IReadOnlyList<User> SearchByRole(Guid roleId);
 	void ReplaceRole(User user, Role newRole);
+	void RenewMembership(User user, int years);
 }
