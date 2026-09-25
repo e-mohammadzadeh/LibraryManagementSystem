@@ -1,4 +1,6 @@
-﻿using LibraryManagementSystem.Infrastructure.Enums;
+﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Infrastructure.Repositories.InMemory;
 

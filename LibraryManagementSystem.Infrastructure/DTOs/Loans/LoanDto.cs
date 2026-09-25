@@ -1,4 +1,4 @@
-﻿using LibraryManagementSystem.Infrastructure.Enums;
+﻿using LibraryManagementSystem.Domain.Enums;
 
 namespace LibraryManagementSystem.Infrastructure.DTOs.Loans;
 

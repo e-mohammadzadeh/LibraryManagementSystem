@@ -1,4 +1,4 @@
-﻿namespace LibraryManagementSystem.Infrastructure.Enums;
+﻿namespace LibraryManagementSystem.Domain.Enums;
 
 public enum AuditAction
 {

@@ -8,10 +8,11 @@ public sealed record Money
 
 	public static Money Create(decimal amount)
 	{
-		if (amount < 0)
-			throw new ArgumentException("Money amount cannot be negative.", nameof(amount));
-		return new Money(decimal.Round(amount, 2, MidpointRounding.AwayFromZero));
+		return amount < 0
+			? throw new ArgumentException("Money amount cannot be negative.", nameof(amount))
+			: new Money(decimal.Round(amount, 2, MidpointRounding.AwayFromZero));
 	}
+
 
 	public static Money Zero => new(0m);
 	public Money Add(Money other) => Create(Amount + other.Amount);
@@ -26,5 +27,4 @@ public sealed record Money
 	public override string ToString() => Amount.ToString("C");
 
 	public static implicit operator decimal(Money money) => money.Amount;
-
 }
