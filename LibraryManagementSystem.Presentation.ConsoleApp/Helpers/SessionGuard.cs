@@ -1,7 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Infrastructure.Common;
-using LibraryManagementSystem.Infrastructure.Enums;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 

@@ -5,7 +5,6 @@ using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Users;
-using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;

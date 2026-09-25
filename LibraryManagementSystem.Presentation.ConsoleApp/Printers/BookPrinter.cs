@@ -3,7 +3,6 @@ using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Books;
 using LibraryManagementSystem.Infrastructure.DTOs.Loans;
-using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;

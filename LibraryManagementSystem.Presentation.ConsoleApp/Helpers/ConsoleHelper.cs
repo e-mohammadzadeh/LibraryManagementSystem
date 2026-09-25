@@ -4,7 +4,6 @@ using LibraryManagementSystem.Domain.Entities;
 using System.Text;
 using LibraryManagementSystem.Infrastructure.DTOs;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
-using LibraryManagementSystem.Infrastructure.Enums;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 

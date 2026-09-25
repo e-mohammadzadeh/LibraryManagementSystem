@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Infrastructure.Enums;
+﻿using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Infrastructure.Enums;
 
 namespace LibraryManagementSystem.Infrastructure.Repositories.InMemory;
 

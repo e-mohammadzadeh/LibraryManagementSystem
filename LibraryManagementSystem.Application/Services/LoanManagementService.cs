@@ -4,10 +4,10 @@ using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Application.Authorization;
+using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Books;
 using LibraryManagementSystem.Infrastructure.DTOs.Loans;
-using LibraryManagementSystem.Infrastructure.Enums;
 
 namespace LibraryManagementSystem.Application.Services;
 
