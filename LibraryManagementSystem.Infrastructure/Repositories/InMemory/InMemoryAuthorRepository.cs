@@ -1,9 +1,7 @@
-﻿using LibraryManagementSystem.Domain.Entities;
-using LibraryManagementSystem.Domain.Enums.Filters;
-using LibraryManagementSystem.Domain.Interfaces;
+﻿using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 
-namespace LibraryManagementSystem.Application.Repositories.InMemory;
+namespace LibraryManagementSystem.Infrastructure.Repositories.InMemory;
 
 public class InMemoryAuthorRepository : IAuthorRepository
 {
