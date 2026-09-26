@@ -18,4 +18,5 @@ public class Loan
 	public bool IsActive { get; set; }
 	public DateTime CreatedAt { get; set; }
 	public DateTime? UpdatedAt { get; set; }
+	public Guid? UpdatedByUserId { get; set; }
 }
