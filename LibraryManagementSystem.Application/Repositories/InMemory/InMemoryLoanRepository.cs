@@ -1,4 +1,4 @@
-﻿namespace LibraryManagementSystem.Infrastructure.Repositories.InMemory;
+﻿namespace LibraryManagementSystem.Application.Repositories.InMemory;
 
 public class InMemoryLoanRepository : ILoanRepository
 {

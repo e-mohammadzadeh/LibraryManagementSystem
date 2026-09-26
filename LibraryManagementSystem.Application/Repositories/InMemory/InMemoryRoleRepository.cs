@@ -1,7 +1,6 @@
-﻿using LibraryManagementSystem.Domain.Enums;
-using LibraryManagementSystem.Infrastructure.Enums;
+﻿using LibraryManagementSystem.Infrastructure.Enums;
 
-namespace LibraryManagementSystem.Infrastructure.Repositories.InMemory;
+namespace LibraryManagementSystem.Application.Repositories.InMemory;
 
 public class InMemoryRoleRepository : IRoleRepository
 {
