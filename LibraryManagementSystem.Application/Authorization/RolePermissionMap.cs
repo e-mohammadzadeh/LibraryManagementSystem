@@ -1,4 +1,6 @@
-﻿namespace LibraryManagementSystem.Application.Authorization;
+﻿using LibraryManagementSystem.Infrastructure.Enums;
+
+namespace LibraryManagementSystem.Application.Authorization;
 
 public static class RolePermissionMap
 {
