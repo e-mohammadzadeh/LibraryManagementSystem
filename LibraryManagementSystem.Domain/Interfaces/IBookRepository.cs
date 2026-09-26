@@ -23,4 +23,6 @@ public interface IBookRepository
 	void AssignTranslatorsToBook(Book book, IEnumerable<Translator> translators);
 	void ReplaceAuthors(Book book, IEnumerable<Author> authors);
 	void ReplaceTranslators(Book book, IEnumerable<Translator> translators);
+	void BorrowCopy(Book book);
+	void ReturnCopy(Book book);
 }

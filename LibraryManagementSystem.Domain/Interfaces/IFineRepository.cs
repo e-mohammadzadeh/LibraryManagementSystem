@@ -15,5 +15,6 @@ public interface IFineRepository
 	IReadOnlyList<Fine> GetHistory();
 	IReadOnlyList<Fine> GetHistoryByUserId(Guid userId);
 	void Update(Fine fine);
-
+	void Pay(Fine fine);
+	void Waive(Fine fine);
 }

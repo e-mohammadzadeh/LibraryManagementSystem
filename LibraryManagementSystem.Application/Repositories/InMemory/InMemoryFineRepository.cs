@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Enums;
+using static System.Net.WebRequestMethods;
 
 namespace LibraryManagementSystem.Application.Repositories.InMemory;
 
@@ -62,21 +63,20 @@ public class InMemoryFineRepository : IFineRepository
 	}
 
 
-	public void Pay() {
-		if (Status == FineStatus.Paid)
-			throw new InvalidOperationException("Fine is already paid.");
-		if (Status == FineStatus.Waived)
-			throw new InvalidOperationException("Fine has been waived.");
-		Status = FineStatus.Paid;
-		PaidAt = DateOnly.FromDateTime(DateTime.Today);
-		UpdatedAt = DateTime.Now;
+	public void Pay(Fine fine)
+	{
+		if (fine.Status == FineStatus.Paid) throw new InvalidOperationException("Fine is already paid.");
+		if (fine.Status == FineStatus.Waived) throw new InvalidOperationException("Fine has been waived.");
+		fine.Status = FineStatus.Paid;
+		fine.PaidAt = DateOnly.FromDateTime(DateTime.Today);
+		fine.UpdatedAt = DateTime.Now;
 	}
 
 
-	public void Waive() {
-		if (Status == FineStatus.Paid)
-			throw new InvalidOperationException("Cannot waive an already paid fine.");
-		Status = FineStatus.Waived;
-		UpdatedAt = DateTime.Now;
+	public void Waive(Fine fine)
+	{
+		if (fine.Status == FineStatus.Paid) throw new InvalidOperationException("Cannot waive an already paid fine.");
+		fine.Status = FineStatus.Waived;
+		fine.UpdatedAt = DateTime.Now;
 	}
 }

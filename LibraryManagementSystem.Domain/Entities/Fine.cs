@@ -25,16 +25,16 @@ public class Fine
 	}
 
 
-	public Guid FineId { get; private set; }
-	public Guid LoanId { get; private set; }
-	public Loan Loan { get; private set; }
-	public Guid UserId { get; private set; }
-	public int OverdueDays { get; private set; }
-	public decimal Amount { get; private set; }
-	public FineStatus Status { get; private set; }
-	public string Reason { get; private set; }
-	public decimal DailyRate { get; private set; }
-	public DateTime CreatedAt { get; private set; }
-	public DateTime? UpdatedAt { get; private set; }
-	public DateOnly? PaidAt { get; private set; }
+	public Guid FineId { get; set; }
+	public Guid LoanId { get; set; }
+	public Loan Loan { get; set; }
+	public Guid UserId { get; set; }
+	public int OverdueDays { get; set; }
+	public decimal Amount { get; set; }
+	public FineStatus Status { get; set; }
+	public string Reason { get; set; }
+	public decimal DailyRate { get;  set; }
+	public DateTime CreatedAt { get; set; }
+	public DateTime? UpdatedAt { get; set; }
+	public DateOnly? PaidAt { get; set; }
 }

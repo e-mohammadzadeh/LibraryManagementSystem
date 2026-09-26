@@ -83,7 +83,7 @@ public class FineManagementService : IFineManagementService
 			return ServiceResult<FineDto>.Fail(Messages.CanPayOwnFine);
 		try
 		{
-			fine.Pay();
+			_fineRepository.Pay(fine);
 			_fineRepository.Update(fine);
 			_loanHistoryManagementService.Record(fine.Loan, LoanHistoryAction.FinePaid);
 			_fineHistoryManagementService.Record(fine, FineHistoryAction.FinePaid);
@@ -111,7 +111,7 @@ public class FineManagementService : IFineManagementService
 
 		try
 		{
-			fine.Waive();
+			_fineRepository.Waive(fine);
 			_fineRepository.Update(fine);
 			_loanHistoryManagementService.Record(fine.Loan, LoanHistoryAction.FineWaived);
 			_fineHistoryManagementService.Record(fine, FineHistoryAction.FineWaived);

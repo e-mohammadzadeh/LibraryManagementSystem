@@ -172,8 +172,7 @@ public class InMemoryBookRepository : IBookRepository
 
 	public void RemoveAuthor(Book book, Guid authorId)
 	{
-		if (_bookAuthors.Count <= 1)
-			throw new InvalidOperationException(Messages.BookRequiresAtLeastOneAuthor);
+		if (_bookAuthors.Count <= 1) throw new InvalidOperationException(Messages.BookRequiresAtLeastOneAuthor);
 
 		var bookAuthor = _bookAuthors.FirstOrDefault(ba => ba.AuthorId == authorId);
 
@@ -233,19 +232,20 @@ public class InMemoryBookRepository : IBookRepository
 			RemoveTranslator(book, translatorId);
 	}
 
-	
-	public void BorrowCopy() {
-		if (AvailableCopies <= 0)
-			throw new InvalidOperationException("No copies are available.");
-		AvailableCopies--;
+
+	public void BorrowCopy(Book book)
+	{
+		if (book.AvailableCopies <= 0) throw new InvalidOperationException("No copies are available.");
+		book.AvailableCopies--;
 		//TODO	(Web API)	Raise an event: a signal to the rest of the system that says "this book is now out of stock"
 	}
 
 
-	public void ReturnCopy() {
-		if (AvailableCopies >= TotalCopies)
+	public void ReturnCopy(Book book)
+	{
+		if (book.AvailableCopies >= book.TotalCopies)
 			throw new InvalidOperationException("Cannot return a copy because all copies are already in the library.");
 
-		AvailableCopies++;
+		book.AvailableCopies++;
 	}
 }
