@@ -14,6 +14,7 @@ public class InMemoryAuthorRepository : IAuthorRepository
 	public void Add(Author author)
 	{
 		ArgumentNullException.ThrowIfNull(author);
+		
 		author.Id = Guid.CreateVersion7();
 		author.CreatedAt = DateTime.UtcNow;
 		author.IsRemoved = false;
@@ -78,9 +79,9 @@ public class InMemoryAuthorRepository : IAuthorRepository
 	}
 
 
-	public IReadOnlyList<Author> Search(string searchItem, Func<Author, string?> selector)
+	public IReadOnlyList<Author> Search(string searchTerm, Func<Author, string?> selector)
 	{
-		if (string.IsNullOrWhiteSpace(searchItem)) return [];
+		if (string.IsNullOrWhiteSpace(searchTerm)) return [];
 
 		return
 		[
@@ -89,7 +90,7 @@ public class InMemoryAuthorRepository : IAuthorRepository
 				.Where(a =>
 				{
 					var value = selector(a);
-					return value is not null && value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
+					return value is not null && value.Contains(searchTerm, StringComparison.OrdinalIgnoreCase);
 				})
 		];
 	}

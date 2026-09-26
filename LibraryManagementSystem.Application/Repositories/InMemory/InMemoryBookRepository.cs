@@ -1,7 +1,9 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums.Filters;
+using LibraryManagementSystem.Domain.Exceptions;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Domain.ValueObjects;
 using LibraryManagementSystem.Infrastructure.DTOs.Books;
 
 namespace LibraryManagementSystem.Application.Repositories.InMemory;
@@ -16,45 +18,42 @@ public class InMemoryBookRepository : IBookRepository
 	public void Add(Book book)
 	{
 		ArgumentNullException.ThrowIfNull(book);
+
+		book.Id = Guid.CreateVersion7();
+		book.CreatedAt = DateTime.UtcNow;
+		book.AvailableCopies = book.TotalCopies;
+		book.IsRemoved = false;
 		_books.Add(book);
-		book.UpdatedAt = DateTime.UtcNow;
 	}
 
 
-	public Book? FindById(Guid id) { return _books.FirstOrDefault(book => book.Id == id && !book.IsRemoved); }
+	public Book? FindById(Guid id, EntityFilter filter = EntityFilter.Active)
+	{
+		return ApplyFilter(_books, filter).FirstOrDefault(b => b.Id == id);
+	}
 
 
 	public IReadOnlyList<Book> GetAll(EntityFilter filter = EntityFilter.Active)
 	{
-		var query = _books.AsEnumerable();
-		switch (filter)
-		{
-			case EntityFilter.Active:
-				query = query.Where(b => !b.IsRemoved);
-				break;
-			case EntityFilter.Removed:
-				query = query.Where(b => b.IsRemoved);
-				break;
-			case EntityFilter.All:
-				// No filter – include everyone
-				break;
-			default:
-				throw new ArgumentOutOfRangeException(nameof(filter), filter, null);
-		}
-
-		return [.. query];
+		return [.. ApplyFilter(_books, filter)];
 	}
 
 
-	public IReadOnlyList<Book> GetByAuthorId(Guid authorId)
+	public IReadOnlyList<Book> GetByAuthorId(Guid authorId, EntityFilter filter = EntityFilter.Active)
 	{
-		return [.. _books.Where(book => book.BookAuthors.Any(ba => ba.AuthorId == authorId))];
+		return [.. ApplyFilter(_books, filter).Where(b => b.Authors.Any(a => a.AuthorId == authorId))];
 	}
 
 
-	public IReadOnlyList<Book> GetByTranslatorId(Guid translatorId)
+	public IReadOnlyList<Book> GetByTranslatorId(Guid translatorId, EntityFilter filter = EntityFilter.Active)
 	{
-		return [.. _books.Where(book => book.BookTranslators.Any(bt => bt.TranslatorId == translatorId))];
+		return [.. ApplyFilter(_books, filter).Where(b => b.Translators.Any(t => t.TranslatorId == translatorId))];
+	}
+
+
+	public IReadOnlyList<Book> GetAvailableBooks(EntityFilter filter = EntityFilter.Active)
+	{
+		return [.. ApplyFilter(_books, filter).Where(b => b.AvailableCopies > 0)];
 	}
 
 
@@ -62,32 +61,28 @@ public class InMemoryBookRepository : IBookRepository
 	{
 		if (string.IsNullOrWhiteSpace(name)) return false;
 
-		return _books.Any(book =>
-			book.Id != excludeId &&
-			!book.IsRemoved &&
-			book.Title.Equals(name, StringComparison.OrdinalIgnoreCase));
+		return _books.Any(b =>
+			b.Id != excludeId &&
+			!b.IsRemoved &&
+			b.Title.Equals(name, StringComparison.OrdinalIgnoreCase));
 	}
 
 
-	public bool ExistsByISBN(string isbn, Guid? excludeId = null)
+	public bool ExistsByISBN(ISBN isbn, Guid? excludeId = null)
 	{
 		if (string.IsNullOrWhiteSpace(isbn)) return false;
 
-		return _books.Any(book =>
-			book.Id != excludeId &&
-			!book.IsRemoved &&
-			book.InternationalStandardBookNumber.Equals(isbn, StringComparison.OrdinalIgnoreCase));
-	}
-
-
-	public IReadOnlyList<Book> GetAvailableBooks()
-	{
-		return [.. _books.Where(b => b is { AvailableCopies: > 0, IsRemoved: false })];
+		return _books.Any(b =>
+			b.Id != excludeId &&
+			!b.IsRemoved &&
+			b.ISBN.Equals(isbn));
 	}
 
 
 	public void Remove(Book book)
 	{
+		ArgumentNullException.ThrowIfNull(book);
+
 		if (book.IsRemoved) return;
 		book.IsRemoved = true;
 		book.UpdatedAt = DateTime.UtcNow;
@@ -96,13 +91,17 @@ public class InMemoryBookRepository : IBookRepository
 
 	public IReadOnlyList<Book> Search(string searchTerm, Func<Book, string?> selector)
 	{
+		if (string.IsNullOrWhiteSpace(searchTerm)) return [];
+
 		return
 		[
-			.. _books.Where(book =>
-			{
-				var value = selector(book);
-				return value is not null && value.Contains(searchTerm, StringComparison.OrdinalIgnoreCase);
-			})
+			.. _books
+				.Where(b => !b.IsRemoved)
+				.Where(b =>
+				{
+					var value = selector(b);
+					return value is not null && value.Contains(searchTerm, StringComparison.OrdinalIgnoreCase);
+				})
 		];
 	}
 
@@ -111,25 +110,28 @@ public class InMemoryBookRepository : IBookRepository
 	{
 		return
 		[
-			.. _books.Where(book =>
-			{
-				var value = selector(book);
-				return value >= from && value <= to;
-			})
+			.. _books
+				.Where(b => !b.IsRemoved)
+				.Where(b =>
+				{
+					var value = selector(b);
+					return value >= from && value <= to;
+				})
 		];
 	}
 
 
-	public void Update(Book book, UpdateBookDto dto)
+	public void Update(Book book, Guid? updatedBy = null)
 	{
-		book.Title = dto.BookName ?? book.Title;
-		book.InternationalStandardBookNumber = dto.ISBN ?? book.InternationalStandardBookNumber;
-		book.PublishDate = dto.PublishDate ?? book.PublishDate;
-		book.Genre = dto.Genre ?? book.Genre;
-		book.Publisher = dto.Publisher ?? book.Publisher;
-		book.TotalCopies = dto.TotalCopies ?? book.TotalCopies;
-		book.Description = dto.Description ?? book.Description;
+		ArgumentNullException.ThrowIfNull(book);
+
+		var index = _books.FindIndex(b => b.Id == book.Id);
+		if (index < 0)
+			throw new AuthorNotFoundException(book.Id);
+
+		_books[index] = book;
 		book.UpdatedAt = DateTime.UtcNow;
+		book.UpdatedByUserId = updatedBy;
 	}
 
 
@@ -247,5 +249,18 @@ public class InMemoryBookRepository : IBookRepository
 			throw new InvalidOperationException("Cannot return a copy because all copies are already in the library.");
 
 		book.AvailableCopies++;
+	}
+
+
+	// ---------- Private helper ----------
+	private static IEnumerable<Book> ApplyFilter(IEnumerable<Book> source, EntityFilter filter)
+	{
+		return filter switch
+		{
+			EntityFilter.Active => source.Where(b => !b.IsRemoved),
+			EntityFilter.Removed => source.Where(b => b.IsRemoved),
+			EntityFilter.All => source,
+			_ => throw new ArgumentOutOfRangeException(nameof(filter), filter, null)
+		};
 	}
 }
