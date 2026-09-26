@@ -22,4 +22,6 @@ public static class ValidationConstants
 	public const int DescriptionWrapWidthInTable = 28;
 	public const int BookNameWrapWidthInTable = 30;
 	public const int MinPasswordLength = 8;
+	public const int LoanPeriodDays = 14;
+	public const int MaxRenewals = 1;
 }
