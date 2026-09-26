@@ -1,13 +1,14 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.DTOs.Authors;
 using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
 public static class AuthorPrinter
 {
-	public static void PrintDetails(AuthorDto author)
+	public static void PrintDetails(ContributorDto author)
 	{
 		Console.Clear();
 		var rows = new List<(string Label, string[] ValueLines)>
@@ -27,7 +28,7 @@ public static class AuthorPrinter
 	}
 
 
-	public static void PrintTable(IReadOnlyList<AuthorDto> authors, string title= "Author List")
+	public static void PrintTable(IReadOnlyList<ContributorDto> authors, string title= "Author List")
 	{
 		if (authors.Count == 0)
 		{
@@ -51,7 +52,7 @@ public static class AuthorPrinter
 	}
 
 
-	public static void PrintFullTable(IReadOnlyList<AuthorDto> authors, string title= "Author Full Information")
+	public static void PrintFullTable(IReadOnlyList<ContributorDto> authors, string title= "Author Full Information")
 	{
 		if (authors.Count == 0)
 		{

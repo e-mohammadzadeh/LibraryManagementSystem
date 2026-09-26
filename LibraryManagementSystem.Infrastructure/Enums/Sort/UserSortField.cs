@@ -9,7 +9,7 @@ public enum UserSortField
 	NationalCode,
 	Email,
 	BirthDate,
-	Roles,
+	Role,
 	MembershipStartDate,
 	MembershipExpiryDate,
 	IsActive,

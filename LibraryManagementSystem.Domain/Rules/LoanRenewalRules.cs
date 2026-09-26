@@ -22,7 +22,6 @@ public class LoanRenewalRules
 
 		if (loan.RenewalCount >= loan.MaxRenewals)
 		{
-			ValidationConstants.MinRenewMembershipYear
 			errorMessage = "This loan has already reached the maximum number of renewals.";
 			return false;
 		}

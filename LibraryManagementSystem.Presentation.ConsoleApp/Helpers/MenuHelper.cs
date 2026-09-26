@@ -17,7 +17,7 @@ public static class MenuHelper
 		{
 			Console.ForegroundColor = ConsoleColor.Cyan;
 			Console.WriteLine(
-				$"Logged in as: {currentUser.FullName} ({currentUser.Email} - {string.Join(", ", currentUser.Roles)})");
+				$"Logged in as: {currentUser.FullName} ({currentUser.Email} - {string.Join(", ", currentUser.Role)})");
 			Console.ResetColor();
 			Console.WriteLine();
 		}
@@ -40,7 +40,7 @@ public static class MenuHelper
 	{
 		if (currentUser is null) return;
 		Console.ForegroundColor = ConsoleColor.Cyan;
-		Console.WriteLine($"Logged in as: {currentUser.FullName} ({string.Join(", ", currentUser.Roles)})");
+		Console.WriteLine($"Logged in as: {currentUser.FullName} ({string.Join(", ", currentUser.Role)})");
 		Console.ResetColor();
 		Console.WriteLine();
 	}

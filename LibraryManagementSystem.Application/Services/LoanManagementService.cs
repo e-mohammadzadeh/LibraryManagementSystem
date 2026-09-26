@@ -82,7 +82,7 @@ public class LoanManagementService
 			Description = book.Description
 
 		};
-		book.BorrowCopy();
+		_bookRepository.BorrowCopy(book);
 		_loanRepository.Add(loan);
 		_bookRepository.Update(book, updateBookDto);
 		_loanHistoryManagementService.Record(loan, LoanHistoryAction.Borrowed);
@@ -101,7 +101,7 @@ public class LoanManagementService
 			return ServiceResult<LoanDto>.Fail(Messages.ReturnOwnLoans);
 
 		loan.MarkAsReturned();
-		loan.Book.ReturnCopy();
+		_bookRepository.ReturnCopy(loan.Book);
 		_loanRepository.Update(loan);
 		_bookRepository.Update(loan.Book);
 		_loanHistoryManagementService.Record(loan, LoanHistoryAction.Returned);

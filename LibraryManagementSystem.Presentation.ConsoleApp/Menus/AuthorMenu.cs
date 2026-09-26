@@ -3,6 +3,7 @@ using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
@@ -141,14 +142,14 @@ public static class AuthorMenu
 	}
 
 
-	public static CreateAuthorDto? PromptForAuthorDto()
+	public static CreateContributorDto? PromptForAuthorDto()
 	{
 		var fields = PersonHelper.PromptForPersonFields("author");
 		if (fields is null) return null;
 
 		var biography = ConsoleHelper.ReadString("You can add a biography (Optional)", true);
 
-		return new CreateAuthorDto
+		return new CreateContributorDto
 		{
 			FirstName = fields.FirstName, LastName = fields.LastName, NationalCode = fields.NationalCode,
 			Email = fields.Email, PhoneNumber = fields.PhoneNumber, BirthDate = fields.BirthDate, Biography = biography
@@ -213,7 +214,7 @@ public static class AuthorMenu
 					var authorNewFirstName = ConsoleHelper.GetValidName("\nEnter new first name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewFirstName,
-						v => new UpdateAuthorDto { FirstName = v });
+						v => new UpdateContributorDto { FirstName = v });
 					if (updated is not null) desiredAuthor = updated;
 					break;
 				}
@@ -223,7 +224,7 @@ public static class AuthorMenu
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewLastName,
-						v => new UpdateAuthorDto { LastName = v });
+						v => new UpdateContributorDto { LastName = v });
 					if (updated is not null) desiredAuthor = updated;
 					break;
 				}
@@ -231,7 +232,7 @@ public static class AuthorMenu
 				{
 					var authorNewNationalCode = ConsoleHelper.GetValidNationalCode("\nEnter new national code");
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewNationalCode,
-						v => new UpdateAuthorDto { NationalCode = v });
+						v => new UpdateContributorDto { NationalCode = v });
 					if (updated is not null) desiredAuthor = updated;
 					break;
 				}
@@ -239,7 +240,7 @@ public static class AuthorMenu
 				{
 					var authorNewEmail = ConsoleHelper.GetValidEmail("\nEnter new email");
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewEmail,
-						v => new UpdateAuthorDto { Email = v });
+						v => new UpdateContributorDto { Email = v });
 					if (updated is not null) desiredAuthor = updated;
 					break;
 				}
@@ -248,7 +249,7 @@ public static class AuthorMenu
 					Console.Clear();
 					var authorNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number");
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewPhoneNumber,
-						v => new UpdateAuthorDto { PhoneNumber = v });
+						v => new UpdateContributorDto { PhoneNumber = v });
 					if (updated is not null) desiredAuthor = updated;
 					break;
 				}
@@ -256,7 +257,7 @@ public static class AuthorMenu
 				{
 					var authorNewBirthDate = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewBirthDate,
-						v => new UpdateAuthorDto { BirthDate = v });
+						v => new UpdateContributorDto { BirthDate = v });
 					if (updated is not null) desiredAuthor = updated;
 					break;
 				}
@@ -264,7 +265,7 @@ public static class AuthorMenu
 				{
 					var authorNewBiography = ConsoleHelper.ReadString("\nEnter new biography");
 					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewBiography,
-						v => new UpdateAuthorDto { Biography = v });
+						v => new UpdateContributorDto { Biography = v });
 					if (updated is not null) desiredAuthor = updated;
 					break;
 				}
@@ -295,8 +296,8 @@ public static class AuthorMenu
 	}
 
 
-	private static AuthorDto? PerformUpdate<T>(AuthorManagementService authorManagementService, Guid desiredAuthorId,
-		T? newValue, Func<T, UpdateAuthorDto> buildDto)
+	private static ContributorDto? PerformUpdate<T>(AuthorManagementService authorManagementService, Guid desiredAuthorId,
+		T? newValue, Func<T, UpdateContributorDto> buildDto)
 	{
 		if (newValue is null) return null;
 
@@ -316,7 +317,7 @@ public static class AuthorMenu
 			return;
 		}
 
-		Action<IReadOnlyList<AuthorDto>> printer = authorization.HasAnyPermission(Permission.FullSearchAuthor)
+		Action<IReadOnlyList<ContributorDto>> printer = authorization.HasAnyPermission(Permission.FullSearchAuthor)
 			? author => AuthorPrinter.PrintFullTable(author, "Search Result")
 			: author => AuthorPrinter.PrintTable(author, "Search Result");
 

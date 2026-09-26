@@ -101,7 +101,7 @@ public class UserManagementService
 			UserSortField.NationalCode => u => u.NationalCode,
 			UserSortField.Email => u => u.Email,
 			UserSortField.BirthDate => u => u.BirthDate,
-			UserSortField.Roles => u => u.Roles,
+			UserSortField.Role => u => u.Role,
 			UserSortField.MembershipStartDate => u => u.MembershipStartDate,
 			UserSortField.MembershipExpiryDate => u => u.MembershipExpiryDate,
 			UserSortField.IsActive => u => u.IsActive,
