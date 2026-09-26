@@ -15,6 +15,10 @@ public class InMemoryBookRepository : IBookRepository
 
 	public void Add(Book book)
 	{
+		book.id 
+
+
+
 		ArgumentNullException.ThrowIfNull(book);
 		_books.Add(book);
 		book.UpdatedAt = DateTime.UtcNow;
@@ -231,5 +235,21 @@ public class InMemoryBookRepository : IBookRepository
 
 		foreach (var translatorId in book.BookTranslators.Select(bt => bt.TranslatorId).ToList())
 			RemoveTranslator(book, translatorId);
+	}
+
+	
+	public void BorrowCopy() {
+		if (AvailableCopies <= 0)
+			throw new InvalidOperationException("No copies are available.");
+		AvailableCopies--;
+		//TODO	(Web API)	Raise an event: a signal to the rest of the system that says "this book is now out of stock"
+	}
+
+
+	public void ReturnCopy() {
+		if (AvailableCopies >= TotalCopies)
+			throw new InvalidOperationException("Cannot return a copy because all copies are already in the library.");
+
+		AvailableCopies++;
 	}
 }

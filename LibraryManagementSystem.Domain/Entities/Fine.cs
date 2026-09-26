@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Infrastructure.Enums;
 
 namespace LibraryManagementSystem.Domain.Entities;
 
@@ -36,44 +37,4 @@ public class Fine
 	public DateTime CreatedAt { get; private set; }
 	public DateTime? UpdatedAt { get; private set; }
 	public DateOnly? PaidAt { get; private set; }
-
-
-	private static decimal FineCalculator(int overdueDays)
-	{
-		const decimal maxUnpaidFineThreshold = 150m; // 47 days hits cap
-		const decimal initialDailyRate = 0.50m;
-		const int fixedRateDays = 5;
-		const decimal geometricRatio = 1.08m;
-
-		if (overdueDays <= 0) return 0m;
-
-		var flatTotal = Math.Min(overdueDays, fixedRateDays) * initialDailyRate;
-
-		if (overdueDays <= fixedRateDays) return Math.Min(flatTotal, maxUnpaidFineThreshold);
-
-		var geometricDays = overdueDays - fixedRateDays;
-		var geometricTotal = initialDailyRate * ((decimal)Math.Pow((double)geometricRatio, geometricDays) - 1m) /
-		                     (geometricRatio - 1m);
-
-		var total = flatTotal + geometricTotal;
-		return Math.Min(total, maxUnpaidFineThreshold);
-	}
-
-
-	public void Pay()
-	{
-		if (Status == FineStatus.Paid) throw new InvalidOperationException("Fine is already paid.");
-		if (Status == FineStatus.Waived) throw new InvalidOperationException("Fine has been waived.");
-		Status = FineStatus.Paid;
-		PaidAt = DateOnly.FromDateTime(DateTime.Today);
-		UpdatedAt = DateTime.Now;
-	}
-
-
-	public void Waive()
-	{
-		if (Status == FineStatus.Paid) throw new InvalidOperationException("Cannot waive an already paid fine.");
-		Status = FineStatus.Waived;
-		UpdatedAt = DateTime.Now;
-	}
 }

@@ -1,5 +1,5 @@
 ﻿
-namespace LibraryManagementSystem.Domain.Enums;
+namespace LibraryManagementSystem.Infrastructure.Enums;
 
 public static class LoanHistoryActionExtensions
 {

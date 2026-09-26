@@ -166,4 +166,30 @@ public class FineManagementService : IFineManagementService
 
 		return [.. _fineRepository.GetHistoryByUserId(userId).Select(fine => fine.ToDto())];
 	}
+
+
+
+
+
+	private static decimal FineCalculator(int overdueDays) {
+		const decimal maxUnpaidFineThreshold = 150m; // 47 days hits cap
+		const decimal initialDailyRate = 0.50m;
+		const int fixedRateDays = 5;
+		const decimal geometricRatio = 1.08m;
+
+		if (overdueDays <= 0)
+			return 0m;
+
+		var flatTotal = Math.Min(overdueDays, fixedRateDays) * initialDailyRate;
+
+		if (overdueDays <= fixedRateDays)
+			return Math.Min(flatTotal, maxUnpaidFineThreshold);
+
+		var geometricDays = overdueDays - fixedRateDays;
+		var geometricTotal = initialDailyRate * ((decimal)Math.Pow((double)geometricRatio, geometricDays) - 1m) /
+		                     (geometricRatio - 1m);
+
+		var total = flatTotal + geometricTotal;
+		return Math.Min(total, maxUnpaidFineThreshold);
+	}
 }

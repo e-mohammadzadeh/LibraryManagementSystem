@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Infrastructure.Enums;
 
 namespace LibraryManagementSystem.Domain.Entities;
 
@@ -48,29 +49,7 @@ public class Loan
 	}
 
 
-	public bool CanRenew(out string errorMessage)
-	{
-		if (ReturnDate.HasValue)
-		{
-			errorMessage = "Returned books cannot be renewed.";
-			return false;
-		}
 
-		if (IsOverdue)
-		{
-			errorMessage = "Overdue loans cannot be renewed. Please return the book and pay any applicable fine.";
-			return false;
-		}
-
-		if (RenewalCount >= MaxRenewals)
-		{
-			errorMessage = "This loan has already reached the maximum number of renewals.";
-			return false;
-		}
-		
-		errorMessage = string.Empty;
-		return true;
-	}
 
 
 	public void Renew()

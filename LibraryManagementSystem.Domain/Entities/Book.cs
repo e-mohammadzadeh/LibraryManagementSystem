@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Infrastructure.Enums;
 
 namespace LibraryManagementSystem.Domain.Entities;
 
@@ -10,8 +11,6 @@ public class Book
 		Id = Guid.CreateVersion7();
 		InternationalStandardBookNumber = internationalStandardBookNumber;
 		Title = title;
-
-
 		PublishDate = publishDate;
 		var copies = ValidateTotalCopies(totalCopies);
 		AvailableCopies = copies;
@@ -28,8 +27,8 @@ public class Book
 	public Guid Id { get; private set; }
 	public string Title { get; set; }
 	public string InternationalStandardBookNumber { get; set; }
-	private readonly List<BookAuthor> _bookAuthors = [];
-	private readonly List<BookTranslator> _bookTranslators = [];
+	public List<BookAuthor> BookAuthors { get; set; }
+	public List<BookTranslator> BookTranslators { get; set; }
 	public DateOnly PublishDate { get; set; }
 	public Genre Genre { get; set; }
 	public string Publisher { get; set; }
@@ -41,30 +40,8 @@ public class Book
 	public bool IsRemoved { get; set; }
 
 
-	public IReadOnlyList<BookAuthor> BookAuthors => _bookAuthors.AsReadOnly();
-
-	public IReadOnlyList<BookTranslator> BookTranslators => _bookTranslators.AsReadOnly();
-
-
 	private static int ValidateTotalCopies(int totalCopies)
 	{
 		return totalCopies > 0 ? totalCopies : throw new ArgumentException("Invalid total copy value.Please try again");
-	}
-
-
-	public void BorrowCopy()
-	{
-		if (AvailableCopies <= 0) throw new InvalidOperationException("No copies are available.");
-		AvailableCopies--;
-		//TODO	(Web API)	Raise an event: a signal to the rest of the system that says "this book is now out of stock"
-	}
-
-
-	public void ReturnCopy()
-	{
-		if (AvailableCopies >= TotalCopies)
-			throw new InvalidOperationException("Cannot return a copy because all copies are already in the library.");
-
-		AvailableCopies++;
 	}
 }

@@ -6,9 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\LibraryManagementSystem.Application\LibraryManagementSystem.Application.csproj" />
-    <ProjectReference Include="..\LibraryManagementSystem.Presentation.ConsoleApp\LibraryManagementSystem.Presentation.ConsoleApp.csproj" />
-  </ItemGroup>
-
 </Project>

@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
+using System.Net.NetworkInformation;
 
 namespace LibraryManagementSystem.Infrastructure.Repositories.InMemory;
 
@@ -59,5 +60,24 @@ public class InMemoryFineRepository : IFineRepository
 	{
 		// In-memory implementation:
 		// Fine is already tracked by reference.
+	}
+
+
+	public void Pay() {
+		if (Status == FineStatus.Paid)
+			throw new InvalidOperationException("Fine is already paid.");
+		if (Status == FineStatus.Waived)
+			throw new InvalidOperationException("Fine has been waived.");
+		Status = FineStatus.Paid;
+		PaidAt = DateOnly.FromDateTime(DateTime.Today);
+		UpdatedAt = DateTime.Now;
+	}
+
+
+	public void Waive() {
+		if (Status == FineStatus.Paid)
+			throw new InvalidOperationException("Cannot waive an already paid fine.");
+		Status = FineStatus.Waived;
+		UpdatedAt = DateTime.Now;
 	}
 }
