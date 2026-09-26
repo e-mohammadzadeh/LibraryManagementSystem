@@ -5,6 +5,7 @@ using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 using System.Text;
+using LibraryManagementSystem.Application.Repositories.InMemory;
 using LibraryManagementSystem.Application.Security;
 using LibraryManagementSystem.Application.Seeders;
 

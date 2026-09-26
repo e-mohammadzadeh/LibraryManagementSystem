@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Infrastructure.DTOs.Books;
+﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Infrastructure.DTOs.Books;
 
 namespace LibraryManagementSystem.Application.Common;
 

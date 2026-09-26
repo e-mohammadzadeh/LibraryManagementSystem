@@ -1,5 +1,7 @@
 ﻿using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums.Filters;
+using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.DTOs.Books;
 
 namespace LibraryManagementSystem.Application.Repositories.InMemory;
@@ -13,10 +15,6 @@ public class InMemoryBookRepository : IBookRepository
 
 	public void Add(Book book)
 	{
-		book.id 
-
-
-
 		ArgumentNullException.ThrowIfNull(book);
 		_books.Add(book);
 		book.UpdatedAt = DateTime.UtcNow;

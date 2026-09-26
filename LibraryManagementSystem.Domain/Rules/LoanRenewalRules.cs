@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Infrastructure.Common;
 
 namespace LibraryManagementSystem.Domain.Rules;
 

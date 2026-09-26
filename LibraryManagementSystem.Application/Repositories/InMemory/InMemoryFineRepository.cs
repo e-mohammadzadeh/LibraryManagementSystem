@@ -1,4 +1,8 @@
-﻿namespace LibraryManagementSystem.Application.Repositories.InMemory;
+﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Infrastructure.Enums;
+
+namespace LibraryManagementSystem.Application.Repositories.InMemory;
 
 public class InMemoryFineRepository : IFineRepository
 {

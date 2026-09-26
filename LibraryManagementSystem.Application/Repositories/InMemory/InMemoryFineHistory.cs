@@ -1,4 +1,7 @@
-﻿namespace LibraryManagementSystem.Application.Repositories.InMemory;
+﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Interfaces;
+
+namespace LibraryManagementSystem.Application.Repositories.InMemory;
 
 public class InMemoryFineHistory : IFineHistoryRepository
 {

@@ -19,7 +19,7 @@ public class CurrentUserSession : ICurrentUserSession
 	}
 
 
-	private bool HasRole(LibraryUserRole role) { return CurrentUser?.Roles.Contains(role) ?? false; }
+	private bool HasRole(LibraryUserRole role) { return CurrentUser?.Role.Equals(role) ?? false; }
 
 	public bool IsAdmin => HasRole(LibraryUserRole.Admin);
 	public bool IsLibrarian => HasRole(LibraryUserRole.Librarian);
