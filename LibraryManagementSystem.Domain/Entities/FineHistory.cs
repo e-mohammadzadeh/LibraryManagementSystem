@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Domain.ValueObjects;
 using LibraryManagementSystem.Infrastructure.Enums;
 
 namespace LibraryManagementSystem.Domain.Entities;
@@ -13,7 +14,7 @@ public class FineHistory
 	public User User { get; set; } = null!;
 	public Guid UserId { get; set; }
 	public int OverdueDays { get; set; }
-	public decimal Amount { get; set; }
+	public Money Money{ get; set; } = null!;
 	public FineStatus Status { get; set; }
 	public FineHistoryAction Action { get; set; }
 	public DateTime OccurredAt { get; set; }

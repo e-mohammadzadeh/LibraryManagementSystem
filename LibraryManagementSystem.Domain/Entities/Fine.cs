@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Infrastructure.Enums;
+﻿using LibraryManagementSystem.Domain.ValueObjects;
+using LibraryManagementSystem.Infrastructure.Enums;
 
 namespace LibraryManagementSystem.Domain.Entities;
 
@@ -9,7 +10,7 @@ public class Fine
 	public Loan Loan { get; set; } = null!;
 	public Guid UserId { get; set; }
 	public int OverdueDays { get; set; }
-	public decimal Amount { get; set; }
+	public Money Money{ get; set; } = null!;
 	public FineStatus Status { get; set; }
 	public string Reason { get; set; } = string.Empty;
 	public decimal DailyRate { get;  set; }

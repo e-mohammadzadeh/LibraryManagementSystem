@@ -1,4 +1,6 @@
-﻿namespace LibraryManagementSystem.Domain.Entities;
+﻿using LibraryManagementSystem.Infrastructure.Enums;
+
+namespace LibraryManagementSystem.Domain.Entities;
 
 public class BookTranslator
 {
@@ -6,5 +8,5 @@ public class BookTranslator
 	public Book Book { get; set; } = null!;
 	public Guid TranslatorId { get; set; }
 	public Translator Translator { get; set; } = null!;
-	public string Language { get; set; } = string.Empty;
+	public Language Language { get; set; }
 }
