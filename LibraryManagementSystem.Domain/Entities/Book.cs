@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Domain.ValueObjects;
+using LibraryManagementSystem.Infrastructure.Enums;
 
 namespace LibraryManagementSystem.Domain.Entities;
 
@@ -12,6 +13,7 @@ public class Book
 	public DateOnly PublishDate { get; set; }
 	public BookGenre Genre { get; set; } = null!;
 	public string Publisher { get; set; } = string.Empty;
+	public Language OriginalLanguage { get; set; }
 	public int TotalCopies { get; set; }
 	public int AvailableCopies { get; set; }
 	public string? Description { get; set; }

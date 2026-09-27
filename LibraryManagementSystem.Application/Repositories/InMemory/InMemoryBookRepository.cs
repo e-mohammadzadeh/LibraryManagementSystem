@@ -132,30 +132,13 @@ public class InMemoryBookRepository : IBookRepository
 		tracked.PublishDate = book.PublishDate;
 		tracked.Genre = book.Genre;
 		tracked.Publisher = book.Publisher;
+		tracked.OriginalLanguage = book.OriginalLanguage;
 		tracked.TotalCopies = book.TotalCopies;
 		tracked.AvailableCopies = book.AvailableCopies;
 		tracked.Description = book.Description;
 		tracked.UpdatedAt = DateTime.UtcNow;
 		tracked.UpdatedByUserId = updatedBy;
 	}
-
-
-	//private void AddAuthor(Book book, Author author)
-	//{
-	//	if (_bookAuthors.Any(ba => ba.AuthorId == author.Id)) return;
-
-	//	_bookAuthors.Add(new BookAuthor(book, author));
-	//	book.UpdatedAt = DateTime.UtcNow;
-	//}
-
-
-	//private void AddTranslator(Book book, Translator translator)
-	//{
-	//	if (_bookTranslators.Any(bt => bt.TranslatorId == translator.Id)) return;
-
-	//	_bookTranslators.Add();
-	//	book.UpdatedAt = DateTime.UtcNow;
-	//}
 
 
 	public void AssignAuthorsToBook(Book book, IEnumerable<Author> authors)
@@ -227,7 +210,7 @@ public class InMemoryBookRepository : IBookRepository
 		var existingIds = book.Translators.Select(bt => bt.TranslatorId).ToHashSet();
 
 		foreach (var translatorId in existingIds.Except(incomingIds)) RemoveTranslator(book, translatorId);
-		foreach (var translator in translatorList) Translator();
+		foreach (var translator in translatorList) AddTranslator(book, translator);
 	}
 
 
@@ -251,10 +234,43 @@ public class InMemoryBookRepository : IBookRepository
 	public void ReturnCopy(Book book)
 	{
 		if (book.AvailableCopies >= book.TotalCopies)
-			throw new InvalidOperationException("Cannot return a copy because all copies are already in the library.");
+			throw new InvalidOperationException(
+				"Cannot return a copy because all copies are already in the library.");
 
 		book.AvailableCopies++;
 	}
+
+
+	private static void AddAuthor(Book book, Author author)
+	{
+		if (book.Authors.Any(ba => ba.AuthorId == author.Id)) return;
+
+		book.Authors.Add(new BookAuthor
+		{
+			BookId = book.Id,
+			Book = book,
+			AuthorId = author.Id,
+			Author = author
+		});
+		book.UpdatedAt = DateTime.UtcNow;
+	}
+
+
+	private static void AddTranslator(Book book, Translator translator)
+	{
+		if (book.Translators.Any(bt => bt.TranslatorId == translator.Id)) return;
+
+		book.Translators.Add(new BookTranslator
+		{
+			Book = book,
+			BookId = book.Id,
+			TranslatorId = translator.Id,
+			Translator = translator
+			//TranslationLanguage = 
+		});
+		book.UpdatedAt = DateTime.UtcNow;
+	}
+
 
 
 	// ---------- Private helper ----------

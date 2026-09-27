@@ -21,8 +21,11 @@ public interface IBookRepository
 	void Update(Book book, Guid? updatedBy);
 	void AssignAuthorsToBook(Book book, IEnumerable<Author> authors);
 	void AssignTranslatorsToBook(Book book, IEnumerable<Translator> translators);
+	void RemoveAuthor(Book book, Guid authorId);
+	void RemoveTranslator(Book book, Guid translatorId);
 	void ReplaceAuthors(Book book, IEnumerable<Author> authors);
 	void ReplaceTranslators(Book book, IEnumerable<Translator> translators);
+	void DetachFromTranslators(Book book);
 	void BorrowCopy(Book book);
 	void ReturnCopy(Book book);
 }
