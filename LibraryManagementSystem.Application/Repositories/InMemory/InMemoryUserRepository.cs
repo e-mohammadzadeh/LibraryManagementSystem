@@ -1,6 +1,8 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums.Filters;
+using LibraryManagementSystem.Domain.Exceptions;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Domain.ValueObjects;
 using LibraryManagementSystem.Infrastructure.DTOs.Users;
 
 namespace LibraryManagementSystem.Application.Repositories.InMemory;
@@ -18,48 +20,34 @@ public class InMemoryUserRepository : IUserRepository
 		user.CreatedAt = DateTime.UtcNow;
 		user.IsActive = true;
 		user.IsRemoved = false;
-
 		_users.Add(user);
 	}
 
 
-	public User? FindById(Guid id) { return _users.FirstOrDefault(u => u.Id == id); }
-
-
-	public User? FindByName(string firstName, string lastName)
+	public User? FindById(Guid id, EntityFilter filter = EntityFilter.Active)
 	{
-		return _users.FirstOrDefault(u =>
+		return ApplyFilter(_users, filter).FirstOrDefault(u => u.Id == id);
+	}
+
+
+	public User? FindByName(string firstName, string lastName, EntityFilter filter = EntityFilter.Active)
+	{
+		return ApplyFilter(_users, filter).FirstOrDefault(u =>
 			u.FirstName.Equals(firstName, StringComparison.OrdinalIgnoreCase) &&
 			u.LastName.Equals(lastName, StringComparison.OrdinalIgnoreCase));
 	}
 
 
-	public User? FindByEmail(string email)
+	public User? FindByEmail(Email email, EntityFilter filter = EntityFilter.Active)
 	{
-		return _users.FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+		return ApplyFilter(_users, filter)
+			.FirstOrDefault(u => u.Email.Equals(email));
 	}
 
 
 	public IReadOnlyList<User> GetAll(EntityFilter filter = EntityFilter.Active)
 	{
-		var query = _users.AsEnumerable();
-
-		switch (filter)
-		{
-			case EntityFilter.Active:
-				query = query.Where(u => !u.IsRemoved);
-				break;
-			case EntityFilter.Removed:
-				query = query.Where(u => u.IsRemoved);
-				break;
-			case EntityFilter.All:
-				// No filter – include everyone
-				break;
-			default:
-				throw new ArgumentOutOfRangeException(nameof(filter), filter, null);
-		}
-
-		return [.. query];
+		return [.. ApplyFilter(_users, filter)];
 	}
 
 
@@ -69,32 +57,40 @@ public class InMemoryUserRepository : IUserRepository
 	}
 
 
-	public bool ExistsByEmail(string email, Guid? excludeId = null)
+	public bool ExistsByEmail(Email email, Guid? excludeId = null)
 	{
-		return _users.Any(u => u.Id != excludeId && u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+		return _users.Any(u => u.Id != excludeId && u.Email.Equals(email));
 	}
 
 
-	public bool ExistsByPhoneNumber(string phoneNumber, Guid? excludeId = null)
+	public bool ExistsByPhoneNumber(PhoneNumber phoneNumber, Guid? excludeId = null)
 	{
 		return _users.Any(u => u.Id != excludeId && u.PhoneNumber.Equals(phoneNumber));
 	}
 
 
-	public void Update(User user, UpdateUserDto dto)
+	public void Update(User user, Guid? updatedBy = null)
 	{
-		user.FirstName = dto.FirstName ?? user.FirstName;
-		user.LastName = dto.LastName ?? user.LastName;
-		user.NationalCode = dto.NationalCode ?? user.NationalCode;
-		user.Email = dto.Email ?? user.Email;
-		user.PhoneNumber = dto.PhoneNumber ?? user.PhoneNumber;
-		user.BirthDate = dto.BirthDate ?? user.BirthDate;
-		user.UpdatedAt = DateTime.UtcNow;
+		ArgumentNullException.ThrowIfNull(user);
+
+		var tracked = _users.FirstOrDefault(u => u.Id == user.Id) ?? throw new UserNotFoundException(user.Id);
+
+
+		tracked.FirstName = user.FirstName;
+		tracked.LastName = user.LastName;
+		tracked.NationalCode = user.NationalCode;
+		tracked.Email = user.Email;
+		tracked.PhoneNumber = user.PhoneNumber;
+		tracked.BirthDate = user.BirthDate;
+		tracked.Role = user.Role;
+		tracked.RoleId = user.RoleId;
+		tracked.UpdatedAt = DateTime.UtcNow;
 	}
 
 
 	public void Remove(User user)
 	{
+		ArgumentNullException.ThrowIfNull(user);
 		if (user.IsRemoved) return;
 		user.IsRemoved = true;
 		user.IsActive = false;
@@ -108,16 +104,21 @@ public class InMemoryUserRepository : IUserRepository
 
 		return
 		[
-			.. _users.Where(u =>
-			{
-				var value = selector(u);
-				return value is not null && value.Contains(searchTerm, StringComparison.OrdinalIgnoreCase);
-			})
+			.. _users
+				.Where(u => !u.IsRemoved)
+				.Where(u =>
+				{
+					var value = selector(u);
+					return value is not null && value.Contains(searchTerm, StringComparison.OrdinalIgnoreCase);
+				})
 		];
 	}
 
 
-	public IReadOnlyList<User> SearchByRole(Guid roleIds) { return _users.Where(u => u.RoleId == roleIds).ToList(); }
+	public IReadOnlyList<User> SearchByRole(Guid roleIds)
+	{
+		return [.. _users.Where(u => !u.IsRemoved).Where(u => u.RoleId == roleIds)];
+	}
 
 
 	public void ReplaceRole(User user, Role newRole)
@@ -166,4 +167,18 @@ public class InMemoryUserRepository : IUserRepository
 
 
 	public void UpdateLastLoginInLogout(User user) { user.LastLoginDate = user.PreviousLoginDate; }
+
+
+
+	// ---------- Private helper ---------
+	private static IEnumerable<User> ApplyFilter(IEnumerable<User> source, EntityFilter filter)
+	{
+		return filter switch
+		{
+			EntityFilter.Active => source.Where(b => !b.IsRemoved),
+			EntityFilter.Removed => source.Where(b => b.IsRemoved),
+			EntityFilter.All => source,
+			_ => throw new ArgumentOutOfRangeException(nameof(filter), filter, null)
+		};
+	}
 }

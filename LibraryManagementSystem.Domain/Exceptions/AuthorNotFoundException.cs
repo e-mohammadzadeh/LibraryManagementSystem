@@ -2,5 +2,5 @@
 
 public class AuthorNotFoundException : DomainException
 {
-	public AuthorNotFoundException(Guid authorId) : base($"Author with Id '{authorId}' was not found.") { }
+	public AuthorNotFoundException(Guid authorId) : base($"Author with id '{authorId}' was not found.") { }
 }
