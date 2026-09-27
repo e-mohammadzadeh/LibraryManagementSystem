@@ -4,13 +4,13 @@ using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Exceptions;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Domain.ValueObjects;
+using LibraryManagementSystem.Infrastructure.Enums;
 
 namespace LibraryManagementSystem.Application.Repositories.InMemory;
 
 public class InMemoryBookRepository : IBookRepository
 {
 	private readonly List<Book> _books = [];
-
 
 
 	public void Add(Book book)
@@ -151,12 +151,12 @@ public class InMemoryBookRepository : IBookRepository
 	}
 
 
-	public void AssignTranslatorsToBook(Book book, IEnumerable<Translator>? translators)
+	public void AssignTranslatorsToBook(Book book, IEnumerable<Translator>? translators, Language language)
 	{
 		ArgumentNullException.ThrowIfNull(book);
 
 		if (translators is null) return;
-		foreach (var translator in translators.DistinctBy(t => t.Id)) AddTranslator(book, translator);
+		foreach (var translator in translators.DistinctBy(t => t.Id)) AddTranslator(book, translator, language);
 	}
 
 
@@ -200,7 +200,7 @@ public class InMemoryBookRepository : IBookRepository
 	}
 
 
-	public void ReplaceTranslators(Book book, IEnumerable<Translator> translators)
+	public void ReplaceTranslators(Book book, IEnumerable<Translator> translators, Language language)
 	{
 		ArgumentNullException.ThrowIfNull(book);
 		ArgumentNullException.ThrowIfNull(translators);
@@ -210,7 +210,7 @@ public class InMemoryBookRepository : IBookRepository
 		var existingIds = book.Translators.Select(bt => bt.TranslatorId).ToHashSet();
 
 		foreach (var translatorId in existingIds.Except(incomingIds)) RemoveTranslator(book, translatorId);
-		foreach (var translator in translatorList) AddTranslator(book, translator);
+		foreach (var translator in translatorList) AddTranslator(book, translator, language);
 	}
 
 
@@ -241,6 +241,7 @@ public class InMemoryBookRepository : IBookRepository
 	}
 
 
+	// ---------- Private helper ---------
 	private static void AddAuthor(Book book, Author author)
 	{
 		if (book.Authors.Any(ba => ba.AuthorId == author.Id)) return;
@@ -256,7 +257,7 @@ public class InMemoryBookRepository : IBookRepository
 	}
 
 
-	private static void AddTranslator(Book book, Translator translator)
+	private static void AddTranslator(Book book, Translator translator, Language language)
 	{
 		if (book.Translators.Any(bt => bt.TranslatorId == translator.Id)) return;
 
@@ -265,15 +266,14 @@ public class InMemoryBookRepository : IBookRepository
 			Book = book,
 			BookId = book.Id,
 			TranslatorId = translator.Id,
-			Translator = translator
-			//TranslationLanguage = 
+			Translator = translator,
+			TranslationLanguage = language
 		});
 		book.UpdatedAt = DateTime.UtcNow;
 	}
 
 
 
-	// ---------- Private helper ----------
 	private static IEnumerable<Book> ApplyFilter(IEnumerable<Book> source, EntityFilter filter)
 	{
 		return filter switch

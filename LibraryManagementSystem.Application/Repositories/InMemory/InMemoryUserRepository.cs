@@ -13,6 +13,12 @@ public class InMemoryUserRepository : IUserRepository
 	public void Add(User user)
 	{
 		ArgumentNullException.ThrowIfNull(user);
+
+		user.Id = Guid.CreateVersion7();
+		user.CreatedAt = DateTime.UtcNow;
+		user.IsActive = true;
+		user.IsRemoved = false;
+
 		_users.Add(user);
 	}
 
