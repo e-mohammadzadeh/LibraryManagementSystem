@@ -4,15 +4,13 @@ using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Exceptions;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Domain.ValueObjects;
-using LibraryManagementSystem.Infrastructure.DTOs.Books;
 
 namespace LibraryManagementSystem.Application.Repositories.InMemory;
 
 public class InMemoryBookRepository : IBookRepository
 {
 	private readonly List<Book> _books = [];
-	private readonly List<BookAuthor> _bookAuthors = [];
-	private readonly List<BookTranslator> _bookTranslators = [];
+
 
 
 	public void Add(Book book)
@@ -125,32 +123,39 @@ public class InMemoryBookRepository : IBookRepository
 	{
 		ArgumentNullException.ThrowIfNull(book);
 
-		var index = _books.FindIndex(b => b.Id == book.Id);
-		if (index < 0)
-			throw new AuthorNotFoundException(book.Id);
+		var tracked = _books.FirstOrDefault(b => b.Id == book.Id) ?? throw new BookNotFoundException(book.Id);
 
-		_books[index] = book;
-		book.UpdatedAt = DateTime.UtcNow;
-		book.UpdatedByUserId = updatedBy;
+		tracked.Title = book.Title;
+		tracked.ISBN = book.ISBN;
+		tracked.Authors = book.Authors;
+		tracked.Translators = book.Translators;
+		tracked.PublishDate = book.PublishDate;
+		tracked.Genre = book.Genre;
+		tracked.Publisher = book.Publisher;
+		tracked.TotalCopies = book.TotalCopies;
+		tracked.AvailableCopies = book.AvailableCopies;
+		tracked.Description = book.Description;
+		tracked.UpdatedAt = DateTime.UtcNow;
+		tracked.UpdatedByUserId = updatedBy;
 	}
 
 
-	private void AddAuthor(Book book, Author author)
-	{
-		if (_bookAuthors.Any(ba => ba.AuthorId == author.Id)) return;
+	//private void AddAuthor(Book book, Author author)
+	//{
+	//	if (_bookAuthors.Any(ba => ba.AuthorId == author.Id)) return;
 
-		_bookAuthors.Add(new BookAuthor(book, author));
-		book.UpdatedAt = DateTime.UtcNow;
-	}
+	//	_bookAuthors.Add(new BookAuthor(book, author));
+	//	book.UpdatedAt = DateTime.UtcNow;
+	//}
 
 
-	private void AddTranslator(Book book, Translator translator)
-	{
-		if (_bookTranslators.Any(bt => bt.TranslatorId == translator.Id)) return;
+	//private void AddTranslator(Book book, Translator translator)
+	//{
+	//	if (_bookTranslators.Any(bt => bt.TranslatorId == translator.Id)) return;
 
-		_bookTranslators.Add(new BookTranslator(book, translator));
-		book.UpdatedAt = DateTime.UtcNow;
-	}
+	//	_bookTranslators.Add();
+	//	book.UpdatedAt = DateTime.UtcNow;
+	//}
 
 
 	public void AssignAuthorsToBook(Book book, IEnumerable<Author> authors)
@@ -174,24 +179,24 @@ public class InMemoryBookRepository : IBookRepository
 
 	public void RemoveAuthor(Book book, Guid authorId)
 	{
-		if (_bookAuthors.Count <= 1) throw new InvalidOperationException(Messages.BookRequiresAtLeastOneAuthor);
+		if (book.Authors.Count <= 1) throw new InvalidOperationException(Messages.BookRequiresAtLeastOneAuthor);
 
-		var bookAuthor = _bookAuthors.FirstOrDefault(ba => ba.AuthorId == authorId);
+		var bookAuthor = book.Authors.FirstOrDefault(ba => ba.AuthorId == authorId);
 
 		if (bookAuthor is null) return;
 
-		_bookAuthors.Remove(bookAuthor);
+		book.Authors.Remove(bookAuthor);
 		book.UpdatedAt = DateTime.UtcNow;
 	}
 
 
 	public void RemoveTranslator(Book book, Guid translatorId)
 	{
-		var bookTranslator = _bookTranslators.FirstOrDefault(bt => bt.TranslatorId == translatorId);
+		var bookTranslator = book.Translators.FirstOrDefault(bt => bt.TranslatorId == translatorId);
 
 		if (bookTranslator is null) return;
 
-		_bookTranslators.Remove(bookTranslator);
+		book.Translators.Remove(bookTranslator);
 		book.UpdatedAt = DateTime.UtcNow;
 	}
 
@@ -205,7 +210,7 @@ public class InMemoryBookRepository : IBookRepository
 		if (authorList.Count == 0) throw new ArgumentException(Messages.BookRequiresAtLeastOneAuthor);
 
 		var incomingIds = authorList.Select(a => a.Id).ToHashSet();
-		var existingIds = book.BookAuthors.Select(ba => ba.AuthorId).ToHashSet();
+		var existingIds = book.Authors.Select(ba => ba.AuthorId).ToHashSet();
 
 		foreach (var authorId in existingIds.Except(incomingIds)) RemoveAuthor(book, authorId);
 		foreach (var author in authorList) AddAuthor(book, author);
@@ -219,10 +224,10 @@ public class InMemoryBookRepository : IBookRepository
 
 		var translatorList = translators.DistinctBy(t => t.Id).ToList();
 		var incomingIds = translatorList.Select(t => t.Id).ToHashSet();
-		var existingIds = book.BookTranslators.Select(bt => bt.TranslatorId).ToHashSet();
+		var existingIds = book.Translators.Select(bt => bt.TranslatorId).ToHashSet();
 
 		foreach (var translatorId in existingIds.Except(incomingIds)) RemoveTranslator(book, translatorId);
-		foreach (var translator in translatorList) AddTranslator(book, translator);
+		foreach (var translator in translatorList) Translator();
 	}
 
 
@@ -230,7 +235,7 @@ public class InMemoryBookRepository : IBookRepository
 	{
 		ArgumentNullException.ThrowIfNull(book);
 
-		foreach (var translatorId in book.BookTranslators.Select(bt => bt.TranslatorId).ToList())
+		foreach (var translatorId in book.Translators.Select(bt => bt.TranslatorId).ToList())
 			RemoveTranslator(book, translatorId);
 	}
 

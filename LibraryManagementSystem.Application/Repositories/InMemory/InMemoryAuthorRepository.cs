@@ -14,7 +14,7 @@ public class InMemoryAuthorRepository : IAuthorRepository
 	public void Add(Author author)
 	{
 		ArgumentNullException.ThrowIfNull(author);
-		
+
 		author.Id = Guid.CreateVersion7();
 		author.CreatedAt = DateTime.UtcNow;
 		author.IsRemoved = false;
@@ -28,9 +28,9 @@ public class InMemoryAuthorRepository : IAuthorRepository
 	}
 
 
-	public Author? FindByName(string firstName, string lastName)
+	public Author? FindByName(string firstName, string lastName, EntityFilter filter = EntityFilter.Active)
 	{
-		return _authors.FirstOrDefault(a =>
+		return ApplyFilter(_authors, filter).FirstOrDefault(a =>
 			!a.IsRemoved &&
 			a.FirstName.Equals(firstName, StringComparison.OrdinalIgnoreCase) &&
 			a.LastName.Equals(lastName, StringComparison.OrdinalIgnoreCase));
@@ -100,12 +100,17 @@ public class InMemoryAuthorRepository : IAuthorRepository
 	{
 		ArgumentNullException.ThrowIfNull(author);
 
-		var index = _authors.FindIndex(a => a.Id == author.Id);
-		if (index < 0) throw new AuthorNotFoundException(author.Id);
+		var tracked = _authors.FirstOrDefault(a => a.Id == author.Id) ?? throw new AuthorNotFoundException(author.Id);
 
-		_authors[index] = author;
-		author.UpdatedAt = DateTime.UtcNow;
-		author.UpdatedByUserId = updatedBy;
+		tracked.FirstName = author.FirstName;
+		tracked.LastName = author.LastName;
+		tracked.NationalCode = author.NationalCode;
+		tracked.Email = author.Email;
+		tracked.PhoneNumber = author.PhoneNumber;
+		tracked.BirthDate = author.BirthDate;
+		tracked.Biography = author.Biography;
+		tracked.UpdatedAt = DateTime.UtcNow;
+		tracked.UpdatedByUserId = updatedBy;
 	}
 
 

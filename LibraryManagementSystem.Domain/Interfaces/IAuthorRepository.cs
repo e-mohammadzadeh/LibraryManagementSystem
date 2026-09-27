@@ -8,7 +8,7 @@ public interface IAuthorRepository
 {
 	void Add(Author author);
 	Author? FindById(Guid id, EntityFilter filter);
-	Author? FindByName(string firstName, string lastName);
+	Author? FindByName(string firstName, string lastName, EntityFilter filter);
 	IReadOnlyList<Author> GetAll(EntityFilter filter);
 	bool ExistsByNationalCode(string nationalCode, Guid? excludeId);
 	bool ExistsByEmail(Email email, Guid? excludeId);

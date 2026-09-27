@@ -2,8 +2,8 @@
 
 public class BookAuthor
 {
-	public Guid BookId { get; private set; }
-	public Book Book { get; private set; } = null!;
-	public Guid AuthorId { get; private set; }
-	public Author Author { get; private set; } = null!;
+	public Guid BookId { get; set; }
+	public Book Book { get; set; } = null!;
+	public Guid AuthorId { get; set; }
+	public Author Author { get; set; } = null!;
 }
