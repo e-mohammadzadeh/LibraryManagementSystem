@@ -1,5 +1,7 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
 
 namespace LibraryManagementSystem.Application.Repositories.InMemory;
@@ -14,6 +16,10 @@ public class InMemoryLoanRepository : ILoanRepository
 		ArgumentNullException.ThrowIfNull(loan);
 
 		loan.Id = Guid.CreateVersion7();
+		loan.BorrowDate = DateOnly.FromDateTime(DateTime.UtcNow);
+		loan.DueDate = loan.BorrowDate.AddDays(ValidationConstants.LoanPeriodDays);
+		loan.ReturnDate = null;
+		loan.Status = LoanStatus.Borrowed;
 		loan.IsOverdue = false;
 		loan.IsActive = true;
 		loan.CreatedAt = DateTime.UtcNow;
@@ -23,53 +29,51 @@ public class InMemoryLoanRepository : ILoanRepository
 
 	public Loan? FindById(Guid id, LoanFilter filter = LoanFilter.Active)
 	{
-		return _loans.FirstOrDefault(l => l.Id == id);
+		return ApplyFilter(_loans, filter).FirstOrDefault(l => l.Id == id);
 	}
 
 
-	public IReadOnlyList<Loan> GetAll() { return _loans.AsReadOnly(); }
-
-
-	public IReadOnlyList<Loan> GetAllByUser(Guid userId) { return [.. _loans.Where(l => l.UserId == userId)]; }
-
-
-	public Loan? GetActiveLoanById(Guid loanId) { return _loans.FirstOrDefault(l => l.Id == loanId && l.IsActive); }
-
-
-	public IReadOnlyList<Loan> GetLoansByUser(Guid userId, LoanFilter filter = LoanFilter.Active)
+	public IReadOnlyList<Loan> GetLoans(LoanFilter filter = LoanFilter.Active)
 	{
-		return [.. _loans.Where(l => l.UserId == userId && l.IsActive)];
+		return [.. ApplyFilter(_loans, filter)];
 	}
 
 
-	public IReadOnlyList<Loan> GetActiveLoansByBook(Guid bookId)
+	public IReadOnlyList<Loan> GetAllByUser(Guid userId, LoanFilter filter = LoanFilter.Active)
 	{
-		return [.. _loans.Where(l => l.BookId == bookId && l.IsActive)];
+		return [.. ApplyFilter(_loans, filter).Where(l => l.UserId == userId)];
 	}
 
 
-	public IReadOnlyList<Loan> GetReturnedLoans() { return [.. _loans.Where(loan => loan.ReturnDate.HasValue)]; }
+
+	public IReadOnlyList<Loan> GetLoansByBook(Guid bookId, LoanFilter filter = LoanFilter.Active)
+	{
+		return [.. ApplyFilter(_loans, filter).Where(l => l.BookId == bookId)];
+	}
+
+
+	public bool HasLoans(Guid? userId = null, Guid? bookId = null, LoanFilter filter = LoanFilter.Active)
+	{
+		if (userId is null && bookId is null)
+			throw new ArgumentException("At least one of userId or bookId must be provided.");
+
+		var query = ApplyFilter(_loans, filter); // assuming you have ApplyFilter for loans
+
+		if (userId is not null) query = query.Where(l => l.UserId == userId);
+
+		if (bookId is not null) query = query.Where(l => l.BookId == bookId);
+
+		return query.Any();
+	}
+
 
 
 	public int CountActiveLoansByUser(Guid userId) { return _loans.Count(l => l.UserId == userId && l.IsActive); }
 
 
-	public bool HasActiveLoans(Guid userId, Guid bookId)
-	{
-		return _loans.Any(l => l.UserId == userId && l.BookId == bookId && l.IsActive);
-	}
-
-
-	public bool HasOverdueLoans(Guid userId)
-	{
-		return _loans.Any(l => l.UserId == userId && l is { IsActive: true, IsOverdue: true });
-	}
-
 
 	public IReadOnlyList<Loan> GetActiveLoans() { return [.. _loans.Where(l => l.IsActive)]; }
 
-
-	public IReadOnlyList<Loan> GetLoansByBook(Guid bookId) { return [.. _loans.Where(l => l.BookId == bookId)]; }
 
 
 	public IReadOnlyList<Loan> GetLoansByBookAndUser(Guid bookId, Guid userId)
@@ -91,4 +95,20 @@ public class InMemoryLoanRepository : ILoanRepository
 
 
 	public int CountActiveLoans() { return _loans.Count(l => l.IsActive); }
+
+
+
+	// ---------- Private helper ----------
+	private static IEnumerable<Loan> ApplyFilter(IEnumerable<Loan> source, LoanFilter filter)
+	{
+		return filter switch
+		{
+			LoanFilter.All => source,
+			LoanFilter.Active => source.Where(l => l.IsActive),
+			LoanFilter.Inactive => source.Where(l => !l.IsActive),
+			LoanFilter.Overdue => source.Where(l => l.IsOverdue),
+			LoanFilter.Returned => source.Where(l => l.ReturnDate.HasValue),
+			_ => throw new ArgumentOutOfRangeException(nameof(filter), filter, null)
+		};
+	}
 }
