@@ -1,6 +1,6 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
-using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.ValueObjects;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
 
 namespace LibraryManagementSystem.Domain.Interfaces;
 

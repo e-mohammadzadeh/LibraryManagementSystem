@@ -1,6 +1,6 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
-using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
 
 namespace LibraryManagementSystem.Application.Repositories.InMemory;
 
@@ -21,7 +21,7 @@ public class InMemoryLoanRepository : ILoanRepository
 	}
 
 
-	public Loan? FindById(Guid id, EntityFilter filter = EntityFilter.Active)
+	public Loan? FindById(Guid id, LoanFilter filter = LoanFilter.Active)
 	{
 		return _loans.FirstOrDefault(l => l.Id == id);
 	}
@@ -36,7 +36,7 @@ public class InMemoryLoanRepository : ILoanRepository
 	public Loan? GetActiveLoanById(Guid loanId) { return _loans.FirstOrDefault(l => l.Id == loanId && l.IsActive); }
 
 
-	public IReadOnlyList<Loan> GetLoansByUser(Guid userId, EntityFilter filter = EntityFilter.Active)
+	public IReadOnlyList<Loan> GetLoansByUser(Guid userId, LoanFilter filter = LoanFilter.Active)
 	{
 		return [.. _loans.Where(l => l.UserId == userId && l.IsActive)];
 	}

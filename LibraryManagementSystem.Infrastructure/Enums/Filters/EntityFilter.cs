@@ -1,4 +1,4 @@
-﻿namespace LibraryManagementSystem.Domain.Enums.Filters;
+﻿namespace LibraryManagementSystem.Infrastructure.Enums.Filters;
 
 public enum EntityFilter
 {
