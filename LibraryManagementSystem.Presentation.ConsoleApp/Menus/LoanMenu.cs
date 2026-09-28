@@ -624,7 +624,7 @@ public static class LoanMenu
 				{
 					Console.Clear();
 					SearchLoanAndDisplay(p => ConsoleHelper.ReadInt(p, 1, int.MaxValue),
-						"Enter an ID to search", loan => loan.LoanId, (search, value) => search == value,
+						"Enter an ID to search", loan => loan.Id, (search, value) => search == value,
 						activeOnly, loanManagementService, session);
 					ConsoleHelper.Pause();
 					break;

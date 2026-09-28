@@ -1,7 +1,6 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Enums;
-using static System.Net.WebRequestMethods;
 
 namespace LibraryManagementSystem.Application.Repositories.InMemory;
 

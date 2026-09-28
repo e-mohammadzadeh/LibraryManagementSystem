@@ -3,7 +3,6 @@ using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Exceptions;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Domain.ValueObjects;
-using LibraryManagementSystem.Infrastructure.DTOs.Users;
 
 namespace LibraryManagementSystem.Application.Repositories.InMemory;
 

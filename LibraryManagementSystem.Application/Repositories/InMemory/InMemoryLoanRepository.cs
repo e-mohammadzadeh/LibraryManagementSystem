@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Enums.Filters;
 using LibraryManagementSystem.Domain.Interfaces;
 
 namespace LibraryManagementSystem.Application.Repositories.InMemory;
@@ -11,11 +12,19 @@ public class InMemoryLoanRepository : ILoanRepository
 	public void Add(Loan loan)
 	{
 		ArgumentNullException.ThrowIfNull(loan);
+
+		loan.Id = Guid.CreateVersion7();
+		loan.IsOverdue = false;
+		loan.IsActive = true;
+		loan.CreatedAt = DateTime.UtcNow;
 		_loans.Add(loan);
 	}
 
 
-	public Loan? FindById(Guid id) { return _loans.FirstOrDefault(l => l.LoanId == id); }
+	public Loan? FindById(Guid id, EntityFilter filter = EntityFilter.Active)
+	{
+		return _loans.FirstOrDefault(l => l.Id == id);
+	}
 
 
 	public IReadOnlyList<Loan> GetAll() { return _loans.AsReadOnly(); }
@@ -24,10 +33,10 @@ public class InMemoryLoanRepository : ILoanRepository
 	public IReadOnlyList<Loan> GetAllByUser(Guid userId) { return [.. _loans.Where(l => l.UserId == userId)]; }
 
 
-	public Loan? GetActiveLoanById(Guid loanId) { return _loans.FirstOrDefault(l => l.LoanId == loanId && l.IsActive); }
+	public Loan? GetActiveLoanById(Guid loanId) { return _loans.FirstOrDefault(l => l.Id == loanId && l.IsActive); }
 
 
-	public IReadOnlyList<Loan> GetActiveLoansByUser(Guid userId)
+	public IReadOnlyList<Loan> GetLoansByUser(Guid userId, EntityFilter filter = EntityFilter.Active)
 	{
 		return [.. _loans.Where(l => l.UserId == userId && l.IsActive)];
 	}

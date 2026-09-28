@@ -4,7 +4,7 @@ namespace LibraryManagementSystem.Domain.Entities;
 
 public class Loan
 {
-	public Guid LoanId { get; set; }
+	public Guid Id { get; set; }
 	public Book Book { get; set; } = null!;
 	public Guid BookId { get; set; }
 	public User User { get; set; } = null!;
