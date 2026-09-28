@@ -56,33 +56,12 @@ public class InMemoryLoanRepository : ILoanRepository
 	{
 		if (userId is null && bookId is null)
 			throw new ArgumentException("At least one of userId or bookId must be provided.");
-
-		var query = ApplyFilter(_loans, filter); // assuming you have ApplyFilter for loans
+		var query = ApplyFilter(_loans, filter);
 
 		if (userId is not null) query = query.Where(l => l.UserId == userId);
-
 		if (bookId is not null) query = query.Where(l => l.BookId == bookId);
-
 		return query.Any();
 	}
-
-
-
-	public int CountActiveLoansByUser(Guid userId) { return _loans.Count(l => l.UserId == userId && l.IsActive); }
-
-
-
-	public IReadOnlyList<Loan> GetActiveLoans() { return [.. _loans.Where(l => l.IsActive)]; }
-
-
-
-	public IReadOnlyList<Loan> GetLoansByBookAndUser(Guid bookId, Guid userId)
-	{
-		return [.. _loans.Where(l => l.BookId == bookId && l.UserId == userId)];
-	}
-
-
-	public IReadOnlyList<Loan> GetOverdueLoans() { return [.. _loans.Where(l => l.IsOverdue)]; }
 
 
 	public void Update(Loan loan)
@@ -94,7 +73,13 @@ public class InMemoryLoanRepository : ILoanRepository
 	}
 
 
-	public int CountActiveLoans() { return _loans.Count(l => l.IsActive); }
+	public int CountLoans(Guid? userId = null, LoanFilter filter = LoanFilter.Active)
+	{
+		var query = ApplyFilter(_loans, filter);
+
+		if (userId is not null) query = query.Where(l => l.UserId == userId);
+		return query.Count();
+	}
 
 
 
