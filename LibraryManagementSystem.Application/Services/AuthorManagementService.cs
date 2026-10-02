@@ -48,7 +48,7 @@ public class AuthorManagementService
 
 		var existingSameName = _authorRepository.FindByName(dto.FirstName, dto.LastName, EntityFilter.Active);
 
-		if (existingSameName is not null)
+		if (existingSameName != null)
 			warningMessage = string.Format(Messages.DuplicateAuthorNameWarning, existingSameName.Id);
 
 		var newAuthor = new Author
@@ -65,7 +65,7 @@ public class AuthorManagementService
 		_authorRepository.Add(newAuthor);
 		_auditLog.Record(AuditAction.AuthorCreated, "Author", newAuthor.Id, "Author created.");
 
-		return warningMessage is not null
+		return warningMessage != null
 			? ServiceResult<ContributorDto>.Warning(newAuthor.ToDto(), warningMessage)
 			: ServiceResult<ContributorDto>.Ok(newAuthor.ToDto(), Messages.AuthorAddedSuccessfully);
 	}
@@ -82,24 +82,24 @@ public class AuthorManagementService
 
 		var resolvedFirstName = dto.FirstName ?? author.FirstName;
 		var resolvedLastName = dto.LastName ?? author.LastName;
-		if (dto.FirstName is not null || dto.LastName is not null)
+		if (dto.FirstName != null || dto.LastName != null)
 		{
 			var existingSameName = _authorRepository.FindByName(resolvedFirstName, resolvedLastName, EntityFilter.Active);
-			if (existingSameName is not null && existingSameName.Id != authorId)
+			if (existingSameName != null && existingSameName.Id != authorId)
 				warningMessage = string.Format(Messages.DuplicateAuthorNameWarning, existingSameName.Id);
 		}
 
-		if (dto.NationalCode is not null && _authorRepository.ExistsByNationalCode(dto.NationalCode, authorId))
+		if (dto.NationalCode != null && _authorRepository.ExistsByNationalCode(dto.NationalCode, authorId))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByNationalCode);
 
-		if (dto.Email is not null)
+		if (dto.Email != null)
 		{
 			var email = Email.Create(dto.Email);
 			if (_authorRepository.ExistsByEmail(email, authorId))
 				return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByEmail);
 		}
 
-		if (dto.PhoneNumber is not null)
+		if (dto.PhoneNumber != null)
 		{
 			var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
 			if (_authorRepository.ExistsByPhoneNumber(phoneNumber, authorId))
@@ -111,7 +111,7 @@ public class AuthorManagementService
 		_authorRepository.Update(author, updateBy);
 		_auditLog.Record(AuditAction.AuthorUpdated, "Author", authorId, auditDetails ?? "Author updated.");
 
-		return warningMessage is not null
+		return warningMessage != null
 			? ServiceResult<ContributorDto>.Warning(author.ToDto(), warningMessage)
 			: ServiceResult<ContributorDto>.Ok(author.ToDto(), Messages.AuthorUpdatedSuccessfully);
 	}

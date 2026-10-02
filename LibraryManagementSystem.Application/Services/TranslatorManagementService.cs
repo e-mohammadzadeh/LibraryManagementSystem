@@ -47,7 +47,7 @@ public class TranslatorManagementService
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByPhoneNumber);
 
 		var existingSameName = _translatorRepository.FindByName(dto.FirstName, dto.LastName, EntityFilter.Active);
-		if (existingSameName is not null)
+		if (existingSameName != null)
 			warningMessage = string.Format(Messages.DuplicateTranslatorNameWarning, existingSameName.Id);
 
 		var newTranslator = new Translator
@@ -64,7 +64,7 @@ public class TranslatorManagementService
 		_translatorRepository.Add(newTranslator);
 		_auditLog.Record(AuditAction.TranslatorCreated, "Translator", newTranslator.Id, "Translator created.");
 
-		return warningMessage is not null
+		return warningMessage != null
 			? ServiceResult<ContributorDto>.Warning(newTranslator.ToDto(), warningMessage)
 			: ServiceResult<ContributorDto>.Ok(newTranslator.ToDto(), Messages.TranslatorAddedSuccessfully);
 	}
@@ -118,25 +118,25 @@ public class TranslatorManagementService
 
 		var resolvedFirstName = dto.FirstName ?? translator.FirstName;
 		var resolvedLastName = dto.LastName ?? translator.LastName;
-		if (dto.FirstName is not null || dto.LastName is not null)
+		if (dto.FirstName != null || dto.LastName != null)
 		{
 			var existingSameName =
 				_translatorRepository.FindByName(resolvedFirstName, resolvedLastName, EntityFilter.Active);
-			if (existingSameName is not null && existingSameName.Id != translatorId)
+			if (existingSameName != null && existingSameName.Id != translatorId)
 				warningMessage = string.Format(Messages.DuplicateTranslatorNameWarning, existingSameName.Id);
 		}
 
-		if (dto.NationalCode is not null && _translatorRepository.ExistsByNationalCode(dto.NationalCode, translatorId))
+		if (dto.NationalCode != null && _translatorRepository.ExistsByNationalCode(dto.NationalCode, translatorId))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByNationalCode);
 
-		if (dto.Email is not null)
+		if (dto.Email != null)
 		{
 			var email = Email.Create(dto.Email);
 			if (_translatorRepository.ExistsByEmail(email, translatorId))
 				return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByEmail);
 		}
 
-		if (dto.PhoneNumber is not null)
+		if (dto.PhoneNumber != null)
 		{
 			var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
 			if (_translatorRepository.ExistsByPhoneNumber(phoneNumber, translatorId))
@@ -149,7 +149,7 @@ public class TranslatorManagementService
 		_auditLog.Record(AuditAction.TranslatorUpdated, "Translator", translatorId,
 			auditDetails ?? "Translator updated.");
 
-		return warningMessage is not null
+		return warningMessage != null
 			? ServiceResult<ContributorDto>.Warning(translator.ToDto(), warningMessage)
 			: ServiceResult<ContributorDto>.Ok(translator.ToDto(), Messages.TranslatorUpdatedSuccessfully);
 	}

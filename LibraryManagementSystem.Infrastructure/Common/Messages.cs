@@ -150,6 +150,7 @@ public static class Messages
 	public const string InvalidBookName = "Invalid book name. Please enter a name between 3 and 100 characters.";
 	public const string InvalidISBN = "Invalid ISBN format. Please enter a valid 10 or 13 digit ISBN.";
 	public const string InvalidGenre = "Invalid genre. Please select a valid genre.";
+	public const string InvalidLanguage = "Invalid language. Please select a valid language.";
 	public const string WrongTotalCopies = "Total copies must be greater than zero.";
 	public const string InvalidIdSelection = "ID {0} is not in the available list. Please select from the list above.";
 

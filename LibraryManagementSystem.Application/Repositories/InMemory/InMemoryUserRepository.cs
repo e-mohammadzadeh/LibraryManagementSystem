@@ -18,7 +18,9 @@ public class InMemoryUserRepository : IUserRepository
 		user.Id = Guid.CreateVersion7();
 		user.CreatedAt = DateTime.UtcNow;
 		user.IsActive = true;
+		user.MembershipExpiryDate = user.MembershipStartDate.AddYears(1);
 		user.IsRemoved = false;
+		user.ShouldRemove = false;
 		_users.Add(user);
 	}
 

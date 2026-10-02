@@ -12,5 +12,5 @@ public interface ILoanRepository
 	IReadOnlyList<Loan> GetLoansByBook(Guid bookId, LoanFilter filter = LoanFilter.Active);
 	bool HasLoans(Guid? userId = null, Guid? bookId = null, LoanFilter filter = LoanFilter.Active);
 	void Update(Loan loan);
-	int CountLoans(Guid? userId = null, LoanFilter filter = LoanFilter.Active);
+	int CountLoans(Guid? userId, LoanFilter filter);
 }

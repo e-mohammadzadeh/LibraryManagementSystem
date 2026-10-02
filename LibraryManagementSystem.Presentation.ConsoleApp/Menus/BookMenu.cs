@@ -198,7 +198,7 @@ public static class BookMenu
 			TranslatorIds = translatorIds,
 			PublishDate = publishDate.Value,
 			TotalCopies = totalCopies.Value,
-			GenreId = genreId.Value - 1,
+			Genre = genreId.Value - 1,
 			Publisher = publisher,
 			Description = description
 		});

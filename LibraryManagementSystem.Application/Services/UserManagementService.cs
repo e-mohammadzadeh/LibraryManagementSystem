@@ -4,6 +4,7 @@ using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Domain.ValueObjects;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Users;
 using LibraryManagementSystem.Infrastructure.Enums;
@@ -49,12 +50,17 @@ public class UserManagementService
 		if (_userRepository.ExistsByNationalCode(dto.NationalCode, null))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
 
-		if (_userRepository.ExistsByEmail(dto.Email, null))
+		var email = Email.Create(dto.Email);
+		if (_userRepository.ExistsByEmail(email, null))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
 
-		var existingSameName = _userRepository.FindByName(dto.FirstName, dto.LastName);
+		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
+		if (_userRepository.ExistsByPhoneNumber(phoneNumber, null))
+			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
 
-		if (existingSameName is not null)
+		var existingSameName = _userRepository.FindByName(dto.FirstName, dto.LastName, EntityFilter.Active);
+
+		if (existingSameName != null)
 			warningMessage = string.Format(Messages.DuplicateUserNameWarning, existingSameName.Id);
 
 		var role = _roleRepository.FindById(dto.RoleId);
@@ -73,14 +79,24 @@ public class UserManagementService
 
 		var result = _passwordHasher.CreatePasswordHash(dto.Password!);
 
-		var newUser = new User(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
-			role);
+		var newUser = new User
+		{
+			FirstName = dto.FirstName,
+			LastName = dto.LastName,
+			NationalCode = dto.NationalCode,
+			Email = email,
+			PhoneNumber = phoneNumber,
+			BirthDate = dto.BirthDate,
+			RoleId = dto.RoleId,
+			Role = role,
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
+		};
 
 		_userRepository.SetPasswordHash(newUser, result.Hash, result.Salt);
 		_userRepository.Add(newUser);
 		_auditLog.Record(AuditAction.UserCreated, "User", newUser.Id, "New user created.");
 
-		return warningMessage is not null
+		return warningMessage != null
 			? ServiceResult<UserDto>.Warning(newUser.ToDto(), warningMessage)
 			: ServiceResult<UserDto>.Ok(newUser.ToDto(), Messages.UserAddedSuccessfully);
 	}
@@ -131,31 +147,39 @@ public class UserManagementService
 	{
 		string? warningMessage = null;
 
-		var user = _userRepository.FindById(userId);
+		var user = _userRepository.FindById(userId, EntityFilter.Active);
 		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserUpdateFailed);
 
 		if (IsNoOpUpdateUser(user, dto)) return ServiceResult<UserDto>.Fail(Messages.NoChangesDetected);
 
 		var resolvedFirstName = dto.FirstName ?? user.FirstName;
 		var resolvedLastName = dto.LastName ?? user.LastName;
-		if (dto.FirstName is not null || dto.LastName is not null)
+		if (dto.FirstName != null || dto.LastName != null)
 		{
-			var existingSameName = _userRepository.FindByName(resolvedFirstName, resolvedLastName);
-			if (existingSameName is not null && existingSameName.Id != userId)
+			var existingSameName = _userRepository.FindByName(resolvedFirstName, resolvedLastName, EntityFilter.Active);
+			if (existingSameName != null && existingSameName.Id != userId)
 				warningMessage = string.Format(Messages.DuplicateAuthorNameWarning, existingSameName.Id);
 		}
 
-		if (dto.NationalCode is not null && _userRepository.ExistsByNationalCode(dto.NationalCode, userId))
+		if (dto.NationalCode != null && _userRepository.ExistsByNationalCode(dto.NationalCode, userId))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
 
-		if (dto.Email is not null && _userRepository.ExistsByEmail(dto.Email, userId))
-			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
+		if (dto.Email != null)
+		{
+			var email = Email.Create(dto.Email);
+			if (_userRepository.ExistsByEmail(email, userId))
+				return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
+		}
 
-		if (dto.PhoneNumber is not null && _userRepository.ExistsByPhoneNumber(dto.PhoneNumber, userId))
-			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
+		if (dto.PhoneNumber != null)
+		{
+			var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
+			if (_userRepository.ExistsByPhoneNumber(phoneNumber, userId))
+				return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
+		}
 
 		Role? resolvedRole = null;
-		if (dto.RoleId is not null)
+		if (dto.RoleId != null)
 		{
 			resolvedRole = _roleRepository.FindById(dto.RoleId.Value);
 			if (resolvedRole is null) return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
@@ -173,13 +197,13 @@ public class UserManagementService
 
 		var auditDetails = UserUpdateAuditDetailsBuilder.BuildUserUpdateAuditDetails(user, dto, resolvedRole!);
 
-		_userRepository.Update(user, dto);
+		_userRepository.Update(user, session.UserId);
 		_userRepository.ReplaceRole(user, resolvedRole!);
 		if (session.UserId == userId) session.UpdateCurrentUser(user.ToAuthUserDto());
 
 		_auditLog.Record(AuditAction.UserUpdated, "User", userId, auditDetails ?? "User updated.");
 
-		return warningMessage is not null
+		return warningMessage != null
 			? ServiceResult<UserDto>.Warning(user.ToDto(), warningMessage)
 			: ServiceResult<UserDto>.Ok(user.ToDto(), Messages.UserUpdatedSuccessfully);
 	}
@@ -187,7 +211,7 @@ public class UserManagementService
 
 	public UserDto? FindUserById(Guid id)
 	{
-		var user = _userRepository.FindById(id);
+		var user = _userRepository.FindById(id, EntityFilter.Active);
 		return user?.ToDto();
 	}
 
@@ -206,19 +230,19 @@ public class UserManagementService
 
 	public ServiceResult<UserDto> RemoveUser(Guid userId, ICurrentUserSession? session = null)
 	{
-		var user = _userRepository.FindById(userId);
+		var user = _userRepository.FindById(userId, EntityFilter.Active);
 		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserRemoveFailed);
 
-		if (session is not null && session.UserId == userId)
+		if (session != null && session.UserId == userId)
 			return ServiceResult<UserDto>.Fail(Messages.CannotRemoveYourself);
 
-		if (session is not null && !CanRemoveUser(session, user))
+		if (session != null && !CanRemoveUser(session, user))
 			return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
 
-		if (_loanRepository.CountActiveLoansByUser(userId) > 0)
+		if (_loanRepository.CountLoans(userId, LoanFilter.Active) > 0)
 			return ServiceResult<UserDto>.Fail(Messages.UserRemovalFailedByActiveLoans);
 
-		if (_fineRepository.HasUnpaidFines(userId))
+		if (_fineRepository.HasFines(userId, FineFilter.Unpaid))
 			return ServiceResult<UserDto>.Fail(Messages.UserRemovalFailedByUnpaidFines);
 
 		_userRepository.Remove(user);
@@ -275,7 +299,7 @@ public class UserManagementService
 				return ServiceResult<string>.Fail(Messages.OnlyAdminCanResetPassword);
 		}
 
-		var user = _userRepository.FindById(userId);
+		var user = _userRepository.FindById(userId, EntityFilter.Active);
 		if (user is null || user.IsRemoved) return ServiceResult<string>.Fail(Messages.UserNotFound);
 
 		if (user.ShouldRemove) return ServiceResult<string>.Fail(Messages.UserFlaggedForRemoval);
@@ -304,7 +328,7 @@ public class UserManagementService
 
 	public ServiceResult<UserDto> RenewMembership(Guid userId, int years)
 	{
-		var user = _userRepository.FindById(userId);
+		var user = _userRepository.FindById(userId, EntityFilter.Active);
 		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserNotFound);
 
 		if (user.ShouldRemove)
