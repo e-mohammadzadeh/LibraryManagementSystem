@@ -16,7 +16,10 @@ public static class ValidationConstants
 	public const int MinRoleId = 1;
 	public const int MaxRoleId = 3;
 	public const int MaxActiveLoansPerUser = 3;
-	public const decimal MaxUnpaidFineThreshold = 150m;
+	public const decimal MaxUnpaidFineThreshold = 150m;  // 47 days hits cap
+	public const decimal InitialDailyRate = 0.50m;
+	public const int FixedRateDays = 5;
+	public const decimal GeometricRatio = 1.08m;
 	public const int MinRenewMembershipYear = 1;
 	public const int MaxRenewMembershipYear = 3;
 	public const int DescriptionWrapWidthInTable = 28;

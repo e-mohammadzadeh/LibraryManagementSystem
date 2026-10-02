@@ -1,5 +1,7 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Domain.ValueObjects;
+using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
 
@@ -14,47 +16,59 @@ public class InMemoryFineRepository : IFineRepository
 	{
 		ArgumentNullException.ThrowIfNull(fine);
 
-		fine.
+		fine.Id = Guid.CreateVersion7();
+		fine.CreatedAt = DateTime.UtcNow;
+		fine.Money = Money.Create(FineCalculator(fine.OverdueDays));
+		fine.Status = FineStatus.Unpaid;
 		_fines.Add(fine);
 	}
 
 
-	public Fine? FindById(Guid fineId, FineFilter filter) { return _fines.FirstOrDefault(f => f.Id == fineId); }
-
-
-	public IReadOnlyList<Fine> GetAllUnpaid() { return [.. _fines.Where(f => f.Status == FineStatus.Unpaid)]; }
-
-
-	public IReadOnlyList<Fine> GetByLoanId(Guid loanId) { return [.. _fines.Where(f => f.LoanId == loanId)]; }
-
-
-	public IReadOnlyList<Fine> GetByUserId(Guid userId) { return [.. _fines.Where(f => f.UserId == userId)]; }
-
-
-	public IReadOnlyList<Fine> GetUnpaidByUserId(Guid userId)
+	public Fine? FindById(Guid id, FineFilter filter)
 	{
-		return [.. _fines.Where(f => f.UserId == userId && f.Status == FineStatus.Unpaid)];
+		return ApplyFilter(_fines, filter).FirstOrDefault(f => f.Id == id);
 	}
 
 
-	public bool HasUnpaidFines(Guid userId)
+	public IReadOnlyList<Fine> GetAll(FineFilter filter = FineFilter.Unpaid)
 	{
-		return _fines.Any(f => f.UserId == userId && f.Status == FineStatus.Unpaid);
+		return [.. ApplyFilter(_fines, filter)];
 	}
 
 
-	public decimal GetTotalUnpaidAmount(Guid userId)
+	public IReadOnlyList<Fine> GetByLoanId(Guid loanId, FineFilter filter = FineFilter.Unpaid)
 	{
-		return _fines.Where(f => f.UserId == userId && f.Status == FineStatus.Unpaid).Sum(f => f.Amount);
+		return [.. ApplyFilter(_fines, filter).Where(f => f.LoanId == loanId)];
 	}
 
 
-	public IReadOnlyList<Fine> GetHistory() { return [.. _fines.Where(f => f.Status != FineStatus.Unpaid)]; }
-
-
-	public IReadOnlyList<Fine> GetHistoryByUserId(Guid userId)
+	public IReadOnlyList<Fine> GetByUserId(Guid userId, FineFilter filter = FineFilter.Unpaid)
 	{
-		return [.. _fines.Where(f => f.UserId == userId && f.Status != FineStatus.Unpaid)];
+		return [.. ApplyFilter(_fines, filter).Where(f => f.UserId == userId)];
+	}
+
+
+	public decimal GetAmount(Guid userId, FineFilter filter = FineFilter.Unpaid)
+	{
+		return ApplyFilter(_fines, filter).Where(f => f.UserId == userId).Sum(f => f.Money);
+	}
+
+
+	public bool HasFines(Guid userId, FineFilter filter = FineFilter.Unpaid)
+	{
+		return ApplyFilter(_fines, filter).Any(f => f.UserId == userId);
+	}
+
+
+	public IReadOnlyList<Fine> GetHistory(FineFilter filter = FineFilter.Unpaid)
+	{
+		return [.. ApplyFilter(_fines, filter)];
+	}
+
+
+	public IReadOnlyList<Fine> GetHistoryByUserId(Guid userId, FineFilter filter = FineFilter.Unpaid)
+	{
+		return [.. ApplyFilter(_fines, filter).Where(f => f.UserId == userId)];
 	}
 
 
@@ -94,5 +108,24 @@ public class InMemoryFineRepository : IFineRepository
 			FineFilter.All => source,
 			_ => throw new ArgumentOutOfRangeException(nameof(filter), filter, null)
 		};
+	}
+
+
+	private static decimal FineCalculator(int overdueDays)
+	{
+		if (overdueDays <= 0) return 0m;
+
+		var flatTotal = Math.Min(overdueDays, ValidationConstants.FixedRateDays) * ValidationConstants.InitialDailyRate;
+
+		if (overdueDays <= ValidationConstants.FixedRateDays)
+			return Math.Min(flatTotal, ValidationConstants.MaxUnpaidFineThreshold);
+
+		var geometricDays = overdueDays - ValidationConstants.FixedRateDays;
+		var geometricTotal = ValidationConstants.InitialDailyRate *
+		                     ((decimal)Math.Pow((double)ValidationConstants.GeometricRatio, geometricDays) - 1m) /
+		                     (ValidationConstants.GeometricRatio - 1m);
+
+		var total = flatTotal + geometricTotal;
+		return Math.Min(total, ValidationConstants.MaxUnpaidFineThreshold);
 	}
 }
