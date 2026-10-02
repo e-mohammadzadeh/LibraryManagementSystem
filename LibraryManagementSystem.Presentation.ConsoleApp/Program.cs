@@ -8,6 +8,7 @@ using System.Text;
 using LibraryManagementSystem.Application.Repositories.InMemory;
 using LibraryManagementSystem.Application.Security;
 using LibraryManagementSystem.Application.Seeders;
+using LibraryManagementSystem.Infrastructure.Interfaces;
 
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp;
