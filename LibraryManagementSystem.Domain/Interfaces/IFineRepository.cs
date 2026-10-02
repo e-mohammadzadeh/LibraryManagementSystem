@@ -1,6 +1,5 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
-using static System.Net.WebRequestMethods;
 
 namespace LibraryManagementSystem.Domain.Interfaces;
 

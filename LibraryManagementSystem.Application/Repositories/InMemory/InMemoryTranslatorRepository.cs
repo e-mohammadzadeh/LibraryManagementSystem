@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Exceptions;
 using LibraryManagementSystem.Domain.Interfaces;
-using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
+using LibraryManagementSystem.Domain.ValueObjects;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
 
 namespace LibraryManagementSystem.Application.Repositories.InMemory;
@@ -13,77 +14,65 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 	public void Add(Translator translator)
 	{
 		ArgumentNullException.ThrowIfNull(translator);
+
+		translator.Id = Guid.CreateVersion7();
+		translator.CreatedAt = DateTime.UtcNow;
+		translator.IsRemoved = false;
 		_translators.Add(translator);
-		translator.UpdatedAt = DateTime.UtcNow;
 	}
 
 
-	public Translator? FindById(Guid id)
+	public Translator? FindById(Guid id, EntityFilter filter = EntityFilter.Active)
 	{
-		return _translators.FirstOrDefault(translator => translator.Id == id && !translator.IsRemoved);
+		return ApplyFilter(_translators, filter).FirstOrDefault(t => t.Id == id);
 	}
 
 
-	public Translator? FindByName(string firstName, string lastName)
+	public Translator? FindByName(string firstName, string lastName, EntityFilter filter = EntityFilter.Active)
 	{
-		return _translators.FirstOrDefault(translator =>
-			!translator.IsRemoved &&
-			translator.FirstName.Equals(firstName, StringComparison.OrdinalIgnoreCase) &&
-			translator.LastName.Equals(lastName, StringComparison.OrdinalIgnoreCase));
+		return ApplyFilter(_translators, filter).FirstOrDefault(t =>
+			!t.IsRemoved &&
+			t.FirstName.Equals(firstName, StringComparison.OrdinalIgnoreCase) &&
+			t.LastName.Equals(lastName, StringComparison.OrdinalIgnoreCase));
 	}
 
 
 	public IReadOnlyList<Translator> GetAll(EntityFilter filter = EntityFilter.Active)
 	{
-		var query = _translators.AsEnumerable();
-		switch (filter)
-		{
-			case EntityFilter.Active:
-				query = query.Where(a => !a.IsRemoved);
-				break;
-			case EntityFilter.Removed:
-				query = query.Where(a => a.IsRemoved);
-				break;
-			case EntityFilter.All:
-				// No filter – include everyone
-				break;
-			default:
-				throw new ArgumentOutOfRangeException(nameof(filter), filter, null);
-		}
-
-		return [.. query];
+		return [.. ApplyFilter(_translators, filter)];
 	}
 
 
 	public bool ExistsByNationalCode(string nationalCode, Guid? excludeId = null)
 	{
-		return _translators.Any(translator =>
-			translator.Id != excludeId &&
-			!translator.IsRemoved &&
-			translator.NationalCode.Equals(nationalCode));
+		return _translators.Any(t =>
+			!t.IsRemoved &&
+			t.NationalCode.Equals(nationalCode, StringComparison.OrdinalIgnoreCase) &&
+			(excludeId is null || t.Id != excludeId));
 	}
 
 
-	public bool ExistsByEmail(string email, Guid? excludeId = null)
+	public bool ExistsByEmail(Email email, Guid? excludeId = null)
 	{
-		return _translators.Any(translator =>
-			translator.Id != excludeId &&
-			!translator.IsRemoved &&
-			translator.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+		return _translators.Any(t =>
+			!t.IsRemoved &&
+			t.Email.Equals(email) &&
+			(excludeId is null || t.Id != excludeId));
 	}
 
 
-	public bool ExistsByPhoneNumber(string phoneNumber, Guid? excludeId = null)
+	public bool ExistsByPhoneNumber(PhoneNumber phoneNumber, Guid? excludeId = null)
 	{
-		return _translators.Any(translator =>
-			translator.Id != excludeId &&
-			!translator.IsRemoved &&
-			translator.PhoneNumber.Equals(phoneNumber));
+		return _translators.Any(t =>
+			!t.IsRemoved &&
+			t.PhoneNumber.Equals(phoneNumber) &&
+			(excludeId is null || t.Id != excludeId));
 	}
 
 
 	public void Remove(Translator translator)
 	{
+		ArgumentNullException.ThrowIfNull(translator);
 		if (translator.IsRemoved) return;
 		translator.IsRemoved = true;
 		translator.UpdatedAt = DateTime.UtcNow;
@@ -96,24 +85,44 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 
 		return
 		[
-			.. _translators.Where(translator =>
+			.. _translators
+				.Where(t => !t.IsRemoved)
+				.Where(t =>
 			{
-				var value = selector(translator);
+				var value = selector(t);
 				return value is not null && value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
 			})
 		];
 	}
 
 
-	public void Update(Translator translator, UpdateContributorDto dto)
+	public void Update(Translator translator, Guid? updatedBy = null)
 	{
-		translator.FirstName = dto.FirstName ?? translator.FirstName;
-		translator.LastName = dto.LastName ?? translator.LastName;
-		translator.NationalCode = dto.NationalCode ?? translator.NationalCode;
-		translator.Email = dto.Email ?? translator.Email;
-		translator.PhoneNumber = dto.PhoneNumber ?? translator.PhoneNumber;
-		translator.BirthDate = dto.BirthDate ?? translator.BirthDate;
-		translator.Biography = dto.Biography ?? translator.Biography;
-		translator.UpdatedAt = DateTime.UtcNow;
+		ArgumentNullException.ThrowIfNull(translator);
+
+		var tracked = _translators.FirstOrDefault(a => a.Id == translator.Id) ?? throw new TranslatorNotFoundException(translator.Id);
+
+		tracked.FirstName = translator.FirstName;
+		tracked.LastName = translator.LastName;
+		tracked.NationalCode = translator.NationalCode;
+		tracked.Email = translator.Email;
+		tracked.PhoneNumber = translator.PhoneNumber;
+		tracked.BirthDate = translator.BirthDate;
+		tracked.Biography = translator.Biography;
+		tracked.UpdatedByUserId = updatedBy;
+		tracked.UpdatedAt = DateTime.UtcNow;
+	}
+
+
+	// ---------- Private helper ----------
+	private static IEnumerable<Translator> ApplyFilter(IEnumerable<Translator> source, EntityFilter filter)
+	{
+		return filter switch
+		{
+			EntityFilter.Active => source.Where(a => !a.IsRemoved),
+			EntityFilter.Removed => source.Where(a => a.IsRemoved),
+			EntityFilter.All => source,
+			_ => throw new ArgumentOutOfRangeException(nameof(filter), filter, null)
+		};
 	}
 }

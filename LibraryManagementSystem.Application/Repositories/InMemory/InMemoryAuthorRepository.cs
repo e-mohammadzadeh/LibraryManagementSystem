@@ -109,8 +109,8 @@ public class InMemoryAuthorRepository : IAuthorRepository
 		tracked.PhoneNumber = author.PhoneNumber;
 		tracked.BirthDate = author.BirthDate;
 		tracked.Biography = author.Biography;
-		tracked.UpdatedAt = DateTime.UtcNow;
 		tracked.UpdatedByUserId = updatedBy;
+		tracked.UpdatedAt = DateTime.UtcNow;
 	}
 
 
