@@ -3,6 +3,7 @@ using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Domain.ValueObjects;
 using LibraryManagementSystem.Infrastructure.DTOs.Books;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.Enums;
@@ -37,18 +38,28 @@ public class TranslatorManagementService
 		if (_translatorRepository.ExistsByNationalCode(dto.NationalCode, null))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByNationalCode);
 
-		if (_translatorRepository.ExistsByEmail(dto.Email, null))
+		var email = Email.Create(dto.Email);
+		if (_translatorRepository.ExistsByEmail(email, null))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByEmail);
 
-		if (_translatorRepository.ExistsByPhoneNumber(dto.PhoneNumber, null))
+		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
+		if (_translatorRepository.ExistsByPhoneNumber(phoneNumber, null))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByPhoneNumber);
 
-		var existingSameName = _translatorRepository.FindByName(dto.FirstName, dto.LastName);
+		var existingSameName = _translatorRepository.FindByName(dto.FirstName, dto.LastName, EntityFilter.Active);
 		if (existingSameName is not null)
 			warningMessage = string.Format(Messages.DuplicateTranslatorNameWarning, existingSameName.Id);
 
-		var newTranslator = new Translator(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber,
-			dto.BirthDate, dto.Biography);
+		var newTranslator = new Translator
+		{
+			FirstName = dto.FirstName,
+			LastName = dto.LastName,
+			NationalCode = dto.NationalCode,
+			Email = email,
+			PhoneNumber = phoneNumber,
+			BirthDate = dto.BirthDate,
+			Biography = dto.Biography
+		};
 
 		_translatorRepository.Add(newTranslator);
 		_auditLog.Record(AuditAction.TranslatorCreated, "Translator", newTranslator.Id, "Translator created.");
@@ -91,10 +102,11 @@ public class TranslatorManagementService
 
 
 
-	private Translator? FindTranslatorById(Guid id) { return _translatorRepository.FindById(id); }
+	private Translator? FindTranslatorById(Guid id) { return _translatorRepository.FindById(id, EntityFilter.Active); }
 
 
-	public ServiceResult<ContributorDto> UpdateTranslator(Guid translatorId, UpdateContributorDto dto)
+	public ServiceResult<ContributorDto> UpdateTranslator(Guid translatorId, UpdateContributorDto dto,
+		Guid? updatedBy = null)
 	{
 		string? warningMessage = null;
 
@@ -108,7 +120,8 @@ public class TranslatorManagementService
 		var resolvedLastName = dto.LastName ?? translator.LastName;
 		if (dto.FirstName is not null || dto.LastName is not null)
 		{
-			var existingSameName = _translatorRepository.FindByName(resolvedFirstName, resolvedLastName);
+			var existingSameName =
+				_translatorRepository.FindByName(resolvedFirstName, resolvedLastName, EntityFilter.Active);
 			if (existingSameName is not null && existingSameName.Id != translatorId)
 				warningMessage = string.Format(Messages.DuplicateTranslatorNameWarning, existingSameName.Id);
 		}
@@ -116,15 +129,23 @@ public class TranslatorManagementService
 		if (dto.NationalCode is not null && _translatorRepository.ExistsByNationalCode(dto.NationalCode, translatorId))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByNationalCode);
 
-		if (dto.Email is not null && _translatorRepository.ExistsByEmail(dto.Email, translatorId))
-			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByEmail);
+		if (dto.Email is not null)
+		{
+			var email = Email.Create(dto.Email);
+			if (_translatorRepository.ExistsByEmail(email, translatorId))
+				return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByEmail);
+		}
 
-		if (dto.PhoneNumber is not null && _translatorRepository.ExistsByPhoneNumber(dto.PhoneNumber, translatorId))
-			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByPhoneNumber);
+		if (dto.PhoneNumber is not null)
+		{
+			var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
+			if (_translatorRepository.ExistsByPhoneNumber(phoneNumber, translatorId))
+				return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByPhoneNumber);
+		}
 
 		var auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(translator, dto);
 
-		_translatorRepository.Update(translator, dto);
+		_translatorRepository.Update(translator, updatedBy);
 		_auditLog.Record(AuditAction.TranslatorUpdated, "Translator", translatorId,
 			auditDetails ?? "Translator updated.");
 
@@ -150,7 +171,7 @@ public class TranslatorManagementService
 		var translator = FindTranslatorById(translatorId);
 		if (translator is null) return ServiceResult<ContributorDto>.Fail(Messages.TranslatorRemoveFailed);
 
-		var booksByTranslator = _bookRepository.GetByTranslatorId(translatorId);
+		var booksByTranslator = _bookRepository.GetByTranslatorId(translatorId, EntityFilter.Active);
 		if (booksByTranslator.Count != 0)
 			return ServiceResult<ContributorDto>.Fail(Messages.TranslatorHasAssociatedBooks);
 
@@ -191,8 +212,8 @@ public class TranslatorManagementService
 
 	public IReadOnlyList<BookDto> GetBooksByTranslator(Guid translatorId)
 	{
-		var translator = _translatorRepository.FindById(translatorId);
+		var translator = _translatorRepository.FindById(translatorId, EntityFilter.Active);
 		if (translator is null) return [];
-		return [.. _bookRepository.GetByTranslatorId(translatorId).Select(b => b.ToDto())];
+		return [.. _bookRepository.GetByTranslatorId(translatorId, EntityFilter.Active).Select(b => b.ToDto())];
 	}
 }
