@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Enums;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
 
 namespace LibraryManagementSystem.Application.Repositories.InMemory;
 
@@ -12,11 +13,13 @@ public class InMemoryFineRepository : IFineRepository
 	public void Add(Fine fine)
 	{
 		ArgumentNullException.ThrowIfNull(fine);
+
+		fine.
 		_fines.Add(fine);
 	}
 
 
-	public Fine? FindById(Guid fineId) { return _fines.FirstOrDefault(f => f.FineId == fineId); }
+	public Fine? FindById(Guid fineId, FineFilter filter) { return _fines.FirstOrDefault(f => f.Id == fineId); }
 
 
 	public IReadOnlyList<Fine> GetAllUnpaid() { return [.. _fines.Where(f => f.Status == FineStatus.Unpaid)]; }
@@ -77,5 +80,19 @@ public class InMemoryFineRepository : IFineRepository
 		if (fine.Status == FineStatus.Paid) throw new InvalidOperationException("Cannot waive an already paid fine.");
 		fine.Status = FineStatus.Waived;
 		fine.UpdatedAt = DateTime.Now;
+	}
+
+
+	// ---------- Private helper ----------
+	private static IEnumerable<Fine> ApplyFilter(IEnumerable<Fine> source, FineFilter filter)
+	{
+		return filter switch
+		{
+			FineFilter.Paid => source.Where(f => f.Status == FineStatus.Paid),
+			FineFilter.Unpaid => source.Where(f => f.Status == FineStatus.Unpaid),
+			FineFilter.Waived => source.Where(f => f.Status == FineStatus.Waived),
+			FineFilter.All => source,
+			_ => throw new ArgumentOutOfRangeException(nameof(filter), filter, null)
+		};
 	}
 }

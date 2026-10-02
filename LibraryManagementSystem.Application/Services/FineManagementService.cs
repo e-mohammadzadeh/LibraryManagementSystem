@@ -67,7 +67,7 @@ public class FineManagementService : IFineManagementService
 					string.Format(Messages.UserEligibleForRemoval, user.FirstName, user.LastName));
 			}
 		}
-		_auditLog.Record(AuditAction.FineCreated, "Fine", fine.FineId, "Fine created.");
+		_auditLog.Record(AuditAction.FineCreated, "Fine", fine.Id, "Fine created.");
 
 		return ServiceResult<FineDto>.Ok(fine.ToDto(), Messages.FineCreatedSuccessfully);
 	}
