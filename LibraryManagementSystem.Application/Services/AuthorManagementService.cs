@@ -3,6 +3,7 @@ using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Domain.ValueObjects;
 using LibraryManagementSystem.Infrastructure.DTOs.Books;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.Enums;
@@ -37,19 +38,29 @@ public class AuthorManagementService
 		if (_authorRepository.ExistsByNationalCode(dto.NationalCode, null))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByNationalCode);
 
-		if (_authorRepository.ExistsByEmail(dto.Email, null))
+		var email = Email.Create(dto.Email);
+		if (_authorRepository.ExistsByEmail(email, null))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByEmail);
 
-		if (_authorRepository.ExistsByPhoneNumber(dto.PhoneNumber, null))
+		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
+		if (_authorRepository.ExistsByPhoneNumber(phoneNumber, null))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByPhoneNumber);
 
-		var existingSameName = _authorRepository.FindByName(dto.FirstName, dto.LastName);
+		var existingSameName = _authorRepository.FindByName(dto.FirstName, dto.LastName, EntityFilter.Active);
 
 		if (existingSameName is not null)
 			warningMessage = string.Format(Messages.DuplicateAuthorNameWarning, existingSameName.Id);
 
-		var newAuthor = new Author(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber,
-			dto.BirthDate, dto.Biography);
+		var newAuthor = new Author
+		{
+			FirstName = dto.FirstName,
+			LastName = dto.LastName,
+			NationalCode = dto.NationalCode,
+			Email = email,
+			PhoneNumber = phoneNumber,
+			BirthDate = dto.BirthDate,
+			Biography = dto.Biography
+		};
 
 		_authorRepository.Add(newAuthor);
 		_auditLog.Record(AuditAction.AuthorCreated, "Author", newAuthor.Id, "Author created.");
@@ -60,11 +71,11 @@ public class AuthorManagementService
 	}
 
 
-	public ServiceResult<ContributorDto> UpdateAuthor(Guid authorId, UpdateContributorDto dto)
+	public ServiceResult<ContributorDto> UpdateAuthor(Guid authorId, UpdateContributorDto dto, Guid? updateBy = null)
 	{
 		string? warningMessage = null;
 
-		var author = _authorRepository.FindById(authorId);
+		var author = _authorRepository.FindById(authorId, EntityFilter.Active);
 		if (author is null) return ServiceResult<ContributorDto>.Fail(Messages.AuthorUpdateFailed);
 
 		if (IsNoOpUpdateAuthor(author, dto)) return ServiceResult<ContributorDto>.Fail(Messages.NoChangesDetected);
@@ -73,7 +84,7 @@ public class AuthorManagementService
 		var resolvedLastName = dto.LastName ?? author.LastName;
 		if (dto.FirstName is not null || dto.LastName is not null)
 		{
-			var existingSameName = _authorRepository.FindByName(resolvedFirstName, resolvedLastName);
+			var existingSameName = _authorRepository.FindByName(resolvedFirstName, resolvedLastName, EntityFilter.Active);
 			if (existingSameName is not null && existingSameName.Id != authorId)
 				warningMessage = string.Format(Messages.DuplicateAuthorNameWarning, existingSameName.Id);
 		}
@@ -81,15 +92,23 @@ public class AuthorManagementService
 		if (dto.NationalCode is not null && _authorRepository.ExistsByNationalCode(dto.NationalCode, authorId))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByNationalCode);
 
-		if (dto.Email is not null && _authorRepository.ExistsByEmail(dto.Email, authorId))
-			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByEmail);
+		if (dto.Email is not null)
+		{
+			var email = Email.Create(dto.Email);
+			if (_authorRepository.ExistsByEmail(email, authorId))
+				return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByEmail);
+		}
 
-		if (dto.PhoneNumber is not null && _authorRepository.ExistsByPhoneNumber(dto.PhoneNumber, authorId))
-			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByPhoneNumber);
+		if (dto.PhoneNumber is not null)
+		{
+			var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
+			if (_authorRepository.ExistsByPhoneNumber(phoneNumber, authorId))
+				return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByPhoneNumber);
+		}
 
 		var auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(author, dto);
 
-		_authorRepository.Update(author, dto);
+		_authorRepository.Update(author, updateBy);
 		_auditLog.Record(AuditAction.AuthorUpdated, "Author", authorId, auditDetails ?? "Author updated.");
 
 		return warningMessage is not null
@@ -112,10 +131,10 @@ public class AuthorManagementService
 
 	public ServiceResult<ContributorDto> RemoveAuthor(Guid authorId)
 	{
-		var author = _authorRepository.FindById(authorId);
+		var author = _authorRepository.FindById(authorId, EntityFilter.Active);
 		if (author is null) return ServiceResult<ContributorDto>.Fail(Messages.AuthorRemoveFailed);
 
-		var booksByAuthor = _bookRepository.GetByAuthorId(authorId);
+		var booksByAuthor = _bookRepository.GetByAuthorId(authorId, EntityFilter.Active);
 		if (booksByAuthor.Count != 0) return ServiceResult<ContributorDto>.Fail(Messages.AuthorHasAssociatedBooks);
 
 		_authorRepository.Remove(author);
@@ -153,9 +172,9 @@ public class AuthorManagementService
 
 	public IReadOnlyList<BookDto> GetBooksByAuthor(Guid authorId)
 	{
-		var author = _authorRepository.FindById(authorId);
+		var author = _authorRepository.FindById(authorId, EntityFilter.Active);
 		if (author is null) return [];
-		return [.. _bookRepository.GetByAuthorId(authorId).Select(b => b.ToDto())];
+		return [.. _bookRepository.GetByAuthorId(authorId, EntityFilter.Active).Select(b => b.ToDto())];
 	}
 
 
@@ -174,7 +193,7 @@ public class AuthorManagementService
 			AuthorSortField.NationalCode => a => a.NationalCode,
 			AuthorSortField.Email => a => a.Email,
 			AuthorSortField.BirthDate => a => a.BirthDate,
-			AuthorSortField.BookCount => a => _bookRepository.GetByAuthorId(a.Id).Count,
+			AuthorSortField.BookCount => a => _bookRepository.GetByAuthorId(a.Id, EntityFilter.Active).Count,
 			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
 		};
 
