@@ -33,7 +33,7 @@ public class InMemoryLoanRepository : ILoanRepository
 	}
 
 
-	public IReadOnlyList<Loan> GetLoans(LoanFilter filter = LoanFilter.Active)
+	public IReadOnlyList<Loan> GetAll(LoanFilter filter = LoanFilter.Active)
 	{
 		return [.. ApplyFilter(_loans, filter)];
 	}

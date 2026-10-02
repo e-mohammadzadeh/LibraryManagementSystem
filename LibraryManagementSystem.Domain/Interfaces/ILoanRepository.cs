@@ -6,11 +6,11 @@ namespace LibraryManagementSystem.Domain.Interfaces;
 public interface ILoanRepository
 {
 	void Add(Loan loan);
-	Loan? FindById(Guid id, LoanFilter filter = LoanFilter.Active);
-	IReadOnlyList<Loan> GetLoans(LoanFilter filter = LoanFilter.Active);
-	IReadOnlyList<Loan> GetAllByUser(Guid userId, LoanFilter filter = LoanFilter.Active);
-	IReadOnlyList<Loan> GetLoansByBook(Guid bookId, LoanFilter filter = LoanFilter.Active);
-	bool HasLoans(Guid? userId = null, Guid? bookId = null, LoanFilter filter = LoanFilter.Active);
+	Loan? FindById(Guid id, LoanFilter filter);
+	IReadOnlyList<Loan> GetAll(LoanFilter filter);
+	IReadOnlyList<Loan> GetAllByUser(Guid userId, LoanFilter filter);
+	IReadOnlyList<Loan> GetLoansByBook(Guid bookId, LoanFilter filter);
+	bool HasLoans(Guid? userId, Guid? bookId, LoanFilter filter);
 	void Update(Loan loan);
 	int CountLoans(Guid? userId, LoanFilter filter);
 }

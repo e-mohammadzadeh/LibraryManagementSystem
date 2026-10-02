@@ -13,7 +13,7 @@ public class Loan
 	public DateOnly DueDate { get; set; }
 	public DateOnly? ReturnDate { get; set; }
 	public LoanStatus Status { get; set; }
-	public int RenewalCount { get; set; }
+	public int RenewalCount { get; set; } = 0;
 	public bool IsOverdue { get; set; }
 	public bool IsActive { get; set; }
 	public DateTime CreatedAt { get; set; }
