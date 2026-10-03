@@ -10,6 +10,7 @@ public interface ILoanRepository
 	IReadOnlyList<Loan> GetAll(LoanFilter filter);
 	IReadOnlyList<Loan> GetAllByUser(Guid userId, LoanFilter filter);
 	IReadOnlyList<Loan> GetLoansByBook(Guid bookId, LoanFilter filter);
+	IReadOnlyList<Loan> GetLoansByBookAndUser(Guid bookId, Guid userId, LoanFilter filter);
 	bool HasLoans(Guid? userId, Guid? bookId, LoanFilter filter);
 	void Update(Loan loan);
 	int CountLoans(Guid? userId, LoanFilter filter);

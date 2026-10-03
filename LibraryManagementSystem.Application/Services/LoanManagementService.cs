@@ -221,6 +221,6 @@ public class LoanManagementService
 	public IReadOnlyList<LoanDto> GetOwnLoansByBook(Guid bookId, ICurrentUserSession session)
 	{
 		if (!session.IsAuthenticated || session.UserId is null) return [];
-		return [.._loanRepository.GetLoansByBookAndUser(bookId, session.UserId.Value).Select(loan => loan.ToDto())];
+		return [.._loanRepository.GetLoansByBookAndUser(bookId, session.UserId.Value, LoanFilter.All).Select(loan => loan.ToDto())];
 	}
 }

@@ -38,7 +38,7 @@ public class LibraryStatisticsService
 			TotalAuthors = _authorRepository.GetAll(EntityFilter.Active).Count,
 			TotalTranslators = _translatorRepository.GetAll(EntityFilter.Active).Count,
 			TotalUsers = _userRepository.GetAll(EntityFilter.Active).Count,
-			TotalActiveLoans = _loanRepository.CountActiveLoans(),
+			TotalActiveLoans = _loanRepository.CountLoans(null, LoanFilter.Active),
 		};
 		return ServiceResult<LibraryStatisticsDto>.Ok(stats, "Computed successfully");
 	}

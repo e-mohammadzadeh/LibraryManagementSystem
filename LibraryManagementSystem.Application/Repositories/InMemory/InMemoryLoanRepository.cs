@@ -52,6 +52,12 @@ public class InMemoryLoanRepository : ILoanRepository
 	}
 
 
+	public IReadOnlyList<Loan> GetLoansByBookAndUser(Guid bookId, Guid userId, LoanFilter filter = LoanFilter.All)
+	{
+		return [.. ApplyFilter(_loans, filter).Where(l => l.BookId == bookId && l.UserId == userId)];
+	}
+
+
 	public bool HasLoans(Guid? userId = null, Guid? bookId = null, LoanFilter filter = LoanFilter.Active)
 	{
 		if (userId is null && bookId is null)

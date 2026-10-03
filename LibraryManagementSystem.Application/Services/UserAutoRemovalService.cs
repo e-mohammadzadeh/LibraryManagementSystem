@@ -2,6 +2,7 @@
 using LibraryManagementSystem.Application.Interfaces;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
 
 namespace LibraryManagementSystem.Application.Services;
 
@@ -25,14 +26,14 @@ public class UserAutoRemovalService : IUserAutoRemovalService
 	{
 		if (user is null) return false;
 		if (!user.ShouldRemove) return false;
-		if (_loanRepository.GetLoansByUser(user.Id).Count > 0) return false;
-		return !_fineRepository.HasUnpaidFines(user.Id);
+		if (_loanRepository.GetAllByUser(user.Id, LoanFilter.Active).Count > 0) return false;
+		return !_fineRepository.HasFines(user.Id, FineFilter.Unpaid);
 	}
 
 
 	public ServiceResult<string> TryAutoRemove(Guid userId)
 	{
-		var user = _userRepository.FindById(userId)!;
+		var user = _userRepository.FindById(userId, EntityFilter.Active)!;
 		if (!CanBeAutoRemoved(user)) return ServiceResult<string>.Fail(Messages.UserAutoRemoveNotEligible);
 		_userRepository.Remove(user);
 		return ServiceResult<string>.Ok($"{user.FirstName} {user.LastName}", Messages.UserAutoRemovedSuccessfully);
