@@ -21,5 +21,11 @@ public class InMemoryAuditLogRepository : IAuditLogRepository
 	}
 
 
-	public void Add(AuditLog auditLog) { _auditLogs.Add(auditLog); }
+	public void Add(AuditLog auditLog)
+	{
+		auditLog.Id = Guid.CreateVersion7();
+		auditLog.OccurredAt = DateTime.UtcNow;
+
+		_auditLogs.Add(auditLog);
+	}
 }

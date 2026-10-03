@@ -4,7 +4,7 @@ using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.DTOs.AuditLog;
 using LibraryManagementSystem.Infrastructure.Enums;
-using LibraryManagementSystem.Infrastructure.Interfaces;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
 
 namespace LibraryManagementSystem.Application.Services;
 
@@ -28,7 +28,14 @@ public class AuditLogManagementService : IAuditLogManagementService
 	{
 		if (!_currentUserSession.IsAuthenticated || !_currentUserSession.UserId.HasValue) return;
 
-		var auditLog = new AuditLog(_currentUserSession.UserId.Value, action, entityType, entityId, details);
+		var auditLog = new AuditLog
+		{
+			PerformedByUserId = _currentUserSession.UserId.Value,
+			Action = action,
+			EntityType = entityType,
+			EntityId = entityId,
+			Details = details
+		};
 		_auditLogRepository.Add(auditLog);
 	}
 
@@ -54,8 +61,7 @@ public class AuditLogManagementService : IAuditLogManagementService
 		[
 			.. auditLogs.OrderByDescending(a => a.OccurredAt).Select(auditLog =>
 			{
-				var user = _userRepository.FindById(
-					auditLog.PerformedByUserId);
+				var user = _userRepository.FindById(auditLog.PerformedByUserId, EntityFilter.All);
 
 				var performedByName = user is not null
 					? $"{user.FirstName} {user.LastName}"

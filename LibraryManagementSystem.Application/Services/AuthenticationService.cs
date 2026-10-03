@@ -3,9 +3,10 @@ using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Domain.ValueObjects;
 using LibraryManagementSystem.Infrastructure.DTOs.Users;
 using LibraryManagementSystem.Infrastructure.Enums;
-using LibraryManagementSystem.Infrastructure.Interfaces;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
 
 namespace LibraryManagementSystem.Application.Services;
 
@@ -29,13 +30,12 @@ public class AuthenticationService
 	}
 
 
-	public ServiceResult<AuthUserDto> Login(string email, string password)
+	public ServiceResult<AuthUserDto> Login(Email email, string password)
 	{
-		email = email.Trim().ToLower();
 		if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
 			return ServiceResult<AuthUserDto>.Fail(Messages.LoginInputRequired);
 
-		var user = _userRepository.FindByEmail(email);
+		var user = _userRepository.FindByEmail(email, EntityFilter.Active);
 		if (user is null || user.IsRemoved ||
 		    !_passwordHasher.VerifyPassword(password, user.PasswordHash, user.PasswordSalt))
 			return ServiceResult<AuthUserDto>.Fail(Messages.InvalidLoginInput);
@@ -63,7 +63,8 @@ public class AuthenticationService
 
 		var currentUser = _currentUserSession.CurrentUser!;
 		var username = currentUser.FullName;
-		var user = _userRepository.FindByEmail(currentUser.Email);
+		var email = Email.Create(currentUser.Email);
+		var user = _userRepository.FindByEmail(email, EntityFilter.Active);
 
 		_auditLog.Record(AuditAction.UserLoggedOut, "User", currentUser.Id, "User logged out.");
 		if (user is not null)
@@ -83,10 +84,15 @@ public class AuthenticationService
 		if (_userRepository.ExistsByNationalCode(dto.NationalCode, null))
 			return ServiceResult<AuthUserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
 
-		if (_userRepository.ExistsByEmail(dto.Email, null))
+		var email = Email.Create(dto.Email);
+		if (_userRepository.ExistsByEmail(email, null))
 			return ServiceResult<AuthUserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
 
-		var existingSameName = _userRepository.FindByName(dto.FirstName, dto.LastName);
+		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
+		if (_userRepository.ExistsByPhoneNumber(phoneNumber, null))
+			return ServiceResult<AuthUserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
+
+		var existingSameName = _userRepository.FindByName(dto.FirstName, dto.LastName, EntityFilter.Active);
 		if (existingSameName is not null)
 			warningMessage = string.Format(Messages.DuplicateUserNameWarning, existingSameName.Id);
 
@@ -94,8 +100,18 @@ public class AuthenticationService
 
 		var result = _passwordHasher.CreatePasswordHash(dto.Password!);
 
-		var newUser = new User(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
-			role);
+		var newUser = new User
+		{
+			FirstName = dto.FirstName,
+			LastName = dto.LastName,
+			NationalCode = dto.NationalCode,
+			Email = email,
+			PhoneNumber = phoneNumber,
+			BirthDate = dto.BirthDate,
+			RoleId = dto.RoleId,
+			Role = role!,
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
+		};
 
 		_userRepository.SetPasswordHash(newUser, result.Hash, result.Salt);
 		_userRepository.Add(newUser);
