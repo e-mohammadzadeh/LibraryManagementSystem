@@ -12,7 +12,7 @@ public static class LoanMapper
 			LoanId = loan.Id,
 			BookName = loan.Book.Title,
 			BookId = loan.BookId,
-			BookISBN = loan.Book.InternationalStandardBookNumber,
+			BookISBN = loan.Book.ISBN,
 			UserName = $"{loan.User.FirstName} {loan.User.LastName}",
 			UserId = loan.UserId,
 			UserNationalCode = loan.User.NationalCode,

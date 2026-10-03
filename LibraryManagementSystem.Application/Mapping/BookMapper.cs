@@ -11,7 +11,7 @@ public static class BookMapper
 		{
 			Id = book.Id,
 			Title = book.Title,
-			ISBN = book.InternationalStandardBookNumber,
+			ISBN = book.ISBN,
 			PublishDate = book.PublishDate,
 			Genre = book.Genre.ToString(),
 			Publisher = book.Publisher,
@@ -29,7 +29,7 @@ public static class BookMapper
 		{
 			BookId = book.Id,
 			BookName = book.Title,
-			ISBN = book.InternationalStandardBookNumber,
+			ISBN = book.ISBN,
 			AvailableCopies = book.AvailableCopies
 		};
 	}

@@ -15,10 +15,9 @@ public static class FineMapper
 			UserFullName = $"{fine.Loan.User.FirstName} {fine.Loan.User.LastName}",
 			BookName = fine.Loan.Book.Title,
 			OverdueDays = fine.OverdueDays,
-			Amount = fine.Amount,
+			Amount = fine.Money,
 			Status = fine.Status,
 			Reason = fine.Reason,
-			DailyRate = fine.DailyRate,
 			CreatedAt = fine.CreatedAt,
 			UpdatedAt = fine.UpdatedAt,
 			PaidAt = fine.PaidAt
