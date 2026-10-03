@@ -8,6 +8,7 @@ using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Fine;
 using LibraryManagementSystem.Infrastructure.Enums;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
@@ -42,25 +43,33 @@ public class FineManagementService : IFineManagementService
 
 	public ServiceResult<FineDto> CreateFineForLoan(Guid loanId)
 	{
-		var loan = _loanRepository.FindById(loanId);
+		var loan = _loanRepository.FindById(loanId, LoanFilter.Active);
 		if (loan is null) return ServiceResult<FineDto>.Fail(Messages.NotLoanMatched);
 
 		if (loan.ReturnDate is null) return ServiceResult<FineDto>.Fail(Messages.LoanNotYetReturned);
 
 		if (loan.ReturnDate <= loan.DueDate) return ServiceResult<FineDto>.Fail(Messages.NoFine);
 
-		var existing = _fineRepository.GetByLoanId(loanId);
+		var existing = _fineRepository.GetByLoanId(loanId, FineFilter.Unpaid);
 		if (existing.Count > 0) return ServiceResult<FineDto>.Fail(Messages.FineAlreadyExists);
 
-		var fine = new Fine(loan);
+		var fine = new Fine
+		{
+			Loan = loan,
+			LoanId = loanId,
+			UserId = loan.UserId,
+			OverdueDays = loan.ReturnDate.Value.DayNumber - loan.DueDate.DayNumber,
+			Reason = $"Fine is created for book \"{loan.Book.Title}\" (ID: {loan.Book.Id}).",
+		};
+
 		_fineRepository.Add(fine);
 		_fineHistoryManagementService.Record(fine, FineHistoryAction.CreateFine);
 
-		var totalUnpaid = _fineRepository.GetTotalUnpaidAmount(loan.UserId);
-		if (fine.Amount >= ValidationConstants.MaxUnpaidFineThreshold ||
+		var totalUnpaid = _fineRepository.GetAmount(loan.UserId, FineFilter.Unpaid);
+		if (fine.Money >= ValidationConstants.MaxUnpaidFineThreshold ||
 		    totalUnpaid >= ValidationConstants.MaxUnpaidFineThreshold)
 		{
-			var user = _userRepository.FindById(loan.UserId);
+			var user = _userRepository.FindById(loan.UserId, EntityFilter.Active);
 			if (user is not null && !user.ShouldRemove)
 			{
 				_userRepository.FlagForRemoval(user);
@@ -77,7 +86,7 @@ public class FineManagementService : IFineManagementService
 
 	public ServiceResult<FineDto> PayFine(Guid fineId, ICurrentUserSession session)
 	{
-		var fine = _fineRepository.FindById(fineId);
+		var fine = _fineRepository.FindById(fineId, FineFilter.Unpaid);
 		if (fine is null) return ServiceResult<FineDto>.Fail(Messages.FineNotFound);
 
 		if (session.IsSelfServiceMember && session.UserId != fine.UserId)
@@ -107,7 +116,7 @@ public class FineManagementService : IFineManagementService
 		if (!_authorization.HasPermission(Permission.WaiveFine))
 			return ServiceResult<FineDto>.Fail(Messages.AdminOnlyWaive);
 
-		var fine = _fineRepository.FindById(fineId);
+		var fine = _fineRepository.FindById(fineId, FineFilter.Unpaid);
 		if (fine is null) return ServiceResult<FineDto>.Fail(Messages.FineNotFound);
 
 		try
@@ -134,29 +143,25 @@ public class FineManagementService : IFineManagementService
 	public IReadOnlyList<FineDto> GetAllUnpaidFines(ICurrentUserSession session)
 	{
 		return session.IsSelfServiceMember
-			? GetUnpaidFinesByUser(session.UserId!.Value)
-			: [.. _fineRepository.GetAllUnpaid().Select(f => f.ToDto())];
+			? GetFinesByUser(session.UserId!.Value, FineFilter.Unpaid)
+			: [.. _fineRepository.GetAll(FineFilter.Unpaid).Select(f => f.ToDto())];
 	}
 
 
-	public IReadOnlyList<FineDto> GetFinesByUser(Guid userId) =>
-		[.. _fineRepository.GetByUserId(userId).Select(fine => fine.ToDto())];
+	public IReadOnlyList<FineDto> GetFinesByUser(Guid userId, FineFilter filter = FineFilter.All) =>
+		[.. _fineRepository.GetByUserId(userId, filter).Select(fine => fine.ToDto())];
 
 
-	public IReadOnlyList<FineDto> GetUnpaidFinesByUser(Guid userId) =>
-		[.. _fineRepository.GetUnpaidByUserId(userId).Select(fine => fine.ToDto())];
+	public decimal GetTotalUnpaidAmount(Guid userId) => _fineRepository.GetAmount(userId, FineFilter.Unpaid);
 
-
-	public decimal GetTotalUnpaidAmount(Guid userId) => _fineRepository.GetTotalUnpaidAmount(userId);
-
-	public bool HasUnpaidFines(Guid userId) => _fineRepository.HasUnpaidFines(userId);
+	public bool HasUnpaidFines(Guid userId) => _fineRepository.HasFines(userId, FineFilter.Unpaid);
 
 
 	public IReadOnlyList<FineDto> GetFineHistory()
 	{
 		if (!_authorization.HasPermission(Permission.ViewFineHistory)) return [];
 
-		return [.. _fineRepository.GetHistory().Select(fine => fine.ToDto())];
+		return [.. _fineRepository.GetHistory(FineFilter.All).Select(fine => fine.ToDto())];
 	}
 
 
@@ -166,7 +171,7 @@ public class FineManagementService : IFineManagementService
 		    !_authorization.HasAnyPermission(Permission.FineHistoryByUser, Permission.ViewFineHistory))
 			return [];
 
-		return [.. _fineRepository.GetHistoryByUserId(userId).Select(fine => fine.ToDto())];
+		return [.. _fineRepository.GetHistoryByUserId(userId, FineFilter.All).Select(fine => fine.ToDto())];
 	}
 
 

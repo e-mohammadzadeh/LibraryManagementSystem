@@ -17,9 +17,9 @@ public class InMemoryFineRepository : IFineRepository
 		ArgumentNullException.ThrowIfNull(fine);
 
 		fine.Id = Guid.CreateVersion7();
-		fine.CreatedAt = DateTime.UtcNow;
 		fine.Money = Money.Create(FineCalculator(fine.OverdueDays));
 		fine.Status = FineStatus.Unpaid;
+		fine.CreatedAt = DateTime.UtcNow;
 		_fines.Add(fine);
 	}
 
