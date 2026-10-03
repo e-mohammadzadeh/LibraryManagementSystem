@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Domain.ValueObjects;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
 
@@ -24,29 +25,94 @@ public static class DataSeeder
 		IBookRepository bookRepository)
 	{
 		// Seed authors
-		var author1 = new Author("George", "Orwell", "1234567890", "orwell@example.com", "09120000001",
-			new DateOnly(1903, 6, 25), "English novelist and essayist.");
+		var author1 = new Author
+		{
+			FirstName = "George",
+			LastName = "Orwell",
+			NationalCode = "1234567890",
+			Email = Email.Create("orwell@example.com"),
+			PhoneNumber = PhoneNumber.Create("09120000001"),
+			BirthDate = new DateOnly(1903, 6, 25),
+			Biography = "English novelist and essayist."
+		};
 
-		var author2 = new Author("Aldous", "Huxley", "0987654321", "huxley@example.com", "09120000002",
-			new DateOnly(1894, 11, 26), "English writer and social critic.");
 
-		var author3 = new Author("Ray", "Bradbury", "1122334455", "bradbury@example.com", "09120000003",
-			new DateOnly(1920, 8, 22), "American science fiction and fantasy writer.");
+		var author2 = new Author
+		{
+			FirstName = "Aldous",
+			LastName = "Huxley",
+			NationalCode = "0987654321",
+			Email = Email.Create("huxley@example.com"),
+			PhoneNumber = PhoneNumber.Create("09120000002"),
+			BirthDate = new DateOnly(1894, 11, 26),
+			Biography = "English writer and social critic."
+		};
 
-		var author4 = new Author("J.K.", "Rowling", "0087654321", "rowling@example.com", "09120000004",
-			new DateOnly(1965, 7, 31), "British author of the Harry Potter series.");
+		var author3 = new Author
+		{
+			FirstName = "Ray",
+			LastName = "Bradbury",
+			NationalCode = "1122334455",
+			Email = Email.Create("bradbury@example.com"),
+			PhoneNumber = PhoneNumber.Create("09120000003"),
+			BirthDate = new DateOnly(1920, 8, 22),
+			Biography = "American science fiction and fantasy writer."
+		};
 
-		var translator1 = new Translator("Najaf", "Daryabandari", "1234567890", "najaf.daryabandari@example.com",
-			"09123456789", new DateOnly(1921, 6, 12), "Good Iranian translator.");
+		var author4 = new Author
+		{
+			FirstName = "J.K.",
+			LastName = "Rowling",
+			NationalCode = "0087654321",
+			Email = Email.Create("rowling@example.com"),
+			PhoneNumber = PhoneNumber.Create("09120000004"),
+			BirthDate = new DateOnly(1965, 7, 31),
+			Biography = "British author of the Harry Potter series."
+		};
 
-		var translator2 = new Translator("Ahmad", "Golshiri", "0987654321", "ahmad.golshiri@example.com", "09127654321",
-			new DateOnly(1940, 3, 25), "Good Iranian translator.");
+		var translator1 = new Translator
+		{
+			FirstName = "Najaf",
+			LastName = "Daryabandari",
+			NationalCode = "1234567890",
+			Email = Email.Create("najaf.daryabandari@example.com"),
+			PhoneNumber = PhoneNumber.Create("09123456789"),
+			BirthDate = new DateOnly(1921, 6, 12),
+			Biography = "Good Iranian translator."
+		};
 
-		var translator3 = new Translator("Mansoureh", "Pirnia", "1122334455", "mansoureh.pirnia@example.com",
-			"09129876543", new DateOnly(1955, 11, 8), "Good Iranian translator.");
+		var translator2 = new Translator
+		{
+			FirstName = "Ahmad",
+			LastName = "Golshiri",
+			NationalCode = "0987654321",
+			Email = Email.Create("ahmad.golshiri@example.com"),
+			PhoneNumber = PhoneNumber.Create("09127654321"),
+			BirthDate = new DateOnly(1940, 3, 25),
+			Biography = "Good Iranian translator."
+		};
 
-		var translator4 = new Translator("Reza", "SeyedHosseini", "6677889900", "reza.seyedhosseini@example.com",
-			"09121122334", new DateOnly(1968, 9, 17), "Good Iranian translator.");
+		var translator3 = new Translator
+		{
+			FirstName = "Mansoureh",
+			LastName = "Pirnia",
+			NationalCode = "1122334455",
+			Email = Email.Create("mansoureh.pirnia@example.com"),
+			PhoneNumber = PhoneNumber.Create("09129876543"),
+			BirthDate = new DateOnly(1955, 11, 8),
+			Biography = "Good Iranian translator."
+		};
+
+		var translator4 = new Translator
+		{
+			FirstName = "Reza",
+			LastName = "SeyedHosseini",
+			NationalCode = "6677889900",
+			Email = Email.Create("reza.seyedhosseini@example.com"),
+			PhoneNumber = PhoneNumber.Create("09121122334"),
+			BirthDate = new DateOnly(1968, 9, 17),
+			Biography = "Good Iranian translator."
+		};
 
 		authorRepository.Add(author1);
 		authorRepository.Add(author2);
@@ -59,82 +125,217 @@ public static class DataSeeder
 		translatorRepository.Add(translator4);
 
 		// Seed books
-		var book1 = new Book("978-0-452-28423-4", "1984", new DateOnly(1949, 6, 8), 5,
-			Genre.ScienceFiction, "HarperCollins", "A dystopian novel.");
+		var book1 = new Book
+		{
+			Title = "1984",
+			ISBN = ISBN.Create("978-0-452-28423-4"),
+			PublishDate = new DateOnly(1949, 6, 8),
+			TotalCopies = 5,
+			Genre = BookGenre.Create(Genre.ScienceFiction),
+			Publisher = "HarperCollins",
+			OriginalLanguage = Language.Arabic,
+			Description = "A dystopian novel."
+		};
 		bookRepository.AssignAuthorsToBook(book1, [author1]);
-		bookRepository.AssignTranslatorsToBook(book1, [translator1, translator2, translator3, translator4]);
+		bookRepository.AssignTranslatorsToBook(book1,
+			[translator1, translator2, translator3, translator4], Language.Chinese);
 
-		var book2 = new Book("9780060850524", "Brave New World", new DateOnly(1932, 1, 1), 5, Genre.ScienceFiction,
-			"Amir Kabir Publishing", "A dystopian novel.");
+		var book2 = new Book
+		{
+			Title = "Brave New World",
+			ISBN = ISBN.Create("9780060850524"),
+			PublishDate = new DateOnly(1932, 1, 1),
+			TotalCopies = 5,
+			Genre = BookGenre.Create(Genre.ScienceFiction),
+			Publisher = "Amir Kabir Publishing",
+			OriginalLanguage = Language.Chinese,
+			Description = "A dystopian novel."
+		};
 		bookRepository.AssignAuthorsToBook(book2, [author1, author2]);
-		bookRepository.AssignTranslatorsToBook(book2, [translator2]);
+		bookRepository.AssignTranslatorsToBook(book2, [translator2], Language.English);
 
-		var book3 = new Book("9781451673319", "Fahrenheit 451", new DateOnly(1953, 1, 1), 5, Genre.Horror,
-			"Oxford University Press", "A dystopian novel.");
+		var book3 = new Book
+		{
+			Title = "Fahrenheit 451",
+			ISBN = ISBN.Create("9781451673319"),
+			PublishDate = new DateOnly(1953, 1, 1),
+			TotalCopies = 5,
+			Genre = BookGenre.Create(Genre.Horror),
+			Publisher = "Oxford University Press",
+			OriginalLanguage = Language.English,
+			Description = "A dystopian novel."
+		};
 		bookRepository.AssignAuthorsToBook(book3, [author2, author3, author4]);
-		bookRepository.AssignTranslatorsToBook(book3, [translator3, translator2]);
+		bookRepository.AssignTranslatorsToBook(book3, [translator3, translator2], Language.French);
 
-		var book4 = new Book("978-0-7475-3269-9", "Harry Potter and the Philosopher's Stone",
-			new DateOnly(1997, 6, 26), 3, Genre.Fantasy, "HarperCollins",
-			"A young wizard discovers his magical heritage.");
+		var book4 = new Book
+		{
+			Title = "Harry Potter and the Philosopher's Stone",
+			ISBN = ISBN.Create("978-0-7475-3269-9"),
+			PublishDate = new DateOnly(1997, 6, 26),
+			TotalCopies = 3,
+			Genre = BookGenre.Create(Genre.Fantasy),
+			Publisher = "HarperCollins",
+			OriginalLanguage = Language.French,
+			Description = "A young wizard discovers his magical heritage."
+		};
 		bookRepository.AssignAuthorsToBook(book4, [author2]);
-		bookRepository.AssignTranslatorsToBook(book4, [translator4]);
+		bookRepository.AssignTranslatorsToBook(book4, [translator4], Language.German);
 
-		var book5 = new Book("978-0-452-28424-1", "Animal Farm", new DateOnly(1945, 8, 17), 4, Genre.Historical,
-			"Oxford University Press", "An allegorical novella.");
+		var book5 = new Book
+		{
+			Title = "Animal Farm",
+			ISBN = ISBN.Create("978-0-452-28424-1"),
+			PublishDate = new DateOnly(1945, 8, 17),
+			TotalCopies = 4,
+			Genre = BookGenre.Create(Genre.Historical),
+			Publisher = "Oxford University Press",
+			OriginalLanguage = Language.German,
+			Description = "An allegorical novella."
+		};
 		bookRepository.AssignAuthorsToBook(book5, [author1, author2, author3, author4]);
-		bookRepository.AssignTranslatorsToBook(book5, [translator1]);
+		bookRepository.AssignTranslatorsToBook(book5, [translator1], Language.Italian);
 
-		var book6 = new Book("9780061120084", "To Kill a Mockingbird", new DateOnly(1960, 7, 11), 6,
-			Genre.ScienceFiction, "Amir Kabir Publishing",
-			"A story about racism and justice in the American South.");
+		var book6 = new Book
+		{
+			Title = "To Kill a Mockingbird",
+			ISBN = ISBN.Create("9780061120084"),
+			PublishDate = new DateOnly(1960, 7, 11),
+			TotalCopies = 6,
+			Genre = BookGenre.Create(Genre.ScienceFiction),
+			Publisher = "Amir Kabir Publishing",
+			OriginalLanguage = Language.Italian,
+			Description = "A story about racism and justice in the American South."
+		};
 		bookRepository.AssignAuthorsToBook(book6, [author4, author1]);
-		bookRepository.AssignTranslatorsToBook(book6, [translator2, translator3, translator4]);
+		bookRepository.AssignTranslatorsToBook(book6, [translator2, translator3, translator4], Language.Japanese);
 
-		var book7 = new Book("9780743273565", "The Great Gatsby", new DateOnly(1925, 4, 10), 4, Genre.Horror,
-			"Oxford University Press", "A tale of wealth, love, and the American Dream.");
+		var book7 = new Book
+		{
+			Title = "The Great Gatsby",
+			ISBN = ISBN.Create("9780743273565"),
+			PublishDate = new DateOnly(1925, 4, 10),
+			TotalCopies = 4,
+			Genre = BookGenre.Create(Genre.Horror),
+			Publisher = "Oxford University Press",
+			OriginalLanguage = Language.Japanese,
+			Description = "A tale of wealth, love, and the American Dream."
+		};
 		bookRepository.AssignAuthorsToBook(book7, [author4]);
-		bookRepository.AssignTranslatorsToBook(book7, [translator3]);
+		bookRepository.AssignTranslatorsToBook(book7, [translator3], Language.Persian);
 
-		var book8 = new Book("9780141439518", "Pride and Prejudice", new DateOnly(1813, 1, 28), 5, Genre.Romance,
-			"Macmillan Publishers", "A witty story about love and social class.");
+		var book8 = new Book
+		{
+			Title = "Pride and Prejudice",
+			ISBN = ISBN.Create("9780141439518"),
+			PublishDate = new DateOnly(1813, 1, 28),
+			TotalCopies = 5,
+			Genre = BookGenre.Create(Genre.Romance),
+			Publisher = "Macmillan Publishers",
+			OriginalLanguage = Language.Persian,
+			Description = "A witty story about love and social class."
+		};
 		bookRepository.AssignAuthorsToBook(book8, [author4]);
-		bookRepository.AssignTranslatorsToBook(book8, [translator4]);
+		bookRepository.AssignTranslatorsToBook(book8, [translator4], Language.Russian);
 
-		var book9 = new Book("9780547928210", "The Hobbit", new DateOnly(1937, 9, 21), 7, Genre.Fantasy,
-			"Amir Kabir Publishing", "A hobbit embarks on an unexpected journey.");
+		var book9 = new Book
+		{
+			Title = "The Hobbit",
+			ISBN = ISBN.Create("9780547928210"),
+			PublishDate = new DateOnly(1937, 9, 21),
+			TotalCopies = 7,
+			Genre = BookGenre.Create(Genre.Fantasy),
+			Publisher = "Amir Kabir Publishing",
+			OriginalLanguage = Language.Russian,
+			Description = "A hobbit embarks on an unexpected journey."
+		};
 		bookRepository.AssignAuthorsToBook(book9, [author4, author3]);
-		bookRepository.AssignTranslatorsToBook(book9, [translator1, translator2]);
+		bookRepository.AssignTranslatorsToBook(book9, [translator1, translator2], Language.Spanish);
 
-		var book10 = new Book("9780441172719", "Dune", new DateOnly(1965, 8, 1), 4, Genre.ScienceFiction,
-			"HarperCollins", "Epic science fiction on a desert planet.");
+		var book10 = new Book
+		{
+			Title = "Dune",
+			ISBN = ISBN.Create("9780441172719"),
+			PublishDate = new DateOnly(1965, 8, 1),
+			TotalCopies = 4,
+			Genre = BookGenre.Create(Genre.ScienceFiction),
+			Publisher = "HarperCollins",
+			OriginalLanguage = Language.Spanish,
+			Description = "Epic science fiction on a desert planet."
+		};
 		bookRepository.AssignAuthorsToBook(book10, [author4]);
-		bookRepository.AssignTranslatorsToBook(book10, [translator2]);
+		bookRepository.AssignTranslatorsToBook(book10, [translator2], Language.Arabic);
 
-		var book11 = new Book("9780062315007", "The Alchemist", new DateOnly(1988, 1, 1), 8, Genre.ScienceFiction,
-			"Macmillan Publishers", "A shepherd's journey to find his personal legend.");
+		var book11 = new Book
+		{
+			Title = "The Alchemist",
+			ISBN = ISBN.Create("9780062315007"),
+			PublishDate = new DateOnly(1988, 1, 1),
+			TotalCopies = 8,
+			Genre = BookGenre.Create(Genre.ScienceFiction),
+			Publisher = "Macmillan Publishers",
+			OriginalLanguage = Language.English,
+			Description = "A shepherd's journey to find his personal legend."
+		};
 		bookRepository.AssignAuthorsToBook(book11, [author4]);
-		bookRepository.AssignTranslatorsToBook(book11, [translator3]);
+		bookRepository.AssignTranslatorsToBook(book11, [translator3], Language.Persian);
 
-		var book12 = new Book("9780062316097", "Sapiens: A Brief History of Humankind", new DateOnly(2011, 1, 1), 3,
-			Genre.Historical, "Macmillan Publishers", "A groundbreaking exploration of human history.");
+		var book12 = new Book
+		{
+			Title = "Sapiens: A Brief History of Humankind",
+			ISBN = ISBN.Create("9780062316097"),
+			PublishDate = new DateOnly(2011, 1, 1),
+			TotalCopies = 3,
+			Genre = BookGenre.Create(Genre.Historical),
+			Publisher = "Macmillan Publishers",
+			OriginalLanguage = Language.Persian,
+			Description = "A groundbreaking exploration of human history."
+		};
 		bookRepository.AssignAuthorsToBook(book12, [author4]);
-		bookRepository.AssignTranslatorsToBook(book12, [translator4]);
+		bookRepository.AssignTranslatorsToBook(book12, [translator4], Language.Arabic);
 
-		var book13 = new Book("9780307474278", "The Da Vinci Code", new DateOnly(2003, 3, 18), 5, Genre.Mystery,
-			"Oxford University Press", "A thrilling mystery involving art and secret societies.");
+		var book13 = new Book
+		{
+			Title = "The Da Vinci Code",
+			ISBN = ISBN.Create("9780307474278"),
+			PublishDate = new DateOnly(2003, 3, 18),
+			TotalCopies = 5,
+			Genre = BookGenre.Create(Genre.Mystery),
+			Publisher = "Oxford University Press",
+			OriginalLanguage = Language.Chinese,
+			Description = "A thrilling mystery involving art and secret societies."
+		};
 		bookRepository.AssignAuthorsToBook(book13, [author1, author2, author3, author4]);
-		bookRepository.AssignTranslatorsToBook(book13, [translator1, translator2, translator3, translator4]);
+		bookRepository.AssignTranslatorsToBook(book13,
+			[translator1, translator2, translator3, translator4], Language.Japanese);
 
-		var book14 = new Book("9780062420091", "Educated: A Memoir", new DateOnly(2018, 2, 20), 4, Genre.Biography,
-			"Amir Kabir Publishing", "A story of self-invention and overcoming adversity.");
+		var book14 = new Book
+		{
+			Title = "Educated: A Memoir",
+			ISBN = ISBN.Create("9780062420091"),
+			PublishDate = new DateOnly(2018, 2, 20),
+			TotalCopies = 4,
+			Genre = BookGenre.Create(Genre.Biography),
+			Publisher = "Amir Kabir Publishing",
+			OriginalLanguage = Language.Russian,
+			Description = "A story of self-invention and overcoming adversity."
+		};
 		bookRepository.AssignAuthorsToBook(book14, [author4]);
-		bookRepository.AssignTranslatorsToBook(book14, [translator2]);
+		bookRepository.AssignTranslatorsToBook(book14, [translator2], Language.German);
 
-		var book15 = new Book("9781250301697", "The Silent Patient", new DateOnly(2019, 2, 5), 6, Genre.Thriller,
-			"Oxford University Press", "A woman shoots her husband and never speaks again.");
+		var book15 = new Book
+		{
+			Title = "The Silent Patient",
+			ISBN = ISBN.Create("9781250301697"),
+			PublishDate = new DateOnly(2019, 2, 5),
+			TotalCopies = 6,
+			Genre = BookGenre.Create(Genre.Thriller),
+			Publisher = "Oxford University Press",
+			OriginalLanguage = Language.Italian,
+			Description = "A woman shoots her husband and never speaks again."
+		};
 		bookRepository.AssignAuthorsToBook(book15, [author4]);
-		bookRepository.AssignTranslatorsToBook(book15, [translator3]);
+		bookRepository.AssignTranslatorsToBook(book15, [translator3], Language.Spanish);
 
 		bookRepository.Add(book1);
 		bookRepository.Add(book2);
@@ -163,59 +364,194 @@ public static class DataSeeder
 		var memberRole = allRoles.First(r => r.Name == LibraryUserRole.Member);
 		var librarianRole = allRoles.First(r => r.Name == LibraryUserRole.Librarian);
 
-		var admin = new User("Sara", "Admin", "3780254901", "admin@library.com", "09120000010",
-			new DateOnly(1985, 3, 15), adminRole);
+		var admin = new User
+		{
+			FirstName = "Sara",
+			LastName = "Admin",
+			NationalCode = "3780254901",
+			Email = Email.Create("admin@library.com"),
+			PhoneNumber = PhoneNumber.Create("09120000010"),
+			BirthDate = new DateOnly(1985, 3, 15),
+			Role = adminRole
+		};
 		SetPassword(admin, "Admin@123");
 
-		var librarian1 = new User("Ali", "Librarian", "3780254902", "librarian@library.com", "09120000011",
-			new DateOnly(1990, 5, 20), librarianRole);
+		var librarian1 = new User
+		{
+			FirstName = "Ali",
+			LastName = "Librarian",
+			NationalCode = "3780254902",
+			Email = Email.Create("librarian@library.com"),
+			PhoneNumber = PhoneNumber.Create("09120000011"),
+			BirthDate = new DateOnly(1990, 5, 20),
+			Role = librarianRole
+		};
 		SetPassword(librarian1, "Librarian1@123");
 
-		var librarian2 = new User("Reza", "Karimi", "3780254903", "reza.karimi@library.com", "09120000014",
-			new DateOnly(1988, 11, 5), librarianRole, membershipStartDate: new DateOnly(2026, 1, 15));
+		var librarian2 = new User
+		{
+			FirstName = "Reza",
+			LastName = "Karimi",
+			NationalCode = "3780254903",
+			Email = Email.Create("reza.karimi@library.com"),
+			PhoneNumber = PhoneNumber.Create("09120000014"),
+			BirthDate = new DateOnly(1988, 11, 5),
+			Role = librarianRole,
+			MembershipStartDate = new DateOnly(2026, 1, 15)
+		};
 		SetPassword(librarian2, "Librarian2@123");
 
-		var librarian3 = new User("Zahra", "Rahimi", "3780254904", "zahra.rahimi@library.com", "09120000015",
-			new DateOnly(1992, 4, 18), librarianRole);
+		var librarian3 = new User
+		{
+			FirstName = "Zahra",
+			LastName = "Rahimi",
+			NationalCode = "3780254904",
+			Email = Email.Create("zahra.rahimi@library.com"),
+			PhoneNumber = PhoneNumber.Create("09120000015"),
+			BirthDate = new DateOnly(1992, 4, 18),
+			Role = librarianRole
+		};
 		SetPassword(librarian3, "Librarian3@123");
 
-		var member1 = new User("Mohammad", "Ahmadi", "3780254905", "m.ahmadi@example.com", "09120000012",
-			new DateOnly(1998, 1, 10), memberRole);
+		var member1 = new User
+		{
+			FirstName = "Mohammad",
+			LastName = "Ahmadi",
+			NationalCode = "3780254905",
+			Email = Email.Create("m.ahmadi@example.com"),
+			PhoneNumber = PhoneNumber.Create("09120000012"),
+			BirthDate = new DateOnly(1998, 1, 10),
+			Role = memberRole
+		};
 		SetPassword(member1, "Member1@123");
 
-		var member2 = new User("Fateme", "Hosseini", "3780254906", "f.hosseini@example.com", "09120000013",
-			new DateOnly(2000, 7, 25), memberRole, membershipStartDate: new DateOnly(2026, 9, 1));
+		var member2 = new User
+		{
+			FirstName = "Fateme",
+			LastName = "Hosseini",
+			NationalCode = "3780254906",
+			Email = Email.Create("f.hosseini@example.com"),
+			PhoneNumber = PhoneNumber.Create("09120000013"),
+			BirthDate = new DateOnly(2000, 7, 25),
+			Role = memberRole,
+			MembershipStartDate = new DateOnly(2026, 9, 1)
+		};
 
-		var member3 = new User("Hossein", "Moradi", "3780254907", "h.moradi@example.com", "09120000016",
-			new DateOnly(1995, 9, 12), memberRole);
+		var member3 = new User
+		{
+			FirstName = "Hossein",
+			LastName = "Moradi",
+			NationalCode = "3780254907",
+			Email = Email.Create("h.moradi@example.com"),
+			PhoneNumber = PhoneNumber.Create("09120000016"),
+			BirthDate = new DateOnly(1995, 9, 12),
+			Role = memberRole
+		};
 
-		var member4 = new User("Narges", "Salehi", "3780254908", "n.salehi@example.com", "09120000017",
-			new DateOnly(2001, 2, 28), memberRole, membershipStartDate: new DateOnly(2025, 10, 1));
+		var member4 = new User
+		{
+			FirstName = "Narges",
+			LastName = "Salehi",
+			NationalCode = "3780254908",
+			Email = Email.Create("n.salehi@example.com"),
+			PhoneNumber = PhoneNumber.Create("09120000017"),
+			BirthDate = new DateOnly(2001, 2, 28),
+			Role = memberRole,
+			MembershipStartDate = new DateOnly(2025, 10, 1)
+		};
 		SetPassword(member4, "Member4@123");
 
-		var member5 = new User("Ali", "Rezaei", "3780254909", "a.rezaei@example.com", "09120000018",
-			new DateOnly(1997, 6, 15), memberRole);
+		var member5 = new User
+		{
+			FirstName = "Ali",
+			LastName = "Rezaei",
+			NationalCode = "3780254909",
+			Email = Email.Create("a.rezaei@example.com"),
+			PhoneNumber = PhoneNumber.Create("09120000018"),
+			BirthDate = new DateOnly(1997, 6, 15),
+			Role = memberRole
+		};
 
-		var member6 = new User("Maryam", "Khalili", "3780254910", "maryam.khalili@example.com", "09120000019",
-			new DateOnly(1999, 10, 3), memberRole, membershipStartDate: new DateOnly(2025, 9, 10));
+		var member6 = new User
+		{
+			FirstName = "Maryam",
+			LastName = "Khalili",
+			NationalCode = "3780254910",
+			Email = Email.Create("maryam.khalili@example.com"),
+			PhoneNumber = PhoneNumber.Create("09120000019"),
+			BirthDate = new DateOnly(1999, 10, 3),
+			Role = memberRole,
+			MembershipStartDate = new DateOnly(2025, 9, 10)
+		};
 
-		var member7 = new User("Seyed", "Mousavi", "3780254911", "s.mousavi@example.com", "09120000020",
-			new DateOnly(1987, 12, 22), memberRole);
+		var member7 = new User
+		{
+			FirstName = "Seyed",
+			LastName = "Mousavi",
+			NationalCode = "3780254911",
+			Email = Email.Create("s.mousavi@example.com"),
+			PhoneNumber = PhoneNumber.Create("09120000020"),
+			BirthDate = new DateOnly(1987, 12, 22),
+			Role = memberRole
+		};
 
-		var member8 = new User("Leila", "Pourahmadi", "3780254912", "leila.pourahmadi@example.com", "09120000021",
-			new DateOnly(2002, 5, 7), memberRole, membershipStartDate: new DateOnly(2026, 10, 1));
+		var member8 = new User
+		{
+			FirstName = "Leila",
+			LastName = "Pourahmadi",
+			NationalCode = "3780254912",
+			Email = Email.Create("leila.pourahmadi@example.com"),
+			PhoneNumber = PhoneNumber.Create("09120000021"),
+			BirthDate = new DateOnly(2002, 5, 7),
+			Role = memberRole,
+			MembershipStartDate = new DateOnly(2026, 10, 1)
+		};
 
-		var member9 = new User("Mehdi", "Hashemi", "3780254913", "mehdi.hashemi@example.com", "09120000022",
-			new DateOnly(1996, 8, 19), memberRole);
+		var member9 = new User
+		{
+			FirstName = "Mehdi",
+			LastName = "Hashemi",
+			NationalCode = "3780254913",
+			Email = Email.Create("mehdi.hashemi@example.com"),
+			PhoneNumber = PhoneNumber.Create("09120000022"),
+			BirthDate = new DateOnly(1996, 8, 19),
+			Role = memberRole
+		};
 
-		var member10 = new User("Sara", "Nikoo", "3780254914", "s.nikoo@example.com", "09120000023",
-			new DateOnly(2003, 3, 30), memberRole, membershipStartDate: new DateOnly(2025, 12, 1));
+		var member10 = new User
+		{
+			FirstName = "Sara",
+			LastName = "Nikoo",
+			NationalCode = "3780254914",
+			Email = Email.Create("s.nikoo@example.com"),
+			PhoneNumber = PhoneNumber.Create("09120000023"),
+			BirthDate = new DateOnly(2003, 3, 30),
+			Role = memberRole,
+			MembershipStartDate = new DateOnly(2025, 12, 1)
+		};
 
-		var member11 = new User("Amir", "Jafari", "3780254915", "amir.jafari@example.com", "09120000024",
-			new DateOnly(1994, 7, 14), memberRole);
+		var member11 = new User
+		{
+			FirstName = "Amir",
+			LastName = "Jafari",
+			NationalCode = "3780254915",
+			Email = Email.Create("amir.jafari@example.com"),
+			PhoneNumber = PhoneNumber.Create("09120000024"),
+			BirthDate = new DateOnly(1994, 7, 14),
+			Role = memberRole
+		};
 
-		var member12 = new User("Fatemeh", "Ebrahimi", "3780254916", "f.ebrahimi@example.com", "09120000025",
-			new DateOnly(1991, 11, 9), memberRole, membershipStartDate: new DateOnly(2026, 1, 1));
+		var member12 = new User
+		{
+			FirstName = "Fatemeh",
+			LastName = "Ebrahimi",
+			NationalCode = "3780254916",
+			Email = Email.Create("f.ebrahimi@example.com"),
+			PhoneNumber = PhoneNumber.Create("09120000025"),
+			BirthDate = new DateOnly(1991, 11, 9),
+			Role = memberRole,
+			MembershipStartDate = new DateOnly(2026, 1, 1)
+		};
 
 		userRepository.Add(admin);
 		userRepository.Add(librarian1);
@@ -249,17 +585,17 @@ public static class DataSeeder
 	{
 		var users = userRepository.GetAll(EntityFilter.Active);
 		var books = bookRepository.GetAll(EntityFilter.Active);
-		var today  = DateOnly.FromDateTime(DateTime.Today);
+		var today = DateOnly.FromDateTime(DateTime.Today);
 
-		CreateActiveLoan(GetUser(4), GetBook(0), loanRepository, today.AddDays(-2), bookRepository);
-		CreateActiveLoan(GetUser(4), GetBook(1), loanRepository, today, bookRepository);
-		CreateActiveLoan(GetUser(5), GetBook(5), loanRepository, today.AddDays(-20), bookRepository);
-		CreateActiveLoan(GetUser(6), GetBook(2), loanRepository, today, bookRepository);
-		CreateActiveLoan(GetUser(6), GetBook(8), loanRepository, today.AddDays(-25), bookRepository);
-		CreateActiveLoan(GetUser(6), GetBook(10), loanRepository, today, bookRepository);
-		CreateActiveLoan(GetUser(8), GetBook(3), loanRepository, today.AddDays(-35), bookRepository);
-		CreateActiveLoan(GetUser(7), GetBook(4), loanRepository, today, bookRepository);
-		CreateActiveLoan(GetUser(4), GetBook(10), loanRepository, today.AddDays(-40), bookRepository);
+		CreateActiveLoan(GetUser(4), GetBook(0), loanRepository, bookRepository);
+		CreateActiveLoan(GetUser(4), GetBook(1), loanRepository, bookRepository);
+		CreateActiveLoan(GetUser(5), GetBook(5), loanRepository, bookRepository);
+		CreateActiveLoan(GetUser(6), GetBook(2), loanRepository, bookRepository);
+		CreateActiveLoan(GetUser(6), GetBook(8), loanRepository, bookRepository);
+		CreateActiveLoan(GetUser(6), GetBook(10), loanRepository, bookRepository);
+		CreateActiveLoan(GetUser(8), GetBook(3), loanRepository, bookRepository);
+		CreateActiveLoan(GetUser(7), GetBook(4), loanRepository, bookRepository);
+		CreateActiveLoan(GetUser(4), GetBook(10), loanRepository, bookRepository);
 
 
 		CreateReturnedLoan(GetUser(4), GetBook(6), loanRepository, bookRepository, fineRepository, today.AddDays(-25),
@@ -281,12 +617,18 @@ public static class DataSeeder
 	}
 
 
-	private static void CreateActiveLoan(User user, Book book, ILoanRepository loanRepository, DateOnly? loanDate,
+	private static void CreateActiveLoan(User user, Book book, ILoanRepository loanRepository,
 		IBookRepository bookRepository)
 	{
 		if (book.AvailableCopies <= 0) return;
 
-		var loan = new Loan(book, user, loanDate);
+		var loan = new Loan
+		{
+			Book = book,
+			BookId = book.Id,
+			User = user,
+			UserId = user.Id,
+		};
 		bookRepository.BorrowCopy(book);
 		loanRepository.Add(loan);
 	}
@@ -295,13 +637,26 @@ public static class DataSeeder
 	private static void CreateReturnedLoan(User user, Book book, ILoanRepository loanRepository,
 		IBookRepository bookRepository, IFineRepository fineRepository, DateOnly? loanDate, DateOnly returnDate)
 	{
-		var loan = new Loan(book, user, loanDate);
+		var loan = new Loan
+		{
+			Book = book,
+			BookId = book.Id,
+			User = user,
+			UserId = user.Id,
+		};
 		bookRepository.BorrowCopy(book);
 		loan.MarkAsReturned(returnDate);
 		bookRepository.ReturnCopy(book);
 		loanRepository.Add(loan);
 		if (!(loan.ReturnDate > loan.DueDate)) return;
-		var fine = new Fine(loan);
+		var fine = new Fine
+		{
+			Loan = loan,
+			LoanId = loan.Id,
+			UserId = loan.UserId,
+			OverdueDays = loan.ReturnDate.Value.DayNumber - loan.DueDate.DayNumber,
+		};
+
 		fineRepository.Add(fine);
 	}
 }
