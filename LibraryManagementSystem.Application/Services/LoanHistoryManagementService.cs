@@ -1,7 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Interfaces;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
-using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.DTOs.Loans;
 using LibraryManagementSystem.Infrastructure.Enums;
@@ -21,7 +20,20 @@ public class LoanHistoryManagementService : ILoanHistoryManagementService
 
 	public void Record(Loan loan, LoanHistoryAction action, string? description = null)
 	{
-		var history = new LoanHistory(loan, action, description);
+		var history = new LoanHistory
+		{
+			Id = Guid.CreateVersion7(),
+			Loan = loan,
+			LoanId = loan.Id,
+			User = loan.User,
+			UserId = loan.UserId,
+			Book = loan.Book,
+			BookId = loan.BookId,
+			Action = action,
+			OccurredAt = DateTime.UtcNow,
+			Description = description
+		};
+
 		_loanHistoryRepository.Add(history);
 	}
 

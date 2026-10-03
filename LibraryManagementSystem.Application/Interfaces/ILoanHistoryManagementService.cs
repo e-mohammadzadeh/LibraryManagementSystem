@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Infrastructure.Enums;
+﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Infrastructure.Enums;
 
 namespace LibraryManagementSystem.Application.Interfaces;
 

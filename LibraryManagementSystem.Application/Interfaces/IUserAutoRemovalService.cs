@@ -1,4 +1,6 @@
-﻿namespace LibraryManagementSystem.Application.Interfaces;
+﻿using LibraryManagementSystem.Application.Common;
+
+namespace LibraryManagementSystem.Application.Interfaces;
 
 public interface IUserAutoRemovalService
 {
