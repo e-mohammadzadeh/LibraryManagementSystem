@@ -13,8 +13,8 @@ public static class BookUpdateAuditDetailsBuilder
 		if (dto.BookName is not null && dto.BookName != book.Title)
 			changes.Add($"Changed book name from '{book.Title}' to '{dto.BookName}'.");
 
-		if (dto.ISBN is not null && dto.ISBN != book.InternationalStandardBookNumber)
-			changes.Add($"Changed ISBN from '{book.InternationalStandardBookNumber}' to '{dto.ISBN}'.");
+		if (dto.ISBN is not null && dto.ISBN != book.ISBN)
+			changes.Add($"Changed ISBN from '{book.ISBN}' to '{dto.ISBN}'.");
 
 		if (dto.PublishDate is not null && dto.PublishDate != book.PublishDate)
 			changes.Add(
@@ -39,7 +39,7 @@ public static class BookUpdateAuditDetailsBuilder
 		// Authors
 		if (resolvedAuthors is not null)
 		{
-			var oldAuthors = book.BookAuthors
+			var oldAuthors = book.Authors
 				.Select(ba => $"{ba.Author.FirstName} {ba.Author.LastName}")
 				.OrderBy(name => name)
 				.ToList();
@@ -60,7 +60,7 @@ public static class BookUpdateAuditDetailsBuilder
 		// Translators
 		if (resolvedTranslators is not null)
 		{
-			var oldTranslators = book.BookTranslators
+			var oldTranslators = book.Translators
 				.Select(bt => $"{bt.Translator.FirstName} {bt.Translator.LastName}")
 				.OrderBy(name => name)
 				.ToList();

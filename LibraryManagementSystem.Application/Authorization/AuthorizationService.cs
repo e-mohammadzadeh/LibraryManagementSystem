@@ -3,6 +3,7 @@ using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.DTOs.Users;
 using LibraryManagementSystem.Infrastructure.Enums;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
 
 namespace LibraryManagementSystem.Application.Authorization;
 
@@ -43,7 +44,7 @@ public class AuthorizationService : IAuthorizationService
 		if (user.MembershipExpiryDate < DateOnly.FromDateTime(DateTime.Today))
 			return ServiceResult<string>.Fail(Messages.MembershipExpired);
 
-		return _loanRepository.HasOverdueLoans(user.Id)
+		return _loanRepository.HasLoans(user.Id, null, LoanFilter.Overdue)
 			? ServiceResult<string>.Fail(Messages.BorrowBlockedDueToOverdue)
 			: ServiceResult<string>.Ok("Eligible to borrow.", "Borrowing allowed.");
 	}
