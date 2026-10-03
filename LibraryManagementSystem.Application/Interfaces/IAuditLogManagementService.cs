@@ -1,7 +1,7 @@
 ﻿using LibraryManagementSystem.Infrastructure.DTOs.AuditLog;
 using LibraryManagementSystem.Infrastructure.Enums;
 
-namespace LibraryManagementSystem.Application.Services;
+namespace LibraryManagementSystem.Application.Interfaces;
 
 public interface IAuditLogManagementService
 {

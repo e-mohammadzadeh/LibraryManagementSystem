@@ -9,6 +9,8 @@ public class InMemoryFineHistory : IFineHistoryRepository
 
 	public void Add(FineHistory history)
 	{
+		history.Id = Guid.CreateVersion7();
+		
 		_histories.Add(history);
 	}
 

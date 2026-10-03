@@ -1,9 +1,9 @@
-﻿using LibraryManagementSystem.Application.Mapping;
+﻿using LibraryManagementSystem.Application.Interfaces;
+using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.DTOs.Fine;
-using LibraryManagementSystem.Infrastructure.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
 
@@ -20,7 +20,22 @@ public class FineHistoryManagementService: IFineHistoryManagementService
 
 	public void Record(Fine fine, FineHistoryAction action, string? description = null)
 	{
-		var history = new FineHistory(fine, action, description);
+		var history = new FineHistory
+		{
+			Fine = fine,
+			FineId = fine.Id,
+			Loan = fine.Loan,
+			LoanId = fine.LoanId,
+			User = fine.Loan.User,
+			UserId = fine.Loan.UserId,
+			OverdueDays = fine.OverdueDays,
+			Money = fine.Money,
+			Status = fine.Status,
+			Action = action,
+			OccurredAt = DateTime.UtcNow,
+			Description = description
+		};
+
 		_fineHistoryRepository.Add(history);
 	}
 

@@ -1,6 +1,6 @@
 ﻿using LibraryManagementSystem.Domain.Enums;
 
-namespace LibraryManagementSystem.Infrastructure.Interfaces;
+namespace LibraryManagementSystem.Application.Interfaces;
 
 public interface IFineHistoryManagementService
 {
