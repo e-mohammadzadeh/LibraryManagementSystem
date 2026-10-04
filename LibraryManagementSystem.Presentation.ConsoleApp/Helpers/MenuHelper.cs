@@ -62,13 +62,9 @@ public static class MenuHelper
 		{
 			printer(authorsList);
 			// TODO	Max parameter has some logical issues when authors are removed and new authors are added.
-			var desiredAuthorId = ConsoleHelper.ReadInt("Enter the number of the author you wish", 1, 1000);
+			var desiredAuthorId = ConsoleHelper.ReadInt("Enter the number of the author you wish", 1, authorsList.Count);
 
 			if (desiredAuthorId is null) return null;
-
-			var desiredAuthor = authorsList.FirstOrDefault(a => a.Id == desiredAuthorId.Value);
-			if (desiredAuthor != null) return desiredAuthor;
-
 			ConsoleHelper.ShowError(Messages.AuthorNotFound);
 		}
 	}
@@ -93,14 +89,9 @@ public static class MenuHelper
 		{
 			printer(translatorsList);
 			// TODO	Max parameter has some logical issues when authors are removed and new authors are added.
-			var desiredTranslatorId =
-				ConsoleHelper.ReadInt(Messages.SelectTranslatorQuestion, 1, translatorsList.Max(t => t.Id));
+			var desiredTranslatorId = ConsoleHelper.ReadInt(Messages.SelectTranslatorQuestion, 1, translatorsList.Count);
 
 			if (desiredTranslatorId is null) return null;
-
-			var desiredTranslator = translatorsList.FirstOrDefault(t => t.Id == desiredTranslatorId.Value);
-			if (desiredTranslator != null) return desiredTranslator;
-
 			ConsoleHelper.ShowError(Messages.TranslatorNotFound);
 		}
 	}
@@ -117,13 +108,9 @@ public static class MenuHelper
 		while (true)
 		{
 			BookPrinter.PrintTable(booksList, authorization: null, title);
-			var desiredBookId = ConsoleHelper.ReadInt(Messages.SelectBookQuestion, 1, booksList.Max(b => b.Id));
+			var desiredBookId = ConsoleHelper.ReadInt(Messages.SelectBookQuestion, 1, booksList.Count);
 
 			if (desiredBookId is null) return null;
-
-			var desiredBook = booksList.FirstOrDefault(b => b.Id == desiredBookId.Value);
-			if (desiredBook != null) return desiredBook;
-
 			ConsoleHelper.ShowError(Messages.BookNotFound);
 		}
 	}
@@ -141,13 +128,9 @@ public static class MenuHelper
 		{
 			printer(usersList);
 			// TODO	Max parameter has some logical issues when authors are removed and new authors are added.
-			var desiredMemberId = ConsoleHelper.ReadInt(Messages.SelectMemberQuestion, 1, usersList.Max(u => u.Id));
+			var desiredMemberId = ConsoleHelper.ReadInt(Messages.SelectMemberQuestion, 1, usersList.Count);
 
 			if (desiredMemberId is null) return null;
-
-			var desiredMember = usersList.FirstOrDefault(m => m.Id == desiredMemberId.Value);
-			if (desiredMember != null) return desiredMember;
-
 			ConsoleHelper.ShowError(Messages.UserNotFound);
 		}
 	}
