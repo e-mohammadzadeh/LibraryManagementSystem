@@ -39,7 +39,7 @@ public static class BookUpdateAuditDetailsBuilder
 		// Authors
 		if (resolvedAuthors is not null)
 		{
-			var oldAuthors = book.Authors
+			var oldAuthors = book.BookAuthors
 				.Select(ba => $"{ba.Author.FirstName} {ba.Author.LastName}")
 				.OrderBy(name => name)
 				.ToList();
@@ -60,7 +60,7 @@ public static class BookUpdateAuditDetailsBuilder
 		// Translators
 		if (resolvedTranslators is not null)
 		{
-			var oldTranslators = book.Translators
+			var oldTranslators = book.BookTranslators
 				.Select(bt => $"{bt.Translator.FirstName} {bt.Translator.LastName}")
 				.OrderBy(name => name)
 				.ToList();

@@ -39,13 +39,13 @@ public class InMemoryBookRepository : IBookRepository
 
 	public IReadOnlyList<Book> GetByAuthorId(Guid authorId, EntityFilter filter = EntityFilter.Active)
 	{
-		return [.. ApplyFilter(_books, filter).Where(b => b.Authors.Any(a => a.AuthorId == authorId))];
+		return [.. ApplyFilter(_books, filter).Where(b => b.BookAuthors.Any(a => a.AuthorId == authorId))];
 	}
 
 
 	public IReadOnlyList<Book> GetByTranslatorId(Guid translatorId, EntityFilter filter = EntityFilter.Active)
 	{
-		return [.. ApplyFilter(_books, filter).Where(b => b.Translators.Any(t => t.TranslatorId == translatorId))];
+		return [.. ApplyFilter(_books, filter).Where(b => b.BookTranslators.Any(t => t.TranslatorId == translatorId))];
 	}
 
 
@@ -127,8 +127,8 @@ public class InMemoryBookRepository : IBookRepository
 
 		tracked.Title = book.Title;
 		tracked.ISBN = book.ISBN;
-		tracked.Authors = book.Authors;
-		tracked.Translators = book.Translators;
+		tracked.BookAuthors = book.BookAuthors;
+		tracked.BookTranslators = book.BookTranslators;
 		tracked.PublishDate = book.PublishDate;
 		tracked.Genre = book.Genre;
 		tracked.Publisher = book.Publisher;
@@ -162,24 +162,24 @@ public class InMemoryBookRepository : IBookRepository
 
 	public void RemoveAuthor(Book book, Guid authorId)
 	{
-		if (book.Authors.Count <= 1) throw new InvalidOperationException(Messages.BookRequiresAtLeastOneAuthor);
+		if (book.BookAuthors.Count <= 1) throw new InvalidOperationException(Messages.BookRequiresAtLeastOneAuthor);
 
-		var bookAuthor = book.Authors.FirstOrDefault(ba => ba.AuthorId == authorId);
+		var bookAuthor = book.BookAuthors.FirstOrDefault(ba => ba.AuthorId == authorId);
 
 		if (bookAuthor is null) return;
 
-		book.Authors.Remove(bookAuthor);
+		book.BookAuthors.Remove(bookAuthor);
 		book.UpdatedAt = DateTime.UtcNow;
 	}
 
 
 	public void RemoveTranslator(Book book, Guid translatorId)
 	{
-		var bookTranslator = book.Translators.FirstOrDefault(bt => bt.TranslatorId == translatorId);
+		var bookTranslator = book.BookTranslators.FirstOrDefault(bt => bt.TranslatorId == translatorId);
 
 		if (bookTranslator is null) return;
 
-		book.Translators.Remove(bookTranslator);
+		book.BookTranslators.Remove(bookTranslator);
 		book.UpdatedAt = DateTime.UtcNow;
 	}
 
@@ -193,7 +193,7 @@ public class InMemoryBookRepository : IBookRepository
 		if (authorList.Count == 0) throw new ArgumentException(Messages.BookRequiresAtLeastOneAuthor);
 
 		var incomingIds = authorList.Select(a => a.Id).ToHashSet();
-		var existingIds = book.Authors.Select(ba => ba.AuthorId).ToHashSet();
+		var existingIds = book.BookAuthors.Select(ba => ba.AuthorId).ToHashSet();
 
 		foreach (var authorId in existingIds.Except(incomingIds)) RemoveAuthor(book, authorId);
 		foreach (var author in authorList) AddAuthor(book, author);
@@ -207,7 +207,7 @@ public class InMemoryBookRepository : IBookRepository
 
 		var translatorList = translators.DistinctBy(t => t.Id).ToList();
 		var incomingIds = translatorList.Select(t => t.Id).ToHashSet();
-		var existingIds = book.Translators.Select(bt => bt.TranslatorId).ToHashSet();
+		var existingIds = book.BookTranslators.Select(bt => bt.TranslatorId).ToHashSet();
 
 		foreach (var translatorId in existingIds.Except(incomingIds)) RemoveTranslator(book, translatorId);
 		foreach (var translator in translatorList) AddTranslator(book, translator, language);
@@ -218,7 +218,7 @@ public class InMemoryBookRepository : IBookRepository
 	{
 		ArgumentNullException.ThrowIfNull(book);
 
-		foreach (var translatorId in book.Translators.Select(bt => bt.TranslatorId).ToList())
+		foreach (var translatorId in book.BookTranslators.Select(bt => bt.TranslatorId).ToList())
 			RemoveTranslator(book, translatorId);
 	}
 
@@ -244,9 +244,9 @@ public class InMemoryBookRepository : IBookRepository
 	// ---------- Private helper ---------
 	private static void AddAuthor(Book book, Author author)
 	{
-		if (book.Authors.Any(ba => ba.AuthorId == author.Id)) return;
+		if (book.BookAuthors.Any(ba => ba.AuthorId == author.Id)) return;
 
-		book.Authors.Add(new BookAuthor
+		book.BookAuthors.Add(new BookAuthor
 		{
 			BookId = book.Id,
 			Book = book,
@@ -259,9 +259,9 @@ public class InMemoryBookRepository : IBookRepository
 
 	private static void AddTranslator(Book book, Translator translator, Language language)
 	{
-		if (book.Translators.Any(bt => bt.TranslatorId == translator.Id)) return;
+		if (book.BookTranslators.Any(bt => bt.TranslatorId == translator.Id)) return;
 
-		book.Translators.Add(new BookTranslator
+		book.BookTranslators.Add(new BookTranslator
 		{
 			Book = book,
 			BookId = book.Id,

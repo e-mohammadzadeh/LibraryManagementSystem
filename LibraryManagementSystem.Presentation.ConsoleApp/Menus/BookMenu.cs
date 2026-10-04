@@ -111,10 +111,19 @@ public static class BookMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllBooks, Messages.AccessDenied))
 						break;
 					Console.Clear();
-					if (bookManagementService.GetAllBooks().Count is 0)
+					var books = bookManagementService.GetAllBooks();
+					if (books.Count is 0)
 						ConsoleHelper.ShowWarning(Messages.NotAvailableBook);
 					else
-						BookPrinter.PrintTable(bookManagementService.GetAllBooks(), authorization, "All Books");
+					{
+						var details = new BookDetailsDto
+						{
+							Book = books,
+							Authors = 
+						};
+
+						BookPrinter.PrintTable(details, authorization, "All Books");
+					}
 					ConsoleHelper.Pause();
 					break;
 				}

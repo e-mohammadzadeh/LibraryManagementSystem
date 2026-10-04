@@ -119,11 +119,11 @@ public class BookManagementService
 			BookSortField.AvailableCopies => ApplySort(books, book => book.AvailableCopies, sortDirection),
 			BookSortField.Author => ApplySort(books,
 				book => string.Join(", ",
-					book.Authors.Select(ba => $"{ba.Author.FirstName} {ba.Author.LastName}").Order()), sortDirection),
+					book.BookAuthors.Select(ba => $"{ba.Author.FirstName} {ba.Author.LastName}").Order()), sortDirection),
 
 			BookSortField.Translator => ApplySort(books,
 				book => string.Join(", ",
-					book.Translators.Select(bt => $"{bt.Translator.FirstName} {bt.Translator.LastName}").Order()),
+					book.BookTranslators.Select(bt => $"{bt.Translator.FirstName} {bt.Translator.LastName}").Order()),
 				sortDirection),
 
 			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
@@ -235,9 +235,9 @@ public class BookManagementService
 	{
 		return (dto.BookName == null || dto.BookName == book.Title) &&
 		       (dto.ISBN == null || dto.ISBN == book.ISBN) &&
-		       (dto.AuthorIds == null || SameIds(dto.AuthorIds, book.Authors.Select(ba => ba.AuthorId))) &&
+		       (dto.AuthorIds == null || SameIds(dto.AuthorIds, book.BookAuthors.Select(ba => ba.AuthorId))) &&
 		       (dto.TranslatorIds == null ||
-		        SameIds(dto.TranslatorIds, book.Translators.Select(bt => bt.TranslatorId))) &&
+		        SameIds(dto.TranslatorIds, book.BookTranslators.Select(bt => bt.TranslatorId))) &&
 		       (dto.PublishDate == null || dto.PublishDate == book.PublishDate) &&
 		       (dto.Genre == null || dto.Genre == book.Genre) &&
 		       (dto.Publisher == null || dto.Publisher == book.Publisher) &&
@@ -282,12 +282,12 @@ public class BookManagementService
 			BookSearchField.BookName => b => b.Title,
 			BookSearchField.ISBN => b => b.ISBN,
 			BookSearchField.AuthorName => b =>
-				string.Join(", ", b.Authors.Select(ba => $"{ba.Author.FirstName} {ba.Author.LastName}")),
+				string.Join(", ", b.BookAuthors.Select(ba => $"{ba.Author.FirstName} {ba.Author.LastName}")),
 			BookSearchField.TranslatorName => b =>
-				b.Translators.Count == 0
+				b.BookTranslators.Count == 0
 					? null
 					: string.Join(", ",
-						b.Translators.Select(bt => $"{bt.Translator.FirstName} {bt.Translator.LastName}")),
+						b.BookTranslators.Select(bt => $"{bt.Translator.FirstName} {bt.Translator.LastName}")),
 			BookSearchField.PublishDate => b => b.PublishDate.ToString("yyyy-MM-dd"),
 			BookSearchField.Genre => b => b.Genre.ToString(),
 			BookSearchField.Publisher => b => b.Publisher,

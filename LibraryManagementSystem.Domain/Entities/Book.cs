@@ -8,8 +8,8 @@ public class Book
 	public Guid Id { get; set; }
 	public string Title { get; set; } = string.Empty;
 	public ISBN ISBN { get; set; } = null!;
-	public List<BookAuthor> Authors { get; set; } = null!;
-	public List<BookTranslator> Translators { get; set; } = null!;
+	public ICollection<BookAuthor> BookAuthors { get; set; } = new List<BookAuthor>();
+	public ICollection<BookTranslator> BookTranslators { get; set; } = new List<BookTranslator>();
 	public DateOnly PublishDate { get; set; }
 	public BookGenre Genre { get; set; } = null!;
 	public string Publisher { get; set; } = string.Empty;
