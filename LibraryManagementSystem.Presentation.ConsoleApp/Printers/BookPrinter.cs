@@ -10,15 +10,21 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
 public static class BookPrinter
 {
-	public static void PrintDetails(BookDto book)
+	public static void PrintDetails(BookDetailsDto details)
 	{
 		ConsoleHelper.ClearConsole();
+		var book = details.Book;
 
 		// One name/email per line when there are many (wraps cleanly in the value column)
-		var authorNames = book.Authors.Count == 0 ? ["—"] : book.Authors.Select(a => a.FullName).ToArray();
-		var authorEmails = book.Authors.Count == 0 ? ["—"] : book.Authors.Select(a => a.Email).ToArray();
-		var translatorNames = book.Translators.Count == 0 ? ["—"] : book.Translators.Select(t => t.FullName).ToArray();
-		var translatorEmails = book.Translators.Count == 0 ? ["—"] : book.Translators.Select(t => t.Email).ToArray();
+		var authorNames = details.Authors.Count == 0
+			? ["—"]
+			: details.Authors.Select(a => $"{a.FirstName} {a.LastName}").ToArray();
+		var authorEmails = details.Authors.Count == 0 ? ["—"] : details.Authors.Select(a => a.Email).ToArray();
+		var translatorNames = details.Translators.Count == 0
+			? ["—"]
+			: details.Translators.Select(t => $"{t.FirstName} {t.LastName}").ToArray();
+		var translatorEmails =
+			details.Translators.Count == 0 ? ["—"] : details.Translators.Select(t => t.Email).ToArray();
 
 		var rows = new List<(string Label, string[] ValueLines)>
 		{
@@ -42,10 +48,10 @@ public static class BookPrinter
 	}
 
 
-	public static void PrintTable(IReadOnlyList<BookDto> books, IAuthorizationService? authorization = null,
+	public static void PrintTable(IReadOnlyList<BookDetailsDto> details, IAuthorizationService? authorization = null,
 		string title = "Book List")
 	{
-		if (books.Count == 0)
+		if (details.Count == 0)
 		{
 			ConsoleHelper.ShowError(Messages.NotAvailableBook);
 			return;
@@ -59,18 +65,20 @@ public static class BookPrinter
 
 		var headers = new[]
 		{
-			"ID", "Book Name", "ISBN", "Author(s)", "Translator(s)", "Genre", "Publish Date", "Description", "Publisher",
+			"#", "Book Name", "ISBN", "Author(s)", "Translator(s)", "Genre", "Publish Date", "Description",
+			"Publisher",
 			"Availability"
 		};
 
-		var rows = books.Select(book =>
+		var rows = details.Select((item, index) =>
 		{
-			var authors = book.Authors.Count > 0
-				? book.Authors.Select(a => a.FullName).ToArray()
+			var book = item.Book;
+			var authors = item.Authors.Count > 0
+				? item.Authors.Select(a => $"{a.FirstName} {a.LastName}").ToArray()
 				: ["—"];
 
-			var translators = book.Translators.Count > 0
-				? book.Translators.Select(t => t.FullName).ToArray()
+			var translators = item.Translators.Count > 0
+				? item.Translators.Select(t => $"{t.FirstName} {t.LastName}").ToArray()
 				: ["—"];
 
 			var description = string.IsNullOrWhiteSpace(book.Description)
@@ -89,19 +97,19 @@ public static class BookPrinter
 
 			return new[]
 			{
-				[book.Id.ToString()],
+				[(index + 1).ToString()],
 				bookName,
 				[book.ISBN],
 				authors,
 				translators,
-				[book.Genre.ToString()],
+				[book.Genre],
 				[book.PublishDate.ToString("yyyy-MM-dd")],
 				description,
 				publisher,
 				availability
 			};
 		}).ToList();
-		
+
 		ConsoleTable.PrintTable(title, headers, rows);
 	}
 

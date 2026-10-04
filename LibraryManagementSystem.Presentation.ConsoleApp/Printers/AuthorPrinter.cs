@@ -1,6 +1,4 @@
 ﻿using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.DTOs.Authors;
-using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
@@ -13,13 +11,12 @@ public static class AuthorPrinter
 		Console.Clear();
 		var rows = new List<(string Label, string[] ValueLines)>
 		{
-			("Name", [author.FullName]),
+			("Name", [$"{author.FirstName} {author.LastName}"]),
 			("National Code", [author.NationalCode]),
 			("Email", [author.Email]),
 			("Phone Number", [author.PhoneNumber]),
 			("Birth Date", [author.BirthDate.ToString("yyyy-MM-dd")]),
 			("Biography", [author.Biography!]),
-			("Books", [$"{author.BookCount} associated books"]),
 			("Created At", [author.CreatedAt.ToString("yyyy-MM-dd HH:mm")]),
 			("Updated At", [author.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "N/A"]),
 		};
@@ -37,16 +34,16 @@ public static class AuthorPrinter
 		}
 
 		Console.Clear();
-		var headers = new[] { "ID", "Author Name", "Email Address", "Biography", "Books (ISBN)" };
+		var headers = new[] { "#", "Author Name", "Email Address", "Biography", "Books (ISBN)" };
 
-		var rows = authors.Select(author => new[]
-		{
-			[author.Id.ToString()],
-			[author.FullName],
-			[author.Email],
-			[author.Biography ?? "N/A"],
-			author.Books.Count > 0 ? author.Books.Select(b => $"{b.BookName} ({b.ISBN})").ToArray() : ["No books"]
-		}).ToList();
+		var rows = authors.Select((author, index) => (string[][])
+		[
+			[ (index + 1).ToString() ],                     // friendly counter
+			[ $"{author.FirstName} {author.LastName}" ],
+			[ author.Email ],
+			[ author.Biography ?? "N/A" ],
+			[ "—" ]                                         // later you can put ISBNs here
+		]).ToList();
 
 		ConsoleTable.PrintTable(title, headers, rows);
 	}
@@ -63,23 +60,21 @@ public static class AuthorPrinter
 		Console.Clear();
 		var headers = new[]
 		{
-			"ID", "Author Name", "National Code", "Email Address", "Phone Number", "Birth Date", "Biography",
+			"#", "Author Name", "National Code", "Email Address", "Phone Number", "Birth Date", "Biography",
 			"Books (ISBN)"
 		};
 
-		var rows = authors.Select(author => new[]
-		{
-			[author.Id.ToString()],
-			[author.FullName],
-			[author.NationalCode],
-			[author.Email],
-			[author.PhoneNumber],
-			[author.BirthDate.ToString("yyyy-MM-dd")],
-			[author.Biography ?? "N/A"],
-			author.Books.Count > 0
-				? author.Books.Select(book => $"{book.BookName} ({book.ISBN})").ToArray()
-				: ["No books"]
-		}).ToList();
+		var rows = authors.Select((author, index) => (string[][])
+		[
+			[ (index + 1).ToString() ],
+			[ $"{author.FirstName} {author.LastName}" ],
+			[ author.NationalCode ],
+			[ author.Email ],
+			[ author.PhoneNumber ],
+			[ author.BirthDate.ToString("yyyy-MM-dd") ],
+			[ author.Biography ?? "N/A" ],
+			[ "—" ]                                          // Books column – fill later
+		]).ToList();
 
 		ConsoleTable.PrintTable(title, headers, rows);
 	}
