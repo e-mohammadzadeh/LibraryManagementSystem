@@ -25,7 +25,7 @@ public static class AuthorPrinter
 	}
 
 
-	public static void PrintTable(IReadOnlyList<ContributorDto> authors, string title= "Author List")
+	public static void PrintTable(IReadOnlyList<ContributorDto> authors, string title = "Author List")
 	{
 		if (authors.Count == 0)
 		{
@@ -38,18 +38,18 @@ public static class AuthorPrinter
 
 		var rows = authors.Select((author, index) => (string[][])
 		[
-			[ (index + 1).ToString() ],                     // friendly counter
-			[ $"{author.FirstName} {author.LastName}" ],
-			[ author.Email ],
-			[ author.Biography ?? "N/A" ],
-			[ "—" ]                                         // later you can put ISBNs here
+			[(index + 1).ToString()], // friendly counter
+			[$"{author.FirstName} {author.LastName}"],
+			[author.Email],
+			[author.Biography ?? "N/A"],
+			["—"] // later you can put ISBNs here
 		]).ToList();
 
 		ConsoleTable.PrintTable(title, headers, rows);
 	}
 
 
-	public static void PrintFullTable(IReadOnlyList<ContributorDto> authors, string title= "Author Full Information")
+	public static void PrintFullTable(IReadOnlyList<ContributorDto> authors, string title = "Author Full Information")
 	{
 		if (authors.Count == 0)
 		{
@@ -66,14 +66,14 @@ public static class AuthorPrinter
 
 		var rows = authors.Select((author, index) => (string[][])
 		[
-			[ (index + 1).ToString() ],
-			[ $"{author.FirstName} {author.LastName}" ],
-			[ author.NationalCode ],
-			[ author.Email ],
-			[ author.PhoneNumber ],
-			[ author.BirthDate.ToString("yyyy-MM-dd") ],
-			[ author.Biography ?? "N/A" ],
-			[ "—" ]                                          // Books column – fill later
+			[(index + 1).ToString()],
+			[$"{author.FirstName} {author.LastName}"],
+			[author.NationalCode],
+			[author.Email],
+			[author.PhoneNumber],
+			[author.BirthDate.ToString("yyyy-MM-dd")],
+			[author.Biography ?? "N/A"],
+			["—"] // Books column – fill later
 		]).ToList();
 
 		ConsoleTable.PrintTable(title, headers, rows);

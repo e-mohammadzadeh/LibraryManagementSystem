@@ -590,7 +590,7 @@ public static class AuthorMenu
 		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
 			author => MenuHelper.SelectAuthor(author, authorization), Messages.NotAvailableAuthor);
 		if (desiredAuthor is null) return;
-
+		
 		var books = authorManagementService.GetBooksByAuthor(desiredAuthor.Id);
 		if (books.Count == 0)
 		{

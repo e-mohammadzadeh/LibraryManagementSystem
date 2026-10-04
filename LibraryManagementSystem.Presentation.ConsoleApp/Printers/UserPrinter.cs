@@ -1,5 +1,4 @@
 ﻿using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Users;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
@@ -18,7 +17,7 @@ public class UserPrinter
 			("Email", [user.Email]),
 			("Phone Number", [user.PhoneNumber]),
 			("Birth Date", [user.BirthDate.ToString("yyyy-MM-dd")]),
-			("Role", [string.Join(", ", user.Roles)]),
+			("Role", [user.Role.ToString()]),
 			("Active From", [user.MembershipStartDate.ToString("yyyy-MM-dd")]),
 			("Active Until", [user.MembershipExpiryDate.ToString("yyyy-MM-dd")]),
 			("Is Active", [user.IsActive ? "Yes" : "No"]),
@@ -50,7 +49,7 @@ public class UserPrinter
 			[user.Id.ToString()],
 			ConsoleTable.WrapText(user.FullName, 20),
 			ConsoleTable.WrapText(user.Email, 30),
-			user.Roles.Count > 0 ? user.Roles.Select(r => r.ToString()).ToArray() : ["—"],
+			[user.Role.ToString()],
 			[user.IsActive ? "Yes" : "No"],
 		}).ToList();
 
@@ -76,7 +75,7 @@ public class UserPrinter
 			[user.Id.ToString()],
 			ConsoleTable.WrapText(user.FullName, 20),
 			ConsoleTable.WrapText(user.Email, 30),
-			user.Roles.Count > 0 ? user.Roles.Select(r => r.ToString()).ToArray() : ["—"],
+			[user.Role.ToString()],
 			[user.IsActive ? "Yes" : "No"],
 			[user.MembershipStartDate.ToString("yyyy-MM-dd")],
 			[user.MembershipExpiryDate.ToString("yyyy-MM-dd")]
@@ -108,7 +107,7 @@ public class UserPrinter
 			[user.NationalCode],
 			ConsoleTable.WrapText(user.Email, 30),
 			[user.PhoneNumber],
-			user.Roles.Count > 0 ? user.Roles.Select(r => r.ToString()).ToArray() : ["—"],
+			[user.Role.ToString()],
 			[user.MembershipStartDate.ToString("yyyy-MM-dd")],
 			[user.MembershipExpiryDate.ToString("yyyy-MM-dd")],
 			[user.IsActive ? "Yes" : "No"],
