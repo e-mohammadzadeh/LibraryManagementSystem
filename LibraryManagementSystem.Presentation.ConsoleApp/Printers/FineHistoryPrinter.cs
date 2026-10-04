@@ -1,7 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using System.Text;
-using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Fine;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
@@ -19,8 +18,8 @@ public class FineHistoryPrinter
 		Console.Clear();
 		Console.OutputEncoding = Encoding.UTF8;
 
-		var headers = new[] { "ID", "Fine ID", "Loan ID", "User Name", "Date & Time", "Amount", "Description" };
-		var rows = histories.Select(history =>
+		var headers = new[] { "#", "Fine ID", "Loan ID", "User Name", "Date & Time", "Amount", "Description" };
+		var rows = histories.Select((history, index) =>
 		{
 			var description = string.IsNullOrWhiteSpace(history.Description)
 				? ["—"]
@@ -28,7 +27,7 @@ public class FineHistoryPrinter
 
 			return new[]
 			{
-				[history.Id.ToString()],
+				[(index + 1).ToString()],
 				[history.FineId.ToString()],
 				[history.LoanId.ToString()],
 				ConsoleTable.WrapText(history.UserName, 25),

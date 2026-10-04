@@ -1,5 +1,4 @@
 ﻿using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Fine;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
@@ -13,8 +12,8 @@ public static class FinePrinter
 		var rows = new List<(string Label, string[] ValueLines)>
 		{
 			("Fine ID", [fine.FineId.ToString()]),
-			("Loan ID", [fine.LoanId.ToString()]),
-			("User ID", [fine.UserId.ToString()]),
+			("Loan ID", [fine.LoanId.ToString()[..8]]),
+			("User ID", [fine.UserId.ToString()[..8]]),
 			("User", [fine.UserFullName]),
 			("Book", [fine.BookName]),
 			("Overdue Days", [fine.OverdueDays.ToString()]),
@@ -39,12 +38,12 @@ public static class FinePrinter
 		}
 
 		Console.Clear();
-		var headers = new[] { "ID", "Loan ID", "User", "Book", "Amount", "Days", "Status" };
+		var headers = new[] { "#", "Loan ID", "User", "Book", "Amount", "Days", "Status" };
 
-		var rows = fines.Select(fine => new[]
+		var rows = fines.Select((fine, index) => new[]
 		{
-			[fine.FineId.ToString()],
-			[fine.LoanId.ToString()],
+			[(index + 1).ToString()],
+			[fine.LoanId.ToString()[..8]],
 			ConsoleTable.WrapText(fine.UserFullName, 28),
 			ConsoleTable.WrapText(fine.BookName, 35),
 			[$"{fine.Amount:F2}"],
