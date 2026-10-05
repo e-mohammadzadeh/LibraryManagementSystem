@@ -4,7 +4,7 @@ namespace LibraryManagementSystem.Infrastructure.DTOs.Books;
 
 public class CreateBookDto
 {
-	public required string BookName { get; init; }
+	public required string Title { get; init; }
 	public required string ISBN { get; init; }
 	public List<Guid> AuthorIds { get; init; } = [];
 	public List<Guid> TranslatorIds { get; init; } = [];

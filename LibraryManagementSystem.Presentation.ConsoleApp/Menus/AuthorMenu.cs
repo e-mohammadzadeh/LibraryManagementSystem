@@ -213,7 +213,7 @@ public static class AuthorMenu
 				{
 					var authorNewFirstName = ConsoleHelper.GetValidName("\nEnter new first name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
-					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewFirstName,
+					var updated = PerformUpdate(authorManagementService, authorNewFirstName,
 						v => new UpdateContributorDto { FirstName = v });
 					if (updated is not null) desiredAuthor = updated;
 					break;
@@ -223,7 +223,7 @@ public static class AuthorMenu
 					var authorNewLastName = ConsoleHelper.GetValidName("\nEnter new last name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
-					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewLastName,
+					var updated = PerformUpdate(authorManagementService, authorNewLastName,
 						v => new UpdateContributorDto { LastName = v });
 					if (updated is not null) desiredAuthor = updated;
 					break;
@@ -231,7 +231,7 @@ public static class AuthorMenu
 				case 3:
 				{
 					var authorNewNationalCode = ConsoleHelper.GetValidNationalCode("\nEnter new national code");
-					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewNationalCode,
+					var updated = PerformUpdate(authorManagementService, authorNewNationalCode,
 						v => new UpdateContributorDto { NationalCode = v });
 					if (updated is not null) desiredAuthor = updated;
 					break;
@@ -239,7 +239,7 @@ public static class AuthorMenu
 				case 4:
 				{
 					var authorNewEmail = ConsoleHelper.GetValidEmail("\nEnter new email");
-					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewEmail,
+					var updated = PerformUpdate(authorManagementService, authorNewEmail,
 						v => new UpdateContributorDto { Email = v });
 					if (updated is not null) desiredAuthor = updated;
 					break;
@@ -248,7 +248,7 @@ public static class AuthorMenu
 				{
 					Console.Clear();
 					var authorNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number");
-					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewPhoneNumber,
+					var updated = PerformUpdate(authorManagementService, authorNewPhoneNumber,
 						v => new UpdateContributorDto { PhoneNumber = v });
 					if (updated is not null) desiredAuthor = updated;
 					break;
@@ -256,7 +256,7 @@ public static class AuthorMenu
 				case 6:
 				{
 					var authorNewBirthDate = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
-					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewBirthDate,
+					var updated = PerformUpdate(authorManagementService, authorNewBirthDate,
 						v => new UpdateContributorDto { BirthDate = v });
 					if (updated is not null) desiredAuthor = updated;
 					break;
@@ -264,7 +264,7 @@ public static class AuthorMenu
 				case 7:
 				{
 					var authorNewBiography = ConsoleHelper.ReadString("\nEnter new biography");
-					var updated = PerformUpdate(authorManagementService, desiredAuthor.Id, authorNewBiography,
+					var updated = PerformUpdate(authorManagementService, authorNewBiography,
 						v => new UpdateContributorDto { Biography = v });
 					if (updated is not null) desiredAuthor = updated;
 					break;
@@ -296,13 +296,13 @@ public static class AuthorMenu
 	}
 
 
-	private static ContributorDto? PerformUpdate<T>(AuthorManagementService authorManagementService, Guid desiredAuthorId,
-		T? newValue, Func<T, UpdateContributorDto> buildDto)
+	private static ContributorDto? PerformUpdate<T>(AuthorManagementService authorManagementService, T? newValue,
+		Func<T, UpdateContributorDto> buildDto)
 	{
 		if (newValue is null) return null;
 
 		var dto = buildDto(newValue);
-		var result = authorManagementService.UpdateAuthor(desiredAuthorId, dto);
+		var result = authorManagementService.UpdateAuthor(dto);
 		ConsoleHelper.ShowResult(result);
 		return result.Data;
 	}
@@ -590,7 +590,7 @@ public static class AuthorMenu
 		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
 			author => MenuHelper.SelectAuthor(author, authorization), Messages.NotAvailableAuthor);
 		if (desiredAuthor is null) return;
-		
+
 		var books = authorManagementService.GetBooksByAuthor(desiredAuthor.Id);
 		if (books.Count == 0)
 		{

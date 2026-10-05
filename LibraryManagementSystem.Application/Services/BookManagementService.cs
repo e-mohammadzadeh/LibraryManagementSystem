@@ -39,7 +39,7 @@ public class BookManagementService
 
 	public ServiceResult<BookDto> AddBook(CreateBookDto dto)
 	{
-		if (_bookRepository.ExistsByName(dto.BookName, null))
+		if (_bookRepository.ExistsByName(dto.Title, null))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByName);
 
 		var isbn = ISBN.Create(dto.ISBN);
@@ -85,7 +85,7 @@ public class BookManagementService
 
 		var newBook = new Book
 		{
-			Title = dto.BookName,
+			Title = dto.Title,
 			ISBN = isbn,
 			PublishDate = dto.PublishDate,
 			Genre = genre,
@@ -155,18 +155,18 @@ public class BookManagementService
 	{
 		ArgumentNullException.ThrowIfNull(dto);
 
-		var book = _bookRepository.FindById(dto.BookId, EntityFilter.Active);
+		var book = _bookRepository.FindById(dto.Id, EntityFilter.Active);
 		if (book is null || book.IsRemoved) return ServiceResult<BookDto>.Fail(Messages.NotAvailableBook);
 
 		if (IsNoOpUpdateBook(book, dto)) return ServiceResult<BookDto>.Fail(Messages.NoChangesDetected);
 
-		if (dto.BookName != null && _bookRepository.ExistsByName(dto.BookName, dto.BookId))
+		if (dto.BookName != null && _bookRepository.ExistsByName(dto.BookName, dto.Id))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByName);
 
 		if (dto.ISBN != null)
 		{
 			var isbn = ISBN.Create(dto.ISBN);
-			if (_bookRepository.ExistsByISBN(isbn, dto.BookId))
+			if (_bookRepository.ExistsByISBN(isbn, dto.Id))
 				return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByISBN);
 		}
 
@@ -228,7 +228,7 @@ public class BookManagementService
 			_bookRepository.ReplaceTranslators(book, resolvedTranslators, dto.TranslatedLanguage);
 
 		_bookRepository.Update(book, updatedBy);
-		_auditLog.Record(AuditAction.BookUpdated, "Book", dto.BookId, auditDetails ?? "Book updated.");
+		_auditLog.Record(AuditAction.BookUpdated, "Book", dto.Id, auditDetails ?? "Book updated.");
 		return ServiceResult<BookDto>.Ok(book.ToDto(), Messages.BookUpdatedSuccessfully);
 	}
 
