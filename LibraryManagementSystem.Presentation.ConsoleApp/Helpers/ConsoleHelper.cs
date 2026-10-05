@@ -232,7 +232,8 @@ public static class ConsoleHelper
 	}
 
 
-	public static List<Guid>? ReadAuthors(string prompt, IReadOnlyList<ContributorDto> authors, bool allowMultiple = true,
+	public static List<Guid>? ReadAuthors(string prompt, IReadOnlyList<ContributorDto> authors,
+		bool allowMultiple = true,
 		bool allowEmpty = false)
 	{
 		return ReadMultiSelect(prompt, authors, idSelector: a => a.Id,
@@ -393,6 +394,16 @@ public static class ConsoleHelper
 		var rows = values.Select((t, i) => (string[][])[[(i + 1).ToString()], [SplitCamelCase(t.ToString())]]).ToList();
 		ConsoleTable.PrintTable("Genre List", headers, rows);
 	}
+
+
+	public static void DisplayLanguages()
+	{
+		var headers = new[] { "ID", "Language" };
+		var values = Enum.GetValues<Language>();
+		var rows = values.Select((t, i) => (string[][])[[(i + 1).ToString()], [SplitCamelCase(t.ToString())]]).ToList();
+		ConsoleTable.PrintTable("Language List", headers, rows);
+	}
+
 
 
 	private static string SplitCamelCase(string input)

@@ -20,7 +20,7 @@ public interface IBookRepository
 	IReadOnlyList<Book> SearchByDate(DateOnly from, DateOnly to, Func<Book, DateOnly> selector);
 	void Update(Book book, Guid? updatedBy);
 	void AssignAuthorsToBook(Book book, IEnumerable<Author> authors);
-	void AssignTranslatorsToBook(Book book, IEnumerable<Translator> translators, Language language);
+	void AssignTranslatorsToBook(Book book, IEnumerable<Translator> translators, Language? language);
 	void RemoveAuthor(Book book, Guid authorId);
 	void RemoveTranslator(Book book, Guid translatorId);
 	void ReplaceAuthors(Book book, IEnumerable<Author> authors);

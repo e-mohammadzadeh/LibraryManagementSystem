@@ -14,5 +14,5 @@ public class CreateBookDto
 	public required Language OriginalLanguage { get; init; }
 	public required int TotalCopies { get; init; }
 	public string? Description { get; init; }
-	public required Language TranslatedLanguage { get; init; }
+	public Language? TranslatedLanguage { get; init; }
 }

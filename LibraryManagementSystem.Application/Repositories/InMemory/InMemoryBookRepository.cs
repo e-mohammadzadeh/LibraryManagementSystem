@@ -151,7 +151,7 @@ public class InMemoryBookRepository : IBookRepository
 	}
 
 
-	public void AssignTranslatorsToBook(Book book, IEnumerable<Translator>? translators, Language language)
+	public void AssignTranslatorsToBook(Book book, IEnumerable<Translator>? translators, Language? language)
 	{
 		ArgumentNullException.ThrowIfNull(book);
 
@@ -257,7 +257,7 @@ public class InMemoryBookRepository : IBookRepository
 	}
 
 
-	private static void AddTranslator(Book book, Translator translator, Language language)
+	private static void AddTranslator(Book book, Translator translator, Language? language)
 	{
 		if (book.BookTranslators.Any(bt => bt.TranslatorId == translator.Id)) return;
 
@@ -267,7 +267,7 @@ public class InMemoryBookRepository : IBookRepository
 			BookId = book.Id,
 			TranslatorId = translator.Id,
 			Translator = translator,
-			TranslationLanguage = language
+			TranslationLanguage = language ?? Language.Arabic	// Should fix here: no translator = no language
 		});
 		book.UpdatedAt = DateTime.UtcNow;
 	}

@@ -192,6 +192,24 @@ public static class BookMenu
 		var genreId = ConsoleHelper.ReadInt("Select your desired genre by entering its ID", 1,
 			Enum.GetValues<Genre>().Length);
 		if (genreId is null) return;
+		var genre = (Genre)genreId.Value;
+
+		ConsoleHelper.DisplayLanguages();
+		var originalLanguageId = ConsoleHelper.ReadInt("Select original language of book by entering its ID", 1,
+			Enum.GetValues<Language>().Length);
+		if (originalLanguageId is null)
+			return;
+		var originalLanguage = (Language)originalLanguageId.Value;
+
+		Language? translatedLanguage = null;
+		if (translatorIds.Count > 0)
+		{
+			ConsoleHelper.DisplayLanguages();
+			var translatedLanguageId = ConsoleHelper.ReadInt("Select translated language of book by entering its ID", 1,
+				Enum.GetValues<Language>().Length);
+			if (translatedLanguageId is null) return;
+			translatedLanguage = (Language)translatedLanguageId.Value;
+		}
 
 		var publisher = ConsoleHelper.GetValidName("Enter the publisher for this book",
 			ValidationConstants.MinPublisherNameLength, ValidationConstants.MaxPublisherNameLength);
@@ -201,22 +219,24 @@ public static class BookMenu
 
 		var result = bookManagementService.AddBook(new CreateBookDto
 		{
-			ISBN = isbn,
 			BookName = bookName,
+			ISBN = isbn,
 			AuthorIds = authorIds,
 			TranslatorIds = translatorIds,
 			PublishDate = publishDate.Value,
-			TotalCopies = totalCopies.Value,
-			Genre = genreId.Value - 1,
+			Genre = genre,
 			Publisher = publisher,
-			Description = description
+			OriginalLanguage = originalLanguage,
+			TotalCopies = totalCopies.Value,
+			Description = description,
+			TranslatedLanguage = translatedLanguage
 		});
 
 		ConsoleHelper.ShowResult(result);
 	}
 
 
-	private static List<int>? ResolveAuthorIds(AuthorManagementService authorManagementService)
+	private static List<Guid>? ResolveAuthorIds(AuthorManagementService authorManagementService)
 	{
 		var availableAuthors = authorManagementService.GetAllAuthors();
 		if (availableAuthors.Count != 0)
@@ -229,7 +249,7 @@ public static class BookMenu
 			return null;
 		}
 
-		var createdIds = new List<int>();
+		var createdIds = new List<Guid>();
 		while (true)
 		{
 			var authorDto = AuthorMenu.PromptForAuthorDto();
@@ -256,7 +276,7 @@ public static class BookMenu
 	}
 
 
-	private static List<int>? ResolveTranslatorIds(TranslatorManagementService translatorManagementService)
+	private static List<Guid>? ResolveTranslatorIds(TranslatorManagementService translatorManagementService)
 	{
 		var availableTranslators = translatorManagementService.GetAllTranslators();
 		if (availableTranslators.Count != 0)
@@ -265,7 +285,7 @@ public static class BookMenu
 		var choice = ConsoleHelper.ReadYesNo(Messages.AddTranslatorInAdd);
 		if (choice != true) return [];
 
-		var createdIds = new List<int>();
+		var createdIds = new List<Guid>();
 		while (true)
 		{
 			var translatorDto = TranslatorMenu.PromptForTranslatorDto();

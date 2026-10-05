@@ -49,7 +49,8 @@ public class BookManagementService
 		if (!Enum.IsDefined(dto.Genre)) return ServiceResult<BookDto>.Fail(Messages.InvalidGenre);
 		var genre = BookGenre.Create(dto.Genre);
 
-		if (!Enum.IsDefined(dto.OriginalLanguage) || !Enum.IsDefined(dto.TranslatedLanguage))
+		if (!Enum.IsDefined(dto.OriginalLanguage) ||
+		    (dto.TranslatedLanguage != null && !Enum.IsDefined(dto.TranslatedLanguage.Value)))
 			return ServiceResult<BookDto>.Fail(Messages.InvalidLanguage);
 
 		if (dto.AuthorIds.Count is 0) return ServiceResult<BookDto>.Fail(Messages.BookRequiresAtLeastOneAuthor);
@@ -119,7 +120,8 @@ public class BookManagementService
 			BookSortField.AvailableCopies => ApplySort(books, book => book.AvailableCopies, sortDirection),
 			BookSortField.Author => ApplySort(books,
 				book => string.Join(", ",
-					book.BookAuthors.Select(ba => $"{ba.Author.FirstName} {ba.Author.LastName}").Order()), sortDirection),
+					book.BookAuthors.Select(ba => $"{ba.Author.FirstName} {ba.Author.LastName}").Order()),
+				sortDirection),
 
 			BookSortField.Translator => ApplySort(books,
 				book => string.Join(", ",
