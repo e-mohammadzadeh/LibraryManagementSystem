@@ -144,11 +144,11 @@ public class UserManagementService
 	public IReadOnlyList<Role> GetAllRoles() { return _roleRepository.GetAllRoles(); }
 
 
-	public ServiceResult<UserDto> UpdateUser(Guid userId, UpdateUserDto dto, ICurrentUserSession session)
+	public ServiceResult<UserDto> UpdateUser(UpdateUserDto dto, ICurrentUserSession session)
 	{
 		string? warningMessage = null;
 
-		var user = _userRepository.FindById(userId, EntityFilter.Active);
+		var user = _userRepository.FindById(dto.Id, EntityFilter.Active);
 		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserUpdateFailed);
 
 		if (IsNoOpUpdateUser(user, dto)) return ServiceResult<UserDto>.Fail(Messages.NoChangesDetected);
@@ -158,24 +158,24 @@ public class UserManagementService
 		if (dto.FirstName != null || dto.LastName != null)
 		{
 			var existingSameName = _userRepository.FindByName(resolvedFirstName, resolvedLastName, EntityFilter.Active);
-			if (existingSameName != null && existingSameName.Id != userId)
+			if (existingSameName != null && existingSameName.Id != dto.Id)
 				warningMessage = string.Format(Messages.DuplicateAuthorNameWarning, existingSameName.Id);
 		}
 
-		if (dto.NationalCode != null && _userRepository.ExistsByNationalCode(dto.NationalCode, userId))
+		if (dto.NationalCode != null && _userRepository.ExistsByNationalCode(dto.NationalCode, dto.Id))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
 
 		if (dto.Email != null)
 		{
 			var email = Email.Create(dto.Email);
-			if (_userRepository.ExistsByEmail(email, userId))
+			if (_userRepository.ExistsByEmail(email, dto.Id))
 				return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
 		}
 
 		if (dto.PhoneNumber != null)
 		{
 			var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
-			if (_userRepository.ExistsByPhoneNumber(phoneNumber, userId))
+			if (_userRepository.ExistsByPhoneNumber(phoneNumber, dto.Id))
 				return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
 		}
 
@@ -200,9 +200,9 @@ public class UserManagementService
 
 		_userRepository.Update(user, session.UserId);
 		_userRepository.ReplaceRole(user, resolvedRole!);
-		if (session.UserId == userId) session.UpdateCurrentUser(user.ToAuthUserDto());
+		if (session.UserId == dto.Id) session.UpdateCurrentUser(user.ToAuthUserDto());
 
-		_auditLog.Record(AuditAction.UserUpdated, "User", userId, auditDetails ?? "User updated.");
+		_auditLog.Record(AuditAction.UserUpdated, "User", dto.Id, auditDetails ?? "User updated.");
 
 		return warningMessage != null
 			? ServiceResult<UserDto>.Warning(user.ToDto(), warningMessage)

@@ -106,12 +106,11 @@ public class TranslatorManagementService
 	private Translator? FindTranslatorById(Guid id) { return _translatorRepository.FindById(id, EntityFilter.Active); }
 
 
-	public ServiceResult<ContributorDto> UpdateTranslator(Guid translatorId, UpdateContributorDto dto,
-		Guid? updatedBy = null)
+	public ServiceResult<ContributorDto> UpdateTranslator(UpdateContributorDto dto, Guid? updatedBy = null)
 	{
 		string? warningMessage = null;
 
-		var translator = FindTranslatorById(translatorId);
+		var translator = FindTranslatorById(dto.Id);
 		if (translator is null) return ServiceResult<ContributorDto>.Fail(Messages.TranslatorUpdateFailed);
 
 		if (IsNoOpUpdateTranslator(translator, dto))
@@ -123,32 +122,31 @@ public class TranslatorManagementService
 		{
 			var existingSameName =
 				_translatorRepository.FindByName(resolvedFirstName, resolvedLastName, EntityFilter.Active);
-			if (existingSameName != null && existingSameName.Id != translatorId)
+			if (existingSameName != null && existingSameName.Id != dto.Id)
 				warningMessage = string.Format(Messages.DuplicateTranslatorNameWarning, existingSameName.Id);
 		}
 
-		if (dto.NationalCode != null && _translatorRepository.ExistsByNationalCode(dto.NationalCode, translatorId))
+		if (dto.NationalCode != null && _translatorRepository.ExistsByNationalCode(dto.NationalCode, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByNationalCode);
 
 		if (dto.Email != null)
 		{
 			var email = Email.Create(dto.Email);
-			if (_translatorRepository.ExistsByEmail(email, translatorId))
+			if (_translatorRepository.ExistsByEmail(email, dto.Id))
 				return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByEmail);
 		}
 
 		if (dto.PhoneNumber != null)
 		{
 			var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
-			if (_translatorRepository.ExistsByPhoneNumber(phoneNumber, translatorId))
+			if (_translatorRepository.ExistsByPhoneNumber(phoneNumber, dto.Id))
 				return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByPhoneNumber);
 		}
 
 		var auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(translator, dto);
 
 		_translatorRepository.Update(translator, updatedBy);
-		_auditLog.Record(AuditAction.TranslatorUpdated, "Translator", translatorId,
-			auditDetails ?? "Translator updated.");
+		_auditLog.Record(AuditAction.TranslatorUpdated, "Translator", dto.Id, auditDetails ?? "Translator updated.");
 
 		return warningMessage != null
 			? ServiceResult<ContributorDto>.Warning(translator.ToDto(), warningMessage)

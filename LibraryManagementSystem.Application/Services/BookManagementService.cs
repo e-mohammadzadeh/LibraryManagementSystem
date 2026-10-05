@@ -151,22 +151,22 @@ public class BookManagementService
 	}
 
 
-	public ServiceResult<BookDto> UpdateBook(Guid bookId, UpdateBookDto dto, Guid? updatedBy = null)
+	public ServiceResult<BookDto> UpdateBook(UpdateBookDto dto, Guid? updatedBy = null)
 	{
 		ArgumentNullException.ThrowIfNull(dto);
 
-		var book = _bookRepository.FindById(bookId, EntityFilter.Active);
+		var book = _bookRepository.FindById(dto.BookId, EntityFilter.Active);
 		if (book is null || book.IsRemoved) return ServiceResult<BookDto>.Fail(Messages.NotAvailableBook);
 
 		if (IsNoOpUpdateBook(book, dto)) return ServiceResult<BookDto>.Fail(Messages.NoChangesDetected);
 
-		if (dto.BookName != null && _bookRepository.ExistsByName(dto.BookName, bookId))
+		if (dto.BookName != null && _bookRepository.ExistsByName(dto.BookName, dto.BookId))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByName);
 
 		if (dto.ISBN != null)
 		{
 			var isbn = ISBN.Create(dto.ISBN);
-			if (_bookRepository.ExistsByISBN(isbn, bookId))
+			if (_bookRepository.ExistsByISBN(isbn, dto.BookId))
 				return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByISBN);
 		}
 
@@ -228,7 +228,7 @@ public class BookManagementService
 			_bookRepository.ReplaceTranslators(book, resolvedTranslators, dto.TranslatedLanguage);
 
 		_bookRepository.Update(book, updatedBy);
-		_auditLog.Record(AuditAction.BookUpdated, "Book", bookId, auditDetails ?? "Book updated.");
+		_auditLog.Record(AuditAction.BookUpdated, "Book", dto.BookId, auditDetails ?? "Book updated.");
 		return ServiceResult<BookDto>.Ok(book.ToDto(), Messages.BookUpdatedSuccessfully);
 	}
 

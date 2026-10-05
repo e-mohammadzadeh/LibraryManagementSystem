@@ -4,6 +4,7 @@ namespace LibraryManagementSystem.Infrastructure.DTOs.Books;
 
 public class UpdateBookDto
 {
+	public Guid BookId { get; init; }
 	public string? BookName { get; init; }
 	public string? ISBN { get; init; }
 	public List<Guid>? AuthorIds { get; init; }
