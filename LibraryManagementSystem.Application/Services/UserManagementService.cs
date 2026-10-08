@@ -92,7 +92,7 @@ public class UserManagementService
 			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
 		};
 
-		SetPasswordHash(newUser, result.Hash, result.Salt);
+		SetPasswordHash(newUser.Id, result.Hash, result.Salt);
 		_userRepository.Add(newUser);
 		_auditLog.Record(AuditAction.UserCreated, "User", newUser.Id, "New user created.");
 
@@ -108,6 +108,9 @@ public class UserManagementService
 		if (!_authorization.HasPermission(Permission.ViewAllUsers)) return [];
 
 		var users = _userRepository.GetAll(EntityFilter.Active).Select(a => a.ToDto());
+
+		var roles = _roleRepository.GetAll().ToDictionary(r => r.Id, r => r.Name);
+
 		Func<UserDto, object> keySelector = sortField switch
 		{
 			UserSortField.Id => u => u.Id,
@@ -117,7 +120,7 @@ public class UserManagementService
 			UserSortField.NationalCode => u => u.NationalCode!,
 			UserSortField.Email => u => u.Email!,
 			UserSortField.BirthDate => u => u.BirthDate!,
-			UserSortField.Role => u => u.Role,
+			UserSortField.Role => u => roles.TryGetValue(u.RoleId!.Value, out var n) ? n : string.Empty,
 			UserSortField.MembershipStartDate => u => u.MembershipStartDate!,
 			UserSortField.MembershipExpiryDate => u => u.MembershipExpiryDate!,
 			UserSortField.IsActive => u => u.IsActive!,
@@ -140,7 +143,7 @@ public class UserManagementService
 	}
 
 
-	public IReadOnlyList<Role> GetAllRoles() { return _roleRepository.GetAllRoles(); }
+	public IReadOnlyList<Role> GetAllRoles() { return _roleRepository.GetAll(); }
 
 
 	public ServiceResult<UserDto> UpdateUser(UserDto dto, ICurrentUserSession session)
@@ -317,7 +320,7 @@ public class UserManagementService
 			return ServiceResult<string>.Fail(Messages.MinimumPasswordLength);
 
 		var hashResult = _passwordHasher.CreatePasswordHash(newPassword);
-		SetPasswordHash(user, hashResult.Hash, hashResult.Salt);
+		SetPasswordHash(userId, hashResult.Hash, hashResult.Salt);
 
 		var message = isOwn ? Messages.PasswordChangedSuccessfully : Messages.PasswordResetSuccessfully;
 		_auditLog.Record(AuditAction.UserPasswordChanged, "User", userId, "User password changed.");
@@ -401,7 +404,8 @@ public class UserManagementService
 		if (passwordSalt is null || passwordSalt.Length == 0) throw new ArgumentNullException(nameof(passwordSalt));
 
 		var user = _userRepository.FindById(userId, EntityFilter.Active);
-		user!.PasswordHash = passwordHash;
+		if (user == null) return;
+		user.PasswordHash = passwordHash;
 		user.PasswordSalt = passwordSalt;
 	}
 
@@ -409,6 +413,7 @@ public class UserManagementService
 	public void UpdateLastLogin(Guid userId)
 	{
 		var user = _userRepository.FindById(userId, EntityFilter.Active);
+		if (user == null) return;
 		user.LastLoginDate = user.PreviousLoginDate;
 		user.PreviousLoginDate = DateTime.Now;
 	}
@@ -417,6 +422,6 @@ public class UserManagementService
 	public void UpdateLastLoginInLogout(Guid userId)
 	{
 		var user = _userRepository.FindById(userId, EntityFilter.Active);
-		user.LastLoginDate = user.PreviousLoginDate;
+		user?.LastLoginDate = user.PreviousLoginDate;
 	}
 }

@@ -361,7 +361,7 @@ public static class DataSeeder
 		IPasswordHasher passwordHasher)
 	{
 		// Seed users
-		var allRoles = roleRepository.GetAllRoles();
+		var allRoles = roleRepository.GetAll();
 		var adminRole = allRoles.First(r => r.Name == LibraryUserRole.Admin);
 		var memberRole = allRoles.First(r => r.Name == LibraryUserRole.Member);
 		var librarianRole = allRoles.First(r => r.Name == LibraryUserRole.Librarian);

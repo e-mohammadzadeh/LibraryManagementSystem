@@ -33,33 +33,33 @@ public class TranslatorManagementService
 	}
 
 
-	public ServiceResult<ContributorDto> AddTranslator(CreateContributorDto dto)
+	public ServiceResult<ContributorDto> AddTranslator(ContributorDto dto)
 	{
 		string? warningMessage = null;
 
-		if (_translatorRepository.ExistsByNationalCode(dto.NationalCode, null))
+		if (_translatorRepository.ExistsByNationalCode(dto.NationalCode!, null))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByNationalCode);
 
-		var email = Email.Create(dto.Email);
+		var email = Email.Create(dto.Email!);
 		if (_translatorRepository.ExistsByEmail(email, null))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByEmail);
 
-		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
+		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber!);
 		if (_translatorRepository.ExistsByPhoneNumber(phoneNumber, null))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByPhoneNumber);
 
-		var existingSameName = _translatorRepository.FindByName(dto.FirstName, dto.LastName, EntityFilter.Active);
+		var existingSameName = _translatorRepository.FindByName(dto.FirstName!, dto.LastName!, EntityFilter.Active);
 		if (existingSameName != null)
 			warningMessage = string.Format(Messages.DuplicateTranslatorNameWarning, existingSameName.Id);
 
 		var newTranslator = new Translator
 		{
-			FirstName = dto.FirstName,
-			LastName = dto.LastName,
-			NationalCode = dto.NationalCode,
+			FirstName = dto.FirstName!,
+			LastName = dto.LastName!,
+			NationalCode = dto.NationalCode!,
 			Email = email,
 			PhoneNumber = phoneNumber,
-			BirthDate = dto.BirthDate,
+			BirthDate = dto.BirthDate!.Value,
 			Biography = dto.Biography
 		};
 
@@ -79,12 +79,12 @@ public class TranslatorManagementService
 		Func<ContributorDto, object> keySelector = sortField switch
 		{
 			TranslatorSortField.Id => t => t.Id,
-			TranslatorSortField.FirstName => t => t.FirstName,
-			TranslatorSortField.LastName => t => t.LastName,
+			TranslatorSortField.FirstName => t => t.FirstName!,
+			TranslatorSortField.LastName => t => t.LastName!,
 			TranslatorSortField.FullName => t => $"{t.FirstName} {t.LastName}",
-			TranslatorSortField.NationalCode => t => t.NationalCode,
-			TranslatorSortField.Email => t => t.Email,
-			TranslatorSortField.BirthDate => t => t.BirthDate,
+			TranslatorSortField.NationalCode => t => t.NationalCode!,
+			TranslatorSortField.Email => t => t.Email!,
+			TranslatorSortField.BirthDate => t => t.BirthDate!,
 			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
 		};
 
@@ -107,7 +107,7 @@ public class TranslatorManagementService
 	private Translator? FindTranslatorById(Guid id) { return _translatorRepository.FindById(id, EntityFilter.Active); }
 
 
-	public ServiceResult<ContributorDto> UpdateTranslator(UpdateContributorDto dto, Guid? updatedBy = null)
+	public ServiceResult<ContributorDto> UpdateTranslator(ContributorDto dto, Guid? updatedBy = null)
 	{
 		string? warningMessage = null;
 
@@ -155,7 +155,7 @@ public class TranslatorManagementService
 	}
 
 
-	private static bool IsNoOpUpdateTranslator(Translator translator, UpdateContributorDto dto)
+	private static bool IsNoOpUpdateTranslator(Translator translator, ContributorDto dto)
 	{
 		return (dto.FirstName == null || dto.FirstName == translator.FirstName) &&
 		       (dto.LastName == null || dto.LastName == translator.LastName) &&

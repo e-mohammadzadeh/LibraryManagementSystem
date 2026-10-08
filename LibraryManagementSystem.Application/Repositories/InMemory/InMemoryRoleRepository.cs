@@ -13,7 +13,7 @@ public class InMemoryRoleRepository : IRoleRepository
 		new() { Id = Guid.CreateVersion7(), Name = LibraryUserRole.Admin }
 	];
 
-	public IReadOnlyList<Role> GetAllRoles()
+	public IReadOnlyList<Role> GetAll()
 	{
 		return _roles.AsReadOnly();
 	}
