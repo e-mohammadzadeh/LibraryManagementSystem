@@ -4,13 +4,13 @@ using LibraryManagementSystem.Application.Interfaces;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
-using LibraryManagementSystem.Domain.ValueObjects;
 using LibraryManagementSystem.Infrastructure.DTOs.Books;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
+using LibraryManagementSystem.Infrastructure.ValueObjects;
 
 namespace LibraryManagementSystem.Application.Services;
 

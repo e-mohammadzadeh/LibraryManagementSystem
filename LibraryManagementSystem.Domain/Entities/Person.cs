@@ -1,4 +1,4 @@
-﻿using LibraryManagementSystem.Domain.ValueObjects;
+﻿using LibraryManagementSystem.Infrastructure.ValueObjects;
 
 namespace LibraryManagementSystem.Domain.Entities;
 

@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace LibraryManagementSystem.Domain.ValueObjects;
+namespace LibraryManagementSystem.Infrastructure.ValueObjects;
 
 public sealed record PhoneNumber
 {

@@ -1,5 +1,5 @@
-﻿using LibraryManagementSystem.Domain.ValueObjects;
-using LibraryManagementSystem.Infrastructure.Enums;
+﻿using LibraryManagementSystem.Infrastructure.Enums;
+using LibraryManagementSystem.Infrastructure.ValueObjects;
 
 namespace LibraryManagementSystem.Domain.Entities;
 

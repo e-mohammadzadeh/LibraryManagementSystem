@@ -1,4 +1,4 @@
-﻿namespace LibraryManagementSystem.Domain.ValueObjects;
+﻿namespace LibraryManagementSystem.Infrastructure.ValueObjects;
 
 public sealed record ISBN
 {
