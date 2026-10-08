@@ -1,5 +1,4 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
-using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.ValueObjects;
 
@@ -19,13 +18,4 @@ public interface IBookRepository
 	IReadOnlyList<Book> Search(string searchTerm, Func<Book, string?> selector);
 	IReadOnlyList<Book> SearchByDate(DateOnly from, DateOnly to, Func<Book, DateOnly> selector);
 	void Update(Book book, Guid? updatedBy);
-	void AssignAuthorsToBook(Book book, IEnumerable<Author> authors);
-	void AssignTranslatorsToBook(Book book, IEnumerable<Translator> translators, Language? language);
-	void RemoveAuthor(Book book, Guid authorId);
-	void RemoveTranslator(Book book, Guid translatorId);
-	void ReplaceAuthors(Book book, IEnumerable<Author> authors);
-	void ReplaceTranslators(Book book, IEnumerable<Translator> translators, Language language);
-	void DetachFromTranslators(Book book);
-	void BorrowCopy(Book book);
-	void ReturnCopy(Book book);
 }

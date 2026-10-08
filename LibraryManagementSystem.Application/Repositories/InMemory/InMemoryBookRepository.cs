@@ -2,7 +2,6 @@
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Exceptions;
 using LibraryManagementSystem.Domain.Interfaces;
-using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.ValueObjects;
 
@@ -141,139 +140,7 @@ public class InMemoryBookRepository : IBookRepository
 	}
 
 
-	public void AssignAuthorsToBook(Book book, IEnumerable<Author> authors)
-	{
-		ArgumentNullException.ThrowIfNull(book);
-		ArgumentNullException.ThrowIfNull(authors);
-
-		var authorList = authors.DistinctBy(a => a.Id).ToList();
-		foreach (var author in authorList) AddAuthor(book, author);
-	}
-
-
-	public void AssignTranslatorsToBook(Book book, IEnumerable<Translator>? translators, Language? language)
-	{
-		ArgumentNullException.ThrowIfNull(book);
-
-		if (translators is null) return;
-		foreach (var translator in translators.DistinctBy(t => t.Id)) AddTranslator(book, translator, language);
-	}
-
-
-	public void RemoveAuthor(Book book, Guid authorId)
-	{
-		if (book.BookAuthors.Count <= 1) throw new InvalidOperationException(Messages.BookRequiresAtLeastOneAuthor);
-
-		var bookAuthor = book.BookAuthors.FirstOrDefault(ba => ba.AuthorId == authorId);
-
-		if (bookAuthor is null) return;
-
-		book.BookAuthors.Remove(bookAuthor);
-		book.UpdatedAt = DateTime.UtcNow;
-	}
-
-
-	public void RemoveTranslator(Book book, Guid translatorId)
-	{
-		var bookTranslator = book.BookTranslators.FirstOrDefault(bt => bt.TranslatorId == translatorId);
-
-		if (bookTranslator is null) return;
-
-		book.BookTranslators.Remove(bookTranslator);
-		book.UpdatedAt = DateTime.UtcNow;
-	}
-
-
-	public void ReplaceAuthors(Book book, IEnumerable<Author> authors)
-	{
-		ArgumentNullException.ThrowIfNull(book);
-		ArgumentNullException.ThrowIfNull(authors);
-
-		var authorList = authors.DistinctBy(a => a.Id).ToList();
-		if (authorList.Count == 0) throw new ArgumentException(Messages.BookRequiresAtLeastOneAuthor);
-
-		var incomingIds = authorList.Select(a => a.Id).ToHashSet();
-		var existingIds = book.BookAuthors.Select(ba => ba.AuthorId).ToHashSet();
-
-		foreach (var authorId in existingIds.Except(incomingIds)) RemoveAuthor(book, authorId);
-		foreach (var author in authorList) AddAuthor(book, author);
-	}
-
-
-	public void ReplaceTranslators(Book book, IEnumerable<Translator> translators, Language language)
-	{
-		ArgumentNullException.ThrowIfNull(book);
-		ArgumentNullException.ThrowIfNull(translators);
-
-		var translatorList = translators.DistinctBy(t => t.Id).ToList();
-		var incomingIds = translatorList.Select(t => t.Id).ToHashSet();
-		var existingIds = book.BookTranslators.Select(bt => bt.TranslatorId).ToHashSet();
-
-		foreach (var translatorId in existingIds.Except(incomingIds)) RemoveTranslator(book, translatorId);
-		foreach (var translator in translatorList) AddTranslator(book, translator, language);
-	}
-
-
-	public void DetachFromTranslators(Book book)
-	{
-		ArgumentNullException.ThrowIfNull(book);
-
-		foreach (var translatorId in book.BookTranslators.Select(bt => bt.TranslatorId).ToList())
-			RemoveTranslator(book, translatorId);
-	}
-
-
-	public void BorrowCopy(Book book)
-	{
-		if (book.AvailableCopies <= 0) throw new InvalidOperationException("No copies are available.");
-		book.AvailableCopies--;
-		//TODO	(Web API)	Raise an event: a signal to the rest of the system that says "this book is now out of stock"
-	}
-
-
-	public void ReturnCopy(Book book)
-	{
-		if (book.AvailableCopies >= book.TotalCopies)
-			throw new InvalidOperationException(
-				"Cannot return a copy because all copies are already in the library.");
-
-		book.AvailableCopies++;
-	}
-
-
 	// ---------- Private helper ---------
-	private static void AddAuthor(Book book, Author author)
-	{
-		if (book.BookAuthors.Any(ba => ba.AuthorId == author.Id)) return;
-
-		book.BookAuthors.Add(new BookAuthor
-		{
-			BookId = book.Id,
-			Book = book,
-			AuthorId = author.Id,
-			Author = author
-		});
-		book.UpdatedAt = DateTime.UtcNow;
-	}
-
-
-	private static void AddTranslator(Book book, Translator translator, Language? language)
-	{
-		if (book.BookTranslators.Any(bt => bt.TranslatorId == translator.Id)) return;
-
-		book.BookTranslators.Add(new BookTranslator
-		{
-			Book = book,
-			BookId = book.Id,
-			TranslatorId = translator.Id,
-			Translator = translator,
-			TranslationLanguage = language ?? Language.Arabic	// Should fix here: no translator = no language
-		});
-		book.UpdatedAt = DateTime.UtcNow;
-	}
-
-
-
 	private static IEnumerable<Book> ApplyFilter(IEnumerable<Book> source, EntityFilter filter)
 	{
 		return filter switch

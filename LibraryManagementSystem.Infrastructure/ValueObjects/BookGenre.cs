@@ -1,6 +1,6 @@
 ﻿using LibraryManagementSystem.Infrastructure.Enums;
 
-namespace LibraryManagementSystem.Domain.ValueObjects;
+namespace LibraryManagementSystem.Infrastructure.ValueObjects;
 
 public record BookGenre
 {
