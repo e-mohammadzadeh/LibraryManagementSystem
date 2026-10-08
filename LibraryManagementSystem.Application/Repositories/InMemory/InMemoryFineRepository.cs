@@ -54,7 +54,10 @@ public class InMemoryFineRepository : IFineRepository
 	}
 
 
-
+	public bool HasFines(Guid userId, FineFilter filter = FineFilter.Unpaid) 
+	{
+		return ApplyFilter(_fines, filter).Any(f => f.UserId == userId);
+	}
 
 
 	public void Update(Fine fine)

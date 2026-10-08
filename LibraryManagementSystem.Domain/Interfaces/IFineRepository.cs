@@ -12,4 +12,5 @@ public interface IFineRepository
 	IReadOnlyList<Fine> GetByUserId(Guid userId, FineFilter filter);
 	decimal GetAmount(Guid userId,FineFilter filter);
 	void Update(Fine fine);
+	bool HasFines(Guid userId, FineFilter filter);
 }

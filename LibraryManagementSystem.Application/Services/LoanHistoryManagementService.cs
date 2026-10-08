@@ -18,7 +18,7 @@ public class LoanHistoryManagementService : ILoanHistoryManagementService
 	}
 
 
-	public void Record(Loan loan, LoanHistoryAction action, string? description = null)
+	public void Record(LoanDto loan, LoanHistoryAction action, string? description = null)
 	{
 		var history = new LoanHistory
 		{

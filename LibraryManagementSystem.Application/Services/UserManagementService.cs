@@ -20,20 +20,20 @@ public class UserManagementService
 	private readonly IUserRepository _userRepository;
 	private readonly IRoleRepository _roleRepository;
 	private readonly ILoanManagementService _loansService;
-	private readonly IFineManagementService _finesService;
+	private readonly IFineRepository _finesRepository;
 	private readonly IPasswordHasher _passwordHasher;
 	private readonly IAuthorizationService _authorization;
 	private readonly IAuditLogManagementService _auditLog;
 
 
 	public UserManagementService(IUserRepository userRepository, IRoleRepository roleRepository,
-		ILoanManagementService loanService, IFineManagementService fineService, IPasswordHasher passwordHasher,
+		ILoanManagementService loanService, IFineRepository fineRepository, IPasswordHasher passwordHasher,
 		IAuthorizationService authorization, IAuditLogManagementService auditLog)
 	{
 		_userRepository = userRepository;
 		_roleRepository = roleRepository;
 		_loansService = loanService;
-		_finesService = fineService;
+		_finesRepository = fineRepository;
 		_passwordHasher = passwordHasher;
 		_authorization = authorization;
 		_auditLog = auditLog;
@@ -244,7 +244,7 @@ public class UserManagementService
 		if (_loansService.CountLoans(userId, LoanFilter.Active) > 0)
 			return ServiceResult<UserDto>.Fail(Messages.UserRemovalFailedByActiveLoans);
 
-		if (_finesService.HasFines(userId, FineFilter.Unpaid))
+		if (_finesRepository.HasFines(userId, FineFilter.Unpaid))
 			return ServiceResult<UserDto>.Fail(Messages.UserRemovalFailedByUnpaidFines);
 
 		_userRepository.Remove(user);
@@ -391,8 +391,10 @@ public class UserManagementService
 
 
 
-	public void FlagForRemoval(User user)
+	public void FlagForRemoval(Guid userId)
 	{
+		var user = _userRepository.FindById(userId, EntityFilter.Active);
+		if (user == null) return;
 		user.ShouldRemove = true;
 		user.UpdatedAt = DateTime.UtcNow;
 	}

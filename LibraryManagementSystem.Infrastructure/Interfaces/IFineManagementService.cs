@@ -14,5 +14,4 @@ public interface IFineManagementService
 	bool HasUnpaidFines(Guid userId);
 	IReadOnlyList<FineDto> GetFineHistory();
 	IReadOnlyList<FineDto> GetFineHistoryByUser(Guid userId, ICurrentUserSession session);
-	bool HasFines(Guid userId, FineFilter filter);
 }

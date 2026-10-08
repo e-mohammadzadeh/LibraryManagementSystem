@@ -2,6 +2,7 @@
 
 public interface IUserManagementService
 {
+	void FlagForRemoval(Guid userId);
 	void SetPasswordHash(Guid userId, byte[] passwordHash, byte[] passwordSalt);
 	void UpdateLastLogin(Guid userId);
 	void UpdateLastLoginInLogout(Guid userId);
