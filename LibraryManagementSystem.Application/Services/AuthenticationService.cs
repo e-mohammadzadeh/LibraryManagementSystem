@@ -78,7 +78,7 @@ public class AuthenticationService
 	}
 
 
-	public ServiceResult<AuthUserDto> Register(CreateUserDto dto)
+	public ServiceResult<AuthUserDto> Register(UserDto dto)
 	{
 		string? warningMessage = null;
 

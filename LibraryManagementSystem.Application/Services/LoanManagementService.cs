@@ -1,5 +1,4 @@
-﻿using LibraryManagementSystem.Application.Authentication;
-using LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
@@ -12,7 +11,7 @@ using LibraryManagementSystem.Infrastructure.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
 
-public class LoanManagementService
+public class LoanManagementService : ILoanManagementService
 {
 	private readonly ILoanRepository _loanRepository;
 	private readonly IUserRepository _userRepository;

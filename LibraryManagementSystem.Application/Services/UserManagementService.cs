@@ -1,5 +1,4 @@
-﻿using LibraryManagementSystem.Application.Authentication;
-using LibraryManagementSystem.Application.Authorization;
+﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
@@ -21,50 +20,50 @@ public class UserManagementService
 	private readonly IUserRepository _userRepository;
 	private readonly IRoleRepository _roleRepository;
 	private readonly ILoanRepository _loanRepository;
-	private readonly IFineRepository _fineRepository;
+	private readonly IFineManagementService _finesService;
 	private readonly IPasswordHasher _passwordHasher;
 	private readonly IAuthorizationService _authorization;
 	private readonly IAuditLogManagementService _auditLog;
 
 
 	public UserManagementService(IUserRepository userRepository, IRoleRepository roleRepository,
-		ILoanRepository loanRepository, IFineRepository fineRepository, IPasswordHasher passwordHasher,
+		ILoanRepository loanRepository, IFineManagementService fineService, IPasswordHasher passwordHasher,
 		IAuthorizationService authorization, IAuditLogManagementService auditLog)
 	{
 		_userRepository = userRepository;
 		_roleRepository = roleRepository;
 		_loanRepository = loanRepository;
-		_fineRepository = fineRepository;
+		_finesService = fineService;
 		_passwordHasher = passwordHasher;
 		_authorization = authorization;
 		_auditLog = auditLog;
 	}
 
 
-	public ServiceResult<UserDto> AddUser(CreateUserDto dto)
+	public ServiceResult<UserDto> AddUser(UserDto dto)
 	{
 		if (!_authorization.HasPermission(Permission.AddUser))
 			return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
 
 		string? warningMessage = null;
 
-		if (_userRepository.ExistsByNationalCode(dto.NationalCode, null))
+		if (_userRepository.ExistsByNationalCode(dto.NationalCode!, null))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
 
-		var email = Email.Create(dto.Email);
+		var email = Email.Create(dto.Email!);
 		if (_userRepository.ExistsByEmail(email, null))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
 
-		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
+		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber!);
 		if (_userRepository.ExistsByPhoneNumber(phoneNumber, null))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
 
-		var existingSameName = _userRepository.FindByName(dto.FirstName, dto.LastName, EntityFilter.Active);
+		var existingSameName = _userRepository.FindByName(dto.FirstName!, dto.LastName!, EntityFilter.Active);
 
 		if (existingSameName != null)
 			warningMessage = string.Format(Messages.DuplicateUserNameWarning, existingSameName.Id);
 
-		var role = _roleRepository.FindById(dto.RoleId);
+		var role = _roleRepository.FindById(dto.RoleId!.Value);
 		if (role is null) return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
 
 		if (!(role.Name switch
@@ -82,18 +81,18 @@ public class UserManagementService
 
 		var newUser = new User
 		{
-			FirstName = dto.FirstName,
-			LastName = dto.LastName,
-			NationalCode = dto.NationalCode,
+			FirstName = dto.FirstName!,
+			LastName = dto.LastName!,
+			NationalCode = dto.NationalCode!,
 			Email = email,
 			PhoneNumber = phoneNumber,
-			BirthDate = dto.BirthDate,
-			RoleId = dto.RoleId,
+			BirthDate = dto.BirthDate!.Value,
+			RoleId = dto.RoleId.Value,
 			Role = role,
 			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
 		};
 
-		_userRepository.SetPasswordHash(newUser, result.Hash, result.Salt);
+		SetPasswordHash(newUser, result.Hash, result.Salt);
 		_userRepository.Add(newUser);
 		_auditLog.Record(AuditAction.UserCreated, "User", newUser.Id, "New user created.");
 
@@ -112,16 +111,16 @@ public class UserManagementService
 		Func<UserDto, object> keySelector = sortField switch
 		{
 			UserSortField.Id => u => u.Id,
-			UserSortField.FirstName => u => u.FirstName,
-			UserSortField.LastName => u => u.LastName,
-			UserSortField.FullName => u => u.FullName,
-			UserSortField.NationalCode => u => u.NationalCode,
-			UserSortField.Email => u => u.Email,
-			UserSortField.BirthDate => u => u.BirthDate,
+			UserSortField.FirstName => u => u.FirstName!,
+			UserSortField.LastName => u => u.LastName!,
+			UserSortField.FullName => u => u.FullName!,
+			UserSortField.NationalCode => u => u.NationalCode!,
+			UserSortField.Email => u => u.Email!,
+			UserSortField.BirthDate => u => u.BirthDate!,
 			UserSortField.Role => u => u.Role,
-			UserSortField.MembershipStartDate => u => u.MembershipStartDate,
-			UserSortField.MembershipExpiryDate => u => u.MembershipExpiryDate,
-			UserSortField.IsActive => u => u.IsActive,
+			UserSortField.MembershipStartDate => u => u.MembershipStartDate!,
+			UserSortField.MembershipExpiryDate => u => u.MembershipExpiryDate!,
+			UserSortField.IsActive => u => u.IsActive!,
 			UserSortField.LastLoginDate => u => u.LastLoginDate ?? (object)DateTime.MinValue,
 			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
 		};
@@ -144,7 +143,7 @@ public class UserManagementService
 	public IReadOnlyList<Role> GetAllRoles() { return _roleRepository.GetAllRoles(); }
 
 
-	public ServiceResult<UserDto> UpdateUser(UpdateUserDto dto, ICurrentUserSession session)
+	public ServiceResult<UserDto> UpdateUser(UserDto dto, ICurrentUserSession session)
 	{
 		string? warningMessage = null;
 
@@ -199,7 +198,7 @@ public class UserManagementService
 		var auditDetails = UserUpdateAuditDetailsBuilder.BuildUserUpdateAuditDetails(user, dto, resolvedRole!);
 
 		_userRepository.Update(user, session.UserId);
-		_userRepository.ReplaceRole(user, resolvedRole!);
+		ReplaceRole(user, resolvedRole!);
 		if (session.UserId == dto.Id) session.UpdateCurrentUser(user.ToAuthUserDto());
 
 		_auditLog.Record(AuditAction.UserUpdated, "User", dto.Id, auditDetails ?? "User updated.");
@@ -217,7 +216,7 @@ public class UserManagementService
 	}
 
 
-	private static bool IsNoOpUpdateUser(User user, UpdateUserDto dto)
+	private static bool IsNoOpUpdateUser(User user, UserDto dto)
 	{
 		return (dto.FirstName == null || dto.FirstName == user.FirstName) &&
 		       (dto.LastName == null || dto.LastName == user.LastName) &&
@@ -237,13 +236,12 @@ public class UserManagementService
 		if (session != null && session.UserId == userId)
 			return ServiceResult<UserDto>.Fail(Messages.CannotRemoveYourself);
 
-		if (session != null && !CanRemoveUser(session, user))
-			return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
+		if (session != null && !CanRemoveUser(session, user)) return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
 
 		if (_loanRepository.CountLoans(userId, LoanFilter.Active) > 0)
 			return ServiceResult<UserDto>.Fail(Messages.UserRemovalFailedByActiveLoans);
 
-		if (_fineRepository.HasFines(userId, FineFilter.Unpaid))
+		if (_finesService.HasFines(userId, FineFilter.Unpaid))
 			return ServiceResult<UserDto>.Fail(Messages.UserRemovalFailedByUnpaidFines);
 
 		_userRepository.Remove(user);
@@ -319,7 +317,7 @@ public class UserManagementService
 			return ServiceResult<string>.Fail(Messages.MinimumPasswordLength);
 
 		var hashResult = _passwordHasher.CreatePasswordHash(newPassword);
-		_userRepository.SetPasswordHash(user, hashResult.Hash, hashResult.Salt);
+		SetPasswordHash(user, hashResult.Hash, hashResult.Salt);
 
 		var message = isOwn ? Messages.PasswordChangedSuccessfully : Messages.PasswordResetSuccessfully;
 		_auditLog.Record(AuditAction.UserPasswordChanged, "User", userId, "User password changed.");
@@ -362,59 +360,57 @@ public class UserManagementService
 				return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
 		}
 
-		_userRepository.RenewMembership(user, years);
+		RenewMembership(user, years);
 		_auditLog.Record(AuditAction.MembershipRenewed, "User", userId, "User membership renewed.");
 		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.MembershipRenewedSuccessfully);
 	}
 
 
 
-
-	public void ReplaceRole(User user, Role newRole) {
+	public void ReplaceRole(User user, Role newRole)
+	{
 		user.Role = newRole ?? throw new ArgumentNullException(nameof(newRole));
 		user.RoleId = newRole.Id;
 	}
 
 
-	public void RenewMembership(User user, int years = 1) {
+	public void RenewMembership(User user, int years = 1)
+	{
 		var today = DateOnly.FromDateTime(DateTime.Today);
 		var renewalBase = user.MembershipExpiryDate > today
 			? user.MembershipExpiryDate // extend from current expiry if not yet expired
 			: today; // restart from today if already expired
 
 		user.MembershipExpiryDate = renewalBase.AddYears(years);
-		if (!user.IsActive)
-			user.IsActive = true;
+		if (!user.IsActive) user.IsActive = true;
 		user.UpdatedAt = DateTime.UtcNow;
 	}
 
 
 
-	public void FlagForRemoval(User user) {
+	public void FlagForRemoval(User user)
+	{
 		user.ShouldRemove = true;
 		user.UpdatedAt = DateTime.UtcNow;
 	}
 
 
-	public void SetPasswordHash(User user, byte[] passwordHash, byte[] passwordSalt) {
-		if (passwordHash is null || passwordHash.Length == 0)
-			throw new ArgumentNullException(nameof(passwordHash));
-		if (passwordSalt is null || passwordSalt.Length == 0)
-			throw new ArgumentNullException(nameof(passwordSalt));
+	public void SetPasswordHash(User user, byte[] passwordHash, byte[] passwordSalt)
+	{
+		if (passwordHash is null || passwordHash.Length == 0) throw new ArgumentNullException(nameof(passwordHash));
+		if (passwordSalt is null || passwordSalt.Length == 0) throw new ArgumentNullException(nameof(passwordSalt));
 
 		user.PasswordHash = passwordHash;
 		user.PasswordSalt = passwordSalt;
 	}
 
 
-	public void UpdateLastLogin(User user) {
+	public void UpdateLastLogin(User user)
+	{
 		user.LastLoginDate = user.PreviousLoginDate;
 		user.PreviousLoginDate = DateTime.Now;
 	}
 
 
-	public void UpdateLastLoginInLogout(User user) {
-		user.LastLoginDate = user.PreviousLoginDate;
-	}
-
+	public void UpdateLastLoginInLogout(User user) { user.LastLoginDate = user.PreviousLoginDate; }
 }

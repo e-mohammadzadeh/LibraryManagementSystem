@@ -5,7 +5,7 @@ namespace LibraryManagementSystem.Application.Common;
 
 public static class UserUpdateAuditDetailsBuilder
 {
-	public static string? BuildUserUpdateAuditDetails(User user, UpdateUserDto dto, Role resolvedRole)
+	public static string? BuildUserUpdateAuditDetails(User user, UserDto dto, Role resolvedRole)
 	{
 		var changes = new List<string>();
 
