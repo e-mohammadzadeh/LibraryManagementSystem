@@ -223,4 +223,26 @@ public class LoanManagementService
 		if (!session.IsAuthenticated || session.UserId is null) return [];
 		return [.._loanRepository.GetLoansByBookAndUser(bookId, session.UserId.Value, LoanFilter.All).Select(loan => loan.ToDto())];
 	}
+
+
+	public bool HasLoans(Guid? userId = null, Guid? bookId = null, LoanFilter filter = LoanFilter.Active) {
+		if (userId is null && bookId is null)
+			throw new ArgumentException("At least one of userId or bookId must be provided.");
+		var query = ApplyFilter(_loans, filter);
+
+		if (userId is not null)
+			query = query.Where(l => l.UserId == userId);
+		if (bookId is not null)
+			query = query.Where(l => l.BookId == bookId);
+		return query.Any();
+	}
+
+
+	public int CountLoans(Guid? userId = null, LoanFilter filter = LoanFilter.Active) {
+		var query = ApplyFilter(_loans, filter);
+
+		if (userId is not null)
+			query = query.Where(l => l.UserId == userId);
+		return query.Count();
+	}
 }

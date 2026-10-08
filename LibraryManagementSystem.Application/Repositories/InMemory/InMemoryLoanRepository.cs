@@ -45,7 +45,6 @@ public class InMemoryLoanRepository : ILoanRepository
 	}
 
 
-
 	public IReadOnlyList<Loan> GetLoansByBook(Guid bookId, LoanFilter filter = LoanFilter.Active)
 	{
 		return [.. ApplyFilter(_loans, filter).Where(l => l.BookId == bookId)];
@@ -58,18 +57,6 @@ public class InMemoryLoanRepository : ILoanRepository
 	}
 
 
-	public bool HasLoans(Guid? userId = null, Guid? bookId = null, LoanFilter filter = LoanFilter.Active)
-	{
-		if (userId is null && bookId is null)
-			throw new ArgumentException("At least one of userId or bookId must be provided.");
-		var query = ApplyFilter(_loans, filter);
-
-		if (userId is not null) query = query.Where(l => l.UserId == userId);
-		if (bookId is not null) query = query.Where(l => l.BookId == bookId);
-		return query.Any();
-	}
-
-
 	public void Update(Loan loan)
 	{
 		// In-memory collections update by reference automatically.
@@ -77,16 +64,6 @@ public class InMemoryLoanRepository : ILoanRepository
 		// so that the Service layer can safely call _repository.Update() 
 		// without crashing, simulating a real database save operation.
 	}
-
-
-	public int CountLoans(Guid? userId = null, LoanFilter filter = LoanFilter.Active)
-	{
-		var query = ApplyFilter(_loans, filter);
-
-		if (userId is not null) query = query.Where(l => l.UserId == userId);
-		return query.Count();
-	}
-
 
 
 	// ---------- Private helper ----------
