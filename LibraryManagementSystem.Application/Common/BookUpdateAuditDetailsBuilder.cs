@@ -5,13 +5,13 @@ namespace LibraryManagementSystem.Application.Common;
 
 public static class BookUpdateAuditDetailsBuilder
 {
-	public static string? BuildBookUpdateAuditDetails(Book book, UpdateBookDto dto,
+	public static string? BuildBookUpdateAuditDetails(Book book, BookDto dto,
 		IReadOnlyList<Author>? resolvedAuthors = null, IReadOnlyList<Translator>? resolvedTranslators = null)
 	{
 		var changes = new List<string>();
 
-		if (dto.BookName is not null && dto.BookName != book.Title)
-			changes.Add($"Changed book name from '{book.Title}' to '{dto.BookName}'.");
+		if (dto.Title is not null && dto.Title != book.Title)
+			changes.Add($"Changed book name from '{book.Title}' to '{dto.Title}'.");
 
 		if (dto.ISBN is not null && dto.ISBN != book.ISBN)
 			changes.Add($"Changed ISBN from '{book.ISBN}' to '{dto.ISBN}'.");

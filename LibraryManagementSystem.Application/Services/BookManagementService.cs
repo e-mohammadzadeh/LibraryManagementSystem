@@ -38,45 +38,41 @@ public class BookManagementService
 	}
 
 
-	public ServiceResult<BookDto> AddBook(CreateBookDto dto)
+	public ServiceResult<BookDto> AddBook(BookDto dto)
 	{
-		if (_bookRepository.ExistsByName(dto.Title, null))
+		if (_bookRepository.ExistsByName(dto.Title!, null))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByName);
 
-		var isbn = ISBN.Create(dto.ISBN);
+		var isbn = ISBN.Create(dto.ISBN!);
 		if (_bookRepository.ExistsByISBN(isbn, null))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByISBN);
 
-		if (!Enum.IsDefined(dto.Genre)) return ServiceResult<BookDto>.Fail(Messages.InvalidGenre);
-		var genre = BookGenre.Create(dto.Genre);
-
-		if (!Enum.IsDefined(dto.OriginalLanguage) ||
+		if (!Enum.IsDefined(dto.OriginalLanguage!.Value) ||
 		    (dto.TranslatedLanguage != null && !Enum.IsDefined(dto.TranslatedLanguage.Value)))
 			return ServiceResult<BookDto>.Fail(Messages.InvalidLanguage);
 
-		if (dto.AuthorIds.Count is 0) return ServiceResult<BookDto>.Fail(Messages.BookRequiresAtLeastOneAuthor);
+		if (dto.Authors!.Count is 0) return ServiceResult<BookDto>.Fail(Messages.BookRequiresAtLeastOneAuthor);
 
-		if (dto.AuthorIds.Count != dto.AuthorIds.Distinct().Count())
+		if (dto.Authors.Count != dto.Authors.Distinct().Count())
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateAuthorsNotAllowed);
 
 		var authors = new List<Author>();
-		foreach (var authorId in dto.AuthorIds)
+		foreach (var contributor in dto.Authors)
 		{
-			var author = _authorRepository.FindById(authorId, EntityFilter.Active);
+			var author = _authorRepository.FindById(contributor.Id, EntityFilter.Active);
 			if (author is null)
-				return ServiceResult<BookDto>.Fail(string.Format(Messages.AuthorNotFoundFormat, authorId));
+				return ServiceResult<BookDto>.Fail(string.Format(Messages.AuthorNotFoundFormat, contributor));
 			authors.Add(author);
 		}
 
 		if (authors.Count == 0) return ServiceResult<BookDto>.Fail(Messages.BookRequiresAtLeastOneAuthor);
 
-		if (dto.TranslatorIds.Count != dto.TranslatorIds.Distinct().Count())
+		if (dto.Translators!.Count != dto.Translators.Distinct().Count())
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateTranslatorsNotAllowed);
 
 		var translators = new List<Translator>();
-		foreach (var translator in
-		         dto.TranslatorIds.Select(translatorId =>
-			         _translatorRepository.FindById(translatorId, EntityFilter.Active)))
+		foreach (var translator in dto.Translators.Select(contributor =>
+			         _translatorRepository.FindById(contributor.Id, EntityFilter.Active)))
 		{
 			if (translator is null) return ServiceResult<BookDto>.Fail(Messages.NotTranslatorMatched);
 			translators.Add(translator);
@@ -86,13 +82,13 @@ public class BookManagementService
 
 		var newBook = new Book
 		{
-			Title = dto.Title,
+			Title = dto.Title!,
 			ISBN = isbn,
-			PublishDate = dto.PublishDate,
-			Genre = genre,
-			Publisher = dto.Publisher,
-			OriginalLanguage = dto.OriginalLanguage,
-			TotalCopies = dto.TotalCopies,
+			PublishDate = dto.PublishDate!.Value,
+			Genre = dto.Genre!,
+			Publisher = dto.Publisher!,
+			OriginalLanguage = dto.OriginalLanguage!.Value,
+			TotalCopies = dto.TotalCopies!.Value,
 			Description = dto.Description
 		};
 
@@ -152,7 +148,7 @@ public class BookManagementService
 	}
 
 
-	public ServiceResult<BookDto> UpdateBook(UpdateBookDto dto, Guid? updatedBy = null)
+	public ServiceResult<BookDto> UpdateBook(BookDto dto, Guid? updatedBy = null)
 	{
 		ArgumentNullException.ThrowIfNull(dto);
 
@@ -161,7 +157,7 @@ public class BookManagementService
 
 		if (IsNoOpUpdateBook(book, dto)) return ServiceResult<BookDto>.Fail(Messages.NoChangesDetected);
 
-		if (dto.BookName != null && _bookRepository.ExistsByName(dto.BookName, dto.Id))
+		if (dto.Title != null && _bookRepository.ExistsByName(dto.Title, dto.Id))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByName);
 
 		if (dto.ISBN != null)
@@ -177,36 +173,36 @@ public class BookManagementService
 		if (dto.TotalCopies is <= 0) return ServiceResult<BookDto>.Fail(Messages.WrongTotalCopies);
 
 		List<Author>? resolvedAuthors = null;
-		if (dto.AuthorIds != null)
+		if (dto.Authors != null)
 		{
-			if (dto.AuthorIds.Count == 0) return ServiceResult<BookDto>.Fail(Messages.BookRequiresAtLeastOneAuthor);
+			if (dto.Authors.Count == 0) return ServiceResult<BookDto>.Fail(Messages.BookRequiresAtLeastOneAuthor);
 
-			if (dto.AuthorIds.Count != dto.AuthorIds.Distinct().Count())
+			if (dto.Authors.Count != dto.Authors.Distinct().Count())
 				return ServiceResult<BookDto>.Fail(Messages.DuplicateAuthorsNotAllowed);
 
 			resolvedAuthors = [];
-			foreach (var id in dto.AuthorIds)
+			foreach (var contributor in dto.Authors)
 			{
-				var author = _authorRepository.FindById(id, EntityFilter.Active);
+				var author = _authorRepository.FindById(contributor.Id, EntityFilter.Active);
 				if (author is null)
-					return ServiceResult<BookDto>.Fail(string.Format(Messages.AuthorNotFoundFormat, id));
+					return ServiceResult<BookDto>.Fail(string.Format(Messages.AuthorNotFoundFormat, contributor));
 				resolvedAuthors.Add(author);
 			}
 		}
 
 		List<Translator>? resolvedTranslators = null;
-		if (dto.TranslatorIds != null)
+		if (dto.Translators != null)
 		{
-			if (dto.TranslatorIds.Count != dto.TranslatorIds.Distinct().Count())
+			if (dto.Translators.Count != dto.Translators.Distinct().Count())
 				return ServiceResult<BookDto>.Fail(Messages.DuplicateTranslatorsNotAllowed);
 
 			resolvedTranslators = [];
-			foreach (var translatorId in dto.TranslatorIds)
+			foreach (var contributor in dto.Translators)
 			{
-				var translator = _translatorRepository.FindById(translatorId, EntityFilter.Active);
+				var translator = _translatorRepository.FindById(contributor.Id, EntityFilter.Active);
 				if (translator is null)
 					return ServiceResult<BookDto>.Fail(string.Format(Messages.TranslatorNotFoundFormat,
-						translatorId));
+						contributor));
 				resolvedTranslators.Add(translator);
 			}
 		}
@@ -225,8 +221,7 @@ public class BookManagementService
 		}
 
 		if (resolvedAuthors != null) ReplaceAuthors(book, resolvedAuthors);
-		if (resolvedTranslators != null)
-			ReplaceTranslators(book, resolvedTranslators, dto.TranslatedLanguage);
+		if (resolvedTranslators != null) ReplaceTranslators(book, resolvedTranslators, dto.TranslatedLanguage!.Value);
 
 		_bookRepository.Update(book, updatedBy);
 		_auditLog.Record(AuditAction.BookUpdated, "Book", dto.Id, auditDetails ?? "Book updated.");
@@ -234,13 +229,14 @@ public class BookManagementService
 	}
 
 
-	private static bool IsNoOpUpdateBook(Book book, UpdateBookDto dto)
+	private static bool IsNoOpUpdateBook(Book book, BookDto dto)
 	{
-		return (dto.BookName == null || dto.BookName == book.Title) &&
+		return (dto.Title == null || dto.Title == book.Title) &&
 		       (dto.ISBN == null || dto.ISBN == book.ISBN) &&
-		       (dto.AuthorIds == null || SameIds(dto.AuthorIds, book.BookAuthors.Select(ba => ba.AuthorId))) &&
-		       (dto.TranslatorIds == null ||
-		        SameIds(dto.TranslatorIds, book.BookTranslators.Select(bt => bt.TranslatorId))) &&
+		       (dto.Authors == null ||
+		        SameIds(dto.Authors.Select(a => a.Id), book.BookAuthors.Select(ba => ba.AuthorId))) &&
+		       (dto.Translators == null ||
+		        SameIds(dto.Translators.Select(t => t.Id), book.BookTranslators.Select(bt => bt.TranslatorId))) &&
 		       (dto.PublishDate == null || dto.PublishDate == book.PublishDate) &&
 		       (dto.Genre == null || dto.Genre == book.Genre) &&
 		       (dto.Publisher == null || dto.Publisher == book.Publisher) &&
@@ -321,74 +317,67 @@ public class BookManagementService
 
 
 
-
-
-
-
-	public void AssignAuthorsToBook(Book book, IEnumerable<Author> authors) {
+	public void AssignAuthorsToBook(Book book, IEnumerable<Author> authors)
+	{
 		ArgumentNullException.ThrowIfNull(book);
 		ArgumentNullException.ThrowIfNull(authors);
 
 		var authorList = authors.DistinctBy(a => a.Id).ToList();
-		foreach (var author in authorList)
-			AddAuthor(book, author);
+		foreach (var author in authorList) AddAuthor(book, author);
 	}
 
 
-	public void AssignTranslatorsToBook(Book book, IEnumerable<Translator>? translators, Language? language) {
+	public void AssignTranslatorsToBook(Book book, IEnumerable<Translator>? translators, Language? language)
+	{
 		ArgumentNullException.ThrowIfNull(book);
 
-		if (translators is null)
-			return;
-		foreach (var translator in translators.DistinctBy(t => t.Id))
-			AddTranslator(book, translator, language);
+		if (translators is null) return;
+		foreach (var translator in translators.DistinctBy(t => t.Id)) AddTranslator(book, translator, language);
 	}
 
 
-	public void RemoveAuthor(Book book, Guid authorId) {
-		if (book.BookAuthors.Count <= 1)
-			throw new InvalidOperationException(Messages.BookRequiresAtLeastOneAuthor);
+	public void RemoveAuthor(Book book, Guid authorId)
+	{
+		if (book.BookAuthors.Count <= 1) throw new InvalidOperationException(Messages.BookRequiresAtLeastOneAuthor);
 
 		var bookAuthor = book.BookAuthors.FirstOrDefault(ba => ba.AuthorId == authorId);
 
-		if (bookAuthor is null)
-			return;
+		if (bookAuthor is null) return;
 
 		book.BookAuthors.Remove(bookAuthor);
 		book.UpdatedAt = DateTime.UtcNow;
 	}
 
 
-	public void RemoveTranslator(Book book, Guid translatorId) {
+	public void RemoveTranslator(Book book, Guid translatorId)
+	{
 		var bookTranslator = book.BookTranslators.FirstOrDefault(bt => bt.TranslatorId == translatorId);
 
-		if (bookTranslator is null)
-			return;
+		if (bookTranslator is null) return;
 
 		book.BookTranslators.Remove(bookTranslator);
 		book.UpdatedAt = DateTime.UtcNow;
 	}
 
 
-	public void ReplaceAuthors(Book book, IEnumerable<Author> authors) {
+	public void ReplaceAuthors(Book book, IEnumerable<Author> authors)
+	{
 		ArgumentNullException.ThrowIfNull(book);
 		ArgumentNullException.ThrowIfNull(authors);
 
 		var authorList = authors.DistinctBy(a => a.Id).ToList();
-		if (authorList.Count == 0)
-			throw new ArgumentException(Messages.BookRequiresAtLeastOneAuthor);
+		if (authorList.Count == 0) throw new ArgumentException(Messages.BookRequiresAtLeastOneAuthor);
 
 		var incomingIds = authorList.Select(a => a.Id).ToHashSet();
 		var existingIds = book.BookAuthors.Select(ba => ba.AuthorId).ToHashSet();
 
-		foreach (var authorId in existingIds.Except(incomingIds))
-			RemoveAuthor(book, authorId);
-		foreach (var author in authorList)
-			AddAuthor(book, author);
+		foreach (var authorId in existingIds.Except(incomingIds)) RemoveAuthor(book, authorId);
+		foreach (var author in authorList) AddAuthor(book, author);
 	}
 
 
-	public void ReplaceTranslators(Book book, IEnumerable<Translator> translators, Language language) {
+	public void ReplaceTranslators(Book book, IEnumerable<Translator> translators, Language language)
+	{
 		ArgumentNullException.ThrowIfNull(book);
 		ArgumentNullException.ThrowIfNull(translators);
 
@@ -396,14 +385,13 @@ public class BookManagementService
 		var incomingIds = translatorList.Select(t => t.Id).ToHashSet();
 		var existingIds = book.BookTranslators.Select(bt => bt.TranslatorId).ToHashSet();
 
-		foreach (var translatorId in existingIds.Except(incomingIds))
-			RemoveTranslator(book, translatorId);
-		foreach (var translator in translatorList)
-			AddTranslator(book, translator, language);
+		foreach (var translatorId in existingIds.Except(incomingIds)) RemoveTranslator(book, translatorId);
+		foreach (var translator in translatorList) AddTranslator(book, translator, language);
 	}
 
 
-	public void DetachFromTranslators(Book book) {
+	public void DetachFromTranslators(Book book)
+	{
 		ArgumentNullException.ThrowIfNull(book);
 
 		foreach (var translatorId in book.BookTranslators.Select(bt => bt.TranslatorId).ToList())
@@ -411,15 +399,16 @@ public class BookManagementService
 	}
 
 
-	public void BorrowCopy(Book book) {
-		if (book.AvailableCopies <= 0)
-			throw new InvalidOperationException("No copies are available.");
+	public void BorrowCopy(Book book)
+	{
+		if (book.AvailableCopies <= 0) throw new InvalidOperationException("No copies are available.");
 		book.AvailableCopies--;
 		//TODO	(Web API)	Raise an event: a signal to the rest of the system that says "this book is now out of stock"
 	}
 
 
-	public void ReturnCopy(Book book) {
+	public void ReturnCopy(Book book)
+	{
 		if (book.AvailableCopies >= book.TotalCopies)
 			throw new InvalidOperationException(
 				"Cannot return a copy because all copies are already in the library.");
@@ -428,10 +417,10 @@ public class BookManagementService
 	}
 
 
-	
-	private static void AddAuthor(Book book, Author author) {
-		if (book.BookAuthors.Any(ba => ba.AuthorId == author.Id))
-			return;
+
+	private static void AddAuthor(Book book, Author author)
+	{
+		if (book.BookAuthors.Any(ba => ba.AuthorId == author.Id)) return;
 
 		book.BookAuthors.Add(new BookAuthor
 		{
@@ -444,9 +433,9 @@ public class BookManagementService
 	}
 
 
-	private static void AddTranslator(Book book, Translator translator, Language? language) {
-		if (book.BookTranslators.Any(bt => bt.TranslatorId == translator.Id))
-			return;
+	private static void AddTranslator(Book book, Translator translator, Language? language)
+	{
+		if (book.BookTranslators.Any(bt => bt.TranslatorId == translator.Id)) return;
 
 		book.BookTranslators.Add(new BookTranslator
 		{
@@ -454,7 +443,7 @@ public class BookManagementService
 			BookId = book.Id,
 			TranslatorId = translator.Id,
 			Translator = translator,
-			TranslationLanguage = language ?? Language.Arabic   // Should fix here: no translator = no language
+			TranslationLanguage = language ?? Language.Arabic // Should fix here: no translator = no language
 		});
 		book.UpdatedAt = DateTime.UtcNow;
 	}
