@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Infrastructure.Enums;
+﻿using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
+using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.ValueObjects;
 
 namespace LibraryManagementSystem.Infrastructure.DTOs.Books;
@@ -8,10 +9,10 @@ public class BookDto
 	public Guid Id { get; init; }
 	public string Title { get; init; } = null!;
 	public ISBN ISBN { get; init; } = null!;
-	public List<Guid> AuthorIds { get; init; }
-	public List<Guid> TranslatorIds { get; init; }
+	public IReadOnlyList<ContributorDto> Authors { get; init; } = [];
+	public IReadOnlyList<ContributorDto> Translators { get; init; } = [];
 	public DateOnly PublishDate { get; init; }
-	public BookGenre Genre { get; init; }
+	public BookGenre Genre { get; init; } = null!;
 	public string Publisher { get; init; } = null!;
 	public Language OriginalLanguage { get; init; }
 	public int TotalCopies { get; init; }
