@@ -18,10 +18,4 @@ public interface IUserRepository
 	void Remove(User user);
 	IReadOnlyList<User> Search(string searchTerm, Func<User, string?> selector);
 	IReadOnlyList<User> SearchByRole(Guid roleId);
-	void ReplaceRole(User user, Role newRole);
-	void RenewMembership(User user, int years);
-	void FlagForRemoval(User user);
-	void SetPasswordHash(User user, byte[] passwordHash, byte[] passwordSalt);
-	void UpdateLastLogin(User user);
-	void UpdateLastLoginInLogout(User user);
 }

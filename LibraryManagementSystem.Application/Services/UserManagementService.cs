@@ -366,4 +366,55 @@ public class UserManagementService
 		_auditLog.Record(AuditAction.MembershipRenewed, "User", userId, "User membership renewed.");
 		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.MembershipRenewedSuccessfully);
 	}
+
+
+
+
+	public void ReplaceRole(User user, Role newRole) {
+		user.Role = newRole ?? throw new ArgumentNullException(nameof(newRole));
+		user.RoleId = newRole.Id;
+	}
+
+
+	public void RenewMembership(User user, int years = 1) {
+		var today = DateOnly.FromDateTime(DateTime.Today);
+		var renewalBase = user.MembershipExpiryDate > today
+			? user.MembershipExpiryDate // extend from current expiry if not yet expired
+			: today; // restart from today if already expired
+
+		user.MembershipExpiryDate = renewalBase.AddYears(years);
+		if (!user.IsActive)
+			user.IsActive = true;
+		user.UpdatedAt = DateTime.UtcNow;
+	}
+
+
+
+	public void FlagForRemoval(User user) {
+		user.ShouldRemove = true;
+		user.UpdatedAt = DateTime.UtcNow;
+	}
+
+
+	public void SetPasswordHash(User user, byte[] passwordHash, byte[] passwordSalt) {
+		if (passwordHash is null || passwordHash.Length == 0)
+			throw new ArgumentNullException(nameof(passwordHash));
+		if (passwordSalt is null || passwordSalt.Length == 0)
+			throw new ArgumentNullException(nameof(passwordSalt));
+
+		user.PasswordHash = passwordHash;
+		user.PasswordSalt = passwordSalt;
+	}
+
+
+	public void UpdateLastLogin(User user) {
+		user.LastLoginDate = user.PreviousLoginDate;
+		user.PreviousLoginDate = DateTime.Now;
+	}
+
+
+	public void UpdateLastLoginInLogout(User user) {
+		user.LastLoginDate = user.PreviousLoginDate;
+	}
+
 }
