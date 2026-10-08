@@ -5,7 +5,7 @@ namespace LibraryManagementSystem.Application.Common;
 
 public static class PersonUpdateAuditDetailsBuilder
 {
-	public static string? BuildPersonUpdateAuditDetails(Author author, UpdateContributorDto dto)
+	public static string? BuildPersonUpdateAuditDetails(Author author, ContributorDto dto)
 	{
 		return BuildPersonUpdateAuditDetails(
 			author.FirstName, dto.FirstName,
@@ -18,7 +18,7 @@ public static class PersonUpdateAuditDetailsBuilder
 	}
 
 
-	public static string? BuildPersonUpdateAuditDetails(Translator translator, UpdateContributorDto dto)
+	public static string? BuildPersonUpdateAuditDetails(Translator translator, ContributorDto dto)
 	{
 		return BuildPersonUpdateAuditDetails(
 			translator.FirstName, dto.FirstName,

@@ -19,7 +19,7 @@ public class UserManagementService
 {
 	private readonly IUserRepository _userRepository;
 	private readonly IRoleRepository _roleRepository;
-	private readonly ILoanRepository _loanRepository;
+	private readonly ILoanManagementService _loansService;
 	private readonly IFineManagementService _finesService;
 	private readonly IPasswordHasher _passwordHasher;
 	private readonly IAuthorizationService _authorization;
@@ -27,12 +27,12 @@ public class UserManagementService
 
 
 	public UserManagementService(IUserRepository userRepository, IRoleRepository roleRepository,
-		ILoanRepository loanRepository, IFineManagementService fineService, IPasswordHasher passwordHasher,
+		ILoanManagementService loanService, IFineManagementService fineService, IPasswordHasher passwordHasher,
 		IAuthorizationService authorization, IAuditLogManagementService auditLog)
 	{
 		_userRepository = userRepository;
 		_roleRepository = roleRepository;
-		_loanRepository = loanRepository;
+		_loansService = loanService;
 		_finesService = fineService;
 		_passwordHasher = passwordHasher;
 		_authorization = authorization;
@@ -238,7 +238,7 @@ public class UserManagementService
 
 		if (session != null && !CanRemoveUser(session, user)) return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
 
-		if (_loanRepository.CountLoans(userId, LoanFilter.Active) > 0)
+		if (_loansService.CountLoans(userId, LoanFilter.Active) > 0)
 			return ServiceResult<UserDto>.Fail(Messages.UserRemovalFailedByActiveLoans);
 
 		if (_finesService.HasFines(userId, FineFilter.Unpaid))
@@ -395,22 +395,28 @@ public class UserManagementService
 	}
 
 
-	public void SetPasswordHash(User user, byte[] passwordHash, byte[] passwordSalt)
+	public void SetPasswordHash(Guid userId, byte[] passwordHash, byte[] passwordSalt)
 	{
 		if (passwordHash is null || passwordHash.Length == 0) throw new ArgumentNullException(nameof(passwordHash));
 		if (passwordSalt is null || passwordSalt.Length == 0) throw new ArgumentNullException(nameof(passwordSalt));
 
-		user.PasswordHash = passwordHash;
+		var user = _userRepository.FindById(userId, EntityFilter.Active);
+		user!.PasswordHash = passwordHash;
 		user.PasswordSalt = passwordSalt;
 	}
 
 
-	public void UpdateLastLogin(User user)
+	public void UpdateLastLogin(Guid userId)
 	{
+		var user = _userRepository.FindById(userId, EntityFilter.Active);
 		user.LastLoginDate = user.PreviousLoginDate;
 		user.PreviousLoginDate = DateTime.Now;
 	}
 
 
-	public void UpdateLastLoginInLogout(User user) { user.LastLoginDate = user.PreviousLoginDate; }
+	public void UpdateLastLoginInLogout(Guid userId)
+	{
+		var user = _userRepository.FindById(userId, EntityFilter.Active);
+		user.LastLoginDate = user.PreviousLoginDate;
+	}
 }
