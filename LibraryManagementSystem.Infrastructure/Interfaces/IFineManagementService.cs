@@ -1,8 +1,7 @@
-﻿using LibraryManagementSystem.Application.Authentication;
-using LibraryManagementSystem.Infrastructure.DTOs.Fine;
+﻿using LibraryManagementSystem.Infrastructure.DTOs.Fine;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
 
-namespace LibraryManagementSystem.Application.Services;
+namespace LibraryManagementSystem.Infrastructure.Interfaces;
 
 public interface IFineManagementService
 {

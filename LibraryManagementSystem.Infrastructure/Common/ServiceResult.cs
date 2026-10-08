@@ -1,6 +1,6 @@
 ﻿using LibraryManagementSystem.Infrastructure.Enums;
 
-namespace LibraryManagementSystem.Application.Common;
+namespace LibraryManagementSystem.Infrastructure.Common;
 
 public class ServiceResult<T> where T : class
 {
