@@ -18,16 +18,14 @@ public class FineHistoryManagementService: IFineHistoryManagementService
 	}
 
 
-	public void Record(Fine fine, FineHistoryAction action, string? description = null)
+	public void Record(FineDto fine, FineHistoryAction action, string? description = null)
 	{
 		var history = new FineHistory
 		{
-			Fine = fine,
-			FineId = fine.Id,
-			Loan = fine.Loan,
+			Id = Guid.CreateVersion7(),
+			FineId = fine.FineId,
 			LoanId = fine.LoanId,
-			User = fine.Loan.User,
-			UserId = fine.Loan.UserId,
+			UserId = fine.UserId,
 			OverdueDays = fine.OverdueDays,
 			Money = fine.Money,
 			Status = fine.Status,

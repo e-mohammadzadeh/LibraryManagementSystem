@@ -96,8 +96,8 @@ public class BookManagementService
 			Description = dto.Description
 		};
 
-		_bookRepository.AssignAuthorsToBook(newBook, authors);
-		_bookRepository.AssignTranslatorsToBook(newBook, translators, dto.TranslatedLanguage);
+		AssignAuthorsToBook(newBook, authors);
+		AssignTranslatorsToBook(newBook, translators, dto.TranslatedLanguage);
 		_bookRepository.Add(newBook);
 		_auditLog.Record(AuditAction.BookCreated, "Book", newBook.Id, "Book created.");
 
@@ -224,9 +224,9 @@ public class BookManagementService
 			book.AvailableCopies += difference;
 		}
 
-		if (resolvedAuthors != null) _bookRepository.ReplaceAuthors(book, resolvedAuthors);
+		if (resolvedAuthors != null) ReplaceAuthors(book, resolvedAuthors);
 		if (resolvedTranslators != null)
-			_bookRepository.ReplaceTranslators(book, resolvedTranslators, dto.TranslatedLanguage);
+			ReplaceTranslators(book, resolvedTranslators, dto.TranslatedLanguage);
 
 		_bookRepository.Update(book, updatedBy);
 		_auditLog.Record(AuditAction.BookUpdated, "Book", dto.Id, auditDetails ?? "Book updated.");
