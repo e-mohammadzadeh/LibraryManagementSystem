@@ -4,6 +4,7 @@ using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.DTOs.Users;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
+using LibraryManagementSystem.Infrastructure.Interfaces;
 
 namespace LibraryManagementSystem.Application.Authorization;
 

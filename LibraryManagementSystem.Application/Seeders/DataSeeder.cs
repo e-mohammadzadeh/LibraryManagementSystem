@@ -3,6 +3,7 @@ using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
+using LibraryManagementSystem.Infrastructure.Interfaces;
 using LibraryManagementSystem.Infrastructure.ValueObjects;
 
 // ReSharper disable StringLiteralTypo
