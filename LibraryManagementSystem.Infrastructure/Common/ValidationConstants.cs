@@ -27,4 +27,6 @@ public static class ValidationConstants
 	public const int MinPasswordLength = 8;
 	public const int LoanPeriodDays = 14;
 	public const int MaxRenewals = 1;
+	public const string DateFormat = "yyyy-MM-dd";
+
 }

@@ -37,15 +37,15 @@ public class TranslatorManagementService
 	{
 		string? warningMessage = null;
 
-		if (_translatorRepository.ExistsByNationalCode(dto.NationalCode!, null))
+		if (_translatorRepository.ExistsByNationalCode(dto.NationalCode!))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByNationalCode);
 
 		var email = Email.Create(dto.Email!);
-		if (_translatorRepository.ExistsByEmail(email, null))
+		if (_translatorRepository.ExistsByEmail(email))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByEmail);
 
 		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber!);
-		if (_translatorRepository.ExistsByPhoneNumber(phoneNumber, null))
+		if (_translatorRepository.ExistsByPhoneNumber(phoneNumber))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByPhoneNumber);
 
 		var existingSameName = _translatorRepository.FindByName(dto.FirstName!, dto.LastName!, EntityFilter.Active);
@@ -72,46 +72,11 @@ public class TranslatorManagementService
 	}
 
 
-	public IReadOnlyList<ContributorDto> GetAllTranslators(TranslatorSortField sortField = TranslatorSortField.Id,
-		SortDirection sortDirection = SortDirection.Ascending)
-	{
-		var translators = _translatorRepository.GetAll(EntityFilter.Active).Select(t => t.ToDto());
-		Func<ContributorDto, object> keySelector = sortField switch
-		{
-			TranslatorSortField.Id => t => t.Id,
-			TranslatorSortField.FirstName => t => t.FirstName!,
-			TranslatorSortField.LastName => t => t.LastName!,
-			TranslatorSortField.FullName => t => $"{t.FirstName} {t.LastName}",
-			TranslatorSortField.NationalCode => t => t.NationalCode!,
-			TranslatorSortField.Email => t => t.Email!,
-			TranslatorSortField.BirthDate => t => t.BirthDate!,
-			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
-		};
-
-		var sorted = sortDirection == SortDirection.Ascending
-			? translators.OrderBy(keySelector)
-			: translators.OrderByDescending(keySelector);
-
-		return [.. sorted];
-	}
-
-
-	public IReadOnlyList<ContributorDto> GetRemovedTranslators()
-	{
-		if (!_authorization.HasPermission(Permission.ViewRemovedTranslators)) return [];
-		return [.. _translatorRepository.GetAll(EntityFilter.Removed).Select(a => a.ToDto())];
-	}
-
-
-
-	private Translator? FindTranslatorById(Guid id) { return _translatorRepository.FindById(id, EntityFilter.Active); }
-
-
 	public ServiceResult<ContributorDto> UpdateTranslator(ContributorDto dto, Guid? updatedBy = null)
 	{
 		string? warningMessage = null;
 
-		var translator = FindTranslatorById(dto.Id);
+		var translator = _translatorRepository.FindById(dto.Id, EntityFilter.Active);
 		if (translator is null) return ServiceResult<ContributorDto>.Fail(Messages.TranslatorUpdateFailed);
 
 		if (IsNoOpUpdateTranslator(translator, dto))
@@ -168,11 +133,10 @@ public class TranslatorManagementService
 
 	public ServiceResult<ContributorDto> RemoveTranslator(Guid translatorId)
 	{
-		var translator = FindTranslatorById(translatorId);
+		var translator = _translatorRepository.FindById(translatorId, EntityFilter.Active);
 		if (translator is null) return ServiceResult<ContributorDto>.Fail(Messages.TranslatorRemoveFailed);
 
-		var booksByTranslator = _bookRepository.GetByTranslatorId(translatorId, EntityFilter.Active);
-		if (booksByTranslator.Count != 0)
+		if (translator.BookTranslators.Count != 0)
 			return ServiceResult<ContributorDto>.Fail(Messages.TranslatorHasAssociatedBooks);
 
 		_translatorRepository.Remove(translator);
@@ -180,6 +144,38 @@ public class TranslatorManagementService
 
 		return ServiceResult<ContributorDto>.Ok(translator.ToDto(), Messages.TranslatorRemovedSuccessfully);
 	}
+
+
+	public IReadOnlyList<ContributorDto> GetAllTranslators(TranslatorSortField sortField = TranslatorSortField.Id,
+		SortDirection sortDirection = SortDirection.Ascending)
+	{
+		var translators = _translatorRepository.GetAll(EntityFilter.Active).Select(t => t.ToDto());
+		Func<ContributorDto, object> keySelector = sortField switch
+		{
+			TranslatorSortField.Id => t => t.Id,
+			TranslatorSortField.FirstName => t => t.FirstName!,
+			TranslatorSortField.LastName => t => t.LastName!,
+			TranslatorSortField.FullName => t => $"{t.FirstName} {t.LastName}",
+			TranslatorSortField.NationalCode => t => t.NationalCode!,
+			TranslatorSortField.Email => t => t.Email!,
+			TranslatorSortField.BirthDate => t => t.BirthDate!,
+			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
+		};
+
+		var sorted = sortDirection == SortDirection.Ascending
+			? translators.OrderBy(keySelector)
+			: translators.OrderByDescending(keySelector);
+
+		return [.. sorted];
+	}
+
+
+	public IReadOnlyList<ContributorDto> GetRemovedTranslators()
+	{
+		if (!_authorization.HasPermission(Permission.ViewRemovedTranslators)) return [];
+		return [.. _translatorRepository.GetAll(EntityFilter.Removed).Select(a => a.ToDto())];
+	}
+
 
 
 	public IReadOnlyList<ContributorDto> SearchTranslator(string searchItem, TranslatorSearchField field)

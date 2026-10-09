@@ -43,7 +43,7 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 	}
 
 
-	public bool ExistsByNationalCode(string nationalCode, Guid? excludeId = null)
+	public bool ExistsByNationalCode(string nationalCode, Guid? excludeId)
 	{
 		return _translators.Any(t =>
 			!t.IsRemoved &&
@@ -52,7 +52,7 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 	}
 
 
-	public bool ExistsByEmail(Email email, Guid? excludeId = null)
+	public bool ExistsByEmail(Email email, Guid? excludeId)
 	{
 		return _translators.Any(t =>
 			!t.IsRemoved &&
@@ -61,7 +61,7 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 	}
 
 
-	public bool ExistsByPhoneNumber(PhoneNumber phoneNumber, Guid? excludeId = null)
+	public bool ExistsByPhoneNumber(PhoneNumber phoneNumber, Guid? excludeId)
 	{
 		return _translators.Any(t =>
 			!t.IsRemoved &&

@@ -134,9 +134,8 @@ public class AuthorManagementService
 	{
 		var author = _authorRepository.FindById(authorId, EntityFilter.Active);
 		if (author is null) return ServiceResult<ContributorDto>.Fail(Messages.AuthorRemoveFailed);
-
-		var booksByAuthor = _bookRepository.GetByAuthorId(authorId, EntityFilter.Active);
-		if (booksByAuthor.Count != 0) return ServiceResult<ContributorDto>.Fail(Messages.AuthorHasAssociatedBooks);
+		
+		if (author.BookAuthors.Count != 0) return ServiceResult<ContributorDto>.Fail(Messages.AuthorHasAssociatedBooks);
 
 		_authorRepository.Remove(author);
 		_auditLog.Record(AuditAction.AuthorRemoved, "Author", authorId, "Author removed.");
