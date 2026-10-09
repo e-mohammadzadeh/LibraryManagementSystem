@@ -18,16 +18,14 @@ namespace LibraryManagementSystem.Application.Services;
 public class TranslatorManagementService
 {
 	private readonly ITranslatorRepository _translatorRepository;
-	private readonly IBookRepository _bookRepository;
 	private readonly IAuthorizationService _authorization;
 	private readonly IAuditLogManagementService _auditLog;
 
 
-	public TranslatorManagementService(ITranslatorRepository translatorRepository, IBookRepository bookRepository,
-		IAuthorizationService authorization, IAuditLogManagementService auditLog)
+	public TranslatorManagementService(ITranslatorRepository translatorRepository, IAuthorizationService authorization,
+		IAuditLogManagementService auditLog)
 	{
 		_translatorRepository = translatorRepository;
-		_bookRepository = bookRepository;
 		_authorization = authorization;
 		_auditLog = auditLog;
 	}
@@ -195,6 +193,7 @@ public class TranslatorManagementService
 			ContributorSortField.NationalCode => t => t.NationalCode!,
 			ContributorSortField.Email => t => t.Email!,
 			ContributorSortField.BirthDate => t => t.BirthDate!,
+			ContributorSortField.BookCount => t => GetBooksByTranslator(t.Id).Count,
 			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
 		};
 

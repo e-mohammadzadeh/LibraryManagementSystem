@@ -1,5 +1,4 @@
-﻿using LibraryManagementSystem.Infrastructure.DTOs.Books;
-using LibraryManagementSystem.Infrastructure.ValueObjects;
+﻿using LibraryManagementSystem.Infrastructure.ValueObjects;
 
 namespace LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 

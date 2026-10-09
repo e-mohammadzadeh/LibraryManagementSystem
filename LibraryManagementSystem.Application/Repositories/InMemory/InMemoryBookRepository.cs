@@ -53,7 +53,7 @@ public class InMemoryBookRepository : IBookRepository
 	}
 
 
-	public bool ExistsByName(string name, Guid? excludeId = null)
+	public bool ExistsByName(string name, Guid? excludeId)
 	{
 		if (string.IsNullOrWhiteSpace(name)) return false;
 
@@ -64,7 +64,7 @@ public class InMemoryBookRepository : IBookRepository
 	}
 
 
-	public bool ExistsByISBN(ISBN isbn, Guid? excludeId = null)
+	public bool ExistsByISBN(ISBN isbn, Guid? excludeId)
 	{
 		if (string.IsNullOrWhiteSpace(isbn)) return false;
 

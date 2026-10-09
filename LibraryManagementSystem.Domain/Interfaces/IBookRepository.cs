@@ -12,8 +12,8 @@ public interface IBookRepository
 	IReadOnlyList<Book> GetByAuthorId(Guid authorId, EntityFilter filter);
 	IReadOnlyList<Book> GetByTranslatorId(Guid translatorId, EntityFilter filter);
 	IReadOnlyList<Book> GetAvailableBooks(EntityFilter filter);
-	bool ExistsByName(string name, Guid? excludeId);
-	bool ExistsByISBN(ISBN isbn, Guid? excludeId);
+	bool ExistsByName(string name, Guid? excludeId = null);
+	bool ExistsByISBN(ISBN isbn, Guid? excludeId = null);
 	void Remove(Book book);
 	IReadOnlyList<Book> Search(string searchTerm, Func<Book, string?> selector);
 	IReadOnlyList<Book> SearchByDate(DateOnly from, DateOnly to, Func<Book, DateOnly> selector);

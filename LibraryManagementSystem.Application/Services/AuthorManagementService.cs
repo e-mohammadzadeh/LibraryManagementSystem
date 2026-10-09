@@ -18,16 +18,14 @@ namespace LibraryManagementSystem.Application.Services;
 public class AuthorManagementService
 {
 	private readonly IAuthorRepository _authorRepository;
-	private readonly IBookRepository _bookRepository;
 	private readonly IAuthorizationService _authorization;
 	private readonly IAuditLogManagementService _auditLog;
 
 
-	public AuthorManagementService(IAuthorRepository authorRepository, IBookRepository bookRepository,
-		IAuthorizationService authorization, IAuditLogManagementService auditLog)
+	public AuthorManagementService(IAuthorRepository authorRepository, IAuthorizationService authorization,
+		IAuditLogManagementService auditLog)
 	{
 		_authorRepository = authorRepository;
-		_bookRepository = bookRepository;
 		_authorization = authorization;
 		_auditLog = auditLog;
 	}
@@ -85,7 +83,8 @@ public class AuthorManagementService
 		var resolvedLastName = dto.LastName ?? author.LastName;
 		if (dto.FirstName != null || dto.LastName != null)
 		{
-			var existingSameName = _authorRepository.FindByName(resolvedFirstName, resolvedLastName, EntityFilter.Active);
+			var existingSameName =
+				_authorRepository.FindByName(resolvedFirstName, resolvedLastName, EntityFilter.Active);
 			if (existingSameName != null && existingSameName.Id != dto.Id)
 				warningMessage = string.Format(Messages.DuplicateAuthorNameWarning, existingSameName.Id);
 		}
@@ -134,7 +133,7 @@ public class AuthorManagementService
 	{
 		var author = _authorRepository.FindById(authorId, EntityFilter.Active);
 		if (author is null) return ServiceResult<ContributorDto>.Fail(Messages.AuthorRemoveFailed);
-		
+
 		if (author.BookAuthors.Count != 0) return ServiceResult<ContributorDto>.Fail(Messages.AuthorHasAssociatedBooks);
 
 		_authorRepository.Remove(author);

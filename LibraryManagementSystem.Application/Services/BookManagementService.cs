@@ -40,43 +40,26 @@ public class BookManagementService : IBookManagementService
 
 	public ServiceResult<BookDto> AddBook(BookDto dto)
 	{
-		if (_bookRepository.ExistsByName(dto.Title!, null))
+		if (_bookRepository.ExistsByName(dto.Title!))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByName);
 
 		var isbn = ISBN.Create(dto.ISBN!);
-		if (_bookRepository.ExistsByISBN(isbn, null))
+		if (_bookRepository.ExistsByISBN(isbn))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByISBN);
 
 		if (!Enum.IsDefined(dto.OriginalLanguage!.Value) ||
 		    (dto.TranslatedLanguage != null && !Enum.IsDefined(dto.TranslatedLanguage.Value)))
 			return ServiceResult<BookDto>.Fail(Messages.InvalidLanguage);
 
-		if (dto.Authors!.Count is 0) return ServiceResult<BookDto>.Fail(Messages.BookRequiresAtLeastOneAuthor);
-
-		if (dto.Authors.Count != dto.Authors.Distinct().Count())
+		var authorIds = dto.Authors?.Select(a => a.Id).ToList() ?? [];
+		if (authorIds.Count == 0) return ServiceResult<BookDto>.Fail(Messages.BookRequiresAtLeastOneAuthor);
+		if (authorIds.Count != authorIds.Distinct().Count())
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateAuthorsNotAllowed);
 
-		var authors = new List<Author>();
-		foreach (var contributor in dto.Authors)
-		{
-			var author = _authorRepository.FindById(contributor.Id, EntityFilter.Active);
-			if (author is null)
-				return ServiceResult<BookDto>.Fail(string.Format(Messages.AuthorNotFoundFormat, contributor));
-			authors.Add(author);
-		}
-
-		if (authors.Count == 0) return ServiceResult<BookDto>.Fail(Messages.BookRequiresAtLeastOneAuthor);
-
-		if (dto.Translators!.Count != dto.Translators.Distinct().Count())
+		var translatorIds = dto.Translators?.Select(t => t.Id).ToList() ?? [];
+		if (translatorIds.Count != translatorIds.Distinct().Count())
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateTranslatorsNotAllowed);
 
-		var translators = new List<Translator>();
-		foreach (var translator in dto.Translators.Select(contributor =>
-			         _translatorRepository.FindById(contributor.Id, EntityFilter.Active)))
-		{
-			if (translator is null) return ServiceResult<BookDto>.Fail(Messages.NotTranslatorMatched);
-			translators.Add(translator);
-		}
 
 		if (dto.TotalCopies <= 0) return ServiceResult<BookDto>.Fail(Messages.WrongTotalCopies);
 
@@ -92,8 +75,8 @@ public class BookManagementService : IBookManagementService
 			Description = dto.Description
 		};
 
-		AssignAuthorsToBook(newBook, authors);
-		AssignTranslatorsToBook(newBook, translators, dto.TranslatedLanguage);
+		AssignAuthorsToBook(newBook.Id, authorIds);
+		AssignTranslatorsToBook(newBook.Id, translatorIds, dto.TranslatedLanguage);
 		_bookRepository.Add(newBook);
 		_auditLog.Record(AuditAction.BookCreated, "Book", newBook.Id, "Book created.");
 
@@ -317,22 +300,36 @@ public class BookManagementService : IBookManagementService
 
 
 
-	public void AssignAuthorsToBook(Book book, IEnumerable<Author> authors)
+	public void AssignAuthorsToBook(Guid bookId, List<Guid> authorIds)
 	{
-		ArgumentNullException.ThrowIfNull(book);
-		ArgumentNullException.ThrowIfNull(authors);
+		var authors = new List<Author>();
+		foreach (var author in authorIds.Select(id => _authorRepository.FindById(id, EntityFilter.Active)))
+		{
+			if (author is null) return;
+			authors.Add(author);
+		}
 
-		var authorList = authors.DistinctBy(a => a.Id).ToList();
-		foreach (var author in authorList) AddAuthor(book, author);
+		var book = _bookRepository.FindById(bookId, EntityFilter.Active);
+		if (book is null) return;
+		foreach (var author in authors) AddAuthor(book, author);
 	}
 
 
-	public void AssignTranslatorsToBook(Book book, IEnumerable<Translator>? translators, Language? language)
+	public void AssignTranslatorsToBook(Guid bookId, List<Guid>? translatorIds, Language? language)
 	{
-		ArgumentNullException.ThrowIfNull(book);
+		var translators = new List<Translator>();
+		if (translatorIds != null)
+			foreach (var translator in translatorIds.Select(id =>
+				         _translatorRepository.FindById(id, EntityFilter.Active)))
+			{
+				if (translator is null) return;
+				translators.Add(translator);
+			}
 
-		if (translators is null) return;
-		foreach (var translator in translators.DistinctBy(t => t.Id)) AddTranslator(book, translator, language);
+		var book = _bookRepository.FindById(bookId, EntityFilter.Active);
+		if (book is null) return;
+
+		foreach (var translator in translators) AddTranslator(book, translator, language);
 	}
 
 
@@ -409,6 +406,9 @@ public class BookManagementService : IBookManagementService
 	}
 
 
+	public void ReturnCopy(Guid bookId) { throw new NotImplementedException(); }
+
+
 	public void ReturnCopy(Book book)
 	{
 		if (book.AvailableCopies >= book.TotalCopies)
@@ -431,7 +431,6 @@ public class BookManagementService : IBookManagementService
 			AuthorId = author.Id,
 			Author = author
 		});
-		book.UpdatedAt = DateTime.UtcNow;
 	}
 
 
@@ -441,12 +440,11 @@ public class BookManagementService : IBookManagementService
 
 		book.BookTranslators.Add(new BookTranslator
 		{
-			Book = book,
 			BookId = book.Id,
+			Book = book,
 			TranslatorId = translator.Id,
 			Translator = translator,
 			TranslationLanguage = language ?? Language.Arabic // Should fix here: no translator = no language
 		});
-		book.UpdatedAt = DateTime.UtcNow;
 	}
 }
