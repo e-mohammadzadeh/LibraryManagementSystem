@@ -1,5 +1,4 @@
-﻿using LibraryManagementSystem.Application.Authentication;
-using LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Library;
@@ -14,18 +13,18 @@ public class LibraryStatisticsService
 	private readonly IAuthorRepository _authorRepository;
 	private readonly ITranslatorRepository _translatorRepository;
 	private readonly IUserRepository _userRepository;
-	private readonly ILoanRepository _loanRepository;
+	private readonly ILoanManagementService _loanService;
 
 
 	public LibraryStatisticsService(IBookRepository bookRepository, IAuthorRepository authorRepository,
 		ITranslatorRepository translatorRepository,
-		IUserRepository userRepository, ILoanRepository loanRepository)
+		IUserRepository userRepository, ILoanManagementService loanService)
 	{
 		_bookRepository = bookRepository;
 		_authorRepository = authorRepository;
 		_translatorRepository = translatorRepository;
 		_userRepository = userRepository;
-		_loanRepository = loanRepository;
+		_loanService = loanService;
 	}
 
 
@@ -40,7 +39,7 @@ public class LibraryStatisticsService
 			TotalAuthors = _authorRepository.GetAll(EntityFilter.Active).Count,
 			TotalTranslators = _translatorRepository.GetAll(EntityFilter.Active).Count,
 			TotalUsers = _userRepository.GetAll(EntityFilter.Active).Count,
-			TotalActiveLoans = _loanRepository.CountLoans(null, LoanFilter.Active),
+			TotalActiveLoans = _loanService.CountLoans(null, LoanFilter.Active),
 		};
 		return ServiceResult<LibraryStatisticsDto>.Ok(stats, "Computed successfully");
 	}

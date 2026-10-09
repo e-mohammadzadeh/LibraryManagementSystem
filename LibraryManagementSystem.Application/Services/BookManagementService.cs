@@ -15,7 +15,7 @@ using LibraryManagementSystem.Infrastructure.ValueObjects;
 
 namespace LibraryManagementSystem.Application.Services;
 
-public class BookManagementService
+public class BookManagementService : IBookManagementService
 {
 	private readonly IAuthorRepository _authorRepository;
 	private readonly ITranslatorRepository _translatorRepository;
@@ -399,8 +399,10 @@ public class BookManagementService
 	}
 
 
-	public void BorrowCopy(Book book)
+	public void BorrowCopy(Guid bookId)
 	{
+		var book = _bookRepository.FindById(bookId, EntityFilter.Active);
+		if (book is null) return;
 		if (book.AvailableCopies <= 0) throw new InvalidOperationException("No copies are available.");
 		book.AvailableCopies--;
 		//TODO	(Web API)	Raise an event: a signal to the rest of the system that says "this book is now out of stock"

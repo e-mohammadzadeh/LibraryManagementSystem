@@ -16,6 +16,7 @@ public class LoanManagementService : ILoanManagementService
 	private readonly ILoanRepository _loanRepository;
 	private readonly IUserRepository _userRepository;
 	private readonly IBookRepository _bookRepository;
+	private readonly IBookManagementService _bookService;
 	private readonly IFineManagementService _fineService;
 	private readonly IUserAutoRemovalService _userAutoRemovalService;
 	private readonly IAuthorizationService _authorization;
@@ -24,13 +25,15 @@ public class LoanManagementService : ILoanManagementService
 
 
 	public LoanManagementService(ILoanRepository loanRepository, IUserRepository userRepository,
-		IBookRepository bookRepository, IFineManagementService fineManagementService,
-		IUserAutoRemovalService userAutoRemovalService, IAuthorizationService authorization,
-		ILoanHistoryManagementService loanHistoryManagementService, IAuditLogManagementService auditLog)
+		IBookRepository bookRepository, IBookManagementService bookService,
+		IFineManagementService fineManagementService, IUserAutoRemovalService userAutoRemovalService,
+		IAuthorizationService authorization, ILoanHistoryManagementService loanHistoryManagementService,
+		IAuditLogManagementService auditLog)
 	{
 		_loanRepository = loanRepository;
 		_userRepository = userRepository;
 		_bookRepository = bookRepository;
+		_bookService = bookService;
 		_fineService = fineManagementService;
 		_userAutoRemovalService = userAutoRemovalService;
 		_authorization = authorization;
@@ -39,12 +42,12 @@ public class LoanManagementService : ILoanManagementService
 	}
 
 
-	public ServiceResult<LoanDto> BorrowBook(CreateLoanDto dto, ICurrentUserSession session)
+	public ServiceResult<LoanDto> BorrowBook(LoanDto dto, ICurrentUserSession session)
 	{
 		if (session.IsSelfServiceMember && session.UserId != dto.UserId)
 			return ServiceResult<LoanDto>.Fail(Messages.BorrowBookForYourself);
 
-		var user = _userRepository.FindById(dto.UserId, EntityFilter.Active);
+		var user = _userRepository.FindById(dto.UserId!.Value, EntityFilter.Active);
 		if (user is null) return ServiceResult<LoanDto>.Fail(Messages.NotUserMatched);
 
 		if (!user.IsActive) return ServiceResult<LoanDto>.Fail(Messages.MembershipExpired);
@@ -52,20 +55,21 @@ public class LoanManagementService : ILoanManagementService
 		if (user.ShouldRemove)
 			return ServiceResult<LoanDto>.Fail(string.Format(Messages.FlaggedForRemoval, "Borrowing"));
 
-		if (_fineService.HasUnpaidFines(dto.UserId)) return ServiceResult<LoanDto>.Fail(Messages.BorrowFailedForFine);
+		if (_fineService.HasUnpaidFines(dto.UserId!.Value))
+			return ServiceResult<LoanDto>.Fail(Messages.BorrowFailedForFine);
 
-		if (_loanRepository.CountLoans(dto.UserId, LoanFilter.Active) >= ValidationConstants.MaxActiveLoansPerUser)
+		if (CountLoans(dto.UserId, LoanFilter.Active) >= ValidationConstants.MaxActiveLoansPerUser)
 			return ServiceResult<LoanDto>.Fail(Messages.MaximumLoansReached);
 
-		if (_loanRepository.GetAllByUser(dto.UserId, LoanFilter.Active).Any(l => l.IsOverdue))
+		if (_loanRepository.GetAllByUser(dto.UserId!.Value, LoanFilter.Active).Any(l => l.IsOverdue))
 			return ServiceResult<LoanDto>.Fail(Messages.BorrowBlockedDueToOverdue);
 
-		var book = _bookRepository.FindById(dto.BookId, EntityFilter.Active);
+		var book = _bookRepository.FindById(dto.BookId!.Value, EntityFilter.Active);
 		if (book is null) return ServiceResult<LoanDto>.Fail(Messages.NotBookMatched);
 
 		if (book.AvailableCopies <= 0) return ServiceResult<LoanDto>.Fail(Messages.NotEnoughCopiesAvailable);
 
-		if (_loanRepository.HasLoans(dto.UserId, dto.BookId, LoanFilter.Active))
+		if (HasLoans(dto.UserId, dto.BookId, LoanFilter.Active))
 			return ServiceResult<LoanDto>.Fail(Messages.BookAlreadyBorrowed);
 
 		var loan = new Loan
@@ -76,10 +80,27 @@ public class LoanManagementService : ILoanManagementService
 			UserId = user.Id
 		};
 
-		_bookRepository.BorrowCopy(book);
+		var loanDto = new LoanDto
+		{
+			LoanId = loan.Id,
+			BookName = book.Title,
+			BookId = book.Id,
+			BookISBN = book.ISBN,
+			UserName = $"{user.FirstName} {user.LastName}",
+			UserId = user.Id,
+			UserNationalCode = user.NationalCode,
+			BorrowDate = loan.BorrowDate,
+			DueDate = loan.DueDate,
+			ReturnDate = loan.ReturnDate,
+			Status = loan.Status,
+			RenewalCount = loan.RenewalCount,
+			IsOverdue = loan.IsOverdue
+		};
+
+		_bookService.BorrowCopy(dto.BookId!.Value);
 		_loanRepository.Add(loan);
 		_bookRepository.Update(book, session.UserId);
-		_loanHistoryManagementService.Record(loan, LoanHistoryAction.Borrowed);
+		_loanHistoryManagementService.Record(loanDto, LoanHistoryAction.Borrowed);
 		_auditLog.Record(AuditAction.LoanBorrowed, "Loan", loan.Id, "Loan borrowed.");
 
 		return ServiceResult<LoanDto>.Ok(loan.ToDto(), Messages.BorrowedSuccessfully);
@@ -95,7 +116,7 @@ public class LoanManagementService : ILoanManagementService
 			return ServiceResult<LoanDto>.Fail(Messages.ReturnOwnLoans);
 
 		loan.MarkAsReturned();
-		_bookRepository.ReturnCopy(loan.Book);
+		_bookService.ReturnCopy(loan.BookId);
 		_loanRepository.Update(loan);
 		_bookRepository.Update(loan.Book, session.UserId);
 		_loanHistoryManagementService.Record(loan, LoanHistoryAction.Returned);
@@ -220,28 +241,31 @@ public class LoanManagementService : ILoanManagementService
 	public IReadOnlyList<LoanDto> GetOwnLoansByBook(Guid bookId, ICurrentUserSession session)
 	{
 		if (!session.IsAuthenticated || session.UserId is null) return [];
-		return [.._loanRepository.GetLoansByBookAndUser(bookId, session.UserId.Value, LoanFilter.All).Select(loan => loan.ToDto())];
+		return
+		[
+			.._loanRepository.GetLoansByBookAndUser(bookId, session.UserId.Value, LoanFilter.All)
+				.Select(loan => loan.ToDto())
+		];
 	}
 
 
-	public bool HasLoans(Guid? userId = null, Guid? bookId = null, LoanFilter filter = LoanFilter.Active) {
+	public bool HasLoans(Guid? userId = null, Guid? bookId = null, LoanFilter filter = LoanFilter.Active)
+	{
 		if (userId is null && bookId is null)
 			throw new ArgumentException("At least one of userId or bookId must be provided.");
 		var query = ApplyFilter(_loans, filter);
 
-		if (userId is not null)
-			query = query.Where(l => l.UserId == userId);
-		if (bookId is not null)
-			query = query.Where(l => l.BookId == bookId);
+		if (userId is not null) query = query.Where(l => l.UserId == userId);
+		if (bookId is not null) query = query.Where(l => l.BookId == bookId);
 		return query.Any();
 	}
 
 
-	public int CountLoans(Guid? userId = null, LoanFilter filter = LoanFilter.Active) {
+	public int CountLoans(Guid? userId = null, LoanFilter filter = LoanFilter.Active)
+	{
 		var query = ApplyFilter(_loans, filter);
 
-		if (userId is not null)
-			query = query.Where(l => l.UserId == userId);
+		if (userId is not null) query = query.Where(l => l.UserId == userId);
 		return query.Count();
 	}
 }

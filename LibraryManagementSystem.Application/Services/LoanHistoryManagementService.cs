@@ -23,12 +23,9 @@ public class LoanHistoryManagementService : ILoanHistoryManagementService
 		var history = new LoanHistory
 		{
 			Id = Guid.CreateVersion7(),
-			Loan = loan,
-			LoanId = loan.Id,
-			User = loan.User,
-			UserId = loan.UserId,
-			Book = loan.Book,
-			BookId = loan.BookId,
+			LoanId = loan.LoanId,
+			UserId = loan.UserId!.Value,
+			BookId = loan.BookId!.Value,
 			Action = action,
 			OccurredAt = DateTime.UtcNow,
 			Description = description
