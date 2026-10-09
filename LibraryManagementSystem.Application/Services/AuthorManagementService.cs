@@ -174,11 +174,11 @@ public class AuthorManagementService
 	{
 		var author = _authorRepository.FindById(authorId, EntityFilter.Active);
 		if (author is null) return [];
-		return [.. _bookRepository.GetByAuthorId(authorId, EntityFilter.Active).Select(b => b.ToDto())];
+		return [.. author.BookAuthors.Select(b => b.Book.ToDto())];
 	}
 
 
-	public IReadOnlyList<ContributorDto> GetAllAuthors(AuthorSortField sortField = AuthorSortField.Id,
+	public IReadOnlyList<ContributorDto> GetAllAuthors(ContributorSortField sortField = ContributorSortField.Id,
 		SortDirection sortDirection = SortDirection.Ascending)
 	{
 		if (!_authorization.HasPermission(Permission.ViewAllUsers)) return [];
@@ -186,14 +186,14 @@ public class AuthorManagementService
 		var authors = _authorRepository.GetAll(EntityFilter.Active).Select(a => a.ToDto());
 		Func<ContributorDto, object> keySelector = sortField switch
 		{
-			AuthorSortField.Id => a => a.Id,
-			AuthorSortField.FirstName => a => a.FirstName!,
-			AuthorSortField.LastName => a => a.LastName!,
-			AuthorSortField.FullName => a => $"{a.FirstName} {a.LastName}",
-			AuthorSortField.NationalCode => a => a.NationalCode!,
-			AuthorSortField.Email => a => a.Email!,
-			AuthorSortField.BirthDate => a => a.BirthDate!,
-			AuthorSortField.BookCount => a => _bookRepository.GetByAuthorId(a.Id, EntityFilter.Active).Count,
+			ContributorSortField.Id => a => a.Id,
+			ContributorSortField.FirstName => a => a.FirstName!,
+			ContributorSortField.LastName => a => a.LastName!,
+			ContributorSortField.FullName => a => $"{a.FirstName} {a.LastName}",
+			ContributorSortField.NationalCode => a => a.NationalCode!,
+			ContributorSortField.Email => a => a.Email!,
+			ContributorSortField.BirthDate => a => a.BirthDate!,
+			ContributorSortField.BookCount => a => GetBooksByAuthor(a.Id).Count,
 			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
 		};
 

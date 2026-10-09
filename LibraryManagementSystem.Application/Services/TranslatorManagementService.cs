@@ -146,38 +146,6 @@ public class TranslatorManagementService
 	}
 
 
-	public IReadOnlyList<ContributorDto> GetAllTranslators(TranslatorSortField sortField = TranslatorSortField.Id,
-		SortDirection sortDirection = SortDirection.Ascending)
-	{
-		var translators = _translatorRepository.GetAll(EntityFilter.Active).Select(t => t.ToDto());
-		Func<ContributorDto, object> keySelector = sortField switch
-		{
-			TranslatorSortField.Id => t => t.Id,
-			TranslatorSortField.FirstName => t => t.FirstName!,
-			TranslatorSortField.LastName => t => t.LastName!,
-			TranslatorSortField.FullName => t => $"{t.FirstName} {t.LastName}",
-			TranslatorSortField.NationalCode => t => t.NationalCode!,
-			TranslatorSortField.Email => t => t.Email!,
-			TranslatorSortField.BirthDate => t => t.BirthDate!,
-			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
-		};
-
-		var sorted = sortDirection == SortDirection.Ascending
-			? translators.OrderBy(keySelector)
-			: translators.OrderByDescending(keySelector);
-
-		return [.. sorted];
-	}
-
-
-	public IReadOnlyList<ContributorDto> GetRemovedTranslators()
-	{
-		if (!_authorization.HasPermission(Permission.ViewRemovedTranslators)) return [];
-		return [.. _translatorRepository.GetAll(EntityFilter.Removed).Select(a => a.ToDto())];
-	}
-
-
-
 	public IReadOnlyList<ContributorDto> SearchTranslator(string searchItem, TranslatorSearchField field)
 	{
 		var requiredPermission = field switch
@@ -210,6 +178,37 @@ public class TranslatorManagementService
 	{
 		var translator = _translatorRepository.FindById(translatorId, EntityFilter.Active);
 		if (translator is null) return [];
-		return [.. _bookRepository.GetByTranslatorId(translatorId, EntityFilter.Active).Select(b => b.ToDto())];
+		return [.. translator.BookTranslators.Select(b => b.Book.ToDto())];
+	}
+
+
+	public IReadOnlyList<ContributorDto> GetAllTranslators(ContributorSortField sortField = ContributorSortField.Id,
+		SortDirection sortDirection = SortDirection.Ascending)
+	{
+		var translators = _translatorRepository.GetAll(EntityFilter.Active).Select(t => t.ToDto());
+		Func<ContributorDto, object> keySelector = sortField switch
+		{
+			ContributorSortField.Id => t => t.Id,
+			ContributorSortField.FirstName => t => t.FirstName!,
+			ContributorSortField.LastName => t => t.LastName!,
+			ContributorSortField.FullName => t => $"{t.FirstName} {t.LastName}",
+			ContributorSortField.NationalCode => t => t.NationalCode!,
+			ContributorSortField.Email => t => t.Email!,
+			ContributorSortField.BirthDate => t => t.BirthDate!,
+			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
+		};
+
+		var sorted = sortDirection == SortDirection.Ascending
+			? translators.OrderBy(keySelector)
+			: translators.OrderByDescending(keySelector);
+
+		return [.. sorted];
+	}
+
+
+	public IReadOnlyList<ContributorDto> GetRemovedTranslators()
+	{
+		if (!_authorization.HasPermission(Permission.ViewRemovedTranslators)) return [];
+		return [.. _translatorRepository.GetAll(EntityFilter.Removed).Select(a => a.ToDto())];
 	}
 }

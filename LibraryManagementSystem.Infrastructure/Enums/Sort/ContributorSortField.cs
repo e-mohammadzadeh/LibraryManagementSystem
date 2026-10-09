@@ -1,6 +1,6 @@
 ﻿namespace LibraryManagementSystem.Infrastructure.Enums.Sort;
 
-public enum TranslatorSortField
+public enum ContributorSortField
 {
 	Id,
 	FirstName,
