@@ -37,19 +37,18 @@ public class AuthorManagementService
 	{
 		string? warningMessage = null;
 
-		if (_authorRepository.ExistsByNationalCode(dto.NationalCode!, null))
+		if (_authorRepository.ExistsByNationalCode(dto.NationalCode!))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByNationalCode);
 
 		var email = Email.Create(dto.Email!);
-		if (_authorRepository.ExistsByEmail(email, null))
+		if (_authorRepository.ExistsByEmail(email))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByEmail);
 
 		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber!);
-		if (_authorRepository.ExistsByPhoneNumber(phoneNumber, null))
+		if (_authorRepository.ExistsByPhoneNumber(phoneNumber))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByPhoneNumber);
 
 		var existingSameName = _authorRepository.FindByName(dto.FirstName!, dto.LastName!, EntityFilter.Active);
-
 		if (existingSameName != null)
 			warningMessage = string.Format(Messages.DuplicateAuthorNameWarning, existingSameName.Id);
 

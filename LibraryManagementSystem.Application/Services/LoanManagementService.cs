@@ -1,13 +1,16 @@
-﻿using LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Application.Authorization;
+using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
-using LibraryManagementSystem.Application.Authorization;
+using LibraryManagementSystem.Domain.Rules;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Loans;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.Interfaces;
+using Microsoft.VisualBasic;
+using System.Net.NetworkInformation;
 
 namespace LibraryManagementSystem.Application.Services;
 
@@ -80,6 +83,10 @@ public class LoanManagementService : ILoanManagementService
 			UserId = user.Id
 		};
 
+		_bookService.BorrowCopy(dto.BookId!.Value);
+		_loanRepository.Add(loan);
+		_bookRepository.Update(book, session.UserId);
+
 		var loanDto = new LoanDto
 		{
 			LoanId = loan.Id,
@@ -97,9 +104,6 @@ public class LoanManagementService : ILoanManagementService
 			IsOverdue = loan.IsOverdue
 		};
 
-		_bookService.BorrowCopy(dto.BookId!.Value);
-		_loanRepository.Add(loan);
-		_bookRepository.Update(book, session.UserId);
 		_loanHistoryManagementService.Record(loanDto, LoanHistoryAction.Borrowed);
 		_auditLog.Record(AuditAction.LoanBorrowed, "Loan", loan.Id, "Loan borrowed.");
 
@@ -115,11 +119,23 @@ public class LoanManagementService : ILoanManagementService
 		if (session.IsSelfServiceMember && session.UserId != loan.UserId)
 			return ServiceResult<LoanDto>.Fail(Messages.ReturnOwnLoans);
 
-		loan.MarkAsReturned();
+		MarkAsReturned(loanId);
 		_bookService.ReturnCopy(loan.BookId);
 		_loanRepository.Update(loan);
 		_bookRepository.Update(loan.Book, session.UserId);
-		_loanHistoryManagementService.Record(loan, LoanHistoryAction.Returned);
+
+		var loanDto = new LoanDto
+		{
+			LoanId = loan.Id,
+			BorrowDate = loan.BorrowDate,
+			DueDate = loan.DueDate,
+			ReturnDate = loan.ReturnDate,
+			Status = loan.Status,
+			RenewalCount = loan.RenewalCount,
+			IsOverdue = loan.IsOverdue
+		};
+
+		_loanHistoryManagementService.Record(loanDto, LoanHistoryAction.Returned);
 		_userAutoRemovalService.TryAutoRemove(loan.UserId);
 		_auditLog.Record(AuditAction.LoanReturned, "Loan", loanId, "Loan returned.");
 
@@ -144,13 +160,25 @@ public class LoanManagementService : ILoanManagementService
 			return ServiceResult<LoanDto>.Fail(string.Format(Messages.FlaggedForRemoval, "Renewing"));
 
 
-		if (!loan.CanRenew(out var errorMessage)) return ServiceResult<LoanDto>.Fail(errorMessage);
+		if (!LoanRenewalRules.CanRenew(loan, out var errorMessage)) return ServiceResult<LoanDto>.Fail(errorMessage);
 
 		if (_fineService.HasUnpaidFines(loan.UserId)) return ServiceResult<LoanDto>.Fail(Messages.UserHasUnpaidFines);
 
-		loan.Renew();
+		Renew(loan);
 		_loanRepository.Update(loan);
-		_loanHistoryManagementService.Record(loan, LoanHistoryAction.Renewed);
+
+		var loanDto = new LoanDto
+		{
+			LoanId = loan.Id,
+			BorrowDate = loan.BorrowDate,
+			DueDate = loan.DueDate,
+			ReturnDate = loan.ReturnDate,
+			Status = loan.Status,
+			RenewalCount = loan.RenewalCount,
+			IsOverdue = loan.IsOverdue
+		};
+
+		_loanHistoryManagementService.Record(loanDto, LoanHistoryAction.Renewed);
 		_auditLog.Record(AuditAction.LoanRenewed, "Loan", loanId, "Loan renewed.");
 
 		return ServiceResult<LoanDto>.Ok(loan.ToDto(), Messages.RenewedSuccessfully);
@@ -248,12 +276,30 @@ public class LoanManagementService : ILoanManagementService
 		];
 	}
 
+	public void MarkAsReturned(Guid loanId, DateOnly? returnDate = null)
+	{
+		var loan = _loanRepository.FindById(loanId, LoanFilter.Active);
+		if (loan is null) return;
 
-	public bool HasLoans(Guid? userId = null, Guid? bookId = null, LoanFilter filter = LoanFilter.Active)
+		if (loan.ReturnDate.HasValue)
+			throw new InvalidOperationException("This loan has already been returned.");
+
+		loan.ReturnDate = returnDate ?? DateOnly.FromDateTime(DateTime.Today);
+		loan.Status = LoanStatus.Returned;
+	}
+
+	public void Renew(Loan loan)
+	{
+		loan.DueDate = loan.DueDate.AddDays(ValidationConstants.LoanPeriodDays);
+		loan.RenewalCount++;
+	}
+
+
+	public bool HasLoans(Guid? userId, Guid? bookId, LoanFilter filter)
 	{
 		if (userId is null && bookId is null)
 			throw new ArgumentException("At least one of userId or bookId must be provided.");
-		var query = ApplyFilter(_loans, filter);
+		var query = _loanRepository.GetAll(filter);
 
 		if (userId is not null) query = query.Where(l => l.UserId == userId);
 		if (bookId is not null) query = query.Where(l => l.BookId == bookId);
@@ -261,11 +307,8 @@ public class LoanManagementService : ILoanManagementService
 	}
 
 
-	public int CountLoans(Guid? userId = null, LoanFilter filter = LoanFilter.Active)
+	public int CountLoans(Guid? userId, LoanFilter filter)
 	{
-		var query = ApplyFilter(_loans, filter);
-
-		if (userId is not null) query = query.Where(l => l.UserId == userId);
-		return query.Count();
+		return _loanRepository.GetAllByUser(userId!.Value, filter).Count();
 	}
 }

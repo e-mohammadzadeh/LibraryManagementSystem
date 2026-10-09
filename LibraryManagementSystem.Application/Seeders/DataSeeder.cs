@@ -1,5 +1,4 @@
-﻿using LibraryManagementSystem.Application.Authentication;
-using LibraryManagementSystem.Domain.Entities;
+﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
@@ -13,18 +12,18 @@ namespace LibraryManagementSystem.Application.Seeders;
 public static class DataSeeder
 {
 	public static void Seed(IAuthorRepository authorRepository, ITranslatorRepository translatorRepository,
-		IBookRepository bookRepository, IUserRepository userRepository, ILoanRepository loanRepository,
+		IBookManagementService bookService, IUserRepository userRepository, ILoanRepository loanRepository,
 		IRoleRepository roleRepository, IFineRepository fineRepository, IPasswordHasher passwordHasher)
 	{
-		SeedAuthors(authorRepository, translatorRepository, bookRepository);
+		SeedAuthors(authorRepository, translatorRepository, bookService);
 		SeedUsers(userRepository, roleRepository, passwordHasher);
-		SeedLoans(userRepository, bookRepository, loanRepository, fineRepository);
+		SeedLoans(userRepository, bookService, loanRepository, fineRepository);
 		//SeedFines(loanRepository, fineRepository);
 	}
 
 
 	private static void SeedAuthors(IAuthorRepository authorRepository, ITranslatorRepository translatorRepository,
-		IBookRepository bookRepository)
+		IBookManagementService bookService)
 	{
 		// Seed authors
 		var author1 = new Author
@@ -138,8 +137,8 @@ public static class DataSeeder
 			OriginalLanguage = Language.Arabic,
 			Description = "A dystopian novel."
 		};
-		bookRepository.AssignAuthorsToBook(book1, [author1]);
-		bookRepository.AssignTranslatorsToBook(book1,
+		bookService.AssignAuthorsToBook(book1, [author1]);
+		bookService.AssignTranslatorsToBook(book1,
 			[translator1, translator2, translator3, translator4], Language.Chinese);
 
 		var book2 = new Book
@@ -153,8 +152,8 @@ public static class DataSeeder
 			OriginalLanguage = Language.Chinese,
 			Description = "A dystopian novel."
 		};
-		bookRepository.AssignAuthorsToBook(book2, [author1, author2]);
-		bookRepository.AssignTranslatorsToBook(book2, [translator2], Language.English);
+		bookService.AssignAuthorsToBook(book2, [author1, author2]);
+		bookService.AssignTranslatorsToBook(book2, [translator2], Language.English);
 
 		var book3 = new Book
 		{
@@ -167,8 +166,8 @@ public static class DataSeeder
 			OriginalLanguage = Language.English,
 			Description = "A dystopian novel."
 		};
-		bookRepository.AssignAuthorsToBook(book3, [author2, author3, author4]);
-		bookRepository.AssignTranslatorsToBook(book3, [translator3, translator2], Language.French);
+		bookService.AssignAuthorsToBook(book3, [author2, author3, author4]);
+		bookService.AssignTranslatorsToBook(book3, [translator3, translator2], Language.French);
 
 		var book4 = new Book
 		{
@@ -181,8 +180,8 @@ public static class DataSeeder
 			OriginalLanguage = Language.French,
 			Description = "A young wizard discovers his magical heritage."
 		};
-		bookRepository.AssignAuthorsToBook(book4, [author2]);
-		bookRepository.AssignTranslatorsToBook(book4, [translator4], Language.German);
+		bookService.AssignAuthorsToBook(book4, [author2]);
+		bookService.AssignTranslatorsToBook(book4, [translator4], Language.German);
 
 		var book5 = new Book
 		{
@@ -195,8 +194,8 @@ public static class DataSeeder
 			OriginalLanguage = Language.German,
 			Description = "An allegorical novella."
 		};
-		bookRepository.AssignAuthorsToBook(book5, [author1, author2, author3, author4]);
-		bookRepository.AssignTranslatorsToBook(book5, [translator1], Language.Italian);
+		bookService.AssignAuthorsToBook(book5, [author1, author2, author3, author4]);
+		bookService.AssignTranslatorsToBook(book5, [translator1], Language.Italian);
 
 		var book6 = new Book
 		{
@@ -209,8 +208,8 @@ public static class DataSeeder
 			OriginalLanguage = Language.Italian,
 			Description = "A story about racism and justice in the American South."
 		};
-		bookRepository.AssignAuthorsToBook(book6, [author4, author1]);
-		bookRepository.AssignTranslatorsToBook(book6, [translator2, translator3, translator4], Language.Japanese);
+		bookService.AssignAuthorsToBook(book6, [author4, author1]);
+		bookService.AssignTranslatorsToBook(book6, [translator2, translator3, translator4], Language.Japanese);
 
 		var book7 = new Book
 		{
@@ -223,8 +222,8 @@ public static class DataSeeder
 			OriginalLanguage = Language.Japanese,
 			Description = "A tale of wealth, love, and the American Dream."
 		};
-		bookRepository.AssignAuthorsToBook(book7, [author4]);
-		bookRepository.AssignTranslatorsToBook(book7, [translator3], Language.Persian);
+		bookService.AssignAuthorsToBook(book7, [author4]);
+		bookService.AssignTranslatorsToBook(book7, [translator3], Language.Persian);
 
 		var book8 = new Book
 		{
@@ -237,8 +236,8 @@ public static class DataSeeder
 			OriginalLanguage = Language.Persian,
 			Description = "A witty story about love and social class."
 		};
-		bookRepository.AssignAuthorsToBook(book8, [author4]);
-		bookRepository.AssignTranslatorsToBook(book8, [translator4], Language.Russian);
+		bookService.AssignAuthorsToBook(book8, [author4]);
+		bookService.AssignTranslatorsToBook(book8, [translator4], Language.Russian);
 
 		var book9 = new Book
 		{
@@ -251,8 +250,8 @@ public static class DataSeeder
 			OriginalLanguage = Language.Russian,
 			Description = "A hobbit embarks on an unexpected journey."
 		};
-		bookRepository.AssignAuthorsToBook(book9, [author4, author3]);
-		bookRepository.AssignTranslatorsToBook(book9, [translator1, translator2], Language.Spanish);
+		bookService.AssignAuthorsToBook(book9, [author4, author3]);
+		bookService.AssignTranslatorsToBook(book9, [translator1, translator2], Language.Spanish);
 
 		var book10 = new Book
 		{
@@ -265,8 +264,8 @@ public static class DataSeeder
 			OriginalLanguage = Language.Spanish,
 			Description = "Epic science fiction on a desert planet."
 		};
-		bookRepository.AssignAuthorsToBook(book10, [author4]);
-		bookRepository.AssignTranslatorsToBook(book10, [translator2], Language.Arabic);
+		bookService.AssignAuthorsToBook(book10, [author4]);
+		bookService.AssignTranslatorsToBook(book10, [translator2], Language.Arabic);
 
 		var book11 = new Book
 		{
@@ -279,8 +278,8 @@ public static class DataSeeder
 			OriginalLanguage = Language.English,
 			Description = "A shepherd's journey to find his personal legend."
 		};
-		bookRepository.AssignAuthorsToBook(book11, [author4]);
-		bookRepository.AssignTranslatorsToBook(book11, [translator3], Language.Persian);
+		bookService.AssignAuthorsToBook(book11, [author4]);
+		bookService.AssignTranslatorsToBook(book11, [translator3], Language.Persian);
 
 		var book12 = new Book
 		{
@@ -293,8 +292,8 @@ public static class DataSeeder
 			OriginalLanguage = Language.Persian,
 			Description = "A groundbreaking exploration of human history."
 		};
-		bookRepository.AssignAuthorsToBook(book12, [author4]);
-		bookRepository.AssignTranslatorsToBook(book12, [translator4], Language.Arabic);
+		bookService.AssignAuthorsToBook(book12, [author4]);
+		bookService.AssignTranslatorsToBook(book12, [translator4], Language.Arabic);
 
 		var book13 = new Book
 		{
@@ -307,8 +306,8 @@ public static class DataSeeder
 			OriginalLanguage = Language.Chinese,
 			Description = "A thrilling mystery involving art and secret societies."
 		};
-		bookRepository.AssignAuthorsToBook(book13, [author1, author2, author3, author4]);
-		bookRepository.AssignTranslatorsToBook(book13,
+		bookService.AssignAuthorsToBook(book13, [author1, author2, author3, author4]);
+		bookService.AssignTranslatorsToBook(book13,
 			[translator1, translator2, translator3, translator4], Language.Japanese);
 
 		var book14 = new Book
@@ -322,8 +321,8 @@ public static class DataSeeder
 			OriginalLanguage = Language.Russian,
 			Description = "A story of self-invention and overcoming adversity."
 		};
-		bookRepository.AssignAuthorsToBook(book14, [author4]);
-		bookRepository.AssignTranslatorsToBook(book14, [translator2], Language.German);
+		bookService.AssignAuthorsToBook(book14, [author4]);
+		bookService.AssignTranslatorsToBook(book14, [translator2], Language.German);
 
 		var book15 = new Book
 		{
@@ -336,24 +335,24 @@ public static class DataSeeder
 			OriginalLanguage = Language.Italian,
 			Description = "A woman shoots her husband and never speaks again."
 		};
-		bookRepository.AssignAuthorsToBook(book15, [author4]);
-		bookRepository.AssignTranslatorsToBook(book15, [translator3], Language.Spanish);
+		bookService.AssignAuthorsToBook(book15, [author4]);
+		bookService.AssignTranslatorsToBook(book15, [translator3], Language.Spanish);
 
-		bookRepository.Add(book1);
-		bookRepository.Add(book2);
-		bookRepository.Add(book3);
-		bookRepository.Add(book4);
-		bookRepository.Add(book5);
-		bookRepository.Add(book6);
-		bookRepository.Add(book7);
-		bookRepository.Add(book8);
-		bookRepository.Add(book9);
-		bookRepository.Add(book10);
-		bookRepository.Add(book11);
-		bookRepository.Add(book12);
-		bookRepository.Add(book13);
-		bookRepository.Add(book14);
-		bookRepository.Add(book15);
+		bookService.Add(book1);
+		bookService.Add(book2);
+		bookService.Add(book3);
+		bookService.Add(book4);
+		bookService.Add(book5);
+		bookService.Add(book6);
+		bookService.Add(book7);
+		bookService.Add(book8);
+		bookService.Add(book9);
+		bookService.Add(book10);
+		bookService.Add(book11);
+		bookService.Add(book12);
+		bookService.Add(book13);
+		bookService.Add(book14);
+		bookService.Add(book15);
 	}
 
 
@@ -582,33 +581,33 @@ public static class DataSeeder
 
 
 
-	private static void SeedLoans(IUserRepository userRepository, IBookRepository bookRepository,
+	private static void SeedLoans(IUserRepository userRepository, IBookManagementService bookService,
 		ILoanRepository loanRepository, IFineRepository fineRepository)
 	{
 		var users = userRepository.GetAll(EntityFilter.Active);
-		var books = bookRepository.GetAll(EntityFilter.Active);
+		var books = bookService.GetAll(EntityFilter.Active);
 		var today = DateOnly.FromDateTime(DateTime.Today);
 
-		CreateActiveLoan(GetUser(4), GetBook(0), loanRepository, bookRepository);
-		CreateActiveLoan(GetUser(4), GetBook(1), loanRepository, bookRepository);
-		CreateActiveLoan(GetUser(5), GetBook(5), loanRepository, bookRepository);
-		CreateActiveLoan(GetUser(6), GetBook(2), loanRepository, bookRepository);
-		CreateActiveLoan(GetUser(6), GetBook(8), loanRepository, bookRepository);
-		CreateActiveLoan(GetUser(6), GetBook(10), loanRepository, bookRepository);
-		CreateActiveLoan(GetUser(8), GetBook(3), loanRepository, bookRepository);
-		CreateActiveLoan(GetUser(7), GetBook(4), loanRepository, bookRepository);
-		CreateActiveLoan(GetUser(4), GetBook(10), loanRepository, bookRepository);
+		CreateActiveLoan(GetUser(4), GetBook(0), loanRepository, bookService);
+		CreateActiveLoan(GetUser(4), GetBook(1), loanRepository, bookService);
+		CreateActiveLoan(GetUser(5), GetBook(5), loanRepository, bookService);
+		CreateActiveLoan(GetUser(6), GetBook(2), loanRepository, bookService);
+		CreateActiveLoan(GetUser(6), GetBook(8), loanRepository, bookService);
+		CreateActiveLoan(GetUser(6), GetBook(10), loanRepository, bookService);
+		CreateActiveLoan(GetUser(8), GetBook(3), loanRepository, bookService);
+		CreateActiveLoan(GetUser(7), GetBook(4), loanRepository, bookService);
+		CreateActiveLoan(GetUser(4), GetBook(10), loanRepository, bookService);
 
 
-		CreateReturnedLoan(GetUser(4), GetBook(6), loanRepository, bookRepository, fineRepository, today.AddDays(-25),
+		CreateReturnedLoan(GetUser(4), GetBook(6), loanRepository, bookService, fineRepository, today.AddDays(-25),
 			today.AddDays(-5));
-		CreateReturnedLoan(GetUser(7), GetBook(9), loanRepository, bookRepository, fineRepository, today.AddDays(-15),
+		CreateReturnedLoan(GetUser(7), GetBook(9), loanRepository, bookService, fineRepository, today.AddDays(-15),
 			today.AddDays(-2));
-		CreateReturnedLoan(GetUser(9), GetBook(7), loanRepository, bookRepository, fineRepository, today.AddDays(-35),
+		CreateReturnedLoan(GetUser(9), GetBook(7), loanRepository, bookService, fineRepository, today.AddDays(-35),
 			today.AddDays(-10));
-		CreateReturnedLoan(GetUser(9), GetBook(11), loanRepository, bookRepository, fineRepository, today.AddDays(-22),
+		CreateReturnedLoan(GetUser(9), GetBook(11), loanRepository, bookService, fineRepository, today.AddDays(-22),
 			today);
-		CreateReturnedLoan(GetUser(4), GetBook(12), loanRepository, bookRepository, fineRepository, today.AddDays(-63),
+		CreateReturnedLoan(GetUser(4), GetBook(12), loanRepository, bookService, fineRepository, today.AddDays(-63),
 			today.AddDays(-5));
 		return;
 

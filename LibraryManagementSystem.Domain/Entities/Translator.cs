@@ -1,8 +1,6 @@
 ﻿namespace LibraryManagementSystem.Domain.Entities;
 
-public class Translator : Person
+public class Translator : Contributor
 {
-	public string? Biography { get; set; }
-
 	public ICollection<BookTranslator> BookTranslators { get; set; } = new List<BookTranslator>();
 }

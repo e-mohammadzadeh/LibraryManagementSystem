@@ -43,7 +43,7 @@ public class InMemoryAuthorRepository : IAuthorRepository
 	}
 
 
-	public bool ExistsByNationalCode(string nationalCode, Guid? excludeId = null)
+	public bool ExistsByNationalCode(string nationalCode, Guid? excludeId)
 	{
 		return _authors.Any(a =>
 			!a.IsRemoved &&
@@ -52,7 +52,7 @@ public class InMemoryAuthorRepository : IAuthorRepository
 	}
 
 
-	public bool ExistsByEmail(Email email, Guid? excludeId = null)
+	public bool ExistsByEmail(Email email, Guid? excludeId)
 	{
 		return _authors.Any(a =>
 			!a.IsRemoved &&
@@ -61,7 +61,7 @@ public class InMemoryAuthorRepository : IAuthorRepository
 	}
 
 
-	public bool ExistsByPhoneNumber(PhoneNumber phoneNumber, Guid? excludeId = null)
+	public bool ExistsByPhoneNumber(PhoneNumber phoneNumber, Guid? excludeId)
 	{
 		return _authors.Any(a =>
 			!a.IsRemoved &&

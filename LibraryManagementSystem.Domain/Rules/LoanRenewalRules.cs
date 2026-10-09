@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using LibraryManagementSystem.Domain.Entities;
+﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Infrastructure.Common;
 
 namespace LibraryManagementSystem.Domain.Rules;
@@ -20,7 +19,7 @@ public class LoanRenewalRules
 			return false;
 		}
 
-		if (loan.RenewalCount >= loan.MaxRenewals)
+		if (loan.RenewalCount >= ValidationConstants.MaxRenewals)
 		{
 			errorMessage = "This loan has already reached the maximum number of renewals.";
 			return false;

@@ -11,8 +11,8 @@ public static class PersonUpdateAuditDetailsBuilder
 			author.FirstName, dto.FirstName,
 			author.LastName, dto.LastName,
 			author.NationalCode, dto.NationalCode,
-			author.Email, dto.Email,
-			author.PhoneNumber, dto.PhoneNumber,
+			author.Email, dto.Email!,
+			author.PhoneNumber, dto.PhoneNumber!,
 			author.BirthDate, dto.BirthDate,
 			author.Biography, dto.Biography);
 	}
@@ -24,9 +24,11 @@ public static class PersonUpdateAuditDetailsBuilder
 			translator.FirstName, dto.FirstName,
 			translator.LastName, dto.LastName,
 			translator.NationalCode, dto.NationalCode,
-			translator.Email, dto.Email,
-			translator.PhoneNumber, dto.PhoneNumber,
-			translator.BirthDate, dto.BirthDate);
+			translator.Email, dto.Email!,
+			translator.PhoneNumber, dto.PhoneNumber!,
+			translator.BirthDate, dto.BirthDate,
+			translator.Biography, dto.Biography);
+
 	}
 
 
@@ -37,8 +39,7 @@ public static class PersonUpdateAuditDetailsBuilder
 		string email, string? newEmail,
 		string phoneNumber, string? newPhoneNumber,
 		DateOnly birthDate, DateOnly? newBirthDate,
-		string? biography = null,
-		string? newBiography = null)
+		string? biography, string? newBiography)
 	{
 		var changes = new List<string>();
 
