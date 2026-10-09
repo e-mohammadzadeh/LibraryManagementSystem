@@ -8,5 +8,5 @@ public class BookTranslator
 	public Book Book { get; set; } = null!;
 	public Guid TranslatorId { get; set; }
 	public Translator Translator { get; set; } = null!;
-	public Language TranslationLanguage { get; set; }
+	public Language? TranslationLanguage { get; set; }
 }
