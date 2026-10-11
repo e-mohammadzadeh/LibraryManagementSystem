@@ -35,29 +35,29 @@ public class TranslatorManagementService
 	{
 		string? warningMessage = null;
 
-		if (_translatorRepository.ExistsByNationalCode(dto.NationalCode!))
+		if (_translatorRepository.ExistsByNationalCode(dto.NationalCode))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByNationalCode);
 
-		var email = Email.Create(dto.Email!);
+		var email = Email.Create(dto.Email);
 		if (_translatorRepository.ExistsByEmail(email))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByEmail);
 
-		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber!);
+		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
 		if (_translatorRepository.ExistsByPhoneNumber(phoneNumber))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByPhoneNumber);
 
-		var existingSameName = _translatorRepository.FindByName(dto.FirstName!, dto.LastName!, EntityFilter.Active);
+		var existingSameName = _translatorRepository.FindByName(dto.FirstName, dto.LastName, EntityFilter.Active);
 		if (existingSameName != null)
 			warningMessage = string.Format(Messages.DuplicateTranslatorNameWarning, existingSameName.Id);
 
 		var newTranslator = new Translator
 		{
-			FirstName = dto.FirstName!,
-			LastName = dto.LastName!,
-			NationalCode = dto.NationalCode!,
+			FirstName = dto.FirstName,
+			LastName = dto.LastName,
+			NationalCode = dto.NationalCode,
 			Email = email,
 			PhoneNumber = phoneNumber,
-			BirthDate = dto.BirthDate!.Value,
+			BirthDate = dto.BirthDate,
 			Biography = dto.Biography
 		};
 
@@ -80,32 +80,22 @@ public class TranslatorManagementService
 		if (IsNoOpUpdateTranslator(translator, dto))
 			return ServiceResult<ContributorDto>.Fail(Messages.NoChangesDetected);
 
-		var resolvedFirstName = dto.FirstName ?? translator.FirstName;
-		var resolvedLastName = dto.LastName ?? translator.LastName;
-		if (dto.FirstName != null || dto.LastName != null)
-		{
-			var existingSameName =
-				_translatorRepository.FindByName(resolvedFirstName, resolvedLastName, EntityFilter.Active);
-			if (existingSameName != null && existingSameName.Id != dto.Id)
-				warningMessage = string.Format(Messages.DuplicateTranslatorNameWarning, existingSameName.Id);
-		}
+		var existingSameName = _translatorRepository.FindByName(dto.FirstName, dto.LastName, EntityFilter.Active);
+		if (existingSameName != null && existingSameName.Id != dto.Id)
+			warningMessage = string.Format(Messages.DuplicateTranslatorNameWarning, existingSameName.Id);
+		
 
-		if (dto.NationalCode != null && _translatorRepository.ExistsByNationalCode(dto.NationalCode, dto.Id))
+		if (_translatorRepository.ExistsByNationalCode(dto.NationalCode, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByNationalCode);
 
-		if (dto.Email != null)
-		{
-			var email = Email.Create(dto.Email);
-			if (_translatorRepository.ExistsByEmail(email, dto.Id))
-				return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByEmail);
-		}
-
-		if (dto.PhoneNumber != null)
-		{
-			var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
-			if (_translatorRepository.ExistsByPhoneNumber(phoneNumber, dto.Id))
-				return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByPhoneNumber);
-		}
+		var email = Email.Create(dto.Email);
+		if (_translatorRepository.ExistsByEmail(email, dto.Id))
+			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByEmail);
+		
+		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
+		if (_translatorRepository.ExistsByPhoneNumber(phoneNumber, dto.Id))
+			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByPhoneNumber);
+	
 
 		var auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(translator, dto);
 
@@ -120,12 +110,13 @@ public class TranslatorManagementService
 
 	private static bool IsNoOpUpdateTranslator(Translator translator, ContributorDto dto)
 	{
-		return (dto.FirstName == null || dto.FirstName == translator.FirstName) &&
-		       (dto.LastName == null || dto.LastName == translator.LastName) &&
-		       (dto.NationalCode == null || dto.NationalCode == translator.NationalCode) &&
-		       (dto.Email == null || dto.Email == translator.Email) &&
-		       (dto.PhoneNumber == null || dto.PhoneNumber == translator.PhoneNumber) &&
-		       (dto.BirthDate == null || dto.BirthDate == translator.BirthDate);
+		return (dto.FirstName == translator.FirstName) &&
+		       (dto.LastName == translator.LastName) &&
+		       (dto.NationalCode == translator.NationalCode) &&
+		       (dto.Email == translator.Email) &&
+		       (dto.PhoneNumber == translator.PhoneNumber) &&
+		       (dto.BirthDate == translator.BirthDate) &&
+		       (dto.Biography == null || dto.Biography == translator.Biography);
 	}
 
 
@@ -185,12 +176,12 @@ public class TranslatorManagementService
 		Func<ContributorDto, object> keySelector = sortField switch
 		{
 			ContributorSortField.Id => t => t.Id,
-			ContributorSortField.FirstName => t => t.FirstName!,
-			ContributorSortField.LastName => t => t.LastName!,
+			ContributorSortField.FirstName => t => t.FirstName,
+			ContributorSortField.LastName => t => t.LastName,
 			ContributorSortField.FullName => t => $"{t.FirstName} {t.LastName}",
-			ContributorSortField.NationalCode => t => t.NationalCode!,
-			ContributorSortField.Email => t => t.Email!,
-			ContributorSortField.BirthDate => t => t.BirthDate!,
+			ContributorSortField.NationalCode => t => t.NationalCode,
+			ContributorSortField.Email => t => t.Email,
+			ContributorSortField.BirthDate => t => t.BirthDate,
 			ContributorSortField.BookCount => t => GetBooksByTranslator(t.Id).Count,
 			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
 		};
