@@ -183,9 +183,8 @@ public class LoanManagementService : ILoanManagementService
 
 	public IReadOnlyList<LoanDto> GetAllLoans(ICurrentUserSession session, LoanFilter filter)
 	{
-		if ((_authorization.HasPermission(Permission.MyActiveLoans) || session.IsSelfServiceMember) &&
-		    session.UserId is not null)
-			return [.. _loanRepository.GetAllByUser(session.UserId.Value, filter).Select(loan => loan.ToDto())];
+		if (_authorization.HasPermission(Permission.MyActiveLoans) || session.IsSelfServiceMember)
+			return [.. _loanRepository.GetAllByUser(session.UserId, filter).Select(loan => loan.ToDto())];
 
 		return [.. _loanRepository.GetAll(filter).Select(loan => loan.ToDto())];
 	}

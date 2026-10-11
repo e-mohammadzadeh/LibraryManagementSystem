@@ -7,7 +7,7 @@ public interface ICurrentUserSession
 {
 	AuthUserDto? CurrentUser { get; }
 	bool IsAuthenticated { get; }
-	Guid? UserId { get; }
+	Guid UserId { get; }
 
 	void Login(AuthUserDto user);
 	void Logout();

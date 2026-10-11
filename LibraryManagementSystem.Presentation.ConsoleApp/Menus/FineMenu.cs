@@ -1,10 +1,9 @@
-﻿using LibraryManagementSystem.Application.Authentication;
-using LibraryManagementSystem.Application.Authorization;
+﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
-using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Fine;
 using LibraryManagementSystem.Infrastructure.Enums;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.Interfaces;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
@@ -123,7 +122,7 @@ public static class FineMenu
 	private static void PayFine(IFineManagementService fineManagementService, ICurrentUserSession session)
 	{
 		var unpaidFines = session.IsSelfServiceMember
-			? fineManagementService.GetUnpaidFinesByUser(session.UserId!.Value)
+			? fineManagementService.GetFinesByUser(session.UserId!.Value, FineFilter.Unpaid)
 			: fineManagementService.GetAllUnpaidFines(session);
 
 		if (unpaidFines.Count == 0)
@@ -185,7 +184,7 @@ public static class FineMenu
 
 	private static void ViewOwnFines(IFineManagementService fineManagementService, ICurrentUserSession session)
 	{
-		var fines = fineManagementService.GetFinesByUser(session.UserId!.Value);
+		var fines = fineManagementService.GetFinesByUser(session.UserId!.Value, FineFilter.Unpaid);
 		DisplayFines(fines, Messages.FineNotFound);
 	}
 
@@ -217,7 +216,7 @@ public static class FineMenu
 					if (user is null) break;
 					Console.Clear();
 
-					var fines = fineManagementService.GetFinesByUser(user.Id);
+					var fines = fineManagementService.GetFinesByUser(user.Id, FineFilter.All);
 					DisplayFines(fines, Messages.FineNotFound);
 					ConsoleHelper.Pause();
 					break;
@@ -250,7 +249,7 @@ public static class FineMenu
 
 	private static void ViewOwnUnpaidFines(IFineManagementService fineManagementService, ICurrentUserSession session)
 	{
-		var fines = fineManagementService.GetUnpaidFinesByUser(session.UserId!.Value);
+		var fines = fineManagementService.GetFinesByUser(session.UserId!.Value, FineFilter.Unpaid);
 		DisplayFines(fines, Messages.UnpaidFineNotFound);
 	}
 
@@ -282,7 +281,7 @@ public static class FineMenu
 					if (user is null) break;
 					Console.Clear();
 
-					var fines = fineManagementService.GetUnpaidFinesByUser(user.Id);
+					var fines = fineManagementService.GetFinesByUser(user.Id, FineFilter.Unpaid);
 					DisplayFines(fines, Messages.UnpaidFineNotFound);
 					ConsoleHelper.Pause();
 					break;

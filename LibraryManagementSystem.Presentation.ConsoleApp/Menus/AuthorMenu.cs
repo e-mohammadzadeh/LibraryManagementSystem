@@ -143,14 +143,14 @@ public static class AuthorMenu
 	}
 
 
-	public static CreateContributorDto? PromptForAuthorDto()
+	public static ContributorDto? PromptForAuthorDto()
 	{
 		var fields = PersonHelper.PromptForPersonFields("author");
 		if (fields is null) return null;
 
 		var biography = ConsoleHelper.ReadString("You can add a biography (Optional)", true);
 
-		return new CreateContributorDto
+		return new ContributorDto
 		{
 			FirstName = fields.FirstName, LastName = fields.LastName, NationalCode = fields.NationalCode,
 			Email = fields.Email, PhoneNumber = fields.PhoneNumber, BirthDate = fields.BirthDate, Biography = biography
@@ -215,7 +215,7 @@ public static class AuthorMenu
 					var authorNewFirstName = ConsoleHelper.GetValidName("\nEnter new first name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 					var updated = PerformUpdate(authorManagementService, authorNewFirstName,
-						v => new UpdateContributorDto { FirstName = v });
+						v => new ContributorDto { FirstName = v });
 					if (updated is not null) desiredAuthor = updated;
 					break;
 				}
@@ -225,7 +225,7 @@ public static class AuthorMenu
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 					var updated = PerformUpdate(authorManagementService, authorNewLastName,
-						v => new UpdateContributorDto { LastName = v });
+						v => new ContributorDto { LastName = v });
 					if (updated is not null) desiredAuthor = updated;
 					break;
 				}
@@ -233,7 +233,7 @@ public static class AuthorMenu
 				{
 					var authorNewNationalCode = ConsoleHelper.GetValidNationalCode("\nEnter new national code");
 					var updated = PerformUpdate(authorManagementService, authorNewNationalCode,
-						v => new UpdateContributorDto { NationalCode = v });
+						v => new ContributorDto { NationalCode = v });
 					if (updated is not null) desiredAuthor = updated;
 					break;
 				}
@@ -241,7 +241,7 @@ public static class AuthorMenu
 				{
 					var authorNewEmail = ConsoleHelper.GetValidEmail("\nEnter new email");
 					var updated = PerformUpdate(authorManagementService, authorNewEmail,
-						v => new UpdateContributorDto { Email = v });
+						v => new ContributorDto { Email = v });
 					if (updated is not null) desiredAuthor = updated;
 					break;
 				}
@@ -250,7 +250,7 @@ public static class AuthorMenu
 					Console.Clear();
 					var authorNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number");
 					var updated = PerformUpdate(authorManagementService, authorNewPhoneNumber,
-						v => new UpdateContributorDto { PhoneNumber = v });
+						v => new ContributorDto { PhoneNumber = v });
 					if (updated is not null) desiredAuthor = updated;
 					break;
 				}
@@ -258,7 +258,7 @@ public static class AuthorMenu
 				{
 					var authorNewBirthDate = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
 					var updated = PerformUpdate(authorManagementService, authorNewBirthDate,
-						v => new UpdateContributorDto { BirthDate = v });
+						v => new ContributorDto { BirthDate = v });
 					if (updated is not null) desiredAuthor = updated;
 					break;
 				}
@@ -266,7 +266,7 @@ public static class AuthorMenu
 				{
 					var authorNewBiography = ConsoleHelper.ReadString("\nEnter new biography");
 					var updated = PerformUpdate(authorManagementService, authorNewBiography,
-						v => new UpdateContributorDto { Biography = v });
+						v => new ContributorDto { Biography = v });
 					if (updated is not null) desiredAuthor = updated;
 					break;
 				}
@@ -298,7 +298,7 @@ public static class AuthorMenu
 
 
 	private static ContributorDto? PerformUpdate<T>(AuthorManagementService authorManagementService, T? newValue,
-		Func<T, UpdateContributorDto> buildDto)
+		Func<T, ContributorDto> buildDto)
 	{
 		if (newValue is null) return null;
 
@@ -429,22 +429,22 @@ public static class AuthorMenu
 	}
 
 
-	private static List<(AuthorSortField Field, string Label)> GetAvailableAuthorSortFields(
+	private static List<(ContributorSortField Field, string Label)> GetAvailableAuthorSortFields(
 		IAuthorizationService authorization)
 	{
-		var fields = new List<(AuthorSortField Field, string Label)>
+		var fields = new List<(ContributorSortField Field, string Label)>
 		{
-			(AuthorSortField.Id, "ID"),
-			(AuthorSortField.FirstName, "First Name"),
-			(AuthorSortField.LastName, "Last Name"),
-			(AuthorSortField.FullName, "Full Name"),
-			(AuthorSortField.Email, "Email")
+			(ContributorSortField.Id, "ID"),
+			(ContributorSortField.FirstName, "First Name"),
+			(ContributorSortField.LastName, "Last Name"),
+			(ContributorSortField.FullName, "Full Name"),
+			(ContributorSortField.Email, "Email")
 		};
 
 		if (!authorization.HasPermission(Permission.FullSortAuthor)) return fields;
-		fields.Insert(3, (AuthorSortField.NationalCode, "National Code"));
-		fields.Add((AuthorSortField.BirthDate, "Birth Date"));
-		fields.Add((AuthorSortField.BookCount, "Book Count"));
+		fields.Insert(3, (ContributorSortField.NationalCode, "National Code"));
+		fields.Add((ContributorSortField.BirthDate, "Birth Date"));
+		fields.Add((ContributorSortField.BookCount, "Book Count"));
 		return fields;
 	}
 
