@@ -16,12 +16,12 @@ public class UserPrinter
 			("National Code", [user.NationalCode]),
 			("Email", [user.Email]),
 			("Phone Number", [user.PhoneNumber]),
-			("Birth Date", [user.BirthDate.ToString("yyyy-MM-dd")]),
-			("Role", [user.Role.ToString()]),
-			("Active From", [user.MembershipStartDate.ToString("yyyy-MM-dd")]),
-			("Active Until", [user.MembershipExpiryDate.ToString("yyyy-MM-dd")]),
-			("Is Active", [user.IsActive ? "Yes" : "No"]),
-			("Created At", [user.CreatedAt.ToString("yyyy-MM-dd HH:mm")]),
+			("Birth Date", [user.BirthDate?.ToString("yyyy-MM-dd")]),
+			("Role", [user.Role.Name.ToString()]),
+			("Active From", [user.MembershipStartDate?.ToString("yyyy-MM-dd")]),
+			("Active Until", [user.MembershipExpiryDate?.ToString("yyyy-MM-dd")]),
+			("Is Active", [user.IsActive.Value ? "Yes" : "No"]),
+			("Created At", [user.CreatedAt?.ToString("yyyy-MM-dd HH:mm")]),
 			("Updated At", [user.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "N/A"]),
 			("Last Login", [user.LastLoginDate?.ToString("yyyy-MM-dd HH:mm") ?? "Never"]),
 		};
@@ -50,7 +50,7 @@ public class UserPrinter
 			ConsoleTable.WrapText(user.FullName, 20),
 			ConsoleTable.WrapText(user.Email, 30),
 			[user.Role.ToString()],
-			[user.IsActive ? "Yes" : "No"],
+			[user.IsActive.Value ? "Yes" : "No"],
 		}).ToList();
 
 		ConsoleTable.PrintTable(title, headers, rows);
@@ -76,9 +76,9 @@ public class UserPrinter
 			ConsoleTable.WrapText(user.FullName, 20),
 			ConsoleTable.WrapText(user.Email, 30),
 			[user.Role.ToString()],
-			[user.IsActive ? "Yes" : "No"],
-			[user.MembershipStartDate.ToString("yyyy-MM-dd")],
-			[user.MembershipExpiryDate.ToString("yyyy-MM-dd")]
+			[user.IsActive.Value ? "Yes" : "No"],
+			[user.MembershipStartDate?.ToString("yyyy-MM-dd")],
+			[user.MembershipExpiryDate?.ToString("yyyy-MM-dd")]
 		}).ToList();
 
 		ConsoleTable.PrintTable(title, headers, rows);
@@ -108,10 +108,10 @@ public class UserPrinter
 			ConsoleTable.WrapText(user.Email, 30),
 			[user.PhoneNumber],
 			[user.Role.ToString()],
-			[user.MembershipStartDate.ToString("yyyy-MM-dd")],
-			[user.MembershipExpiryDate.ToString("yyyy-MM-dd")],
-			[user.IsActive ? "Yes" : "No"],
-			[user.ShouldRemove ? "Yes" : "No"],
+			[user.MembershipStartDate?.ToString("yyyy-MM-dd")],
+			[user.MembershipExpiryDate?.ToString("yyyy-MM-dd")],
+			[user.IsActive.Value ? "Yes" : "No"],
+			[user.ShouldRemove.Value ? "Yes" : "No"],
 			[user.LastLoginDate?.ToString("yyyy-MM-dd HH:mm") ?? "Never"],
 			[user.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "—"]
 		}).ToList();

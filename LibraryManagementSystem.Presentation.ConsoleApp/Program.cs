@@ -39,38 +39,33 @@ public static class Program
 			ICurrentUserSession currentUserSession = new CurrentUserSession();
 			IAuthorizationService authorization = new AuthorizationService(currentUserSession, loanRepo);
 
+			// ── Application Interfaces ──────────────────
+			IAuditLogManagementService auditLogService = new AuditLogManagementService(userRepo, auditLogRepo, currentUserSession);
+			IUserAutoRemovalService userAutoRemovalService = new UserAutoRemovalService(userRepo, loanRepo, fineRepo);
+			IFineHistoryManagementService fineHistoryService = new FineHistoryManagementService(fineHistoryRepo);
+			IBookManagementService IBookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo, auditLogService, authorization);
+			ILoanHistoryManagementService loanHistoryService = new LoanHistoryManagementService(loanHistoryRepo);
+			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo, IuserService, userAutoRemovalService, authorization, loanHistoryService, fineHistoryService, auditLogService);
+			ILoanManagementService ILoanServive = new LoanManagementService(loanRepo, userRepo, bookRepo, IBookService, fineService, userAutoRemovalService, authorization, loanHistoryService, auditLogService);
+			IUserManagementService IuserService = new UserManagementService(userRepo, roleRepo, ILoanServive, fineRepo, passwordHasher, authorization, auditLogService);
+
+
 			Console.Title = "Library Management System";
 			// Seed data for development/testing
-			DataSeeder.Seed(authorRepo, translatorRepo, bookRepo, userRepo, loanRepo, roleRepo, fineRepo,
-				passwordHasher);
+			DataSeeder.Seed(authorRepo, translatorRepo, IBookService, userRepo, loanRepo, roleRepo, fineRepo, passwordHasher);
 
-
-			// ── Application Interfaces ──────────────────
-			IUserAutoRemovalService userAutoRemovalService = new UserAutoRemovalService(userRepo, loanRepo, fineRepo);
-			ILoanHistoryManagementService loanHistoryService = new LoanHistoryManagementService(loanHistoryRepo);
-			IFineHistoryManagementService fineHistoryService = new FineHistoryManagementService(fineHistoryRepo);
-			IAuditLogManagementService auditLogService =
-				new AuditLogManagementService(userRepo, auditLogRepo, currentUserSession);
-			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo,
-				userAutoRemovalService, authorization, loanHistoryService, fineHistoryService, auditLogService);
 
 
 			// ── Application Services ──────────────────
-			var authorService = new AuthorManagementService(authorRepo, bookRepo, authorization, auditLogService);
-			var translatorService = new TranslatorManagementService(translatorRepo, bookRepo, authorization, auditLogService);
-			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, fineService,
-				userAutoRemovalService, authorization, loanHistoryService, auditLogService);
+			var authorService = new AuthorManagementService(authorRepo, authorization, auditLogService);
+			var translatorService = new TranslatorManagementService(translatorRepo, authorization, auditLogService);
+			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, IBookService, fineService, userAutoRemovalService, authorization, loanHistoryService, auditLogService);
 			var loanHistory = new LoanHistoryManagementService(loanHistoryRepo);
 			var fineHistory = new FineHistoryManagementService(fineHistoryRepo);
-			var userService =
-				new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher, authorization,
-					auditLogService);
-			var bookService =
-				new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo, auditLogService, authorization);
-			var authService =
-				new AuthenticationService(userRepo, roleRepo, passwordHasher, currentUserSession, auditLogService);
-			var statisticsService =
-				new LibraryStatisticsService(bookRepo, authorRepo, translatorRepo, userRepo, loanRepo);
+			var userService = new UserManagementService(userRepo, roleRepo, ILoanServive, fineRepo, passwordHasher, authorization, auditLogService);
+			var bookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo, auditLogService, authorization);
+			var authService = new AuthenticationService(userRepo, IuserService, roleRepo, passwordHasher, currentUserSession, auditLogService);
+			var statisticsService = new LibraryStatisticsService(bookRepo, authorRepo, translatorRepo, userRepo, ILoanServive);
 
 			while (true)
 			{

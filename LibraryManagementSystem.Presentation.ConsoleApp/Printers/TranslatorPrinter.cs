@@ -16,8 +16,8 @@ public class TranslatorPrinter
 			("National Code", [translator.NationalCode]),
 			("Email", [translator.Email]),
 			("Phone Number", [translator.PhoneNumber]),
-			("Birth Date", [translator.BirthDate.ToString("yyyy-MM-dd")]),
-			("Created At", [translator.CreatedAt.ToString("yyyy-MM-dd HH:mm")]),
+			("Birth Date", [translator.BirthDate?.ToString("yyyy-MM-dd")]),
+			("Created At", [translator.CreatedAt?.ToString("yyyy-MM-dd HH:mm")]),
 			("Updated At", [translator.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "N/A"]),
 		};
 
@@ -69,7 +69,7 @@ public class TranslatorPrinter
 			[translator.NationalCode],
 			[translator.Email],
 			[translator.PhoneNumber],
-			[translator.BirthDate.ToString("yyyy-MM-dd")],
+			[translator.BirthDate?.ToString("yyyy-MM-dd")],
 			[translator.Biography ?? "N/A"],
 		]).ToList();
 
