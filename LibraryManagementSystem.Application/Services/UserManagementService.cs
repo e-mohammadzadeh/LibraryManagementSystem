@@ -47,23 +47,23 @@ public class UserManagementService
 
 		string? warningMessage = null;
 
-		if (_userRepository.ExistsByNationalCode(dto.NationalCode!, null))
+		if (_userRepository.ExistsByNationalCode(dto.NationalCode))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
 
-		var email = Email.Create(dto.Email!);
-		if (_userRepository.ExistsByEmail(email, null))
+		var email = Email.Create(dto.Email);
+		if (_userRepository.ExistsByEmail(email))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
 
-		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber!);
-		if (_userRepository.ExistsByPhoneNumber(phoneNumber, null))
+		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
+		if (_userRepository.ExistsByPhoneNumber(phoneNumber))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
 
-		var existingSameName = _userRepository.FindByName(dto.FirstName!, dto.LastName!, EntityFilter.Active);
+		var existingSameName = _userRepository.FindByName(dto.FirstName, dto.LastName, EntityFilter.Active);
 
 		if (existingSameName != null)
 			warningMessage = string.Format(Messages.DuplicateUserNameWarning, existingSameName.Id);
 
-		var role = _roleRepository.FindById(dto.RoleId!.Value);
+		var role = _roleRepository.FindById(dto.Role.Id);
 		if (role is null) return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
 
 		if (!(role.Name switch
@@ -77,17 +77,17 @@ public class UserManagementService
 			return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
 		}
 
-		var result = _passwordHasher.CreatePasswordHash(dto.Password!);
+		var result = _passwordHasher.CreatePasswordHash(dto.Password);
 
 		var newUser = new User
 		{
-			FirstName = dto.FirstName!,
-			LastName = dto.LastName!,
-			NationalCode = dto.NationalCode!,
+			FirstName = dto.FirstName,
+			LastName = dto.LastName,
+			NationalCode = dto.NationalCode,
 			Email = email,
 			PhoneNumber = phoneNumber,
-			BirthDate = dto.BirthDate!.Value,
-			RoleId = dto.RoleId.Value,
+			BirthDate = dto.BirthDate,
+			RoleId = dto.Role.Id,
 			Role = role,
 			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
 		};
@@ -109,22 +109,19 @@ public class UserManagementService
 
 		var users = _userRepository.GetAll(EntityFilter.Active).Select(a => a.ToDto());
 
-		var roles = _roleRepository.GetAll().ToDictionary(r => r.Id, r => r.Name);
-
 		Func<UserDto, object> keySelector = sortField switch
 		{
 			UserSortField.Id => u => u.Id,
-			UserSortField.FirstName => u => u.FirstName!,
-			UserSortField.LastName => u => u.LastName!,
-			UserSortField.FullName => u => u.FullName!,
-			UserSortField.NationalCode => u => u.NationalCode!,
-			UserSortField.Email => u => u.Email!,
-			UserSortField.BirthDate => u => u.BirthDate!,
-			UserSortField.Role => u => roles.TryGetValue(u.RoleId!.Value, out var n) ? n : string.Empty,
-			UserSortField.MembershipStartDate => u => u.MembershipStartDate!,
-			UserSortField.MembershipExpiryDate => u => u.MembershipExpiryDate!,
-			UserSortField.IsActive => u => u.IsActive!,
-			UserSortField.LastLoginDate => u => u.LastLoginDate ?? (object)DateTime.MinValue,
+			UserSortField.FirstName => u => u.FirstName,
+			UserSortField.LastName => u => u.LastName,
+			UserSortField.FullName => u => u.FullName,
+			UserSortField.NationalCode => u => u.NationalCode,
+			UserSortField.Email => u => u.Email,
+			UserSortField.BirthDate => u => u.BirthDate,
+			UserSortField.Role => u => u.Role.Name,
+			UserSortField.MembershipStartDate => u => u.MembershipStartDate,
+			UserSortField.MembershipExpiryDate => u => u.MembershipExpiryDate,
+			UserSortField.IsActive => u => u.IsActive,
 			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
 		};
 
@@ -155,53 +152,41 @@ public class UserManagementService
 
 		if (IsNoOpUpdateUser(user, dto)) return ServiceResult<UserDto>.Fail(Messages.NoChangesDetected);
 
-		var resolvedFirstName = dto.FirstName ?? user.FirstName;
-		var resolvedLastName = dto.LastName ?? user.LastName;
-		if (dto.FirstName != null || dto.LastName != null)
-		{
-			var existingSameName = _userRepository.FindByName(resolvedFirstName, resolvedLastName, EntityFilter.Active);
-			if (existingSameName != null && existingSameName.Id != dto.Id)
-				warningMessage = string.Format(Messages.DuplicateAuthorNameWarning, existingSameName.Id);
-		}
+		var existingSameName = _userRepository.FindByName(dto.FirstName, dto.LastName, EntityFilter.Active);
+		if (existingSameName != null && existingSameName.Id != dto.Id)
+			warningMessage = string.Format(Messages.DuplicateAuthorNameWarning, existingSameName.Id);
 
-		if (dto.NationalCode != null && _userRepository.ExistsByNationalCode(dto.NationalCode, dto.Id))
+
+		if (_userRepository.ExistsByNationalCode(dto.NationalCode, dto.Id))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
 
-		if (dto.Email != null)
+		var email = Email.Create(dto.Email);
+		if (_userRepository.ExistsByEmail(email, dto.Id))
+			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
+
+		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
+		if (_userRepository.ExistsByPhoneNumber(phoneNumber, dto.Id))
+			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
+
+
+		var resolvedRole = _roleRepository.FindById(dto.Role.Id);
+		if (resolvedRole is null) return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
+
+		var allowed = resolvedRole.Name switch
 		{
-			var email = Email.Create(dto.Email);
-			if (_userRepository.ExistsByEmail(email, dto.Id))
-				return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
-		}
+			LibraryUserRole.Member => _authorization.HasPermission(Permission.AssignMemberRole),
+			LibraryUserRole.Librarian => _authorization.HasPermission(Permission.AssignLibrarianRole),
+			LibraryUserRole.Admin => _authorization.HasPermission(Permission.AssignAdminRole),
+			_ => false
+		};
 
-		if (dto.PhoneNumber != null)
-		{
-			var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
-			if (_userRepository.ExistsByPhoneNumber(phoneNumber, dto.Id))
-				return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
-		}
+		if (!allowed) return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
 
-		Role? resolvedRole = null;
-		if (dto.RoleId != null)
-		{
-			resolvedRole = _roleRepository.FindById(dto.RoleId.Value);
-			if (resolvedRole is null) return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
 
-			var allowed = resolvedRole.Name switch
-			{
-				LibraryUserRole.Member => _authorization.HasPermission(Permission.AssignMemberRole),
-				LibraryUserRole.Librarian => _authorization.HasPermission(Permission.AssignLibrarianRole),
-				LibraryUserRole.Admin => _authorization.HasPermission(Permission.AssignAdminRole),
-				_ => false
-			};
-
-			if (!allowed) return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
-		}
-
-		var auditDetails = UserUpdateAuditDetailsBuilder.BuildUserUpdateAuditDetails(user, dto, resolvedRole!);
+		var auditDetails = UserUpdateAuditDetailsBuilder.BuildUserUpdateAuditDetails(user, dto, resolvedRole);
 
 		_userRepository.Update(user, session.UserId);
-		ReplaceRole(user, resolvedRole!);
+		ReplaceRole(user, resolvedRole);
 		if (session.UserId == dto.Id) session.UpdateCurrentUser(user.ToAuthUserDto());
 
 		_auditLog.Record(AuditAction.UserUpdated, "User", dto.Id, auditDetails ?? "User updated.");
@@ -221,13 +206,13 @@ public class UserManagementService
 
 	private static bool IsNoOpUpdateUser(User user, UserDto dto)
 	{
-		return (dto.FirstName == null || dto.FirstName == user.FirstName) &&
-		       (dto.LastName == null || dto.LastName == user.LastName) &&
-		       (dto.NationalCode == null || dto.NationalCode == user.NationalCode) &&
-		       (dto.Email == null || dto.Email == user.Email) &&
-		       (dto.PhoneNumber == null || dto.PhoneNumber == user.PhoneNumber) &&
-		       (dto.BirthDate == null || dto.BirthDate == user.BirthDate) &&
-		       (dto.RoleId == null || dto.RoleId == user.RoleId);
+		return (dto.FirstName == user.FirstName) &&
+		       (dto.LastName == user.LastName) &&
+		       (dto.NationalCode == user.NationalCode) &&
+		       (dto.Email == user.Email) &&
+		       (dto.PhoneNumber == user.PhoneNumber) &&
+		       (dto.BirthDate == user.BirthDate) &&
+		       (dto.Role.Id == user.RoleId);
 	}
 
 
@@ -369,15 +354,14 @@ public class UserManagementService
 	}
 
 
-
-	public void ReplaceRole(User user, Role newRole)
+	public static void ReplaceRole(User user, Role newRole)
 	{
 		user.Role = newRole ?? throw new ArgumentNullException(nameof(newRole));
 		user.RoleId = newRole.Id;
 	}
 
 
-	public void RenewMembership(User user, int years = 1)
+	public static void RenewMembership(User user, int years = 1)
 	{
 		var today = DateOnly.FromDateTime(DateTime.Today);
 		var renewalBase = user.MembershipExpiryDate > today
@@ -388,7 +372,6 @@ public class UserManagementService
 		if (!user.IsActive) user.IsActive = true;
 		user.UpdatedAt = DateTime.UtcNow;
 	}
-
 
 
 	public void FlagForRemoval(Guid userId)
