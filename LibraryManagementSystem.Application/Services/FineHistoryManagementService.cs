@@ -23,12 +23,12 @@ public class FineHistoryManagementService: IFineHistoryManagementService
 		var history = new FineHistory
 		{
 			Id = Guid.CreateVersion7(),
-			FineId = fine.Id!.Value,
-			LoanId = fine.LoanId!.Value,
-			UserId = fine.UserId!.Value,
-			OverdueDays = fine.OverdueDays!.Value,
-			Money = fine.Money!,
-			Status = fine.Status!.Value,
+			FineId = fine.Id,
+			LoanId = fine.LoanId,
+			UserId = fine.UserId,
+			OverdueDays = fine.OverdueDays,
+			Money = fine.Money,
+			Status = fine.Status,
 			Action = action,
 			OccurredAt = DateTime.UtcNow,
 			Description = description

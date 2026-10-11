@@ -40,23 +40,22 @@ public class BookManagementService : IBookManagementService
 
 	public ServiceResult<BookDto> AddBook(BookDto dto)
 	{
-		if (_bookRepository.ExistsByName(dto.Title!))
+		if (_bookRepository.ExistsByName(dto.Title))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByName);
 
-		var isbn = ISBN.Create(dto.ISBN!);
+		var isbn = ISBN.Create(dto.ISBN);
 		if (_bookRepository.ExistsByISBN(isbn))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByISBN);
 
-		if (!Enum.IsDefined(dto.OriginalLanguage!.Value) ||
-		    (dto.TranslatedLanguage != null && !Enum.IsDefined(dto.TranslatedLanguage.Value)))
+		if (!Enum.IsDefined(dto.OriginalLanguage) || (!Enum.IsDefined(dto.TranslatedLanguage)))
 			return ServiceResult<BookDto>.Fail(Messages.InvalidLanguage);
 
-		var authorIds = dto.Authors?.Select(a => a.Id).ToList() ?? [];
+		var authorIds = dto.Authors.Select(a => a.Id).ToList();
 		if (authorIds.Count == 0) return ServiceResult<BookDto>.Fail(Messages.BookRequiresAtLeastOneAuthor);
 		if (authorIds.Count != authorIds.Distinct().Count())
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateAuthorsNotAllowed);
 
-		var translatorIds = dto.Translators?.Select(t => t.Id).ToList() ?? [];
+		var translatorIds = dto.Translators.Select(t => t.Id).ToList();
 		if (translatorIds.Count != translatorIds.Distinct().Count())
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateTranslatorsNotAllowed);
 
@@ -79,18 +78,18 @@ public class BookManagementService : IBookManagementService
 
 		var newBook = new Book
 		{
-			Title = dto.Title!,
+			Title = dto.Title,
 			ISBN = isbn,
-			PublishDate = dto.PublishDate!.Value,
-			Genre = dto.Genre!,
-			Publisher = dto.Publisher!,
-			OriginalLanguage = dto.OriginalLanguage!.Value,
-			TotalCopies = dto.TotalCopies!.Value,
+			PublishDate = dto.PublishDate,
+			Genre = dto.Genre,
+			Publisher = dto.Publisher,
+			OriginalLanguage = dto.OriginalLanguage,
+			TotalCopies = dto.TotalCopies,
 			Description = dto.Description
 		};
 
 		foreach (var author in authors) AddAuthor(newBook, author);
-		foreach (var translator in translators) AddTranslator(newBook, translator, dto.TranslatedLanguage!.Value);
+		foreach (var translator in translators) AddTranslator(newBook, translator, dto.TranslatedLanguage);
 
 		_bookRepository.Add(newBook);
 		_auditLog.Record(AuditAction.BookCreated, "Book", newBook.Id, "Book created.");
@@ -106,62 +105,52 @@ public class BookManagementService : IBookManagementService
 
 		if (IsNoOpUpdateBook(book, dto)) return ServiceResult<BookDto>.Fail(Messages.NoChangesDetected);
 
-		if (dto.Title != null && _bookRepository.ExistsByName(dto.Title, dto.Id))
+		if (_bookRepository.ExistsByName(dto.Title, dto.Id))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByName);
 
-		if (dto.ISBN != null)
-		{
-			var isbn = ISBN.Create(dto.ISBN);
-			if (_bookRepository.ExistsByISBN(isbn, dto.Id))
-				return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByISBN);
-		}
-
-		if (dto.Genre != null && !Enum.IsDefined(dto.Genre.Value))
+		var isbn = ISBN.Create(dto.ISBN);
+		if (_bookRepository.ExistsByISBN(isbn, dto.Id))
+			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByISBN);
+		
+		if (!Enum.IsDefined(dto.Genre.Value))
 			return ServiceResult<BookDto>.Fail(Messages.InvalidGenre);
 
 		if (dto.TotalCopies is <= 0) return ServiceResult<BookDto>.Fail(Messages.WrongTotalCopies);
 
-		List<Author>? resolvedAuthors = null;
-		if (dto.Authors != null)
+		if (dto.Authors.Count == 0) return ServiceResult<BookDto>.Fail(Messages.BookRequiresAtLeastOneAuthor);
+
+		if (dto.Authors.Count != dto.Authors.Distinct().Count())
+			return ServiceResult<BookDto>.Fail(Messages.DuplicateAuthorsNotAllowed);
+
+		List<Author> resolvedAuthors = [];
+		foreach (var contributor in dto.Authors)
 		{
-			if (dto.Authors.Count == 0) return ServiceResult<BookDto>.Fail(Messages.BookRequiresAtLeastOneAuthor);
-
-			if (dto.Authors.Count != dto.Authors.Distinct().Count())
-				return ServiceResult<BookDto>.Fail(Messages.DuplicateAuthorsNotAllowed);
-
-			resolvedAuthors = [];
-			foreach (var contributor in dto.Authors)
-			{
-				var author = _authorRepository.FindById(contributor.Id, EntityFilter.Active);
-				if (author is null)
-					return ServiceResult<BookDto>.Fail(string.Format(Messages.AuthorNotFoundFormat, contributor));
-				resolvedAuthors.Add(author);
-			}
+			var author = _authorRepository.FindById(contributor.Id, EntityFilter.Active);
+			if (author is null)
+				return ServiceResult<BookDto>.Fail(string.Format(Messages.AuthorNotFoundFormat, contributor));
+			resolvedAuthors.Add(author);
 		}
 
-		List<Translator>? resolvedTranslators = null;
-		if (dto.Translators != null)
-		{
-			if (dto.Translators.Count != dto.Translators.Distinct().Count())
-				return ServiceResult<BookDto>.Fail(Messages.DuplicateTranslatorsNotAllowed);
+		if (dto.Translators.Count != dto.Translators.Distinct().Count())
+			return ServiceResult<BookDto>.Fail(Messages.DuplicateTranslatorsNotAllowed);
 
-			resolvedTranslators = [];
-			foreach (var contributor in dto.Translators)
-			{
-				var translator = _translatorRepository.FindById(contributor.Id, EntityFilter.Active);
-				if (translator is null)
-					return ServiceResult<BookDto>.Fail(string.Format(Messages.TranslatorNotFoundFormat,
-						contributor));
-				resolvedTranslators.Add(translator);
-			}
+		List<Translator> resolvedTranslators = [];
+		foreach (var contributor in dto.Translators)
+		{
+			var translator = _translatorRepository.FindById(contributor.Id, EntityFilter.Active);
+			if (translator is null)
+				return ServiceResult<BookDto>.Fail(string.Format(Messages.TranslatorNotFoundFormat,
+					contributor));
+			resolvedTranslators.Add(translator);
 		}
+		
 
 		var auditDetails =
 			BookUpdateAuditDetailsBuilder.BuildBookUpdateAuditDetails(book, dto, resolvedAuthors, resolvedTranslators);
 
-		if (dto.TotalCopies.HasValue)
+		if (dto.TotalCopies > 0)
 		{
-			var newTotalCopies = dto.TotalCopies.Value;
+			var newTotalCopies = dto.TotalCopies;
 			if (!BookInventoryRules.CanChangeTotalCopies(book.TotalCopies, book.AvailableCopies, newTotalCopies))
 				return ServiceResult<BookDto>.Fail(Messages.TotalCopiesUpdateInvalid);
 			var difference = newTotalCopies - book.TotalCopies;
@@ -169,8 +158,8 @@ public class BookManagementService : IBookManagementService
 			book.AvailableCopies += difference;
 		}
 
-		if (resolvedAuthors != null) ReplaceAuthors(book, resolvedAuthors);
-		if (resolvedTranslators != null) ReplaceTranslators(book, resolvedTranslators, dto.TranslatedLanguage!.Value);
+		ReplaceAuthors(book, resolvedAuthors);
+		ReplaceTranslators(book, resolvedTranslators, dto.TranslatedLanguage);
 
 		_bookRepository.Update(book, updatedBy);
 		_auditLog.Record(AuditAction.BookUpdated, "Book", dto.Id, auditDetails ?? "Book updated.");
@@ -180,17 +169,15 @@ public class BookManagementService : IBookManagementService
 
 	private static bool IsNoOpUpdateBook(Book book, BookDto dto)
 	{
-		return (dto.Title == null || dto.Title == book.Title) &&
-		       (dto.ISBN == null || dto.ISBN == book.ISBN) &&
-		       (dto.Authors == null ||
-		        SameIds(dto.Authors.Select(a => a.Id), book.BookAuthors.Select(ba => ba.AuthorId))) &&
-		       (dto.Translators == null ||
-		        SameIds(dto.Translators.Select(t => t.Id), book.BookTranslators.Select(bt => bt.TranslatorId))) &&
-		       (dto.PublishDate == null || dto.PublishDate == book.PublishDate) &&
-		       (dto.Genre == null || dto.Genre == book.Genre) &&
-		       (dto.Publisher == null || dto.Publisher == book.Publisher) &&
-		       (dto.TotalCopies == null || dto.TotalCopies == book.TotalCopies) &&
-		       (dto.Description == null || dto.Description == book.Description);
+		return (dto.Title == book.Title) &&
+		       (dto.ISBN == book.ISBN) &&
+		       (SameIds(dto.Authors.Select(a => a.Id), book.BookAuthors.Select(ba => ba.AuthorId))) &&
+		       (SameIds(dto.Translators.Select(t => t.Id), book.BookTranslators.Select(bt => bt.TranslatorId))) &&
+		       (dto.PublishDate == book.PublishDate) &&
+		       (dto.Genre == book.Genre) &&
+		       (dto.Publisher == book.Publisher) &&
+		       (dto.TotalCopies == book.TotalCopies) &&
+		       (dto.Description == book.Description);
 	}
 
 

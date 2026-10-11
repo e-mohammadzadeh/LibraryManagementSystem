@@ -24,8 +24,8 @@ public class LoanHistoryManagementService : ILoanHistoryManagementService
 		{
 			Id = Guid.CreateVersion7(),
 			LoanId = loan.Id,
-			UserId = loan.UserId!.Value,
-			BookId = loan.BookId!.Value,
+			UserId = loan.UserId,
+			BookId = loan.BookId,
 			Action = action,
 			OccurredAt = DateTime.UtcNow,
 			Description = description

@@ -48,7 +48,7 @@ public class LoanManagementService : ILoanManagementService
 		if (session.IsSelfServiceMember && session.UserId != dto.UserId)
 			return ServiceResult<LoanDto>.Fail(Messages.BorrowBookForYourself);
 
-		var user = _userRepository.FindById(dto.UserId!.Value, EntityFilter.Active);
+		var user = _userRepository.FindById(dto.UserId, EntityFilter.Active);
 		if (user is null) return ServiceResult<LoanDto>.Fail(Messages.NotUserMatched);
 
 		if (!user.IsActive) return ServiceResult<LoanDto>.Fail(Messages.MembershipExpired);
@@ -56,21 +56,21 @@ public class LoanManagementService : ILoanManagementService
 		if (user.ShouldRemove)
 			return ServiceResult<LoanDto>.Fail(string.Format(Messages.FlaggedForRemoval, "Borrowing"));
 
-		if (_fineService.HasUnpaidFines(dto.UserId!.Value))
+		if (_fineService.HasUnpaidFines(dto.UserId))
 			return ServiceResult<LoanDto>.Fail(Messages.BorrowFailedForFine);
 
 		if (CountLoans(dto.UserId, LoanFilter.Active) >= ValidationConstants.MaxActiveLoansPerUser)
 			return ServiceResult<LoanDto>.Fail(Messages.MaximumLoansReached);
 
-		if (_loanRepository.GetAllByUser(dto.UserId!.Value, LoanFilter.Active).Any(l => l.IsOverdue))
+		if (_loanRepository.GetAllByUser(dto.UserId, LoanFilter.Active).Any(l => l.IsOverdue))
 			return ServiceResult<LoanDto>.Fail(Messages.BorrowBlockedDueToOverdue);
 
-		var book = _bookRepository.FindById(dto.BookId!.Value, EntityFilter.Active);
+		var book = _bookRepository.FindById(dto.BookId, EntityFilter.Active);
 		if (book is null) return ServiceResult<LoanDto>.Fail(Messages.NotBookMatched);
 
 		if (book.AvailableCopies <= 0) return ServiceResult<LoanDto>.Fail(Messages.NotEnoughCopiesAvailable);
 
-		if (_loanRepository.GetLoansByBookAndUser(dto.BookId.Value, dto.UserId.Value, LoanFilter.Active).Count > 0)
+		if (_loanRepository.GetLoansByBookAndUser(dto.BookId, dto.UserId, LoanFilter.Active).Count > 0)
 			return ServiceResult<LoanDto>.Fail(Messages.BookAlreadyBorrowed);
 
 		var loan = new Loan
@@ -81,7 +81,7 @@ public class LoanManagementService : ILoanManagementService
 			UserId = user.Id
 		};
 
-		_bookService.BorrowCopy(dto.BookId!.Value);
+		_bookService.BorrowCopy(dto.BookId);
 		_loanRepository.Add(loan);
 		_bookRepository.Update(book, session.UserId);
 
@@ -96,7 +96,6 @@ public class LoanManagementService : ILoanManagementService
 			UserNationalCode = user.NationalCode,
 			BorrowDate = loan.BorrowDate,
 			DueDate = loan.DueDate,
-			ReturnDate = loan.ReturnDate,
 			Status = loan.Status,
 			RenewalCount = loan.RenewalCount,
 			IsOverdue = loan.IsOverdue
@@ -127,8 +126,8 @@ public class LoanManagementService : ILoanManagementService
 			Id = loan.Id,
 			BorrowDate = loan.BorrowDate,
 			DueDate = loan.DueDate,
-			ReturnDate = loan.ReturnDate,
-			Status = loan.Status,
+			ReturnDate = DateOnly.FromDateTime(DateTime.Today),
+			Status = LoanStatus.Returned,
 			RenewalCount = loan.RenewalCount,
 			IsOverdue = loan.IsOverdue
 		};
@@ -170,7 +169,6 @@ public class LoanManagementService : ILoanManagementService
 			Id = loan.Id,
 			BorrowDate = loan.BorrowDate,
 			DueDate = loan.DueDate,
-			ReturnDate = loan.ReturnDate,
 			Status = loan.Status,
 			RenewalCount = loan.RenewalCount,
 			IsOverdue = loan.IsOverdue
@@ -279,7 +277,7 @@ public class LoanManagementService : ILoanManagementService
 		var loan = _loanRepository.FindById(loanId, LoanFilter.Active);
 		if (loan is null) return;
 
-		if (loan.ReturnDate.HasValue)
+		if (loan.ReturnDate is not null)
 			throw new InvalidOperationException("This loan has already been returned.");
 
 		loan.ReturnDate = returnDate ?? DateOnly.FromDateTime(DateTime.Today);
