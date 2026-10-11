@@ -230,7 +230,7 @@ public class BookManagementService : IBookManagementService
 			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
 		};
 
-		return sortedBooks.Select(book => book.ToDto()).ToList();
+		return [.. sortedBooks.Select(book => book.ToDto())];
 	}
 
 
@@ -315,7 +315,7 @@ public class BookManagementService : IBookManagementService
 
 
 
-	public void RemoveAuthor(Book book, Guid authorId)
+	public static void RemoveAuthor(Book book, Guid authorId)
 	{
 		if (book.BookAuthors.Count <= 1) throw new InvalidOperationException(Messages.BookRequiresAtLeastOneAuthor);
 
@@ -328,7 +328,7 @@ public class BookManagementService : IBookManagementService
 	}
 
 
-	public void RemoveTranslator(Book book, Guid translatorId)
+	public static void RemoveTranslator(Book book, Guid translatorId)
 	{
 		var bookTranslator = book.BookTranslators.FirstOrDefault(bt => bt.TranslatorId == translatorId);
 
@@ -339,7 +339,7 @@ public class BookManagementService : IBookManagementService
 	}
 
 
-	public void ReplaceAuthors(Book book, IEnumerable<Author> authors)
+	public static void ReplaceAuthors(Book book, IEnumerable<Author> authors)
 	{
 		ArgumentNullException.ThrowIfNull(book);
 		ArgumentNullException.ThrowIfNull(authors);
@@ -355,7 +355,7 @@ public class BookManagementService : IBookManagementService
 	}
 
 
-	public void ReplaceTranslators(Book book, IEnumerable<Translator> translators, Language language)
+	public static void ReplaceTranslators(Book book, IEnumerable<Translator> translators, Language language)
 	{
 		ArgumentNullException.ThrowIfNull(book);
 		ArgumentNullException.ThrowIfNull(translators);

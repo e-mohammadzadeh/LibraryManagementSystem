@@ -148,11 +148,9 @@ public class TranslatorManagementService
 	{
 		var requiredPermission = field switch
 		{
-			TranslatorSearchField.Name => new[]
-				{ Permission.SearchTranslatorForMember, Permission.FullSearchTranslator },
-			TranslatorSearchField.NationalCode => new[] { Permission.FullSearchTranslator },
-			TranslatorSearchField.Email => new[]
-				{ Permission.SearchTranslatorForMember, Permission.FullSearchTranslator },
+			TranslatorSearchField.Name => [Permission.SearchTranslatorForMember, Permission.FullSearchTranslator],
+			TranslatorSearchField.NationalCode => [ Permission.FullSearchTranslator ],
+			TranslatorSearchField.Email => [Permission.SearchTranslatorForMember, Permission.FullSearchTranslator],
 			TranslatorSearchField.PhoneNumber => new[] { Permission.FullSearchTranslator },
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};

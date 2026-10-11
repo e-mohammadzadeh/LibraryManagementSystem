@@ -17,10 +17,10 @@ public static class FinePrinter
 			("User", [fine.UserFullName]),
 			("Book", [fine.BookName]),
 			("Overdue Days", [fine.OverdueDays.ToString()]),
-			("Amount", [$"{fine.Amount:F2}"]),
+			("Amount", [fine.Money.ToString()]),
 			("Status", [fine.Status.ToString()]),
 			("Reason", string.IsNullOrWhiteSpace(fine.Reason) ? ["N/A"] : fine.Reason.Split('\n')),
-			("Created At", [fine.CreatedAt.ToString("yyyy-MM-dd HH:mm")]),
+			("Created At", [fine.CreatedAt?.ToString("yyyy-MM-dd HH:mm")]),
 			("Updated At", [fine.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "N/A"]),
 			("Paid At", [fine.PaidAt?.ToString("yyyy-MM-dd HH:mm") ?? "N/A"]),
 		};
@@ -46,7 +46,7 @@ public static class FinePrinter
 			[fine.LoanId.ToString()[..8]],
 			ConsoleTable.WrapText(fine.UserFullName, 28),
 			ConsoleTable.WrapText(fine.BookName, 35),
-			[$"{fine.Amount:F2}"],
+			[fine.Money.ToString()],
 			[fine.OverdueDays.ToString()],
 			[fine.Status.ToString()]
 		}).ToList();

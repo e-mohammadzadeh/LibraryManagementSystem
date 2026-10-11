@@ -9,8 +9,6 @@ using LibraryManagementSystem.Infrastructure.DTOs.Loans;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.Interfaces;
-using Microsoft.VisualBasic;
-using System.Net.NetworkInformation;
 
 namespace LibraryManagementSystem.Application.Services;
 
@@ -72,7 +70,7 @@ public class LoanManagementService : ILoanManagementService
 
 		if (book.AvailableCopies <= 0) return ServiceResult<LoanDto>.Fail(Messages.NotEnoughCopiesAvailable);
 
-		if (HasLoans(dto.UserId, dto.BookId, LoanFilter.Active))
+		if (_loanRepository.GetLoansByBookAndUser(dto.BookId.Value, dto.UserId.Value, LoanFilter.Active).Count > 0)
 			return ServiceResult<LoanDto>.Fail(Messages.BookAlreadyBorrowed);
 
 		var loan = new Loan
@@ -292,18 +290,6 @@ public class LoanManagementService : ILoanManagementService
 	{
 		loan.DueDate = loan.DueDate.AddDays(ValidationConstants.LoanPeriodDays);
 		loan.RenewalCount++;
-	}
-
-
-	public bool HasLoans(Guid? userId, Guid? bookId, LoanFilter filter)
-	{
-		if (userId is null && bookId is null)
-			throw new ArgumentException("At least one of userId or bookId must be provided.");
-		var query = _loanRepository.GetAll(filter);
-
-		if (userId is not null) query = query.Where(l => l.UserId == userId);
-		if (bookId is not null) query = query.Where(l => l.BookId == bookId);
-		return query.Any();
 	}
 
 

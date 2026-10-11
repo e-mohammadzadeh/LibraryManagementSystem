@@ -16,13 +16,13 @@ public static class LoanPrinter
 			("Book Id", [loan.BookId.ToString()]),
 			("User Name", [loan.UserName]),
 			("User Id", [loan.UserId.ToString()]),
-			("Borrow Date", [loan.BorrowDate.ToString("yyyy-MM-dd")]),
-			("Due Date", [loan.DueDate.ToString("yyyy-MM-dd")]),
+			("Borrow Date", [loan.BorrowDate?.ToString("yyyy-MM-dd")]),
+			("Due Date", [loan.DueDate?.ToString("yyyy-MM-dd")]),
 			("Return Date", [loan.ReturnDate?.ToString("yyyy-MM-dd") ?? "N/A"]),
 			("Status", [loan.Status.ToString()]),
 			("Renewal Count", [loan.RenewalCount.ToString()]),
-			("Is Overdue", [loan.IsOverdue ? "Yes" : "No"]),
-			("Created At", [loan.CreatedAt.ToString("yyyy-MM-dd HH:mm")]),
+			("Is Overdue", [loan.IsOverdue.Value ? "Yes" : "No"]),
+			("Created At", [loan.CreatedAt?.ToString("yyyy-MM-dd HH:mm")]),
 			("Updated At", [loan.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "N/A"]),
 		};
 
@@ -45,11 +45,11 @@ public static class LoanPrinter
 			[loan.LoanId.ToString()],
 			ConsoleTable.WrapText(loan.BookName, 24),
 			ConsoleTable.WrapText(loan.UserName, 24),
-			[loan.BorrowDate.ToString("yyyy-MM-dd")],
+			[loan.BorrowDate?.ToString("yyyy-MM-dd")],
 			[loan.ReturnDate?.ToString("yyyy-MM-dd") ?? "N/A"],
-			[loan.DueDate.ToString("yyyy-MM-dd")],
+			[loan.DueDate?.ToString("yyyy-MM-dd")],
 			[loan.Status.ToString()],
-			[loan.IsOverdue ? "Yes" : "No"]
+			[loan.IsOverdue.Value ? "Yes" : "No"]
 		}).ToList();
 
 		ConsoleTable.PrintTable("Loans List", headers, rows);
