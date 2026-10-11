@@ -11,7 +11,7 @@ public static class FinePrinter
 		Console.Clear();
 		var rows = new List<(string Label, string[] ValueLines)>
 		{
-			("Fine ID", [fine.FineId.ToString()]),
+			("Fine ID", [fine.Id.ToString()]),
 			("Loan ID", [fine.LoanId.ToString()[..8]]),
 			("User ID", [fine.UserId.ToString()[..8]]),
 			("User", [fine.UserFullName]),

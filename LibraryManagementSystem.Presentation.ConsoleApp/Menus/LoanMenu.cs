@@ -276,7 +276,7 @@ public static class LoanMenu
 		var loan = SelectActiveLoan(loanManagementService, userManagementService, session, "return");
 		if (loan is null) return;
 
-		var result = loanManagementService.ReturnBook(loan.LoanId, session);
+		var result = loanManagementService.ReturnBook(loan.Id, session);
 		ConsoleHelper.ShowResult(result);
 	}
 
@@ -287,7 +287,7 @@ public static class LoanMenu
 		var loan = SelectActiveLoan(loanManagementService, userManagementService, session, "renew");
 		if (loan is null) return;
 
-		var result = loanManagementService.RenewLoan(loan.LoanId, session);
+		var result = loanManagementService.RenewLoan(loan.Id, session);
 		ConsoleHelper.ShowResult(result);
 	}
 

@@ -9,7 +9,7 @@ public static class FineMapper
 	{
 		return new FineDto
 		{
-			FineId = fine.Id,
+			Id = fine.Id,
 			LoanId = fine.LoanId,
 			UserId = fine.UserId,
 			UserFullName = $"{fine.Loan.User.FirstName} {fine.Loan.User.LastName}",

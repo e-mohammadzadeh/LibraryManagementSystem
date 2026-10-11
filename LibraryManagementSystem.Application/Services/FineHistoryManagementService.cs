@@ -23,7 +23,7 @@ public class FineHistoryManagementService: IFineHistoryManagementService
 		var history = new FineHistory
 		{
 			Id = Guid.CreateVersion7(),
-			FineId = fine.FineId!.Value,
+			FineId = fine.Id!.Value,
 			LoanId = fine.LoanId!.Value,
 			UserId = fine.UserId!.Value,
 			OverdueDays = fine.OverdueDays!.Value,

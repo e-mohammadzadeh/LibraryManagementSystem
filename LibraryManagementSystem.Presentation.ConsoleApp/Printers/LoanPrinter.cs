@@ -11,7 +11,7 @@ public static class LoanPrinter
 		Console.Clear();
 		var rows = new List<(string Label, string[] ValueLines)>
 		{
-			("ID", [loan.LoanId.ToString()]),
+			("ID", [loan.Id.ToString()]),
 			("Book Name", [loan.BookName]),
 			("Book Id", [loan.BookId.ToString()]),
 			("User Name", [loan.UserName]),
@@ -42,7 +42,7 @@ public static class LoanPrinter
 
 		var rows = loans.Select(loan => new[]
 		{
-			[loan.LoanId.ToString()],
+			[loan.Id.ToString()],
 			ConsoleTable.WrapText(loan.BookName, 24),
 			ConsoleTable.WrapText(loan.UserName, 24),
 			[loan.BorrowDate?.ToString("yyyy-MM-dd")],

@@ -87,7 +87,7 @@ public class LoanManagementService : ILoanManagementService
 
 		var loanDto = new LoanDto
 		{
-			LoanId = loan.Id,
+			Id = loan.Id,
 			BookName = book.Title,
 			BookId = book.Id,
 			BookISBN = book.ISBN,
@@ -124,7 +124,7 @@ public class LoanManagementService : ILoanManagementService
 
 		var loanDto = new LoanDto
 		{
-			LoanId = loan.Id,
+			Id = loan.Id,
 			BorrowDate = loan.BorrowDate,
 			DueDate = loan.DueDate,
 			ReturnDate = loan.ReturnDate,
@@ -167,7 +167,7 @@ public class LoanManagementService : ILoanManagementService
 
 		var loanDto = new LoanDto
 		{
-			LoanId = loan.Id,
+			Id = loan.Id,
 			BorrowDate = loan.BorrowDate,
 			DueDate = loan.DueDate,
 			ReturnDate = loan.ReturnDate,

@@ -67,7 +67,7 @@ public class FineManagementService : IFineManagementService
 
 		var fineDto = new FineDto
 		{
-			FineId = fine.Id,
+			Id = fine.Id,
 			LoanId = loanId,
 			UserId = loan.UserId,
 			OverdueDays = fine.OverdueDays,
@@ -113,14 +113,14 @@ public class FineManagementService : IFineManagementService
 
 			var loanDto = new LoanDto
 			{
-				LoanId = fine.LoanId,
+				Id = fine.LoanId,
 				UserId = fine.UserId,
 				BookId = fine.Loan.BookId
 			};
 
 			var fineDto = new FineDto
 			{
-				FineId = fine.Id,
+				Id = fine.Id,
 				LoanId = fine.LoanId,
 				UserId = fine.UserId,
 				OverdueDays = fine.OverdueDays,
@@ -163,14 +163,14 @@ public class FineManagementService : IFineManagementService
 
 			var loanDto = new LoanDto
 			{
-				LoanId = fine.LoanId,
+				Id = fine.LoanId,
 				UserId = fine.UserId,
 				BookId = fine.Loan.BookId
 			};
 
 			var fineDto = new FineDto
 			{
-				FineId = fine.Id,
+				Id = fine.Id,
 				LoanId = fine.LoanId,
 				UserId = fine.UserId,
 				OverdueDays = fine.OverdueDays,

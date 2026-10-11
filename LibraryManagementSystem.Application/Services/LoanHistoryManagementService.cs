@@ -23,7 +23,7 @@ public class LoanHistoryManagementService : ILoanHistoryManagementService
 		var history = new LoanHistory
 		{
 			Id = Guid.CreateVersion7(),
-			LoanId = loan.LoanId,
+			LoanId = loan.Id,
 			UserId = loan.UserId!.Value,
 			BookId = loan.BookId!.Value,
 			Action = action,

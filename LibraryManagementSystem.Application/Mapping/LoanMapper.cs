@@ -9,7 +9,7 @@ public static class LoanMapper
 	{
 		return new LoanDto
 		{
-			LoanId = loan.Id,
+			Id = loan.Id,
 			BookName = loan.Book.Title,
 			BookId = loan.BookId,
 			BookISBN = loan.Book.ISBN,
