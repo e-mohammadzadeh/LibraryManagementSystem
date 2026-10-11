@@ -35,29 +35,29 @@ public class AuthorManagementService
 	{
 		string? warningMessage = null;
 
-		if (_authorRepository.ExistsByNationalCode(dto.NationalCode!))
+		if (_authorRepository.ExistsByNationalCode(dto.NationalCode))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByNationalCode);
 
-		var email = Email.Create(dto.Email!);
+		var email = Email.Create(dto.Email);
 		if (_authorRepository.ExistsByEmail(email))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByEmail);
 
-		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber!);
+		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
 		if (_authorRepository.ExistsByPhoneNumber(phoneNumber))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByPhoneNumber);
 
-		var existingSameName = _authorRepository.FindByName(dto.FirstName!, dto.LastName!, EntityFilter.Active);
+		var existingSameName = _authorRepository.FindByName(dto.FirstName, dto.LastName, EntityFilter.Active);
 		if (existingSameName != null)
 			warningMessage = string.Format(Messages.DuplicateAuthorNameWarning, existingSameName.Id);
 
 		var newAuthor = new Author
 		{
-			FirstName = dto.FirstName!,
-			LastName = dto.LastName!,
-			NationalCode = dto.NationalCode!,
+			FirstName = dto.FirstName,
+			LastName = dto.LastName,
+			NationalCode = dto.NationalCode,
 			Email = email,
 			PhoneNumber = phoneNumber,
-			BirthDate = dto.BirthDate!.Value,
+			BirthDate = dto.BirthDate,
 			Biography = dto.Biography
 		};
 
@@ -79,32 +79,20 @@ public class AuthorManagementService
 
 		if (IsNoOpUpdateAuthor(author, dto)) return ServiceResult<ContributorDto>.Fail(Messages.NoChangesDetected);
 
-		var resolvedFirstName = dto.FirstName ?? author.FirstName;
-		var resolvedLastName = dto.LastName ?? author.LastName;
-		if (dto.FirstName != null || dto.LastName != null)
-		{
-			var existingSameName =
-				_authorRepository.FindByName(resolvedFirstName, resolvedLastName, EntityFilter.Active);
-			if (existingSameName != null && existingSameName.Id != dto.Id)
-				warningMessage = string.Format(Messages.DuplicateAuthorNameWarning, existingSameName.Id);
-		}
-
-		if (dto.NationalCode != null && _authorRepository.ExistsByNationalCode(dto.NationalCode, dto.Id))
+		var existingSameName = _authorRepository.FindByName(dto.FirstName, dto.LastName, EntityFilter.Active);
+		if (existingSameName != null && existingSameName.Id != dto.Id)
+			warningMessage = string.Format(Messages.DuplicateAuthorNameWarning, existingSameName.Id);
+		
+		if (_authorRepository.ExistsByNationalCode(dto.NationalCode, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByNationalCode);
 
-		if (dto.Email != null)
-		{
-			var email = Email.Create(dto.Email);
-			if (_authorRepository.ExistsByEmail(email, dto.Id))
-				return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByEmail);
-		}
-
-		if (dto.PhoneNumber != null)
-		{
-			var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
-			if (_authorRepository.ExistsByPhoneNumber(phoneNumber, dto.Id))
-				return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByPhoneNumber);
-		}
+		var email = Email.Create(dto.Email);
+		if (_authorRepository.ExistsByEmail(email, dto.Id))
+			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByEmail);
+		
+		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
+		if (_authorRepository.ExistsByPhoneNumber(phoneNumber, dto.Id))
+			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByPhoneNumber);
 
 		var auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(author, dto);
 
@@ -119,12 +107,12 @@ public class AuthorManagementService
 
 	private static bool IsNoOpUpdateAuthor(Author author, ContributorDto dto)
 	{
-		return (dto.FirstName == null || dto.FirstName == author.FirstName) &&
-		       (dto.LastName == null || dto.LastName == author.LastName) &&
-		       (dto.NationalCode == null || dto.NationalCode == author.NationalCode) &&
-		       (dto.Email == null || dto.Email == author.Email) &&
-		       (dto.PhoneNumber == null || dto.PhoneNumber == author.PhoneNumber) &&
-		       (dto.BirthDate == null || dto.BirthDate == author.BirthDate) &&
+		return (dto.FirstName == author.FirstName) &&
+		       (dto.LastName == author.LastName) &&
+		       (dto.NationalCode == author.NationalCode) &&
+		       (dto.Email == author.Email) &&
+		       (dto.PhoneNumber == author.PhoneNumber) &&
+		       (dto.BirthDate == author.BirthDate) &&
 		       (dto.Biography == null || dto.Biography == author.Biography);
 	}
 
@@ -186,12 +174,12 @@ public class AuthorManagementService
 		Func<ContributorDto, object> keySelector = sortField switch
 		{
 			ContributorSortField.Id => a => a.Id,
-			ContributorSortField.FirstName => a => a.FirstName!,
-			ContributorSortField.LastName => a => a.LastName!,
+			ContributorSortField.FirstName => a => a.FirstName,
+			ContributorSortField.LastName => a => a.LastName,
 			ContributorSortField.FullName => a => $"{a.FirstName} {a.LastName}",
-			ContributorSortField.NationalCode => a => a.NationalCode!,
-			ContributorSortField.Email => a => a.Email!,
-			ContributorSortField.BirthDate => a => a.BirthDate!,
+			ContributorSortField.NationalCode => a => a.NationalCode,
+			ContributorSortField.Email => a => a.Email,
+			ContributorSortField.BirthDate => a => a.BirthDate,
 			ContributorSortField.BookCount => a => GetBooksByAuthor(a.Id).Count,
 			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
 		};

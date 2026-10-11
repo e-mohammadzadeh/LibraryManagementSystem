@@ -52,19 +52,19 @@ public class InMemoryUserRepository : IUserRepository
 	}
 
 
-	public bool ExistsByNationalCode(string nationalCode, Guid? excludeId = null)
+	public bool ExistsByNationalCode(string nationalCode, Guid? excludeId)
 	{
 		return _users.Any(u => u.Id != excludeId && u.NationalCode.Equals(nationalCode));
 	}
 
 
-	public bool ExistsByEmail(Email email, Guid? excludeId = null)
+	public bool ExistsByEmail(Email email, Guid? excludeId)
 	{
 		return _users.Any(u => u.Id != excludeId && u.Email.Equals(email));
 	}
 
 
-	public bool ExistsByPhoneNumber(PhoneNumber phoneNumber, Guid? excludeId = null)
+	public bool ExistsByPhoneNumber(PhoneNumber phoneNumber, Guid? excludeId)
 	{
 		return _users.Any(u => u.Id != excludeId && u.PhoneNumber.Equals(phoneNumber));
 	}

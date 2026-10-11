@@ -85,34 +85,34 @@ public class AuthenticationService
 	{
 		string? warningMessage = null;
 
-		if (_userRepository.ExistsByNationalCode(dto.NationalCode!, null))
+		if (_userRepository.ExistsByNationalCode(dto.NationalCode))
 			return ServiceResult<AuthUserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
 
-		var email = Email.Create(dto.Email!);
-		if (_userRepository.ExistsByEmail(email, null))
+		var email = Email.Create(dto.Email);
+		if (_userRepository.ExistsByEmail(email))
 			return ServiceResult<AuthUserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
 
-		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber!);
-		if (_userRepository.ExistsByPhoneNumber(phoneNumber, null))
+		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
+		if (_userRepository.ExistsByPhoneNumber(phoneNumber))
 			return ServiceResult<AuthUserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
 
-		var existingSameName = _userRepository.FindByName(dto.FirstName!, dto.LastName!, EntityFilter.Active);
+		var existingSameName = _userRepository.FindByName(dto.FirstName, dto.LastName, EntityFilter.Active);
 		if (existingSameName is not null)
 			warningMessage = string.Format(Messages.DuplicateUserNameWarning, existingSameName.Id);
 
-		var role = _roleRepository.FindById(dto.RoleId!.Value);
+		var role = _roleRepository.FindById(dto.Role.Id);
 
-		var result = _passwordHasher.CreatePasswordHash(dto.Password!);
+		var result = _passwordHasher.CreatePasswordHash(dto.Password);
 
 		var newUser = new User
 		{
-			FirstName = dto.FirstName!,
-			LastName = dto.LastName!,
-			NationalCode = dto.NationalCode!,
+			FirstName = dto.FirstName,
+			LastName = dto.LastName,
+			NationalCode = dto.NationalCode,
 			Email = email,
 			PhoneNumber = phoneNumber,
-			BirthDate = dto.BirthDate!.Value,
-			RoleId = dto.RoleId!.Value,
+			BirthDate = dto.BirthDate,
+			RoleId = dto.Role.Id,
 			Role = role!,
 			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
 		};
