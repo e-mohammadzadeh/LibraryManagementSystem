@@ -48,12 +48,7 @@ public static class Program
 			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo, IuserService, userAutoRemovalService, authorization, loanHistoryService, fineHistoryService, auditLogService);
 			ILoanManagementService ILoanServive = new LoanManagementService(loanRepo, userRepo, bookRepo, IBookService, fineService, userAutoRemovalService, authorization, loanHistoryService, auditLogService);
 			IUserManagementService IuserService = new UserManagementService(userRepo, roleRepo, ILoanServive, fineRepo, passwordHasher, authorization, auditLogService);
-
-
-			Console.Title = "Library Management System";
-			// Seed data for development/testing
-			DataSeeder.Seed(authorRepo, translatorRepo, IBookService, userRepo, loanRepo, roleRepo, fineRepo, passwordHasher);
-
+			
 
 
 			// ── Application Services ──────────────────
@@ -66,6 +61,12 @@ public static class Program
 			var bookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo, auditLogService, authorization);
 			var authService = new AuthenticationService(userRepo, IuserService, roleRepo, passwordHasher, currentUserSession, auditLogService);
 			var statisticsService = new LibraryStatisticsService(bookRepo, authorRepo, translatorRepo, userRepo, ILoanServive);
+
+
+			Console.Title = "Library Management System";
+			// Seed data for development/testing
+			DataSeeder.Seed(authorRepo, translatorRepo, bookService, bookRepo, userRepo, IuserService, loanRepo, roleRepo, fineRepo, passwordHasher);
+
 
 			while (true)
 			{

@@ -26,11 +26,11 @@ public class AuditLogManagementService : IAuditLogManagementService
 
 	public void Record(AuditAction action, string entityType, Guid entityId, string? details = null)
 	{
-		if (!_currentUserSession.IsAuthenticated || !_currentUserSession.UserId.HasValue) return;
+		if (!_currentUserSession.IsAuthenticated) return;
 
 		var auditLog = new AuditLog
 		{
-			PerformedByUserId = _currentUserSession.UserId.Value,
+			PerformedByUserId = _currentUserSession.CurrentUser!.Id,
 			Action = action,
 			EntityType = entityType,
 			EntityId = entityId,

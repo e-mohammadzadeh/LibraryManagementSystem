@@ -326,7 +326,7 @@ public class BookManagementService : IBookManagementService
 	}
 
 
-	public static void ReplaceAuthors(Book book, IEnumerable<Author> authors)
+	public void ReplaceAuthors(Book book, IEnumerable<Author> authors)
 	{
 		ArgumentNullException.ThrowIfNull(book);
 		ArgumentNullException.ThrowIfNull(authors);
@@ -342,7 +342,7 @@ public class BookManagementService : IBookManagementService
 	}
 
 
-	public static void ReplaceTranslators(Book book, IEnumerable<Translator> translators, Language language)
+	public void ReplaceTranslators(Book book, IEnumerable<Translator> translators, Language language)
 	{
 		ArgumentNullException.ThrowIfNull(book);
 		ArgumentNullException.ThrowIfNull(translators);
@@ -389,7 +389,7 @@ public class BookManagementService : IBookManagementService
 
 
 
-	public static void AddAuthor(Book book, Author author)
+	public void AddAuthor(Book book, Author author)
 	{
 		if (book.BookAuthors.Any(ba => ba.AuthorId == author.Id)) return;
 
@@ -403,7 +403,7 @@ public class BookManagementService : IBookManagementService
 	}
 
 
-	private static void AddTranslator(Book book, Translator translator, Language? language)
+	public void AddTranslator(Book book, Translator translator, Language? language)
 	{
 		if (book.BookTranslators.Any(bt => bt.TranslatorId == translator.Id)) return;
 

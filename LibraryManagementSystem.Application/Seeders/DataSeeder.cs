@@ -13,18 +13,19 @@ namespace LibraryManagementSystem.Application.Seeders;
 public static class DataSeeder
 {
 	public static void Seed(IAuthorRepository authorRepository, ITranslatorRepository translatorRepository,
-		BookManagementService bookService, IUserRepository userRepository, ILoanRepository loanRepository,
-		IRoleRepository roleRepository, IFineRepository fineRepository, IPasswordHasher passwordHasher)
+		BookManagementService bookService, IBookRepository bookRepository, IUserRepository userRepository,
+		IUserManagementService userService, ILoanRepository loanRepository, IRoleRepository roleRepository,
+		IFineRepository fineRepository, IPasswordHasher passwordHasher)
 	{
-		SeedAuthors(authorRepository, translatorRepository, bookService);
-		SeedUsers(userRepository, roleRepository, passwordHasher);
-		SeedLoans(userRepository, bookService, loanRepository, fineRepository);
+		SeedAuthors(authorRepository, translatorRepository, bookService, bookRepository);
+		SeedUsers(userRepository, userService, roleRepository, passwordHasher);
+		SeedLoans(userRepository, bookService, bookRepository, loanRepository, fineRepository);
 		//SeedFines(loanRepository, fineRepository);
 	}
 
 
 	private static void SeedAuthors(IAuthorRepository authorRepository, ITranslatorRepository translatorRepository,
-		BookManagementService bookService)
+		BookManagementService bookService, IBookRepository bookRepo)
 	{
 		// Seed authors
 		var author1 = new Author
@@ -139,10 +140,9 @@ public static class DataSeeder
 			Description = "A dystopian novel."
 		};
 
-		for 
-		bookService.add(book1, [author1]);
-		bookService.AssignTranslatorsToBook(book1,
-			[translator1, translator2, translator3, translator4], Language.Chinese);
+		bookService.AddAuthor(book1, author1);
+		foreach (var t in new[] { translator1, translator2, translator3, translator4 })
+			bookService.AddTranslator(book1, t, Language.Chinese);
 
 		var book2 = new Book
 		{
@@ -155,8 +155,9 @@ public static class DataSeeder
 			OriginalLanguage = Language.Chinese,
 			Description = "A dystopian novel."
 		};
-		bookService.AssignAuthorsToBook(book2, [author1, author2]);
-		bookService.AssignTranslatorsToBook(book2, [translator2], Language.English);
+
+		foreach (var a in new[] { author1, author2 }) bookService.AddAuthor(book2, a);
+		bookService.AddTranslator(book2, translator2, Language.English);
 
 		var book3 = new Book
 		{
@@ -169,8 +170,10 @@ public static class DataSeeder
 			OriginalLanguage = Language.English,
 			Description = "A dystopian novel."
 		};
-		bookService.AssignAuthorsToBook(book3, [author2, author3, author4]);
-		bookService.AssignTranslatorsToBook(book3, [translator3, translator2], Language.French);
+
+		foreach (var a in new[] { author2, author3, author4 }) bookService.AddAuthor(book3, a);
+
+		foreach (var t in new[] { translator3, translator2 }) bookService.AddTranslator(book3, t, Language.French);
 
 		var book4 = new Book
 		{
@@ -183,8 +186,8 @@ public static class DataSeeder
 			OriginalLanguage = Language.French,
 			Description = "A young wizard discovers his magical heritage."
 		};
-		bookService.AssignAuthorsToBook(book4, [author2]);
-		bookService.AssignTranslatorsToBook(book4, [translator4], Language.German);
+		bookService.AddAuthor(book4, author2);
+		bookService.AddTranslator(book4, translator4, Language.German);
 
 		var book5 = new Book
 		{
@@ -197,8 +200,8 @@ public static class DataSeeder
 			OriginalLanguage = Language.German,
 			Description = "An allegorical novella."
 		};
-		bookService.AssignAuthorsToBook(book5, [author1, author2, author3, author4]);
-		bookService.AssignTranslatorsToBook(book5, [translator1], Language.Italian);
+		foreach (var a in new[] { author1, author2, author3, author4 }) bookService.AddAuthor(book5, a);
+		bookService.AddTranslator(book5, translator1, Language.Italian);
 
 		var book6 = new Book
 		{
@@ -211,8 +214,11 @@ public static class DataSeeder
 			OriginalLanguage = Language.Italian,
 			Description = "A story about racism and justice in the American South."
 		};
-		bookService.AssignAuthorsToBook(book6, [author4, author1]);
-		bookService.AssignTranslatorsToBook(book6, [translator2, translator3, translator4], Language.Japanese);
+
+		foreach (var a in new[] { author4, author1 }) bookService.AddAuthor(book6, a);
+
+		foreach (var t in new[] { translator2, translator3, translator4 })
+			bookService.AddTranslator(book6, t, Language.Japanese);
 
 		var book7 = new Book
 		{
@@ -225,8 +231,8 @@ public static class DataSeeder
 			OriginalLanguage = Language.Japanese,
 			Description = "A tale of wealth, love, and the American Dream."
 		};
-		bookService.AssignAuthorsToBook(book7, [author4]);
-		bookService.AssignTranslatorsToBook(book7, [translator3], Language.Persian);
+		bookService.AddAuthor(book7, author4);
+		bookService.AddTranslator(book7, translator3, Language.Persian);
 
 		var book8 = new Book
 		{
@@ -239,8 +245,8 @@ public static class DataSeeder
 			OriginalLanguage = Language.Persian,
 			Description = "A witty story about love and social class."
 		};
-		bookService.AssignAuthorsToBook(book8, [author4]);
-		bookService.AssignTranslatorsToBook(book8, [translator4], Language.Russian);
+		bookService.AddAuthor(book8, author4);
+		bookService.AddTranslator(book8, translator4, Language.Russian);
 
 		var book9 = new Book
 		{
@@ -253,8 +259,10 @@ public static class DataSeeder
 			OriginalLanguage = Language.Russian,
 			Description = "A hobbit embarks on an unexpected journey."
 		};
-		bookService.AssignAuthorsToBook(book9, [author4, author3]);
-		bookService.AssignTranslatorsToBook(book9, [translator1, translator2], Language.Spanish);
+
+		foreach (var a in new[] { author4, author3 }) bookService.AddAuthor(book9, a);
+
+		foreach (var t in new[] { translator1, translator2 }) bookService.AddTranslator(book9, t, Language.Spanish);
 
 		var book10 = new Book
 		{
@@ -267,8 +275,8 @@ public static class DataSeeder
 			OriginalLanguage = Language.Spanish,
 			Description = "Epic science fiction on a desert planet."
 		};
-		bookService.AssignAuthorsToBook(book10, [author4]);
-		bookService.AssignTranslatorsToBook(book10, [translator2], Language.Arabic);
+		bookService.AddAuthor(book10, author4);
+		bookService.AddTranslator(book10, translator2, Language.Arabic);
 
 		var book11 = new Book
 		{
@@ -281,8 +289,8 @@ public static class DataSeeder
 			OriginalLanguage = Language.English,
 			Description = "A shepherd's journey to find his personal legend."
 		};
-		bookService.AssignAuthorsToBook(book11, [author4]);
-		bookService.AssignTranslatorsToBook(book11, [translator3], Language.Persian);
+		bookService.AddAuthor(book11, author4);
+		bookService.AddTranslator(book11, translator3, Language.Persian);
 
 		var book12 = new Book
 		{
@@ -295,8 +303,8 @@ public static class DataSeeder
 			OriginalLanguage = Language.Persian,
 			Description = "A groundbreaking exploration of human history."
 		};
-		bookService.AssignAuthorsToBook(book12, [author4]);
-		bookService.AssignTranslatorsToBook(book12, [translator4], Language.Arabic);
+		bookService.AddAuthor(book12, author4);
+		bookService.AddTranslator(book12, translator4, Language.Arabic);
 
 		var book13 = new Book
 		{
@@ -309,9 +317,11 @@ public static class DataSeeder
 			OriginalLanguage = Language.Chinese,
 			Description = "A thrilling mystery involving art and secret societies."
 		};
-		bookService.AssignAuthorsToBook(book13, [author1, author2, author3, author4]);
-		bookService.AssignTranslatorsToBook(book13,
-			[translator1, translator2, translator3, translator4], Language.Japanese);
+
+		foreach (var a in new[] { author1, author2, author3, author4 }) bookService.AddAuthor(book13, a);
+
+		foreach (var t in new[] { translator1, translator2, translator3, translator4 })
+			bookService.AddTranslator(book13, t, Language.Japanese);
 
 		var book14 = new Book
 		{
@@ -324,8 +334,8 @@ public static class DataSeeder
 			OriginalLanguage = Language.Russian,
 			Description = "A story of self-invention and overcoming adversity."
 		};
-		bookService.AssignAuthorsToBook(book14, [author4]);
-		bookService.AssignTranslatorsToBook(book14, [translator2], Language.German);
+		bookService.AddAuthor(book14, author4);
+		bookService.AddTranslator(book14, translator2, Language.German);
 
 		var book15 = new Book
 		{
@@ -338,29 +348,29 @@ public static class DataSeeder
 			OriginalLanguage = Language.Italian,
 			Description = "A woman shoots her husband and never speaks again."
 		};
-		bookService.AssignAuthorsToBook(book15, [author4]);
-		bookService.AssignTranslatorsToBook(book15, [translator3], Language.Spanish);
+		bookService.AddAuthor(book15, author4);
+		bookService.AddTranslator(book15, translator3, Language.Spanish);
 
-		bookService.Add(book1);
-		bookService.Add(book2);
-		bookService.Add(book3);
-		bookService.Add(book4);
-		bookService.Add(book5);
-		bookService.Add(book6);
-		bookService.Add(book7);
-		bookService.Add(book8);
-		bookService.Add(book9);
-		bookService.Add(book10);
-		bookService.Add(book11);
-		bookService.Add(book12);
-		bookService.Add(book13);
-		bookService.Add(book14);
-		bookService.Add(book15);
+		bookRepo.Add(book1);
+		bookRepo.Add(book2);
+		bookRepo.Add(book3);
+		bookRepo.Add(book4);
+		bookRepo.Add(book5);
+		bookRepo.Add(book6);
+		bookRepo.Add(book7);
+		bookRepo.Add(book8);
+		bookRepo.Add(book9);
+		bookRepo.Add(book10);
+		bookRepo.Add(book11);
+		bookRepo.Add(book12);
+		bookRepo.Add(book13);
+		bookRepo.Add(book14);
+		bookRepo.Add(book15);
 	}
 
 
-	private static void SeedUsers(IUserRepository userRepository, IRoleRepository roleRepository,
-		IPasswordHasher passwordHasher)
+	private static void SeedUsers(IUserRepository userRepository, IUserManagementService userService,
+		IRoleRepository roleRepository, IPasswordHasher passwordHasher)
 	{
 		// Seed users
 		var allRoles = roleRepository.GetAll();
@@ -578,17 +588,17 @@ public static class DataSeeder
 		void SetPassword(User user, string password)
 		{
 			var result = passwordHasher.CreatePasswordHash(password);
-			userRepository.SetPasswordHash(user, result.Hash, result.Salt);
+			userService.SetPasswordHash(user.Id, result.Hash, result.Salt);
 		}
 	}
 
 
 
-	private static void SeedLoans(IUserRepository userRepository, IBookManagementService bookService,
-		ILoanRepository loanRepository, IFineRepository fineRepository)
+	private static void SeedLoans(IUserRepository userRepository, BookManagementService bookService,
+		IBookRepository bookRepository, ILoanRepository loanRepository, IFineRepository fineRepository)
 	{
 		var users = userRepository.GetAll(EntityFilter.Active);
-		var books = bookService.GetAll(EntityFilter.Active);
+		var books = bookRepository.GetAll(EntityFilter.Active);
 		var today = DateOnly.FromDateTime(DateTime.Today);
 
 		CreateActiveLoan(GetUser(4), GetBook(0), loanRepository, bookService);
@@ -622,7 +632,7 @@ public static class DataSeeder
 
 
 	private static void CreateActiveLoan(User user, Book book, ILoanRepository loanRepository,
-		IBookRepository bookRepository)
+		BookManagementService bookService)
 	{
 		if (book.AvailableCopies <= 0) return;
 
@@ -633,13 +643,13 @@ public static class DataSeeder
 			User = user,
 			UserId = user.Id,
 		};
-		bookRepository.BorrowCopy(book);
+		bookService.BorrowCopy(book.Id);
 		loanRepository.Add(loan);
 	}
 
 
 	private static void CreateReturnedLoan(User user, Book book, ILoanRepository loanRepository,
-		IBookRepository bookRepository, IFineRepository fineRepository, DateOnly? loanDate, DateOnly returnDate)
+		BookManagementService bookService, IFineRepository fineRepository, DateOnly? loanDate, DateOnly returnDate)
 	{
 		var loan = new Loan
 		{
@@ -648,9 +658,9 @@ public static class DataSeeder
 			User = user,
 			UserId = user.Id,
 		};
-		bookRepository.BorrowCopy(book);
-		loan.MarkAsReturned(returnDate);
-		bookRepository.ReturnCopy(book);
+		bookService.BorrowCopy(book.Id);
+		//loan.MarkAsReturned(returnDate);
+		bookService.ReturnCopy(book);
 		loanRepository.Add(loan);
 		if (!(loan.ReturnDate > loan.DueDate)) return;
 		var fine = new Fine
