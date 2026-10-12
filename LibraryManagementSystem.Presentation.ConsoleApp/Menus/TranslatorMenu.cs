@@ -1,13 +1,13 @@
-﻿using LibraryManagementSystem.Application.Authentication;
-using LibraryManagementSystem.Application.Authorization;
+﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.DTOs.Translators;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
 using LibraryManagementSystem.Infrastructure.Interfaces;
+using LibraryManagementSystem.Infrastructure.ValueObjects;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -140,8 +140,7 @@ public static class TranslatorMenu
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
 		Console.WriteLine(new string('=', 33) + " TRANSLATOR MENU " + new string('=', 33));
 		var displayNumber = 1;
-		foreach (var (_, displayText, _) in availableItems)
-			Console.WriteLine($"{displayNumber++}. {displayText}");
+		foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
 
 		Console.WriteLine(new string('=', 82));
 		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
@@ -160,15 +159,17 @@ public static class TranslatorMenu
 	}
 
 
-	public static CreateTranslatorDto? PromptForTranslatorDto()
+	public static ContributorDto? PromptForTranslatorDto()
 	{
 		var fields = PersonHelper.PromptForPersonFields("translator");
 		if (fields is null) return null;
 
-		return new CreateTranslatorDto
+		var email = Email.Create(fields.Email);
+		var phoneNumber = PhoneNumber.Create(fields.PhoneNumber);
+		return new ContributorDto
 		{
 			FirstName = fields.FirstName, LastName = fields.LastName, NationalCode = fields.NationalCode,
-			Email = fields.Email, PhoneNumber = fields.PhoneNumber, BirthDate = fields.BirthDate
+			Email = email, PhoneNumber = phoneNumber, BirthDate = fields.BirthDate
 		};
 	}
 
@@ -194,8 +195,8 @@ public static class TranslatorMenu
 				new[] { ["1"], ["First Name"], new[] { desiredTranslator.FirstName } },
 				new[] { ["2"], ["Last Name"], new[] { desiredTranslator.LastName } },
 				new[] { ["3"], ["National Code"], new[] { desiredTranslator.NationalCode } },
-				new[] { ["4"], ["Email"], new[] { desiredTranslator.Email } },
-				new[] { ["5"], ["Phone Number"], new[] { desiredTranslator.PhoneNumber } },
+				new[] { ["4"], ["Email"], new[] { desiredTranslator.Email.ToString() } },
+				new[] { ["5"], ["Phone Number"], new[] { desiredTranslator.PhoneNumber.ToString() } },
 				new[] { ["6"], ["Birth Date"], new[] { desiredTranslator.BirthDate.ToString("yyyy-MM-dd") } },
 				new[] { ["7"], ["Back"], Item }
 			};
@@ -213,7 +214,7 @@ public static class TranslatorMenu
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
-						translatorNewFirstName, v => new UpdateTranslatorDto { FirstName = v });
+						translatorNewFirstName, v => new ContributorDto { FirstName = v });
 					if (updated is not null) desiredTranslator = updated;
 					break;
 				}
@@ -223,7 +224,7 @@ public static class TranslatorMenu
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
-						translatorNewLastName, v => new UpdateTranslatorDto { LastName = v });
+						translatorNewLastName, v => new ContributorDto { LastName = v });
 					if (updated is not null) desiredTranslator = updated;
 					break;
 				}
@@ -231,7 +232,7 @@ public static class TranslatorMenu
 				{
 					var translatorNewNationalCode = ConsoleHelper.GetValidNationalCode("\nEnter new national code");
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
-						translatorNewNationalCode, v => new UpdateTranslatorDto { NationalCode = v });
+						translatorNewNationalCode, v => new ContributorDto { NationalCode = v });
 					if (updated is not null) desiredTranslator = updated;
 					break;
 				}
@@ -239,7 +240,7 @@ public static class TranslatorMenu
 				{
 					var translatorNewEmail = ConsoleHelper.GetValidEmail("\nEnter new email");
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id, translatorNewEmail,
-						v => new UpdateTranslatorDto { Email = v });
+						v => new ContributorDto { Email = Email.Create(v) });
 					if (updated is not null) desiredTranslator = updated;
 					break;
 				}
@@ -247,7 +248,7 @@ public static class TranslatorMenu
 				{
 					var translatorNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number");
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
-						translatorNewPhoneNumber, v => new UpdateTranslatorDto { PhoneNumber = v });
+						translatorNewPhoneNumber, v => new ContributorDto { PhoneNumber = PhoneNumber.Create(v) });
 					if (updated is not null) desiredTranslator = updated;
 					break;
 				}
@@ -255,7 +256,7 @@ public static class TranslatorMenu
 				{
 					var translatorNewBirthDate = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
 					var updated = PerformUpdate(translatorManagementService, desiredTranslator.Id,
-						translatorNewBirthDate, v => new UpdateTranslatorDto { BirthDate = v });
+						translatorNewBirthDate, v => new ContributorDto { BirthDate = v!.Value });
 					if (updated is not null) desiredTranslator = updated;
 					break;
 				}
@@ -272,13 +273,13 @@ public static class TranslatorMenu
 	}
 
 
-	private static TranslatorDto? PerformUpdate<T>(TranslatorManagementService translatorManagementService,
-		int desiredTranslatorId, T? newValue, Func<T, UpdateTranslatorDto> buildDto)
+	private static ContributorDto? PerformUpdate<T>(TranslatorManagementService translatorManagementService,
+		Guid desiredTranslatorId, T? newValue, Func<T, ContributorDto> buildDto)
 	{
 		if (newValue is null) return null;
 
 		var dto = buildDto(newValue);
-		var result = translatorManagementService.UpdateTranslator(desiredTranslatorId, dto);
+		var result = translatorManagementService.UpdateTranslator(dto, );
 		ConsoleHelper.ShowResult(result);
 		return result.Data;
 	}
@@ -307,7 +308,7 @@ public static class TranslatorMenu
 			return;
 		}
 
-		Action<IReadOnlyList<TranslatorDto>> printer =
+		Action<IReadOnlyList<ContributorDto>> printer =
 			authorization.HasAnyPermission(Permission.ViewTranslatorDetails, Permission.FullSearchTranslator)
 				? translator => TranslatorPrinter.PrintFullTable(translator, "Search Result")
 				: translator => TranslatorPrinter.PrintTable(translator, "Search Result");
@@ -337,8 +338,7 @@ public static class TranslatorMenu
 				i.RequiredPermissions.Length == 0 || authorization.HasAnyPermission(i.RequiredPermissions)).ToList();
 
 			var displayNumber = 1;
-			foreach (var (_, label, _) in available)
-				Console.WriteLine($"{displayNumber++}. {label}");
+			foreach (var (_, label, _) in available) Console.WriteLine($"{displayNumber++}. {label}");
 			Console.WriteLine($"{displayNumber}. Back");
 
 			var choice = ConsoleHelper.ReadInt(Messages.SearchMenuQuestion, 1, displayNumber);
@@ -426,22 +426,22 @@ public static class TranslatorMenu
 	}
 
 
-	private static List<(TranslatorSortField Field, string Label)> GetAvailableTranslatorSortFields(
+	private static List<(ContributorSortField Field, string Label)> GetAvailableTranslatorSortFields(
 		IAuthorizationService authorization)
 	{
-		var fields = new List<(TranslatorSortField Field, string Label)>
+		var fields = new List<(ContributorSortField Field, string Label)>
 		{
-			(TranslatorSortField.Id, "ID"),
-			(TranslatorSortField.FirstName, "First Name"),
-			(TranslatorSortField.LastName, "Last Name"),
-			(TranslatorSortField.FullName, "Full Name"),
-			(TranslatorSortField.Email, "Email")
+			(ContributorSortField.Id, "ID"),
+			(ContributorSortField.FirstName, "First Name"),
+			(ContributorSortField.LastName, "Last Name"),
+			(ContributorSortField.FullName, "Full Name"),
+			(ContributorSortField.Email, "Email")
 		};
 
 		if (!authorization.HasPermission(Permission.FullSortAuthor)) return fields;
-		fields.Insert(3, (TranslatorSortField.NationalCode, "National Code"));
-		fields.Add((TranslatorSortField.BirthDate, "Birth Date"));
-		fields.Add((TranslatorSortField.BookCount, "Book Count"));
+		fields.Insert(3, (ContributorSortField.NationalCode, "National Code"));
+		fields.Add((ContributorSortField.BirthDate, "Birth Date"));
+		fields.Add((ContributorSortField.BookCount, "Book Count"));
 		return fields;
 	}
 
@@ -570,8 +570,7 @@ public static class TranslatorMenu
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
 		Console.WriteLine(new string('=', 33) + " VIEW TRANSLATOR MENU " + new string('=', 33));
 		var displayNumber = 1;
-		foreach (var (_, displayText, _) in availableItems)
-			Console.WriteLine($"{displayNumber++}. {displayText}");
+		foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
 
 		Console.WriteLine(new string('=', 82));
 		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
