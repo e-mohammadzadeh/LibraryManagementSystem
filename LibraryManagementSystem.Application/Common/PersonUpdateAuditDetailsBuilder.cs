@@ -13,10 +13,10 @@ public static class PersonUpdateAuditDetailsBuilder
 		AddIfChanged(changes, "first name", contributor.FirstName, dto.FirstName);
 		AddIfChanged(changes, "last name", contributor.LastName, dto.LastName);
 		AddIfChanged(changes, "national code", contributor.NationalCode, dto.NationalCode, sensitive: true);
-		AddIfChanged(changes, "email", contributor.Email.Value, dto.Email!, sensitive: true);
-		AddIfChanged(changes, "phone number", contributor.PhoneNumber.Value, dto.PhoneNumber!, sensitive: true);
+		AddIfChanged(changes, "email", contributor.Email.Value, dto.Email, sensitive: true);
+		AddIfChanged(changes, "phone number", contributor.PhoneNumber.Value, dto.PhoneNumber, sensitive: true);
 		AddIfChanged(changes, "birth date", contributor.BirthDate.ToString(ValidationConstants.DateFormat),
-			dto.BirthDate?.ToString(ValidationConstants.DateFormat));
+			dto.BirthDate.ToString(ValidationConstants.DateFormat));
 		AddIfChanged(changes, "biography", contributor.Biography, dto.Biography);
 
 		return changes.Count > 0 ? string.Join(" ", changes) : null;

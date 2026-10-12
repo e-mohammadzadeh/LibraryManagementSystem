@@ -1,5 +1,4 @@
-﻿using LibraryManagementSystem.Application.Authentication;
-using LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Users;
@@ -46,7 +45,7 @@ public class AuthorizationService : IAuthorizationService
 		if (user.MembershipExpiryDate < DateOnly.FromDateTime(DateTime.Today))
 			return ServiceResult<string>.Fail(Messages.MembershipExpired);
 
-		return _loanRepository.HasLoans(user.Id, null, LoanFilter.Overdue)
+		return _loanRepository.GetAllByUser(user.Id, LoanFilter.Overdue).Count > 0
 			? ServiceResult<string>.Fail(Messages.BorrowBlockedDueToOverdue)
 			: ServiceResult<string>.Ok("Eligible to borrow.", "Borrowing allowed.");
 	}

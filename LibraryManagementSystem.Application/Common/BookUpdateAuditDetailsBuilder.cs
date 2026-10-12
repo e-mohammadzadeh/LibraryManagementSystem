@@ -10,26 +10,26 @@ public static class BookUpdateAuditDetailsBuilder
 	{
 		var changes = new List<string>();
 
-		if (dto.Title is not null && dto.Title != book.Title)
+		if (dto.Title != book.Title)
 			changes.Add($"Changed book name from '{book.Title}' to '{dto.Title}'.");
 
-		if (dto.ISBN is not null && dto.ISBN != book.ISBN)
+		if (dto.ISBN != book.ISBN)
 			changes.Add($"Changed ISBN from '{book.ISBN}' to '{dto.ISBN}'.");
 
-		if (dto.PublishDate is not null && dto.PublishDate != book.PublishDate)
+		if (dto.PublishDate != book.PublishDate)
 			changes.Add(
-				$"Changed publish date from '{book.PublishDate:yyyy-MM-dd}' to '{dto.PublishDate.Value:yyyy-MM-dd}'.");
+				$"Changed publish date from '{book.PublishDate:yyyy-MM-dd}' to '{dto.PublishDate:yyyy-MM-dd}'.");
 
-		if (dto.TotalCopies is not null && dto.TotalCopies != book.TotalCopies)
+		if (dto.TotalCopies != book.TotalCopies)
 			changes.Add($"Changed total copies from '{book.TotalCopies}' to '{dto.TotalCopies}'.");
 
-		if (dto.Genre is not null && dto.Genre != book.Genre)
+		if (dto.Genre != book.Genre)
 			changes.Add($"Changed genre from '{book.Genre}' to '{dto.Genre}'.");
 
-		if (dto.Publisher is not null && dto.Publisher != book.Publisher)
+		if (dto.Publisher != book.Publisher)
 			changes.Add($"Changed publisher from '{book.Publisher}' to '{dto.Publisher}'.");
 
-		if (dto.Description is not null && dto.Description != book.Description)
+		if (dto.Description != book.Description)
 		{
 			var oldDesc = string.IsNullOrWhiteSpace(book.Description) ? "None" : book.Description;
 			var newDesc = string.IsNullOrWhiteSpace(dto.Description) ? "None" : dto.Description;

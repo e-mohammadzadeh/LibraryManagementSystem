@@ -1,5 +1,4 @@
-﻿using LibraryManagementSystem.Application.Authentication;
-using LibraryManagementSystem.Application.Authorization;
+﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Infrastructure.Common;
@@ -8,6 +7,7 @@ using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
 using LibraryManagementSystem.Infrastructure.Interfaces;
+using LibraryManagementSystem.Infrastructure.ValueObjects;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -150,10 +150,13 @@ public static class AuthorMenu
 
 		var biography = ConsoleHelper.ReadString("You can add a biography (Optional)", true);
 
+		var email = Email.Create(fields.Email);
+		var phoneNumber = PhoneNumber.Create(fields.PhoneNumber);
+
 		return new ContributorDto
 		{
 			FirstName = fields.FirstName, LastName = fields.LastName, NationalCode = fields.NationalCode,
-			Email = fields.Email, PhoneNumber = fields.PhoneNumber, BirthDate = fields.BirthDate, Biography = biography
+			Email = email, PhoneNumber = phoneNumber, BirthDate = fields.BirthDate, Biography = biography
 		};
 	}
 
@@ -190,8 +193,8 @@ public static class AuthorMenu
 				new[] { ["1"], ["First Name"], new[] { desiredAuthor.FirstName } },
 				new[] { ["2"], ["Last Name"], new[] { desiredAuthor.LastName } },
 				new[] { ["3"], ["National Code"], new[] { desiredAuthor.NationalCode } },
-				new[] { ["4"], ["Email"], new[] { desiredAuthor.Email } },
-				new[] { ["5"], ["Phone Number"], new[] { desiredAuthor.PhoneNumber } },
+				new[] { ["4"], ["Email"], new[] { desiredAuthor.Email.ToString() } },
+				new[] { ["5"], ["Phone Number"], new[] { desiredAuthor.PhoneNumber.ToString() } },
 				new[] { ["6"], ["Birth Date"], new[] { desiredAuthor.BirthDate.ToString("yyyy-MM-dd") } },
 				new[]
 				{
@@ -241,7 +244,7 @@ public static class AuthorMenu
 				{
 					var authorNewEmail = ConsoleHelper.GetValidEmail("\nEnter new email");
 					var updated = PerformUpdate(authorManagementService, authorNewEmail,
-						v => new ContributorDto { Email = v });
+						v => new ContributorDto { Email = Email.Create(v) });
 					if (updated is not null) desiredAuthor = updated;
 					break;
 				}
@@ -250,7 +253,7 @@ public static class AuthorMenu
 					Console.Clear();
 					var authorNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number");
 					var updated = PerformUpdate(authorManagementService, authorNewPhoneNumber,
-						v => new ContributorDto { PhoneNumber = v });
+						v => new ContributorDto { PhoneNumber = PhoneNumber.Create(v) });
 					if (updated is not null) desiredAuthor = updated;
 					break;
 				}
@@ -258,7 +261,7 @@ public static class AuthorMenu
 				{
 					var authorNewBirthDate = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
 					var updated = PerformUpdate(authorManagementService, authorNewBirthDate,
-						v => new ContributorDto { BirthDate = v });
+						v => new ContributorDto { BirthDate = v!.Value });
 					if (updated is not null) desiredAuthor = updated;
 					break;
 				}
