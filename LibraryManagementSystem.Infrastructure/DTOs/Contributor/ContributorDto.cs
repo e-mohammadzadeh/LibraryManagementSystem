@@ -13,5 +13,5 @@ public class ContributorDto
 	public DateOnly BirthDate { get; init; }
 	public string? Biography { get; init; }
 	public DateTime CreatedAt { get; init; }
-	public DateTime UpdatedAt { get; init; }
+	public DateTime? UpdatedAt { get; init; }
 }

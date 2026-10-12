@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Domain.Entities;
+﻿using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
@@ -12,7 +13,7 @@ namespace LibraryManagementSystem.Application.Seeders;
 public static class DataSeeder
 {
 	public static void Seed(IAuthorRepository authorRepository, ITranslatorRepository translatorRepository,
-		IBookManagementService bookService, IUserRepository userRepository, ILoanRepository loanRepository,
+		BookManagementService bookService, IUserRepository userRepository, ILoanRepository loanRepository,
 		IRoleRepository roleRepository, IFineRepository fineRepository, IPasswordHasher passwordHasher)
 	{
 		SeedAuthors(authorRepository, translatorRepository, bookService);
@@ -23,7 +24,7 @@ public static class DataSeeder
 
 
 	private static void SeedAuthors(IAuthorRepository authorRepository, ITranslatorRepository translatorRepository,
-		IBookManagementService bookService)
+		BookManagementService bookService)
 	{
 		// Seed authors
 		var author1 = new Author
@@ -137,7 +138,9 @@ public static class DataSeeder
 			OriginalLanguage = Language.Arabic,
 			Description = "A dystopian novel."
 		};
-		bookService.AssignAuthorsToBook(book1, [author1]);
+
+		for 
+		bookService.add(book1, [author1]);
 		bookService.AssignTranslatorsToBook(book1,
 			[translator1, translator2, translator3, translator4], Language.Chinese);
 

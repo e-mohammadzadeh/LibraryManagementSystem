@@ -1,7 +1,4 @@
-﻿using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
-using LibraryManagementSystem.Infrastructure.Enums;
-
-namespace LibraryManagementSystem.Infrastructure.Interfaces;
+﻿namespace LibraryManagementSystem.Infrastructure.Interfaces;
 
 public interface IBookManagementService
 {

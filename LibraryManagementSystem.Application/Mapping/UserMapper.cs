@@ -16,7 +16,7 @@ public static class UserMapper
 			Email = user.Email,
 			PhoneNumber = user.PhoneNumber,
 			BirthDate = user.BirthDate,
-			Role = user.Role.Name,
+			Role = user.Role.ToDto(),
 			MembershipStartDate = user.MembershipStartDate,
 			MembershipExpiryDate = user.MembershipExpiryDate,
 			ShouldRemove = user.ShouldRemove,

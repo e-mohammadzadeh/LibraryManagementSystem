@@ -389,7 +389,7 @@ public class BookManagementService : IBookManagementService
 
 
 
-	private static void AddAuthor(Book book, Author author)
+	public static void AddAuthor(Book book, Author author)
 	{
 		if (book.BookAuthors.Any(ba => ba.AuthorId == author.Id)) return;
 
