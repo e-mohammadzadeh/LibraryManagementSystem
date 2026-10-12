@@ -104,7 +104,7 @@ public class FineManagementService : IFineManagementService
 		var fine = _fineRepository.FindById(fineId, FineFilter.Unpaid);
 		if (fine is null) return ServiceResult<FineDto>.Fail(Messages.FineNotFound);
 
-		if (session.IsSelfServiceMember && session.UserId != fine.UserId)
+		if (session.IsSelfServiceMember && session.CurrentUser?.Id != fine.UserId)
 			return ServiceResult<FineDto>.Fail(Messages.CanPayOwnFine);
 		try
 		{
@@ -199,7 +199,7 @@ public class FineManagementService : IFineManagementService
 	public IReadOnlyList<FineDto> GetAllUnpaidFines(ICurrentUserSession session)
 	{
 		return session.IsSelfServiceMember
-			? GetFinesByUser(session.UserId!.Value, FineFilter.Unpaid)
+			? GetFinesByUser(session.CurrentUser!.Id, FineFilter.Unpaid)
 			: [.. _fineRepository.GetAll(FineFilter.Unpaid).Select(f => f.ToDto())];
 	}
 
@@ -223,7 +223,7 @@ public class FineManagementService : IFineManagementService
 
 	public IReadOnlyList<FineDto> GetFineHistoryByUser(Guid userId, ICurrentUserSession session)
 	{
-		if ((session.IsSelfServiceMember && session.UserId != userId) ||
+		if ((session.IsSelfServiceMember && session.CurrentUser?.Id != userId) ||
 		    !_authorization.HasAnyPermission(Permission.FineHistoryByUser, Permission.ViewFineHistory))
 			return [];
 

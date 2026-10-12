@@ -173,7 +173,7 @@ public static class LoanMenu
 		UserDto? user;
 		if (session.IsSelfServiceMember)
 		{
-			userId = session.UserId;
+			userId = session.CurrentUser!.Id;
 			user = userManagementService.FindUserById(userId);
 		}
 		else
@@ -230,7 +230,7 @@ public static class LoanMenu
 	{
 		Guid userId;
 		if (session.IsSelfServiceMember)
-			userId = session.UserId;
+			userId = session.CurrentUser!.Id;
 		else
 		{
 			var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(),
@@ -518,13 +518,13 @@ public static class LoanMenu
 
 		if (hasOnlyOwnPermission)
 		{
-			if (session.UserId is null)
+			if (session.CurrentUser?.Id is null)
 			{
 				ConsoleHelper.ShowError(Messages.AuthenticationRequired);
 				return;
 			}
 
-			var histories = loanHistoryManagementService.GetByUserId(session.UserId);
+			var histories = loanHistoryManagementService.GetByUserId(session.CurrentUser!.Id);
 			DisplayLoanHistories(histories, Messages.NotAvailableLoanHistory);
 			return;
 		}
@@ -601,8 +601,8 @@ public static class LoanMenu
 			Console.Clear();
 			Console.WriteLine(new string('=', 36) + " SEARCHING LOAN MENU " + new string('=', 36));
 			var loanList = activeOnly
-				? loanManagementService.GetAllActiveLoans(session)
-				: loanManagementService.GetAllLoans(session);
+				? loanManagementService.GetAllLoans(session, LoanFilter.Active)
+				: loanManagementService.GetAllLoans(session, LoanFilter.All);
 			if (loanList.Count == 0)
 			{
 				ConsoleHelper.ShowWarning(activeOnly ? Messages.NotAvailableActionLoan : Messages.NotAvailableLoan);
@@ -648,7 +648,7 @@ public static class LoanMenu
 				{
 					Console.Clear();
 					SearchLoanAndDisplay(p => ConsoleHelper.ReadString(p), "Enter a book ISBN to search",
-						loan => loan.Book.InternationalStandardBookNumber,
+						loan => loan.Book.ISBN,
 						(search, value) => value.Contains(search, StringComparison.OrdinalIgnoreCase),
 						activeOnly,
 						loanManagementService, session);
@@ -707,8 +707,8 @@ public static class LoanMenu
 		if (searchTerm is null) return;
 
 		var results = activeOnly
-			? loanManagementService.SearchActiveLoans(searchTerm, selector, comparer, session)
-			: loanManagementService.SearchLoans(searchTerm, selector, comparer, session);
+			? loanManagementService.SearchLoans(searchTerm, selector, comparer, session, LoanFilter.Active)
+			: loanManagementService.SearchLoans(searchTerm, selector, comparer, session, LoanFilter.All);
 
 		DisplayLoanResults(results);
 	}
@@ -723,8 +723,8 @@ public static class LoanMenu
 		if (!searchTerm.HasValue) return;
 
 		var results = activeOnly
-			? loanManagementService.SearchActiveLoans(searchTerm.Value, selector, comparer, session)
-			: loanManagementService.SearchLoans(searchTerm.Value, selector, comparer, session);
+			? loanManagementService.SearchLoans(searchTerm.Value, selector, comparer, session, LoanFilter.Active)
+			: loanManagementService.SearchLoans(searchTerm.Value, selector, comparer, session, LoanFilter.All);
 		DisplayLoanResults(results);
 	}
 

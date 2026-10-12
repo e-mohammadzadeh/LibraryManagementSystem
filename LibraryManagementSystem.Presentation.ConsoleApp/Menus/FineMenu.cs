@@ -122,7 +122,7 @@ public static class FineMenu
 	private static void PayFine(IFineManagementService fineManagementService, ICurrentUserSession session)
 	{
 		var unpaidFines = session.IsSelfServiceMember
-			? fineManagementService.GetFinesByUser(session.UserId!.Value, FineFilter.Unpaid)
+			? fineManagementService.GetFinesByUser(session.CurrentUser!.Id, FineFilter.Unpaid)
 			: fineManagementService.GetAllUnpaidFines(session);
 
 		if (unpaidFines.Count == 0)
@@ -184,7 +184,7 @@ public static class FineMenu
 
 	private static void ViewOwnFines(IFineManagementService fineManagementService, ICurrentUserSession session)
 	{
-		var fines = fineManagementService.GetFinesByUser(session.UserId!.Value, FineFilter.Unpaid);
+		var fines = fineManagementService.GetFinesByUser(session.CurrentUser!.Id, FineFilter.Unpaid);
 		DisplayFines(fines, Messages.FineNotFound);
 	}
 
@@ -249,7 +249,7 @@ public static class FineMenu
 
 	private static void ViewOwnUnpaidFines(IFineManagementService fineManagementService, ICurrentUserSession session)
 	{
-		var fines = fineManagementService.GetFinesByUser(session.UserId!.Value, FineFilter.Unpaid);
+		var fines = fineManagementService.GetFinesByUser(session.CurrentUser!.Id, FineFilter.Unpaid);
 		DisplayFines(fines, Messages.UnpaidFineNotFound);
 	}
 
@@ -321,13 +321,13 @@ public static class FineMenu
 
 		if (authorization.HasPermission(Permission.MyFullLoanHistory))
 		{
-			if (session.UserId is null)
+			if (session.CurrentUser?.Id is null)
 			{
 				ConsoleHelper.ShowError(Messages.AuthenticationRequired);
 				return;
 			}
 
-			var histories = fineHistoryManagementService.GetByUserId(session.UserId!.Value);
+			var histories = fineHistoryManagementService.GetByUserId(session.CurrentUser!.Id);
 			DisplayFineHistories(histories, Messages.NotAvailableFineHistory);
 			return;
 		}

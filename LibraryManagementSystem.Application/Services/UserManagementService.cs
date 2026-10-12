@@ -185,9 +185,9 @@ public class UserManagementService
 
 		var auditDetails = UserUpdateAuditDetailsBuilder.BuildUserUpdateAuditDetails(user, dto, resolvedRole);
 
-		_userRepository.Update(user, session.UserId);
+		_userRepository.Update(user, session.CurrentUser?.Id);
 		ReplaceRole(user, resolvedRole);
-		if (session.UserId == dto.Id) session.UpdateCurrentUser(user.ToAuthUserDto());
+		if (session.CurrentUser?.Id == dto.Id) session.UpdateCurrentUser(user.ToAuthUserDto());
 
 		_auditLog.Record(AuditAction.UserUpdated, "User", dto.Id, auditDetails ?? "User updated.");
 
@@ -221,7 +221,7 @@ public class UserManagementService
 		var user = _userRepository.FindById(userId, EntityFilter.Active);
 		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserRemoveFailed);
 
-		if (session != null && session.UserId == userId)
+		if (session != null && session.CurrentUser?.Id == userId)
 			return ServiceResult<UserDto>.Fail(Messages.CannotRemoveYourself);
 
 		if (session != null && !CanRemoveUser(session, user)) return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
@@ -276,7 +276,7 @@ public class UserManagementService
 	public ServiceResult<string> ChangePassword(Guid userId, string currentPassword, string newPassword,
 		ICurrentUserSession session)
 	{
-		var isOwn = session.UserId == userId;
+		var isOwn = session.CurrentUser?.Id == userId;
 
 		switch (isOwn)
 		{

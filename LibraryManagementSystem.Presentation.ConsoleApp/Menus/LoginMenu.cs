@@ -1,7 +1,7 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
-using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Users;
+using LibraryManagementSystem.Infrastructure.ValueObjects;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
@@ -63,7 +63,7 @@ public static class LoginMenu
 			var password =
 				ConsoleHelper.GetValidPassword(string.Format(Messages.EnterPasswordPrompt, "").Replace("  ", " "));
 			if (password is null) return null;
-			var result = authenticationService.Login(email, password);
+			var result = authenticationService.Login(Email.Create(email), password);
 			if (result is { Success: true, Data: not null })
 			{
 				ConsoleHelper.ShowSuccess(result.Data.LastLoginDate is not null

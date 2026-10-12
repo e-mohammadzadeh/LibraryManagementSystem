@@ -45,7 +45,7 @@ public class LoanManagementService : ILoanManagementService
 
 	public ServiceResult<LoanDto> BorrowBook(LoanDto dto, ICurrentUserSession session)
 	{
-		if (session.IsSelfServiceMember && session.UserId != dto.UserId)
+		if (session.IsSelfServiceMember && session.CurrentUser?.Id != dto.UserId)
 			return ServiceResult<LoanDto>.Fail(Messages.BorrowBookForYourself);
 
 		var user = _userRepository.FindById(dto.UserId, EntityFilter.Active);
@@ -83,7 +83,7 @@ public class LoanManagementService : ILoanManagementService
 
 		_bookService.BorrowCopy(dto.BookId);
 		_loanRepository.Add(loan);
-		_bookRepository.Update(book, session.UserId);
+		_bookRepository.Update(book, session.CurrentUser?.Id);
 
 		var loanDto = new LoanDto
 		{
@@ -113,13 +113,13 @@ public class LoanManagementService : ILoanManagementService
 		var loan = _loanRepository.FindById(loanId, LoanFilter.Active);
 		if (loan is null) return ServiceResult<LoanDto>.Fail(Messages.ActiveLoanNotFound);
 
-		if (session.IsSelfServiceMember && session.UserId != loan.UserId)
+		if (session.IsSelfServiceMember && session.CurrentUser?.Id != loan.UserId)
 			return ServiceResult<LoanDto>.Fail(Messages.ReturnOwnLoans);
 
 		MarkAsReturned(loanId);
 		_bookService.ReturnCopy(loan.BookId);
 		_loanRepository.Update(loan);
-		_bookRepository.Update(loan.Book, session.UserId);
+		_bookRepository.Update(loan.Book, session.CurrentUser?.Id);
 
 		var loanDto = new LoanDto
 		{
@@ -150,7 +150,7 @@ public class LoanManagementService : ILoanManagementService
 		var loan = _loanRepository.FindById(loanId, LoanFilter.Active);
 		if (loan is null) return ServiceResult<LoanDto>.Fail(Messages.ActiveLoanNotFound);
 
-		if (session.IsSelfServiceMember && session.UserId != loan.UserId)
+		if (session.IsSelfServiceMember && session.CurrentUser?.Id != loan.UserId)
 			return ServiceResult<LoanDto>.Fail(Messages.RenewOwnLoans);
 
 		if (loan.User.ShouldRemove)
@@ -184,7 +184,7 @@ public class LoanManagementService : ILoanManagementService
 	public IReadOnlyList<LoanDto> GetAllLoans(ICurrentUserSession session, LoanFilter filter)
 	{
 		if (_authorization.HasPermission(Permission.MyActiveLoans) || session.IsSelfServiceMember)
-			return [.. _loanRepository.GetAllByUser(session.UserId, filter).Select(loan => loan.ToDto())];
+			return [.. _loanRepository.GetAllByUser(session.CurrentUser!.Id, filter).Select(loan => loan.ToDto())];
 
 		return [.. _loanRepository.GetAll(filter).Select(loan => loan.ToDto())];
 	}
@@ -192,7 +192,7 @@ public class LoanManagementService : ILoanManagementService
 
 	public IReadOnlyList<LoanDto> GetLoansByUser(Guid userId, ICurrentUserSession session, LoanFilter filter)
 	{
-		if (session.IsSelfServiceMember && session.UserId != userId) return [];
+		if (session.IsSelfServiceMember && session.CurrentUser?.Id != userId) return [];
 		return [.. _loanRepository.GetAllByUser(userId, filter).Select(loan => loan.ToDto())];
 	}
 
@@ -222,10 +222,10 @@ public class LoanManagementService : ILoanManagementService
 	private IReadOnlyList<LoanDto> SearchLoansInternal<T>(T searchTerm, Func<Loan, T?> selector,
 		Func<T, T, bool> comparer, ICurrentUserSession session, LoanFilter filter) where T : class
 	{
-		if (session.UserId is null) return [];
+		if (session.CurrentUser?.Id is null) return [];
 
 		IEnumerable<Loan> source = session.IsSelfServiceMember
-			? _loanRepository.GetAllByUser(session.UserId.Value, filter)
+			? _loanRepository.GetAllByUser(session.CurrentUser!.Id, filter)
 			: _loanRepository.GetAll(filter);
 
 		return
@@ -242,10 +242,10 @@ public class LoanManagementService : ILoanManagementService
 	private IReadOnlyList<LoanDto> SearchLoansInternal<T>(T searchTerm, Func<Loan, T?> selector,
 		Func<T, T, bool> comparer, ICurrentUserSession session, LoanFilter filter) where T : struct
 	{
-		if (session.UserId is null) return [];
+		if (session.CurrentUser?.Id is null) return [];
 
 		IEnumerable<Loan> source = session.IsSelfServiceMember
-			? _loanRepository.GetAllByUser(session.UserId.Value, filter)
+			? _loanRepository.GetAllByUser(session.CurrentUser!.Id, filter)
 			: _loanRepository.GetAll(filter);
 
 		return
@@ -263,10 +263,10 @@ public class LoanManagementService : ILoanManagementService
 
 	public IReadOnlyList<LoanDto> GetOwnLoansByBook(Guid bookId, ICurrentUserSession session)
 	{
-		if (!session.IsAuthenticated || session.UserId is null) return [];
+		if (!session.IsAuthenticated || session.CurrentUser?.Id is null) return [];
 		return
 		[
-			.._loanRepository.GetLoansByBookAndUser(bookId, session.UserId.Value, LoanFilter.All)
+			.._loanRepository.GetLoansByBookAndUser(bookId, session.CurrentUser!.Id, LoanFilter.All)
 				.Select(loan => loan.ToDto())
 		];
 	}

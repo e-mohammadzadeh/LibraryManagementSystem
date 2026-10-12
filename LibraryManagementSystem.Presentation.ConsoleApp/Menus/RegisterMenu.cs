@@ -1,7 +1,9 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
-using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.DTOs.Role;
 using LibraryManagementSystem.Infrastructure.DTOs.Users;
+using LibraryManagementSystem.Infrastructure.Enums;
+using LibraryManagementSystem.Infrastructure.ValueObjects;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
@@ -31,15 +33,19 @@ public static class RegisterMenu
 			ConsoleHelper.ShowError(Messages.PasswordMatchedFailed);
 		}
 
-		var dto = new CreateUserDto
+		var dto = new UserDto
 		{
 			FirstName = fields.FirstName,
 			LastName = fields.LastName,
 			NationalCode = fields.NationalCode,
-			Email = fields.Email,
-			PhoneNumber = fields.PhoneNumber,
+			Email = Email.Create(fields.Email),
+			PhoneNumber = PhoneNumber.Create(fields.PhoneNumber),
 			BirthDate = fields.BirthDate,
-			RoleIds = [1], // Force role to be Member
+			Role = new RoleDto
+			{
+				Id = Guid.CreateVersion7(),
+				Name = LibraryUserRole.Member
+			},
 			Password = newPassword
 		};
 
