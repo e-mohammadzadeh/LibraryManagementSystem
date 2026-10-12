@@ -20,7 +20,7 @@ public static class FinePrinter
 			("Amount", [fine.Money.ToString()]),
 			("Status", [fine.Status.ToString()]),
 			("Reason", string.IsNullOrWhiteSpace(fine.Reason) ? ["N/A"] : fine.Reason.Split('\n')),
-			("Created At", [fine.CreatedAt?.ToString("yyyy-MM-dd HH:mm")]),
+			("Created At", [fine.CreatedAt.ToString("yyyy-MM-dd HH:mm")]),
 			("Updated At", [fine.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "N/A"]),
 			("Paid At", [fine.PaidAt?.ToString("yyyy-MM-dd HH:mm") ?? "N/A"]),
 		};

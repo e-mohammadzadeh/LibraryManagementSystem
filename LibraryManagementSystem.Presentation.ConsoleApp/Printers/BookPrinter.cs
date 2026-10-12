@@ -38,14 +38,14 @@ public static class BookPrinter
 			("Author Email(s)", authorEmails),
 			("Translator(s)", translatorNames),
 			("Translator Email(s)", translatorEmails),
-			("Publication Date", [details.PublishDate?.ToString("yyyy-MM-dd") ?? "N/A"]),
+			("Publication Date", [details.PublishDate.ToString("yyyy-MM-dd")]),
 			("Genre", [details.Genre.ToString()]),
 			("Publisher", [details.Publisher]),
 			("Total Copies", [details.TotalCopies.ToString()]),
 			("Available Copies", [details.AvailableCopies.ToString()]),
 			("Description", string.IsNullOrWhiteSpace(details.Description) ? ["—"] : details.Description.Split('\n')),
-			("Created At", [details.CreatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "N/A"]),
-			("Updated At", [details.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "N/A"]),
+			("Created At", [details.CreatedAt.ToString("yyyy-MM-dd HH:mm")]),
+			("Updated At", [details.UpdatedAt.ToString("yyyy-MM-dd HH:mm")]),
 		};
 
 		ConsoleTable.PrintKeyValueTable("Book Details", rows, labelWidth: 22, valueWidth: 55);
@@ -106,7 +106,7 @@ public static class BookPrinter
 				authors,
 				translators,
 				[item.Genre.ToString()],
-				[item.PublishDate?.ToString("yyyy-MM-dd")],
+				[item.PublishDate.ToString("yyyy-MM-dd")],
 				description,
 				publisher,
 				availability
