@@ -5,7 +5,7 @@ namespace LibraryManagementSystem.Application.Mapping;
 
 public static class LoanHistoryMapper
 {
-	public static LoanHistoryDto ToDto(this LoanHistory history)
+	public static LoanHistoryDto ToDto(this LoanHistory history, string fullName, string title)
 	{
 		return new LoanHistoryDto
 		{
@@ -13,8 +13,8 @@ public static class LoanHistoryMapper
 			LoanId = history.LoanId,
 			UserId = history.UserId,
 			BookId = history.BookId,
-			UserName = $"{history.User.FirstName} {history.User.LastName}".Trim(),
-			BookName = history.Book.Title,
+			UserName = fullName.Trim(),
+			BookName = title,
 			Action = history.Action,
 			OccurredAt = history.OccurredAt,
 			Description = history.Description

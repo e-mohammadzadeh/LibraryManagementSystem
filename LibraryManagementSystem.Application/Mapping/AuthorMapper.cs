@@ -18,7 +18,6 @@ public static class AuthorMapper
 			BirthDate = author.BirthDate,
 			Biography = author.Biography,
 			CreatedAt = author.CreatedAt,
-			UpdatedAt = author.UpdatedAt
 		};
 	}
 }

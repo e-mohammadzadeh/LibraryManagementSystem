@@ -13,13 +13,12 @@ public static class BookMapper
 			Title = book.Title,
 			ISBN = book.ISBN,
 			PublishDate = book.PublishDate,
-			Genre = book.Genre.ToString(),
+			Genre = book.Genre,
 			Publisher = book.Publisher,
 			TotalCopies = book.TotalCopies,
 			AvailableCopies = book.AvailableCopies,
-			Description = book.Description,
+			Description = book.Description!,
 			CreatedAt = book.CreatedAt,
-			UpdatedAt = book.UpdatedAt
 		};
 	}
 

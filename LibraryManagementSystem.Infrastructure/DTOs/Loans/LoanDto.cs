@@ -13,10 +13,10 @@ public class LoanDto
 	public string UserNationalCode { get; init; } = null!;
 	public DateOnly BorrowDate { get; init; }
 	public DateOnly DueDate { get; init; }
-	public DateOnly ReturnDate { get; init; }
+	public DateOnly? ReturnDate { get; init; }
 	public LoanStatus Status { get; init; }
 	public int RenewalCount { get; init; }
 	public bool IsOverdue { get; init; }
 	public DateTime CreatedAt { get; init; }
-	public DateTime UpdatedAt { get; init; }
+	public DateTime? UpdatedAt { get; init; }
 }

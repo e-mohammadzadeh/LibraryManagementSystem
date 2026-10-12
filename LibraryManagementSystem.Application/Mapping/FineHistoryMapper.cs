@@ -5,7 +5,7 @@ namespace LibraryManagementSystem.Application.Mapping;
 
 public static class FineHistoryMapper
 {
-	public static FineHistoryDto ToDto(this FineHistory history)
+	public static FineHistoryDto ToDto(this FineHistory history, string fullName)
 	{
 		return new FineHistoryDto
 		{
@@ -13,7 +13,7 @@ public static class FineHistoryMapper
 			FineId = history.FineId,
 			LoanId = history.LoanId,
 			UserId = history.UserId,
-			UserName = $"{history.User.FirstName} {history.User.LastName}".Trim(),
+			UserName = fullName.Trim(),
 			Action = history.Action,
 			OccurredAt = history.OccurredAt,
 			Amount = history.Money,
