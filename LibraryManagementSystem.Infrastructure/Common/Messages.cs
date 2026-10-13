@@ -319,6 +319,7 @@ public static class Messages
 	public const string SearchPhoneNumber = "Enter a phone number to search";
 	public const string SortFieldQuestion = "Enter the number of the field you want to sort by:";
 	public const string SortDirectionQuestion = "Select the sort direction:";
+	public const string SelectTranslationLanguage = "\nSelect the language of the translation:";
 
 
 	// 14. Navigation ────────────────────────────────────────────────────────────

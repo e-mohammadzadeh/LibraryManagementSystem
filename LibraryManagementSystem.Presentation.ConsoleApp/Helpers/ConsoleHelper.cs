@@ -245,7 +245,8 @@ public static class ConsoleHelper
 	}
 
 
-	public static IReadOnlyList<ContributorDto>? ReadTranslatorDtos(string prompt, IReadOnlyList<ContributorDto> translators,
+	public static IReadOnlyList<ContributorDto>? ReadTranslatorDtos(string prompt,
+		IReadOnlyList<ContributorDto> translators,
 		bool allowMultiple = true, bool allowEmpty = true)
 	{
 		return ReadMultiSelect(prompt, translators, idSelector: t => t.Id,
@@ -253,13 +254,28 @@ public static class ConsoleHelper
 	}
 
 
-	public static IReadOnlyList<RoleDto>? ReadRoles(string prompt, IReadOnlyList<RoleDto> roles, bool allowMultiple = true,
+	public static IReadOnlyList<RoleDto>? ReadRoles(string prompt, IReadOnlyList<RoleDto> roles,
+		bool allowMultiple = true,
 		bool allowEmpty = false)
 	{
 		return ReadMultiSelect(prompt, roles, idSelector: r => r.Id, displayNameSelector: r => r.Name.ToString(),
 			allowMultiple, allowEmpty);
 	}
 
+
+	public static TEnum? ReadEnum<TEnum>(string prompt) where TEnum : struct, Enum
+	{
+		var values = Enum.GetValues<TEnum>();
+
+		Console.WriteLine(prompt);
+		for (var i = 0; i < values.Length; i++) Console.WriteLine($"\t{i + 1}. {values[i]}");
+
+		var choice = ReadInt("Enter the number of your choice", 1, values.Length);
+		return choice is null ? null : values[choice.Value - 1];
+	}
+
+
+	public static Language? ReadLanguage(string prompt) { return ReadEnum<Language>(prompt); }
 
 
 	private static string? GetValidString(string prompt, Func<string, ValidationResult> validator)
