@@ -9,6 +9,7 @@ using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
 using LibraryManagementSystem.Infrastructure.Interfaces;
+using LibraryManagementSystem.Infrastructure.ValueObjects;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -117,16 +118,7 @@ public static class BookMenu
 					if (books.Count is 0)
 						ConsoleHelper.ShowWarning(Messages.NotAvailableBook);
 					else
-					{
-						var details = new BookDto
-						{
-							Book = books,
-							Authors = 
-						};
-
-						BookPrinter.PrintTable(details, authorization, "All Books");
-					}
-
+						BookPrinter.PrintTable(books, authorization, "All Books");
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -191,10 +183,8 @@ public static class BookMenu
 		if (totalCopies is null) return;
 
 		ConsoleHelper.DisplayGenres();
-		var genreId = ConsoleHelper.ReadInt("Select your desired genre by entering its ID", 1,
-			Enum.GetValues<Genre>().Length);
-		if (genreId is null) return;
-		var genre = (Genre)genreId.Value;
+		var genre = ConsoleHelper.ReadGenre("Select your desired genre by entering its ID");
+		if (genre is null) return;
 
 		ConsoleHelper.DisplayLanguages();
 		var originalLanguageId = ConsoleHelper.ReadInt("Select original language of book by entering its ID", 1,
@@ -221,27 +211,27 @@ public static class BookMenu
 		var result = bookManagementService.AddBook(new BookDto
 		{
 			Title = bookName,
-			ISBN = isbn,
-			AuthorIds = authorIds,
-			TranslatorIds = translatorIds,
+			ISBN = ISBN.Create(isbn),
+			Authors = authorIds,
+			Translators = translatorIds,
 			PublishDate = publishDate.Value,
-			Genre = genre,
+			Genre = BookGenre.Create(genre.Value),
 			Publisher = publisher,
 			OriginalLanguage = originalLanguage,
 			TotalCopies = totalCopies.Value,
 			Description = description,
-			TranslatedLanguage = translatedLanguage
+			TranslatedLanguage = translatedLanguage!.Value
 		});
 
 		ConsoleHelper.ShowResult(result);
 	}
 
 
-	private static List<Guid>? ResolveAuthorIds(AuthorManagementService authorManagementService)
+	private static IReadOnlyList<ContributorDto>? ResolveAuthorIds(AuthorManagementService authorManagementService)
 	{
 		var availableAuthors = authorManagementService.GetAllAuthors();
 		if (availableAuthors.Count != 0)
-			return ConsoleHelper.ReadAuthors("Select author(s) for this book", availableAuthors);
+			return ConsoleHelper.ReadAuthorDtos("Select author(s) for this book", availableAuthors);
 
 		var choice = ConsoleHelper.ReadYesNo(Messages.NotAvailableAuthor);
 		if (choice is not true)
@@ -250,43 +240,43 @@ public static class BookMenu
 			return null;
 		}
 
-		var createdIds = new List<Guid>();
+		var createdAuthors = new List<ContributorDto>();
 		while (true)
 		{
 			var authorDto = AuthorMenu.PromptForAuthorDto();
 			if (authorDto is null)
 			{
-				if (createdIds.Count == 0) return null;
+				if (createdAuthors.Count == 0) return null;
 				break;
 			}
 
 			var addResult = authorManagementService.AddAuthor(authorDto);
 			ConsoleHelper.ShowResult(addResult);
 			if (addResult is { Success: true, Data: not null })
-				createdIds.Add(addResult.Data.Id);
+				createdAuthors.Add(addResult.Data);
 			else
 				ConsoleHelper.ShowError(Messages.AuthorCreationFailed);
 
-			if (createdIds.Count == 0) continue;
+			if (createdAuthors.Count == 0) continue;
 
 			var addMore = ConsoleHelper.ReadYesNo("Add another author for this book");
 			if (addMore != true) break;
 		}
 
-		return createdIds.Count > 0 ? createdIds : null;
+		return createdAuthors.Count > 0 ? createdAuthors : null;
 	}
 
 
-	private static List<Guid>? ResolveTranslatorIds(TranslatorManagementService translatorManagementService)
+	private static IReadOnlyList<ContributorDto>? ResolveTranslatorIds(TranslatorManagementService translatorManagementService)
 	{
 		var availableTranslators = translatorManagementService.GetAllTranslators();
 		if (availableTranslators.Count != 0)
-			return ConsoleHelper.ReadTranslators("Select one or more translators (optional)", availableTranslators);
+			return ConsoleHelper.ReadTranslatorDtos("Select one or more translators (optional)", availableTranslators);
 
 		var choice = ConsoleHelper.ReadYesNo(Messages.AddTranslatorInAdd);
 		if (choice != true) return [];
 
-		var createdIds = new List<Guid>();
+		var createdIds = new List<ContributorDto>();
 		while (true)
 		{
 			var translatorDto = TranslatorMenu.PromptForTranslatorDto();
@@ -295,7 +285,7 @@ public static class BookMenu
 			ConsoleHelper.ShowResult(addResult);
 
 			if (addResult is { Success: true, Data: not null })
-				createdIds.Add(addResult.Data.Id);
+				createdIds.Add(addResult.Data);
 			else
 				ConsoleHelper.ShowError(Messages.NotAvailableTranslator);
 
@@ -511,7 +501,7 @@ public static class BookMenu
 					break;
 				}
 
-				var selectedIds = ConsoleHelper.ReadAuthors("\nSelect author(s) for this book", availableToAdd);
+				var selectedIds = ConsoleHelper.ReadAuthorDtos("\nSelect author(s) for this book", availableToAdd);
 				if (selectedIds is null) return null;
 
 				// New list = existing author IDs + newly selected IDs
@@ -527,7 +517,7 @@ public static class BookMenu
 					break;
 				}
 
-				var selectedIds = ConsoleHelper.ReadAuthors(Messages.AuthorSelectionForRemove,
+				var selectedIds = ConsoleHelper.ReadAuthorDtos(Messages.AuthorSelectionForRemove,
 					currentBook.Authors,
 					false);
 				if (selectedIds is null) break;
@@ -547,7 +537,7 @@ public static class BookMenu
 					break;
 				}
 
-				var selectedIds = ConsoleHelper.ReadAuthors("\nSelect the new author(s) for this book", allAuthors);
+				var selectedIds = ConsoleHelper.ReadAuthorDtos("\nSelect the new author(s) for this book", allAuthors);
 				if (selectedIds is null) break;
 
 				return PerformUpdate(bookManagementService, selectedIds,
@@ -603,7 +593,7 @@ public static class BookMenu
 					break;
 				}
 
-				var selectedIds = ConsoleHelper.ReadTranslators("\nSelect translator(s) to add", availableToAdd);
+				var selectedIds = ConsoleHelper.ReadTranslatorDtos("\nSelect translator(s) to add", availableToAdd);
 				if (selectedIds is null || selectedIds.Count == 0) break;
 
 				var updatedTranslatorIds = currentTranslatorIds.Concat(selectedIds).Distinct().ToList();
@@ -618,7 +608,7 @@ public static class BookMenu
 					break;
 				}
 
-				var selectedIds = ConsoleHelper.ReadTranslators(Messages.TranslatorSelectionForRemove,
+				var selectedIds = ConsoleHelper.ReadTranslatorDtos(Messages.TranslatorSelectionForRemove,
 					currentBook.Translators, false, false);
 				if (selectedIds is null) break;
 				var idToRemove = selectedIds[0];
@@ -637,7 +627,7 @@ public static class BookMenu
 					break;
 				}
 
-				var selectedIds = ConsoleHelper.ReadTranslators(Messages.SelectReplacementTranslators, allTranslators);
+				var selectedIds = ConsoleHelper.ReadTranslatorDtos(Messages.SelectReplacementTranslators, allTranslators);
 				if (selectedIds is null) break;
 				return PerformUpdate(bookManagementService, selectedIds,
 					v => new BookDto { TranslatorIds = v });
