@@ -386,8 +386,10 @@ public static class DataSeeder
 			Email = Email.Create("admin@library.com"),
 			PhoneNumber = PhoneNumber.Create("09120000010"),
 			BirthDate = new DateOnly(1985, 3, 15),
-			Role = adminRole
+			Role = adminRole,
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
 		};
+		userRepository.Add(admin);
 		SetPassword(admin, "Admin@123");
 
 		var librarian1 = new User
@@ -398,8 +400,10 @@ public static class DataSeeder
 			Email = Email.Create("librarian@library.com"),
 			PhoneNumber = PhoneNumber.Create("09120000011"),
 			BirthDate = new DateOnly(1990, 5, 20),
-			Role = librarianRole
+			Role = librarianRole,
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
 		};
+		userRepository.Add(librarian1);
 		SetPassword(librarian1, "Librarian1@123");
 
 		var librarian2 = new User
@@ -413,6 +417,7 @@ public static class DataSeeder
 			Role = librarianRole,
 			MembershipStartDate = new DateOnly(2026, 1, 15)
 		};
+		userRepository.Add(librarian2);
 		SetPassword(librarian2, "Librarian2@123");
 
 		var librarian3 = new User
@@ -423,8 +428,10 @@ public static class DataSeeder
 			Email = Email.Create("zahra.rahimi@library.com"),
 			PhoneNumber = PhoneNumber.Create("09120000015"),
 			BirthDate = new DateOnly(1992, 4, 18),
-			Role = librarianRole
+			Role = librarianRole,
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
 		};
+		userRepository.Add(librarian3);
 		SetPassword(librarian3, "Librarian3@123");
 
 		var member1 = new User
@@ -435,8 +442,10 @@ public static class DataSeeder
 			Email = Email.Create("m.ahmadi@example.com"),
 			PhoneNumber = PhoneNumber.Create("09120000012"),
 			BirthDate = new DateOnly(1998, 1, 10),
-			Role = memberRole
+			Role = memberRole,
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
 		};
+		userRepository.Add(member1);
 		SetPassword(member1, "Member1@123");
 
 		var member2 = new User
@@ -450,6 +459,7 @@ public static class DataSeeder
 			Role = memberRole,
 			MembershipStartDate = new DateOnly(2026, 9, 1)
 		};
+		userRepository.Add(member2);
 
 		var member3 = new User
 		{
@@ -459,8 +469,10 @@ public static class DataSeeder
 			Email = Email.Create("h.moradi@example.com"),
 			PhoneNumber = PhoneNumber.Create("09120000016"),
 			BirthDate = new DateOnly(1995, 9, 12),
-			Role = memberRole
+			Role = memberRole,
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
 		};
+		userRepository.Add(member3);
 
 		var member4 = new User
 		{
@@ -473,6 +485,7 @@ public static class DataSeeder
 			Role = memberRole,
 			MembershipStartDate = new DateOnly(2025, 10, 1)
 		};
+		userRepository.Add(member4);
 		SetPassword(member4, "Member4@123");
 
 		var member5 = new User
@@ -483,8 +496,10 @@ public static class DataSeeder
 			Email = Email.Create("a.rezaei@example.com"),
 			PhoneNumber = PhoneNumber.Create("09120000018"),
 			BirthDate = new DateOnly(1997, 6, 15),
-			Role = memberRole
+			Role = memberRole,
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
 		};
+		userRepository.Add(member5);
 
 		var member6 = new User
 		{
@@ -497,6 +512,7 @@ public static class DataSeeder
 			Role = memberRole,
 			MembershipStartDate = new DateOnly(2025, 9, 10)
 		};
+		userRepository.Add(member6);
 
 		var member7 = new User
 		{
@@ -506,8 +522,10 @@ public static class DataSeeder
 			Email = Email.Create("s.mousavi@example.com"),
 			PhoneNumber = PhoneNumber.Create("09120000020"),
 			BirthDate = new DateOnly(1987, 12, 22),
-			Role = memberRole
+			Role = memberRole,
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
 		};
+		userRepository.Add(member7);
 
 		var member8 = new User
 		{
@@ -520,6 +538,7 @@ public static class DataSeeder
 			Role = memberRole,
 			MembershipStartDate = new DateOnly(2026, 10, 1)
 		};
+		userRepository.Add(member8);
 
 		var member9 = new User
 		{
@@ -529,8 +548,10 @@ public static class DataSeeder
 			Email = Email.Create("mehdi.hashemi@example.com"),
 			PhoneNumber = PhoneNumber.Create("09120000022"),
 			BirthDate = new DateOnly(1996, 8, 19),
-			Role = memberRole
+			Role = memberRole,
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
 		};
+		userRepository.Add(member9);
 
 		var member10 = new User
 		{
@@ -543,6 +564,7 @@ public static class DataSeeder
 			Role = memberRole,
 			MembershipStartDate = new DateOnly(2025, 12, 1)
 		};
+		userRepository.Add(member10);
 
 		var member11 = new User
 		{
@@ -552,8 +574,10 @@ public static class DataSeeder
 			Email = Email.Create("amir.jafari@example.com"),
 			PhoneNumber = PhoneNumber.Create("09120000024"),
 			BirthDate = new DateOnly(1994, 7, 14),
-			Role = memberRole
+			Role = memberRole,
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
 		};
+		userRepository.Add(member11);
 
 		var member12 = new User
 		{
@@ -566,22 +590,6 @@ public static class DataSeeder
 			Role = memberRole,
 			MembershipStartDate = new DateOnly(2026, 1, 1)
 		};
-
-		userRepository.Add(admin);
-		userRepository.Add(librarian1);
-		userRepository.Add(librarian2);
-		userRepository.Add(librarian3);
-		userRepository.Add(member1);
-		userRepository.Add(member2);
-		userRepository.Add(member3);
-		userRepository.Add(member4);
-		userRepository.Add(member5);
-		userRepository.Add(member6);
-		userRepository.Add(member7);
-		userRepository.Add(member8);
-		userRepository.Add(member9);
-		userRepository.Add(member10);
-		userRepository.Add(member11);
 		userRepository.Add(member12);
 		return;
 

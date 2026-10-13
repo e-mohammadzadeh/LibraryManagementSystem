@@ -19,6 +19,7 @@ public class LoanManagementService
 	private readonly IBookRepository _bookRepository;
 	private readonly IBookManagementService _bookService;
 	private readonly IFineRepository _fineRepository;
+	private readonly IFineManagementService _fineManagementService;
 	private readonly IUserAutoRemovalService _userAutoRemovalService;
 	private readonly IAuthorizationService _authorization;
 	private readonly ILoanHistoryManagementService _loanHistoryManagementService;
@@ -27,15 +28,16 @@ public class LoanManagementService
 
 	public LoanManagementService(ILoanRepository loanRepository, IUserRepository userRepository,
 		IBookRepository bookRepository, IBookManagementService bookService,
-		IFineRepository fineRepository, IUserAutoRemovalService userAutoRemovalService,
-		IAuthorizationService authorization, ILoanHistoryManagementService loanHistoryManagementService,
-		IAuditLogManagementService auditLog)
+		IFineRepository fineRepository, IFineManagementService fineManagementService,
+		IUserAutoRemovalService userAutoRemovalService, IAuthorizationService authorization,
+		ILoanHistoryManagementService loanHistoryManagementService, IAuditLogManagementService auditLog)
 	{
 		_loanRepository = loanRepository;
 		_userRepository = userRepository;
 		_bookRepository = bookRepository;
 		_bookService = bookService;
 		_fineRepository = fineRepository;
+		_fineManagementService = fineManagementService;
 		_userAutoRemovalService = userAutoRemovalService;
 		_authorization = authorization;
 		_loanHistoryManagementService = loanHistoryManagementService;
@@ -136,7 +138,7 @@ public class LoanManagementService
 		_userAutoRemovalService.TryAutoRemove(loan.UserId);
 		_auditLog.Record(AuditAction.LoanReturned, "Loan", loanId, "Loan returned.");
 
-		var fineResult = _fineService.CreateFineForLoan(loanId);
+		var fineResult = _fineManagementService.CreateFineForLoan(loanId);
 		if (!fineResult.Success && fineResult.Message != Messages.NoFine)
 			return ServiceResult<LoanDto>.Warning(loan.ToDto(),
 				$"{Messages.ReturnedSuccessfully} - Note: {fineResult.Message}");
@@ -159,7 +161,8 @@ public class LoanManagementService
 
 		if (!LoanRenewalRules.CanRenew(loan, out var errorMessage)) return ServiceResult<LoanDto>.Fail(errorMessage);
 
-		if (_fineRepository.HasFines(loan.UserId, FineFilter.Unpaid)) return ServiceResult<LoanDto>.Fail(Messages.UserHasUnpaidFines);
+		if (_fineRepository.HasFines(loan.UserId, FineFilter.Unpaid))
+			return ServiceResult<LoanDto>.Fail(Messages.UserHasUnpaidFines);
 
 		Renew(loan);
 		_loanRepository.Update(loan);
@@ -271,17 +274,18 @@ public class LoanManagementService
 		];
 	}
 
+
 	public void MarkAsReturned(Guid loanId, DateOnly? returnDate = null)
 	{
 		var loan = _loanRepository.FindById(loanId, LoanFilter.Active);
 		if (loan is null) return;
 
-		if (loan.ReturnDate is not null)
-			throw new InvalidOperationException("This loan has already been returned.");
+		if (loan.ReturnDate is not null) throw new InvalidOperationException("This loan has already been returned.");
 
 		loan.ReturnDate = returnDate ?? DateOnly.FromDateTime(DateTime.Today);
 		loan.Status = LoanStatus.Returned;
 	}
+
 
 	public void Renew(Loan loan)
 	{
