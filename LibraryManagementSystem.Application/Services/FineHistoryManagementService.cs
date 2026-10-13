@@ -3,18 +3,21 @@ using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.DTOs.Fine;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
 
-public class FineHistoryManagementService: IFineHistoryManagementService
+public class FineHistoryManagementService : IFineHistoryManagementService
 {
 	private readonly IFineHistoryRepository _fineHistoryRepository;
+	private readonly IUserRepository _userRepository;
 
 
-	public FineHistoryManagementService(IFineHistoryRepository fineHistoryRepository)
+	public FineHistoryManagementService(IFineHistoryRepository fineHistoryRepository, IUserRepository userRepository)
 	{
 		_fineHistoryRepository = fineHistoryRepository;
+		_userRepository = userRepository;
 	}
 
 
@@ -38,26 +41,32 @@ public class FineHistoryManagementService: IFineHistoryManagementService
 	}
 
 
-	public IReadOnlyList<FineHistoryDto> GetAll()
+	public IReadOnlyList<FineHistoryDto> GetAll() => MapWithLookups(_fineHistoryRepository.GetAll());
+
+
+	public IReadOnlyList<FineHistoryDto> GetByFineId(Guid fineId) =>
+		MapWithLookups(_fineHistoryRepository.GetByFineId(fineId));
+
+
+	public IReadOnlyList<FineHistoryDto> GetByLoanId(Guid loanId) =>
+		MapWithLookups(_fineHistoryRepository.GetByLoanId(loanId));
+
+
+	public IReadOnlyList<FineHistoryDto> GetByUserId(Guid userId) =>
+		MapWithLookups(_fineHistoryRepository.GetByUserId(userId));
+
+
+	private IReadOnlyList<FineHistoryDto> MapWithLookups(IEnumerable<FineHistory> histories)
 	{
-		return [.. _fineHistoryRepository.GetAll().Select(history => history.ToDto())];
-	}
+		var list = histories.ToList();
 
+		var userNames = _userRepository.GetAll(EntityFilter.All)
+			.ToDictionary(u => u.Id, u => $"{u.FirstName} {u.LastName}");
 
-	public IReadOnlyList<FineHistoryDto> GetByFineId(Guid fineId)
-	{
-		return [.. _fineHistoryRepository.GetByFineId(fineId).Select(history => history.ToDto())];
-	}
-
-
-	public IReadOnlyList<FineHistoryDto> GetByLoanId(Guid loanId)
-	{
-		return [.. _fineHistoryRepository.GetByLoanId(loanId).Select(history => history.ToDto())];
-	}
-
-
-	public IReadOnlyList<FineHistoryDto> GetByUserId(Guid userId)
-	{
-		return [.. _fineHistoryRepository.GetByUserId(userId).Select(history => history.ToDto())];
+		return
+		[
+			.. list.Select(h => h.ToDto(
+				userNames.GetValueOrDefault(h.UserId, "Unknown User")))
+		];
 	}
 }

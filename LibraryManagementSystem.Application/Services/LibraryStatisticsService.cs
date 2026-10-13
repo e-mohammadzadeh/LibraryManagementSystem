@@ -13,18 +13,18 @@ public class LibraryStatisticsService
 	private readonly IAuthorRepository _authorRepository;
 	private readonly ITranslatorRepository _translatorRepository;
 	private readonly IUserRepository _userRepository;
-	private readonly ILoanManagementService _loanService;
+	private readonly ILoanRepository _loanRepository;
 
 
 	public LibraryStatisticsService(IBookRepository bookRepository, IAuthorRepository authorRepository,
 		ITranslatorRepository translatorRepository,
-		IUserRepository userRepository, ILoanManagementService loanService)
+		IUserRepository userRepository, ILoanRepository loanRepository)
 	{
 		_bookRepository = bookRepository;
 		_authorRepository = authorRepository;
 		_translatorRepository = translatorRepository;
 		_userRepository = userRepository;
-		_loanService = loanService;
+		_loanRepository = loanRepository;
 	}
 
 
@@ -39,7 +39,7 @@ public class LibraryStatisticsService
 			TotalAuthors = _authorRepository.GetAll(EntityFilter.Active).Count,
 			TotalTranslators = _translatorRepository.GetAll(EntityFilter.Active).Count,
 			TotalUsers = _userRepository.GetAll(EntityFilter.Active).Count,
-			TotalActiveLoans = _loanService.CountLoans(null, LoanFilter.Active),
+			TotalActiveLoans = _loanRepository.GetAll(LoanFilter.Active).Count,
 		};
 		return ServiceResult<LibraryStatisticsDto>.Ok(stats, "Computed successfully");
 	}

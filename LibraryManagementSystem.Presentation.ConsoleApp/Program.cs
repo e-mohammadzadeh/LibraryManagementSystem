@@ -42,30 +42,29 @@ public static class Program
 			// ── Application Interfaces ──────────────────
 			IAuditLogManagementService auditLogService = new AuditLogManagementService(userRepo, auditLogRepo, currentUserSession);
 			IUserAutoRemovalService userAutoRemovalService = new UserAutoRemovalService(userRepo, loanRepo, fineRepo);
-			IFineHistoryManagementService fineHistoryService = new FineHistoryManagementService(fineHistoryRepo);
-			IBookManagementService IBookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo, auditLogService, authorization);
-			ILoanHistoryManagementService loanHistoryService = new LoanHistoryManagementService(loanHistoryRepo);
-			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo, IuserService, userAutoRemovalService, authorization, loanHistoryService, fineHistoryService, auditLogService);
-			ILoanManagementService ILoanServive = new LoanManagementService(loanRepo, userRepo, bookRepo, IBookService, fineService, userAutoRemovalService, authorization, loanHistoryService, auditLogService);
-			IUserManagementService IuserService = new UserManagementService(userRepo, roleRepo, ILoanServive, fineRepo, passwordHasher, authorization, auditLogService);
+			IFineHistoryManagementService fineHistoryService = new FineHistoryManagementService(fineHistoryRepo, userRepo);
+			IBookManagementService iBookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo, auditLogService, authorization);
+			ILoanHistoryManagementService loanHistoryService = new LoanHistoryManagementService(loanHistoryRepo, userRepo, bookRepo);
+			IUserManagementService iUserService = new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher, authorization, auditLogService);
+			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo, iUserService, userAutoRemovalService, authorization, loanHistoryService, fineHistoryService, auditLogService);
 			
 
 
 			// ── Application Services ──────────────────
 			var authorService = new AuthorManagementService(authorRepo, authorization, auditLogService);
 			var translatorService = new TranslatorManagementService(translatorRepo, authorization, auditLogService);
-			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, IBookService, fineService, userAutoRemovalService, authorization, loanHistoryService, auditLogService);
-			var loanHistory = new LoanHistoryManagementService(loanHistoryRepo);
-			var fineHistory = new FineHistoryManagementService(fineHistoryRepo);
-			var userService = new UserManagementService(userRepo, roleRepo, ILoanServive, fineRepo, passwordHasher, authorization, auditLogService);
+			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, iBookService, fineRepo, userAutoRemovalService, authorization, loanHistoryService, auditLogService);
+			var loanHistory = new LoanHistoryManagementService(loanHistoryRepo, userRepo, bookRepo);
+			var fineHistory = new FineHistoryManagementService(fineHistoryRepo, userRepo);
+			var userService = new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher, authorization, auditLogService);
 			var bookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo, auditLogService, authorization);
-			var authService = new AuthenticationService(userRepo, IuserService, roleRepo, passwordHasher, currentUserSession, auditLogService);
-			var statisticsService = new LibraryStatisticsService(bookRepo, authorRepo, translatorRepo, userRepo, ILoanServive);
+			var authService = new AuthenticationService(userRepo, iUserService, roleRepo, passwordHasher, currentUserSession, auditLogService);
+			var statisticsService = new LibraryStatisticsService(bookRepo, authorRepo, translatorRepo, userRepo, loanRepo);
 
 
 			Console.Title = "Library Management System";
 			// Seed data for development/testing
-			DataSeeder.Seed(authorRepo, translatorRepo, bookService, bookRepo, userRepo, IuserService, loanRepo, roleRepo, fineRepo, passwordHasher);
+			DataSeeder.Seed(authorRepo, translatorRepo, bookService, bookRepo, userRepo, iUserService, loanRepo, roleRepo, fineRepo, passwordHasher);
 
 
 			while (true)

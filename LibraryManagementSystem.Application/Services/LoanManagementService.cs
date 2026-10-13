@@ -12,7 +12,7 @@ using LibraryManagementSystem.Infrastructure.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
 
-public class LoanManagementService : ILoanManagementService
+public class LoanManagementService
 {
 	private readonly ILoanRepository _loanRepository;
 	private readonly IUserRepository _userRepository;

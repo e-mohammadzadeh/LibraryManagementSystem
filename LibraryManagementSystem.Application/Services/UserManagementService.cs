@@ -15,11 +15,11 @@ using LibraryManagementSystem.Infrastructure.ValueObjects;
 
 namespace LibraryManagementSystem.Application.Services;
 
-public class UserManagementService
+public class UserManagementService : IUserManagementService
 {
 	private readonly IUserRepository _userRepository;
 	private readonly IRoleRepository _roleRepository;
-	private readonly ILoanManagementService _loansService;
+	private readonly ILoanRepository _loanRepository;
 	private readonly IFineRepository _finesRepository;
 	private readonly IPasswordHasher _passwordHasher;
 	private readonly IAuthorizationService _authorization;
@@ -27,12 +27,12 @@ public class UserManagementService
 
 
 	public UserManagementService(IUserRepository userRepository, IRoleRepository roleRepository,
-		ILoanManagementService loanService, IFineRepository fineRepository, IPasswordHasher passwordHasher,
+		ILoanRepository loanRepository, IFineRepository fineRepository, IPasswordHasher passwordHasher,
 		IAuthorizationService authorization, IAuditLogManagementService auditLog)
 	{
 		_userRepository = userRepository;
 		_roleRepository = roleRepository;
-		_loansService = loanService;
+		_loanRepository = loanRepository;
 		_finesRepository = fineRepository;
 		_passwordHasher = passwordHasher;
 		_authorization = authorization;
@@ -226,7 +226,7 @@ public class UserManagementService
 
 		if (session != null && !CanRemoveUser(session, user)) return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
 
-		if (_loansService.CountLoans(userId, LoanFilter.Active) > 0)
+		if (_loanRepository.GetAllByUser(userId, LoanFilter.Active).Count > 0)
 			return ServiceResult<UserDto>.Fail(Messages.UserRemovalFailedByActiveLoans);
 
 		if (_finesRepository.HasFines(userId, FineFilter.Unpaid))
