@@ -11,7 +11,6 @@ public interface IFineManagementService
 	ServiceResult<FineDto> WaiveFine(Guid fineId);
 	IReadOnlyList<FineDto> GetAllUnpaidFines(ICurrentUserSession session);
 	IReadOnlyList<FineDto> GetFinesByUser(Guid userId, FineFilter filter);
-	bool HasUnpaidFines(Guid userId);
 	IReadOnlyList<FineDto> GetFineHistory();
 	IReadOnlyList<FineDto> GetFineHistoryByUser(Guid userId, ICurrentUserSession session);
 }

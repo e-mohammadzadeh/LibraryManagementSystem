@@ -18,7 +18,7 @@ public class LoanManagementService : ILoanManagementService
 	private readonly IUserRepository _userRepository;
 	private readonly IBookRepository _bookRepository;
 	private readonly IBookManagementService _bookService;
-	private readonly IFineManagementService _fineService;
+	private readonly IFineRepository _fineRepository;
 	private readonly IUserAutoRemovalService _userAutoRemovalService;
 	private readonly IAuthorizationService _authorization;
 	private readonly ILoanHistoryManagementService _loanHistoryManagementService;
@@ -27,7 +27,7 @@ public class LoanManagementService : ILoanManagementService
 
 	public LoanManagementService(ILoanRepository loanRepository, IUserRepository userRepository,
 		IBookRepository bookRepository, IBookManagementService bookService,
-		IFineManagementService fineManagementService, IUserAutoRemovalService userAutoRemovalService,
+		IFineRepository fineRepository, IUserAutoRemovalService userAutoRemovalService,
 		IAuthorizationService authorization, ILoanHistoryManagementService loanHistoryManagementService,
 		IAuditLogManagementService auditLog)
 	{
@@ -35,7 +35,7 @@ public class LoanManagementService : ILoanManagementService
 		_userRepository = userRepository;
 		_bookRepository = bookRepository;
 		_bookService = bookService;
-		_fineService = fineManagementService;
+		_fineRepository = fineRepository;
 		_userAutoRemovalService = userAutoRemovalService;
 		_authorization = authorization;
 		_loanHistoryManagementService = loanHistoryManagementService;
@@ -56,7 +56,7 @@ public class LoanManagementService : ILoanManagementService
 		if (user.ShouldRemove)
 			return ServiceResult<LoanDto>.Fail(string.Format(Messages.FlaggedForRemoval, "Borrowing"));
 
-		if (_fineService.HasUnpaidFines(dto.UserId))
+		if (_fineRepository.HasFines(dto.UserId, FineFilter.Unpaid))
 			return ServiceResult<LoanDto>.Fail(Messages.BorrowFailedForFine);
 
 		if (CountLoans(dto.UserId, LoanFilter.Active) >= ValidationConstants.MaxActiveLoansPerUser)
@@ -159,7 +159,7 @@ public class LoanManagementService : ILoanManagementService
 
 		if (!LoanRenewalRules.CanRenew(loan, out var errorMessage)) return ServiceResult<LoanDto>.Fail(errorMessage);
 
-		if (_fineService.HasUnpaidFines(loan.UserId)) return ServiceResult<LoanDto>.Fail(Messages.UserHasUnpaidFines);
+		if (_fineRepository.HasFines(loan.UserId, FineFilter.Unpaid)) return ServiceResult<LoanDto>.Fail(Messages.UserHasUnpaidFines);
 
 		Renew(loan);
 		_loanRepository.Update(loan);

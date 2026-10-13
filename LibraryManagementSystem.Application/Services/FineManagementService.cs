@@ -210,8 +210,6 @@ public class FineManagementService : IFineManagementService
 
 	public decimal GetTotalUnpaidAmount(Guid userId) => _fineRepository.GetAmount(userId, FineFilter.Unpaid);
 
-	public bool HasUnpaidFines(Guid userId) => _fineRepository.HasFines(userId, FineFilter.Unpaid);
-
 
 	public IReadOnlyList<FineDto> GetFineHistory()
 	{
