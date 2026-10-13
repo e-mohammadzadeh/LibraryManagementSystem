@@ -1,9 +1,9 @@
-﻿using LibraryManagementSystem.Application.Authentication;
-using LibraryManagementSystem.Application.Authorization;
+﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Application.Services;
-using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.DTOs.Role;
 using LibraryManagementSystem.Infrastructure.DTOs.Users;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Search;
@@ -189,11 +189,10 @@ public static class UserMenu
 			return null;
 		}
 
-		var allowMultiple = authorization.HasAnyPermission(Permission.AssignLibrarianRole, Permission.AssignAdminRole);
+		//var allowMultiple = authorization.HasAnyPermission(Permission.AssignLibrarianRole, Permission.AssignAdminRole);
 
-		var roleIds =
-			ConsoleHelper.ReadRoles("Select role for this user", availableRoles, allowMultiple: false);
-		if (roleIds is null) return null;
+		var roles = ConsoleHelper.ReadRoles("Select role for this user", availableRoles, allowMultiple: false);
+		if (roles is null || roles.Count == 0) return null;
 
 		var newPassword = ConsoleHelper.GetValidPassword(string.Format(Messages.EnterPasswordPrompt, "new"));
 		if (newPassword is null) return null;
@@ -201,32 +200,41 @@ public static class UserMenu
 		var confirmPassword = ConsoleHelper.GetValidPassword(Messages.PasswordConfirmation);
 		if (confirmPassword is null) return null;
 
-		if (newPassword == confirmPassword)
-			return new UserDto
-			{
-				FirstName = fields.FirstName, LastName = fields.LastName, NationalCode = fields.NationalCode,
-				Email = Email.Create(fields.Email), PhoneNumber = PhoneNumber.Create(fields.PhoneNumber),
-				BirthDate = fields.BirthDate, Role = { Id = roleIds[0], Name = LibraryUserRole.Member}, Password = newPassword
-			};
-		ConsoleHelper.ShowError(Messages.PasswordMatchedFailed);
-		return null;
+		if (newPassword != confirmPassword)
+		{
+			ConsoleHelper.ShowError(Messages.PasswordMatchedFailed);
+			return null;
+		}
+
+		var selectedRole = availableRoles.First(r => r.Id == roles[0].Id);
+
+		return new UserDto
+		{
+			FirstName = fields.FirstName,
+			LastName = fields.LastName,
+			NationalCode = fields.NationalCode,
+			Email = Email.Create(fields.Email),
+			PhoneNumber = PhoneNumber.Create(fields.PhoneNumber),
+			BirthDate = fields.BirthDate,
+			Role = new RoleDto { Id = selectedRole.Id, Name = selectedRole.Name },
+			Password = newPassword
+		};
 	}
 
 
-	private static IReadOnlyList<Role> GetAssignableRoles(UserManagementService userManagementService,
+	private static IReadOnlyList<RoleDto> GetAssignableRoles(UserManagementService userManagementService,
 		IAuthorizationService authorization)
 	{
-		var all = userManagementService.GetAllRoles();
 		return
 		[
-			.. all
+			.. userManagementService.GetAllRoles()
 				.Where(role => role.Name switch
 				{
 					LibraryUserRole.Member => authorization.HasPermission(Permission.AssignMemberRole),
 					LibraryUserRole.Librarian => authorization.HasPermission(Permission.AssignLibrarianRole),
 					LibraryUserRole.Admin => authorization.HasPermission(Permission.AssignAdminRole),
 					_ => false
-				})
+				}).Select(role => role.ToDto())
 		];
 	}
 
@@ -336,14 +344,12 @@ public static class UserMenu
 						break;
 					}
 
-					var availableRoles = userManagementService.GetAllRoles();
-					var roleIds = ConsoleHelper.ReadRoles("\nSelect role for this user", availableRoles,
+					var availableRoles = userManagementService.GetAllRoles().Select(r => r.ToDto()).ToList();
+					var roles = ConsoleHelper.ReadRoles("\nSelect role for this user", availableRoles,
 						allowMultiple: false);
-					if (roleIds is null) break;
+					if (roles is null) break;
 
-					var result =
-						userManagementService.UpdateUser(desiredUser.Id, new UserDto { Role = { Id = roleIds[0] } },
-							session);
+					var result = userManagementService.UpdateUser(new UserDto { Role = new RoleDto { Id = roles[0].Id } }, session);
 					if (result.IsSuccess) desiredUser = result.Data;
 					ConsoleHelper.ShowResult(result);
 					break;
@@ -484,11 +490,11 @@ public static class UserMenu
 
 	private static void SearchRoleAndDisplay(UserManagementService userManagementService, string prompt)
 	{
-		var availableRoles = userManagementService.GetAllRoles();
-		var roleIds = ConsoleHelper.ReadRoles(prompt, availableRoles, allowMultiple: false);
-		if (roleIds is null || roleIds.Count == 0) return;
+		var availableRoles = userManagementService.GetAllRoles().Select(r => r.ToDto()).ToList();
+		var roles = ConsoleHelper.ReadRoles(prompt, availableRoles, allowMultiple: false);
+		if (roles is null || roles.Count == 0) return;
 
-		var result = userManagementService.SearchByRole(roleIds[0]);
+		var result = userManagementService.SearchByRole(roles[0].Id);
 		DisplayUserResults(result);
 	}
 

@@ -134,13 +134,15 @@ public static class FineMenu
 		FinePrinter.PrintTable(unpaidFines);
 
 
-		var fineId = ConsoleHelper.ReadInt(Messages.FineIdForPay, 1, int.MaxValue);
-		if (fineId is null) return;
+		var selection = ConsoleHelper.ReadInt(Messages.FineIdForPay, 1, unpaidFines.Count);
+		if (selection is null) return;
+
+		var fineToPay = unpaidFines[selection.Value - 1];
 
 		var confirm = ConsoleHelper.ReadYesNo(Messages.ConfirmToPay);
 		if (confirm != true) return;
 
-		var payResult = fineManagementService.PayFine(fineId.Value, session);
+		var payResult = fineManagementService.PayFine(fineToPay.Id, session);
 		ConsoleHelper.ShowResult(payResult);
 	}
 
@@ -156,13 +158,15 @@ public static class FineMenu
 
 		FinePrinter.PrintTable(unpaidFines);
 
-		var fineId = ConsoleHelper.ReadInt(Messages.FineIdForWaive, 1, int.MaxValue);
-		if (fineId is null) return;
+		var selection = ConsoleHelper.ReadInt(Messages.FineIdForWaive, 1, unpaidFines.Count);
+		if (selection is null) return;
+
+		var fineToWaive = unpaidFines[selection.Value - 1];
 
 		var confirm = ConsoleHelper.ReadYesNo(Messages.ConfirmToWaive);
 		if (confirm != true) return;
 
-		var waiveResult = fineManagementService.WaiveFine(fineId.Value);
+		var waiveResult = fineManagementService.WaiveFine(fineToWaive.Id);
 		ConsoleHelper.ShowResult(waiveResult);
 	}
 

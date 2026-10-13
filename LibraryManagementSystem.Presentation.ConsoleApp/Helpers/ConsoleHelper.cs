@@ -246,8 +246,7 @@ public static class ConsoleHelper
 
 
 	public static IReadOnlyList<ContributorDto>? ReadTranslatorDtos(string prompt,
-		IReadOnlyList<ContributorDto> translators,
-		bool allowMultiple = true, bool allowEmpty = true)
+		IReadOnlyList<ContributorDto> translators, bool allowMultiple = true, bool allowEmpty = true)
 	{
 		return ReadMultiSelect(prompt, translators, idSelector: t => t.Id,
 			displayNameSelector: t => $"{t.FirstName} {t.LastName}", allowMultiple, allowEmpty);
@@ -255,8 +254,7 @@ public static class ConsoleHelper
 
 
 	public static IReadOnlyList<RoleDto>? ReadRoles(string prompt, IReadOnlyList<RoleDto> roles,
-		bool allowMultiple = true,
-		bool allowEmpty = false)
+		bool allowMultiple = true, bool allowEmpty = false)
 	{
 		return ReadMultiSelect(prompt, roles, idSelector: r => r.Id, displayNameSelector: r => r.Name.ToString(),
 			allowMultiple, allowEmpty);

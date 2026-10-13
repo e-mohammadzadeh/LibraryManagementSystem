@@ -1,9 +1,9 @@
-﻿using LibraryManagementSystem.Application.Authentication;
-using LibraryManagementSystem.Application.Authorization;
+﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.DTOs.Books;
 using LibraryManagementSystem.Infrastructure.DTOs.Loans;
 using LibraryManagementSystem.Infrastructure.DTOs.Users;
 using LibraryManagementSystem.Infrastructure.Enums;
@@ -203,23 +203,16 @@ public static class LoanMenu
 		}
 
 		BookPrinter.PrintTable(availableBooks, authorization);
-		int bookId;
+		BookDto selectedBook;
 		while (true)
 		{
-			var input = ConsoleHelper.ReadInt("Enter your desired book id to borrow", 1, int.MaxValue);
+			var input = ConsoleHelper.ReadInt("Enter your desired book id to borrow", 1, availableBooks.Count);
 			if (input is null) return;
-			var selectedBook = availableBooks.FirstOrDefault(b => b.Id == input);
-			if (selectedBook is null)
-			{
-				ConsoleHelper.ShowError(string.Format(Messages.InvalidIdSelection, ""));
-				continue;
-			}
-
-			bookId = (int)input;
+			selectedBook = availableBooks[input.Value - 1];
 			break;
 		}
 
-		var dto = new LoanDto { BookId = bookId, UserId = userId };
+		var dto = new LoanDto { BookId = selectedBook.Id, UserId = userId };
 		var result = loanManagementService.BorrowBook(dto, session);
 		ConsoleHelper.ShowResult(result);
 	}
@@ -244,15 +237,8 @@ public static class LoanMenu
 			userId = user.Id;
 		}
 
-		var result = loanManagementService.GetLoansByUser(userId, session, LoanFilter.Active);
-		if (!result.Success)
-		{
-			ConsoleHelper.ShowError(result.Message!);
-			return null;
-		}
-
-		var loans = result.Data;
-		if (loans is null || loans.Count == 0)
+		var loans = loanManagementService.GetLoansByUser(userId, session, LoanFilter.Active);
+		if (loans.Count == 0)
 		{
 			ConsoleHelper.ShowWarning(Messages.UserHasNoBorrowedBooks);
 			return null;
@@ -260,14 +246,8 @@ public static class LoanMenu
 
 		Console.Clear();
 		LoanPrinter.PrintTable(loans);
-		var loanId = ConsoleHelper.ReadInt($"Enter loan id to {purpose}", 1, int.MaxValue);
-		if (loanId is null) return null;
-
-		var selectedLoan = loans.FirstOrDefault(l => l.LoanId == loanId);
-		if (selectedLoan is not null) return selectedLoan;
-
-		ConsoleHelper.ShowError(Messages.ActiveLoanNotFound);
-		return null;
+		var selection = ConsoleHelper.ReadInt($"Enter loan id to {purpose}", 1, loans.Count);
+		return selection is null ? null : loans[selection.Value - 1];
 	}
 
 
@@ -372,14 +352,8 @@ public static class LoanMenu
 		var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(), users => UserPrinter.PrintTable(users));
 		if (user is null) return;
 
-		var result = loanManagementService.GetLoansByUser(user.Id, session, LoanFilter.Active);
-		if (!result.Success)
-		{
-			ConsoleHelper.ShowError(result.Message!);
-			return;
-		}
-
-		DisplayLoans(result.Data ?? [], Messages.UserHasNoBorrowedBooks);
+		var loan = loanManagementService.GetLoansByUser(user.Id, session, LoanFilter.Active);
+		DisplayLoans(loan, Messages.UserHasNoBorrowedBooks);
 	}
 
 
@@ -460,14 +434,8 @@ public static class LoanMenu
 						users => UserPrinter.PrintTable(users));
 					if (user is null) break;
 
-					var result = loanManagementService.GetLoansByUser(user.Id, session, LoanFilter.Overdue);
-					if (!result.Success)
-					{
-						ConsoleHelper.ShowError(result.Message!);
-						break;
-					}
-
-					DisplayLoans(result.Data ?? [], Messages.UserHasNoBorrowedBooks);
+					var loan = loanManagementService.GetLoansByUser(user.Id, session, LoanFilter.Overdue);
+					DisplayLoans(loan, Messages.UserHasNoBorrowedBooks);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -609,13 +577,12 @@ public static class LoanMenu
 				return;
 			}
 
-			Console.WriteLine("{0, -20}", "1. Loan ID");
-			Console.WriteLine("{0, -20}", "2. Book Title");
-			Console.WriteLine("{0, -20}", "3. Book ISBN");
-			Console.WriteLine("{0, -20}", "4. Member Name");
-			Console.WriteLine("{0, -20}", "5. Member National Code");
-			Console.WriteLine("{0, -20}", "6. Status (Active/Returned)");
-			Console.WriteLine("7. Back");
+			Console.WriteLine("{0, -20}", "1. Book Title");
+			Console.WriteLine("{0, -20}", "2. Book ISBN");
+			Console.WriteLine("{0, -20}", "3. Member Name");
+			Console.WriteLine("{0, -20}", "4. Member National Code");
+			Console.WriteLine("{0, -20}", "5. Status (Active/Returned)");
+			Console.WriteLine("6. Back");
 
 			var searchMenuChoice = ConsoleHelper.ReadInt(Messages.SearchMenuQuestion, 1, 7);
 			if (searchMenuChoice is null) return;
@@ -623,15 +590,6 @@ public static class LoanMenu
 			switch (searchMenuChoice)
 			{
 				case 1:
-				{
-					Console.Clear();
-					SearchLoanAndDisplay(p => ConsoleHelper.ReadInt(p, 1, int.MaxValue),
-						"Enter an ID to search", loan => loan.Id, (search, value) => search == value,
-						activeOnly, loanManagementService, session);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case 2:
 				{
 					Console.Clear();
 					SearchLoanAndDisplay(
@@ -644,7 +602,7 @@ public static class LoanMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 3:
+				case 2:
 				{
 					Console.Clear();
 					SearchLoanAndDisplay(p => ConsoleHelper.ReadString(p), "Enter a book ISBN to search",
@@ -655,7 +613,7 @@ public static class LoanMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 4:
+				case 3:
 				{
 					Console.Clear();
 					SearchLoanAndDisplay(
@@ -668,7 +626,7 @@ public static class LoanMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 5:
+				case 4:
 				{
 					Console.Clear();
 					SearchLoanAndDisplay(ConsoleHelper.GetValidNationalCode,
@@ -679,7 +637,7 @@ public static class LoanMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 6:
+				case 5:
 				{
 					Console.Clear();
 					SearchLoanAndDisplay(ConsoleHelper.ReadLoanStatus, "Enter loan status",
@@ -688,7 +646,7 @@ public static class LoanMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 7:
+				case 6:
 				{
 					ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "Loan"));
 					return;
