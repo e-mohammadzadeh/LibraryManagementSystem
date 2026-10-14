@@ -77,7 +77,6 @@ public static class Program
 			DataSeeder.Seed(authorRepo, translatorRepo, bookService, bookRepo, userRepo, iUserService, loanRepo,
 				roleRepo, fineRepo, passwordHasher);
 
-
 			while (true)
 			{
 				Console.Clear();

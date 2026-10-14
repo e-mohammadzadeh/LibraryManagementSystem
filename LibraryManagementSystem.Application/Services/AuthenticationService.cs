@@ -100,7 +100,7 @@ public class AuthenticationService
 		if (existingSameName is not null)
 			warningMessage = string.Format(Messages.DuplicateUserNameWarning, existingSameName.Id);
 
-		var role = _roleRepository.FindById(dto.Role.Id);
+		var role = _roleRepository.FindByName(LibraryUserRole.Member);
 
 		var result = _passwordHasher.CreatePasswordHash(dto.Password);
 
@@ -112,7 +112,7 @@ public class AuthenticationService
 			Email = email,
 			PhoneNumber = phoneNumber,
 			BirthDate = dto.BirthDate,
-			RoleId = dto.Role.Id,
+			RoleId = role!.Id,
 			Role = role!,
 			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
 		};

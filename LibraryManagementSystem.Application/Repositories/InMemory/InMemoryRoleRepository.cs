@@ -23,4 +23,10 @@ public class InMemoryRoleRepository : IRoleRepository
 	{
 		return _roles.FirstOrDefault(r => id == r.Id);
 	}
+
+
+	public Role? FindByName(LibraryUserRole name)
+	{
+		return _roles.FirstOrDefault(r => name == r.Name);
+	}
 }

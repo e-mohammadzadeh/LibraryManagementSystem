@@ -41,11 +41,6 @@ public static class RegisterMenu
 			Email = Email.Create(fields.Email),
 			PhoneNumber = PhoneNumber.Create(fields.PhoneNumber),
 			BirthDate = fields.BirthDate,
-			Role = new RoleDto
-			{
-				Id = Guid.CreateVersion7(),
-				Name = LibraryUserRole.Member
-			},
 			Password = newPassword
 		};
 
