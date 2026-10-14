@@ -392,28 +392,31 @@ public class BookManagementService : IBookManagementService
 	public void AddAuthor(Book book, Author author)
 	{
 		if (book.BookAuthors.Any(ba => ba.AuthorId == author.Id)) return;
-
-		book.BookAuthors.Add(new BookAuthor
+		var ba = new BookAuthor
 		{
 			BookId = book.Id,
 			Book = book,
 			AuthorId = author.Id,
 			Author = author
-		});
+		};
+		book.BookAuthors.Add(ba);
+		author.BookAuthors.Add(ba);
 	}
 
 
 	public void AddTranslator(Book book, Translator translator, Language? language)
 	{
 		if (book.BookTranslators.Any(bt => bt.TranslatorId == translator.Id)) return;
-
-		book.BookTranslators.Add(new BookTranslator
+		var bt = new BookTranslator
 		{
 			BookId = book.Id,
 			Book = book,
 			TranslatorId = translator.Id,
 			Translator = translator,
 			TranslationLanguage = language
-		});
+		};
+
+		book.BookTranslators.Add(bt);
+		translator.BookTranslators.Add(bt);
 	}
 }

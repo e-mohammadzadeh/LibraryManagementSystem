@@ -12,13 +12,18 @@ public static class BookMapper
 			Id = book.Id,
 			Title = book.Title,
 			ISBN = book.ISBN,
+			Authors = book.BookAuthors.Select(ba => ba.Author.ToDto()).ToList(),
+			Translators = book.BookTranslators.Select(bt => bt.Translator.ToDto()).ToList(),
 			PublishDate = book.PublishDate,
 			Genre = book.Genre,
 			Publisher = book.Publisher,
+			OriginalLanguage = book.OriginalLanguage,
 			TotalCopies = book.TotalCopies,
 			AvailableCopies = book.AvailableCopies,
 			Description = book.Description!,
 			CreatedAt = book.CreatedAt,
+			UpdatedAt = book.UpdatedAt ?? default,
+			UpdatedByUserId = book.UpdatedByUserId ?? Guid.Empty
 		};
 	}
 

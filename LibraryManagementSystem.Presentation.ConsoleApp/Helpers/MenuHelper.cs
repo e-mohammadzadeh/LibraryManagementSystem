@@ -47,7 +47,8 @@ public static class MenuHelper
 	}
 
 
-	public static ContributorDto? SelectAuthor(IReadOnlyList<ContributorDto> authorsList, IAuthorizationService authorization)
+	public static ContributorDto? SelectAuthor(IReadOnlyList<ContributorDto> authorsList,
+		IAuthorizationService authorization)
 	{
 		if (authorsList.Count == 0)
 		{
@@ -63,10 +64,9 @@ public static class MenuHelper
 		{
 			printer(authorsList);
 			// TODO	Max parameter has some logical issues when authors are removed and new authors are added.
-			var desiredAuthorId = ConsoleHelper.ReadInt("Enter the number of the author you wish", 1, authorsList.Count);
-
-			if (desiredAuthorId is null) return null;
-			ConsoleHelper.ShowError(Messages.AuthorNotFound);
+			var desiredAuthorId =
+				ConsoleHelper.ReadInt("Enter the number of the author you wish", 1, authorsList.Count);
+			return desiredAuthorId is null ? null : authorsList[desiredAuthorId.Value - 1];
 		}
 	}
 
@@ -90,10 +90,9 @@ public static class MenuHelper
 		{
 			printer(translatorsList);
 			// TODO	Max parameter has some logical issues when authors are removed and new authors are added.
-			var desiredTranslatorId = ConsoleHelper.ReadInt(Messages.SelectTranslatorQuestion, 1, translatorsList.Count);
-
-			if (desiredTranslatorId is null) return null;
-			ConsoleHelper.ShowError(Messages.TranslatorNotFound);
+			var desiredTranslatorId =
+				ConsoleHelper.ReadInt(Messages.SelectTranslatorQuestion, 1, translatorsList.Count);
+			return desiredTranslatorId is null ? null : translatorsList[desiredTranslatorId.Value - 1];
 		}
 	}
 
