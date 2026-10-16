@@ -71,15 +71,14 @@ public static class ConsoleTable
 	public static void PrintTable(string title, string[] headers, List<string[][]> rows)
 	{
 		var colCount = headers.Length;
-
-		// Calculate column widths based on content
-		var widths = new int[colCount];
-		for (var c = 0; c < colCount; c++)
+		var widths = new int[headers.Length];
+		for (var c = 0; c < headers.Length; c++)
 		{
-			var maxLen = headers[c].Length;
-			maxLen = rows.Select(row => row[c].Max(line => line?.Length ?? 0)).Prepend(maxLen).Max();
-
-			widths[c] = maxLen + 2; // +2 for padding
+			widths[c] = rows
+				.SelectMany(row => row[c])
+				.Select(line => line?.Length ?? 0)
+				.Append(headers[c].Length)
+				.Max() + 2;
 		}
 
 		var innerWidth = widths.Sum() + (colCount - 1); // Sum + inner borders

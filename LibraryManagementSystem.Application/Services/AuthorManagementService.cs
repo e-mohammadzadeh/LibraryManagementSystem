@@ -72,36 +72,58 @@ public class AuthorManagementService
 
 	public ServiceResult<ContributorDto> UpdateAuthor(ContributorDto dto, Guid? updateBy = null)
 	{
-		string? warningMessage = null;
-
 		var author = _authorRepository.FindById(dto.Id, EntityFilter.Active);
 		if (author is null) return ServiceResult<ContributorDto>.Fail(Messages.AuthorUpdateFailed);
 
-		if (IsNoOpUpdateAuthor(author, dto)) return ServiceResult<ContributorDto>.Fail(Messages.NoChangesDetected);
+		if (IsNoOpUpdateAuthor(author, dto))
+			return ServiceResult<ContributorDto>.Warning(author.ToDto(), Messages.NoChangesDetected);
 
-		var existingSameName = _authorRepository.FindByName(dto.FirstName, dto.LastName, EntityFilter.Active);
-		if (existingSameName != null && existingSameName.Id != dto.Id)
-			warningMessage = string.Format(Messages.DuplicateAuthorNameWarning, existingSameName.Id);
+		if (string.IsNullOrWhiteSpace(dto.FirstName) || string.IsNullOrWhiteSpace(dto.LastName) ||
+		    string.IsNullOrWhiteSpace(dto.NationalCode) || string.IsNullOrWhiteSpace(dto.Email) ||
+		    string.IsNullOrWhiteSpace(dto.PhoneNumber))
+			return ServiceResult<ContributorDto>.Fail(Messages.AuthorUpdateFailed);
+
+		var firstName = dto.FirstName.Trim();
+		var lastName = dto.LastName.Trim();
+		var nationalCode = dto.NationalCode.Trim();
+
+		Email email;
+		PhoneNumber phoneNumber;
+		try
+		{
+			email = Email.Create(dto.Email);
+			phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
+		}
+		catch (ArgumentException ex)
+		{
+			return ServiceResult<ContributorDto>.Fail(ex.Message);
+		}
 		
 		if (_authorRepository.ExistsByNationalCode(dto.NationalCode, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByNationalCode);
 
-		var email = Email.Create(dto.Email);
 		if (_authorRepository.ExistsByEmail(email, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByEmail);
-		
-		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
+
 		if (_authorRepository.ExistsByPhoneNumber(phoneNumber, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByPhoneNumber);
 
 		var auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(author, dto);
 
+		author.FirstName = firstName;
+		author.LastName = lastName;
+		author.NationalCode = nationalCode;
+		author.Email = email;
+		author.PhoneNumber = phoneNumber;
+		author.BirthDate = dto.BirthDate;
+		author.Biography = string.IsNullOrWhiteSpace(dto.Biography) ? null : dto.Biography.Trim();
+		author.UpdatedAt = DateTime.UtcNow;
+		author.UpdatedByUserId = updateBy;
+
 		_authorRepository.Update(author, updateBy);
 		_auditLog.Record(AuditAction.AuthorUpdated, "Author", dto.Id, auditDetails ?? "Author updated.");
 
-		return warningMessage != null
-			? ServiceResult<ContributorDto>.Warning(author.ToDto(), warningMessage)
-			: ServiceResult<ContributorDto>.Ok(author.ToDto(), Messages.AuthorUpdatedSuccessfully);
+		return ServiceResult<ContributorDto>.Ok(author.ToDto(), Messages.AuthorUpdatedSuccessfully);
 	}
 
 

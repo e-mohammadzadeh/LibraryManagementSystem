@@ -2,7 +2,7 @@
 
 namespace LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 
-public class ContributorDto
+public record ContributorDto
 {
 	public Guid Id { get; init; }
 	public string FirstName { get; init; } = null!;
