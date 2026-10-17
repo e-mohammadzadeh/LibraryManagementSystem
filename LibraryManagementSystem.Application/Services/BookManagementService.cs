@@ -64,7 +64,7 @@ public class BookManagementService : IBookManagementService
 		var authors = new List<Author>();
 		foreach (var id in authorIds)
 		{
-			var author = _authorRepository.FindById(id, EntityFilter.Active);
+			var author = _authorRepository.GetById(id, EntityFilter.Active);
 			if (author is null) return ServiceResult<BookDto>.Fail(string.Format(Messages.AuthorNotFoundFormat, id));
 			authors.Add(author);
 		}
@@ -125,7 +125,7 @@ public class BookManagementService : IBookManagementService
 		List<Author> resolvedAuthors = [];
 		foreach (var contributor in dto.Authors)
 		{
-			var author = _authorRepository.FindById(contributor.Id, EntityFilter.Active);
+			var author = _authorRepository.GetById(contributor.Id, EntityFilter.Active);
 			if (author is null)
 				return ServiceResult<BookDto>.Fail(string.Format(Messages.AuthorNotFoundFormat, contributor));
 			resolvedAuthors.Add(author);

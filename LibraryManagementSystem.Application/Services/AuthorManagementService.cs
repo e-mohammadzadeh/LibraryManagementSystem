@@ -33,22 +33,17 @@ public class AuthorManagementService
 
 	public ServiceResult<ContributorDto> AddAuthor(ContributorDto dto)
 	{
-		string? warningMessage = null;
-
-		if (_authorRepository.ExistsByNationalCode(dto.NationalCode))
+		if (_authorRepository.Exists(dto.NationalCode, a => a.NationalCode))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByNationalCode);
 
 		var email = Email.Create(dto.Email);
-		if (_authorRepository.ExistsByEmail(email))
+		if (_authorRepository.Exists(email, a => a.Email))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByEmail);
 
 		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
-		if (_authorRepository.ExistsByPhoneNumber(phoneNumber))
+		if (_authorRepository.Exists(phoneNumber, a => a.PhoneNumber))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByPhoneNumber);
 
-		var existingSameName = _authorRepository.FindByName(dto.FirstName, dto.LastName, EntityFilter.Active);
-		if (existingSameName != null)
-			warningMessage = string.Format(Messages.DuplicateAuthorNameWarning, existingSameName.Id);
 
 		var newAuthor = new Author
 		{
@@ -64,15 +59,13 @@ public class AuthorManagementService
 		_authorRepository.Add(newAuthor);
 		_auditLog.Record(AuditAction.AuthorCreated, "Author", newAuthor.Id, "Author created.");
 
-		return warningMessage != null
-			? ServiceResult<ContributorDto>.Warning(newAuthor.ToDto(), warningMessage)
-			: ServiceResult<ContributorDto>.Ok(newAuthor.ToDto(), Messages.AuthorAddedSuccessfully);
+		return ServiceResult<ContributorDto>.Ok(newAuthor.ToDto(), Messages.AuthorAddedSuccessfully);
 	}
 
 
 	public ServiceResult<ContributorDto> UpdateAuthor(ContributorDto dto, Guid? updateBy = null)
 	{
-		var author = _authorRepository.FindById(dto.Id, EntityFilter.Active);
+		var author = _authorRepository.GetById(dto.Id, EntityFilter.Active);
 		if (author is null) return ServiceResult<ContributorDto>.Fail(Messages.AuthorUpdateFailed);
 
 		if (IsNoOpUpdateAuthor(author, dto))
@@ -94,14 +87,14 @@ public class AuthorManagementService
 		{
 			return ServiceResult<ContributorDto>.Fail(ex.Message);
 		}
-		
-		if (_authorRepository.ExistsByNationalCode(dto.NationalCode, dto.Id))
+
+		if (_authorRepository.Exists(dto.NationalCode, a => a.NationalCode, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByNationalCode);
 
-		if (_authorRepository.ExistsByEmail(email, dto.Id))
+		if (_authorRepository.Exists(email, a => a.Email, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByEmail);
 
-		if (_authorRepository.ExistsByPhoneNumber(phoneNumber, dto.Id))
+		if (_authorRepository.Exists(phoneNumber, a => a.PhoneNumber, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByPhoneNumber);
 
 		var auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(author, dto);
@@ -136,7 +129,7 @@ public class AuthorManagementService
 
 	public ServiceResult<ContributorDto> RemoveAuthor(Guid authorId)
 	{
-		var author = _authorRepository.FindById(authorId, EntityFilter.Active);
+		var author = _authorRepository.GetById(authorId, EntityFilter.Active);
 		if (author is null) return ServiceResult<ContributorDto>.Fail(Messages.AuthorRemoveFailed);
 
 		if (author.BookAuthors.Count != 0) return ServiceResult<ContributorDto>.Fail(Messages.AuthorHasAssociatedBooks);
@@ -150,6 +143,8 @@ public class AuthorManagementService
 
 	public IReadOnlyList<ContributorDto> SearchAuthor(string searchItem, AuthorSearchField field)
 	{
+		if (string.IsNullOrWhiteSpace(searchItem)) return [];
+
 		var requiredPermission = field switch
 		{
 			AuthorSearchField.Name => [Permission.SearchAuthorForMember, Permission.FullSearchAuthor],
@@ -170,43 +165,37 @@ public class AuthorManagementService
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};
 
-		return [.. _authorRepository.Search(searchItem, selector).Select(author => author.ToDto())];
+		return [.. _authorRepository.GetAll(EntityFilter.Active)
+				.Where(author =>
+				{
+					var value = selector(author);
+
+					return value is not null &&
+					       value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
+				})
+				.Select(author => author.ToDto())
+		];
 	}
 
-	#region Retrival
 
-	#region public
-
-	public IReadOnlyList<BookDto> GetBooksByAuthor(Guid authorId) {
-		var author = _authorRepository.FindById(authorId, EntityFilter.Active);
-		if (author is null)
-			return [];
+	public IReadOnlyList<BookDto> GetBooksByAuthor(Guid authorId)
+	{
+		var author = _authorRepository.GetById(authorId, EntityFilter.Active);
+		if (author is null) return [];
 		return [.. author.BookAuthors.Select(b => b.Book.ToDto())];
 	}
-	#endregion
 
 
-	#region private
-	public AuthorDetailsDto? GetAuthorDetails(Guid authorId) {
-		var author = _authorRepository.FindById(authorId, EntityFilter.Active);
-		if (author is null)
-			return null;
+	public AuthorDetailsDto? GetAuthorDetails(Guid authorId)
+	{
+		var author = _authorRepository.GetById(authorId, EntityFilter.Active);
+		if (author is null) return null;
 
 		var books = _bookRepository.GetByAuthorId(authorId);
 		return new AuthorDetailsDto(author.ToDto(), [.. books.Select(b => b.ToSummaryDto())]);
-	} 
-	#endregion
-
-	#endregion
+	}
 
 
-	/// <summary>
-	/// 
-	/// </summary>
-	/// <param name="sortField"></param>
-	/// <param name="sortDirection"></param>
-	/// <returns></returns>
-	/// <exception cref="ArgumentOutOfRangeException"></exception>
 	public IReadOnlyList<ContributorDto> GetAllAuthors(ContributorSortField sortField = ContributorSortField.Id,
 		SortDirection sortDirection = SortDirection.Ascending)
 	{

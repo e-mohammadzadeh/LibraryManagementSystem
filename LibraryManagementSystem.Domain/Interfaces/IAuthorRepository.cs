@@ -1,19 +1,14 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
-using LibraryManagementSystem.Infrastructure.ValueObjects;
 
 namespace LibraryManagementSystem.Domain.Interfaces;
 
 public interface IAuthorRepository
 {
 	void Add(Author author);
-	Author? FindById(Guid id, EntityFilter filter);
-	Author? FindByName(string firstName, string lastName, EntityFilter filter);
+	Author? GetById(Guid id, EntityFilter filter);
 	IReadOnlyList<Author> GetAll(EntityFilter filter);
-	bool ExistsByNationalCode(string nationalCode, Guid? excludeId = null);
-	bool ExistsByEmail(Email email, Guid? excludeId = null);
-	bool ExistsByPhoneNumber(PhoneNumber phoneNumber, Guid? excludeId = null);
+	bool Exists<T>(T value, Func<Author, T> selector, Guid? excludeId = null);
 	void Remove(Author author);
-	IReadOnlyList<Author> Search(string searchItem, Func<Author, string?> selector);
 	void Update(Author author);
 }
