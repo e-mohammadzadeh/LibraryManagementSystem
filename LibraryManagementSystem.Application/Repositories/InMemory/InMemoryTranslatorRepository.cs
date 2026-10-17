@@ -2,7 +2,6 @@
 using LibraryManagementSystem.Domain.Exceptions;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
-using LibraryManagementSystem.Infrastructure.ValueObjects;
 
 namespace LibraryManagementSystem.Application.Repositories.InMemory;
 
@@ -22,18 +21,9 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 	}
 
 
-	public Translator? FindById(Guid id, EntityFilter filter = EntityFilter.Active)
+	public Translator? GetById(Guid id, EntityFilter filter = EntityFilter.Active)
 	{
 		return ApplyFilter(_translators, filter).FirstOrDefault(t => t.Id == id);
-	}
-
-
-	public Translator? FindByName(string firstName, string lastName, EntityFilter filter = EntityFilter.Active)
-	{
-		return ApplyFilter(_translators, filter).FirstOrDefault(t =>
-			!t.IsRemoved &&
-			t.FirstName.Equals(firstName, StringComparison.OrdinalIgnoreCase) &&
-			t.LastName.Equals(lastName, StringComparison.OrdinalIgnoreCase));
 	}
 
 
@@ -43,30 +33,12 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 	}
 
 
-	public bool ExistsByNationalCode(string nationalCode, Guid? excludeId)
+	public bool Exists<T>(T value, Func<Translator, T> selector, Guid? excludeId)
 	{
 		return _translators.Any(t =>
 			!t.IsRemoved &&
-			t.NationalCode.Equals(nationalCode, StringComparison.OrdinalIgnoreCase) &&
-			(excludeId is null || t.Id != excludeId));
-	}
-
-
-	public bool ExistsByEmail(Email email, Guid? excludeId)
-	{
-		return _translators.Any(t =>
-			!t.IsRemoved &&
-			t.Email.Equals(email) &&
-			(excludeId is null || t.Id != excludeId));
-	}
-
-
-	public bool ExistsByPhoneNumber(PhoneNumber phoneNumber, Guid? excludeId)
-	{
-		return _translators.Any(t =>
-			!t.IsRemoved &&
-			t.PhoneNumber.Equals(phoneNumber) &&
-			(excludeId is null || t.Id != excludeId));
+			(excludeId is null || t.Id != excludeId) &&
+			EqualityComparer<T>.Default.Equals(selector(t), value));
 	}
 
 
@@ -79,28 +51,12 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 	}
 
 
-	public IReadOnlyList<Translator> Search(string searchItem, Func<Translator, string?> selector)
-	{
-		if (string.IsNullOrWhiteSpace(searchItem)) return [];
-
-		return
-		[
-			.. _translators
-				.Where(t => !t.IsRemoved)
-				.Where(t =>
-			{
-				var value = selector(t);
-				return value is not null && value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
-			})
-		];
-	}
-
-
-	public void Update(Translator translator, Guid? updatedBy = null)
+	public void Update(Translator translator)
 	{
 		ArgumentNullException.ThrowIfNull(translator);
 
-		var tracked = _translators.FirstOrDefault(a => a.Id == translator.Id) ?? throw new TranslatorNotFoundException(translator.Id);
+		var tracked = _translators.FirstOrDefault(a => a.Id == translator.Id) ??
+		              throw new TranslatorNotFoundException(translator.Id);
 
 		tracked.FirstName = translator.FirstName;
 		tracked.LastName = translator.LastName;
@@ -109,8 +65,8 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 		tracked.PhoneNumber = translator.PhoneNumber;
 		tracked.BirthDate = translator.BirthDate;
 		tracked.Biography = translator.Biography;
-		tracked.UpdatedByUserId = updatedBy;
 		tracked.UpdatedAt = DateTime.UtcNow;
+		tracked.UpdatedByUserId = translator.UpdatedByUserId;
 	}
 
 

@@ -40,7 +40,7 @@ public class InMemoryAuthorRepository : IAuthorRepository
 			(excludeId is null || a.Id != excludeId) &&
 			EqualityComparer<T>.Default.Equals(selector(a), value));
 	}
-	
+
 
 	public void Remove(Author author)
 	{

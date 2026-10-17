@@ -46,7 +46,7 @@ public class TranslatorManagementService
 		if (_translatorRepository.ExistsByPhoneNumber(phoneNumber))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByPhoneNumber);
 
-		var existingSameName = _translatorRepository.FindByName(dto.FirstName, dto.LastName, EntityFilter.Active);
+		var existingSameName = _translatorRepository.GetByName(dto.FirstName, dto.LastName, EntityFilter.Active);
 		if (existingSameName != null)
 			warningMessage = string.Format(Messages.DuplicateTranslatorNameWarning, existingSameName.Id);
 
@@ -74,13 +74,13 @@ public class TranslatorManagementService
 	{
 		string? warningMessage = null;
 
-		var translator = _translatorRepository.FindById(dto.Id, EntityFilter.Active);
+		var translator = _translatorRepository.GetById(dto.Id, EntityFilter.Active);
 		if (translator is null) return ServiceResult<ContributorDto>.Fail(Messages.TranslatorUpdateFailed);
 
 		if (IsNoOpUpdateTranslator(translator, dto))
 			return ServiceResult<ContributorDto>.Fail(Messages.NoChangesDetected);
 
-		var existingSameName = _translatorRepository.FindByName(dto.FirstName, dto.LastName, EntityFilter.Active);
+		var existingSameName = _translatorRepository.GetByName(dto.FirstName, dto.LastName, EntityFilter.Active);
 		if (existingSameName != null && existingSameName.Id != dto.Id)
 			warningMessage = string.Format(Messages.DuplicateTranslatorNameWarning, existingSameName.Id);
 		
@@ -122,7 +122,7 @@ public class TranslatorManagementService
 
 	public ServiceResult<ContributorDto> RemoveTranslator(Guid translatorId)
 	{
-		var translator = _translatorRepository.FindById(translatorId, EntityFilter.Active);
+		var translator = _translatorRepository.GetById(translatorId, EntityFilter.Active);
 		if (translator is null) return ServiceResult<ContributorDto>.Fail(Messages.TranslatorRemoveFailed);
 
 		if (translator.BookTranslators.Count != 0)
@@ -163,7 +163,7 @@ public class TranslatorManagementService
 
 	public IReadOnlyList<BookDto> GetBooksByTranslator(Guid translatorId)
 	{
-		var translator = _translatorRepository.FindById(translatorId, EntityFilter.Active);
+		var translator = _translatorRepository.GetById(translatorId, EntityFilter.Active);
 		if (translator is null) return [];
 		return [.. translator.BookTranslators.Select(b => b.Book.ToDto())];
 	}

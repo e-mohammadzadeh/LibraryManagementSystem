@@ -70,7 +70,7 @@ public class BookManagementService : IBookManagementService
 		}
 
 		var translators = new List<Translator>();
-		foreach (var translator in translatorIds.Select(id => _translatorRepository.FindById(id, EntityFilter.Active)))
+		foreach (var translator in translatorIds.Select(id => _translatorRepository.GetById(id, EntityFilter.Active)))
 		{
 			if (translator is null) return ServiceResult<BookDto>.Fail(Messages.NotTranslatorMatched);
 			translators.Add(translator);
@@ -137,7 +137,7 @@ public class BookManagementService : IBookManagementService
 		List<Translator> resolvedTranslators = [];
 		foreach (var contributor in dto.Translators)
 		{
-			var translator = _translatorRepository.FindById(contributor.Id, EntityFilter.Active);
+			var translator = _translatorRepository.GetById(contributor.Id, EntityFilter.Active);
 			if (translator is null)
 				return ServiceResult<BookDto>.Fail(string.Format(Messages.TranslatorNotFoundFormat,
 					contributor));

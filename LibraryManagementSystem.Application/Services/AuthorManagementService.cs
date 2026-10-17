@@ -185,17 +185,7 @@ public class AuthorManagementService
 		return [.. author.BookAuthors.Select(b => b.Book.ToDto())];
 	}
 
-
-	public AuthorDetailsDto? GetAuthorDetails(Guid authorId)
-	{
-		var author = _authorRepository.GetById(authorId, EntityFilter.Active);
-		if (author is null) return null;
-
-		var books = _bookRepository.GetByAuthorId(authorId);
-		return new AuthorDetailsDto(author.ToDto(), [.. books.Select(b => b.ToSummaryDto())]);
-	}
-
-
+	
 	public IReadOnlyList<ContributorDto> GetAllAuthors(ContributorSortField sortField = ContributorSortField.Id,
 		SortDirection sortDirection = SortDirection.Ascending)
 	{
