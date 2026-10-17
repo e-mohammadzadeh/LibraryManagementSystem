@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Application.Authorization;
+﻿using System.Security.Claims;
+using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Infrastructure.Common;
@@ -131,6 +132,7 @@ public static class AuthorMenu
 			(7, "Back", true)
 		};
 
+
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
 		Console.WriteLine(new string('=', 35) + " AUTHOR MENU " + new string('=', 35));
 
@@ -201,7 +203,7 @@ public static class AuthorMenu
 					["7"], ["Biography"],
 					string.IsNullOrWhiteSpace(desiredAuthor.Biography)
 						? ["—"]
-						: new[] {desiredAuthor.Biography}
+						: new[] { desiredAuthor.Biography }
 				},
 				new[] { ["8"], ["Back"], Item }
 			};
@@ -220,7 +222,7 @@ public static class AuthorMenu
 
 					var author = desiredAuthor;
 					var updated = PerformUpdate(authorManagementService, authorNewFirstName,
-						v => author with {FirstName = v});
+						v => author with { FirstName = v });
 					if (updated is not null) desiredAuthor = updated;
 					break;
 				}
@@ -248,7 +250,7 @@ public static class AuthorMenu
 				case 4:
 				{
 					var authorNewEmail = ConsoleHelper.GetValidEmail("\nEnter new email");
-					
+
 					var author = desiredAuthor;
 					var updated = PerformUpdate(authorManagementService, authorNewEmail,
 						v => author with { Email = Email.Create(v) });
@@ -259,7 +261,7 @@ public static class AuthorMenu
 				{
 					Console.Clear();
 					var authorNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number");
-					
+
 					var author = desiredAuthor;
 					var updated = PerformUpdate(authorManagementService, authorNewPhoneNumber,
 						v => author with { PhoneNumber = PhoneNumber.Create(v) });
@@ -269,7 +271,7 @@ public static class AuthorMenu
 				case 6:
 				{
 					var authorNewBirthDate = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
-					
+
 					var author = desiredAuthor;
 					var updated = PerformUpdate(authorManagementService, authorNewBirthDate,
 						v => author with { BirthDate = v!.Value });
@@ -279,7 +281,7 @@ public static class AuthorMenu
 				case 7:
 				{
 					var authorNewBiography = ConsoleHelper.ReadString("\nEnter new biography");
-					
+
 					var author = desiredAuthor;
 					var updated = PerformUpdate(authorManagementService, authorNewBiography,
 						v => author with { Biography = v });
@@ -299,6 +301,18 @@ public static class AuthorMenu
 	}
 
 
+	private static ContributorDto? PerformUpdate<T>(AuthorManagementService authorManagementService, T? newValue,
+		Func<T, ContributorDto> buildDto)
+	{
+		if (newValue is null) return null;
+
+		var dto = buildDto(newValue);
+		var result = authorManagementService.UpdateAuthor(dto);
+		ConsoleHelper.ShowResult(result);
+		return result.Data;
+	}
+
+
 	private static void RemoveAuthor(AuthorManagementService authorManagementService,
 		IAuthorizationService authorization)
 	{
@@ -312,17 +326,6 @@ public static class AuthorMenu
 			AuthorPrinter.PrintDetails, () => authorManagementService.RemoveAuthor(desiredAuthor!.Id));
 	}
 
-
-	private static ContributorDto? PerformUpdate<T>(AuthorManagementService authorManagementService, T? newValue,
-		Func<T, ContributorDto> buildDto)
-	{
-		if (newValue is null) return null;
-
-		var dto = buildDto(newValue);
-		var result = authorManagementService.UpdateAuthor(dto);
-		ConsoleHelper.ShowResult(result);
-		return result.Data;
-	}
 
 
 	private static void SearchAuthor(AuthorManagementService authorManagementService,
@@ -450,7 +453,6 @@ public static class AuthorMenu
 	{
 		var fields = new List<(ContributorSortField Field, string Label)>
 		{
-			(ContributorSortField.Id, "ID"),
 			(ContributorSortField.FirstName, "First Name"),
 			(ContributorSortField.LastName, "Last Name"),
 			(ContributorSortField.FullName, "Full Name"),
@@ -487,7 +489,6 @@ public static class AuthorMenu
 			_ => null
 		};
 	}
-
 
 
 	private static void ViewAuthors(AuthorManagementService authorManagementService,

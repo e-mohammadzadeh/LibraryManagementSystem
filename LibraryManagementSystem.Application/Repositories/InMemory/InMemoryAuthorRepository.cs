@@ -96,7 +96,7 @@ public class InMemoryAuthorRepository : IAuthorRepository
 	}
 
 
-	public void Update(Author author, Guid? updatedBy = null)
+	public void Update(Author author)
 	{
 		ArgumentNullException.ThrowIfNull(author);
 
@@ -109,7 +109,6 @@ public class InMemoryAuthorRepository : IAuthorRepository
 		tracked.PhoneNumber = author.PhoneNumber;
 		tracked.BirthDate = author.BirthDate;
 		tracked.Biography = author.Biography;
-		tracked.UpdatedByUserId = updatedBy;
 		tracked.UpdatedAt = DateTime.UtcNow;
 	}
 

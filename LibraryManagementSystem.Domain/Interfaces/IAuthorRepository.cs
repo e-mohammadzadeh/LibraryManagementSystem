@@ -15,5 +15,5 @@ public interface IAuthorRepository
 	bool ExistsByPhoneNumber(PhoneNumber phoneNumber, Guid? excludeId = null);
 	void Remove(Author author);
 	IReadOnlyList<Author> Search(string searchItem, Func<Author, string?> selector);
-	void Update(Author author, Guid? updatedBy);
+	void Update(Author author);
 }

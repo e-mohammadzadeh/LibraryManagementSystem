@@ -83,10 +83,6 @@ public class AuthorManagementService
 		    string.IsNullOrWhiteSpace(dto.PhoneNumber))
 			return ServiceResult<ContributorDto>.Fail(Messages.AuthorUpdateFailed);
 
-		var firstName = dto.FirstName.Trim();
-		var lastName = dto.LastName.Trim();
-		var nationalCode = dto.NationalCode.Trim();
-
 		Email email;
 		PhoneNumber phoneNumber;
 		try
@@ -110,17 +106,16 @@ public class AuthorManagementService
 
 		var auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(author, dto);
 
-		author.FirstName = firstName;
-		author.LastName = lastName;
-		author.NationalCode = nationalCode;
+		author.FirstName = dto.FirstName;
+		author.LastName = dto.LastName;
+		author.NationalCode = dto.NationalCode;
 		author.Email = email;
 		author.PhoneNumber = phoneNumber;
 		author.BirthDate = dto.BirthDate;
-		author.Biography = string.IsNullOrWhiteSpace(dto.Biography) ? null : dto.Biography.Trim();
-		author.UpdatedAt = DateTime.UtcNow;
+		author.Biography = dto.Biography;
 		author.UpdatedByUserId = updateBy;
 
-		_authorRepository.Update(author, updateBy);
+		_authorRepository.Update(author);
 		_auditLog.Record(AuditAction.AuthorUpdated, "Author", dto.Id, auditDetails ?? "Author updated.");
 
 		return ServiceResult<ContributorDto>.Ok(author.ToDto(), Messages.AuthorUpdatedSuccessfully);
@@ -178,15 +173,40 @@ public class AuthorManagementService
 		return [.. _authorRepository.Search(searchItem, selector).Select(author => author.ToDto())];
 	}
 
+	#region Retrival
 
-	public IReadOnlyList<BookDto> GetBooksByAuthor(Guid authorId)
-	{
+	#region public
+
+	public IReadOnlyList<BookDto> GetBooksByAuthor(Guid authorId) {
 		var author = _authorRepository.FindById(authorId, EntityFilter.Active);
-		if (author is null) return [];
+		if (author is null)
+			return [];
 		return [.. author.BookAuthors.Select(b => b.Book.ToDto())];
 	}
+	#endregion
 
 
+	#region private
+	public AuthorDetailsDto? GetAuthorDetails(Guid authorId) {
+		var author = _authorRepository.FindById(authorId, EntityFilter.Active);
+		if (author is null)
+			return null;
+
+		var books = _bookRepository.GetByAuthorId(authorId);
+		return new AuthorDetailsDto(author.ToDto(), [.. books.Select(b => b.ToSummaryDto())]);
+	} 
+	#endregion
+
+	#endregion
+
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="sortField"></param>
+	/// <param name="sortDirection"></param>
+	/// <returns></returns>
+	/// <exception cref="ArgumentOutOfRangeException"></exception>
 	public IReadOnlyList<ContributorDto> GetAllAuthors(ContributorSortField sortField = ContributorSortField.Id,
 		SortDirection sortDirection = SortDirection.Ascending)
 	{
