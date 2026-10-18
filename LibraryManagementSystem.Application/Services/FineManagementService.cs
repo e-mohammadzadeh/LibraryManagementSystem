@@ -97,7 +97,7 @@ public class FineManagementService : IFineManagementService
 
 	public ServiceResult<FineDto> PayFine(Guid fineId, ICurrentUserSession session)
 	{
-		var fine = _fineRepository.FindById(fineId, FineFilter.Unpaid);
+		var fine = _fineRepository.GetById(fineId, FineFilter.Unpaid);
 		if (fine is null) return ServiceResult<FineDto>.Fail(Messages.FineNotFound);
 
 		if (session.IsSelfServiceMember && session.CurrentUser?.Id != fine.UserId)
@@ -138,7 +138,7 @@ public class FineManagementService : IFineManagementService
 		if (!_authorization.HasPermission(Permission.WaiveFine))
 			return ServiceResult<FineDto>.Fail(Messages.AdminOnlyWaive);
 
-		var fine = _fineRepository.FindById(fineId, FineFilter.Unpaid);
+		var fine = _fineRepository.GetById(fineId, FineFilter.Unpaid);
 		if (fine is null) return ServiceResult<FineDto>.Fail(Messages.FineNotFound);
 
 		try
@@ -224,5 +224,16 @@ public class FineManagementService : IFineManagementService
 		if (fine.Status == FineStatus.Paid) throw new InvalidOperationException("Cannot waive an already paid fine.");
 		fine.Status = FineStatus.Waived;
 		fine.UpdatedAt = DateTime.Now;
+	}
+
+
+
+	private IReadOnlyList<FineDto> MapWithLookups(IEnumerable<FineHistory> histories) {
+		var list = histories.ToList();
+
+		var userNames = _userRepository.GetAll(EntityFilter.All)
+			.ToDictionary(u => u.Id, u => $"{u.FirstName} {u.LastName}");
+
+		return [.. list.Select(h => h.ToDto())];
 	}
 }

@@ -1,6 +1,8 @@
-﻿using LibraryManagementSystem.Domain.Entities;
+﻿using LibraryManagementSystem.Application.Mapping;
+using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.DTOs.Fine;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.ValueObjects;
@@ -24,7 +26,7 @@ public class InMemoryFineRepository : IFineRepository
 	}
 
 
-	public Fine? FindById(Guid id, FineFilter filter)
+	public Fine? GetById(Guid id, FineFilter filter)
 	{
 		return ApplyFilter(_fines, filter).FirstOrDefault(f => f.Id == id);
 	}

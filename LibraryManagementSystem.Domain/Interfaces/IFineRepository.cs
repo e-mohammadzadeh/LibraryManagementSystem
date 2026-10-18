@@ -6,7 +6,7 @@ namespace LibraryManagementSystem.Domain.Interfaces;
 public interface IFineRepository
 {
 	void Add(Fine fine);
-	Fine? FindById(Guid fineId, FineFilter filter);
+	Fine? GetById(Guid fineId, FineFilter filter);
 	IReadOnlyList<Fine> GetAll(FineFilter filter);
 	IReadOnlyList<Fine> GetByLoanId(Guid loanId, FineFilter filter);
 	IReadOnlyList<Fine> GetByUserId(Guid userId, FineFilter filter);
