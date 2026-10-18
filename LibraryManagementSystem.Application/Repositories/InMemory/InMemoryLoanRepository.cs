@@ -27,7 +27,7 @@ public class InMemoryLoanRepository : ILoanRepository
 	}
 
 
-	public Loan? FindById(Guid id, LoanFilter filter = LoanFilter.Active)
+	public Loan? GetById(Guid id, LoanFilter filter = LoanFilter.Active)
 	{
 		return ApplyFilter(_loans, filter).FirstOrDefault(l => l.Id == id);
 	}
@@ -39,13 +39,13 @@ public class InMemoryLoanRepository : ILoanRepository
 	}
 
 
-	public IReadOnlyList<Loan> GetAllByUser(Guid userId, LoanFilter filter = LoanFilter.Active)
+	public IReadOnlyList<Loan> GetByUserId(Guid userId, LoanFilter filter = LoanFilter.Active)
 	{
 		return [.. ApplyFilter(_loans, filter).Where(l => l.UserId == userId)];
 	}
 
 
-	public IReadOnlyList<Loan> GetLoansByBook(Guid bookId, LoanFilter filter = LoanFilter.Active)
+	public IReadOnlyList<Loan> GetByBookId(Guid bookId, LoanFilter filter = LoanFilter.Active)
 	{
 		return [.. ApplyFilter(_loans, filter).Where(l => l.BookId == bookId)];
 	}

@@ -668,7 +668,7 @@ public static class DataSeeder
 		};
 		bookService.BorrowCopy(book.Id);
 		//loan.MarkAsReturned(returnDate);
-		bookService.ReturnCopy(book);
+		bookService.ReturnCopy(book.Id);
 		loanRepository.Add(loan);
 		if (!(loan.ReturnDate > loan.DueDate)) return;
 		var fine = new Fine

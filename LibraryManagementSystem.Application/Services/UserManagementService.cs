@@ -226,7 +226,7 @@ public class UserManagementService : IUserManagementService
 
 		if (session != null && !CanRemoveUser(session, user)) return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
 
-		if (_loanRepository.GetAllByUser(userId, LoanFilter.Active).Count > 0)
+		if (_loanRepository.GetByUserId(userId, LoanFilter.Active).Count > 0)
 			return ServiceResult<UserDto>.Fail(Messages.UserRemovalFailedByActiveLoans);
 
 		if (_finesRepository.HasFines(userId, FineFilter.Unpaid))

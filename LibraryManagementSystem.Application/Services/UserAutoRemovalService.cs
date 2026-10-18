@@ -27,7 +27,7 @@ public class UserAutoRemovalService : IUserAutoRemovalService
 	{
 		if (user is null) return false;
 		if (!user.ShouldRemove) return false;
-		if (_loanRepository.GetAllByUser(user.Id, LoanFilter.Active).Count > 0) return false;
+		if (_loanRepository.GetByUserId(user.Id, LoanFilter.Active).Count > 0) return false;
 		return !_fineRepository.HasFines(user.Id, FineFilter.Unpaid);
 	}
 

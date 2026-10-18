@@ -435,7 +435,7 @@ public static class BookMenu
 			if (choice != true) return;
 
 			// Refresh desiredBook details for subsequent edits in loop
-			var refreshedBook = bookManagementService.FindBookById(desiredBook.Id);
+			var refreshedBook = bookManagementService.GetBookById(desiredBook.Id);
 			if (refreshedBook is not null) desiredBook = refreshedBook;
 		}
 	}
@@ -466,7 +466,7 @@ public static class BookMenu
 	private static BookDto? AuthorSubMenu(Guid bookId, AuthorManagementService authorManagementService,
 		BookManagementService bookManagementService)
 	{
-		var currentBook = bookManagementService.FindBookById(bookId);
+		var currentBook = bookManagementService.GetBookById(bookId);
 		if (currentBook is null)
 		{
 			ConsoleHelper.ShowError(Messages.NotAvailableBook);
@@ -555,7 +555,7 @@ public static class BookMenu
 	private static BookDto? TranslatorSubMenu(Guid bookId, TranslatorManagementService translatorManagementService,
 		BookManagementService bookManagementService)
 	{
-		var currentBook = bookManagementService.FindBookById(bookId);
+		var currentBook = bookManagementService.GetBookById(bookId);
 		if (currentBook is null)
 		{
 			ConsoleHelper.ShowError(Messages.NotAvailableBook);

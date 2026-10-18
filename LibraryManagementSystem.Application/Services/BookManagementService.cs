@@ -200,7 +200,7 @@ public class BookManagementService : IBookManagementService
 		var book = _bookRepository.GetById(bookId, EntityFilter.Active);
 		if (book is null || book.IsRemoved) return ServiceResult<BookDto>.Fail(Messages.BookRemoveFailed);
 
-		var activeLoans = _loanRepository.GetLoansByBook(bookId, LoanFilter.Active);
+		var activeLoans = _loanRepository.GetByBookId(bookId, LoanFilter.Active);
 		if (activeLoans.Count > 0)
 		{
 			var borrowersId = string.Join(", ", activeLoans.Select(al => al.UserId));
@@ -268,7 +268,6 @@ public class BookManagementService : IBookManagementService
 	}
 
 
-
 	public IReadOnlyList<BookDto> GetAllBooks(BookSortField sortField = BookSortField.Id,
 		SortDirection sortDirection = SortDirection.Ascending)
 	{
@@ -309,7 +308,7 @@ public class BookManagementService : IBookManagementService
 	}
 
 
-	public BookDto? FindBookById(Guid id)
+	public BookDto? GetBookById(Guid id)
 	{
 		var book = _bookRepository.GetById(id, EntityFilter.Active);
 		return book?.ToDto();
@@ -319,7 +318,7 @@ public class BookManagementService : IBookManagementService
 
 	public IReadOnlyList<BookDto> GetAvailableBooks(EntityFilter filter)
 	{
-		return [.. _bookRepository.GetAvailableBooks(filter).Select(book => book.ToDto())];
+		return [.. _bookRepository.GetAll(filter).Where(b => b.AvailableCopies > 0).Select(b => b.ToDto())];
 	}
 
 
@@ -331,26 +330,38 @@ public class BookManagementService : IBookManagementService
 
 
 
-	public static void RemoveAuthor(Book book, Guid authorId)
+	public void RemoveAuthor(Guid bookId, Guid authorId)
 	{
+		var book = _bookRepository.GetById(bookId, EntityFilter.Active);
+		if (book is null || book.IsRemoved) return;
+
 		if (book.BookAuthors.Count <= 1) throw new InvalidOperationException(Messages.BookRequiresAtLeastOneAuthor);
 
-		var bookAuthor = book.BookAuthors.FirstOrDefault(ba => ba.AuthorId == authorId);
+		var author = _authorRepository.GetById(authorId, EntityFilter.Active);
+		if (author is null || author.IsRemoved) return;
 
+		var bookAuthor = book.BookAuthors.FirstOrDefault(ba => ba.AuthorId == authorId);
 		if (bookAuthor is null) return;
 
 		book.BookAuthors.Remove(bookAuthor);
+		author.BookAuthors.Remove(bookAuthor);
 		book.UpdatedAt = DateTime.UtcNow;
 	}
 
 
-	public static void RemoveTranslator(Book book, Guid translatorId)
+	public void RemoveTranslator(Guid bookId, Guid translatorId)
 	{
-		var bookTranslator = book.BookTranslators.FirstOrDefault(bt => bt.TranslatorId == translatorId);
+		var book = _bookRepository.GetById(bookId, EntityFilter.Active);
+		if (book is null || book.IsRemoved) return;
 
+		var translator = _translatorRepository.GetById(translatorId, EntityFilter.Active);
+		if (translator is null || translator.IsRemoved) return;
+
+		var bookTranslator = book.BookTranslators.FirstOrDefault(bt => bt.TranslatorId == translatorId);
 		if (bookTranslator is null) return;
 
 		book.BookTranslators.Remove(bookTranslator);
+		translator.BookTranslators.Remove(bookTranslator);
 		book.UpdatedAt = DateTime.UtcNow;
 	}
 
@@ -366,7 +377,7 @@ public class BookManagementService : IBookManagementService
 		var incomingIds = authorList.Select(a => a.Id).ToHashSet();
 		var existingIds = book.BookAuthors.Select(ba => ba.AuthorId).ToHashSet();
 
-		foreach (var authorId in existingIds.Except(incomingIds)) RemoveAuthor(book, authorId);
+		foreach (var authorId in existingIds.Except(incomingIds)) RemoveAuthor(book.Id, authorId);
 		foreach (var author in authorList) AddAuthor(book, author);
 	}
 
@@ -380,7 +391,7 @@ public class BookManagementService : IBookManagementService
 		var incomingIds = translatorList.Select(t => t.Id).ToHashSet();
 		var existingIds = book.BookTranslators.Select(bt => bt.TranslatorId).ToHashSet();
 
-		foreach (var translatorId in existingIds.Except(incomingIds)) RemoveTranslator(book, translatorId);
+		foreach (var translatorId in existingIds.Except(incomingIds)) RemoveTranslator(book.Id, translatorId);
 		foreach (var translator in translatorList) AddTranslator(book, translator, language);
 	}
 
@@ -390,7 +401,7 @@ public class BookManagementService : IBookManagementService
 		ArgumentNullException.ThrowIfNull(book);
 
 		foreach (var translatorId in book.BookTranslators.Select(bt => bt.TranslatorId).ToList())
-			RemoveTranslator(book, translatorId);
+			RemoveTranslator(book.Id, translatorId);
 	}
 
 
@@ -404,14 +415,13 @@ public class BookManagementService : IBookManagementService
 	}
 
 
-	public void ReturnCopy(Guid bookId) { throw new NotImplementedException(); }
-
-
-	public void ReturnCopy(Book book)
+	public void ReturnCopy(Guid bookId)
 	{
+		var book = _bookRepository.GetById(bookId, EntityFilter.Active);
+		if (book is null) return;
+
 		if (book.AvailableCopies >= book.TotalCopies)
-			throw new InvalidOperationException(
-				"Cannot return a copy because all copies are already in the library.");
+			throw new InvalidOperationException("Cannot return a copy because all copies are already in the library.");
 
 		book.AvailableCopies++;
 	}

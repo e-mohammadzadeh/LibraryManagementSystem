@@ -45,7 +45,7 @@ public class AuthorizationService : IAuthorizationService
 		if (user.MembershipExpiryDate < DateOnly.FromDateTime(DateTime.Today))
 			return ServiceResult<string>.Fail(Messages.MembershipExpired);
 
-		return _loanRepository.GetAllByUser(user.Id, LoanFilter.Overdue).Count > 0
+		return _loanRepository.GetByUserId(user.Id, LoanFilter.Overdue).Count > 0
 			? ServiceResult<string>.Fail(Messages.BorrowBlockedDueToOverdue)
 			: ServiceResult<string>.Ok("Eligible to borrow.", "Borrowing allowed.");
 	}

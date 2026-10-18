@@ -155,7 +155,6 @@ public class AuthorManagementService
 				.Where(author =>
 				{
 					var value = selector(author);
-
 					return value is not null &&
 					       value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
 				})

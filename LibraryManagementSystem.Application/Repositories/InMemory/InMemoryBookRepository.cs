@@ -46,11 +46,6 @@ public class InMemoryBookRepository : IBookRepository
 	}
 
 
-	public IReadOnlyList<Book> GetAvailableBooks(EntityFilter filter = EntityFilter.Active)
-	{
-		return [.. ApplyFilter(_books, filter).Where(b => b.AvailableCopies > 0)];
-	}
-
 	public bool Exists<T>(T value, Func<Book, T> selector, Guid? excludeId)
 	{
 		return _books.Any(b =>
