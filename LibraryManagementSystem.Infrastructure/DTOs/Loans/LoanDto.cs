@@ -19,9 +19,6 @@ public class LoanDto
 	public bool IsOverdue { get; init; }
 	public DateTime CreatedAt { get; init; }
 	public DateTime? UpdatedAt { get; init; }
-	public LoanHistoryAction Action {
-		get; init;
-	}
+	public LoanHistoryAction Action { get; init; }
 	public string ActionDisplay => Action.GetDefaultDescription();
-
 }

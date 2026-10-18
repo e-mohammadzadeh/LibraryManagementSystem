@@ -22,7 +22,6 @@ public class LoanManagementService
 	private readonly IFineManagementService _fineManagementService;
 	private readonly IUserAutoRemovalService _userAutoRemovalService;
 	private readonly IAuthorizationService _authorization;
-	private readonly ILoanHistoryManagementService _loanHistoryManagementService;
 	private readonly IAuditLogManagementService _auditLog;
 
 
@@ -30,7 +29,7 @@ public class LoanManagementService
 		IBookRepository bookRepository, IBookManagementService bookService,
 		IFineRepository fineRepository, IFineManagementService fineManagementService,
 		IUserAutoRemovalService userAutoRemovalService, IAuthorizationService authorization,
-		ILoanHistoryManagementService loanHistoryManagementService, IAuditLogManagementService auditLog)
+		IAuditLogManagementService auditLog)
 	{
 		_loanRepository = loanRepository;
 		_userRepository = userRepository;
@@ -40,7 +39,6 @@ public class LoanManagementService
 		_fineManagementService = fineManagementService;
 		_userAutoRemovalService = userAutoRemovalService;
 		_authorization = authorization;
-		_loanHistoryManagementService = loanHistoryManagementService;
 		_auditLog = auditLog;
 	}
 
@@ -87,23 +85,6 @@ public class LoanManagementService
 		_loanRepository.Add(loan);
 		_bookRepository.Update(book);
 
-		var loanDto = new LoanDto
-		{
-			Id = loan.Id,
-			BookName = book.Title,
-			BookId = book.Id,
-			BookISBN = book.ISBN,
-			UserName = $"{user.FirstName} {user.LastName}",
-			UserId = user.Id,
-			UserNationalCode = user.NationalCode,
-			BorrowDate = loan.BorrowDate,
-			DueDate = loan.DueDate,
-			Status = loan.Status,
-			RenewalCount = loan.RenewalCount,
-			IsOverdue = loan.IsOverdue
-		};
-
-		_loanHistoryManagementService.Record(loanDto, LoanHistoryAction.Borrowed);
 		_auditLog.Record(AuditAction.LoanBorrowed, "Loan", loan.Id, "Loan borrowed.");
 
 		return ServiceResult<LoanDto>.Ok(loan.ToDto(), Messages.BorrowedSuccessfully);
@@ -123,18 +104,6 @@ public class LoanManagementService
 		_loanRepository.Update(loan);
 		_bookRepository.Update(loan.Book);
 
-		var loanDto = new LoanDto
-		{
-			Id = loan.Id,
-			BorrowDate = loan.BorrowDate,
-			DueDate = loan.DueDate,
-			ReturnDate = DateOnly.FromDateTime(DateTime.Today),
-			Status = LoanStatus.Returned,
-			RenewalCount = loan.RenewalCount,
-			IsOverdue = loan.IsOverdue
-		};
-
-		_loanHistoryManagementService.Record(loanDto, LoanHistoryAction.Returned);
 		_userAutoRemovalService.TryAutoRemove(loan.UserId);
 		_auditLog.Record(AuditAction.LoanReturned, "Loan", loanId, "Loan returned.");
 
@@ -167,17 +136,6 @@ public class LoanManagementService
 		Renew(loan);
 		_loanRepository.Update(loan);
 
-		var loanDto = new LoanDto
-		{
-			Id = loan.Id,
-			BorrowDate = loan.BorrowDate,
-			DueDate = loan.DueDate,
-			Status = loan.Status,
-			RenewalCount = loan.RenewalCount,
-			IsOverdue = loan.IsOverdue
-		};
-
-		_loanHistoryManagementService.Record(loanDto, LoanHistoryAction.Renewed);
 		_auditLog.Record(AuditAction.LoanRenewed, "Loan", loanId, "Loan renewed.");
 
 		return ServiceResult<LoanDto>.Ok(loan.ToDto(), Messages.RenewedSuccessfully);

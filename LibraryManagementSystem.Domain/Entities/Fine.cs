@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Infrastructure.Enums;
+﻿using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.ValueObjects;
 
 namespace LibraryManagementSystem.Domain.Entities;
@@ -14,6 +15,7 @@ public class Fine
 	public FineStatus Status { get; set; }
 	public DateOnly? PaidAt { get; set; }
 	public string Reason { get; set; } = string.Empty;
+	public FineHistoryAction Action { get; set; }
 	public DateTime CreatedAt { get; set; }
 	public DateTime? UpdatedAt { get; set; }
 	public Guid? UpdatedByUserId { get; set; }

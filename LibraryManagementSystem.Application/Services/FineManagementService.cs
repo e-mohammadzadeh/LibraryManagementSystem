@@ -6,7 +6,6 @@ using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Fine;
-using LibraryManagementSystem.Infrastructure.DTOs.Loans;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.Interfaces;
@@ -21,7 +20,6 @@ public class FineManagementService : IFineManagementService
 	private readonly IUserManagementService _userService;
 	private readonly IUserAutoRemovalService _userAutoRemovalService;
 	private readonly IAuthorizationService _authorization;
-	private readonly ILoanHistoryManagementService _loanHistoryManagementService;
 	private readonly IFineHistoryManagementService _fineHistoryManagementService;
 	private readonly IAuditLogManagementService _auditLog;
 
@@ -29,7 +27,6 @@ public class FineManagementService : IFineManagementService
 	public FineManagementService(IFineRepository fineRepository, ILoanRepository loanRepository,
 		IUserRepository userRepository, IUserManagementService userService,
 		IUserAutoRemovalService userAutoRemovalService, IAuthorizationService authorization,
-		ILoanHistoryManagementService loanHistoryManagementService,
 		IFineHistoryManagementService fineHistoryManagementService, IAuditLogManagementService auditLog)
 	{
 		_fineRepository = fineRepository;
@@ -38,7 +35,6 @@ public class FineManagementService : IFineManagementService
 		_userService = userService;
 		_userAutoRemovalService = userAutoRemovalService;
 		_authorization = authorization;
-		_loanHistoryManagementService = loanHistoryManagementService;
 		_fineHistoryManagementService = fineHistoryManagementService;
 		_auditLog = auditLog;
 	}
@@ -111,13 +107,6 @@ public class FineManagementService : IFineManagementService
 			Pay(fine);
 			_fineRepository.Update(fine);
 
-			var loanDto = new LoanDto
-			{
-				Id = fine.LoanId,
-				UserId = fine.UserId,
-				BookId = fine.Loan.BookId
-			};
-
 			var fineDto = new FineDto
 			{
 				Id = fine.Id,
@@ -129,7 +118,6 @@ public class FineManagementService : IFineManagementService
 				Reason = fine.Reason
 			};
 
-			_loanHistoryManagementService.Record(loanDto, LoanHistoryAction.FinePaid);
 			_fineHistoryManagementService.Record(fineDto, FineHistoryAction.FinePaid);
 			_auditLog.Record(AuditAction.FinePaid, "Fine", fineId, "Fine paid.");
 
@@ -161,13 +149,6 @@ public class FineManagementService : IFineManagementService
 			Pay(fine);
 			_fineRepository.Update(fine);
 
-			var loanDto = new LoanDto
-			{
-				Id = fine.LoanId,
-				UserId = fine.UserId,
-				BookId = fine.Loan.BookId
-			};
-
 			var fineDto = new FineDto
 			{
 				Id = fine.Id,
@@ -179,7 +160,6 @@ public class FineManagementService : IFineManagementService
 				Reason = fine.Reason
 			};
 
-			_loanHistoryManagementService.Record(loanDto, LoanHistoryAction.FineWaived);
 			_fineHistoryManagementService.Record(fineDto, FineHistoryAction.FineWaived);
 			_auditLog.Record(AuditAction.FineWaived, "Fine", fineId, "Fine waived.");
 

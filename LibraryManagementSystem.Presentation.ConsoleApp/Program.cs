@@ -28,7 +28,6 @@ public static class Program
 			var bookRepo = new InMemoryBookRepository();
 			var roleRepo = new InMemoryRoleRepository();
 			var loanRepo = new InMemoryLoanRepository();
-			var loanHistoryRepo = new InMemoryLoanHistory();
 			var fineRepo = new InMemoryFineRepository();
 			var fineHistoryRepo = new InMemoryFineHistory();
 			var auditLogRepo = new InMemoryAuditLogRepository();
@@ -47,20 +46,17 @@ public static class Program
 				new FineHistoryManagementService(fineHistoryRepo, userRepo);
 			IBookManagementService iBookService = new BookManagementService(authorRepo, translatorRepo, bookRepo,
 				loanRepo, auditLogService, authorization);
-			ILoanHistoryManagementService loanHistoryService =
-				new LoanHistoryManagementService(loanHistoryRepo, userRepo, bookRepo);
 			IUserManagementService iUserService = new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo,
 				passwordHasher, authorization, auditLogService);
 			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo, iUserService,
-				userAutoRemovalService, authorization, loanHistoryService, fineHistoryService, auditLogService);
+				userAutoRemovalService, authorization, fineHistoryService, auditLogService);
 
 
 			// ── Application Services ──────────────────
 			var authorService = new AuthorManagementService(authorRepo, authorization, auditLogService);
 			var translatorService = new TranslatorManagementService(translatorRepo, authorization, auditLogService);
 			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, iBookService, fineRepo,
-				fineService, userAutoRemovalService, authorization, loanHistoryService, auditLogService);
-			var loanHistory = new LoanHistoryManagementService(loanHistoryRepo, userRepo, bookRepo);
+				fineService, userAutoRemovalService, authorization, auditLogService);
 			var fineHistory = new FineHistoryManagementService(fineHistoryRepo, userRepo);
 			var userService = new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher,
 				authorization, auditLogService);
@@ -86,7 +82,7 @@ public static class Program
 
 				var result = MainMenu.MainMenuController(authorService, translatorService, userService, bookService,
 					loanService, fineService, authService, currentUserSession, authorization, statisticsService,
-					loanHistory, fineHistory, auditLogService);
+					fineHistory, auditLogService);
 
 				if (result == MainMenuResult.Exit) return;
 				ConsoleHelper.Pause();

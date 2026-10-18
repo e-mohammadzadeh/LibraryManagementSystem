@@ -21,18 +21,13 @@ public class LoanHistoryPrinter
 		var headers = new[] { "#", "Loan ID", "Book", "User", "Date & Time", "Description" };
 		var rows = histories.Select((history, index) =>
 		{
-			var description = string.IsNullOrWhiteSpace(history.Description)
-				? ["—"]
-				: ConsoleTable.WrapText(history.Description, 35);
-
 			return new[]
 			{
 				[(index + 1).ToString()],
-				[history.LoanId.ToString()[..8]],
+				[history.Id.ToString()[..8]],
 				ConsoleTable.WrapText(history.BookName, 30),
 				ConsoleTable.WrapText(history.UserName, 25),
-				[history.OccurredAt.ToString("yyyy-MM-dd HH:mm")],
-				description
+				[history.CreatedAt.ToString("yyyy-MM-dd HH:mm")]
 			};
 		}).ToList();
 
