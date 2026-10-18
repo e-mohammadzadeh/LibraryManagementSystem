@@ -27,7 +27,7 @@ public class FineManagementService : IFineManagementService
 	public FineManagementService(IFineRepository fineRepository, ILoanRepository loanRepository,
 		IUserRepository userRepository, IUserManagementService userService,
 		IUserAutoRemovalService userAutoRemovalService, IAuthorizationService authorization,
-		IFineHistoryManagementService fineHistoryManagementService, IAuditLogManagementService auditLog)
+		IAuditLogManagementService auditLog)
 	{
 		_fineRepository = fineRepository;
 		_loanRepository = loanRepository;
@@ -35,7 +35,6 @@ public class FineManagementService : IFineManagementService
 		_userService = userService;
 		_userAutoRemovalService = userAutoRemovalService;
 		_authorization = authorization;
-		_fineHistoryManagementService = fineHistoryManagementService;
 		_auditLog = auditLog;
 	}
 
@@ -228,7 +227,7 @@ public class FineManagementService : IFineManagementService
 
 
 
-	private IReadOnlyList<FineDto> MapWithLookups(IEnumerable<FineHistory> histories) {
+	private IReadOnlyList<FineDto> MapWithLookups(IEnumerable<FineDto> histories) {
 		var list = histories.ToList();
 
 		var userNames = _userRepository.GetAll(EntityFilter.All)

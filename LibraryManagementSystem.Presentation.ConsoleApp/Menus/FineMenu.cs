@@ -14,8 +14,7 @@ public static class FineMenu
 {
 	public static void FineMenuController(IFineManagementService fineManagementService,
 		UserManagementService userManagementService, ICurrentUserSession session,
-		LibraryStatisticsService statisticsService, IAuthorizationService authorization,
-		FineHistoryManagementService fineHistoryManagementService)
+		LibraryStatisticsService statisticsService, IAuthorizationService authorization)
 	{
 		if (!SessionGuard.RequireAnyPermission(
 			    authorization,
@@ -82,7 +81,7 @@ public static class FineMenu
 				case 5:
 				{
 					Console.Clear();
-					History(fineHistoryManagementService, userManagementService, authorization, session);
+					History(fineManagementService, userManagementService, authorization, session);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -313,7 +312,7 @@ public static class FineMenu
 
 
 
-	private static void History(FineHistoryManagementService fineHistoryManagementService,
+	private static void History(FineManagementService fineManagementService,
 		UserManagementService userManagementService, IAuthorizationService authorization, ICurrentUserSession session)
 	{
 		if (!authorization.HasAnyPermission(Permission.ViewFineHistory, Permission.FineHistoryByUser))
@@ -331,7 +330,7 @@ public static class FineMenu
 				return;
 			}
 
-			var histories = fineHistoryManagementService.GetByUserId(session.CurrentUser!.Id);
+			var histories = fineManagementService.GetFinesByUser(session.CurrentUser!.Id);
 			DisplayFineHistories(histories, Messages.NotAvailableFineHistory);
 			return;
 		}
@@ -352,7 +351,7 @@ public static class FineMenu
 					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(),
 						users => UserPrinter.PrintTable(users));
 					if (user is null) return;
-					var histories = fineHistoryManagementService.GetByUserId(user.Id);
+					var histories = fineManagementService.GetFinesByUser(user.Id);
 					DisplayFineHistories(histories, Messages.FineNotFound);
 					ConsoleHelper.Pause();
 					break;
@@ -363,7 +362,7 @@ public static class FineMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewFineHistory,
 						    Messages.AccessDenied))
 						return;
-					var histories = fineHistoryManagementService.GetAll();
+					var histories = fineManagementService.GetAll();
 					DisplayFineHistories(histories, Messages.FineNotFound);
 					ConsoleHelper.Pause();
 					break;
@@ -399,7 +398,7 @@ public static class FineMenu
 
 
 
-	private static void DisplayFineHistories(IReadOnlyList<FineHistoryDto> histories, string emptyMessage)
+	private static void DisplayFineHistories(IReadOnlyList<FineDto> histories, string emptyMessage)
 	{
 		if (histories.Count == 0)
 		{

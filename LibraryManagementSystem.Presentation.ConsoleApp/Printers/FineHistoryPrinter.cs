@@ -7,7 +7,7 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
 public class FineHistoryPrinter
 {
-	public static void PrintTable(IReadOnlyList<FineHistoryDto> histories, string title = "Fine History")
+	public static void PrintTable(IReadOnlyList<FineDto> histories, string title = "Fine History")
 	{
 		if (histories.Count == 0)
 		{
@@ -21,20 +21,14 @@ public class FineHistoryPrinter
 		var headers = new[] { "#", "Fine ID", "Loan ID", "User Name", "Date & Time", "Amount", "Description" };
 		var rows = histories.Select((history, index) =>
 		{
-			var description = string.IsNullOrWhiteSpace(history.Description)
-				? ["—"]
-				: ConsoleTable.WrapText(history.Description, 35);
-
 			return new[]
 			{
 				[(index + 1).ToString()],
-				[history.FineId.ToString()],
+				[history.Id.ToString()],
 				[history.LoanId.ToString()],
-				ConsoleTable.WrapText(history.UserName, 25),
-				[history.OccurredAt.ToString("yyyy-MM-dd HH:mm")],
-				[history.Amount.ToString("C2")],
-				description
-			};
+				ConsoleTable.WrapText(history.UserFullName, 25),
+				[history.CreatedAt.ToString("yyyy-MM-dd HH:mm")],
+				[history.Money.ToString()]};
 		}).ToList();
 
 		ConsoleTable.PrintTable(title, headers, rows);

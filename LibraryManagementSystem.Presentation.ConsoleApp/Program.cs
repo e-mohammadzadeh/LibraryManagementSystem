@@ -29,7 +29,6 @@ public static class Program
 			var roleRepo = new InMemoryRoleRepository();
 			var loanRepo = new InMemoryLoanRepository();
 			var fineRepo = new InMemoryFineRepository();
-			var fineHistoryRepo = new InMemoryFineHistory();
 			var auditLogRepo = new InMemoryAuditLogRepository();
 
 
@@ -42,14 +41,12 @@ public static class Program
 			IAuditLogManagementService auditLogService =
 				new AuditLogManagementService(userRepo, auditLogRepo, currentUserSession);
 			IUserAutoRemovalService userAutoRemovalService = new UserAutoRemovalService(userRepo, loanRepo, fineRepo);
-			IFineHistoryManagementService fineHistoryService =
-				new FineHistoryManagementService(fineHistoryRepo, userRepo);
 			IBookManagementService iBookService = new BookManagementService(authorRepo, translatorRepo, bookRepo,
 				loanRepo, auditLogService, authorization);
 			IUserManagementService iUserService = new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo,
 				passwordHasher, authorization, auditLogService);
 			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo, iUserService,
-				userAutoRemovalService, authorization, fineHistoryService, auditLogService);
+				userAutoRemovalService, authorization, auditLogService);
 
 
 			// ── Application Services ──────────────────
@@ -57,7 +54,6 @@ public static class Program
 			var translatorService = new TranslatorManagementService(translatorRepo, authorization, auditLogService);
 			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, iBookService, fineRepo,
 				fineService, userAutoRemovalService, authorization, auditLogService);
-			var fineHistory = new FineHistoryManagementService(fineHistoryRepo, userRepo);
 			var userService = new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher,
 				authorization, auditLogService);
 			var bookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo, auditLogService,
@@ -82,7 +78,7 @@ public static class Program
 
 				var result = MainMenu.MainMenuController(authorService, translatorService, userService, bookService,
 					loanService, fineService, authService, currentUserSession, authorization, statisticsService,
-					fineHistory, auditLogService);
+					auditLogService);
 
 				if (result == MainMenuResult.Exit) return;
 				ConsoleHelper.Pause();
