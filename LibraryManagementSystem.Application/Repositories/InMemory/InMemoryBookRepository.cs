@@ -70,7 +70,7 @@ public class InMemoryBookRepository : IBookRepository
 	}
 
 
-	public void Update(Book book, Guid? updatedBy = null)
+	public void Update(Book book)
 	{
 		ArgumentNullException.ThrowIfNull(book);
 
@@ -88,7 +88,7 @@ public class InMemoryBookRepository : IBookRepository
 		tracked.AvailableCopies = book.AvailableCopies;
 		tracked.Description = book.Description;
 		tracked.UpdatedAt = DateTime.UtcNow;
-		tracked.UpdatedByUserId = updatedBy;
+		tracked.UpdatedByUserId = book.UpdatedByUserId;
 	}
 
 

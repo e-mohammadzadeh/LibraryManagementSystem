@@ -11,7 +11,6 @@ using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
 using LibraryManagementSystem.Infrastructure.Interfaces;
-using LibraryManagementSystem.Infrastructure.ValueObjects;
 
 namespace LibraryManagementSystem.Application.Services;
 
@@ -36,12 +35,10 @@ public class TranslatorManagementService
 		if (_translatorRepository.Exists(dto.NationalCode, t => t.NationalCode))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByNationalCode);
 
-		var email = Email.Create(dto.Email);
-		if (_translatorRepository.Exists(email, t => t.Email))
+		if (_translatorRepository.Exists(dto.Email, t => t.Email))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByEmail);
 
-		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
-		if (_translatorRepository.Exists(phoneNumber, t => t.PhoneNumber))
+		if (_translatorRepository.Exists(dto.PhoneNumber, t => t.PhoneNumber))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByPhoneNumber);
 
 		var newTranslator = new Translator
@@ -49,8 +46,8 @@ public class TranslatorManagementService
 			FirstName = dto.FirstName,
 			LastName = dto.LastName,
 			NationalCode = dto.NationalCode,
-			Email = email,
-			PhoneNumber = phoneNumber,
+			Email = dto.Email,
+			PhoneNumber = dto.PhoneNumber,
 			BirthDate = dto.BirthDate,
 			Biography = dto.Biography
 		};
@@ -65,7 +62,8 @@ public class TranslatorManagementService
 	public ServiceResult<ContributorDto> UpdateTranslator(ContributorDto dto, Guid? updatedBy = null)
 	{
 		var translator = _translatorRepository.GetById(dto.Id, EntityFilter.Active);
-		if (translator is null || translator.IsRemoved) return ServiceResult<ContributorDto>.Fail(Messages.TranslatorUpdateFailed);
+		if (translator is null || translator.IsRemoved)
+			return ServiceResult<ContributorDto>.Fail(Messages.TranslatorUpdateFailed);
 
 		if (IsNoOpUpdateTranslator(translator, dto))
 			return ServiceResult<ContributorDto>.Fail(Messages.NoChangesDetected);
@@ -75,25 +73,13 @@ public class TranslatorManagementService
 		    string.IsNullOrWhiteSpace(dto.PhoneNumber))
 			return ServiceResult<ContributorDto>.Fail(Messages.TranslatorUpdateFailed);
 
-		Email email;
-		PhoneNumber phoneNumber;
-		try
-		{
-			email = Email.Create(dto.Email);
-			phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
-		}
-		catch (ArgumentException ex)
-		{
-			return ServiceResult<ContributorDto>.Fail(ex.Message);
-		}
-
 		if (_translatorRepository.Exists(dto.NationalCode, t => t.NationalCode, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByNationalCode);
 
-		if (_translatorRepository.Exists(email, t => t.Email, dto.Id))
+		if (_translatorRepository.Exists(dto.Email, t => t.Email, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByEmail);
 
-		if (_translatorRepository.Exists(phoneNumber, t => t.PhoneNumber, dto.Id))
+		if (_translatorRepository.Exists(dto.PhoneNumber, t => t.PhoneNumber, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByPhoneNumber);
 
 		var auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(translator, dto);
@@ -101,8 +87,8 @@ public class TranslatorManagementService
 		translator.FirstName = dto.FirstName;
 		translator.LastName = dto.LastName;
 		translator.NationalCode = dto.NationalCode;
-		translator.Email = email;
-		translator.PhoneNumber = phoneNumber;
+		translator.Email = dto.Email;
+		translator.PhoneNumber = dto.PhoneNumber;
 		translator.BirthDate = dto.BirthDate;
 		translator.Biography = dto.Biography;
 		translator.UpdatedByUserId = updatedBy;
@@ -129,7 +115,8 @@ public class TranslatorManagementService
 	public ServiceResult<ContributorDto> RemoveTranslator(Guid translatorId)
 	{
 		var translator = _translatorRepository.GetById(translatorId, EntityFilter.Active);
-		if (translator is null) return ServiceResult<ContributorDto>.Fail(Messages.TranslatorRemoveFailed);
+		if (translator is null || translator.IsRemoved)
+			return ServiceResult<ContributorDto>.Fail(Messages.TranslatorRemoveFailed);
 
 		if (translator.BookTranslators.Count != 0)
 			return ServiceResult<ContributorDto>.Fail(Messages.TranslatorHasAssociatedBooks);
@@ -165,15 +152,17 @@ public class TranslatorManagementService
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};
 
-		return [.. _translatorRepository.GetAll(EntityFilter.Active)
-			.Where(translator =>
-			{
-				var value = selector(translator);
+		return
+		[
+			.. _translatorRepository.GetAll(EntityFilter.Active)
+				.Where(translator =>
+				{
+					var value = selector(translator);
 
-				return value is not null &&
-				       value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
-			})
-			.Select(translator => translator.ToDto())
+					return value is not null &&
+					       value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
+				})
+				.Select(translator => translator.ToDto())
 		];
 	}
 

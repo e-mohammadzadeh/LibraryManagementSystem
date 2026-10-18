@@ -11,7 +11,6 @@ using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
 using LibraryManagementSystem.Infrastructure.Interfaces;
-using LibraryManagementSystem.Infrastructure.ValueObjects;
 
 namespace LibraryManagementSystem.Application.Services;
 
@@ -36,12 +35,10 @@ public class AuthorManagementService
 		if (_authorRepository.Exists(dto.NationalCode, a => a.NationalCode))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByNationalCode);
 
-		var email = Email.Create(dto.Email);
-		if (_authorRepository.Exists(email, a => a.Email))
+		if (_authorRepository.Exists(dto.Email, a => a.Email))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByEmail);
 
-		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
-		if (_authorRepository.Exists(phoneNumber, a => a.PhoneNumber))
+		if (_authorRepository.Exists(dto.PhoneNumber, a => a.PhoneNumber))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByPhoneNumber);
 
 		var newAuthor = new Author
@@ -49,8 +46,8 @@ public class AuthorManagementService
 			FirstName = dto.FirstName,
 			LastName = dto.LastName,
 			NationalCode = dto.NationalCode,
-			Email = email,
-			PhoneNumber = phoneNumber,
+			Email = dto.Email,
+			PhoneNumber = dto.PhoneNumber,
 			BirthDate = dto.BirthDate,
 			Biography = dto.Biography
 		};
@@ -75,25 +72,13 @@ public class AuthorManagementService
 		    string.IsNullOrWhiteSpace(dto.PhoneNumber))
 			return ServiceResult<ContributorDto>.Fail(Messages.AuthorUpdateFailed);
 
-		Email email;
-		PhoneNumber phoneNumber;
-		try
-		{
-			email = Email.Create(dto.Email);
-			phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
-		}
-		catch (ArgumentException ex)
-		{
-			return ServiceResult<ContributorDto>.Fail(ex.Message);
-		}
-
 		if (_authorRepository.Exists(dto.NationalCode, a => a.NationalCode, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByNationalCode);
 
-		if (_authorRepository.Exists(email, a => a.Email, dto.Id))
+		if (_authorRepository.Exists(dto.Email, a => a.Email, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByEmail);
 
-		if (_authorRepository.Exists(phoneNumber, a => a.PhoneNumber, dto.Id))
+		if (_authorRepository.Exists(dto.PhoneNumber, a => a.PhoneNumber, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByPhoneNumber);
 
 		var auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(author, dto);
@@ -101,8 +86,8 @@ public class AuthorManagementService
 		author.FirstName = dto.FirstName;
 		author.LastName = dto.LastName;
 		author.NationalCode = dto.NationalCode;
-		author.Email = email;
-		author.PhoneNumber = phoneNumber;
+		author.Email = dto.Email;
+		author.PhoneNumber = dto.PhoneNumber;
 		author.BirthDate = dto.BirthDate;
 		author.Biography = dto.Biography;
 		author.UpdatedByUserId = updatedBy;
@@ -129,7 +114,7 @@ public class AuthorManagementService
 	public ServiceResult<ContributorDto> RemoveAuthor(Guid authorId)
 	{
 		var author = _authorRepository.GetById(authorId, EntityFilter.Active);
-		if (author is null) return ServiceResult<ContributorDto>.Fail(Messages.AuthorRemoveFailed);
+		if (author is null || author.IsRemoved) return ServiceResult<ContributorDto>.Fail(Messages.AuthorRemoveFailed);
 
 		if (author.BookAuthors.Count != 0) return ServiceResult<ContributorDto>.Fail(Messages.AuthorHasAssociatedBooks);
 
@@ -164,7 +149,9 @@ public class AuthorManagementService
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};
 
-		return [.. _authorRepository.GetAll(EntityFilter.Active)
+		return
+		[
+			.. _authorRepository.GetAll(EntityFilter.Active)
 				.Where(author =>
 				{
 					var value = selector(author);
@@ -184,7 +171,7 @@ public class AuthorManagementService
 		return [.. author.BookAuthors.Select(b => b.Book.ToDto())];
 	}
 
-	
+
 	public IReadOnlyList<ContributorDto> GetAllAuthors(ContributorSortField sortField = ContributorSortField.Id,
 		SortDirection sortDirection = SortDirection.Ascending)
 	{

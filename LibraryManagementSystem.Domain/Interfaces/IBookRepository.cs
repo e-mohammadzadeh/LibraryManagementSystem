@@ -13,5 +13,5 @@ public interface IBookRepository
 	IReadOnlyList<Book> GetAvailableBooks(EntityFilter filter);
 	bool Exists<T>(T value, Func<Book, T> selector, Guid? excludeId = null);
 	void Remove(Book book);
-	void Update(Book book, Guid? updatedBy);
+	void Update(Book book);
 }

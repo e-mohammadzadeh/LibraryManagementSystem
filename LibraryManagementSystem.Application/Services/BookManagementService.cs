@@ -11,7 +11,6 @@ using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
 using LibraryManagementSystem.Infrastructure.Interfaces;
-using LibraryManagementSystem.Infrastructure.ValueObjects;
 
 namespace LibraryManagementSystem.Application.Services;
 
@@ -43,8 +42,7 @@ public class BookManagementService : IBookManagementService
 		if (_bookRepository.Exists(dto.Title, b => b.Title))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByName);
 
-		var isbn = ISBN.Create(dto.ISBN);
-		if (_bookRepository.Exists(isbn, b => b.ISBN))
+		if (_bookRepository.Exists(dto.ISBN, b => b.ISBN))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByISBN);
 
 		if (!Enum.IsDefined(dto.OriginalLanguage) || (!Enum.IsDefined(dto.TranslatedLanguage)))
@@ -79,7 +77,7 @@ public class BookManagementService : IBookManagementService
 		var newBook = new Book
 		{
 			Title = dto.Title,
-			ISBN = isbn,
+			ISBN = dto.ISBN,
 			PublishDate = dto.PublishDate,
 			Genre = dto.Genre,
 			Publisher = dto.Publisher,
@@ -103,18 +101,18 @@ public class BookManagementService : IBookManagementService
 		var book = _bookRepository.GetById(dto.Id, EntityFilter.Active);
 		if (book is null || book.IsRemoved) return ServiceResult<BookDto>.Fail(Messages.NotAvailableBook);
 
-		if (IsNoOpUpdateBook(book, dto)) return ServiceResult<BookDto>.Fail(Messages.NoChangesDetected);
+		if (IsNoOpUpdateBook(book, dto))
+			return ServiceResult<BookDto>.Warning(book.ToDto(), Messages.NoChangesDetected);
 
 		if (_bookRepository.Exists(dto.Title, b => b.Title, dto.Id))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByName);
 
-		var isbn = ISBN.Create(dto.ISBN);
-		if (_bookRepository.Exists(isbn, b => b.ISBN, dto.Id))
+		if (_bookRepository.Exists(dto.ISBN, b => b.ISBN, dto.Id))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByISBN);
 
 		if (!Enum.IsDefined(dto.Genre.Value)) return ServiceResult<BookDto>.Fail(Messages.InvalidGenre);
 
-		if (dto.TotalCopies is <= 0) return ServiceResult<BookDto>.Fail(Messages.WrongTotalCopies);
+		if (dto.TotalCopies <= 0) return ServiceResult<BookDto>.Fail(Messages.WrongTotalCopies);
 
 		if (dto.Authors.Count == 0) return ServiceResult<BookDto>.Fail(Messages.BookRequiresAtLeastOneAuthor);
 
@@ -138,11 +136,9 @@ public class BookManagementService : IBookManagementService
 		{
 			var translator = _translatorRepository.GetById(contributor.Id, EntityFilter.Active);
 			if (translator is null)
-				return ServiceResult<BookDto>.Fail(string.Format(Messages.TranslatorNotFoundFormat,
-					contributor));
+				return ServiceResult<BookDto>.Fail(string.Format(Messages.TranslatorNotFoundFormat, contributor));
 			resolvedTranslators.Add(translator);
 		}
-
 
 		var auditDetails =
 			BookUpdateAuditDetailsBuilder.BuildBookUpdateAuditDetails(book, dto, resolvedAuthors, resolvedTranslators);
@@ -157,10 +153,21 @@ public class BookManagementService : IBookManagementService
 			book.AvailableCopies += difference;
 		}
 
+		book.Title = dto.Title;
+		book.ISBN = dto.ISBN;
+		book.PublishDate = dto.PublishDate;
+		book.Genre = dto.Genre;
+		book.Publisher = dto.Publisher;
+		book.OriginalLanguage = dto.OriginalLanguage;
+		book.TotalCopies = dto.TotalCopies;
+		book.AvailableCopies = dto.AvailableCopies;
+		book.Description = dto.Description;
+		book.UpdatedByUserId = updatedBy;
+
 		ReplaceAuthors(book, resolvedAuthors);
 		ReplaceTranslators(book, resolvedTranslators, dto.TranslatedLanguage);
 
-		_bookRepository.Update(book, updatedBy);
+		_bookRepository.Update(book);
 		_auditLog.Record(AuditAction.BookUpdated, "Book", dto.Id, auditDetails ?? "Book updated.");
 		return ServiceResult<BookDto>.Ok(book.ToDto(), Messages.BookUpdatedSuccessfully);
 	}
@@ -186,55 +193,6 @@ public class BookManagementService : IBookManagementService
 		var b = right.Distinct().OrderBy(x => x).ToList();
 		return a.SequenceEqual(b);
 	}
-
-
-
-	public IReadOnlyList<BookDto> GetAllBooks(BookSortField sortField = BookSortField.Id,
-		SortDirection sortDirection = SortDirection.Ascending)
-	{
-		var books = _bookRepository.GetAll(EntityFilter.Active).ToList();
-
-		var sortedBooks = sortField switch
-		{
-			BookSortField.Id => ApplySort(books, book => book.Id, sortDirection),
-			BookSortField.Name => ApplySort(books, book => book.Title, sortDirection),
-			BookSortField.ISBN => ApplySort(books, book => book.ISBN, sortDirection),
-			BookSortField.PublishDate => ApplySort(books, book => book.PublishDate, sortDirection),
-			BookSortField.Genre => ApplySort(books, book => book.Genre, sortDirection),
-			BookSortField.Publisher => ApplySort(books, book => book.Publisher, sortDirection),
-			BookSortField.AvailableCopies => ApplySort(books, book => book.AvailableCopies, sortDirection),
-			BookSortField.Author => ApplySort(books,
-				book => string.Join(", ",
-					book.BookAuthors.Select(ba => $"{ba.Author.FirstName} {ba.Author.LastName}").Order()),
-				sortDirection),
-
-			BookSortField.Translator => ApplySort(books,
-				book => string.Join(", ",
-					book.BookTranslators.Select(bt => $"{bt.Translator.FirstName} {bt.Translator.LastName}").Order()),
-				sortDirection),
-
-			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
-		};
-
-		return [.. sortedBooks.Select(book => book.ToDto())];
-	}
-
-
-	private static IOrderedEnumerable<Book> ApplySort<TKey>(IEnumerable<Book> books, Func<Book, TKey> keySelector,
-		SortDirection sortDirection)
-	{
-		return sortDirection == SortDirection.Ascending
-			? books.OrderBy(keySelector)
-			: books.OrderByDescending(keySelector);
-	}
-
-
-	public BookDto? FindBookById(Guid id)
-	{
-		var book = _bookRepository.GetById(id, EntityFilter.Active);
-		return book?.ToDto();
-	}
-
 
 
 	public ServiceResult<BookDto> RemoveBook(Guid bookId)
@@ -308,6 +266,55 @@ public class BookManagementService : IBookManagementService
 				.Select(book => book.ToDto())
 		];
 	}
+
+
+
+	public IReadOnlyList<BookDto> GetAllBooks(BookSortField sortField = BookSortField.Id,
+		SortDirection sortDirection = SortDirection.Ascending)
+	{
+		var books = _bookRepository.GetAll(EntityFilter.Active).ToList();
+
+		var sortedBooks = sortField switch
+		{
+			BookSortField.Id => ApplySort(books, book => book.Id, sortDirection),
+			BookSortField.Name => ApplySort(books, book => book.Title, sortDirection),
+			BookSortField.ISBN => ApplySort(books, book => book.ISBN, sortDirection),
+			BookSortField.PublishDate => ApplySort(books, book => book.PublishDate, sortDirection),
+			BookSortField.Genre => ApplySort(books, book => book.Genre, sortDirection),
+			BookSortField.Publisher => ApplySort(books, book => book.Publisher, sortDirection),
+			BookSortField.AvailableCopies => ApplySort(books, book => book.AvailableCopies, sortDirection),
+			BookSortField.Author => ApplySort(books,
+				book => string.Join(", ",
+					book.BookAuthors.Select(ba => $"{ba.Author.FirstName} {ba.Author.LastName}").Order()),
+				sortDirection),
+
+			BookSortField.Translator => ApplySort(books,
+				book => string.Join(", ",
+					book.BookTranslators.Select(bt => $"{bt.Translator.FirstName} {bt.Translator.LastName}").Order()),
+				sortDirection),
+
+			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
+		};
+
+		return [.. sortedBooks.Select(book => book.ToDto())];
+	}
+
+
+	private static IOrderedEnumerable<Book> ApplySort<TKey>(IEnumerable<Book> books, Func<Book, TKey> keySelector,
+		SortDirection sortDirection)
+	{
+		return sortDirection == SortDirection.Ascending
+			? books.OrderBy(keySelector)
+			: books.OrderByDescending(keySelector);
+	}
+
+
+	public BookDto? FindBookById(Guid id)
+	{
+		var book = _bookRepository.GetById(id, EntityFilter.Active);
+		return book?.ToDto();
+	}
+
 
 
 	public IReadOnlyList<BookDto> GetAvailableBooks(EntityFilter filter)
