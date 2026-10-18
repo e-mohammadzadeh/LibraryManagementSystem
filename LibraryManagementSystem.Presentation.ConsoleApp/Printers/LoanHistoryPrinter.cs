@@ -7,7 +7,7 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
 public class LoanHistoryPrinter
 {
-	public static void PrintTable(IReadOnlyList<LoanHistoryDto> histories, string title = "Loan History")
+	public static void PrintTable(IReadOnlyList<LoanDto> histories, string title = "Loan History")
 	{
 		if (histories.Count == 0)
 		{

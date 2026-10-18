@@ -1,8 +1,6 @@
-﻿using LibraryManagementSystem.Application.Authentication;
-using LibraryManagementSystem.Application.Authorization;
+﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
-using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.Interfaces;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
@@ -15,7 +13,6 @@ public static class MainMenu
 		BookManagementService bookManagementService, LoanManagementService loanManagementService,
 		IFineManagementService fineManagementService, AuthenticationService authenticationService,
 		ICurrentUserSession session, IAuthorizationService authorization, LibraryStatisticsService statisticsService,
-		LoanHistoryManagementService loanHistoryManagementService,
 		FineHistoryManagementService fineHistoryManagementService, IAuditLogManagementService auditLogManagementService)
 	{
 		while (true)
@@ -68,7 +65,7 @@ public static class MainMenu
 				{
 					Console.Clear();
 					LoanMenu.LoanMenuController(loanManagementService, userManagementService, bookManagementService,
-						statisticsService, session, authorization, loanHistoryManagementService);
+						statisticsService, session, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}

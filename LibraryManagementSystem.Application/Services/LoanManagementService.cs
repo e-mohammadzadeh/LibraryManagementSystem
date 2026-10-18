@@ -300,19 +300,13 @@ public class LoanManagementService
 	}
 
 
-	private IReadOnlyList<LoanHistoryDto> MapWithLookups(IEnumerable<LoanHistory> histories) {
+	private IReadOnlyList<LoanDto> MapWithLookups(IEnumerable<Loan> histories) {
 		var userNames = _userRepository.GetAll(EntityFilter.All)
 			.ToDictionary(u => u.Id, u => $"{u.FirstName} {u.LastName}");
 
 		var bookTitles = _bookRepository.GetAll(EntityFilter.All)
 			.ToDictionary(b => b.Id, b => b.Title);
 
-		return
-		[
-			.. histories.Select(h =>
-				h.ToDto(
-					userNames.GetValueOrDefault(h.UserId, "Unknown User"),
-					bookTitles.GetValueOrDefault(h.BookId, "Unknown Book")))
-		];
+		return [.. histories.Select(h => h.ToDto())];
 	}
 }
