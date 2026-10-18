@@ -40,11 +40,11 @@ public class BookManagementService : IBookManagementService
 
 	public ServiceResult<BookDto> AddBook(BookDto dto)
 	{
-		if (_bookRepository.ExistsByName(dto.Title))
+		if (_bookRepository.Exists(dto.Title, b => b.Title))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByName);
 
 		var isbn = ISBN.Create(dto.ISBN);
-		if (_bookRepository.ExistsByISBN(isbn))
+		if (_bookRepository.Exists(isbn, b => b.ISBN))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByISBN);
 
 		if (!Enum.IsDefined(dto.OriginalLanguage) || (!Enum.IsDefined(dto.TranslatedLanguage)))
@@ -100,20 +100,19 @@ public class BookManagementService : IBookManagementService
 
 	public ServiceResult<BookDto> UpdateBook(BookDto dto, Guid? updatedBy = null)
 	{
-		var book = _bookRepository.FindById(dto.Id, EntityFilter.Active);
+		var book = _bookRepository.GetById(dto.Id, EntityFilter.Active);
 		if (book is null || book.IsRemoved) return ServiceResult<BookDto>.Fail(Messages.NotAvailableBook);
 
 		if (IsNoOpUpdateBook(book, dto)) return ServiceResult<BookDto>.Fail(Messages.NoChangesDetected);
 
-		if (_bookRepository.ExistsByName(dto.Title, dto.Id))
+		if (_bookRepository.Exists(dto.Title, b => b.Title, dto.Id))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByName);
 
 		var isbn = ISBN.Create(dto.ISBN);
-		if (_bookRepository.ExistsByISBN(isbn, dto.Id))
+		if (_bookRepository.Exists(isbn, b => b.ISBN, dto.Id))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByISBN);
-		
-		if (!Enum.IsDefined(dto.Genre.Value))
-			return ServiceResult<BookDto>.Fail(Messages.InvalidGenre);
+
+		if (!Enum.IsDefined(dto.Genre.Value)) return ServiceResult<BookDto>.Fail(Messages.InvalidGenre);
 
 		if (dto.TotalCopies is <= 0) return ServiceResult<BookDto>.Fail(Messages.WrongTotalCopies);
 
@@ -143,7 +142,7 @@ public class BookManagementService : IBookManagementService
 					contributor));
 			resolvedTranslators.Add(translator);
 		}
-		
+
 
 		var auditDetails =
 			BookUpdateAuditDetailsBuilder.BuildBookUpdateAuditDetails(book, dto, resolvedAuthors, resolvedTranslators);
@@ -232,7 +231,7 @@ public class BookManagementService : IBookManagementService
 
 	public BookDto? FindBookById(Guid id)
 	{
-		var book = _bookRepository.FindById(id, EntityFilter.Active);
+		var book = _bookRepository.GetById(id, EntityFilter.Active);
 		return book?.ToDto();
 	}
 
@@ -240,7 +239,7 @@ public class BookManagementService : IBookManagementService
 
 	public ServiceResult<BookDto> RemoveBook(Guid bookId)
 	{
-		var book = _bookRepository.FindById(bookId, EntityFilter.Active);
+		var book = _bookRepository.GetById(bookId, EntityFilter.Active);
 		if (book is null || book.IsRemoved) return ServiceResult<BookDto>.Fail(Messages.BookRemoveFailed);
 
 		var activeLoans = _loanRepository.GetLoansByBook(bookId, LoanFilter.Active);
@@ -261,6 +260,8 @@ public class BookManagementService : IBookManagementService
 
 	public IReadOnlyList<BookDto> SearchBooks(string searchTerm, BookSearchField field)
 	{
+		if (string.IsNullOrWhiteSpace(searchTerm)) return [];
+
 		Func<Book, string?> selector = field switch
 		{
 			BookSearchField.BookName => b => b.Title,
@@ -278,13 +279,34 @@ public class BookManagementService : IBookManagementService
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};
 
-		return [.. _bookRepository.Search(searchTerm, selector).Select(book => book.ToDto())];
+		return
+		[
+			.. _bookRepository.GetAll(EntityFilter.Active)
+				.Where(book =>
+				{
+					var value = selector(book);
+					return value is not null &&
+					       value.Contains(searchTerm, StringComparison.OrdinalIgnoreCase);
+				})
+				.Select(book => book.ToDto())
+		];
 	}
 
 
 	public IReadOnlyList<BookDto> SearchBooksByDate(DateOnly from, DateOnly to, Func<Book, DateOnly> selector)
 	{
-		return [.. _bookRepository.SearchByDate(from, to, selector).Select(book => book.ToDto())];
+		if (from > to) throw new ArgumentException("'From' date cannot be later than 'To' date.");
+
+		return
+		[
+			.. _bookRepository.GetAll(EntityFilter.Active)
+				.Where(book =>
+				{
+					var date = selector(book);
+					return date >= from && date <= to;
+				})
+				.Select(book => book.ToDto())
+		];
 	}
 
 
@@ -367,7 +389,7 @@ public class BookManagementService : IBookManagementService
 
 	public void BorrowCopy(Guid bookId)
 	{
-		var book = _bookRepository.FindById(bookId, EntityFilter.Active);
+		var book = _bookRepository.GetById(bookId, EntityFilter.Active);
 		if (book is null) return;
 		if (book.AvailableCopies <= 0) throw new InvalidOperationException("No copies are available.");
 		book.AvailableCopies--;

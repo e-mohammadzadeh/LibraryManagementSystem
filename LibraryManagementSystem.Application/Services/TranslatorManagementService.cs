@@ -33,22 +33,16 @@ public class TranslatorManagementService
 
 	public ServiceResult<ContributorDto> AddTranslator(ContributorDto dto)
 	{
-		string? warningMessage = null;
-
-		if (_translatorRepository.ExistsByNationalCode(dto.NationalCode))
+		if (_translatorRepository.Exists(dto.NationalCode, t => t.NationalCode))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByNationalCode);
 
 		var email = Email.Create(dto.Email);
-		if (_translatorRepository.ExistsByEmail(email))
+		if (_translatorRepository.Exists(email, t => t.Email))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByEmail);
 
 		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
-		if (_translatorRepository.ExistsByPhoneNumber(phoneNumber))
+		if (_translatorRepository.Exists(phoneNumber, t => t.PhoneNumber))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByPhoneNumber);
-
-		var existingSameName = _translatorRepository.GetByName(dto.FirstName, dto.LastName, EntityFilter.Active);
-		if (existingSameName != null)
-			warningMessage = string.Format(Messages.DuplicateTranslatorNameWarning, existingSameName.Id);
 
 		var newTranslator = new Translator
 		{
@@ -64,47 +58,59 @@ public class TranslatorManagementService
 		_translatorRepository.Add(newTranslator);
 		_auditLog.Record(AuditAction.TranslatorCreated, "Translator", newTranslator.Id, "Translator created.");
 
-		return warningMessage != null
-			? ServiceResult<ContributorDto>.Warning(newTranslator.ToDto(), warningMessage)
-			: ServiceResult<ContributorDto>.Ok(newTranslator.ToDto(), Messages.TranslatorAddedSuccessfully);
+		return ServiceResult<ContributorDto>.Ok(newTranslator.ToDto(), Messages.TranslatorAddedSuccessfully);
 	}
 
 
 	public ServiceResult<ContributorDto> UpdateTranslator(ContributorDto dto, Guid? updatedBy = null)
 	{
-		string? warningMessage = null;
-
 		var translator = _translatorRepository.GetById(dto.Id, EntityFilter.Active);
-		if (translator is null) return ServiceResult<ContributorDto>.Fail(Messages.TranslatorUpdateFailed);
+		if (translator is null || translator.IsRemoved) return ServiceResult<ContributorDto>.Fail(Messages.TranslatorUpdateFailed);
 
 		if (IsNoOpUpdateTranslator(translator, dto))
 			return ServiceResult<ContributorDto>.Fail(Messages.NoChangesDetected);
 
-		var existingSameName = _translatorRepository.GetByName(dto.FirstName, dto.LastName, EntityFilter.Active);
-		if (existingSameName != null && existingSameName.Id != dto.Id)
-			warningMessage = string.Format(Messages.DuplicateTranslatorNameWarning, existingSameName.Id);
-		
+		if (string.IsNullOrWhiteSpace(dto.FirstName) || string.IsNullOrWhiteSpace(dto.LastName) ||
+		    string.IsNullOrWhiteSpace(dto.NationalCode) || string.IsNullOrWhiteSpace(dto.Email) ||
+		    string.IsNullOrWhiteSpace(dto.PhoneNumber))
+			return ServiceResult<ContributorDto>.Fail(Messages.TranslatorUpdateFailed);
 
-		if (_translatorRepository.ExistsByNationalCode(dto.NationalCode, dto.Id))
+		Email email;
+		PhoneNumber phoneNumber;
+		try
+		{
+			email = Email.Create(dto.Email);
+			phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
+		}
+		catch (ArgumentException ex)
+		{
+			return ServiceResult<ContributorDto>.Fail(ex.Message);
+		}
+
+		if (_translatorRepository.Exists(dto.NationalCode, t => t.NationalCode, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByNationalCode);
 
-		var email = Email.Create(dto.Email);
-		if (_translatorRepository.ExistsByEmail(email, dto.Id))
+		if (_translatorRepository.Exists(email, t => t.Email, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByEmail);
-		
-		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
-		if (_translatorRepository.ExistsByPhoneNumber(phoneNumber, dto.Id))
+
+		if (_translatorRepository.Exists(phoneNumber, t => t.PhoneNumber, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByPhoneNumber);
-	
 
 		var auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(translator, dto);
 
-		_translatorRepository.Update(translator, updatedBy);
+		translator.FirstName = dto.FirstName;
+		translator.LastName = dto.LastName;
+		translator.NationalCode = dto.NationalCode;
+		translator.Email = email;
+		translator.PhoneNumber = phoneNumber;
+		translator.BirthDate = dto.BirthDate;
+		translator.Biography = dto.Biography;
+		translator.UpdatedByUserId = updatedBy;
+
+		_translatorRepository.Update(translator);
 		_auditLog.Record(AuditAction.TranslatorUpdated, "Translator", dto.Id, auditDetails ?? "Translator updated.");
 
-		return warningMessage != null
-			? ServiceResult<ContributorDto>.Warning(translator.ToDto(), warningMessage)
-			: ServiceResult<ContributorDto>.Ok(translator.ToDto(), Messages.TranslatorUpdatedSuccessfully);
+		return ServiceResult<ContributorDto>.Ok(translator.ToDto(), Messages.TranslatorUpdatedSuccessfully);
 	}
 
 
@@ -137,10 +143,12 @@ public class TranslatorManagementService
 
 	public IReadOnlyList<ContributorDto> SearchTranslator(string searchItem, TranslatorSearchField field)
 	{
+		if (string.IsNullOrWhiteSpace(searchItem)) return [];
+
 		var requiredPermission = field switch
 		{
 			TranslatorSearchField.Name => [Permission.SearchTranslatorForMember, Permission.FullSearchTranslator],
-			TranslatorSearchField.NationalCode => [ Permission.FullSearchTranslator ],
+			TranslatorSearchField.NationalCode => [Permission.FullSearchTranslator],
 			TranslatorSearchField.Email => [Permission.SearchTranslatorForMember, Permission.FullSearchTranslator],
 			TranslatorSearchField.PhoneNumber => new[] { Permission.FullSearchTranslator },
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
@@ -157,7 +165,16 @@ public class TranslatorManagementService
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};
 
-		return [.. _translatorRepository.Search(searchItem, selector).Select(translator => translator.ToDto())];
+		return [.. _translatorRepository.GetAll(EntityFilter.Active)
+			.Where(translator =>
+			{
+				var value = selector(translator);
+
+				return value is not null &&
+				       value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
+			})
+			.Select(translator => translator.ToDto())
+		];
 	}
 
 

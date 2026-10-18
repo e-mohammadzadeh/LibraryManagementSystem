@@ -2,7 +2,6 @@
 using LibraryManagementSystem.Domain.Exceptions;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
-using LibraryManagementSystem.Infrastructure.ValueObjects;
 
 namespace LibraryManagementSystem.Application.Repositories.InMemory;
 
@@ -16,14 +15,14 @@ public class InMemoryBookRepository : IBookRepository
 		ArgumentNullException.ThrowIfNull(book);
 
 		book.Id = Guid.CreateVersion7();
-		book.CreatedAt = DateTime.UtcNow;
 		book.AvailableCopies = book.TotalCopies;
+		book.CreatedAt = DateTime.UtcNow;
 		book.IsRemoved = false;
 		_books.Add(book);
 	}
 
 
-	public Book? FindById(Guid id, EntityFilter filter = EntityFilter.Active)
+	public Book? GetById(Guid id, EntityFilter filter = EntityFilter.Active)
 	{
 		return ApplyFilter(_books, filter).FirstOrDefault(b => b.Id == id);
 	}
@@ -52,26 +51,12 @@ public class InMemoryBookRepository : IBookRepository
 		return [.. ApplyFilter(_books, filter).Where(b => b.AvailableCopies > 0)];
 	}
 
-
-	public bool ExistsByName(string name, Guid? excludeId)
+	public bool Exists<T>(T value, Func<Book, T> selector, Guid? excludeId)
 	{
-		if (string.IsNullOrWhiteSpace(name)) return false;
-
 		return _books.Any(b =>
-			b.Id != excludeId &&
 			!b.IsRemoved &&
-			b.Title.Equals(name, StringComparison.OrdinalIgnoreCase));
-	}
-
-
-	public bool ExistsByISBN(ISBN isbn, Guid? excludeId)
-	{
-		if (string.IsNullOrWhiteSpace(isbn)) return false;
-
-		return _books.Any(b =>
-			b.Id != excludeId &&
-			!b.IsRemoved &&
-			b.ISBN.Equals(isbn));
+			(excludeId is null || b.Id != excludeId) &&
+			EqualityComparer<T>.Default.Equals(selector(b), value));
 	}
 
 
@@ -82,38 +67,6 @@ public class InMemoryBookRepository : IBookRepository
 		if (book.IsRemoved) return;
 		book.IsRemoved = true;
 		book.UpdatedAt = DateTime.UtcNow;
-	}
-
-
-	public IReadOnlyList<Book> Search(string searchTerm, Func<Book, string?> selector)
-	{
-		if (string.IsNullOrWhiteSpace(searchTerm)) return [];
-
-		return
-		[
-			.. _books
-				.Where(b => !b.IsRemoved)
-				.Where(b =>
-				{
-					var value = selector(b);
-					return value is not null && value.Contains(searchTerm, StringComparison.OrdinalIgnoreCase);
-				})
-		];
-	}
-
-
-	public IReadOnlyList<Book> SearchByDate(DateOnly from, DateOnly to, Func<Book, DateOnly> selector)
-	{
-		return
-		[
-			.. _books
-				.Where(b => !b.IsRemoved)
-				.Where(b =>
-				{
-					var value = selector(b);
-					return value >= from && value <= to;
-				})
-		];
 	}
 
 

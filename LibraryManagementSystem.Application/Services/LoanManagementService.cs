@@ -67,7 +67,7 @@ public class LoanManagementService
 		if (_loanRepository.GetAllByUser(dto.UserId, LoanFilter.Active).Any(l => l.IsOverdue))
 			return ServiceResult<LoanDto>.Fail(Messages.BorrowBlockedDueToOverdue);
 
-		var book = _bookRepository.FindById(dto.BookId, EntityFilter.Active);
+		var book = _bookRepository.GetById(dto.BookId, EntityFilter.Active);
 		if (book is null) return ServiceResult<LoanDto>.Fail(Messages.NotBookMatched);
 
 		if (book.AvailableCopies <= 0) return ServiceResult<LoanDto>.Fail(Messages.NotEnoughCopiesAvailable);

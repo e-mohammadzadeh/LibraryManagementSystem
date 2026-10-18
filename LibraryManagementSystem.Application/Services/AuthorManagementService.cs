@@ -44,7 +44,6 @@ public class AuthorManagementService
 		if (_authorRepository.Exists(phoneNumber, a => a.PhoneNumber))
 			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByPhoneNumber);
 
-
 		var newAuthor = new Author
 		{
 			FirstName = dto.FirstName,
@@ -63,10 +62,10 @@ public class AuthorManagementService
 	}
 
 
-	public ServiceResult<ContributorDto> UpdateAuthor(ContributorDto dto, Guid? updateBy = null)
+	public ServiceResult<ContributorDto> UpdateAuthor(ContributorDto dto, Guid? updatedBy = null)
 	{
 		var author = _authorRepository.GetById(dto.Id, EntityFilter.Active);
-		if (author is null) return ServiceResult<ContributorDto>.Fail(Messages.AuthorUpdateFailed);
+		if (author is null || author.IsRemoved) return ServiceResult<ContributorDto>.Fail(Messages.AuthorUpdateFailed);
 
 		if (IsNoOpUpdateAuthor(author, dto))
 			return ServiceResult<ContributorDto>.Warning(author.ToDto(), Messages.NoChangesDetected);
@@ -106,7 +105,7 @@ public class AuthorManagementService
 		author.PhoneNumber = phoneNumber;
 		author.BirthDate = dto.BirthDate;
 		author.Biography = dto.Biography;
-		author.UpdatedByUserId = updateBy;
+		author.UpdatedByUserId = updatedBy;
 
 		_authorRepository.Update(author);
 		_auditLog.Record(AuditAction.AuthorUpdated, "Author", dto.Id, auditDetails ?? "Author updated.");
