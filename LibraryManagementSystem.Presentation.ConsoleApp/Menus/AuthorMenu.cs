@@ -61,7 +61,7 @@ public static class AuthorMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.EditAuthor, Messages.AccessDenied))
 						break;
 					Console.Clear();
-					EditAuthor(authorManagementService, authorization);
+					EditAuthor(authorManagementService, authorization, session);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -176,7 +176,8 @@ public static class AuthorMenu
 	private static readonly string[] Item = ["—"];
 
 
-	private static void EditAuthor(AuthorManagementService authorManagementService, IAuthorizationService authorization)
+	private static void EditAuthor(AuthorManagementService authorManagementService, IAuthorizationService authorization,
+		ICurrentUserSession session)
 	{
 		Console.WriteLine(new string('=', 36) + " EDITING AUTHOR MENU " + new string('=', 36));
 		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
@@ -221,7 +222,7 @@ public static class AuthorMenu
 					if (authorNewFirstName != null)
 					{
 						desiredAuthor.FirstName = authorNewFirstName;
-						var result = authorManagementService.UpdateAuthor(desiredAuthor);
+						var result = authorManagementService.UpdateAuthor(desiredAuthor, session.CurrentUser.Id);
 						ConsoleHelper.ShowResult(result);
 					}
 
@@ -235,7 +236,7 @@ public static class AuthorMenu
 					if (authorNewLastName != null)
 					{
 						desiredAuthor.LastName = authorNewLastName;
-						var result = authorManagementService.UpdateAuthor(desiredAuthor);
+						var result = authorManagementService.UpdateAuthor(desiredAuthor, session.CurrentUser.Id);
 						ConsoleHelper.ShowResult(result);
 					}
 
@@ -248,7 +249,7 @@ public static class AuthorMenu
 					if (authorNewNationalCode != null)
 					{
 						desiredAuthor.NationalCode = authorNewNationalCode;
-						var result = authorManagementService.UpdateAuthor(desiredAuthor);
+						var result = authorManagementService.UpdateAuthor(desiredAuthor, session.CurrentUser.Id);
 						ConsoleHelper.ShowResult(result);
 					}
 
@@ -261,7 +262,7 @@ public static class AuthorMenu
 					if (authorNewEmail != null)
 					{
 						desiredAuthor.Email = Email.Create(authorNewEmail);
-						var result = authorManagementService.UpdateAuthor(desiredAuthor);
+						var result = authorManagementService.UpdateAuthor(desiredAuthor, session.CurrentUser.Id);
 						ConsoleHelper.ShowResult(result);
 					}
 
@@ -275,7 +276,7 @@ public static class AuthorMenu
 					if (authorNewPhoneNumber != null)
 					{
 						desiredAuthor.PhoneNumber = PhoneNumber.Create(authorNewPhoneNumber);
-						var result = authorManagementService.UpdateAuthor(desiredAuthor);
+						var result = authorManagementService.UpdateAuthor(desiredAuthor, session.CurrentUser.Id);
 						ConsoleHelper.ShowResult(result);
 					}
 
@@ -288,7 +289,7 @@ public static class AuthorMenu
 					if (authorNewBirthDate != null)
 					{
 						desiredAuthor.BirthDate = authorNewBirthDate.Value;
-						var result = authorManagementService.UpdateAuthor(desiredAuthor);
+						var result = authorManagementService.UpdateAuthor(desiredAuthor, session.CurrentUser.Id);
 						ConsoleHelper.ShowResult(result);
 					}
 
@@ -301,7 +302,7 @@ public static class AuthorMenu
 					if (authorNewBiography != null)
 					{
 						desiredAuthor.Biography = authorNewBiography;
-						var result = authorManagementService.UpdateAuthor(desiredAuthor);
+						var result = authorManagementService.UpdateAuthor(desiredAuthor, session.CurrentUser.Id);
 						ConsoleHelper.ShowResult(result);
 					}
 

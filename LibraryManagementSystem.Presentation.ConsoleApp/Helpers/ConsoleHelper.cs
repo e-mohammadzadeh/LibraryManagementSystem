@@ -236,7 +236,7 @@ public static class ConsoleHelper
 	}
 
 
-	public static IReadOnlyList<ContributorDto>? ReadAuthorDtos(string prompt, IReadOnlyList<ContributorDto> authors,
+	public static List<ContributorDto>? ReadAuthorDtos(string prompt, IReadOnlyList<ContributorDto> authors,
 		bool allowMultiple = true, bool allowEmpty = false)
 	{
 		return ReadMultiSelect(prompt, authors, idSelector: a => a.Id,
@@ -245,7 +245,7 @@ public static class ConsoleHelper
 	}
 
 
-	public static IReadOnlyList<ContributorDto>? ReadTranslatorDtos(string prompt,
+	public static List<ContributorDto>? ReadTranslatorDtos(string prompt,
 		IReadOnlyList<ContributorDto> translators, bool allowMultiple = true, bool allowEmpty = true)
 	{
 		return ReadMultiSelect(prompt, translators, idSelector: t => t.Id,

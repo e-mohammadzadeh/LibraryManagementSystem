@@ -5,7 +5,7 @@ namespace LibraryManagementSystem.Infrastructure.Interfaces;
 
 public interface ICurrentUserSession
 {
-	AuthUserDto? CurrentUser { get; }
+	AuthUserDto CurrentUser { get; }
 	bool IsAuthenticated { get; }
 
 	void Login(AuthUserDto user);

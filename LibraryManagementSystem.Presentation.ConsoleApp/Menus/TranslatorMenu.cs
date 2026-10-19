@@ -65,7 +65,7 @@ public static class TranslatorMenu
 						    Messages.AccessDenied))
 						break;
 					Console.Clear();
-					EditTranslator(translatorManagementService, authorization);
+					EditTranslator(translatorManagementService, authorization, session);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -178,7 +178,7 @@ public static class TranslatorMenu
 
 
 	private static void EditTranslator(TranslatorManagementService translatorManagementService,
-		IAuthorizationService authorization)
+		IAuthorizationService authorization, ICurrentUserSession session)
 	{
 		Console.WriteLine(new string('=', 36) + " EDITING TRANSLATOR MENU " + new string('=', 36));
 		var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
@@ -223,7 +223,8 @@ public static class TranslatorMenu
 					if (translatorNewFirstName != null)
 					{
 						desiredTranslator.FirstName = translatorNewFirstName;
-						var result = translatorManagementService.UpdateTranslator(desiredTranslator);
+						var result =
+							translatorManagementService.UpdateTranslator(desiredTranslator, session.CurrentUser.Id);
 						ConsoleHelper.ShowResult(result);
 					}
 
@@ -237,7 +238,8 @@ public static class TranslatorMenu
 					if (translatorNewLastName != null)
 					{
 						desiredTranslator.LastName = translatorNewLastName;
-						var result = translatorManagementService.UpdateTranslator(desiredTranslator);
+						var result =
+							translatorManagementService.UpdateTranslator(desiredTranslator, session.CurrentUser.Id);
 						ConsoleHelper.ShowResult(result);
 					}
 
@@ -250,7 +252,8 @@ public static class TranslatorMenu
 					if (translatorNewNationalCode != null)
 					{
 						desiredTranslator.NationalCode = translatorNewNationalCode;
-						var result = translatorManagementService.UpdateTranslator(desiredTranslator);
+						var result =
+							translatorManagementService.UpdateTranslator(desiredTranslator, session.CurrentUser.Id);
 						ConsoleHelper.ShowResult(result);
 					}
 
@@ -263,7 +266,8 @@ public static class TranslatorMenu
 					if (translatorNewEmail != null)
 					{
 						desiredTranslator.Email = Email.Create(translatorNewEmail);
-						var result = translatorManagementService.UpdateTranslator(desiredTranslator);
+						var result =
+							translatorManagementService.UpdateTranslator(desiredTranslator, session.CurrentUser.Id);
 						ConsoleHelper.ShowResult(result);
 					}
 
@@ -276,7 +280,8 @@ public static class TranslatorMenu
 					if (translatorNewPhoneNumber != null)
 					{
 						desiredTranslator.PhoneNumber = PhoneNumber.Create(translatorNewPhoneNumber);
-						var result = translatorManagementService.UpdateTranslator(desiredTranslator);
+						var result =
+							translatorManagementService.UpdateTranslator(desiredTranslator, session.CurrentUser.Id);
 						ConsoleHelper.ShowResult(result);
 					}
 
@@ -289,7 +294,8 @@ public static class TranslatorMenu
 					if (translatorNewBirthDate != null)
 					{
 						desiredTranslator.BirthDate = translatorNewBirthDate.Value;
-						var result = translatorManagementService.UpdateTranslator(desiredTranslator);
+						var result =
+							translatorManagementService.UpdateTranslator(desiredTranslator, session.CurrentUser.Id);
 						ConsoleHelper.ShowResult(result);
 					}
 
@@ -302,7 +308,8 @@ public static class TranslatorMenu
 					if (translatorNewBiography != null)
 					{
 						desiredTranslator.Biography = translatorNewBiography;
-						var result = translatorManagementService.UpdateTranslator(desiredTranslator);
+						var result =
+							translatorManagementService.UpdateTranslator(desiredTranslator, session.CurrentUser.Id);
 						ConsoleHelper.ShowResult(result);
 					}
 

@@ -7,18 +7,18 @@ namespace LibraryManagementSystem.Infrastructure.DTOs.Books;
 public class BookDto
 {
 	public Guid Id { get; init; }
-	public string Title { get; init; } = null!;
-	public ISBN ISBN { get; init; } = null!;
-	public IReadOnlyList<ContributorDto> Authors { get; init; } = [];
-	public IReadOnlyList<ContributorDto> Translators { get; init; } = [];
-	public DateOnly PublishDate { get; init; }
-	public BookGenre Genre { get; init; } = null!;
-	public string Publisher { get; init; } = null!;
-	public Language OriginalLanguage { get; init; }
-	public int TotalCopies { get; init; }
+	public string Title { get; set; } = null!;
+	public ISBN ISBN { get; set; } = null!;
+	public IReadOnlyList<ContributorDto> Authors { get; set; } = [];
+	public IReadOnlyList<ContributorDto> Translators { get; set; } = [];
+	public DateOnly PublishDate { get; set; }
+	public BookGenre Genre { get; set; } = null!;
+	public string Publisher { get; set; } = null!;
+	public Language OriginalLanguage { get; set; }
+	public int TotalCopies { get; set; }
 	public int AvailableCopies { get; init; }
-	public string? Description { get; init; }
-	public Language TranslatedLanguage { get; init; }
+	public string? Description { get; set; }
+	public Language TranslatedLanguage { get; set; }
 	public DateTime CreatedAt { get; init; }
 	public DateTime UpdatedAt { get; init; }
 	public Guid UpdatedByUserId { get; init; }
