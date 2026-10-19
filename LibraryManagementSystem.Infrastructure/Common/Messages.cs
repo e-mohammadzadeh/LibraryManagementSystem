@@ -293,7 +293,7 @@ public static class Messages
 
 
 	// 13. UI Prompts & Questions ────────────────────────────────────────────────────────────
-	public const string MainMenuQuestion = "Please enter a number: ";
+	public const string MainMenuQuestion = "Please enter a number";
 	public const string AuthorSelectionForRemove = "Select the author you want to remove";
 	public const string EditMenuQuestion = "Enter the number of the field you wish to edit";
 	public const string SelectTranslatorQuestion = "Enter the number of the translator you wish";

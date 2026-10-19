@@ -1,18 +1,17 @@
-﻿using LibraryManagementSystem.Infrastructure.DTOs.Books;
-using LibraryManagementSystem.Infrastructure.ValueObjects;
+﻿using LibraryManagementSystem.Infrastructure.ValueObjects;
 
 namespace LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 
-public record ContributorDto
+public class ContributorDto
 {
 	public Guid Id { get; init; }
-	public string FirstName { get; init; } = null!;
-	public string LastName { get; init; } = null!;
-	public string NationalCode { get; init; } = null!;
-	public Email Email { get; init; } = null!;
-	public PhoneNumber PhoneNumber { get; init; } = null!;
-	public DateOnly BirthDate { get; init; }
-	public string? Biography { get; init; }
+	public string FirstName { get; set; } = null!;
+	public string LastName { get; set; } = null!;
+	public string NationalCode { get; set; } = null!;
+	public Email Email { get; set; } = null!;
+	public PhoneNumber PhoneNumber { get; set; } = null!;
+	public DateOnly BirthDate { get; set; }
+	public string? Biography { get; set; }
 	public DateTime CreatedAt { get; init; }
 	public DateTime? UpdatedAt { get; init; }
 }

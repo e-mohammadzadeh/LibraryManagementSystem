@@ -2,6 +2,7 @@
 
 public class BookAuthor
 {
+	public Guid Id { get; set; }
 	public Guid BookId { get; set; }
 	public virtual Book Book { get; set; } = null!;
 	public Guid AuthorId { get; set; }

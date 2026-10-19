@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using LibraryManagementSystem.Application.Authorization;
+﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Infrastructure.Common;
@@ -219,11 +218,12 @@ public static class AuthorMenu
 				{
 					var authorNewFirstName = ConsoleHelper.GetValidName("\nEnter new first name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
-
-					var author = desiredAuthor;
-					var updated = PerformUpdate(authorManagementService, authorNewFirstName,
-						v => author with { FirstName = v });
-					if (updated is not null) desiredAuthor = updated;
+					if (authorNewFirstName != null)
+					{
+						desiredAuthor.FirstName = authorNewFirstName;
+						var result = authorManagementService.UpdateAuthor(desiredAuthor);
+						ConsoleHelper.ShowResult(result);
+					}
 					break;
 				}
 				case 2:
@@ -231,30 +231,36 @@ public static class AuthorMenu
 					var authorNewLastName = ConsoleHelper.GetValidName("\nEnter new last name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
-					var author = desiredAuthor;
-					var updated = PerformUpdate(authorManagementService, authorNewLastName,
-						v => author with { LastName = v });
-					if (updated is not null) desiredAuthor = updated;
+					if (authorNewLastName != null)
+					{
+						desiredAuthor.LastName = authorNewLastName;
+						var result = authorManagementService.UpdateAuthor(desiredAuthor);
+						ConsoleHelper.ShowResult(result);
+					}
 					break;
 				}
 				case 3:
 				{
 					var authorNewNationalCode = ConsoleHelper.GetValidNationalCode("\nEnter new national code");
 
-					var author = desiredAuthor;
-					var updated = PerformUpdate(authorManagementService, authorNewNationalCode,
-						v => author with { NationalCode = v });
-					if (updated is not null) desiredAuthor = updated;
+					if (authorNewNationalCode != null)
+					{
+						desiredAuthor.NationalCode = authorNewNationalCode;
+						var result = authorManagementService.UpdateAuthor(desiredAuthor);
+						ConsoleHelper.ShowResult(result);
+					}
 					break;
 				}
 				case 4:
 				{
 					var authorNewEmail = ConsoleHelper.GetValidEmail("\nEnter new email");
 
-					var author = desiredAuthor;
-					var updated = PerformUpdate(authorManagementService, authorNewEmail,
-						v => author with { Email = Email.Create(v) });
-					if (updated is not null) desiredAuthor = updated;
+					if (authorNewEmail != null)
+					{
+						desiredAuthor.Email = Email.Create(authorNewEmail);
+						var result = authorManagementService.UpdateAuthor(desiredAuthor);
+						ConsoleHelper.ShowResult(result);
+					}
 					break;
 				}
 				case 5:
@@ -262,30 +268,36 @@ public static class AuthorMenu
 					Console.Clear();
 					var authorNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number");
 
-					var author = desiredAuthor;
-					var updated = PerformUpdate(authorManagementService, authorNewPhoneNumber,
-						v => author with { PhoneNumber = PhoneNumber.Create(v) });
-					if (updated is not null) desiredAuthor = updated;
+					if (authorNewPhoneNumber != null)
+					{
+						desiredAuthor.PhoneNumber = PhoneNumber.Create(authorNewPhoneNumber);
+						var result = authorManagementService.UpdateAuthor(desiredAuthor);
+						ConsoleHelper.ShowResult(result);
+					}
 					break;
 				}
 				case 6:
 				{
 					var authorNewBirthDate = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
 
-					var author = desiredAuthor;
-					var updated = PerformUpdate(authorManagementService, authorNewBirthDate,
-						v => author with { BirthDate = v!.Value });
-					if (updated is not null) desiredAuthor = updated;
+					if (authorNewBirthDate != null)
+					{
+						desiredAuthor.BirthDate = authorNewBirthDate.Value;
+						var result = authorManagementService.UpdateAuthor(desiredAuthor);
+						ConsoleHelper.ShowResult(result);
+					}
 					break;
 				}
 				case 7:
 				{
 					var authorNewBiography = ConsoleHelper.ReadString("\nEnter new biography");
 
-					var author = desiredAuthor;
-					var updated = PerformUpdate(authorManagementService, authorNewBiography,
-						v => author with { Biography = v });
-					if (updated is not null) desiredAuthor = updated;
+					if (authorNewBiography != null)
+					{
+						desiredAuthor.Biography = authorNewBiography;
+						var result = authorManagementService.UpdateAuthor(desiredAuthor);
+						ConsoleHelper.ShowResult(result);
+					}
 					break;
 				}
 				case 8:
@@ -298,18 +310,6 @@ public static class AuthorMenu
 			var choice = ConsoleHelper.ReadYesNo(Messages.EditContinuesQuestion);
 			if (choice != true) return;
 		}
-	}
-
-
-	private static ContributorDto? PerformUpdate<T>(AuthorManagementService authorManagementService, T? newValue,
-		Func<T, ContributorDto> buildDto)
-	{
-		if (newValue is null) return null;
-
-		var dto = buildDto(newValue);
-		var result = authorManagementService.UpdateAuthor(dto);
-		ConsoleHelper.ShowResult(result);
-		return result.Data;
 	}
 
 
