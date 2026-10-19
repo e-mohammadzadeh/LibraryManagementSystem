@@ -143,7 +143,7 @@ public class UserManagementService : IUserManagementService
 	public IReadOnlyList<Role> GetAllRoles() { return _roleRepository.GetAll(); }
 
 
-	public ServiceResult<UserDto> UpdateUser(UserDto dto, ICurrentUserSession session)
+	public ServiceResult<UserDto> UpdateUser(UserDto dto, Guid? updatedBy = null)
 	{
 		string? warningMessage = null;
 

@@ -261,7 +261,7 @@ public static class UserMenu
 
 			var rows = new List<string[][]>
 			{
-				new string[][] { ["1"], ["First Name"], [desiredUser!.FirstName] },
+				new string[][] { ["1"], ["First Name"], [desiredUser.FirstName] },
 				new string[][] { ["2"], ["Last Name"], [desiredUser.LastName] },
 				new string[][] { ["3"], ["National Code"], [desiredUser.NationalCode] },
 				new string[][] { ["4"], ["Email"], [desiredUser.Email] },
@@ -288,9 +288,13 @@ public static class UserMenu
 					var userNewFirstName = ConsoleHelper.GetValidName("\nEnter new first name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
-					var updated = PerformUpdate(userManagementService, userNewFirstName,
-						v => new UserDto { FirstName = v }, session);
-					if (updated is not null) desiredUser = updated;
+					if (userNewFirstName != null)
+					{
+						desiredUser.FirstName = userNewFirstName;
+						var result = userManagementService.UpdateUser(desiredUser, session.CurrentUser.Id);
+						ConsoleHelper.ShowResult(result);
+					}
+
 					break;
 				}
 				case "Last Name":
@@ -298,41 +302,65 @@ public static class UserMenu
 					var userNewLastName = ConsoleHelper.GetValidName("\nEnter new last name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
-					var updated = PerformUpdate(userManagementService, userNewLastName,
-						v => new UserDto { LastName = v }, session);
-					if (updated is not null) desiredUser = updated;
+					if (userNewLastName != null)
+					{
+						desiredUser.LastName = userNewLastName;
+						var result = userManagementService.UpdateUser(desiredUser, session.CurrentUser.Id);
+						ConsoleHelper.ShowResult(result);
+					}
+
 					break;
 				}
 				case "National Code":
 				{
 					var userNewNationalCode = ConsoleHelper.GetValidNationalCode("\nEnter new national code");
-					var updated = PerformUpdate(userManagementService, userNewNationalCode,
-						v => new UserDto { NationalCode = v }, session);
-					if (updated is not null) desiredUser = updated;
+
+					if (userNewNationalCode != null)
+					{
+						desiredUser.NationalCode = userNewNationalCode;
+						var result = userManagementService.UpdateUser(desiredUser, session.CurrentUser.Id);
+						ConsoleHelper.ShowResult(result);
+					}
+
 					break;
 				}
 				case "Email":
 				{
 					var userNewEmail = ConsoleHelper.GetValidEmail("\nEnter new email");
-					var updated = PerformUpdate(userManagementService, userNewEmail,
-						v => new UserDto { Email = Email.Create(v) }, session);
-					if (updated is not null) desiredUser = updated;
+
+					if (userNewEmail != null)
+					{
+						desiredUser.Email = Email.Create(userNewEmail);
+						var result = userManagementService.UpdateUser(desiredUser, session.CurrentUser.Id);
+						ConsoleHelper.ShowResult(result);
+					}
+
 					break;
 				}
 				case "Phone Number":
 				{
 					var userNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number");
-					var updated = PerformUpdate(userManagementService, userNewPhoneNumber,
-						v => new UserDto { PhoneNumber = PhoneNumber.Create(v) }, session);
-					if (updated is not null) desiredUser = updated;
+
+					if (userNewPhoneNumber != null)
+					{
+						desiredUser.PhoneNumber = PhoneNumber.Create(userNewPhoneNumber);
+						var result = userManagementService.UpdateUser(desiredUser, session.CurrentUser.Id);
+						ConsoleHelper.ShowResult(result);
+					}
+
 					break;
 				}
 				case "Birth Date":
 				{
 					var userNewBirthDate = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
-					var updated = PerformUpdate(userManagementService, userNewBirthDate,
-						v => new UserDto { BirthDate = v!.Value }, session);
-					if (updated is not null) desiredUser = updated;
+
+					if (userNewBirthDate != null)
+					{
+						desiredUser.BirthDate = userNewBirthDate.Value;
+						var result = userManagementService.UpdateUser(desiredUser, session.CurrentUser.Id);
+						ConsoleHelper.ShowResult(result);
+					}
+
 					break;
 				}
 				case "Roles":
@@ -345,12 +373,12 @@ public static class UserMenu
 					}
 
 					var availableRoles = userManagementService.GetAllRoles().Select(r => r.ToDto()).ToList();
-					var roles = ConsoleHelper.ReadRoles("\nSelect role for this user", availableRoles,
+					var newRole = ConsoleHelper.ReadRoles("\nSelect role for this user", availableRoles,
 						allowMultiple: false);
-					if (roles is null) break;
+					if (newRole is null) break;
 
-					var result = userManagementService.UpdateUser(new UserDto { Role = new RoleDto { Id = roles[0].Id } }, session);
-					if (result.IsSuccess) desiredUser = result.Data;
+					desiredUser.Role = newRole[0];
+					var result = userManagementService.UpdateUser(desiredUser, session.CurrentUser.Id);
 					ConsoleHelper.ShowResult(result);
 					break;
 				}
@@ -364,17 +392,6 @@ public static class UserMenu
 			var choice = ConsoleHelper.ReadYesNo(Messages.EditContinuesQuestion);
 			if (choice != true) return;
 		}
-	}
-
-
-	private static UserDto? PerformUpdate<T>(UserManagementService userManagementService, T? newValue,
-		Func<T, UserDto> buildDto, ICurrentUserSession session)
-	{
-		if (newValue is null) return null;
-		var dto = buildDto(newValue);
-		var result = userManagementService.UpdateUser(dto, session);
-		ConsoleHelper.ShowResult(result);
-		return result.Data;
 	}
 
 
@@ -393,7 +410,7 @@ public static class UserMenu
 		if (desiredUser is null) return;
 
 		// Block removing self
-		if (session.CurrentUser?.Id == desiredUser.Id)
+		if (session.CurrentUser.Id == desiredUser.Id)
 		{
 			ConsoleHelper.ShowError(Messages.CannotRemoveYourself);
 			return;
@@ -636,13 +653,7 @@ public static class UserMenu
 						    Messages.AccessDenied))
 						break;
 					Console.Clear();
-					if (session.CurrentUser?.Id is null)
-					{
-						ConsoleHelper.ShowError(Messages.AuthenticationRequired);
-						return;
-					}
-
-					var userDto = userManagementService.FindUserById(session.CurrentUser!.Id);
+					var userDto = userManagementService.FindUserById(session.CurrentUser.Id);
 					if (userDto is null)
 					{
 						ConsoleHelper.ShowError(Messages.NotUserMatched);
@@ -799,13 +810,7 @@ public static class UserMenu
 
 			if (choice == 1)
 			{
-				if (session.CurrentUser?.Id is null)
-				{
-					ConsoleHelper.ShowError(Messages.SessionExpired);
-					return;
-				}
-
-				targetUserId = session.CurrentUser!.Id;
+				targetUserId = session.CurrentUser.Id;
 			}
 			else
 			{
@@ -821,7 +826,7 @@ public static class UserMenu
 				}
 
 				targetUserId = user.Id;
-				isOwn = session.CurrentUser?.Id == targetUserId;
+				isOwn = session.CurrentUser.Id == targetUserId;
 			}
 		}
 		else if (canResetOthers) // admin-only path without own permission (rare)
@@ -832,17 +837,11 @@ public static class UserMenu
 			if (user is null) return;
 
 			targetUserId = user.Id;
-			isOwn = session.CurrentUser?.Id == targetUserId;
+			isOwn = session.CurrentUser.Id == targetUserId;
 		}
 		else // own only
 		{
-			if (session.CurrentUser?.Id is null)
-			{
-				ConsoleHelper.ShowError(Messages.SessionExpired);
-				return;
-			}
-
-			targetUserId = session.CurrentUser!.Id;
+			targetUserId = session.CurrentUser.Id;
 		}
 
 		string? currentPassword = null;
