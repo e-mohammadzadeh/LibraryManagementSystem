@@ -122,7 +122,7 @@ public static class FineMenu
 	{
 		var unpaidFines = session.IsSelfServiceMember
 			? fineManagementService.GetFinesByUser(session.CurrentUser!.Id, FineFilter.Unpaid)
-			: fineManagementService.GetAllUnpaidFines(session);
+			: fineManagementService.GetAll(session, FineFilter.Unpaid);
 
 		if (unpaidFines.Count == 0)
 		{
@@ -148,7 +148,7 @@ public static class FineMenu
 
 	private static void WaiveFine(IFineManagementService fineManagementService, ICurrentUserSession session)
 	{
-		var unpaidFines = fineManagementService.GetAllUnpaidFines(session);
+		var unpaidFines = fineManagementService.GetAll(session, FineFilter.Unpaid);
 		if (unpaidFines.Count == 0)
 		{
 			ConsoleHelper.ShowWarning(Messages.UnpaidFineNotFound);
@@ -362,7 +362,7 @@ public static class FineMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewFineHistory,
 						    Messages.AccessDenied))
 						return;
-					var histories = fineManagementService.GetAll();
+					var histories = fineManagementService.GetAll(session, FineFilter.All);
 					DisplayFineHistories(histories, Messages.FineNotFound);
 					ConsoleHelper.Pause();
 					break;

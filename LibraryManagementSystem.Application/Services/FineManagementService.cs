@@ -137,11 +137,11 @@ public class FineManagementService : IFineManagementService
 	}
 
 
-	public IReadOnlyList<FineDto> GetAllUnpaidFines(ICurrentUserSession session)
+	public IReadOnlyList<FineDto> GetAll(ICurrentUserSession session, FineFilter filter)
 	{
 		return session.IsSelfServiceMember
-			? GetFinesByUser(session.CurrentUser!.Id, FineFilter.Unpaid)
-			: [.. _fineRepository.GetAll(FineFilter.Unpaid).Select(f => f.ToDto())];
+			? GetFinesByUser(session.CurrentUser!.Id, filter)
+			: [.. _fineRepository.GetAll(filter).Select(f => f.ToDto())];
 	}
 
 

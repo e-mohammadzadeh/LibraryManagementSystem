@@ -9,7 +9,7 @@ public interface IFineManagementService
 	ServiceResult<FineDto> CreateFineForLoan(Guid loanId);
 	ServiceResult<FineDto> PayFine(Guid fineId, ICurrentUserSession session);
 	ServiceResult<FineDto> WaiveFine(Guid fineId);
-	IReadOnlyList<FineDto> GetAllUnpaidFines(ICurrentUserSession session);
+	IReadOnlyList<FineDto> GetAll(ICurrentUserSession session, FineFilter filter);
 	IReadOnlyList<FineDto> GetFinesByUser(Guid userId, FineFilter filter);
 	IReadOnlyList<FineDto> GetFineHistory();
 	IReadOnlyList<FineDto> GetFineHistoryByUser(Guid userId, ICurrentUserSession session);
