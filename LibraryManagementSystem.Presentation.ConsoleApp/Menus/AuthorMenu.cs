@@ -224,6 +224,7 @@ public static class AuthorMenu
 						var result = authorManagementService.UpdateAuthor(desiredAuthor);
 						ConsoleHelper.ShowResult(result);
 					}
+
 					break;
 				}
 				case 2:
@@ -237,6 +238,7 @@ public static class AuthorMenu
 						var result = authorManagementService.UpdateAuthor(desiredAuthor);
 						ConsoleHelper.ShowResult(result);
 					}
+
 					break;
 				}
 				case 3:
@@ -249,6 +251,7 @@ public static class AuthorMenu
 						var result = authorManagementService.UpdateAuthor(desiredAuthor);
 						ConsoleHelper.ShowResult(result);
 					}
+
 					break;
 				}
 				case 4:
@@ -261,6 +264,7 @@ public static class AuthorMenu
 						var result = authorManagementService.UpdateAuthor(desiredAuthor);
 						ConsoleHelper.ShowResult(result);
 					}
+
 					break;
 				}
 				case 5:
@@ -274,6 +278,7 @@ public static class AuthorMenu
 						var result = authorManagementService.UpdateAuthor(desiredAuthor);
 						ConsoleHelper.ShowResult(result);
 					}
+
 					break;
 				}
 				case 6:
@@ -286,6 +291,7 @@ public static class AuthorMenu
 						var result = authorManagementService.UpdateAuthor(desiredAuthor);
 						ConsoleHelper.ShowResult(result);
 					}
+
 					break;
 				}
 				case 7:
@@ -298,6 +304,7 @@ public static class AuthorMenu
 						var result = authorManagementService.UpdateAuthor(desiredAuthor);
 						ConsoleHelper.ShowResult(result);
 					}
+
 					break;
 				}
 				case 8:

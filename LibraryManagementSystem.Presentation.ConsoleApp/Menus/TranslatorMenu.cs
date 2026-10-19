@@ -65,7 +65,7 @@ public static class TranslatorMenu
 						    Messages.AccessDenied))
 						break;
 					Console.Clear();
-					EditTranslator(translatorManagementService, authorization, session);
+					EditTranslator(translatorManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -178,7 +178,7 @@ public static class TranslatorMenu
 
 
 	private static void EditTranslator(TranslatorManagementService translatorManagementService,
-		IAuthorizationService authorization, ICurrentUserSession session)
+		IAuthorizationService authorization)
 	{
 		Console.WriteLine(new string('=', 36) + " EDITING TRANSLATOR MENU " + new string('=', 36));
 		var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
@@ -198,7 +198,14 @@ public static class TranslatorMenu
 				new[] { ["4"], ["Email"], new[] { desiredTranslator.Email.ToString() } },
 				new[] { ["5"], ["Phone Number"], new[] { desiredTranslator.PhoneNumber.ToString() } },
 				new[] { ["6"], ["Birth Date"], new[] { desiredTranslator.BirthDate.ToString("yyyy-MM-dd") } },
-				new[] { ["7"], ["Back"], Item }
+				new[]
+				{
+					["7"], ["Biography"],
+					string.IsNullOrWhiteSpace(desiredTranslator.Biography)
+						? ["-"]
+						: new[] { desiredTranslator.Biography }
+				},
+				new[] { ["8"], ["Back"], Item }
 			};
 
 			ConsoleTable.PrintTable("Edit Translator", headers, rows);
@@ -213,9 +220,13 @@ public static class TranslatorMenu
 					var translatorNewFirstName = ConsoleHelper.GetValidName("\nEnter new first name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
-					var updated = PerformUpdate(translatorManagementService,
-						translatorNewFirstName, v => new ContributorDto { FirstName = v }, session.CurrentUser!.Id);
-					if (updated is not null) desiredTranslator = updated;
+					if (translatorNewFirstName != null)
+					{
+						desiredTranslator.FirstName = translatorNewFirstName;
+						var result = translatorManagementService.UpdateTranslator(desiredTranslator);
+						ConsoleHelper.ShowResult(result);
+					}
+
 					break;
 				}
 				case 2:
@@ -223,47 +234,81 @@ public static class TranslatorMenu
 					var translatorNewLastName = ConsoleHelper.GetValidName("\nEnter new last name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
 
-					var updated = PerformUpdate(translatorManagementService,
-						translatorNewLastName, v => new ContributorDto { LastName = v }, session.CurrentUser!.Id);
-					if (updated is not null) desiredTranslator = updated;
+					if (translatorNewLastName != null)
+					{
+						desiredTranslator.LastName = translatorNewLastName;
+						var result = translatorManagementService.UpdateTranslator(desiredTranslator);
+						ConsoleHelper.ShowResult(result);
+					}
+
 					break;
 				}
 				case 3:
 				{
 					var translatorNewNationalCode = ConsoleHelper.GetValidNationalCode("\nEnter new national code");
-					var updated = PerformUpdate(translatorManagementService,
-						translatorNewNationalCode, v => new ContributorDto { NationalCode = v },
-						session.CurrentUser!.Id);
-					if (updated is not null) desiredTranslator = updated;
+
+					if (translatorNewNationalCode != null)
+					{
+						desiredTranslator.NationalCode = translatorNewNationalCode;
+						var result = translatorManagementService.UpdateTranslator(desiredTranslator);
+						ConsoleHelper.ShowResult(result);
+					}
+
 					break;
 				}
 				case 4:
 				{
 					var translatorNewEmail = ConsoleHelper.GetValidEmail("\nEnter new email");
-					var updated = PerformUpdate(translatorManagementService, translatorNewEmail,
-						v => new ContributorDto { Email = Email.Create(v) }, session.CurrentUser!.Id);
-					if (updated is not null) desiredTranslator = updated;
+
+					if (translatorNewEmail != null)
+					{
+						desiredTranslator.Email = Email.Create(translatorNewEmail);
+						var result = translatorManagementService.UpdateTranslator(desiredTranslator);
+						ConsoleHelper.ShowResult(result);
+					}
+
 					break;
 				}
 				case 5:
 				{
 					var translatorNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number");
-					var updated = PerformUpdate(translatorManagementService,
-						translatorNewPhoneNumber, v => new ContributorDto { PhoneNumber = PhoneNumber.Create(v) },
-						session.CurrentUser!.Id);
-					if (updated is not null) desiredTranslator = updated;
+
+					if (translatorNewPhoneNumber != null)
+					{
+						desiredTranslator.PhoneNumber = PhoneNumber.Create(translatorNewPhoneNumber);
+						var result = translatorManagementService.UpdateTranslator(desiredTranslator);
+						ConsoleHelper.ShowResult(result);
+					}
+
 					break;
 				}
 				case 6:
 				{
 					var translatorNewBirthDate = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
-					var updated = PerformUpdate(translatorManagementService,
-						translatorNewBirthDate, v => new ContributorDto { BirthDate = v!.Value },
-						session.CurrentUser!.Id);
-					if (updated is not null) desiredTranslator = updated;
+
+					if (translatorNewBirthDate != null)
+					{
+						desiredTranslator.BirthDate = translatorNewBirthDate.Value;
+						var result = translatorManagementService.UpdateTranslator(desiredTranslator);
+						ConsoleHelper.ShowResult(result);
+					}
+
 					break;
 				}
 				case 7:
+				{
+					var translatorNewBiography = ConsoleHelper.ReadString("\nEnter new biography");
+
+					if (translatorNewBiography != null)
+					{
+						desiredTranslator.Biography = translatorNewBiography;
+						var result = translatorManagementService.UpdateTranslator(desiredTranslator);
+						ConsoleHelper.ShowResult(result);
+					}
+
+					break;
+				}
+				case 8:
 				{
 					ConsoleHelper.ShowInfo(string.Format(Messages.EditCancelled, "Translator"));
 					return;
@@ -273,17 +318,6 @@ public static class TranslatorMenu
 			var choice = ConsoleHelper.ReadYesNo(Messages.EditContinuesQuestion);
 			if (choice != true) return;
 		}
-	}
-
-
-	private static ContributorDto? PerformUpdate<T>(TranslatorManagementService translatorManagementService, T? newValue, Func<T, ContributorDto> buildDto, Guid? updatedBy)
-	{
-		if (newValue is null) return null;
-
-		var dto = buildDto(newValue);
-		var result = translatorManagementService.UpdateTranslator(dto, updatedBy);
-		ConsoleHelper.ShowResult(result);
-		return result.Data;
 	}
 
 
