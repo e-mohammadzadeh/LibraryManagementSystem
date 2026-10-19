@@ -312,7 +312,7 @@ public static class FineMenu
 
 
 
-	private static void History(FineManagementService fineManagementService,
+	private static void History(IFineManagementService fineManagementService,
 		UserManagementService userManagementService, IAuthorizationService authorization, ICurrentUserSession session)
 	{
 		if (!authorization.HasAnyPermission(Permission.ViewFineHistory, Permission.FineHistoryByUser))
@@ -330,7 +330,7 @@ public static class FineMenu
 				return;
 			}
 
-			var histories = fineManagementService.GetFinesByUser(session.CurrentUser!.Id);
+			var histories = fineManagementService.GetFinesByUser(session.CurrentUser!.Id, FineFilter.All);
 			DisplayFineHistories(histories, Messages.NotAvailableFineHistory);
 			return;
 		}
@@ -351,7 +351,7 @@ public static class FineMenu
 					var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(),
 						users => UserPrinter.PrintTable(users));
 					if (user is null) return;
-					var histories = fineManagementService.GetFinesByUser(user.Id);
+					var histories = fineManagementService.GetFinesByUser(user.Id, FineFilter.All);
 					DisplayFineHistories(histories, Messages.FineNotFound);
 					ConsoleHelper.Pause();
 					break;

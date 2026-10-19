@@ -73,7 +73,7 @@ public static class MainMenu
 				{
 					Console.Clear();
 					FineMenu.FineMenuController(fineManagementService, userManagementService, session,
-						statisticsService, authorization, fineManagementService);
+						statisticsService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}

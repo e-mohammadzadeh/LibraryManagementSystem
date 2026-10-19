@@ -20,7 +20,6 @@ public class FineManagementService : IFineManagementService
 	private readonly IUserManagementService _userService;
 	private readonly IUserAutoRemovalService _userAutoRemovalService;
 	private readonly IAuthorizationService _authorization;
-	private readonly IFineHistoryManagementService _fineHistoryManagementService;
 	private readonly IAuditLogManagementService _auditLog;
 
 
@@ -58,21 +57,10 @@ public class FineManagementService : IFineManagementService
 			UserId = loan.UserId,
 			OverdueDays = loan.ReturnDate.Value.DayNumber - loan.DueDate.DayNumber,
 			Reason = $"Fine is created for book \"{loan.Book.Title}\" (ID: {loan.Book.Id}).",
-		};
-
-		var fineDto = new FineDto
-		{
-			Id = fine.Id,
-			LoanId = loanId,
-			UserId = loan.UserId,
-			OverdueDays = fine.OverdueDays,
-			Money = fine.Money,
-			Status = fine.Status,
-			Reason = fine.Reason
+			Action = FineHistoryAction.CreateFine
 		};
 
 		_fineRepository.Add(fine);
-		_fineHistoryManagementService.Record(fineDto, FineHistoryAction.CreateFine);
 
 		var totalUnpaid = _fineRepository.GetAmount(loan.UserId, FineFilter.Unpaid);
 		if (fine.Money >= ValidationConstants.MaxUnpaidFineThreshold ||
@@ -105,19 +93,6 @@ public class FineManagementService : IFineManagementService
 		{
 			Pay(fine);
 			_fineRepository.Update(fine);
-
-			var fineDto = new FineDto
-			{
-				Id = fine.Id,
-				LoanId = fine.LoanId,
-				UserId = fine.UserId,
-				OverdueDays = fine.OverdueDays,
-				Money = fine.Money,
-				Status = fine.Status,
-				Reason = fine.Reason
-			};
-
-			_fineHistoryManagementService.Record(fineDto, FineHistoryAction.FinePaid);
 			_auditLog.Record(AuditAction.FinePaid, "Fine", fineId, "Fine paid.");
 
 			var removalResult = _userAutoRemovalService.TryAutoRemove(fine.UserId);
@@ -147,19 +122,6 @@ public class FineManagementService : IFineManagementService
 
 			Pay(fine);
 			_fineRepository.Update(fine);
-
-			var fineDto = new FineDto
-			{
-				Id = fine.Id,
-				LoanId = fine.LoanId,
-				UserId = fine.UserId,
-				OverdueDays = fine.OverdueDays,
-				Money = fine.Money,
-				Status = fine.Status,
-				Reason = fine.Reason
-			};
-
-			_fineHistoryManagementService.Record(fineDto, FineHistoryAction.FineWaived);
 			_auditLog.Record(AuditAction.FineWaived, "Fine", fineId, "Fine waived.");
 
 			var removalResult = _userAutoRemovalService.TryAutoRemove(fine.UserId);
@@ -215,6 +177,7 @@ public class FineManagementService : IFineManagementService
 		fine.Status = FineStatus.Paid;
 		fine.PaidAt = DateOnly.FromDateTime(DateTime.Today);
 		fine.UpdatedAt = DateTime.Now;
+		fine.Action = FineHistoryAction.FinePaid;
 	}
 
 
@@ -223,16 +186,6 @@ public class FineManagementService : IFineManagementService
 		if (fine.Status == FineStatus.Paid) throw new InvalidOperationException("Cannot waive an already paid fine.");
 		fine.Status = FineStatus.Waived;
 		fine.UpdatedAt = DateTime.Now;
-	}
-
-
-
-	private IReadOnlyList<FineDto> MapWithLookups(IEnumerable<FineDto> histories) {
-		var list = histories.ToList();
-
-		var userNames = _userRepository.GetAll(EntityFilter.All)
-			.ToDictionary(u => u.Id, u => $"{u.FirstName} {u.LastName}");
-
-		return [.. list.Select(h => h.ToDto())];
+		fine.Action = FineHistoryAction.FineWaived;
 	}
 }
