@@ -140,6 +140,8 @@ public static class Messages
 	public const string AuthorHasNoBooks = "No books are associated with this author.";
 	public const string TranslatorHasNoBooks = "No books are associated with this translator.";
 	public const string BookNotFound = "Book not found.";
+	public const string NotAvailableRemovedBook = "No removed books found.";
+
 
 	// Duplicate
 	public const string DuplicateBooksNotAllowedByName = "A book with the same name already exists.";
@@ -327,6 +329,7 @@ public static class Messages
 	public const string BackToMainMenu = "\nBacking to main menu...";
 	public const string BackToAuthorMenu = "\nBacking to Author Menu...";
 	public const string BackToTranslatorMenu = "\nBacking to Translator Menu...";
+	public const string BackToBookMenu = "\nBacking to Book Menu...";
 	public const string BackToUserMenu = "\nBacking to User Menu...";
 
 	// Exit

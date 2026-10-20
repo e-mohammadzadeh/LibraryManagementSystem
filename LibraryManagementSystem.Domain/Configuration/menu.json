@@ -1,0 +1,359 @@
+{
+	"title": "Library Management System",
+	"items": [
+		{
+			"id": "authors",
+			"label": "Authors",
+			"children": [
+				{
+					"id": "authors.add",
+					"label": "Add Author"
+				},
+				{
+					"id": "authors.edit",
+					"label": "Edit Author",
+					"children": [
+						{
+							"id": "authors.edit.firstname",
+							"label": "First Name"
+						},
+						{
+							"id": "authors.edit.lastname",
+							"label": "Last Name"
+						},
+						{
+							"id": "authors.edit.nationalcode",
+							"label": "National Code"
+						},
+						{
+							"id": "authors.edit.email",
+							"label": "Email"
+						},
+						{
+							"id": "authors.edit.phonenumber",
+							"label": "Phone Number"
+						},
+						{
+							"id": "authors.edit.birthdate",
+							"label": "Birth Date"
+						},
+						{
+							"id": "authors.edit.biography",
+							"label": "Biography"
+						},
+						{
+							"id": "authors.edit.back",
+							"label": "Back"
+						}
+					]
+				},
+				{
+					"id": "authors.remove",
+					"label": "Remove Author"
+				},
+				{
+					"id": "authors.search",
+					"label": "Search Author",
+					"children": [
+						{
+							"id": "authors.search.name",
+							"label": "Name"
+						},
+						{
+							"id": "authors.search.nationalcode",
+							"label": "National Code"
+						},
+						{
+							"id": "authors.search.email",
+							"label": "Email"
+						},
+						{
+							"id": "authors.search.phonenumber",
+							"label": "Phone Number"
+						},
+						{
+							"id": "authors.search.back",
+							"label": "Back"
+						}
+					]
+				},
+				{
+					"id": "authors.sort",
+					"label": "Sort Author",
+					"children": [
+						{
+							"id": "authors.sort.firstname",
+							"label": "First Name"
+						},
+						{
+							"id": "authors.sort.lastname",
+							"label": "Last Name"
+						},
+						{
+							"id": "authors.sort.fullname",
+							"label": "Full Name"
+						},
+						{
+							"id": "authors.sort.email",
+							"label": "Email"
+						},
+						{
+							"id": "authors.sort.nationalcode",
+							"label": "National Code"
+						},
+						{
+							"id": "authors.sort.birthdate",
+							"label": "Birth Date"
+						},
+						{
+							"id": "authors.sort.bookcount",
+							"label": "Book Count"
+						}
+					]
+				},
+				{
+					"id": "authors.view",
+					"label": "View Author",
+					"children": [
+						{
+							"id": "authors.view.authordetails",
+							"label": "View Author Details"
+						},
+						{
+							"id": "authors.view.authorbooks",
+							"label": "View Author's Books"
+						},
+						{
+							"id": "authors.view.allauthors",
+							"label": "View All Authors"
+						},
+						{
+							"id": "authors.view.removedauthors",
+							"label": "View Removed Authors"
+						},
+						{
+							"id": "authors.view.back",
+							"label": "Back"
+						}
+					]
+				},
+				{
+					"id": "authors.back",
+					"label": "Back"
+				}
+			]
+		},
+		{
+			"id": "translators",
+			"label": "Translators",
+			"children": [
+				{
+					"id": "translators.add",
+					"label": "Add Translators"
+				},
+				{
+					"id": "translators.edit",
+					"label": "Edit Translators",
+					"children": [
+						{
+							"id": "translators.edit.firstname",
+							"label": "First Name"
+						},
+						{
+							"id": "translators.edit.lastname",
+							"label": "Last Name"
+						},
+						{
+							"id": "translators.edit.nationalcode",
+							"label": "National Code"
+						},
+						{
+							"id": "translators.edit.email",
+							"label": "Email"
+						},
+						{
+							"id": "translators.edit.phonenumber",
+							"label": "Phone Number"
+						},
+						{
+							"id": "translators.edit.birthdate",
+							"label": "Birth Date"
+						},
+						{
+							"id": "translators.edit.biography",
+							"label": "Biography"
+						},
+						{
+							"id": "translators.edit.back",
+							"label": "Back"
+						}
+					]
+				},
+				{
+					"id": "translators.remove",
+					"label": "Remove Translators"
+				},
+				{
+					"id": "translators.search",
+					"label": "Search Translators",
+					"children": [
+						{
+							"id": "translators.search.name",
+							"label": "Name"
+						},
+						{
+							"id": "translators.search.nationalcode",
+							"label": "National Code"
+						},
+						{
+							"id": "translators.search.email",
+							"label": "Email"
+						},
+						{
+							"id": "translators.search.phonenumber",
+							"label": "Phone Number"
+						},
+						{
+							"id": "translators.search.back",
+							"label": "Back"
+						}
+					]
+				},
+				{
+					"id": "translators.sort",
+					"label": "Sort Translators",
+					"children": [
+						{
+							"id": "translators.sort.firstname",
+							"label": "First Name"
+						},
+						{
+							"id": "translators.sort.lastname",
+							"label": "Last Name"
+						},
+						{
+							"id": "translators.sort.fullname",
+							"label": "Full Name"
+						},
+						{
+							"id": "translators.sort.email",
+							"label": "Email"
+						},
+						{
+							"id": "translators.sort.nationalcode",
+							"label": "National Code"
+						},
+						{
+							"id": "translators.sort.birthdate",
+							"label": "Birth Date"
+						},
+						{
+							"id": "translators.sort.bookcount",
+							"label": "Book Count"
+						}
+					]
+				},
+				{
+					"id": "translators.view",
+					"label": "View Translators",
+					"children": [
+						{
+							"id": "translators.view.translatordetails",
+							"label": "View Translators Details"
+						},
+						{
+							"id": "translators.view.translatorbooks",
+							"label": "View Translators's Books"
+						},
+						{
+							"id": "translators.view.alltranslators",
+							"label": "View All Translators"
+						},
+						{
+							"id": "translators.view.removedtranslators",
+							"label": "View Removed Translators"
+						},
+						{
+							"id": "translators.view.back",
+							"label": "Back"
+						}
+					]
+				},
+				{
+					"id": "translators.back",
+					"label": "Back"
+				}
+			]
+		},
+		{
+			"id": "books",
+			"label": "Books",
+			"children": [
+				{
+					"id": "books.add",
+					"label": "Add Book"
+				},
+				{
+					"id": "books.edit",
+					"label": "Edit Book"
+				},
+				{
+					"id": "books.remove",
+					"label": "Remove Book"
+				},
+				{
+					"id": "books.search",
+					"label": "Search Book"
+				},
+				{
+					"id": "books.sort",
+					"label": "Sort Book"
+				},
+				{
+					"id": "books.view",
+					"label": "View Book"
+				},
+				{
+					"id": "books.back",
+					"label": "Back"
+				}
+			]
+		},
+		{
+			"id": "members",
+			"label": "Members",
+			"children": [
+
+			]
+		},
+		{
+			"id": "loans",
+			"label": "Loans",
+			"children": [
+
+			]
+		},
+		{
+			"id": "fines",
+			"label": "Fines",
+			"children": [
+
+			]
+		},
+		{
+			"id": "audit log",
+			"label": "Audit Log",
+			"children": [
+
+			]
+		},
+		{
+			"id": "logout",
+			"label": "Logout"
+		},
+		{
+			"id": "exit",
+			"label": "Exit Application"
+		}
+	]
+}

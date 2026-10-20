@@ -474,7 +474,6 @@ public static class TranslatorMenu
 	{
 		var fields = new List<(ContributorSortField Field, string Label)>
 		{
-			(ContributorSortField.Id, "ID"),
 			(ContributorSortField.FirstName, "First Name"),
 			(ContributorSortField.LastName, "Last Name"),
 			(ContributorSortField.FullName, "Full Name"),

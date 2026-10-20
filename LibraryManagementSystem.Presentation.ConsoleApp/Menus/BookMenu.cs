@@ -101,28 +101,15 @@ public static class BookMenu
 				}
 				case 6:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewBookDetails,
-						    Messages.AccessDenied))
+					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
+						    Permission.ViewBookDetails, Permission.ViewAllBooks))
 						break;
 					Console.Clear();
-					ViewBookDetails(bookManagementService, loanManagementService, session);
+					ViewBooks(bookManagementService, loanManagementService, authorization, session, statisticsService);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 7:
-				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllBooks, Messages.AccessDenied))
-						break;
-					Console.Clear();
-					var books = bookManagementService.GetAllBooks();
-					if (books.Count is 0)
-						ConsoleHelper.ShowWarning(Messages.NotAvailableBook);
-					else
-						BookPrinter.PrintTable(books, authorization, "All Books");
-					ConsoleHelper.Pause();
-					break;
-				}
-				case 8:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					return;
@@ -141,9 +128,8 @@ public static class BookMenu
 			(3, "Remove Book", authorization.HasPermission(Permission.RemoveBook)),
 			(4, "Search Book", authorization.HasPermission(Permission.SearchBook)),
 			(5, "Sort Book", authorization.HasAnyPermission(Permission.SortBookForMember, Permission.FullSortBook)),
-			(6, "View Book Details", authorization.HasPermission(Permission.ViewBookDetails)),
-			(7, "View All Books", authorization.HasPermission(Permission.ViewAllBooks)),
-			(8, "Back", true)
+			(6, "View Book", authorization.HasAnyPermission(Permission.ViewBookDetails, Permission.ViewAllBooks)),
+			(7, "Back", true)
 		};
 
 		var availableItems = items.Where(i => i.IsAvailable).ToList();
@@ -963,7 +949,6 @@ public static class BookMenu
 	}
 
 
-
 	private static SortDirection? SelectSortDirection()
 	{
 		var directionHeaders = new[] { "#", "Direction" };
@@ -986,6 +971,105 @@ public static class BookMenu
 		};
 	}
 
+
+	private static void ViewBooks(BookManagementService bookManagementService,
+		LoanManagementService loanManagementService, IAuthorizationService authorization,
+		ICurrentUserSession session, LibraryStatisticsService statisticsService)
+	{
+		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
+			    Permission.ViewBookDetails, Permission.ViewAllBooks))
+		{
+			return;
+		}
+
+		while (true)
+		{
+			if (!session.IsAuthenticated)
+			{
+				ConsoleHelper.ShowError(Messages.SessionExpired);
+				return;
+			}
+
+			ConsoleHelper.ClearConsole();
+			if (authorization.CanAccessStatistics())
+				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
+			else
+				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
+
+			switch (ViewBookMenuList(authorization))
+			{
+				case 1:
+				{
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewBookDetails,
+						    Messages.AccessDenied))
+						break;
+					Console.Clear();
+					ViewBookDetails(bookManagementService, loanManagementService, session);
+					ConsoleHelper.Pause();
+					break;
+				}
+				case 2:
+				{
+					break;
+				}
+				case 3:
+				{
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllBooks, Messages.AccessDenied))
+						break;
+					Console.Clear();
+					var books = bookManagementService.GetAllBooks();
+					if (books.Count is 0)
+						ConsoleHelper.ShowWarning(Messages.NotAvailableBook);
+					else
+						BookPrinter.PrintTable(books, authorization, "All Books");
+					ConsoleHelper.Pause();
+					break;
+				}
+				case 4:
+				{
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewRemovedBooks,
+						    Messages.AccessDenied))
+						break;
+					Console.Clear();
+					var removedBooks = bookManagementService.GetRemovedBooks();
+					if (removedBooks.Count is 0)
+						ConsoleHelper.ShowWarning(Messages.NotAvailableRemovedBook);
+					else
+						BookPrinter.PrintTable(removedBooks);
+					ConsoleHelper.Pause();
+					break;
+				}
+				case 5:
+				{
+					ConsoleHelper.ShowInfo(Messages.BackToBookMenu);
+					return;
+				}
+			}
+		}
+	}
+
+
+	private static int ViewBookMenuList(IAuthorizationService authorization)
+	{
+		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
+		{
+			(1, "View Book Details", authorization.HasPermission(Permission.ViewBookDetails)),
+			(2, "View Book's Authors", authorization.HasPermission(Permission.ViewBookAuthors)),
+			(3, "View All Books", authorization.HasPermission(Permission.ViewAllBooks)),
+			(4, "View Removed Books", authorization.HasPermission(Permission.ViewRemovedBooks)),
+			(5, "Back", true)
+		};
+
+		var availableItems = items.Where(i => i.IsAvailable).ToList();
+		Console.WriteLine(new string('=', 35) + " VIEW BOOK MENU " + new string('=', 35));
+
+		var displayNumber = 1;
+		foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
+
+		Console.WriteLine(new string('=', 82));
+		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
+		return availableItems[choice!.Value - 1].ActionId;
+	}
 
 
 	private static void ViewBookDetails(BookManagementService bookManagementService,
