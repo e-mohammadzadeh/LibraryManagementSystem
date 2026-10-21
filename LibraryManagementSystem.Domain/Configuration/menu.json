@@ -295,7 +295,89 @@
 				},
 				{
 					"id": "books.edit",
-					"label": "Edit Book"
+					"label": "Edit Book",
+					"children": [
+						{
+							"id": "books.edit.title",
+							"label": "Title"
+						},
+						{
+							"id": "books.edit.isbn",
+							"label": "ISBN"
+						},
+						{
+							"id": "books.edit.authors",
+							"label": "Author",
+							"children": [
+								{
+									"id": "books.edit.authors.add",
+									"label": "Add an author"
+								},
+								{
+									"id": "books.edit.authors.remove",
+									"label": "Remove an author"
+								},
+								{
+									"id": "books.edit.authors.replace",
+									"label": "Replace all authors"
+								},
+								{
+									"id": "books.edit.authors.back",
+									"label": "Back"
+								}
+							]
+						},
+						{
+							"id": "books.edit.translator",
+							"label": "Translator",
+							"children": [
+								{
+									"id": "books.edit.translator.add",
+									"label": "Add a translator"
+								},
+								{
+									"id": "books.edit.translator.removeone",
+									"label": "Remove a translator"
+								},
+								{
+									"id": "books.edit.translator.replace",
+									"label": "Replace all translators"
+								},
+								{
+									"id": "books.edit.translator.removeall",
+									"label": "Remove all translators"
+								},
+								{
+									"id": "books.edit.translator.back",
+									"label": "Back"
+								}
+							]
+						},
+						{
+							"id": "books.edit.publishdate",
+							"label": "Publish Date"
+						},
+						{
+							"id": "books.edit.totalcopies",
+							"label": "Total Copies"
+						},
+						{
+							"id": "books.edit.genre",
+							"label": "Genre"
+						},
+						{
+							"id": "books.edit.publisher",
+							"label": "Publisher"
+						},
+						{
+							"id": "books.edit.description",
+							"label": "Description"
+						},
+						{
+							"id": "books.edit.back",
+							"label": "Back"
+						}
+					]
 				},
 				{
 					"id": "books.remove",
@@ -303,15 +385,123 @@
 				},
 				{
 					"id": "books.search",
-					"label": "Search Book"
+					"label": "Search Book",
+					"children": [
+						{
+							"id": "books.search.title",
+							"label": "Title"
+						},
+						{
+							"id": "books.search.isbn",
+							"label": "ISBN"
+						},
+						{
+							"id": "books.search.author",
+							"label": "Author"
+						},
+						{
+							"id": "books.search.translator",
+							"label": "Translator"
+						},
+						{
+							"id": "books.search.publishdate",
+							"label": "Publish Date",
+							"children": [
+								{
+									"id": "books.search.publishdate.exact",
+									"label": "Exact date"
+								},
+								{
+									"id": "books.search.publishdate.before",
+									"label": "Before date"
+								},
+								{
+									"id": "books.search.publishdate.after",
+									"label": "After date"
+								},
+								{
+									"id": "books.search.publishdate.daterange",
+									"label": "Date range"
+								},
+								{
+									"id": "books.search.publishdate.back",
+									"label": "Back"
+								}
+							]
+						},
+						{
+							"id": "books.search.genre",
+							"label": "Genre"
+						},
+						{
+							"id": "books.search.publisher",
+							"label": "Publisher"
+						},
+						{
+							"id": "books.search.back",
+							"label": "Back"
+						}
+					]
 				},
 				{
 					"id": "books.sort",
-					"label": "Sort Book"
+					"label": "Sort Book",
+					"children": [
+						{
+							"id": "books.sort.title",
+							"label": "Title"
+						},
+						{
+							"id": "books.sort.isbn",
+							"label": "ISBN"
+						},
+						{
+							"id": "books.sort.author",
+							"label": "Author"
+						},
+						{
+							"id": "books.sort.translator",
+							"label": "Translator"
+						},
+						{
+							"id": "books.sort.publishdate",
+							"label": "Publish Date"
+						},
+						{
+							"id": "books.sort.genre",
+							"label": "Genre"
+						},
+						{
+							"id": "books.sort.publisher",
+							"label": "Publisher"
+						}
+					]
 				},
 				{
 					"id": "books.view",
-					"label": "View Book"
+					"label": "View Book",
+					"children": [
+						{
+							"id": "books.view.bookdetails",
+							"label": "View Book Details"
+						},
+						{
+							"id": "books.view.bookauthors",
+							"label": "View Book's Authors"
+						},
+						{
+							"id": "books.view.allbooks",
+							"label": "View All Books"
+						},
+						{
+							"id": "books.view.removedbooks",
+							"label": "View Removed Books"
+						},
+						{
+							"id": "books.view.back",
+							"label": "Back"
+						}
+					]
 				},
 				{
 					"id": "books.back",
@@ -320,10 +510,50 @@
 			]
 		},
 		{
-			"id": "members",
-			"label": "Members",
+			"id": "users",
+			"label": "Users",
 			"children": [
-
+				{
+					"id": "users.register",
+					"label": "Register User"
+				},
+				{
+					"id": "users.edit",
+					"label": "Edit User",
+					"children": [
+						{
+							"id": "users.edit."
+						}
+					]
+				},
+				{
+					"id": "users.remove",
+					"label": "Remove User"
+				},
+				{
+					"id": "users.search",
+					"label": "Search User"
+				},
+				{
+					"id": "users.sort",
+					"label": "Sort Users"
+				},
+				{
+					"id": "users.view",
+					"label": "View Users"
+				},
+				{
+					"id": "users.renew",
+					"label": "Renew Membership"
+				},
+				{
+					"id": "users.changepassword",
+					"label": "Change Password"
+				},
+				{
+					"id": "users.back",
+					"label": "Back"
+				}
 			]
 		},
 		{

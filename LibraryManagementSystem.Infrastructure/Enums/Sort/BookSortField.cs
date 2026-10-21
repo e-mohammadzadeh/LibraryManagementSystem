@@ -2,8 +2,7 @@
 
 public enum BookSortField
 {
-	Id,
-	Name,
+	Title,
 	ISBN,
 	Author,
 	Translator,

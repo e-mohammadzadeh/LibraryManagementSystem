@@ -933,8 +933,7 @@ public static class BookMenu
 	{
 		var fields = new List<(BookSortField Field, string Label)>
 		{
-			(BookSortField.Id, "ID"),
-			(BookSortField.Name, "Name"),
+			(BookSortField.Title, "Title"),
 			(BookSortField.ISBN, "ISBN"),
 			(BookSortField.Author, "Author"),
 			(BookSortField.Translator, "Translator"),

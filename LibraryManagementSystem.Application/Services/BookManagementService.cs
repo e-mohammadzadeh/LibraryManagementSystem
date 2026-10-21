@@ -276,7 +276,7 @@ public class BookManagementService : IBookManagementService
 		var sortedBooks = sortField switch
 		{
 			BookSortField.Id => ApplySort(books, book => book.Id, sortDirection),
-			BookSortField.Name => ApplySort(books, book => book.Title, sortDirection),
+			BookSortField.Title => ApplySort(books, book => book.Title, sortDirection),
 			BookSortField.ISBN => ApplySort(books, book => book.ISBN, sortDirection),
 			BookSortField.PublishDate => ApplySort(books, book => book.PublishDate, sortDirection),
 			BookSortField.Genre => ApplySort(books, book => book.Genre, sortDirection),
