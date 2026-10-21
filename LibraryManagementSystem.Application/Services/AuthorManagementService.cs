@@ -171,7 +171,7 @@ public class AuthorManagementService
 	}
 
 
-	public IReadOnlyList<ContributorDto> GetAllAuthors(ContributorSortField sortField = ContributorSortField.Id,
+	public IReadOnlyList<ContributorDto> GetAllAuthors(ContributorSortField sortField = ContributorSortField.FullName,
 		SortDirection sortDirection = SortDirection.Ascending)
 	{
 		if (!_authorization.HasPermission(Permission.ViewAllUsers)) return [];
@@ -179,7 +179,6 @@ public class AuthorManagementService
 		var authors = _authorRepository.GetAll(EntityFilter.Active).Select(a => a.ToDto());
 		Func<ContributorDto, object> keySelector = sortField switch
 		{
-			ContributorSortField.Id => a => a.Id,
 			ContributorSortField.FirstName => a => a.FirstName,
 			ContributorSortField.LastName => a => a.LastName,
 			ContributorSortField.FullName => a => $"{a.FirstName} {a.LastName}",

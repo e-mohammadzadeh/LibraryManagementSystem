@@ -10,7 +10,6 @@ using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
 using LibraryManagementSystem.Infrastructure.Interfaces;
-using LibraryManagementSystem.Infrastructure.ValueObjects;
 
 
 namespace LibraryManagementSystem.Application.Services;
@@ -54,7 +53,7 @@ public class UserManagementService : IUserManagementService
 		if (_userRepository.Exists(dto.PhoneNumber, u => u.PhoneNumber))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
 
-		var role = _roleRepository.FindById(dto.Role.Id);
+		var role = _roleRepository.GetById(dto.Role.Id);
 		if (role is null) return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
 
 		if (!(role.Name switch
@@ -106,7 +105,7 @@ public class UserManagementService : IUserManagementService
 		if (_userRepository.Exists(dto.PhoneNumber, u => u.PhoneNumber, dto.Id))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
 
-		var resolvedRole = _roleRepository.FindById(dto.Role.Id);
+		var resolvedRole = _roleRepository.GetById(dto.Role.Id);
 		if (resolvedRole is null) return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
 
 		var allowed = resolvedRole.Name switch
@@ -174,7 +173,7 @@ public class UserManagementService : IUserManagementService
 	{
 		if (!_authorization.HasPermission(Permission.RemoveUser)) return false;
 
-		var targetRole = user.RoleId;
+		var targetRole = _roleRepository.GetById(user.RoleId)?.Name;
 
 		if (session.IsAdmin) return targetRole != LibraryUserRole.Admin;
 		if (session.IsLibrarian) return targetRole == LibraryUserRole.Member;
@@ -182,26 +181,41 @@ public class UserManagementService : IUserManagementService
 	}
 
 
-	public IReadOnlyList<UserDto> SearchUser(string searchTerm, UserSearchField field)
+	public IReadOnlyList<UserDto> SearchUser(string searchItem, UserSearchField field)
 	{
-		if (string.IsNullOrWhiteSpace(searchTerm)) return [];
+		if (string.IsNullOrWhiteSpace(searchItem)) return [];
+
 		Func<User, string?> selector = field switch
 		{
 			UserSearchField.FullName => u => $"{u.FirstName} {u.LastName}",
 			UserSearchField.NationalCode => u => u.NationalCode,
 			UserSearchField.Email => u => u.Email,
 			UserSearchField.PhoneNumber => u => u.PhoneNumber,
-			UserSearchField.Role => u => string.Join(", ", u.Role.Name),
+			UserSearchField.Role => u => string.Join(", ", u.RoleId), // has problem it should sort by role not role id
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};
 
-		return [.. _userRepository.Search(searchTerm, selector).Select(user => user.ToDto())];
+		return
+		[
+			.. _userRepository.GetAll(EntityFilter.Active)
+				.Where(user =>
+				{
+					var value = selector(user);
+					return value is not null &&
+					       value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
+				})
+				.Select(user => user.ToDto())
+		];
 	}
 
 
 	public IReadOnlyList<UserDto> SearchByRole(Guid roleId)
 	{
-		return [.. _userRepository.SearchByRole(roleId).Select(user => user.ToDto())];
+		return
+		[
+			.. _userRepository.GetAll(EntityFilter.Active).Where(user => user.RoleId == roleId)
+				.Select(user => user.ToDto())
+		];
 	}
 
 
@@ -233,9 +247,8 @@ public class UserManagementService : IUserManagementService
 		return [.. sorted];
 	}
 
-	public UserDto? GetUserById(Guid id) {
-		return _userRepository.GetById(id, EntityFilter.Active)?.ToDto();
-	}
+
+	public UserDto? GetUserById(Guid id) { return _userRepository.GetById(id, EntityFilter.Active)?.ToDto(); }
 
 
 	public IReadOnlyList<UserDto> GetRemovedUsers()
@@ -245,14 +258,10 @@ public class UserManagementService : IUserManagementService
 	}
 
 
-	public IReadOnlyList<Role> GetAllRoles() { return _roleRepository.GetAll(); }
-
-
-
 	public ServiceResult<string> ChangePassword(Guid userId, string currentPassword, string newPassword,
 		ICurrentUserSession session)
 	{
-		var isOwn = session.CurrentUser?.Id == userId;
+		var isOwn = session.CurrentUser.Id == userId;
 
 		switch (isOwn)
 		{
@@ -300,7 +309,7 @@ public class UserManagementService : IUserManagementService
 
 		if (years <= 0) return ServiceResult<UserDto>.Fail(Messages.InvalidMembershipRenewalPeriod);
 
-		var targetRole = user.Role.Name;
+		var targetRole = _roleRepository.GetById(userId)?.Name;
 
 		if (!_authorization.HasPermission(Permission.RenewInactiveMembership) && !user.IsActive)
 			return ServiceResult<UserDto>.Fail(Messages.RenewInactiveMembership);

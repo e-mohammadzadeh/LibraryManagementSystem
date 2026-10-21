@@ -1,0 +1,14 @@
+﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Interfaces;
+
+namespace LibraryManagementSystem.Application.Services;
+
+public class RoleManagementService
+{
+	private readonly IRoleRepository _roleRepository;
+
+
+	public RoleManagementService(IRoleRepository roleRepository) { _roleRepository = roleRepository; }
+
+	public IReadOnlyList<Role> GetAllRoles() { return _roleRepository.GetAll(); }
+}

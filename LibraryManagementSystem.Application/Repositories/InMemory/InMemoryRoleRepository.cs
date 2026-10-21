@@ -19,13 +19,13 @@ public class InMemoryRoleRepository : IRoleRepository
 	}
 
 
-	public Role? FindById(Guid id)
+	public Role? GetById(Guid id)
 	{
 		return _roles.FirstOrDefault(r => id == r.Id);
 	}
 
 
-	public Role? FindByName(LibraryUserRole name)
+	public Role? GetByName(LibraryUserRole name)
 	{
 		return _roles.FirstOrDefault(r => name == r.Name);
 	}
