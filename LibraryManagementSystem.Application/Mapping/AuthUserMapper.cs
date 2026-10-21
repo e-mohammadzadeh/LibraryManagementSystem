@@ -15,7 +15,7 @@ public static class AuthUserMapper
 			Id = user.Id,
 			FullName = $"{user.FirstName} {user.LastName}",
 			Email = user.Email,
-			Role = user.Role.Name,
+			RoleId = user.RoleId,
 			Permissions = permissions,
 			IsActive = user.IsActive,
 			MembershipExpiryDate = user.MembershipExpiryDate,

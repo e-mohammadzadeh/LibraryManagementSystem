@@ -83,22 +83,14 @@ public class AuthenticationService
 
 	public ServiceResult<AuthUserDto> Register(UserDto dto)
 	{
-		string? warningMessage = null;
-
-		if (_userRepository.ExistsByNationalCode(dto.NationalCode))
+		if (_userRepository.Exists(dto.NationalCode, u => u.NationalCode))
 			return ServiceResult<AuthUserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
 
-		var email = Email.Create(dto.Email);
-		if (_userRepository.ExistsByEmail(email))
+		if (_userRepository.Exists(dto.Email, u => u.Email))
 			return ServiceResult<AuthUserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
 
-		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
-		if (_userRepository.ExistsByPhoneNumber(phoneNumber))
+		if (_userRepository.Exists(dto.PhoneNumber, u => u.PhoneNumber))
 			return ServiceResult<AuthUserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
-
-		var existingSameName = _userRepository.GetByName(dto.FirstName, dto.LastName, EntityFilter.Active);
-		if (existingSameName is not null)
-			warningMessage = string.Format(Messages.DuplicateUserNameWarning, existingSameName.Id);
 
 		var role = _roleRepository.GetByName(LibraryUserRole.Member);
 
@@ -109,11 +101,10 @@ public class AuthenticationService
 			FirstName = dto.FirstName,
 			LastName = dto.LastName,
 			NationalCode = dto.NationalCode,
-			Email = email,
-			PhoneNumber = phoneNumber,
+			Email = dto.Email,
+			PhoneNumber = dto.PhoneNumber,
 			BirthDate = dto.BirthDate,
 			RoleId = role!.Id,
-			Role = role!,
 			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
 		};
 
@@ -125,8 +116,6 @@ public class AuthenticationService
 		_currentUserSession.Login(authUser);
 		_auditLog.Record(AuditAction.UserLoggedIn, "User", newUser.Id, "User logged in after registration.");
 
-		return warningMessage is not null
-			? ServiceResult<AuthUserDto>.Warning(authUser, warningMessage)
-			: ServiceResult<AuthUserDto>.Ok(authUser, Messages.UserRegistrationSuccessfully);
+		return ServiceResult<AuthUserDto>.Ok(authUser, Messages.UserRegistrationSuccessfully);
 	}
 }

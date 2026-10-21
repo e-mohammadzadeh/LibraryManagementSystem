@@ -1,11 +1,19 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.DTOs.Users;
 
 namespace LibraryManagementSystem.Application.Common;
 
-public static class UserUpdateAuditDetailsBuilder
+public class UserUpdateAuditDetailsBuilder
 {
-	public static string? BuildUserUpdateAuditDetails(User user, UserDto dto, Role resolvedRole)
+	private readonly IRoleRepository _roleRepository;
+
+	public UserUpdateAuditDetailsBuilder(IRoleRepository roleRepository)
+	{
+		_roleRepository = roleRepository;
+	}
+
+	public string? BuildUserUpdateAuditDetails(User user, UserDto dto, Role resolvedRole)
 	{
 		var changes = new List<string>();
 
@@ -27,8 +35,9 @@ public static class UserUpdateAuditDetailsBuilder
 		if (dto.BirthDate != user.BirthDate)
 			changes.Add($"Changed birth date from '{user.BirthDate:yyyy-MM-dd}' to '{dto.BirthDate:yyyy-MM-dd}'.");
 
-		if (user.Role.Name != resolvedRole.Name)
-			changes.Add($"Changed roles from '{user.Role.Name}' to '{resolvedRole.Name}'.");
+		var roleName = _roleRepository.GetById(user.Id)?.Name;
+		if (roleName != resolvedRole.Name)
+			changes.Add($"Changed roles from '{roleName}' to '{resolvedRole.Name}'.");
 
 		return changes.Count > 0 ? string.Join(" ", changes) : null;
 	}
