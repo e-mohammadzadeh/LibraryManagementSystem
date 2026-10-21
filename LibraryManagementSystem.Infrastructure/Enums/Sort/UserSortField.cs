@@ -2,7 +2,6 @@
 
 public enum UserSortField
 {
-	Id,
 	FirstName,
 	LastName,
 	FullName,
@@ -12,6 +11,5 @@ public enum UserSortField
 	Role,
 	MembershipStartDate,
 	MembershipExpiryDate,
-	IsActive,
 	LastLoginDate
 }

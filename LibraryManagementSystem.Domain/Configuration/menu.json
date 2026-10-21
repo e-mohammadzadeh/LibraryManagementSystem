@@ -522,7 +522,36 @@
 					"label": "Edit User",
 					"children": [
 						{
-							"id": "users.edit."
+							"id": "users.edit.firstname",
+							"label": "First Name"
+						},
+						{
+							"id": "users.edit.lastname",
+							"label": "Last Name"
+						},
+						{
+							"id": "users.edit.nationalcode",
+							"label": "National Code"
+						},
+						{
+							"id": "users.edit.email",
+							"label": "Email"
+						},
+						{
+							"id": "users.edit.phonenumber",
+							"label": "Phone Number"
+						},
+						{
+							"id": "users.edit.birthdate",
+							"label": "Birth Date"
+						},
+						{
+							"id": "users.edit.role",
+							"label": "Role"
+						},
+						{
+							"id": "users.edit.back",
+							"label": "Back"
 						}
 					]
 				},
@@ -532,15 +561,105 @@
 				},
 				{
 					"id": "users.search",
-					"label": "Search User"
+					"label": "Search User",
+					"children": [
+						{
+							"id": "users.search.name",
+							"label": "Name"
+						},
+						{
+							"id": "users.search.nationalcode",
+							"label": "National Code"
+						},
+						{
+							"id": "users.search.email",
+							"label": "Email"
+						},
+						{
+							"id": "users.search.phonenumber",
+							"label": "Phone Number"
+						},
+						{
+							"id": "users.search.role",
+							"label": "Role"
+						},
+						{
+							"id": "users.search.back",
+							"label": "Back"
+						}
+					]
 				},
 				{
 					"id": "users.sort",
-					"label": "Sort Users"
+					"label": "Sort Users",
+					"children": [
+						{
+							"id": "users.sort.firstname",
+							"label": "First Name"
+						},
+						{
+							"id": "users.sort.lastname",
+							"label": "Last Name"
+						},
+						{
+							"id": "users.sort.fullname",
+							"label": "Full Name"
+						},
+						{
+							"id": "users.sort.nationalcode",
+							"label": "National Code"
+						},
+						{
+							"id": "users.sort.email",
+							"label": "Email"
+						},
+						{
+							"id": "users.sort.birthdate",
+							"label": "Birth Date"
+						},
+						{
+							"id": "users.sort.role",
+							"label": "Role"
+						},
+						{
+							"id": "users.sort.membershipstart",
+							"label": "Membership Start Date"
+						},
+						{
+							"id": "users.sort.membershipexpiry",
+							"label": "Membership Expiry Date"
+						},
+						{
+							"id": "users.sort.lastlogin",
+							"label": "Last Login Date"
+						}
+					]
 				},
 				{
 					"id": "users.view",
-					"label": "View Users"
+					"label": "View Users",
+					"children": [
+						{
+							"id": "users.view.owndetails",
+							"label": "View Own Details"
+						},
+						{
+							"id": "users.view.userdetails",
+							"label": "View User Details"
+						},
+						{
+							"id": "users.view.allusers",
+							"label": "View All Users"
+						},
+						{
+							"id": "users.view.removedusers",
+							"label": "View Removed Users"
+						},
+						{
+							"id": "users.view.back",
+							"label": "Back"
+						}
+					]
 				},
 				{
 					"id": "users.renew",
@@ -548,7 +667,17 @@
 				},
 				{
 					"id": "users.changepassword",
-					"label": "Change Password"
+					"label": "Change Password",
+					"children": [
+						{
+							"id": "users.changepassword.mypassword",
+							"label": "Change My Password"
+						},
+						{
+							"id": "users.changepassword.otheruser",
+							"label": "Reset Another User's Password"
+						}
+					]
 				},
 				{
 					"id": "users.back",
@@ -560,7 +689,18 @@
 			"id": "loans",
 			"label": "Loans",
 			"children": [
-
+				{
+					"id": "loans.borrow",
+					"label": "Borrow Book"
+				},
+				{
+					"id": "loans.return",
+					"label": "Return Book"
+				},
+				{
+					"id": "loans.renew",
+					"label": "Renew Loan"
+				}
 			]
 		},
 		{

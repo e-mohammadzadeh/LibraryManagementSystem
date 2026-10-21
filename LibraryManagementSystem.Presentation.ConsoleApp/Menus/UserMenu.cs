@@ -579,7 +579,6 @@ public static class UserMenu
 	{
 		return
 		[
-			(UserSortField.Id, "ID"),
 			(UserSortField.FirstName, "First Name"),
 			(UserSortField.LastName, "Last Name"),
 			(UserSortField.FullName, "Full Name"),
@@ -589,7 +588,6 @@ public static class UserMenu
 			(UserSortField.Role, "Role"),
 			(UserSortField.MembershipStartDate, "Membership Start Date"),
 			(UserSortField.MembershipExpiryDate, "Membership Expiry Date"),
-			(UserSortField.IsActive, "Is Active"),
 			(UserSortField.LastLoginDate, "Last Login Date")
 		];
 	}
