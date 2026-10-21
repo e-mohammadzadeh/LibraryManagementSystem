@@ -40,6 +40,7 @@ public enum Permission
 	SortBookForMember,
 	FullSortBook,
 	ViewBookDetails,
+	ViewBookAuthors,
 	ViewAllBooks,
 	ViewRemovedBooks,
 

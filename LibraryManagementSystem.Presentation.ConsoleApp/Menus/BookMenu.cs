@@ -1009,6 +1009,12 @@ public static class BookMenu
 				}
 				case 2:
 				{
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewBookAuthors,
+						    Messages.AccessDenied))
+						break;
+					Console.Clear();
+					ViewAuthorsByBooks(bookManagementService);
+					ConsoleHelper.Pause();
 					break;
 				}
 				case 3:
@@ -1088,4 +1094,15 @@ public static class BookMenu
 		var loans = loanManagementService.GetLoanByBook(desiredBook.Id, session, LoanFilter.Active);
 		BookPrinter.PrintLoanHistory(loans);
 	}
+
+
+	private static void ViewAuthorsByBooks(BookManagementService bookManagementService)
+	{
+		var desiredBook = SelectExistingBook(bookManagementService, "Book's Authors");
+		if (desiredBook is null) return;
+
+		var authors = bookManagementService.GetAuthorsByBooks(desiredBook.Id);
+		AuthorPrinter.PrintTable(authors);
+	}
+
 }

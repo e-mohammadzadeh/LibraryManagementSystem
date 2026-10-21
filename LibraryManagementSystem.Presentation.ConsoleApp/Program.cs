@@ -62,6 +62,7 @@ public static class Program
 				currentUserSession, auditLogService);
 			var statisticsService =
 				new LibraryStatisticsService(bookRepo, authorRepo, translatorRepo, userRepo, loanRepo);
+			var roleService = new RoleManagementService(roleRepo);
 
 
 			Console.Title = "Library Management System";
@@ -78,7 +79,7 @@ public static class Program
 
 				var result = MainMenu.MainMenuController(authorService, translatorService, userService, bookService,
 					loanService, fineService, authService, currentUserSession, authorization, statisticsService,
-					auditLogService);
+					auditLogService, roleService);
 
 				if (result == MainMenuResult.Exit) return;
 				ConsoleHelper.Pause();

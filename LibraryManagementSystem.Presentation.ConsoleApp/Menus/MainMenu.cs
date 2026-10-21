@@ -13,7 +13,7 @@ public static class MainMenu
 		BookManagementService bookManagementService, LoanManagementService loanManagementService,
 		IFineManagementService fineManagementService, AuthenticationService authenticationService,
 		ICurrentUserSession session, IAuthorizationService authorization, LibraryStatisticsService statisticsService,
-		IAuditLogManagementService auditLogManagementService)
+		IAuditLogManagementService auditLogManagementService, RoleManagementService roleManagementService)
 	{
 		while (true)
 		{
@@ -57,7 +57,7 @@ public static class MainMenu
 				case 4:
 				{
 					Console.Clear();
-					UserMenu.UserMenuController(userManagementService, statisticsService, session, authorization);
+					UserMenu.UserMenuController(userManagementService, roleManagementService, statisticsService, session, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}

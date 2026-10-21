@@ -35,6 +35,7 @@ public static class RolePermissionMap
 			Permission.SearchBook,
 			Permission.FullSortBook,
 			Permission.ViewBookDetails,
+			Permission.ViewBookAuthors,
 			Permission.ViewAllBooks,
 
 

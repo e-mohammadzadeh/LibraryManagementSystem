@@ -18,8 +18,8 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 public static class UserMenu
 {
 	public static void UserMenuController(UserManagementService userManagementService,
-		RoleManagementService roleManagementService,
-		LibraryStatisticsService statisticsService, ICurrentUserSession session, IAuthorizationService authorization)
+		RoleManagementService roleManagementService, LibraryStatisticsService statisticsService,
+		ICurrentUserSession session, IAuthorizationService authorization)
 	{
 		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied, Permission.AddUser,
 			    Permission.EditUser, Permission.RemoveUser, Permission.SearchUser, Permission.SortUser,
@@ -58,7 +58,7 @@ public static class UserMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.EditUser, Messages.AccessDenied))
 						break;
 					Console.Clear();
-					EditUser(userManagementService, authorization, session);
+					EditUser(userManagementService, roleManagementService, authorization, session);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -76,7 +76,7 @@ public static class UserMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.SearchUser, Messages.AccessDenied))
 						break;
 					Console.Clear();
-					SearchUser(userManagementService, authorization);
+					SearchUser(userManagementService, roleManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -106,7 +106,7 @@ public static class UserMenu
 						    Permission.RenewLibrarianMembership, Permission.RenewMemberMembership))
 						return;
 					Console.Clear();
-					RenewMembership(userManagementService, authorization);
+					RenewMembership(userManagementService, roleManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -292,7 +292,7 @@ public static class UserMenu
 					if (userNewFirstName != null)
 					{
 						desiredUser.FirstName = userNewFirstName;
-						var result = userManagementService.UpdateUser(desiredUser);
+						var result = userManagementService.UpdateUser(desiredUser, session, session.CurrentUser.Id);
 						ConsoleHelper.ShowResult(result);
 					}
 
@@ -306,7 +306,7 @@ public static class UserMenu
 					if (userNewLastName != null)
 					{
 						desiredUser.LastName = userNewLastName;
-						var result = userManagementService.UpdateUser(desiredUser, session.CurrentUser.Id);
+						var result = userManagementService.UpdateUser(desiredUser, session, session.CurrentUser.Id);
 						ConsoleHelper.ShowResult(result);
 					}
 
@@ -319,7 +319,7 @@ public static class UserMenu
 					if (userNewNationalCode != null)
 					{
 						desiredUser.NationalCode = userNewNationalCode;
-						var result = userManagementService.UpdateUser(desiredUser, session.CurrentUser.Id);
+						var result = userManagementService.UpdateUser(desiredUser, session, session.CurrentUser.Id);
 						ConsoleHelper.ShowResult(result);
 					}
 
@@ -332,7 +332,7 @@ public static class UserMenu
 					if (userNewEmail != null)
 					{
 						desiredUser.Email = Email.Create(userNewEmail);
-						var result = userManagementService.UpdateUser(desiredUser, session.CurrentUser.Id);
+						var result = userManagementService.UpdateUser(desiredUser, session, session.CurrentUser.Id);
 						ConsoleHelper.ShowResult(result);
 					}
 
@@ -345,7 +345,7 @@ public static class UserMenu
 					if (userNewPhoneNumber != null)
 					{
 						desiredUser.PhoneNumber = PhoneNumber.Create(userNewPhoneNumber);
-						var result = userManagementService.UpdateUser(desiredUser, session.CurrentUser.Id);
+						var result = userManagementService.UpdateUser(desiredUser, session, session.CurrentUser.Id);
 						ConsoleHelper.ShowResult(result);
 					}
 
@@ -358,7 +358,7 @@ public static class UserMenu
 					if (userNewBirthDate != null)
 					{
 						desiredUser.BirthDate = userNewBirthDate.Value;
-						var result = userManagementService.UpdateUser(desiredUser, session.CurrentUser.Id);
+						var result = userManagementService.UpdateUser(desiredUser, session, session.CurrentUser.Id);
 						ConsoleHelper.ShowResult(result);
 					}
 
@@ -373,13 +373,13 @@ public static class UserMenu
 						break;
 					}
 
-					var availableRoles = userManagementService.GetAllRoles().Select(r => r.ToDto()).ToList();
+					var availableRoles = roleManagementService.GetAllRoles().Select(r => r.ToDto()).ToList();
 					var newRole = ConsoleHelper.ReadRoles("\nSelect role for this user", availableRoles,
 						allowMultiple: false);
 					if (newRole is null) break;
 
-					desiredUser.Role = newRole[0];
-					var result = userManagementService.UpdateUser(desiredUser, session.CurrentUser.Id);
+					desiredUser.RoleId = newRole[0].Id;
+					var result = userManagementService.UpdateUser(desiredUser, session, session.CurrentUser.Id);
 					ConsoleHelper.ShowResult(result);
 					break;
 				}
@@ -423,7 +423,8 @@ public static class UserMenu
 	}
 
 
-	private static void SearchUser(UserManagementService userManagementService, IAuthorizationService authorization)
+	private static void SearchUser(UserManagementService userManagementService,
+		RoleManagementService roleManagementService, IAuthorizationService authorization)
 	{
 		if (!authorization.HasPermission(Permission.SearchUser))
 		{
@@ -492,7 +493,7 @@ public static class UserMenu
 				}
 				case 5:
 				{
-					SearchRoleAndDisplay(userManagementService, "Enter a role to search");
+					SearchRoleAndDisplay(userManagementService, roleManagementService, "Enter a role to search");
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -506,9 +507,10 @@ public static class UserMenu
 	}
 
 
-	private static void SearchRoleAndDisplay(UserManagementService userManagementService, string prompt)
+	private static void SearchRoleAndDisplay(UserManagementService userManagementService,
+		RoleManagementService roleManagementService, string prompt)
 	{
-		var availableRoles = userManagementService.GetAllRoles().Select(r => r.ToDto()).ToList();
+		var availableRoles = roleManagementService.GetAllRoles().Select(r => r.ToDto()).ToList();
 		var roles = ConsoleHelper.ReadRoles(prompt, availableRoles, allowMultiple: false);
 		if (roles is null || roles.Count == 0) return;
 
@@ -741,7 +743,7 @@ public static class UserMenu
 	}
 
 
-	private static void RenewMembership(UserManagementService userManagementService,
+	private static void RenewMembership(UserManagementService userManagementService, RoleManagementService roleManagementService,
 		IAuthorizationService authorization)
 	{
 		Console.WriteLine(new string('=', 56) + " RENEW MEMBERSHIP " + new string('=', 56));
@@ -755,7 +757,7 @@ public static class UserMenu
 			.Where(u =>
 			{
 				if (u.ShouldRemove) return false;
-				var role = u.Role.Name;
+				var role = roleManagementService.GetById(u.RoleId)?.Name;
 				var allRolesRenewable = (role == LibraryUserRole.Member && canRenewMembers) ||
 				                        (role == LibraryUserRole.Librarian && canRenewLibrarians);
 				var hasRenewableRole = role is LibraryUserRole.Member or LibraryUserRole.Librarian;
