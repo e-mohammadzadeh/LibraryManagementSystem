@@ -651,7 +651,7 @@ public static class UserMenu
 						    Messages.AccessDenied))
 						break;
 					Console.Clear();
-					var userDto = userManagementService.FindUserById(session.CurrentUser.Id);
+					var userDto = userManagementService.GetUserById(session.CurrentUser.Id);
 					if (userDto is null)
 					{
 						ConsoleHelper.ShowError(Messages.NotUserMatched);

@@ -11,11 +11,7 @@ public interface IUserRepository
 	User? GetByName(string firstName, string lastName, EntityFilter filter);
 	User? GetByEmail(Email email, EntityFilter filter);
 	IReadOnlyList<User> GetAll(EntityFilter filter);
-	bool ExistsByNationalCode(string nationalCode, Guid? excludeId = null);
-	bool ExistsByEmail(Email email, Guid? excludeId = null);
-	bool ExistsByPhoneNumber(PhoneNumber phoneNumber, Guid? excludeId = null);
-	void Update(User user, Guid? updatedBy);
+	bool Exists<T>(T value, Func<User, T> selector, Guid? excludeId = null);
 	void Remove(User user);
-	IReadOnlyList<User> Search(string searchTerm, Func<User, string?> selector);
-	IReadOnlyList<User> SearchByRole(Guid roleId);
+	void Update(User user);
 }

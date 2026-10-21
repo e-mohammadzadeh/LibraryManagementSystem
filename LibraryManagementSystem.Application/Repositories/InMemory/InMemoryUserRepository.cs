@@ -52,40 +52,12 @@ public class InMemoryUserRepository : IUserRepository
 	}
 
 
-	public bool ExistsByNationalCode(string nationalCode, Guid? excludeId)
+	public bool Exists<T>(T value, Func<User, T> selector, Guid? excludeId)
 	{
-		return _users.Any(u => u.Id != excludeId && u.NationalCode.Equals(nationalCode));
-	}
-
-
-	public bool ExistsByEmail(Email email, Guid? excludeId)
-	{
-		return _users.Any(u => u.Id != excludeId && u.Email.Equals(email));
-	}
-
-
-	public bool ExistsByPhoneNumber(PhoneNumber phoneNumber, Guid? excludeId)
-	{
-		return _users.Any(u => u.Id != excludeId && u.PhoneNumber.Equals(phoneNumber));
-	}
-
-
-	public void Update(User user, Guid? updatedBy = null)
-	{
-		ArgumentNullException.ThrowIfNull(user);
-
-		var tracked = _users.FirstOrDefault(u => u.Id == user.Id) ?? throw new UserNotFoundException(user.Id);
-
-
-		tracked.FirstName = user.FirstName;
-		tracked.LastName = user.LastName;
-		tracked.NationalCode = user.NationalCode;
-		tracked.Email = user.Email;
-		tracked.PhoneNumber = user.PhoneNumber;
-		tracked.BirthDate = user.BirthDate;
-		tracked.Role = user.Role;
-		tracked.RoleId = user.RoleId;
-		tracked.UpdatedAt = DateTime.UtcNow;
+		return _users.Any(a =>
+			!a.IsRemoved &&
+			(excludeId is null || a.Id != excludeId) &&
+			EqualityComparer<T>.Default.Equals(selector(a), value));
 	}
 
 
@@ -99,26 +71,22 @@ public class InMemoryUserRepository : IUserRepository
 	}
 
 
-	public IReadOnlyList<User> Search(string searchTerm, Func<User, string?> selector)
+	public void Update(User user)
 	{
-		if (string.IsNullOrWhiteSpace(searchTerm)) return [];
+		ArgumentNullException.ThrowIfNull(user);
 
-		return
-		[
-			.. _users
-				.Where(u => !u.IsRemoved)
-				.Where(u =>
-				{
-					var value = selector(u);
-					return value is not null && value.Contains(searchTerm, StringComparison.OrdinalIgnoreCase);
-				})
-		];
-	}
+		var tracked = _users.FirstOrDefault(u => u.Id == user.Id) ?? throw new UserNotFoundException(user.Id);
 
 
-	public IReadOnlyList<User> SearchByRole(Guid roleIds)
-	{
-		return [.. _users.Where(u => !u.IsRemoved).Where(u => u.RoleId == roleIds)];
+		tracked.FirstName = user.FirstName;
+		tracked.LastName = user.LastName;
+		tracked.NationalCode = user.NationalCode;
+		tracked.Email = user.Email;
+		tracked.PhoneNumber = user.PhoneNumber;
+		tracked.BirthDate = user.BirthDate;
+		tracked.RoleId = user.RoleId;
+		tracked.UpdatedAt = DateTime.UtcNow;
+		tracked.UpdatedByUserId = user.UpdatedByUserId;
 	}
 
 

@@ -45,23 +45,14 @@ public class UserManagementService : IUserManagementService
 		if (!_authorization.HasPermission(Permission.AddUser))
 			return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
 
-		string? warningMessage = null;
-
-		if (_userRepository.ExistsByNationalCode(dto.NationalCode))
+		if (_userRepository.Exists(dto.NationalCode, u => u.NationalCode))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
 
-		var email = Email.Create(dto.Email);
-		if (_userRepository.ExistsByEmail(email))
+		if (_userRepository.Exists(dto.Email, u => u.Email))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
 
-		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
-		if (_userRepository.ExistsByPhoneNumber(phoneNumber))
+		if (_userRepository.Exists(dto.PhoneNumber, u => u.PhoneNumber))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
-
-		var existingSameName = _userRepository.GetByName(dto.FirstName, dto.LastName, EntityFilter.Active);
-
-		if (existingSameName != null)
-			warningMessage = string.Format(Messages.DuplicateUserNameWarning, existingSameName.Id);
 
 		var role = _roleRepository.FindById(dto.Role.Id);
 		if (role is null) return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
@@ -84,11 +75,10 @@ public class UserManagementService : IUserManagementService
 			FirstName = dto.FirstName,
 			LastName = dto.LastName,
 			NationalCode = dto.NationalCode,
-			Email = email,
-			PhoneNumber = phoneNumber,
+			Email = dto.Email,
+			PhoneNumber = dto.PhoneNumber,
 			BirthDate = dto.BirthDate,
 			RoleId = dto.Role.Id,
-			Role = role,
 			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
 		};
 
@@ -96,9 +86,122 @@ public class UserManagementService : IUserManagementService
 		_userRepository.Add(newUser);
 		_auditLog.Record(AuditAction.UserCreated, "User", newUser.Id, "New user created.");
 
-		return warningMessage != null
-			? ServiceResult<UserDto>.Warning(newUser.ToDto(), warningMessage)
-			: ServiceResult<UserDto>.Ok(newUser.ToDto(), Messages.UserAddedSuccessfully);
+		return ServiceResult<UserDto>.Ok(newUser.ToDto(), Messages.UserAddedSuccessfully);
+	}
+
+
+	public ServiceResult<UserDto> UpdateUser(UserDto dto, ICurrentUserSession session, Guid? updatedBy = null)
+	{
+		var user = _userRepository.GetById(dto.Id, EntityFilter.Active);
+		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserUpdateFailed);
+
+		if (IsNoOpUpdateUser(user, dto)) return ServiceResult<UserDto>.Fail(Messages.NoChangesDetected);
+
+		if (_userRepository.Exists(dto.NationalCode, u => u.NationalCode, dto.Id))
+			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
+
+		if (_userRepository.Exists(dto.Email, u => u.Email, dto.Id))
+			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
+
+		if (_userRepository.Exists(dto.PhoneNumber, u => u.PhoneNumber, dto.Id))
+			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
+
+		var resolvedRole = _roleRepository.FindById(dto.Role.Id);
+		if (resolvedRole is null) return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
+
+		var allowed = resolvedRole.Name switch
+		{
+			LibraryUserRole.Member => _authorization.HasPermission(Permission.AssignMemberRole),
+			LibraryUserRole.Librarian => _authorization.HasPermission(Permission.AssignLibrarianRole),
+			LibraryUserRole.Admin => _authorization.HasPermission(Permission.AssignAdminRole),
+			_ => false
+		};
+
+		if (!allowed) return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
+
+		user.FirstName = dto.FirstName;
+		user.LastName = dto.LastName;
+		user.NationalCode = dto.NationalCode;
+		user.Email = dto.Email;
+		user.PhoneNumber = dto.PhoneNumber;
+		user.BirthDate = dto.BirthDate;
+		user.RoleId = dto.Role.Id;
+		user.UpdatedByUserId = updatedBy;
+
+		var auditDetails = UserUpdateAuditDetailsBuilder.BuildUserUpdateAuditDetails(user, dto, resolvedRole);
+		_userRepository.Update(user);
+		if (session.CurrentUser.Id == dto.Id) session.UpdateCurrentUser(user.ToAuthUserDto());
+		_auditLog.Record(AuditAction.UserUpdated, "User", dto.Id, auditDetails ?? "User updated.");
+		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.UserUpdatedSuccessfully);
+	}
+
+
+	private static bool IsNoOpUpdateUser(User user, UserDto dto)
+	{
+		return (dto.FirstName == user.FirstName) &&
+		       (dto.LastName == user.LastName) &&
+		       (dto.NationalCode == user.NationalCode) &&
+		       (dto.Email == user.Email) &&
+		       (dto.PhoneNumber == user.PhoneNumber) &&
+		       (dto.BirthDate == user.BirthDate) &&
+		       (dto.Role.Id == user.RoleId);
+	}
+
+
+	public ServiceResult<UserDto> RemoveUser(Guid userId, ICurrentUserSession? session = null)
+	{
+		var user = _userRepository.GetById(userId, EntityFilter.Active);
+		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserRemoveFailed);
+
+		if (session != null && session.CurrentUser.Id == userId)
+			return ServiceResult<UserDto>.Fail(Messages.CannotRemoveYourself);
+
+		if (session != null && !CanRemoveUser(session, user)) return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
+
+		if (_loanRepository.GetByUserId(userId, LoanFilter.Active).Count > 0)
+			return ServiceResult<UserDto>.Fail(Messages.UserRemovalFailedByActiveLoans);
+
+		if (_finesRepository.HasFines(userId, FineFilter.Unpaid))
+			return ServiceResult<UserDto>.Fail(Messages.UserRemovalFailedByUnpaidFines);
+
+		_userRepository.Remove(user);
+		_auditLog.Record(AuditAction.UserRemoved, "User", userId, "User removed.");
+		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.UserRemovedSuccessfully);
+	}
+
+
+	private bool CanRemoveUser(ICurrentUserSession session, User user)
+	{
+		if (!_authorization.HasPermission(Permission.RemoveUser)) return false;
+
+		var targetRole = user.RoleId;
+
+		if (session.IsAdmin) return targetRole != LibraryUserRole.Admin;
+		if (session.IsLibrarian) return targetRole == LibraryUserRole.Member;
+		return false;
+	}
+
+
+	public IReadOnlyList<UserDto> SearchUser(string searchTerm, UserSearchField field)
+	{
+		if (string.IsNullOrWhiteSpace(searchTerm)) return [];
+		Func<User, string?> selector = field switch
+		{
+			UserSearchField.FullName => u => $"{u.FirstName} {u.LastName}",
+			UserSearchField.NationalCode => u => u.NationalCode,
+			UserSearchField.Email => u => u.Email,
+			UserSearchField.PhoneNumber => u => u.PhoneNumber,
+			UserSearchField.Role => u => string.Join(", ", u.Role.Name),
+			_ => throw new ArgumentOutOfRangeException(nameof(field))
+		};
+
+		return [.. _userRepository.Search(searchTerm, selector).Select(user => user.ToDto())];
+	}
+
+
+	public IReadOnlyList<UserDto> SearchByRole(Guid roleId)
+	{
+		return [.. _userRepository.SearchByRole(roleId).Select(user => user.ToDto())];
 	}
 
 
@@ -130,6 +233,10 @@ public class UserManagementService : IUserManagementService
 		return [.. sorted];
 	}
 
+	public UserDto? GetUserById(Guid id) {
+		return _userRepository.GetById(id, EntityFilter.Active)?.ToDto();
+	}
+
 
 	public IReadOnlyList<UserDto> GetRemovedUsers()
 	{
@@ -140,126 +247,6 @@ public class UserManagementService : IUserManagementService
 
 	public IReadOnlyList<Role> GetAllRoles() { return _roleRepository.GetAll(); }
 
-
-	public ServiceResult<UserDto> UpdateUser(UserDto dto, Guid? updatedBy = null)
-	{
-		var user = _userRepository.GetById(dto.Id, EntityFilter.Active);
-		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserUpdateFailed);
-
-		if (IsNoOpUpdateUser(user, dto)) return ServiceResult<UserDto>.Fail(Messages.NoChangesDetected);
-
-		if (_userRepository.ExistsByNationalCode(dto.NationalCode, dto.Id))
-			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
-
-		var email = Email.Create(dto.Email);
-		if (_userRepository.ExistsByEmail(email, dto.Id))
-			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
-
-		var phoneNumber = PhoneNumber.Create(dto.PhoneNumber);
-		if (_userRepository.ExistsByPhoneNumber(phoneNumber, dto.Id))
-			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
-
-
-		var resolvedRole = _roleRepository.FindById(dto.Role.Id);
-		if (resolvedRole is null) return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
-
-		var allowed = resolvedRole.Name switch
-		{
-			LibraryUserRole.Member => _authorization.HasPermission(Permission.AssignMemberRole),
-			LibraryUserRole.Librarian => _authorization.HasPermission(Permission.AssignLibrarianRole),
-			LibraryUserRole.Admin => _authorization.HasPermission(Permission.AssignAdminRole),
-			_ => false
-		};
-
-		if (!allowed) return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
-
-
-		var auditDetails = UserUpdateAuditDetailsBuilder.BuildUserUpdateAuditDetails(user, dto, resolvedRole);
-
-		_userRepository.Update(user, session.CurrentUser?.Id);
-		ReplaceRole(user, resolvedRole);
-		if (session.CurrentUser?.Id == dto.Id) session.UpdateCurrentUser(user.ToAuthUserDto());
-
-		_auditLog.Record(AuditAction.UserUpdated, "User", dto.Id, auditDetails ?? "User updated.");
-
-		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.UserUpdatedSuccessfully);
-	}
-
-
-	public UserDto? FindUserById(Guid id)
-	{
-		var user = _userRepository.GetById(id, EntityFilter.Active);
-		return user?.ToDto();
-	}
-
-
-	private static bool IsNoOpUpdateUser(User user, UserDto dto)
-	{
-		return (dto.FirstName == user.FirstName) &&
-		       (dto.LastName == user.LastName) &&
-		       (dto.NationalCode == user.NationalCode) &&
-		       (dto.Email == user.Email) &&
-		       (dto.PhoneNumber == user.PhoneNumber) &&
-		       (dto.BirthDate == user.BirthDate) &&
-		       (dto.Role.Id == user.RoleId);
-	}
-
-
-	public ServiceResult<UserDto> RemoveUser(Guid userId, ICurrentUserSession? session = null)
-	{
-		var user = _userRepository.GetById(userId, EntityFilter.Active);
-		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserRemoveFailed);
-
-		if (session != null && session.CurrentUser?.Id == userId)
-			return ServiceResult<UserDto>.Fail(Messages.CannotRemoveYourself);
-
-		if (session != null && !CanRemoveUser(session, user)) return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
-
-		if (_loanRepository.GetByUserId(userId, LoanFilter.Active).Count > 0)
-			return ServiceResult<UserDto>.Fail(Messages.UserRemovalFailedByActiveLoans);
-
-		if (_finesRepository.HasFines(userId, FineFilter.Unpaid))
-			return ServiceResult<UserDto>.Fail(Messages.UserRemovalFailedByUnpaidFines);
-
-		_userRepository.Remove(user);
-		_auditLog.Record(AuditAction.UserRemoved, "User", userId, "User removed.");
-		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.UserRemovedSuccessfully);
-	}
-
-
-	private bool CanRemoveUser(ICurrentUserSession session, User user)
-	{
-		if (!_authorization.HasPermission(Permission.RemoveUser)) return false;
-
-		var targetRole = user.Role.Name;
-
-		if (session.IsAdmin) return targetRole != LibraryUserRole.Admin;
-		if (session.IsLibrarian) return targetRole == LibraryUserRole.Member;
-		return false;
-	}
-
-
-	public IReadOnlyList<UserDto> SearchUser(string searchTerm, UserSearchField field)
-	{
-		if (string.IsNullOrWhiteSpace(searchTerm)) return [];
-		Func<User, string?> selector = field switch
-		{
-			UserSearchField.FullName => u => $"{u.FirstName} {u.LastName}",
-			UserSearchField.NationalCode => u => u.NationalCode,
-			UserSearchField.Email => u => u.Email,
-			UserSearchField.PhoneNumber => u => u.PhoneNumber,
-			UserSearchField.Role => u => string.Join(", ", u.Role.Name),
-			_ => throw new ArgumentOutOfRangeException(nameof(field))
-		};
-
-		return [.. _userRepository.Search(searchTerm, selector).Select(user => user.ToDto())];
-	}
-
-
-	public IReadOnlyList<UserDto> SearchByRole(Guid roleId)
-	{
-		return [.. _userRepository.SearchByRole(roleId).Select(user => user.ToDto())];
-	}
 
 
 	public ServiceResult<string> ChangePassword(Guid userId, string currentPassword, string newPassword,
@@ -340,13 +327,6 @@ public class UserManagementService : IUserManagementService
 		RenewMembership(user, years);
 		_auditLog.Record(AuditAction.MembershipRenewed, "User", userId, "User membership renewed.");
 		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.MembershipRenewedSuccessfully);
-	}
-
-
-	public static void ReplaceRole(User user, Role newRole)
-	{
-		user.Role = newRole ?? throw new ArgumentNullException(nameof(newRole));
-		user.RoleId = newRole.Id;
 	}
 
 

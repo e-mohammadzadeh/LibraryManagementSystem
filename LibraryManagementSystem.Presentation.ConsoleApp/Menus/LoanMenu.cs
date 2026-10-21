@@ -171,7 +171,7 @@ public static class LoanMenu
 		if (session.IsSelfServiceMember)
 		{
 			userId = session.CurrentUser.Id;
-			user = userManagementService.FindUserById(userId);
+			user = userManagementService.GetUserById(userId);
 		}
 		else
 		{
