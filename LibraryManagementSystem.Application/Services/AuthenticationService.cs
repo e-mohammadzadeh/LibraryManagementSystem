@@ -39,7 +39,7 @@ public class AuthenticationService
 		if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
 			return ServiceResult<AuthUserDto>.Fail(Messages.LoginInputRequired);
 
-		var user = _userRepository.FindByEmail(email, EntityFilter.Active);
+		var user = _userRepository.GetByEmail(email, EntityFilter.Active);
 		if (user is null || user.IsRemoved ||
 		    !_passwordHasher.VerifyPassword(password, user.PasswordHash, user.PasswordSalt))
 			return ServiceResult<AuthUserDto>.Fail(Messages.InvalidLoginInput);
@@ -68,7 +68,7 @@ public class AuthenticationService
 		var currentUser = _currentUserSession.CurrentUser!;
 		var username = currentUser.FullName;
 		var email = Email.Create(currentUser.Email);
-		var user = _userRepository.FindByEmail(email, EntityFilter.Active);
+		var user = _userRepository.GetByEmail(email, EntityFilter.Active);
 
 		_auditLog.Record(AuditAction.UserLoggedOut, "User", currentUser.Id, "User logged out.");
 		if (user is not null)
@@ -96,7 +96,7 @@ public class AuthenticationService
 		if (_userRepository.ExistsByPhoneNumber(phoneNumber))
 			return ServiceResult<AuthUserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
 
-		var existingSameName = _userRepository.FindByName(dto.FirstName, dto.LastName, EntityFilter.Active);
+		var existingSameName = _userRepository.GetByName(dto.FirstName, dto.LastName, EntityFilter.Active);
 		if (existingSameName is not null)
 			warningMessage = string.Format(Messages.DuplicateUserNameWarning, existingSameName.Id);
 

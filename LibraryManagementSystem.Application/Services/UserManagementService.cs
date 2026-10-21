@@ -58,7 +58,7 @@ public class UserManagementService : IUserManagementService
 		if (_userRepository.ExistsByPhoneNumber(phoneNumber))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
 
-		var existingSameName = _userRepository.FindByName(dto.FirstName, dto.LastName, EntityFilter.Active);
+		var existingSameName = _userRepository.GetByName(dto.FirstName, dto.LastName, EntityFilter.Active);
 
 		if (existingSameName != null)
 			warningMessage = string.Format(Messages.DuplicateUserNameWarning, existingSameName.Id);
@@ -102,7 +102,7 @@ public class UserManagementService : IUserManagementService
 	}
 
 
-	public IReadOnlyList<UserDto> GetAllUsers(UserSortField sortField = UserSortField.Id,
+	public IReadOnlyList<UserDto> GetAllUsers(UserSortField sortField = UserSortField.FullName,
 		SortDirection sortDirection = SortDirection.Ascending)
 	{
 		if (!_authorization.HasPermission(Permission.ViewAllUsers)) return [];
@@ -111,7 +111,6 @@ public class UserManagementService : IUserManagementService
 
 		Func<UserDto, object> keySelector = sortField switch
 		{
-			UserSortField.Id => u => u.Id,
 			UserSortField.FirstName => u => u.FirstName,
 			UserSortField.LastName => u => u.LastName,
 			UserSortField.FullName => u => u.FullName,
@@ -121,7 +120,6 @@ public class UserManagementService : IUserManagementService
 			UserSortField.Role => u => u.Role.Name,
 			UserSortField.MembershipStartDate => u => u.MembershipStartDate,
 			UserSortField.MembershipExpiryDate => u => u.MembershipExpiryDate,
-			UserSortField.IsActive => u => u.IsActive,
 			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
 		};
 
@@ -145,17 +143,10 @@ public class UserManagementService : IUserManagementService
 
 	public ServiceResult<UserDto> UpdateUser(UserDto dto, Guid? updatedBy = null)
 	{
-		string? warningMessage = null;
-
-		var user = _userRepository.FindById(dto.Id, EntityFilter.Active);
+		var user = _userRepository.GetById(dto.Id, EntityFilter.Active);
 		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserUpdateFailed);
 
 		if (IsNoOpUpdateUser(user, dto)) return ServiceResult<UserDto>.Fail(Messages.NoChangesDetected);
-
-		var existingSameName = _userRepository.FindByName(dto.FirstName, dto.LastName, EntityFilter.Active);
-		if (existingSameName != null && existingSameName.Id != dto.Id)
-			warningMessage = string.Format(Messages.DuplicateAuthorNameWarning, existingSameName.Id);
-
 
 		if (_userRepository.ExistsByNationalCode(dto.NationalCode, dto.Id))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
@@ -191,15 +182,13 @@ public class UserManagementService : IUserManagementService
 
 		_auditLog.Record(AuditAction.UserUpdated, "User", dto.Id, auditDetails ?? "User updated.");
 
-		return warningMessage != null
-			? ServiceResult<UserDto>.Warning(user.ToDto(), warningMessage)
-			: ServiceResult<UserDto>.Ok(user.ToDto(), Messages.UserUpdatedSuccessfully);
+		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.UserUpdatedSuccessfully);
 	}
 
 
 	public UserDto? FindUserById(Guid id)
 	{
-		var user = _userRepository.FindById(id, EntityFilter.Active);
+		var user = _userRepository.GetById(id, EntityFilter.Active);
 		return user?.ToDto();
 	}
 
@@ -218,7 +207,7 @@ public class UserManagementService : IUserManagementService
 
 	public ServiceResult<UserDto> RemoveUser(Guid userId, ICurrentUserSession? session = null)
 	{
-		var user = _userRepository.FindById(userId, EntityFilter.Active);
+		var user = _userRepository.GetById(userId, EntityFilter.Active);
 		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserRemoveFailed);
 
 		if (session != null && session.CurrentUser?.Id == userId)
@@ -286,7 +275,7 @@ public class UserManagementService : IUserManagementService
 				return ServiceResult<string>.Fail(Messages.OnlyAdminCanResetPassword);
 		}
 
-		var user = _userRepository.FindById(userId, EntityFilter.Active);
+		var user = _userRepository.GetById(userId, EntityFilter.Active);
 		if (user is null || user.IsRemoved) return ServiceResult<string>.Fail(Messages.UserNotFound);
 
 		if (user.ShouldRemove) return ServiceResult<string>.Fail(Messages.UserFlaggedForRemoval);
@@ -315,7 +304,7 @@ public class UserManagementService : IUserManagementService
 
 	public ServiceResult<UserDto> RenewMembership(Guid userId, int years)
 	{
-		var user = _userRepository.FindById(userId, EntityFilter.Active);
+		var user = _userRepository.GetById(userId, EntityFilter.Active);
 		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserNotFound);
 
 		if (user.ShouldRemove)
@@ -376,7 +365,7 @@ public class UserManagementService : IUserManagementService
 
 	public void FlagForRemoval(Guid userId)
 	{
-		var user = _userRepository.FindById(userId, EntityFilter.Active);
+		var user = _userRepository.GetById(userId, EntityFilter.Active);
 		if (user == null) return;
 		user.ShouldRemove = true;
 		user.UpdatedAt = DateTime.UtcNow;
@@ -388,7 +377,7 @@ public class UserManagementService : IUserManagementService
 		if (passwordHash is null || passwordHash.Length == 0) throw new ArgumentNullException(nameof(passwordHash));
 		if (passwordSalt is null || passwordSalt.Length == 0) throw new ArgumentNullException(nameof(passwordSalt));
 
-		var user = _userRepository.FindById(userId, EntityFilter.Active);
+		var user = _userRepository.GetById(userId, EntityFilter.Active);
 		if (user == null) return;
 		user.PasswordHash = passwordHash;
 		user.PasswordSalt = passwordSalt;
@@ -397,7 +386,7 @@ public class UserManagementService : IUserManagementService
 
 	public void UpdateLastLogin(Guid userId)
 	{
-		var user = _userRepository.FindById(userId, EntityFilter.Active);
+		var user = _userRepository.GetById(userId, EntityFilter.Active);
 		if (user == null) return;
 		user.LastLoginDate = user.PreviousLoginDate;
 		user.PreviousLoginDate = DateTime.Now;
@@ -406,7 +395,7 @@ public class UserManagementService : IUserManagementService
 
 	public void UpdateLastLoginInLogout(Guid userId)
 	{
-		var user = _userRepository.FindById(userId, EntityFilter.Active);
+		var user = _userRepository.GetById(userId, EntityFilter.Active);
 		user?.LastLoginDate = user.PreviousLoginDate;
 	}
 }

@@ -66,7 +66,7 @@ public class FineManagementService : IFineManagementService
 		if (fine.Money >= ValidationConstants.MaxUnpaidFineThreshold ||
 		    totalUnpaid >= ValidationConstants.MaxUnpaidFineThreshold)
 		{
-			var user = _userRepository.FindById(loan.UserId, EntityFilter.Active);
+			var user = _userRepository.GetById(loan.UserId, EntityFilter.Active);
 			if (user is not null && !user.ShouldRemove)
 			{
 				_userService.FlagForRemoval(user.Id);

@@ -106,7 +106,7 @@ public static class LoanMenu
 						    Permission.MyOverdueLoans, Permission.ViewOverdueLoans))
 						break;
 					Console.Clear();
-					ViewLoans(loanManagementService, userManagementService, bookManagementService, session, authorization);
+					ViewLoans(loanManagementService, userManagementService, bookManagementService, session, authorization, statisticsService);
 					ConsoleHelper.Pause();
 					break;
 				}

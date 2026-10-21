@@ -34,7 +34,7 @@ public class UserAutoRemovalService : IUserAutoRemovalService
 
 	public ServiceResult<string> TryAutoRemove(Guid userId)
 	{
-		var user = _userRepository.FindById(userId, EntityFilter.Active)!;
+		var user = _userRepository.GetById(userId, EntityFilter.Active)!;
 		if (!CanBeAutoRemoved(user)) return ServiceResult<string>.Fail(Messages.UserAutoRemoveNotEligible);
 		_userRepository.Remove(user);
 		return ServiceResult<string>.Ok($"{user.FirstName} {user.LastName}", Messages.UserAutoRemovedSuccessfully);

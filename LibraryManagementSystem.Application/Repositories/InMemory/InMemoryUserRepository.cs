@@ -25,13 +25,13 @@ public class InMemoryUserRepository : IUserRepository
 	}
 
 
-	public User? FindById(Guid id, EntityFilter filter = EntityFilter.Active)
+	public User? GetById(Guid id, EntityFilter filter = EntityFilter.Active)
 	{
 		return ApplyFilter(_users, filter).FirstOrDefault(u => u.Id == id);
 	}
 
 
-	public User? FindByName(string firstName, string lastName, EntityFilter filter = EntityFilter.Active)
+	public User? GetByName(string firstName, string lastName, EntityFilter filter = EntityFilter.Active)
 	{
 		return ApplyFilter(_users, filter).FirstOrDefault(u =>
 			u.FirstName.Equals(firstName, StringComparison.OrdinalIgnoreCase) &&
@@ -39,7 +39,7 @@ public class InMemoryUserRepository : IUserRepository
 	}
 
 
-	public User? FindByEmail(Email email, EntityFilter filter = EntityFilter.Active)
+	public User? GetByEmail(Email email, EntityFilter filter = EntityFilter.Active)
 	{
 		return ApplyFilter(_users, filter)
 			.FirstOrDefault(u => u.Email.Equals(email));

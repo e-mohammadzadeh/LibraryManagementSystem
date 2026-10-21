@@ -7,9 +7,9 @@ namespace LibraryManagementSystem.Domain.Interfaces;
 public interface IUserRepository
 {
 	void Add(User user);
-	User? FindById(Guid id, EntityFilter filter);
-	User? FindByName(string firstName, string lastName, EntityFilter filter);
-	User? FindByEmail(Email email, EntityFilter filter);
+	User? GetById(Guid id, EntityFilter filter);
+	User? GetByName(string firstName, string lastName, EntityFilter filter);
+	User? GetByEmail(Email email, EntityFilter filter);
 	IReadOnlyList<User> GetAll(EntityFilter filter);
 	bool ExistsByNationalCode(string nationalCode, Guid? excludeId = null);
 	bool ExistsByEmail(Email email, Guid? excludeId = null);

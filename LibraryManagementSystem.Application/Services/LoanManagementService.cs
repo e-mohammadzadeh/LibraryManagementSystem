@@ -48,7 +48,7 @@ public class LoanManagementService
 		if (session.IsSelfServiceMember && session.CurrentUser?.Id != dto.UserId)
 			return ServiceResult<LoanDto>.Fail(Messages.BorrowBookForYourself);
 
-		var user = _userRepository.FindById(dto.UserId, EntityFilter.Active);
+		var user = _userRepository.GetById(dto.UserId, EntityFilter.Active);
 		if (user is null) return ServiceResult<LoanDto>.Fail(Messages.NotUserMatched);
 
 		if (!user.IsActive) return ServiceResult<LoanDto>.Fail(Messages.MembershipExpired);

@@ -61,7 +61,7 @@ public class AuditLogManagementService : IAuditLogManagementService
 		[
 			.. auditLogs.OrderByDescending(a => a.OccurredAt).Select(auditLog =>
 			{
-				var user = _userRepository.FindById(auditLog.PerformedByUserId, EntityFilter.All);
+				var user = _userRepository.GetById(auditLog.PerformedByUserId, EntityFilter.All);
 
 				var performedByName = user is not null
 					? $"{user.FirstName} {user.LastName}"
