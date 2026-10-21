@@ -268,14 +268,13 @@ public class BookManagementService : IBookManagementService
 	}
 
 
-	public IReadOnlyList<BookDto> GetAllBooks(BookSortField sortField = BookSortField.Id,
+	public IReadOnlyList<BookDto> GetAllBooks(BookSortField sortField = BookSortField.Title,
 		SortDirection sortDirection = SortDirection.Ascending)
 	{
 		var books = _bookRepository.GetAll(EntityFilter.Active).ToList();
 
 		var sortedBooks = sortField switch
 		{
-			BookSortField.Id => ApplySort(books, book => book.Id, sortDirection),
 			BookSortField.Title => ApplySort(books, book => book.Title, sortDirection),
 			BookSortField.ISBN => ApplySort(books, book => book.ISBN, sortDirection),
 			BookSortField.PublishDate => ApplySort(books, book => book.PublishDate, sortDirection),

@@ -53,7 +53,7 @@ public class UserManagementService : IUserManagementService
 		if (_userRepository.Exists(dto.PhoneNumber, u => u.PhoneNumber))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
 
-		var role = _roleRepository.GetById(dto.Role.Id);
+		var role = _roleRepository.GetById(dto.RoleId);
 		if (role is null) return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
 
 		if (!(role.Name switch
@@ -77,7 +77,7 @@ public class UserManagementService : IUserManagementService
 			Email = dto.Email,
 			PhoneNumber = dto.PhoneNumber,
 			BirthDate = dto.BirthDate,
-			RoleId = dto.Role.Id,
+			RoleId = dto.RoleId,
 			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
 		};
 
@@ -91,6 +91,8 @@ public class UserManagementService : IUserManagementService
 
 	public ServiceResult<UserDto> UpdateUser(UserDto dto, ICurrentUserSession session, Guid? updatedBy = null)
 	{
+		var auditBuilder = new UserUpdateAuditDetailsBuilder(_roleRepository);
+
 		var user = _userRepository.GetById(dto.Id, EntityFilter.Active);
 		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserUpdateFailed);
 
@@ -105,7 +107,7 @@ public class UserManagementService : IUserManagementService
 		if (_userRepository.Exists(dto.PhoneNumber, u => u.PhoneNumber, dto.Id))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
 
-		var resolvedRole = _roleRepository.GetById(dto.Role.Id);
+		var resolvedRole = _roleRepository.GetById(dto.RoleId);
 		if (resolvedRole is null) return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
 
 		var allowed = resolvedRole.Name switch
@@ -124,10 +126,10 @@ public class UserManagementService : IUserManagementService
 		user.Email = dto.Email;
 		user.PhoneNumber = dto.PhoneNumber;
 		user.BirthDate = dto.BirthDate;
-		user.RoleId = dto.Role.Id;
+		user.RoleId = dto.RoleId;
 		user.UpdatedByUserId = updatedBy;
 
-		var auditDetails = UserUpdateAuditDetailsBuilder.BuildUserUpdateAuditDetails(user, dto, resolvedRole);
+		var auditDetails = auditBuilder.BuildUserUpdateAuditDetails(user, dto, resolvedRole);
 		_userRepository.Update(user);
 		if (session.CurrentUser.Id == dto.Id) session.UpdateCurrentUser(user.ToAuthUserDto());
 		_auditLog.Record(AuditAction.UserUpdated, "User", dto.Id, auditDetails ?? "User updated.");
@@ -143,7 +145,7 @@ public class UserManagementService : IUserManagementService
 		       (dto.Email == user.Email) &&
 		       (dto.PhoneNumber == user.PhoneNumber) &&
 		       (dto.BirthDate == user.BirthDate) &&
-		       (dto.Role.Id == user.RoleId);
+		       (dto.RoleId == user.RoleId);
 	}
 
 
@@ -234,7 +236,7 @@ public class UserManagementService : IUserManagementService
 			UserSortField.NationalCode => u => u.NationalCode,
 			UserSortField.Email => u => u.Email,
 			UserSortField.BirthDate => u => u.BirthDate,
-			UserSortField.Role => u => u.Role.Name,
+			UserSortField.Role => u => u.RoleId,
 			UserSortField.MembershipStartDate => u => u.MembershipStartDate,
 			UserSortField.MembershipExpiryDate => u => u.MembershipExpiryDate,
 			_ => throw new ArgumentOutOfRangeException(nameof(sortField))

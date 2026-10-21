@@ -106,7 +106,8 @@ public static class LoanMenu
 						    Permission.MyOverdueLoans, Permission.ViewOverdueLoans))
 						break;
 					Console.Clear();
-					ViewLoans(loanManagementService, userManagementService, bookManagementService, session, authorization, statisticsService);
+					ViewLoans(loanManagementService, userManagementService, bookManagementService, session,
+						authorization, statisticsService);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -141,7 +142,7 @@ public static class LoanMenu
 			(4, "Search Loans", authorization.HasPermission(Permission.SearchLoans)),
 			(5, "View Loans",
 				authorization.HasAnyPermission(Permission.MyActiveLoans, Permission.ViewActiveLoans,
-					Permission.MyOverdueLoans, Permission.ViewOverdueLoans))
+					Permission.MyOverdueLoans, Permission.ViewOverdueLoans)),
 			(6, "History", authorization.HasAnyPermission(Permission.ViewLoanHistory, Permission.MyFullLoanHistory)),
 			(7, "Back", true)
 		};
@@ -468,13 +469,15 @@ public static class LoanMenu
 		}
 	}
 
-	
+
 	private static int ViewLoanMenuList(IAuthorizationService authorization)
 	{
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
-			(1, "View Active Loans", authorization.HasAnyPermission(Permission.MyActiveLoans, Permission.ViewActiveLoans)),
-			(2, "View Overdue Loans", authorization.HasAnyPermission(Permission.MyOverdueLoans, Permission.ViewOverdueLoans)),
+			(1, "View Active Loans",
+				authorization.HasAnyPermission(Permission.MyActiveLoans, Permission.ViewActiveLoans)),
+			(2, "View Overdue Loans",
+				authorization.HasAnyPermission(Permission.MyOverdueLoans, Permission.ViewOverdueLoans)),
 			(3, "View Inactive Loans", authorization.HasPermission(Permission.ViewInactiveLoans))
 			(4, "View All Authors", authorization.HasPermission(Permission.ViewAllAuthors)),
 			(5, "Back", true)
@@ -484,8 +487,7 @@ public static class LoanMenu
 		Console.WriteLine(new string('=', 35) + " VIEW LOAN MENU " + new string('=', 35));
 
 		var displayNumber = 1;
-		foreach (var (_, displayText, _) in availableItems)
-			Console.WriteLine($"{displayNumber++}. {displayText}");
+		foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
 
 		Console.WriteLine(new string('=', 82));
 		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);

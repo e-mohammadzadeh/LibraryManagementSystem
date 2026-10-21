@@ -11,4 +11,6 @@ public class RoleManagementService
 	public RoleManagementService(IRoleRepository roleRepository) { _roleRepository = roleRepository; }
 
 	public IReadOnlyList<Role> GetAllRoles() { return _roleRepository.GetAll(); }
+
+	public Role? GetById(Guid id) => _roleRepository.GetById(id);
 }

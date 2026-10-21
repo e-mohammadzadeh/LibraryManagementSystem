@@ -175,13 +175,12 @@ public class TranslatorManagementService
 	}
 
 
-	public IReadOnlyList<ContributorDto> GetAllTranslators(ContributorSortField sortField = ContributorSortField.Id,
+	public IReadOnlyList<ContributorDto> GetAllTranslators(ContributorSortField sortField = ContributorSortField.FullName,
 		SortDirection sortDirection = SortDirection.Ascending)
 	{
 		var translators = _translatorRepository.GetAll(EntityFilter.Active).Select(t => t.ToDto());
 		Func<ContributorDto, object> keySelector = sortField switch
 		{
-			ContributorSortField.Id => t => t.Id,
 			ContributorSortField.FirstName => t => t.FirstName,
 			ContributorSortField.LastName => t => t.LastName,
 			ContributorSortField.FullName => t => $"{t.FirstName} {t.LastName}",

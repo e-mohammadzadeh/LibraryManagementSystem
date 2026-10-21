@@ -18,6 +18,7 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 public static class UserMenu
 {
 	public static void UserMenuController(UserManagementService userManagementService,
+		RoleManagementService roleManagementService,
 		LibraryStatisticsService statisticsService, ICurrentUserSession session, IAuthorizationService authorization)
 	{
 		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied, Permission.AddUser,
@@ -48,7 +49,7 @@ public static class UserMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.AddUser, Messages.AccessDenied))
 						break;
 					Console.Clear();
-					AddUser(userManagementService, authorization);
+					AddUser(userManagementService, roleManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -159,7 +160,8 @@ public static class UserMenu
 	}
 
 
-	private static void AddUser(UserManagementService userManagementService, IAuthorizationService authorization)
+	private static void AddUser(UserManagementService userManagementService,
+		RoleManagementService roleManagementService, IAuthorizationService authorization)
 	{
 		if (!authorization.HasPermission(Permission.AddUser))
 		{
@@ -168,7 +170,7 @@ public static class UserMenu
 		}
 
 		Console.WriteLine(new string('=', 36) + " ADDING USER MENU " + new string('=', 36));
-		var userDto = PromptForUserDto(userManagementService, authorization);
+		var userDto = PromptForUserDto(roleManagementService, authorization);
 		if (userDto is null) return;
 
 		var result = userManagementService.AddUser(userDto);
@@ -176,13 +178,13 @@ public static class UserMenu
 	}
 
 
-	private static UserDto? PromptForUserDto(UserManagementService userManagementService,
+	private static UserDto? PromptForUserDto(RoleManagementService roleManagementService,
 		IAuthorizationService authorization)
 	{
 		var fields = PersonHelper.PromptForPersonFields("user");
 		if (fields is null) return null;
 
-		var availableRoles = GetAssignableRoles(userManagementService, authorization);
+		var availableRoles = GetAssignableRoles(roleManagementService, authorization);
 		if (availableRoles.Count == 0)
 		{
 			ConsoleHelper.ShowError(Messages.NoRolesToAssign);
@@ -206,8 +208,6 @@ public static class UserMenu
 			return null;
 		}
 
-		var selectedRole = availableRoles.First(r => r.Id == roles[0].Id);
-
 		return new UserDto
 		{
 			FirstName = fields.FirstName,
@@ -216,18 +216,18 @@ public static class UserMenu
 			Email = Email.Create(fields.Email),
 			PhoneNumber = PhoneNumber.Create(fields.PhoneNumber),
 			BirthDate = fields.BirthDate,
-			Role = new RoleDto { Id = selectedRole.Id, Name = selectedRole.Name },
+			RoleId = roles[0].Id,
 			Password = newPassword
 		};
 	}
 
 
-	private static IReadOnlyList<RoleDto> GetAssignableRoles(UserManagementService userManagementService,
+	private static IReadOnlyList<RoleDto> GetAssignableRoles(RoleManagementService roleManagementService,
 		IAuthorizationService authorization)
 	{
 		return
 		[
-			.. userManagementService.GetAllRoles()
+			.. roleManagementService.GetAllRoles()
 				.Where(role => role.Name switch
 				{
 					LibraryUserRole.Member => authorization.HasPermission(Permission.AssignMemberRole),
@@ -240,8 +240,8 @@ public static class UserMenu
 
 
 
-	private static void EditUser(UserManagementService userManagementService, IAuthorizationService authorization,
-		ICurrentUserSession session)
+	private static void EditUser(UserManagementService userManagementService,
+		RoleManagementService roleManagementService, IAuthorizationService authorization, ICurrentUserSession session)
 	{
 		if (!authorization.HasPermission(Permission.EditUser))
 		{
@@ -259,6 +259,7 @@ public static class UserMenu
 			Console.Clear();
 			var headers = new[] { "#", "Field", "Current Value" };
 
+			var role = roleManagementService.GetById(desiredUser.RoleId);
 			var rows = new List<string[][]>
 			{
 				new string[][] { ["1"], ["First Name"], [desiredUser.FirstName] },
@@ -270,7 +271,7 @@ public static class UserMenu
 			};
 
 			if (authorization.HasPermission(Permission.ChangeUserRoles))
-				rows.Add([["7"], ["Role"], [desiredUser.Role.Name.ToString()]]);
+				rows.Add([["7"], ["Role"], [role!.Name.ToString()]]);
 			rows.Add([[(rows.Count + 1).ToString()], ["Back"], ["-"]]);
 
 			ConsoleTable.PrintTable("Edit User", headers, rows);
@@ -291,7 +292,7 @@ public static class UserMenu
 					if (userNewFirstName != null)
 					{
 						desiredUser.FirstName = userNewFirstName;
-						var result = userManagementService.UpdateUser(desiredUser, session.CurrentUser.Id);
+						var result = userManagementService.UpdateUser(desiredUser);
 						ConsoleHelper.ShowResult(result);
 					}
 
