@@ -1,4 +1,4 @@
-﻿using LibraryManagementSystem.Infrastructure.DTOs.Role;
+﻿using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.ValueObjects;
 
 namespace LibraryManagementSystem.Infrastructure.DTOs.Users;
@@ -13,7 +13,7 @@ public class UserDto
 	public Email Email { get; set; } = null!;
 	public PhoneNumber PhoneNumber { get; set; } = null!;
 	public DateOnly BirthDate { get; set; }
-	public Guid RoleId { get; set; }
+	public LibraryUserRole RoleName { get; set; }
 	public DateOnly MembershipStartDate { get; init; }
 	public DateOnly MembershipExpiryDate { get; init; }
 	public string Password { get; init; } = null!;
