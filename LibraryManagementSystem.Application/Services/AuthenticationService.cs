@@ -104,7 +104,7 @@ public class AuthenticationService
 			Email = dto.Email,
 			PhoneNumber = dto.PhoneNumber,
 			BirthDate = dto.BirthDate,
-			RoleId = role!.Id,
+			Role = role!,
 			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
 		};
 

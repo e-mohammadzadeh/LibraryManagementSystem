@@ -53,10 +53,7 @@ public class UserManagementService : IUserManagementService
 		if (_userRepository.Exists(dto.PhoneNumber, u => u.PhoneNumber))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
 
-		var role = _roleRepository.GetById(dto.RoleId);
-		if (role is null) return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
-
-		if (!(role.Name switch
+		if (!(dto.RoleName switch
 		    {
 			    LibraryUserRole.Member => _authorization.HasPermission(Permission.AssignMemberRole),
 			    LibraryUserRole.Librarian => _authorization.HasPermission(Permission.AssignLibrarianRole),
@@ -77,7 +74,7 @@ public class UserManagementService : IUserManagementService
 			Email = dto.Email,
 			PhoneNumber = dto.PhoneNumber,
 			BirthDate = dto.BirthDate,
-			RoleId = dto.RoleId,
+			Role = new Role{Id = dto.RoleName, Name = dto.RoleName},
 			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
 		};
 
@@ -107,10 +104,7 @@ public class UserManagementService : IUserManagementService
 		if (_userRepository.Exists(dto.PhoneNumber, u => u.PhoneNumber, dto.Id))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
 
-		var resolvedRole = _roleRepository.GetById(dto.RoleId);
-		if (resolvedRole is null) return ServiceResult<UserDto>.Fail(Messages.NotAvailableRoles);
-
-		var allowed = resolvedRole.Name switch
+		var allowed = dto.RoleName switch
 		{
 			LibraryUserRole.Member => _authorization.HasPermission(Permission.AssignMemberRole),
 			LibraryUserRole.Librarian => _authorization.HasPermission(Permission.AssignLibrarianRole),
@@ -126,10 +120,10 @@ public class UserManagementService : IUserManagementService
 		user.Email = dto.Email;
 		user.PhoneNumber = dto.PhoneNumber;
 		user.BirthDate = dto.BirthDate;
-		user.RoleId = dto.RoleId;
+		user.Role.Name = dto.RoleName;
 		user.UpdatedByUserId = updatedBy;
 
-		var auditDetails = auditBuilder.BuildUserUpdateAuditDetails(user, dto, resolvedRole);
+		var auditDetails = auditBuilder.BuildUserUpdateAuditDetails(user, dto);
 		_userRepository.Update(user);
 		if (session.CurrentUser.Id == dto.Id) session.UpdateCurrentUser(user.ToAuthUserDto());
 		_auditLog.Record(AuditAction.UserUpdated, "User", dto.Id, auditDetails ?? "User updated.");
@@ -145,7 +139,7 @@ public class UserManagementService : IUserManagementService
 		       (dto.Email == user.Email) &&
 		       (dto.PhoneNumber == user.PhoneNumber) &&
 		       (dto.BirthDate == user.BirthDate) &&
-		       (dto.RoleId == user.RoleId);
+		       (dto.RoleName == user.Role.Name);
 	}
 
 
@@ -175,10 +169,8 @@ public class UserManagementService : IUserManagementService
 	{
 		if (!_authorization.HasPermission(Permission.RemoveUser)) return false;
 
-		var targetRole = _roleRepository.GetById(user.RoleId)?.Name;
-
-		if (session.IsAdmin) return targetRole != LibraryUserRole.Admin;
-		if (session.IsLibrarian) return targetRole == LibraryUserRole.Member;
+		if (session.IsAdmin) return user.Role.Name != LibraryUserRole.Admin;
+		if (session.IsLibrarian) return user.Role.Name == LibraryUserRole.Member;
 		return false;
 	}
 
@@ -193,7 +185,7 @@ public class UserManagementService : IUserManagementService
 			UserSearchField.NationalCode => u => u.NationalCode,
 			UserSearchField.Email => u => u.Email,
 			UserSearchField.PhoneNumber => u => u.PhoneNumber,
-			UserSearchField.Role => u => string.Join(", ", u.RoleId), // has problem it should sort by role not role id
+			UserSearchField.Role => u => u.Role.Name.ToString(),
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};
 
@@ -215,7 +207,7 @@ public class UserManagementService : IUserManagementService
 	{
 		return
 		[
-			.. _userRepository.GetAll(EntityFilter.Active).Where(user => user.RoleId == roleId)
+			.. _userRepository.GetAll(EntityFilter.Active).Where(user => user.Role.Id == roleId)
 				.Select(user => user.ToDto())
 		];
 	}
@@ -236,7 +228,7 @@ public class UserManagementService : IUserManagementService
 			UserSortField.NationalCode => u => u.NationalCode,
 			UserSortField.Email => u => u.Email,
 			UserSortField.BirthDate => u => u.BirthDate,
-			UserSortField.Role => u => u.RoleId,
+			UserSortField.Role => u => u.RoleName,
 			UserSortField.MembershipStartDate => u => u.MembershipStartDate,
 			UserSortField.MembershipExpiryDate => u => u.MembershipExpiryDate,
 			_ => throw new ArgumentOutOfRangeException(nameof(sortField))

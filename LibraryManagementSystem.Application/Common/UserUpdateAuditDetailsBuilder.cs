@@ -13,7 +13,7 @@ public class UserUpdateAuditDetailsBuilder
 		_roleRepository = roleRepository;
 	}
 
-	public string? BuildUserUpdateAuditDetails(User user, UserDto dto, Role resolvedRole)
+	public string? BuildUserUpdateAuditDetails(User user, UserDto dto)
 	{
 		var changes = new List<string>();
 
@@ -36,8 +36,8 @@ public class UserUpdateAuditDetailsBuilder
 			changes.Add($"Changed birth date from '{user.BirthDate:yyyy-MM-dd}' to '{dto.BirthDate:yyyy-MM-dd}'.");
 
 		var roleName = _roleRepository.GetById(user.Id)?.Name;
-		if (roleName != resolvedRole.Name)
-			changes.Add($"Changed roles from '{roleName}' to '{resolvedRole.Name}'.");
+		if (roleName != dto.RoleName)
+			changes.Add($"Changed roles from '{roleName}' to '{dto.RoleName}'.");
 
 		return changes.Count > 0 ? string.Join(" ", changes) : null;
 	}

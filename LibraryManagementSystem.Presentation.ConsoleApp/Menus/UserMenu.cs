@@ -106,7 +106,7 @@ public static class UserMenu
 						    Permission.RenewLibrarianMembership, Permission.RenewMemberMembership))
 						return;
 					Console.Clear();
-					RenewMembership(userManagementService, roleManagementService, authorization);
+					RenewMembership(userManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -216,7 +216,7 @@ public static class UserMenu
 			Email = Email.Create(fields.Email),
 			PhoneNumber = PhoneNumber.Create(fields.PhoneNumber),
 			BirthDate = fields.BirthDate,
-			RoleId = roles[0].Id,
+			RoleName = roles[0].Name,
 			Password = newPassword
 		};
 	}
@@ -259,7 +259,6 @@ public static class UserMenu
 			Console.Clear();
 			var headers = new[] { "#", "Field", "Current Value" };
 
-			var role = roleManagementService.GetById(desiredUser.RoleId);
 			var rows = new List<string[][]>
 			{
 				new string[][] { ["1"], ["First Name"], [desiredUser.FirstName] },
@@ -271,7 +270,7 @@ public static class UserMenu
 			};
 
 			if (authorization.HasPermission(Permission.ChangeUserRoles))
-				rows.Add([["7"], ["Role"], [role!.Name.ToString()]]);
+				rows.Add([["7"], ["Role"], [desiredUser.RoleName.ToString()]]);
 			rows.Add([[(rows.Count + 1).ToString()], ["Back"], ["-"]]);
 
 			ConsoleTable.PrintTable("Edit User", headers, rows);
@@ -378,7 +377,7 @@ public static class UserMenu
 						allowMultiple: false);
 					if (newRole is null) break;
 
-					desiredUser.RoleId = newRole[0].Id;
+					desiredUser.RoleName = newRole[0].Name;
 					var result = userManagementService.UpdateUser(desiredUser, session, session.CurrentUser.Id);
 					ConsoleHelper.ShowResult(result);
 					break;
@@ -743,7 +742,7 @@ public static class UserMenu
 	}
 
 
-	private static void RenewMembership(UserManagementService userManagementService, RoleManagementService roleManagementService,
+	private static void RenewMembership(UserManagementService userManagementService,
 		IAuthorizationService authorization)
 	{
 		Console.WriteLine(new string('=', 56) + " RENEW MEMBERSHIP " + new string('=', 56));
@@ -757,10 +756,9 @@ public static class UserMenu
 			.Where(u =>
 			{
 				if (u.ShouldRemove) return false;
-				var role = roleManagementService.GetById(u.RoleId)?.Name;
-				var allRolesRenewable = (role == LibraryUserRole.Member && canRenewMembers) ||
-				                        (role == LibraryUserRole.Librarian && canRenewLibrarians);
-				var hasRenewableRole = role is LibraryUserRole.Member or LibraryUserRole.Librarian;
+				var allRolesRenewable = (u.RoleName == LibraryUserRole.Member && canRenewMembers) ||
+				                        (u.RoleName == LibraryUserRole.Librarian && canRenewLibrarians);
+				var hasRenewableRole = u.RoleName is LibraryUserRole.Member or LibraryUserRole.Librarian;
 
 				return allRolesRenewable && hasRenewableRole;
 			}).ToList();

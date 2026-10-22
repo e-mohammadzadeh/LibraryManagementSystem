@@ -84,7 +84,7 @@ public class InMemoryUserRepository : IUserRepository
 		tracked.Email = user.Email;
 		tracked.PhoneNumber = user.PhoneNumber;
 		tracked.BirthDate = user.BirthDate;
-		tracked.RoleId = user.RoleId;
+		tracked.Role = user.Role;
 		tracked.UpdatedAt = DateTime.UtcNow;
 		tracked.UpdatedByUserId = user.UpdatedByUserId;
 	}
