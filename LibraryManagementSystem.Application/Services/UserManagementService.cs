@@ -64,6 +64,8 @@ public class UserManagementService : IUserManagementService
 			return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
 		}
 
+		var role = _roleRepository.GetByName(dto.RoleName);
+
 		var result = _passwordHasher.CreatePasswordHash(dto.Password);
 
 		var newUser = new User
@@ -74,7 +76,7 @@ public class UserManagementService : IUserManagementService
 			Email = dto.Email,
 			PhoneNumber = dto.PhoneNumber,
 			BirthDate = dto.BirthDate,
-			Role = new Role{Id = dto.RoleName, Name = dto.RoleName},
+			Role = role!,
 			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
 		};
 

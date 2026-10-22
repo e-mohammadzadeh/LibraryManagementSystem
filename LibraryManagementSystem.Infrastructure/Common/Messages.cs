@@ -227,6 +227,7 @@ public static class Messages
 	public const string NotAvailableBookToBorrow = "No books are currently available to borrow.";
 	public const string NotLoanMatched = "No loans matched your search.";
 	public const string NoActiveLoans = "No active loans found.";
+	public const string NoInactiveLoans = "No inactive loans found.";
 	public const string NoOverdueLoans = "No overdue loans at the moment.";
 	public const string NotAvailableActionLoan = "No actionable loans found.";
 	public const string LoansRetrievedSuccessfully = "Loans retrieved successfully.";
