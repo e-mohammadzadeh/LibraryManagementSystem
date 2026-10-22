@@ -18,19 +18,13 @@ public class InMemoryBookAuthorRepository : IBookAuthorRepository
 			ba.BookId == bookAuthor.BookId &&
 			ba.AuthorId == bookAuthor.AuthorId);
 
-		if (alreadyExists)
-			throw new InvalidOperationException("This author is already associated with this book.");
+		if (alreadyExists) throw new InvalidOperationException("This author is already associated with this book.");
 
 		_bookAuthors.Add(bookAuthor);
 	}
 
 
-	public void Remove(BookAuthor bookAuthor)
-	{
-		ArgumentNullException.ThrowIfNull(bookAuthor);
-
-
-	}
+	public void Remove(BookAuthor bookAuthor) { ArgumentNullException.ThrowIfNull(bookAuthor); }
 
 
 	public void Update(BookAuthor bookAuthor)
@@ -49,12 +43,35 @@ public class InMemoryBookAuthorRepository : IBookAuthorRepository
 	}
 
 
-	public IReadOnlyList<BookAuthor> GetByBookId(Guid bookId, EntityFilter filter = EntityFilter.Active)
+	public BookAuthor? GetByBookId(Guid bookId, EntityFilter filter = EntityFilter.Active)
 	{
-		return 
+		return ApplyFilter(_bookAuthors, filter).FirstOrDefault(ba => ba.BookId == bookId);
 	}
 
 
+	public BookAuthor? GetByAuthorId(Guid authorId, EntityFilter filter = EntityFilter.Active)
+	{
+		return ApplyFilter(_bookAuthors, filter).FirstOrDefault(ba => ba.AuthorId == authorId);
+	}
+
+
+	public IReadOnlyList<BookAuthor> GetAll(EntityFilter filter = EntityFilter.Active)
+	{
+		return [.. ApplyFilter(_bookAuthors, filter)];
+	}
+
+
+	public bool Exists<T>(T value, Func<BookAuthor, T> selector, Guid? excludeId)
+	{
+		return _bookAuthors.Any(ba =>
+			!ba.Author.IsRemoved &&
+			!ba.Book.IsRemoved &&
+			(excludeId is null || ba.AuthorId != excludeId || ba.BookId != excludeId) &&
+			EqualityComparer<T>.Default.Equals(selector(ba), value));
+	}
+
+
+	
 
 	// ---------- Private helper ----------
 	private static IEnumerable<BookAuthor> ApplyFilter(IEnumerable<BookAuthor> source, EntityFilter filter)
