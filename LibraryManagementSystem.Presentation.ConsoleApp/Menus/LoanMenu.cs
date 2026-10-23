@@ -286,8 +286,8 @@ public static class LoanMenu
 				return;
 			}
 
-			Console.WriteLine("{0, -20}", "1. Book Title");
-			Console.WriteLine("{0, -20}", "2. Book ISBN");
+			Console.WriteLine("{0, -20}", "1. Title");
+			Console.WriteLine("{0, -20}", "2. ISBN");
 			Console.WriteLine("{0, -20}", "3. Member Name");
 			Console.WriteLine("{0, -20}", "4. Member National Code");
 			Console.WriteLine("{0, -20}", "5. Status (Active/Returned)");

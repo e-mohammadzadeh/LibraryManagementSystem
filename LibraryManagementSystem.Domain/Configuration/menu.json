@@ -263,7 +263,7 @@
 						},
 						{
 							"id": "translators.view.translatorbooks",
-							"label": "View Translators's Books"
+							"label": "View Translator's Books"
 						},
 						{
 							"id": "translators.view.alltranslators",
@@ -699,7 +699,113 @@
 				},
 				{
 					"id": "loans.renew",
-					"label": "Renew Loan"  // left from here
+					"label": "Renew Loan"
+				},
+				{
+					"id": "loans.search",
+					"label": "Search Loan",
+					"children": [
+						{
+							"id": "loans.search.title",
+							"label": "Title"
+						},
+						{
+							"id": "loans.search.isbn",
+							"label": "ISBN"
+						},
+						{
+							"id": "loans.search.name",
+							"label": "Member Name"
+						},
+						{
+							"id": "loans.search.nationalcode",
+							"label": "Member's National Code"
+						},
+						{
+							"id": "loans.search.status",
+							"label": "Status (Active/Returned)"
+						},
+						{
+							"id": "loans.search.back",
+							"label": "Back"
+						}
+					]
+				},
+				{
+					"id": "loans.view",
+					"label": "View Loans",
+					"children": [
+						{
+							"id": "loans.view.active",
+							"label": "View Active Loans",
+							"children": [
+								{
+									"id": "loans.view.active.own",
+									"label": "View Own Active Loans"
+								},
+								{
+									"id": "loans.view.active.byuser",
+									"label": "View Active Loans By User"
+								},
+								{
+									"id": "loans.view.active.bybook",
+									"label": "View Active Loans By Book"
+								},
+								{
+									"id": "loans.view.active.back",
+									"label": "Back"
+								}
+							]
+						},
+						{
+							"id": "loans.view.overdue",
+							"label": "View Overdue Loans",
+							"children": [
+								{
+									"id": "loans.view.overdue.byuser",
+									"label": "View Overdue Loans By User"
+								},
+								{
+									"id": "loans.view.overdue.bybook",
+									"label": "View Overdue Loans By Book"
+								},
+								{
+									"id": "loans.view.overdue.back",
+									"label": "Back"
+								}
+							]
+						},
+						{
+							"id": "loans.view.inactive",
+							"label": "View Inactive Loans",
+							"children": [
+								{
+									"id": "loans.view.inactive.own",
+									"label": "View Own Inactive Loans"
+								},
+								{
+									"id": "loans.view.inactive.byuser",
+									"label": "View Inactive Loans By User"
+								},
+								{
+									"id": "loans.view.inactive.bybook",
+									"label": "View Inactive Loans By Book"
+								},
+								{
+									"id": "loans.view.inactive.back",
+									"label": "Back"
+								}
+							]
+						},
+						{
+							"id": "loans.history",
+							"label": "History"
+						},
+						{
+							"id": "loans.view.back",
+							"label": "Back"
+						}
+					]
 				}
 			]
 		},
@@ -707,14 +813,36 @@
 			"id": "fines",
 			"label": "Fines",
 			"children": [
-
+				{
+					"id": "fines.pay",
+					"label": "Pay Fine"
+				},
+				{
+					"id": "fines.waive",
+					"label": "Waive Fine"
+				},
+				{
+					"id": "fines.view",
+					"label": "View Fine"
+				},
+				{
+					"id": "fines.back",
+					"label": "Back"
+				}
 			]
 		},
 		{
-			"id": "audit log",
+			"id": "audit-log",
 			"label": "Audit Log",
 			"children": [
-
+				{
+					"id": "audit-log.view",
+					"label": "View Audit Log"
+				},
+				{
+					"id": "audit-log.back",
+					"label": "Back"
+				}
 			]
 		},
 		{
