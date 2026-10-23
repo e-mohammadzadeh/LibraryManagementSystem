@@ -83,6 +83,7 @@ public enum Permission
 	BorrowBook,
 	ReturnBook,
 	RenewLoan,
+	ViewAllLoans,
 	ViewActiveLoans,
 	ViewInactiveLoans,
 	ViewOverdueLoans,

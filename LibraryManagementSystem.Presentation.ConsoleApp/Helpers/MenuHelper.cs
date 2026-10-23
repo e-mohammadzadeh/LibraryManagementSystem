@@ -108,10 +108,9 @@ public static class MenuHelper
 		while (true)
 		{
 			BookPrinter.PrintTable(booksList, authorization: null, title);
-			var desiredBookId = ConsoleHelper.ReadInt(Messages.SelectBookQuestion, 1, booksList.Count);
+			var desiredId = ConsoleHelper.ReadInt(Messages.SelectBookQuestion, 1, booksList.Count);
 
-			if (desiredBookId is null) return null;
-			ConsoleHelper.ShowError(Messages.BookNotFound);
+			return desiredId is null ? null : booksList[desiredId.Value - 1];
 		}
 	}
 
@@ -130,9 +129,7 @@ public static class MenuHelper
 			// TODO	Max parameter has some logical issues when authors are removed and new authors are added.
 			var desiredId = ConsoleHelper.ReadInt(Messages.SelectMemberQuestion, 1, usersList.Count);
 
-			if (desiredId is null) return null;
-			ConsoleHelper.ShowError(Messages.UserNotFound);
-			return usersList[desiredId.Value - 1];
+			return desiredId is null ? null : usersList[desiredId.Value - 1];
 		}
 	}
 

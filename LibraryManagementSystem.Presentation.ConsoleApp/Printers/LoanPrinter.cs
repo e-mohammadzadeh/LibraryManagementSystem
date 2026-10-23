@@ -43,8 +43,8 @@ public static class LoanPrinter
 		var rows = loans.Select((loan, index) => new[]
 		{
 			[(index + 1).ToString()],
-			ConsoleTable.WrapText(loan.BookName, 24),
-			ConsoleTable.WrapText(loan.UserName, 24),
+			ConsoleTable.WrapText(loan.BookName, 40),
+			ConsoleTable.WrapText(loan.UserName, 35),
 			[loan.BorrowDate.ToString("yyyy-MM-dd")],
 			[loan.ReturnDate?.ToString("yyyy-MM-dd") ?? "N/A"],
 			[loan.DueDate.ToString("yyyy-MM-dd")],
