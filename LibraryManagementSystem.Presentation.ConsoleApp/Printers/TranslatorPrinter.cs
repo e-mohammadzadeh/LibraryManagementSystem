@@ -11,7 +11,6 @@ public class TranslatorPrinter
 		Console.Clear();
 		var rows = new List<(string Label, string[] ValueLines)>
 		{
-			//("ID", [translator.Id.ToString()]),
 			("Name", [$"{translator.FirstName} {translator.LastName}"]),
 			("National Code", [translator.NationalCode]),
 			("Email", [translator.Email]),

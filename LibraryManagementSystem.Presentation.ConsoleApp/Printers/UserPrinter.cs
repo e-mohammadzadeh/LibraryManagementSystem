@@ -11,7 +11,6 @@ public class UserPrinter
 		Console.Clear();
 		var rows = new List<(string Label, string[] ValueLines)>
 		{
-			("ID", [user.Id.ToString()]),
 			("Name", [user.FullName]),
 			("National Code", [user.NationalCode]),
 			("Email", [user.Email]),
@@ -41,12 +40,12 @@ public class UserPrinter
 		Console.Clear();
 		var headers = new[]
 		{
-			"ID", "User Name", "Email", "Role", "Is Active",
+			"#", "User Name", "Email", "Role", "Is Active",
 		};
 
-		var rows = users.Select(user => new[]
+		var rows = users.Select((user, index) => new[]
 		{
-			[user.Id.ToString()],
+			[(index + 1).ToString()],
 			ConsoleTable.WrapText(user.FullName, 20),
 			ConsoleTable.WrapText(user.Email, 30),
 			[user.RoleName.ToString()],
@@ -67,12 +66,12 @@ public class UserPrinter
 		Console.Clear();
 		var headers = new[]
 		{
-			"ID", "User Name", "Email", "Role", "Is Active", "Active From", "Active Until",
+			"#", "User Name", "Email", "Role", "Is Active", "Active From", "Active Until",
 		};
 
-		var rows = users.Select(user => new[]
+		var rows = users.Select((user, index) => new[]
 		{
-			[user.Id.ToString()],
+			[(index + 1).ToString()],
 			ConsoleTable.WrapText(user.FullName, 20),
 			ConsoleTable.WrapText(user.Email, 30),
 			[user.RoleName.ToString()],
@@ -96,13 +95,13 @@ public class UserPrinter
 		Console.Clear();
 		var headers = new[]
 		{
-			"ID", "User Name", "National Code", "Email", "Phone", "Role", "Active From", "Active Until", "Is Active",
+			"#", "User Name", "National Code", "Email", "Phone", "Role", "Active From", "Active Until", "Is Active",
 			"Should Remove", "Last Login", "Updated At"
 		};
 
-		var rows = users.Select(user => new[]
+		var rows = users.Select((user, index) => new[]
 		{
-			[user.Id.ToString()],
+			[(index + 1).ToString()],
 			ConsoleTable.WrapText(user.FullName, 20),
 			[user.NationalCode],
 			ConsoleTable.WrapText(user.Email, 30),

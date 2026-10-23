@@ -40,9 +40,9 @@ public static class LoanPrinter
 
 		var headers = new[] { "ID", "Book", "User", "Borrow Date", "Return Date", "Due Date", "Status", "Overdue" };
 
-		var rows = loans.Select(loan => new[]
+		var rows = loans.Select((loan, index) => new[]
 		{
-			[loan.Id.ToString()],
+			[(index + 1).ToString()],
 			ConsoleTable.WrapText(loan.BookName, 24),
 			ConsoleTable.WrapText(loan.UserName, 24),
 			[loan.BorrowDate.ToString("yyyy-MM-dd")],

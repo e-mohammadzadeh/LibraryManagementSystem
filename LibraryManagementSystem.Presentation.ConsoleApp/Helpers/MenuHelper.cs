@@ -128,10 +128,11 @@ public static class MenuHelper
 		{
 			printer(usersList);
 			// TODO	Max parameter has some logical issues when authors are removed and new authors are added.
-			var desiredMemberId = ConsoleHelper.ReadInt(Messages.SelectMemberQuestion, 1, usersList.Count);
+			var desiredId = ConsoleHelper.ReadInt(Messages.SelectMemberQuestion, 1, usersList.Count);
 
-			if (desiredMemberId is null) return null;
+			if (desiredId is null) return null;
 			ConsoleHelper.ShowError(Messages.UserNotFound);
+			return usersList[desiredId.Value - 1];
 		}
 	}
 
