@@ -112,13 +112,6 @@ public static class LoanMenu
 				}
 				case 6:
 				{
-					Console.Clear();
-					//History(loanManagementService, userManagementService, bookManagementService, session, authorization);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case 7:
-				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					continueProgram = false;
 					break;
@@ -140,7 +133,6 @@ public static class LoanMenu
 			(5, "View Loans",
 				authorization.HasAnyPermission(Permission.MyActiveLoans, Permission.ViewActiveLoans,
 					Permission.MyOverdueLoans, Permission.ViewOverdueLoans)),
-			(6, "History", authorization.HasAnyPermission(Permission.ViewLoanHistory, Permission.MyFullLoanHistory)),
 			(7, "Back", true)
 		};
 

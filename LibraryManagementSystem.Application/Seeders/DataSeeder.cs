@@ -657,7 +657,7 @@ public static class DataSeeder
 
 
 	private static void CreateReturnedLoan(User user, Book book, ILoanRepository loanRepository,
-		BookManagementService bookService, IFineRepository fineRepository, DateOnly? loanDate, DateOnly returnDate)
+		BookManagementService bookService, IFineRepository fineRepository, DateOnly loanDate, DateOnly returnDate)
 	{
 		var loan = new Loan
 		{
@@ -665,10 +665,11 @@ public static class DataSeeder
 			BookId = book.Id,
 			User = user,
 			UserId = user.Id,
+			BorrowDate = loanDate,
 		};
 		bookService.BorrowCopy(book.Id);
-		//loan.MarkAsReturned(returnDate);
 		bookService.ReturnCopy(book.Id);
+		loan.ReturnDate = returnDate;
 		loanRepository.Add(loan);
 		if (!(loan.ReturnDate > loan.DueDate)) return;
 		var fine = new Fine

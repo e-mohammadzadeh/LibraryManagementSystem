@@ -26,17 +26,6 @@ public static class BookMapper
 			UpdatedByUserId = book.UpdatedByUserId ?? Guid.Empty
 		};
 	}
-
-	public static BookSummaryDto ToSummaryDto(this Book book)
-	{
-		return new BookSummaryDto
-		{
-			BookId = book.Id,
-			BookName = book.Title,
-			ISBN = book.ISBN,
-			AvailableCopies = book.AvailableCopies
-		};
-	}
 }
 
 
