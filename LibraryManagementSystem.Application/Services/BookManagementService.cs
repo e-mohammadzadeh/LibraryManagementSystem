@@ -428,7 +428,7 @@ public class BookManagementService : IBookManagementService
 
 
 
-	public void AddAuthor(Book book, Author author)
+	public static void AddAuthor(Book book, Author author)
 	{
 		if (book.BookAuthors.Any(ba => ba.AuthorId == author.Id)) return;
 		var ba = new BookAuthor
@@ -443,7 +443,7 @@ public class BookManagementService : IBookManagementService
 	}
 
 
-	public void AddTranslator(Book book, Translator translator, Language? language)
+	public static void AddTranslator(Book book, Translator translator, Language? language)
 	{
 		if (book.BookTranslators.Any(bt => bt.TranslatorId == translator.Id)) return;
 		var bt = new BookTranslator

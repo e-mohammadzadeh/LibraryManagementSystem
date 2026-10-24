@@ -127,7 +127,7 @@ public class UserManagementService : IUserManagementService
 
 		var auditDetails = auditBuilder.BuildUserUpdateAuditDetails(user, dto);
 		_userRepository.Update(user);
-		if (session.CurrentUser.Id == dto.Id) session.UpdateCurrentUser(user.ToAuthUserDto());
+		if (session.CurrentUser!.Id == dto.Id) session.UpdateCurrentUser(user.ToAuthUserDto());
 		_auditLog.Record(AuditAction.UserUpdated, "User", dto.Id, auditDetails ?? "User updated.");
 		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.UserUpdatedSuccessfully);
 	}

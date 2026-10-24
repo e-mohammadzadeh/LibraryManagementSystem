@@ -26,8 +26,6 @@ public class AuditLogManagementService : IAuditLogManagementService
 
 	public void Record(AuditAction action, string entityType, Guid entityId, string? details = null)
 	{
-		if (!_currentUserSession.IsAuthenticated) return;
-
 		var auditLog = new AuditLog
 		{
 			PerformedByUserId = _currentUserSession.CurrentUser!.Id,

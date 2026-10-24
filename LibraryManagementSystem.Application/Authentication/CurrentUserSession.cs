@@ -6,20 +6,34 @@ namespace LibraryManagementSystem.Application.Authentication;
 
 public class CurrentUserSession : ICurrentUserSession
 {
-	public AuthUserDto? CurrentUser { get; private set; }
-	public bool IsAuthenticated => CurrentUser is not null;
-	public IReadOnlySet<Permission> Permissions => CurrentUser?.Permissions ?? new HashSet<Permission>();
+	public AuthUserDto CurrentUser { get; set; } = null!;
+	public bool IsAuthenticated { get; private set; }
+	public IReadOnlySet<Permission> Permissions => CurrentUser.Permissions;
 
 
-	public void Login(AuthUserDto user) { CurrentUser = user ?? throw new ArgumentNullException(nameof(user)); }
-	public void Logout() => CurrentUser = null;
-	public void UpdateCurrentUser(AuthUserDto user)
+	public void Login(AuthUserDto user)
 	{
 		CurrentUser = user ?? throw new ArgumentNullException(nameof(user));
+		IsAuthenticated = true;
 	}
 
 
-	private bool HasRole(LibraryUserRole role) { return CurrentUser?.RoleName.Equals(role) ?? false; }
+	public void Logout()
+	{
+		IsAuthenticated = false;
+		CurrentUser = null!;
+	}
+
+
+	public void UpdateCurrentUser(AuthUserDto user)
+	{
+		ArgumentNullException.ThrowIfNull(user);
+		if (!IsAuthenticated) throw new InvalidOperationException("No user is currently logged in.");
+		CurrentUser = user;
+	}
+
+
+	private bool HasRole(LibraryUserRole role) { return CurrentUser.RoleName.Equals(role); }
 
 	public bool IsAdmin => HasRole(LibraryUserRole.Admin);
 	public bool IsLibrarian => HasRole(LibraryUserRole.Librarian);
