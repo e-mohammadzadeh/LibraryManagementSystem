@@ -1,4 +1,4 @@
-﻿namespace LibraryManagementSystem.Domain.Configuration;
+﻿namespace LibraryManagementSystem.Application.Menu;
 
 public class MenuItem
 {

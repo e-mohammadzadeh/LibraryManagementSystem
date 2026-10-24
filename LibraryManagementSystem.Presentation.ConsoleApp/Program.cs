@@ -5,6 +5,7 @@ using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 using System.Text;
+using LibraryManagementSystem.Application.Menu;
 using LibraryManagementSystem.Application.Repositories.InMemory;
 using LibraryManagementSystem.Application.Security;
 using LibraryManagementSystem.Application.Seeders;
@@ -18,6 +19,13 @@ public static class Program
 	private static void Main()
 	{
 		Console.OutputEncoding = Encoding.UTF8;
+
+		var menu = MenuLoader.Load();
+		var items = menu.Title;
+		Console.WriteLine(items);
+		DisplayItems(menu.Items);
+
+		ConsoleHelper.Pause();
 
 		try
 		{
@@ -90,6 +98,13 @@ public static class Program
 			ConsoleHelper.ShowError("\n" + new string('=', 50) + "\nFATAL ERROR DURING STARTUP OR EXECUTION:\n" +
 			                        ex.Message + "\n" + new string('=', 50));
 			ConsoleHelper.Pause();
+		}
+	}
+
+	private static void DisplayItems(IReadOnlyList<MenuItem> items) {
+		for (var i = 0; i < items.Count; i++)
+		{
+			Console.WriteLine($"{i + 1}. {items[i].Label}");
 		}
 	}
 }
