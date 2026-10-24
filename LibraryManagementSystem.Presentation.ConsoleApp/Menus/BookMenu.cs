@@ -213,7 +213,7 @@ public static class BookMenu
 	}
 
 
-	private static IReadOnlyList<ContributorDto>? ResolveAuthorIds(AuthorManagementService authorManagementService)
+	private static List<ContributorDto>? ResolveAuthorIds(AuthorManagementService authorManagementService)
 	{
 		var availableAuthors = authorManagementService.GetAllAuthors();
 		if (availableAuthors.Count != 0)
@@ -253,8 +253,7 @@ public static class BookMenu
 	}
 
 
-	private static IReadOnlyList<ContributorDto>? ResolveTranslatorIds(
-		TranslatorManagementService translatorManagementService)
+	private static List<ContributorDto>? ResolveTranslatorIds(TranslatorManagementService translatorManagementService)
 	{
 		var availableTranslators = translatorManagementService.GetAllTranslators();
 		if (availableTranslators.Count != 0)
@@ -521,7 +520,7 @@ public static class BookMenu
 				if (newlySelected is null || newlySelected.Count == 0) return null;
 
 				// New list = existing author IDs + newly selected IDs
-				return currentAuthors.Concat(newlySelected).DistinctBy(a => a.Id).ToList();
+				return [.. currentAuthors.Concat(newlySelected).DistinctBy(a => a.Id)];
 			}
 			case 2:
 			{
@@ -536,7 +535,7 @@ public static class BookMenu
 				if (selectedForRemoval is null || selectedForRemoval.Count == 0) break;
 
 				var authorToRemove = selectedForRemoval[0];
-				return currentAuthors.Where(a => a.Id != authorToRemove.Id).ToList();
+				return [.. currentAuthors.Where(a => a.Id != authorToRemove.Id)];
 			}
 			case 3:
 			{
@@ -633,7 +632,7 @@ public static class BookMenu
 				if (selectedForRemoval is null || selectedForRemoval.Count == 0) break;
 
 				var translatorToRemove = selectedForRemoval[0];
-				return (currentBook.Translators.Where(t => t.Id != translatorToRemove.Id).ToList(), null);
+				return ([.. currentBook.Translators.Where(t => t.Id != translatorToRemove.Id)], null);
 			}
 			case 3:
 			{
