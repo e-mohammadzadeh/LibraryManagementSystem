@@ -87,7 +87,7 @@ public class FineManagementService : IFineManagementService
 		var fine = _fineRepository.GetById(fineId, FineFilter.Unpaid);
 		if (fine is null) return ServiceResult<FineDto>.Fail(Messages.FineNotFound);
 
-		if (session.IsSelfServiceMember && session.CurrentUser?.Id != fine.UserId)
+		if (session.IsSelfServiceMember && session.CurrentUser.Id != fine.UserId)
 			return ServiceResult<FineDto>.Fail(Messages.CanPayOwnFine);
 		try
 		{
@@ -140,7 +140,7 @@ public class FineManagementService : IFineManagementService
 	public IReadOnlyList<FineDto> GetAll(ICurrentUserSession session, FineFilter filter)
 	{
 		return session.IsSelfServiceMember
-			? GetFinesByUser(session.CurrentUser!.Id, filter)
+			? GetFinesByUser(session.CurrentUser.Id, filter)
 			: [.. _fineRepository.GetAll(filter).Select(f => f.ToDto())];
 	}
 
@@ -162,7 +162,7 @@ public class FineManagementService : IFineManagementService
 
 	public IReadOnlyList<FineDto> GetFineHistoryByUser(Guid userId, ICurrentUserSession session)
 	{
-		if ((session.IsSelfServiceMember && session.CurrentUser?.Id != userId) ||
+		if ((session.IsSelfServiceMember && session.CurrentUser.Id != userId) ||
 		    !_authorization.HasAnyPermission(Permission.FineHistoryByUser, Permission.ViewFineHistory))
 			return [];
 
@@ -170,10 +170,16 @@ public class FineManagementService : IFineManagementService
 	}
 
 
-	public static void Pay(Fine fine)
+	private static void Pay(Fine fine)
 	{
-		if (fine.Status == FineStatus.Paid) throw new InvalidOperationException("Fine is already paid.");
-		if (fine.Status == FineStatus.Waived) throw new InvalidOperationException("Fine has been waived.");
+		switch (fine.Status)
+		{
+			case FineStatus.Paid:
+				throw new InvalidOperationException("Fine is already paid.");
+			case FineStatus.Waived:
+				throw new InvalidOperationException("Fine has been waived.");
+		}
+
 		fine.Status = FineStatus.Paid;
 		fine.PaidAt = DateOnly.FromDateTime(DateTime.Today);
 		fine.UpdatedAt = DateTime.Now;
@@ -181,7 +187,7 @@ public class FineManagementService : IFineManagementService
 	}
 
 
-	public static void Waive(Fine fine)
+	private static void Waive(Fine fine)
 	{
 		if (fine.Status == FineStatus.Paid) throw new InvalidOperationException("Cannot waive an already paid fine.");
 		fine.Status = FineStatus.Waived;

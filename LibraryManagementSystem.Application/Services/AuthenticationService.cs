@@ -65,7 +65,7 @@ public class AuthenticationService
 	{
 		if (!_currentUserSession.IsAuthenticated) return ServiceResult<string>.Fail(Messages.NoUserLoggedIn);
 
-		var currentUser = _currentUserSession.CurrentUser!;
+		var currentUser = _currentUserSession.CurrentUser;
 		var username = currentUser.FullName;
 		var email = Email.Create(currentUser.Email);
 		var user = _userRepository.GetByEmail(email, EntityFilter.Active);

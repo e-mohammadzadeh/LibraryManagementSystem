@@ -28,7 +28,7 @@ public class AuditLogManagementService : IAuditLogManagementService
 	{
 		var auditLog = new AuditLog
 		{
-			PerformedByUserId = _currentUserSession.CurrentUser!.Id,
+			PerformedByUserId = _currentUserSession.CurrentUser.Id,
 			Action = action,
 			EntityType = entityType,
 			EntityId = entityId,
