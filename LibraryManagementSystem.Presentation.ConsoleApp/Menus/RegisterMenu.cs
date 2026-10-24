@@ -1,8 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
-using LibraryManagementSystem.Infrastructure.DTOs.Role;
 using LibraryManagementSystem.Infrastructure.DTOs.Users;
-using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.ValueObjects;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
