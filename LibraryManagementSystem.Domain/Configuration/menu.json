@@ -745,11 +745,13 @@
 								},
 								{
 									"id": "loans.view.active.byuser",
-									"label": "View Active Loans By User"
+									"label": "View Active Loans By User",
+									"permission": "ViewActiveLoansByUser"
 								},
 								{
 									"id": "loans.view.active.bybook",
-									"label": "View Active Loans By Book"
+									"label": "View Active Loans By Book",
+									"permission": "ViewActiveLoansByBook"
 								},
 								{
 									"id": "loans.view.active.back",
@@ -762,12 +764,18 @@
 							"label": "View Overdue Loans",
 							"children": [
 								{
+									"id": "loans.view.overdue.own",
+									"label": "View Own Overdue Loans"
+								},
+								{
 									"id": "loans.view.overdue.byuser",
-									"label": "View Overdue Loans By User"
+									"label": "View Overdue Loans By User",
+									"permission": "ViewOverdueLoansByUser"
 								},
 								{
 									"id": "loans.view.overdue.bybook",
-									"label": "View Overdue Loans By Book"
+									"label": "View Overdue Loans By Book",
+									"permission": "ViewOverdueLoansByBook"
 								},
 								{
 									"id": "loans.view.overdue.back",
@@ -785,11 +793,13 @@
 								},
 								{
 									"id": "loans.view.inactive.byuser",
-									"label": "View Inactive Loans By User"
+									"label": "View Inactive Loans By User",
+									"permission": "ViewInactiveLoansByUser"
 								},
 								{
 									"id": "loans.view.inactive.bybook",
-									"label": "View Inactive Loans By Book"
+									"label": "View Inactive Loans By Book",
+									"permission": "ViewInactiveLoansByBook"
 								},
 								{
 									"id": "loans.view.inactive.back",
@@ -799,7 +809,8 @@
 						},
 						{
 							"id": "loans.history",
-							"label": "History"
+							"label": "History",
+							"permission": "ViewLoanHistory"
 						},
 						{
 							"id": "loans.view.back",
@@ -815,15 +826,33 @@
 			"children": [
 				{
 					"id": "fines.pay",
-					"label": "Pay Fine"
+					"label": "Pay Fine",
+					"permission": "PayFine"
 				},
 				{
 					"id": "fines.waive",
-					"label": "Waive Fine"
+					"label": "Waive Fine",
+					"permission": "WaiveFine"
 				},
 				{
 					"id": "fines.view",
-					"label": "View Fine"
+					"label": "View Fine",
+					"children": [
+						{
+							"id": "fines.view.own",
+							"label": "My Fines"
+						},
+						{
+							"id": "fines.view.byuser",
+							"label": "By User",
+							"permission": "ViewFinesByUser"
+						},
+						{
+							"id": "fines.view.full",
+							"label": "Full History",
+							"permission": "ViewFineHistory"
+						}
+					]
 				},
 				{
 					"id": "fines.back",
@@ -834,10 +863,12 @@
 		{
 			"id": "audit-log",
 			"label": "Audit Log",
+			"permission": "ViewAuditLog",
 			"children": [
 				{
 					"id": "audit-log.view",
-					"label": "View Audit Log"
+					"label": "View Audit Log",
+					"permission": "ViewAuditLog"
 				},
 				{
 					"id": "audit-log.back",

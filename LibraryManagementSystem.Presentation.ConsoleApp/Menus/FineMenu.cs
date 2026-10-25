@@ -160,7 +160,7 @@ public static class FineMenu
 	{
 		// ---------- Axis 1: scope (gated by permission) ----------
 		var canByUser = authorization.HasPermission(Permission.ViewFinesByUser);
-		var canFullLib = authorization.HasPermission(Permission.ViewAllFines); // see note below
+		var canFullLib = authorization.HasPermission(Permission.ViewFineHistory); // see note below
 
 		var scopeItems = new List<(int Id, string Text)>
 		{
@@ -228,6 +228,5 @@ public static class FineMenu
 		}
 
 		FinePrinter.PrintTable(fines);
-		ConsoleHelper.Pause();
 	}
 }
