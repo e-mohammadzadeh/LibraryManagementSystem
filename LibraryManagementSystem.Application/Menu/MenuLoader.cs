@@ -6,7 +6,7 @@ public static class MenuLoader
 {
 	public static MenuDefinition Load()
 	{
-		var filePath = Path.Combine(AppContext.BaseDirectory, "Configuration", "Menu", "menu.json");
+		var filePath = Path.Combine(AppContext.BaseDirectory, "Configuration", "menu.json");
 
 		if (!File.Exists(filePath))
 			throw new FileNotFoundException("Menu configuration file was not found.", filePath);
