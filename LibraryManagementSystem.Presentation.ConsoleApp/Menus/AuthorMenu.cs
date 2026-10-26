@@ -19,8 +19,8 @@ public static class AuthorMenu
 		LibraryStatisticsService statisticsService, ICurrentUserSession session, IAuthorizationService authorization)
 	{
 		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-			    Permission.AddAuthor,
-			    Permission.EditAuthor,
+			    Permission.AddContributor,
+			    Permission.EditContributor,
 			    Permission.RemoveAuthor,
 			    Permission.SearchAuthorForMember,
 			    Permission.FullSearchAuthor,
@@ -49,7 +49,7 @@ public static class AuthorMenu
 			{
 				case 1:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.AddAuthor, Messages.AccessDenied))
+					if (!SessionGuard.RequirePermission(authorization, Permission.AddContributor, Messages.AccessDenied))
 						break;
 					Console.Clear();
 					AddAuthor(authorManagementService);
@@ -58,7 +58,7 @@ public static class AuthorMenu
 				}
 				case 2:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.EditAuthor, Messages.AccessDenied))
+					if (!SessionGuard.RequirePermission(authorization, Permission.EditContributor, Messages.AccessDenied))
 						break;
 					Console.Clear();
 					EditAuthor(authorManagementService, authorization, session);
@@ -118,8 +118,8 @@ public static class AuthorMenu
 	{
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
-			(1, "Add Author", authorization.HasPermission(Permission.AddAuthor)),
-			(2, "Edit Author", authorization.HasPermission(Permission.EditAuthor)),
+			(1, "Add Author", authorization.HasPermission(Permission.AddContributor)),
+			(2, "Edit Author", authorization.HasPermission(Permission.EditContributor)),
 			(3, "Remove Author", authorization.HasPermission(Permission.RemoveAuthor)),
 			(4, "Search Author",
 				authorization.HasAnyPermission(Permission.SearchAuthorForMember, Permission.FullSearchAuthor)),

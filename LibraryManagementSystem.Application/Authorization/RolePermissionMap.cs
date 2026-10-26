@@ -9,8 +9,8 @@ public static class RolePermissionMap
 		[LibraryUserRole.Admin] = [.. Enum.GetValues<Permission>()],
 		[LibraryUserRole.Librarian] =
 		[
-			Permission.AddAuthor,
-			Permission.EditAuthor,
+			Permission.AddContributor,
+			Permission.EditContributor,
 			Permission.FullSearchAuthor,
 			Permission.FullSortAuthor,
 			Permission.ViewAuthorDetails,
@@ -19,8 +19,6 @@ public static class RolePermissionMap
 			Permission.ViewAuthorFullDetails,
 
 
-			Permission.AddTranslator,
-			Permission.EditTranslator,
 			Permission.FullSearchTranslator,
 			Permission.FullSortTranslator,
 			Permission.ViewTranslatorDetails,

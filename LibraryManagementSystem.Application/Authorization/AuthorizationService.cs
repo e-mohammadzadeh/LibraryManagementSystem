@@ -51,7 +51,7 @@ public class AuthorizationService : IAuthorizationService
 
 	public bool CanAccessAuthorManagement()
 	{
-		return HasAnyPermission(Permission.AddAuthor, Permission.EditAuthor, Permission.SearchAuthorForMember,
+		return HasAnyPermission(Permission.AddContributor, Permission.EditContributor, Permission.SearchAuthorForMember,
 			Permission.FullSearchAuthor, Permission.SortAuthorForMember, Permission.FullSortAuthor,
 			Permission.ViewAuthorDetails, Permission.ViewAllAuthors);
 	}
@@ -59,7 +59,7 @@ public class AuthorizationService : IAuthorizationService
 
 	public bool CanAccessTranslatorManagement()
 	{
-		return HasAnyPermission(Permission.AddTranslator, Permission.EditTranslator,
+		return HasAnyPermission(Permission.AddContributor, Permission.EditContributor,
 			Permission.SearchTranslatorForMember, Permission.FullSearchTranslator, Permission.SortTranslatorForMember,
 			Permission.FullSortTranslator, Permission.ViewTranslatorDetails, Permission.ViewAllTranslators);
 	}

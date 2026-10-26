@@ -2,9 +2,10 @@
 
 public enum Permission
 {
-	// Authors
-	AddAuthor,
-	EditAuthor,
+	// Contributors
+	AddContributor,
+	EditContributor,
+
 	SearchAuthorForMember,
 	FullSearchAuthor,
 	SortAuthorForMember,
@@ -18,8 +19,6 @@ public enum Permission
 	
 
 	// Translators
-	AddTranslator,
-	EditTranslator,
 	SearchTranslatorForMember,
 	FullSearchTranslator,
 	SortTranslatorForMember,

@@ -21,8 +21,8 @@ public static class TranslatorMenu
 		if (!SessionGuard.RequireAnyPermission(
 			    authorization,
 			    Messages.AccessDenied,
-			    Permission.AddTranslator,
-			    Permission.EditTranslator,
+			    Permission.AddContributor,
+			    Permission.EditContributor,
 			    Permission.RemoveTranslator,
 			    Permission.SearchTranslatorForMember,
 			    Permission.FullSearchTranslator,
@@ -52,7 +52,7 @@ public static class TranslatorMenu
 			{
 				case 1:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.AddTranslator, Messages.AccessDenied))
+					if (!SessionGuard.RequirePermission(authorization, Permission.AddContributor, Messages.AccessDenied))
 						break;
 					Console.Clear();
 					AddTranslator(translatorManagementService);
@@ -61,7 +61,7 @@ public static class TranslatorMenu
 				}
 				case 2:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.EditTranslator,
+					if (!SessionGuard.RequirePermission(authorization, Permission.EditContributor,
 						    Messages.AccessDenied))
 						break;
 					Console.Clear();
@@ -124,8 +124,8 @@ public static class TranslatorMenu
 	{
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
-			(1, "Add Translator", authorization.HasPermission(Permission.AddTranslator)),
-			(2, "Edit Translator", authorization.HasPermission(Permission.EditTranslator)),
+			(1, "Add Translator", authorization.HasPermission(Permission.AddContributor)),
+			(2, "Edit Translator", authorization.HasPermission(Permission.EditContributor)),
 			(3, "Remove Translator", authorization.HasPermission(Permission.RemoveTranslator)),
 			(4, "Search Translator",
 				authorization.HasAnyPermission(Permission.SearchTranslatorForMember, Permission.FullSearchTranslator)),

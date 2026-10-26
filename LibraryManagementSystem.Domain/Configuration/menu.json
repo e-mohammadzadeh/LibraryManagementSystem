@@ -8,12 +8,12 @@
 				{
 					"id": "authors.add",
 					"label": "Add Author",
-					"permission": "AddAuthor"
+					"permission": "AddContributor"
 				},
 				{
 					"id": "authors.edit",
 					"label": "Edit Author",
-					"permission": "EditAuthor",
+					"permission": "EditContributor",
 					"children": [
 						{
 							"id": "authors.edit.firstname",
@@ -160,12 +160,12 @@
 				{
 					"id": "translators.add",
 					"label": "Add Translators",
-					"permission": "AddTranslator"
+					"permission": "AddContributor"
 				},
 				{
 					"id": "translators.edit",
 					"label": "Edit Translators",
-					"permission": "EditTranslator",
+					"permission": "EditContributor",
 					"children": [
 						{
 							"id": "translators.edit.firstname",
