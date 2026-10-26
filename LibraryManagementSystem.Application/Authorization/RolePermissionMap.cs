@@ -14,14 +14,9 @@ public static class RolePermissionMap
 			Permission.FullSearchContributor,
 			Permission.FullSortContributor,
 			Permission.ViewContributorDetails,
-			Permission.ViewAuthorBooks,
 			Permission.ViewAllContributors,
-			Permission.ViewAuthorFullDetails,
-
-
-			Permission.ViewTranslatorBooks,
-			Permission.ViewTranslatorFullDetails,
-
+			Permission.ViewContributorBooks,
+			
 
 			Permission.AddBook,
 			Permission.EditBook,
@@ -78,10 +73,8 @@ public static class RolePermissionMap
 		[LibraryUserRole.Member] =
 		[
 			Permission.SearchForMember,
-			Permission.ViewAuthorBooks,
+			Permission.ViewContributorBooks,
 			Permission.ViewAllContributors,
-
-			Permission.ViewTranslatorBooks,
 
 			Permission.SearchBook,
 			Permission.SortBookForMember,

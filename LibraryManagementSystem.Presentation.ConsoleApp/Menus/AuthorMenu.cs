@@ -78,9 +78,6 @@ public static class AuthorMenu
 				}
 				case 4:
 				{
-					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-						    Permission.SearchForMember, Permission.FullSearchContributor))
-						break;
 					SearchAuthor(authorManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
@@ -94,10 +91,6 @@ public static class AuthorMenu
 				}
 				case 6:
 				{
-					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-						    Permission.ViewContributorDetails, Permission.ViewAuthorBooks,
-						    Permission.ViewAllContributors))
-						break;
 					Console.Clear();
 					ViewAuthors(authorManagementService, authorization, session, statisticsService);
 					ConsoleHelper.Pause();
@@ -124,7 +117,7 @@ public static class AuthorMenu
 				authorization.HasAnyPermission(Permission.SearchForMember, Permission.FullSearchContributor)),
 			(5, "Sort Authors", authorization.HasPermission(Permission.FullSortContributor)),
 			(6, "View Authors",
-				authorization.HasAnyPermission(Permission.ViewContributorDetails, Permission.ViewAuthorBooks,
+				authorization.HasAnyPermission(Permission.ViewContributorDetails, Permission.ViewContributorBooks,
 					Permission.ViewAllContributors)),
 			(7, "Back", true)
 		};
@@ -473,7 +466,6 @@ public static class AuthorMenu
 	}
 
 
-
 	private static SortDirection? SelectSortDirection()
 	{
 		var directionHeaders = new[] { "#", "Direction" };
@@ -500,13 +492,9 @@ public static class AuthorMenu
 	private static void ViewAuthors(AuthorManagementService authorManagementService,
 		IAuthorizationService authorization, ICurrentUserSession session, LibraryStatisticsService statisticsService)
 	{
-		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-			    Permission.ViewContributorDetails,
-			    Permission.ViewAuthorBooks,
-			    Permission.ViewAllContributors))
-		{
+		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied, Permission.ViewContributorDetails,
+			    Permission.ViewContributorBooks, Permission.ViewAllContributors))
 			return;
-		}
 
 		while (true)
 		{
@@ -553,7 +541,7 @@ public static class AuthorMenu
 
 					if (authors.Count == 0)
 						ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
-					else if (authorization.HasPermission(Permission.ViewAuthorFullDetails))
+					else if (authorization.HasPermission(Permission.ViewContributorDetails))
 						AuthorPrinter.PrintFullTable(authors);
 					else
 						AuthorPrinter.PrintTable(authors);
@@ -589,7 +577,7 @@ public static class AuthorMenu
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
 			(1, "View Author Details", authorization.HasPermission(Permission.ViewContributorDetails)),
-			(2, "View Author's Books", authorization.HasPermission(Permission.ViewAuthorBooks)),
+			(2, "View Author's Books", authorization.HasPermission(Permission.ViewContributorBooks)),
 			(3, "View All Authors", authorization.HasPermission(Permission.ViewAllContributors)),
 			(4, "View Removed Authors", authorization.HasPermission(Permission.ViewRemovedContributors)),
 			(5, "Back", true)
@@ -610,7 +598,7 @@ public static class AuthorMenu
 	private static void ViewBooksByAuthor(AuthorManagementService authorManagementService,
 		IAuthorizationService authorization)
 	{
-		if (!SessionGuard.RequirePermission(authorization, Permission.ViewAuthorBooks, Messages.AccessDenied)) return;
+		if (!SessionGuard.RequirePermission(authorization, Permission.ViewContributorBooks, Messages.AccessDenied)) return;
 		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
 			author => MenuHelper.SelectAuthor(author, authorization), Messages.NotAvailableAuthor);
 		if (desiredAuthor is null) return;

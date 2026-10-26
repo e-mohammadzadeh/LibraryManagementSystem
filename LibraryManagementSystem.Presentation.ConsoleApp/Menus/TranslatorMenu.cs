@@ -81,9 +81,6 @@ public static class TranslatorMenu
 				}
 				case 4:
 				{
-					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-						    Permission.SearchForMember, Permission.FullSearchContributor))
-						break;
 					Console.Clear();
 					SearchTranslator(translatorManagementService, authorization);
 					ConsoleHelper.Pause();
@@ -98,10 +95,6 @@ public static class TranslatorMenu
 				}
 				case 6:
 				{
-					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-						    Permission.ViewContributorDetails, Permission.ViewTranslatorBooks,
-						    Permission.ViewAllContributors))
-						break;
 					Console.Clear();
 					ViewTranslators(translatorManagementService, authorization, session, statisticsService);
 					ConsoleHelper.Pause();
@@ -126,9 +119,9 @@ public static class TranslatorMenu
 			(3, "Remove Translator", authorization.HasPermission(Permission.RemoveContributor)),
 			(4, "Search Translator",
 				authorization.HasAnyPermission(Permission.SearchForMember, Permission.FullSearchContributor)),
-			(5, "Sort Translators", authorization.HasPermission( Permission.FullSortContributor)),
+			(5, "Sort Translators", authorization.HasPermission(Permission.FullSortContributor)),
 			(6, "View Translators",
-				authorization.HasAnyPermission(Permission.ViewContributorDetails, Permission.ViewTranslatorBooks,
+				authorization.HasAnyPermission(Permission.ViewContributorDetails, Permission.ViewContributorBooks,
 					Permission.ViewAllContributors)),
 			(7, "Back", true)
 		};
@@ -511,11 +504,8 @@ public static class TranslatorMenu
 		IAuthorizationService authorization, ICurrentUserSession session, LibraryStatisticsService statisticsService)
 	{
 		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-			    Permission.ViewContributorDetails,
-			    Permission.ViewTranslatorBooks, Permission.ViewAllContributors))
-		{
+			    Permission.ViewContributorDetails, Permission.ViewContributorBooks, Permission.ViewAllContributors))
 			return;
-		}
 
 		while (true)
 		{
@@ -562,7 +552,7 @@ public static class TranslatorMenu
 					var translators = translatorManagementService.GetAllTranslators();
 					if (translators.Count == 0)
 						ConsoleHelper.ShowWarning(Messages.NotAvailableTranslator);
-					else if (authorization.HasPermission(Permission.ViewTranslatorFullDetails))
+					else if (authorization.HasPermission(Permission.ViewContributorDetails))
 						TranslatorPrinter.PrintFullTable(translators);
 					else
 						TranslatorPrinter.PrintTable(translators);
@@ -598,7 +588,7 @@ public static class TranslatorMenu
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
 			(1, "View Translator Details", authorization.HasPermission(Permission.ViewContributorDetails)),
-			(2, "View Translator's Books", authorization.HasPermission(Permission.ViewTranslatorBooks)),
+			(2, "View Translator's Books", authorization.HasPermission(Permission.ViewContributorBooks)),
 			(3, "View All Translators", authorization.HasPermission(Permission.ViewAllContributors)),
 			(4, "View Removed Translators", authorization.HasPermission(Permission.ViewRemovedContributors)),
 			(5, "Back", true)
@@ -618,7 +608,7 @@ public static class TranslatorMenu
 	private static void ViewBooksByTranslator(TranslatorManagementService translatorManagementService,
 		IAuthorizationService authorization)
 	{
-		if (!SessionGuard.RequirePermission(authorization, Permission.ViewTranslatorBooks, Messages.AccessDenied))
+		if (!SessionGuard.RequirePermission(authorization, Permission.ViewContributorBooks, Messages.AccessDenied))
 			return;
 		var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
 			translator => MenuHelper.SelectTranslator(translator, authorization), Messages.NotAvailableTranslator);

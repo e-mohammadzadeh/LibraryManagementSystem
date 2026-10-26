@@ -278,7 +278,7 @@
 						{
 							"id": "translators.view.translatordetails",
 							"label": "View Translators Details",
-							"permission": "ViewTranslatorDetails"
+							"permission": "ViewContributorDetails"
 						},
 						{
 							"id": "translators.view.translatorbooks", // it's better to remove it
@@ -291,7 +291,7 @@
 						{
 							"id": "translators.view.removedtranslators",
 							"label": "View Removed Translators",
-							"permission": "ViewRemovedTranslators"
+							"permission": "ViewRemovedContributors"
 						},
 						{
 							"id": "translators.view.back",

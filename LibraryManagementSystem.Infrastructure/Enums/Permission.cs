@@ -12,14 +12,8 @@ public enum Permission
 	ViewContributorDetails,
 	ViewAllContributors,
 	ViewRemovedContributors,
+	ViewContributorBooks,
 
-
-	ViewAuthorBooks,
-	ViewAuthorFullDetails,
-
-	// Translators
-	ViewTranslatorBooks,
-	ViewTranslatorFullDetails,
 
 	
 	// Books
