@@ -7,11 +7,13 @@
 			"children": [
 				{
 					"id": "authors.add",
-					"label": "Add Author"
+					"label": "Add Author",
+					"permission": "AddAuthor"
 				},
 				{
 					"id": "authors.edit",
 					"label": "Edit Author",
+					"permission": "EditAuthor",
 					"children": [
 						{
 							"id": "authors.edit.firstname",
@@ -49,7 +51,8 @@
 				},
 				{
 					"id": "authors.remove",
-					"label": "Remove Author"
+					"label": "Remove Author",
+					"permission": "RemoveAuthor"
 				},
 				{
 					"id": "authors.search",
@@ -61,7 +64,8 @@
 						},
 						{
 							"id": "authors.search.nationalcode",
-							"label": "National Code"
+							"label": "National Code",
+							"permission": "FullSearchAuthor"
 						},
 						{
 							"id": "authors.search.email",
@@ -69,7 +73,8 @@
 						},
 						{
 							"id": "authors.search.phonenumber",
-							"label": "Phone Number"
+							"label": "Phone Number",
+							"permission": "FullSearchAuthor"
 						},
 						{
 							"id": "authors.search.back",
@@ -99,15 +104,18 @@
 						},
 						{
 							"id": "authors.sort.nationalcode",
-							"label": "National Code"
+							"label": "National Code",
+							"permission": "FullSortAuthor"
 						},
 						{
 							"id": "authors.sort.birthdate",
-							"label": "Birth Date"
+							"label": "Birth Date",
+							"permission": "FullSortAuthor"
 						},
 						{
 							"id": "authors.sort.bookcount",
-							"label": "Book Count"
+							"label": "Book Count",
+							"permission": "FullSortAuthor"
 						}
 					]
 				},
@@ -117,7 +125,8 @@
 					"children": [
 						{
 							"id": "authors.view.authordetails",
-							"label": "View Author Details"
+							"label": "View Author Details",
+							"permission": "ViewAuthorDetails"
 						},
 						{
 							"id": "authors.view.authorbooks",
@@ -129,7 +138,8 @@
 						},
 						{
 							"id": "authors.view.removedauthors",
-							"label": "View Removed Authors"
+							"label": "View Removed Authors",
+							"permission": "ViewRemovedAuthors"
 						},
 						{
 							"id": "authors.view.back",
@@ -149,11 +159,13 @@
 			"children": [
 				{
 					"id": "translators.add",
-					"label": "Add Translators"
+					"label": "Add Translators",
+					"permission": "AddTranslator"
 				},
 				{
 					"id": "translators.edit",
 					"label": "Edit Translators",
+					"permission": "EditTranslator",
 					"children": [
 						{
 							"id": "translators.edit.firstname",
@@ -191,7 +203,8 @@
 				},
 				{
 					"id": "translators.remove",
-					"label": "Remove Translators"
+					"label": "Remove Translators",
+					"permission": "RemoveTranslator"
 				},
 				{
 					"id": "translators.search",
@@ -203,7 +216,8 @@
 						},
 						{
 							"id": "translators.search.nationalcode",
-							"label": "National Code"
+							"label": "National Code",
+							"permission": "FullSearchTranslator"
 						},
 						{
 							"id": "translators.search.email",
@@ -211,7 +225,8 @@
 						},
 						{
 							"id": "translators.search.phonenumber",
-							"label": "Phone Number"
+							"label": "Phone Number",
+							"permission": "FullSearchTranslator"
 						},
 						{
 							"id": "translators.search.back",
@@ -241,15 +256,18 @@
 						},
 						{
 							"id": "translators.sort.nationalcode",
-							"label": "National Code"
+							"label": "National Code",
+							"permission": "FullSortAuthor"
 						},
 						{
 							"id": "translators.sort.birthdate",
-							"label": "Birth Date"
+							"label": "Birth Date",
+							"permission": "FullSortAuthor"
 						},
 						{
 							"id": "translators.sort.bookcount",
-							"label": "Book Count"
+							"label": "Book Count",
+							"permission": "FullSortAuthor"
 						}
 					]
 				},
@@ -259,10 +277,11 @@
 					"children": [
 						{
 							"id": "translators.view.translatordetails",
-							"label": "View Translators Details"
+							"label": "View Translators Details",
+							"permission": "ViewTranslatorDetails"
 						},
 						{
-							"id": "translators.view.translatorbooks",
+							"id": "translators.view.translatorbooks", // it's better to remove it
 							"label": "View Translator's Books"
 						},
 						{
@@ -271,7 +290,8 @@
 						},
 						{
 							"id": "translators.view.removedtranslators",
-							"label": "View Removed Translators"
+							"label": "View Removed Translators",
+							"permission": "ViewRemovedTranslators"
 						},
 						{
 							"id": "translators.view.back",
@@ -291,11 +311,13 @@
 			"children": [
 				{
 					"id": "books.add",
-					"label": "Add Book"
+					"label": "Add Book",
+					"permission": "AddBook"
 				},
 				{
 					"id": "books.edit",
 					"label": "Edit Book",
+					"permission": "EditBook",
 					"children": [
 						{
 							"id": "books.edit.title",
@@ -381,7 +403,8 @@
 				},
 				{
 					"id": "books.remove",
-					"label": "Remove Book"
+					"label": "Remove Book",
+					"permission": "RemoveBook"
 				},
 				{
 					"id": "books.search",
@@ -474,6 +497,11 @@
 						{
 							"id": "books.sort.publisher",
 							"label": "Publisher"
+						},
+						{
+							"id": "books.sort.availablecopies",
+							"label": "Available Copies",
+							"permission": "FullSortBook"
 						}
 					]
 				},
@@ -483,10 +511,11 @@
 					"children": [
 						{
 							"id": "books.view.bookdetails",
-							"label": "View Book Details"
+							"label": "View Book Details",
+							"permission": "ViewBookDetails"
 						},
 						{
-							"id": "books.view.bookauthors",
+							"id": "books.view.bookauthors",  // it's better to remove it
 							"label": "View Book's Authors"
 						},
 						{
@@ -495,7 +524,8 @@
 						},
 						{
 							"id": "books.view.removedbooks",
-							"label": "View Removed Books"
+							"label": "View Removed Books",
+							"permission": "ViewRemovedBooks"
 						},
 						{
 							"id": "books.view.back",
