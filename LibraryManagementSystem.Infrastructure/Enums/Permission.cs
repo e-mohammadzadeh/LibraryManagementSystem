@@ -5,9 +5,11 @@ public enum Permission
 	// Contributors
 	AddContributor,
 	EditContributor,
+	RemoveContributor,
+	SearchForMember,
+	FullSearchContributor,
 
-	SearchAuthorForMember,
-	FullSearchAuthor,
+
 	SortAuthorForMember,
 	FullSortAuthor,
 	ViewAuthorDetails,
@@ -15,12 +17,9 @@ public enum Permission
 	ViewAllAuthors,
 	ViewRemovedAuthors,
 	ViewAuthorFullDetails,
-	RemoveAuthor,
 	
 
 	// Translators
-	SearchTranslatorForMember,
-	FullSearchTranslator,
 	SortTranslatorForMember,
 	FullSortTranslator,
 	ViewTranslatorDetails,
@@ -28,7 +27,6 @@ public enum Permission
 	ViewAllTranslators,
 	ViewRemovedTranslators,
 	ViewTranslatorFullDetails,
-	RemoveTranslator,
 
 	
 	// Books

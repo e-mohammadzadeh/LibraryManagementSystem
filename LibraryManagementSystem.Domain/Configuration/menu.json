@@ -52,7 +52,7 @@
 				{
 					"id": "authors.remove",
 					"label": "Remove Author",
-					"permission": "RemoveAuthor"
+					"permission": "RemoveContributor"
 				},
 				{
 					"id": "authors.search",
@@ -65,7 +65,7 @@
 						{
 							"id": "authors.search.nationalcode",
 							"label": "National Code",
-							"permission": "FullSearchAuthor"
+							"permission": "FullSearchContributor"
 						},
 						{
 							"id": "authors.search.email",
@@ -74,7 +74,7 @@
 						{
 							"id": "authors.search.phonenumber",
 							"label": "Phone Number",
-							"permission": "FullSearchAuthor"
+							"permission": "FullSearchContributor"
 						},
 						{
 							"id": "authors.search.back",
@@ -204,7 +204,7 @@
 				{
 					"id": "translators.remove",
 					"label": "Remove Translators",
-					"permission": "RemoveTranslator"
+					"permission": "RemoveContributor"
 				},
 				{
 					"id": "translators.search",
@@ -217,7 +217,7 @@
 						{
 							"id": "translators.search.nationalcode",
 							"label": "National Code",
-							"permission": "FullSearchTranslator"
+							"permission": "FullSearchContributor"
 						},
 						{
 							"id": "translators.search.email",
@@ -226,7 +226,7 @@
 						{
 							"id": "translators.search.phonenumber",
 							"label": "Phone Number",
-							"permission": "FullSearchTranslator"
+							"permission": "FullSearchContributor"
 						},
 						{
 							"id": "translators.search.back",

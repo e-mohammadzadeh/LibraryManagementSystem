@@ -23,9 +23,9 @@ public static class TranslatorMenu
 			    Messages.AccessDenied,
 			    Permission.AddContributor,
 			    Permission.EditContributor,
-			    Permission.RemoveTranslator,
-			    Permission.SearchTranslatorForMember,
-			    Permission.FullSearchTranslator,
+			    Permission.RemoveContributor,
+			    Permission.SearchForMember,
+			    Permission.FullSearchContributor,
 			    Permission.SortTranslatorForMember,
 			    Permission.FullSortTranslator,
 			    Permission.ViewTranslatorDetails,
@@ -71,7 +71,7 @@ public static class TranslatorMenu
 				}
 				case 3:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveTranslator,
+					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveContributor,
 						    Messages.AccessDenied))
 						break;
 					Console.Clear();
@@ -82,7 +82,7 @@ public static class TranslatorMenu
 				case 4:
 				{
 					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-						    Permission.SearchTranslatorForMember, Permission.FullSearchTranslator))
+						    Permission.SearchForMember, Permission.FullSearchContributor))
 						break;
 					Console.Clear();
 					SearchTranslator(translatorManagementService, authorization);
@@ -126,9 +126,9 @@ public static class TranslatorMenu
 		{
 			(1, "Add Translator", authorization.HasPermission(Permission.AddContributor)),
 			(2, "Edit Translator", authorization.HasPermission(Permission.EditContributor)),
-			(3, "Remove Translator", authorization.HasPermission(Permission.RemoveTranslator)),
+			(3, "Remove Translator", authorization.HasPermission(Permission.RemoveContributor)),
 			(4, "Search Translator",
-				authorization.HasAnyPermission(Permission.SearchTranslatorForMember, Permission.FullSearchTranslator)),
+				authorization.HasAnyPermission(Permission.SearchForMember, Permission.FullSearchContributor)),
 			(5, "Sort Translators",
 				authorization.HasAnyPermission(Permission.SortTranslatorForMember, Permission.FullSortTranslator)),
 			(6, "View Translators",
@@ -345,14 +345,14 @@ public static class TranslatorMenu
 	private static void SearchTranslator(TranslatorManagementService translatorManagementService,
 		IAuthorizationService authorization)
 	{
-		if (!authorization.HasAnyPermission(Permission.SearchTranslatorForMember, Permission.FullSearchTranslator))
+		if (!authorization.HasAnyPermission(Permission.SearchForMember, Permission.FullSearchContributor))
 		{
 			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
 		}
 
 		Action<IReadOnlyList<ContributorDto>> printer =
-			authorization.HasAnyPermission(Permission.ViewTranslatorDetails, Permission.FullSearchTranslator)
+			authorization.HasAnyPermission(Permission.ViewTranslatorDetails, Permission.FullSearchContributor)
 				? translator => TranslatorPrinter.PrintFullTable(translator, "Search Result")
 				: translator => TranslatorPrinter.PrintTable(translator, "Search Result");
 
@@ -370,11 +370,11 @@ public static class TranslatorMenu
 			var items = new List<(TranslatorSearchField? Field, string Label, Permission[] RequiredPermissions)>
 			{
 				(TranslatorSearchField.Name, "Name",
-					[Permission.FullSearchTranslator, Permission.SearchTranslatorForMember]),
-				(TranslatorSearchField.NationalCode, "National Code", [Permission.FullSearchTranslator]),
+					[Permission.FullSearchContributor, Permission.SearchForMember]),
+				(TranslatorSearchField.NationalCode, "National Code", [Permission.FullSearchContributor]),
 				(TranslatorSearchField.Email, "Email",
-					[Permission.FullSearchTranslator, Permission.SearchTranslatorForMember]),
-				(TranslatorSearchField.PhoneNumber, "Phone Number", [Permission.FullSearchTranslator]),
+					[Permission.FullSearchContributor, Permission.SearchForMember]),
+				(TranslatorSearchField.PhoneNumber, "Phone Number", [Permission.FullSearchContributor]),
 			};
 
 			var available = items.Where(i =>

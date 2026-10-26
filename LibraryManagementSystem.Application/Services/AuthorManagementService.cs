@@ -131,10 +131,10 @@ public class AuthorManagementService
 
 		var requiredPermission = field switch
 		{
-			AuthorSearchField.Name => [Permission.SearchAuthorForMember, Permission.FullSearchAuthor],
-			AuthorSearchField.NationalCode => [Permission.FullSearchAuthor],
-			AuthorSearchField.Email => [Permission.SearchAuthorForMember, Permission.FullSearchAuthor],
-			AuthorSearchField.PhoneNumber => new[] { Permission.FullSearchAuthor },
+			AuthorSearchField.Name => [Permission.SearchForMember, Permission.FullSearchContributor],
+			AuthorSearchField.NationalCode => [Permission.FullSearchContributor],
+			AuthorSearchField.Email => [Permission.SearchForMember, Permission.FullSearchContributor],
+			AuthorSearchField.PhoneNumber => new[] { Permission.FullSearchContributor },
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};
 
