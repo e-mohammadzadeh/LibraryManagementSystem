@@ -55,7 +55,8 @@ public static class UserMenu
 				}
 				case 2:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.EditUser, Messages.AccessDenied))
+					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied, Permission.EditUser,
+						    Permission.EditOwnProfile))
 						break;
 					Console.Clear();
 					EditUser(userManagementService, roleManagementService, authorization, session);
@@ -135,7 +136,7 @@ public static class UserMenu
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
 			(1, "Register User", authorization.HasPermission(Permission.AddUser)),
-			(2, "Edit User", authorization.HasPermission(Permission.EditUser)),
+			(2, "Edit User", authorization.HasAnyPermission(Permission.EditUser, Permission.EditOwnProfile)),
 			(3, "Remove User", authorization.HasPermission(Permission.RemoveUser)),
 			(4, "Search User", authorization.HasPermission(Permission.SearchUser)),
 			(5, "Sort Users", authorization.HasPermission(Permission.SortUser)),
@@ -243,135 +244,116 @@ public static class UserMenu
 	private static void EditUser(UserManagementService userManagementService,
 		RoleManagementService roleManagementService, IAuthorizationService authorization, ICurrentUserSession session)
 	{
-		if (!authorization.HasPermission(Permission.EditUser))
+		var canEditAnyUser = authorization.HasPermission(Permission.EditUser);
+		var canEditOwnProfile = authorization.HasPermission(Permission.EditOwnProfile);
+
+		if (!canEditAnyUser && !canEditOwnProfile)
 		{
 			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
 		}
 
-		Console.WriteLine(new string('=', 36) + " EDITING USER MENU " + new string('=', 36));
-		var desiredUser = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
-			list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)), Messages.NotAvailableUser);
-		if (desiredUser == null) return;
+		UserDto? desiredUser;
+		var isSelfServiceEdit = false;
 
+		if (!canEditAnyUser)
+		{
+			desiredUser = userManagementService.GetUserById(session.CurrentUser.Id);
+			if (desiredUser is null)
+			{
+				ConsoleHelper.ShowError(Messages.NotAvailableUser);
+				return;
+			}
+
+			isSelfServiceEdit = true;
+		}
+		else
+		{
+			Console.WriteLine(new string('=', 36) + " EDITING USER MENU " + new string('=', 36));
+			desiredUser = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
+				list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)),
+				Messages.NotAvailableUser);
+			if (desiredUser is null) return;
+		}
+
+		EditUserLoop(userManagementService, roleManagementService, authorization, session, desiredUser,
+			isSelfServiceEdit);
+	}
+
+
+	private static void EditUserLoop(UserManagementService userManagementService,
+		RoleManagementService roleManagementService, IAuthorizationService authorization,
+		ICurrentUserSession session, UserDto desiredUser, bool isSelfServiceEdit)
+	{
 		while (true)
 		{
 			Console.Clear();
-			var headers = new[] { "#", "Field", "Current Value" };
-
 			var rows = new List<string[][]>
 			{
 				new string[][] { ["1"], ["First Name"], [desiredUser.FirstName] },
 				new string[][] { ["2"], ["Last Name"], [desiredUser.LastName] },
 				new string[][] { ["3"], ["National Code"], [desiredUser.NationalCode] },
-				new string[][] { ["4"], ["Email"], [desiredUser.Email] },
-				new string[][] { ["5"], ["Phone Number"], [desiredUser.PhoneNumber] },
-				new string[][] { ["6"], ["Birth Date"], [desiredUser.BirthDate.ToString("yyyy-MM-dd")] },
 			};
 
-			if (authorization.HasPermission(Permission.ChangeUserRoles))
-				rows.Add([["7"], ["Role"], [desiredUser.RoleName.ToString()]]);
+			if (!isSelfServiceEdit) rows.Add([["4"], ["Email"], [desiredUser.Email]]);
+
+			rows.Add([[(rows.Count + 1).ToString()], ["Phone Number"], [desiredUser.PhoneNumber]]);
+			rows.Add([[(rows.Count + 1).ToString()], ["Birth Date"], [desiredUser.BirthDate.ToString("yyyy-MM-dd")]]);
+
+			var canChangeRole = !isSelfServiceEdit && authorization.HasPermission(Permission.EditUserRoles);
+			if (canChangeRole) rows.Add([[(rows.Count + 1).ToString()], ["Role"], [desiredUser.RoleName.ToString()]]);
+
 			rows.Add([[(rows.Count + 1).ToString()], ["Back"], ["-"]]);
 
-			ConsoleTable.PrintTable("Edit User", headers, rows);
+			ConsoleTable.PrintTable("Edit User", ["#", "Field", "Current Value"], rows);
 
-			var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, rows.Count);
-			if (editMenuChoice is null) return;
+			var choice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, rows.Count);
+			if (choice is null) return;
 
-			var selectedRow = rows[editMenuChoice.Value - 1];
-			var fieldName = selectedRow[1][0];
+			var fieldName = rows[choice.Value - 1][1][0];
 
 			switch (fieldName)
 			{
 				case "First Name":
-				{
-					var userNewFirstName = ConsoleHelper.GetValidName("\nEnter new first name",
-						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
-
-					if (userNewFirstName != null)
-					{
-						desiredUser.FirstName = userNewFirstName;
-						var result = userManagementService.UpdateUser(desiredUser, session, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
+					PromptAndApply(() => ConsoleHelper.GetValidName("\nEnter new first name",
+							ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength),
+						v => desiredUser.FirstName = v);
 					break;
-				}
+
 				case "Last Name":
-				{
-					var userNewLastName = ConsoleHelper.GetValidName("\nEnter new last name",
-						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
-
-					if (userNewLastName != null)
-					{
-						desiredUser.LastName = userNewLastName;
-						var result = userManagementService.UpdateUser(desiredUser, session, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
+					PromptAndApply(() => ConsoleHelper.GetValidName("\nEnter new last name",
+							ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength),
+						v => desiredUser.LastName = v);
 					break;
-				}
+
 				case "National Code":
-				{
-					var userNewNationalCode = ConsoleHelper.GetValidNationalCode("\nEnter new national code");
-
-					if (userNewNationalCode != null)
-					{
-						desiredUser.NationalCode = userNewNationalCode;
-						var result = userManagementService.UpdateUser(desiredUser, session, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
+					PromptAndApply(() => ConsoleHelper.GetValidNationalCode("\nEnter new national code"),
+						v => desiredUser.NationalCode = v);
 					break;
-				}
+
 				case "Email":
-				{
-					var userNewEmail = ConsoleHelper.GetValidEmail("\nEnter new email");
-
-					if (userNewEmail != null)
-					{
-						desiredUser.Email = Email.Create(userNewEmail);
-						var result = userManagementService.UpdateUser(desiredUser, session, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
+					PromptAndApply(() => ConsoleHelper.GetValidEmail("\nEnter new email"),
+						v => desiredUser.Email = Email.Create(v));
 					break;
-				}
+
 				case "Phone Number":
-				{
-					var userNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number");
-
-					if (userNewPhoneNumber != null)
-					{
-						desiredUser.PhoneNumber = PhoneNumber.Create(userNewPhoneNumber);
-						var result = userManagementService.UpdateUser(desiredUser, session, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
+					PromptAndApply(() => ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number"),
+						v => desiredUser.PhoneNumber = PhoneNumber.Create(v));
 					break;
-				}
+
 				case "Birth Date":
-				{
-					var userNewBirthDate = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
-
-					if (userNewBirthDate != null)
+					var newBirthDate = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
+					if (newBirthDate is not null)
 					{
-						desiredUser.BirthDate = userNewBirthDate.Value;
+						desiredUser.BirthDate = newBirthDate.Value;
 						var result = userManagementService.UpdateUser(desiredUser, session, session.CurrentUser.Id);
 						ConsoleHelper.ShowResult(result);
 					}
 
 					break;
-				}
-				case "Roles":
-				{
-					if (!authorization.HasPermission(Permission.ChangeUserRoles) &&
-					    !authorization.HasAnyPermission(Permission.AssignLibrarianRole, Permission.AssignAdminRole))
-					{
-						ConsoleHelper.ShowError(Messages.AccessDenied);
-						break;
-					}
 
+				case "Role":
+				{
 					var availableRoles = roleManagementService.GetAllRoles().Select(r => r.ToDto()).ToList();
 					var newRole = ConsoleHelper.ReadRoles("\nSelect role for this user", availableRoles,
 						allowMultiple: false);
@@ -382,17 +364,27 @@ public static class UserMenu
 					ConsoleHelper.ShowResult(result);
 					break;
 				}
+
 				case "Back":
-				{
 					ConsoleHelper.ShowInfo(string.Format(Messages.EditCancelled, "User"));
 					return;
-				}
 			}
 
-			var choice = ConsoleHelper.ReadYesNo(Messages.EditContinuesQuestion);
-			if (choice != true) return;
+			var continueEditing = ConsoleHelper.ReadYesNo(Messages.EditContinuesQuestion);
+			if (continueEditing != true) return;
+
+			void PromptAndApply(Func<string?> readValue, Action<string> apply)
+			{
+				var value = readValue();
+				if (value is null) return;
+
+				apply(value);
+				var result = userManagementService.UpdateUser(desiredUser, session, session.CurrentUser.Id);
+				ConsoleHelper.ShowResult(result);
+			}
 		}
 	}
+
 
 
 	private static void RemoveUser(UserManagementService userManagementService, IAuthorizationService authorization,
@@ -828,7 +820,7 @@ public static class UserMenu
 				isOwn = session.CurrentUser.Id == targetUserId;
 			}
 		}
-		else if (canResetOthers) // admin-only path without own permission (rare)
+		else if (canResetOthers)
 		{
 			var user = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
 				list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)),

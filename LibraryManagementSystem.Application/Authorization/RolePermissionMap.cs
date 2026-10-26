@@ -112,6 +112,7 @@ public static class RolePermissionMap
 
 			Permission.ViewOwnDetails,
 			Permission.ChangeOwnPassword,
+			Permission.EditOwnProfile,
 			Permission.AssignMemberRole
 		]
 	};

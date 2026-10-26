@@ -515,7 +515,8 @@
 			"children": [
 				{
 					"id": "users.register",
-					"label": "Register User"
+					"label": "Register User",
+					"permission": "AddUser"
 				},
 				{
 					"id": "users.edit",
@@ -535,7 +536,8 @@
 						},
 						{
 							"id": "users.edit.email",
-							"label": "Email"
+							"label": "Email",
+							"permission": "EditUser"
 						},
 						{
 							"id": "users.edit.phonenumber",
@@ -547,7 +549,8 @@
 						},
 						{
 							"id": "users.edit.role",
-							"label": "Role"
+							"label": "Role",
+							"permission": "EditUserRole" 
 						},
 						{
 							"id": "users.edit.back",
@@ -557,11 +560,13 @@
 				},
 				{
 					"id": "users.remove",
-					"label": "Remove User"
+					"label": "Remove User",
+					"permission": "RemoveUser"
 				},
 				{
 					"id": "users.search",
 					"label": "Search User",
+					"permission": "SearchUser",
 					"children": [
 						{
 							"id": "users.search.name",
@@ -592,6 +597,7 @@
 				{
 					"id": "users.sort",
 					"label": "Sort Users",
+					"permission": "SortUser",
 					"children": [
 						{
 							"id": "users.sort.firstname",
@@ -645,15 +651,18 @@
 						},
 						{
 							"id": "users.view.userdetails",
-							"label": "View User Details"
+							"label": "View User Details",
+							"permission": "ViewUserDetails"
 						},
 						{
 							"id": "users.view.allusers",
-							"label": "View All Users"
+							"label": "View All Users",
+							"permission": "ViewAllUsers"
 						},
 						{
 							"id": "users.view.removedusers",
-							"label": "View Removed Users"
+							"label": "View Removed Users",
+							"permission": "ViewRemovedUsers"
 						},
 						{
 							"id": "users.view.back",
@@ -663,7 +672,8 @@
 				},
 				{
 					"id": "users.renew",
-					"label": "Renew Membership"
+					"label": "Renew Membership",
+					"permission": [ "RenewLibrarianMembership", "RenewMemberMembership" ]
 				},
 				{
 					"id": "users.changepassword",
@@ -675,7 +685,8 @@
 						},
 						{
 							"id": "users.changepassword.otheruser",
-							"label": "Reset Another User's Password"
+							"label": "Reset Another User's Password",
+							"permission": "ChangePassword"
 						}
 					]
 				},
@@ -704,6 +715,7 @@
 				{
 					"id": "loans.search",
 					"label": "Search Loan",
+					"permission": "SearchLoans",
 					"children": [
 						{
 							"id": "loans.search.title",
@@ -736,80 +748,22 @@
 					"label": "View Loans",
 					"children": [
 						{
-							"id": "loans.view.active",
-							"label": "View Active Loans",
-							"children": [
-								{
-									"id": "loans.view.active.own",
-									"label": "View Own Active Loans"
-								},
-								{
-									"id": "loans.view.active.byuser",
-									"label": "View Active Loans By User",
-									"permission": "ViewActiveLoansByUser"
-								},
-								{
-									"id": "loans.view.active.bybook",
-									"label": "View Active Loans By Book",
-									"permission": "ViewActiveLoansByBook"
-								},
-								{
-									"id": "loans.view.active.back",
-									"label": "Back"
-								}
-							]
+							"id": "loans.view.own",
+							"label": "My Loans"
 						},
 						{
-							"id": "loans.view.overdue",
-							"label": "View Overdue Loans",
-							"children": [
-								{
-									"id": "loans.view.overdue.own",
-									"label": "View Own Overdue Loans"
-								},
-								{
-									"id": "loans.view.overdue.byuser",
-									"label": "View Overdue Loans By User",
-									"permission": "ViewOverdueLoansByUser"
-								},
-								{
-									"id": "loans.view.overdue.bybook",
-									"label": "View Overdue Loans By Book",
-									"permission": "ViewOverdueLoansByBook"
-								},
-								{
-									"id": "loans.view.overdue.back",
-									"label": "Back"
-								}
-							]
+							"id": "loans.view.byuser",
+							"label": "By User",
+							"permission": "ViewLoansByUser"
 						},
 						{
-							"id": "loans.view.inactive",
-							"label": "View Inactive Loans",
-							"children": [
-								{
-									"id": "loans.view.inactive.own",
-									"label": "View Own Inactive Loans"
-								},
-								{
-									"id": "loans.view.inactive.byuser",
-									"label": "View Inactive Loans By User",
-									"permission": "ViewInactiveLoansByUser"
-								},
-								{
-									"id": "loans.view.inactive.bybook",
-									"label": "View Inactive Loans By Book",
-									"permission": "ViewInactiveLoansByBook"
-								},
-								{
-									"id": "loans.view.inactive.back",
-									"label": "Back"
-								}
-							]
+							"id": "loans.view.bybook",
+							"label": "By Book",
+							"permission": "ViewLoansByBook"
 						},
 						{
-							"id": "loans.history",
-							"label": "History",
+							"id": "loans.view.full",
+							"label": "Full History",
 							"permission": "ViewLoanHistory"
 						},
 						{
@@ -817,6 +771,10 @@
 							"label": "Back"
 						}
 					]
+				},
+				{
+					"id": "loans.back",
+					"label": "Back"
 				}
 			]
 		},
