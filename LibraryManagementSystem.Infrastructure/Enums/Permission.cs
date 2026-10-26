@@ -9,20 +9,16 @@ public enum Permission
 	SearchForMember,
 	FullSearchContributor,
 	FullSortContributor,
+	ViewContributorDetails,
+	ViewAllContributors,
+	ViewRemovedContributors,
 
 
-	ViewAuthorDetails,
 	ViewAuthorBooks,
-	ViewAllAuthors,
-	ViewRemovedAuthors,
 	ViewAuthorFullDetails,
-	
 
 	// Translators
-	ViewTranslatorDetails,
 	ViewTranslatorBooks,
-	ViewAllTranslators,
-	ViewRemovedTranslators,
 	ViewTranslatorFullDetails,
 
 	

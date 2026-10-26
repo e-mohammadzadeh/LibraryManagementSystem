@@ -27,8 +27,8 @@ public static class TranslatorMenu
 			    Permission.SearchForMember,
 			    Permission.FullSearchContributor,
 			    Permission.FullSortContributor,
-			    Permission.ViewTranslatorDetails,
-			    Permission.ViewAllTranslators))
+			    Permission.ViewContributorDetails,
+			    Permission.ViewAllContributors))
 		{
 			return;
 		}
@@ -99,8 +99,8 @@ public static class TranslatorMenu
 				case 6:
 				{
 					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-						    Permission.ViewTranslatorDetails, Permission.ViewTranslatorBooks,
-						    Permission.ViewAllTranslators))
+						    Permission.ViewContributorDetails, Permission.ViewTranslatorBooks,
+						    Permission.ViewAllContributors))
 						break;
 					Console.Clear();
 					ViewTranslators(translatorManagementService, authorization, session, statisticsService);
@@ -128,8 +128,8 @@ public static class TranslatorMenu
 				authorization.HasAnyPermission(Permission.SearchForMember, Permission.FullSearchContributor)),
 			(5, "Sort Translators", authorization.HasPermission( Permission.FullSortContributor)),
 			(6, "View Translators",
-				authorization.HasAnyPermission(Permission.ViewTranslatorDetails, Permission.ViewTranslatorBooks,
-					Permission.ViewAllTranslators)),
+				authorization.HasAnyPermission(Permission.ViewContributorDetails, Permission.ViewTranslatorBooks,
+					Permission.ViewAllContributors)),
 			(7, "Back", true)
 		};
 
@@ -348,7 +348,7 @@ public static class TranslatorMenu
 		}
 
 		Action<IReadOnlyList<ContributorDto>> printer =
-			authorization.HasAnyPermission(Permission.ViewTranslatorDetails, Permission.FullSearchContributor)
+			authorization.HasAnyPermission(Permission.ViewContributorDetails, Permission.FullSearchContributor)
 				? translator => TranslatorPrinter.PrintFullTable(translator, "Search Result")
 				: translator => TranslatorPrinter.PrintTable(translator, "Search Result");
 
@@ -511,9 +511,8 @@ public static class TranslatorMenu
 		IAuthorizationService authorization, ICurrentUserSession session, LibraryStatisticsService statisticsService)
 	{
 		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-			    Permission.ViewTranslatorDetails,
-			    Permission.ViewTranslatorBooks,
-			    Permission.ViewAllTranslators))
+			    Permission.ViewContributorDetails,
+			    Permission.ViewTranslatorBooks, Permission.ViewAllContributors))
 		{
 			return;
 		}
@@ -536,7 +535,7 @@ public static class TranslatorMenu
 			{
 				case 1:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewTranslatorDetails,
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewContributorDetails,
 						    Messages.AccessDenied))
 						break;
 					Console.Clear();
@@ -556,7 +555,7 @@ public static class TranslatorMenu
 				}
 				case 3:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllTranslators,
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllContributors,
 						    Messages.AccessDenied))
 						break;
 					Console.Clear();
@@ -572,7 +571,7 @@ public static class TranslatorMenu
 				}
 				case 4:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewRemovedTranslators,
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewRemovedContributors,
 						    Messages.AccessDenied))
 						break;
 					Console.Clear();
@@ -598,10 +597,10 @@ public static class TranslatorMenu
 	{
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
-			(1, "View Translator Details", authorization.HasPermission(Permission.ViewTranslatorDetails)),
+			(1, "View Translator Details", authorization.HasPermission(Permission.ViewContributorDetails)),
 			(2, "View Translator's Books", authorization.HasPermission(Permission.ViewTranslatorBooks)),
-			(3, "View All Translators", authorization.HasPermission(Permission.ViewAllTranslators)),
-			(4, "View Removed Translators", authorization.HasPermission(Permission.ViewRemovedTranslators)),
+			(3, "View All Translators", authorization.HasPermission(Permission.ViewAllContributors)),
+			(4, "View Removed Translators", authorization.HasPermission(Permission.ViewRemovedContributors)),
 			(5, "Back", true)
 		};
 

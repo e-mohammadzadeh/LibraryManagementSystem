@@ -201,7 +201,7 @@ public class TranslatorManagementService
 
 	public IReadOnlyList<ContributorDto> GetRemovedTranslators()
 	{
-		if (!_authorization.HasPermission(Permission.ViewRemovedTranslators)) return [];
+		if (!_authorization.HasPermission(Permission.ViewRemovedContributors)) return [];
 		return [.. _translatorRepository.GetAll(EntityFilter.Removed).Select(a => a.ToDto())];
 	}
 }

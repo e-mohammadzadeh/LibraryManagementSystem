@@ -34,11 +34,9 @@ public class AuthorizationService : IAuthorizationService
 	{
 		if (!_session.IsAuthenticated) return ServiceResult<string>.Fail(Messages.AuthenticationRequired);
 
-		if (!user.IsActive)
-			return ServiceResult<string>.Fail(Messages.InactiveAccount);
+		if (!user.IsActive) return ServiceResult<string>.Fail(Messages.InactiveAccount);
 
-		if (user.ShouldRemove)
-			return ServiceResult<string>.Fail(Messages.UserAutoRemovedSuccessfully);
+		if (user.ShouldRemove) return ServiceResult<string>.Fail(Messages.UserAutoRemovedSuccessfully);
 
 		if (user.MembershipExpiryDate < DateOnly.FromDateTime(DateTime.Today))
 			return ServiceResult<string>.Fail(Messages.MembershipExpired);
@@ -53,14 +51,15 @@ public class AuthorizationService : IAuthorizationService
 	{
 		return HasAnyPermission(Permission.AddContributor, Permission.EditContributor, Permission.SearchForMember,
 			Permission.FullSearchContributor, Permission.FullSortContributor,
-			Permission.ViewAuthorDetails, Permission.ViewAllAuthors);
+			Permission.ViewContributorDetails, Permission.ViewAllContributors);
 	}
 
 
 	public bool CanAccessTranslatorManagement()
 	{
 		return HasAnyPermission(Permission.AddContributor, Permission.EditContributor,
-			Permission.SearchForMember, Permission.FullSearchContributor, Permission.FullSortContributor, Permission.ViewTranslatorDetails, Permission.ViewAllTranslators);
+			Permission.SearchForMember, Permission.FullSearchContributor, Permission.FullSortContributor,
+			Permission.ViewContributorDetails, Permission.ViewAllContributors);
 	}
 
 
@@ -99,10 +98,7 @@ public class AuthorizationService : IAuthorizationService
 	}
 
 
-	public bool CanAccessAuditLogManagement()
-	{
-		return HasAnyPermission(Permission.ViewAuditLog);
-	}
+	public bool CanAccessAuditLogManagement() { return HasAnyPermission(Permission.ViewAuditLog); }
 
 
 	public bool CanAccessStatistics() { return HasAnyPermission(Permission.ViewStatistics); }

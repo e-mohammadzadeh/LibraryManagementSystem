@@ -105,17 +105,17 @@
 						{
 							"id": "authors.sort.nationalcode",
 							"label": "National Code",
-							"permission": "FullSortAuthor"
+							"permission": "FullSortContributor"
 						},
 						{
 							"id": "authors.sort.birthdate",
 							"label": "Birth Date",
-							"permission": "FullSortAuthor"
+							"permission": "FullSortContributor"
 						},
 						{
 							"id": "authors.sort.bookcount",
 							"label": "Book Count",
-							"permission": "FullSortAuthor"
+							"permission": "FullSortContributor"
 						}
 					]
 				},
@@ -126,7 +126,7 @@
 						{
 							"id": "authors.view.authordetails",
 							"label": "View Author Details",
-							"permission": "ViewAuthorDetails"
+							"permission": "ViewContributorDetails"
 						},
 						{
 							"id": "authors.view.authorbooks",
@@ -139,7 +139,7 @@
 						{
 							"id": "authors.view.removedauthors",
 							"label": "View Removed Authors",
-							"permission": "ViewRemovedAuthors"
+							"permission": "ViewRemovedContributors"
 						},
 						{
 							"id": "authors.view.back",
@@ -257,17 +257,17 @@
 						{
 							"id": "translators.sort.nationalcode",
 							"label": "National Code",
-							"permission": "FullSortAuthor"
+							"permission": "FullSortContributor"
 						},
 						{
 							"id": "translators.sort.birthdate",
 							"label": "Birth Date",
-							"permission": "FullSortAuthor"
+							"permission": "FullSortContributor"
 						},
 						{
 							"id": "translators.sort.bookcount",
 							"label": "Book Count",
-							"permission": "FullSortAuthor"
+							"permission": "FullSortContributor"
 						}
 					]
 				},

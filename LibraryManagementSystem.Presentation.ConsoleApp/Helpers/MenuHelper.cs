@@ -82,7 +82,7 @@ public static class MenuHelper
 		}
 
 		Action<IReadOnlyList<ContributorDto>> printer =
-			authorization.HasAnyPermission(Permission.ViewTranslatorDetails, Permission.ViewAllTranslators)
+			authorization.HasAnyPermission(Permission.ViewContributorDetails, Permission.ViewAllContributors)
 				? translator => TranslatorPrinter.PrintFullTable(translator)
 				: translator => TranslatorPrinter.PrintTable(translator);
 

@@ -199,7 +199,7 @@ public class AuthorManagementService
 
 	public IReadOnlyList<ContributorDto> GetRemovedAuthors()
 	{
-		if (!_authorization.HasPermission(Permission.ViewRemovedAuthors)) return [];
+		if (!_authorization.HasPermission(Permission.ViewRemovedContributors)) return [];
 		return [.. _authorRepository.GetAll(EntityFilter.Removed).Select(a => a.ToDto())];
 	}
 }

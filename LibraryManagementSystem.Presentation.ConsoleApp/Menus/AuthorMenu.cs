@@ -25,8 +25,8 @@ public static class AuthorMenu
 			    Permission.SearchForMember,
 			    Permission.FullSearchContributor,
 			    Permission.FullSortContributor,
-			    Permission.ViewAuthorDetails,
-			    Permission.ViewAllAuthors))
+			    Permission.ViewContributorDetails,
+			    Permission.ViewAllContributors))
 		{
 			return;
 		}
@@ -95,8 +95,8 @@ public static class AuthorMenu
 				case 6:
 				{
 					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-						    Permission.ViewAuthorDetails, Permission.ViewAuthorBooks,
-						    Permission.ViewAllAuthors))
+						    Permission.ViewContributorDetails, Permission.ViewAuthorBooks,
+						    Permission.ViewAllContributors))
 						break;
 					Console.Clear();
 					ViewAuthors(authorManagementService, authorization, session, statisticsService);
@@ -124,8 +124,8 @@ public static class AuthorMenu
 				authorization.HasAnyPermission(Permission.SearchForMember, Permission.FullSearchContributor)),
 			(5, "Sort Authors", authorization.HasPermission(Permission.FullSortContributor)),
 			(6, "View Authors",
-				authorization.HasAnyPermission(Permission.ViewAuthorDetails, Permission.ViewAuthorBooks,
-					Permission.ViewAllAuthors)),
+				authorization.HasAnyPermission(Permission.ViewContributorDetails, Permission.ViewAuthorBooks,
+					Permission.ViewAllContributors)),
 			(7, "Back", true)
 		};
 
@@ -501,9 +501,9 @@ public static class AuthorMenu
 		IAuthorizationService authorization, ICurrentUserSession session, LibraryStatisticsService statisticsService)
 	{
 		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-			    Permission.ViewAuthorDetails,
+			    Permission.ViewContributorDetails,
 			    Permission.ViewAuthorBooks,
-			    Permission.ViewAllAuthors))
+			    Permission.ViewAllContributors))
 		{
 			return;
 		}
@@ -525,7 +525,7 @@ public static class AuthorMenu
 			{
 				case 1:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAuthorDetails,
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewContributorDetails,
 						    Messages.AccessDenied))
 						break;
 					Console.Clear();
@@ -544,7 +544,7 @@ public static class AuthorMenu
 				}
 				case 3:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllAuthors,
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllContributors,
 						    Messages.AccessDenied))
 						break;
 
@@ -562,7 +562,7 @@ public static class AuthorMenu
 				}
 				case 4:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewRemovedAuthors,
+					if (!SessionGuard.RequirePermission(authorization, Permission.ViewRemovedContributors,
 						    Messages.AccessDenied))
 						break;
 					Console.Clear();
@@ -588,10 +588,10 @@ public static class AuthorMenu
 	{
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
-			(1, "View Author Details", authorization.HasPermission(Permission.ViewAuthorDetails)),
+			(1, "View Author Details", authorization.HasPermission(Permission.ViewContributorDetails)),
 			(2, "View Author's Books", authorization.HasPermission(Permission.ViewAuthorBooks)),
-			(3, "View All Authors", authorization.HasPermission(Permission.ViewAllAuthors)),
-			(4, "View Removed Authors", authorization.HasPermission(Permission.ViewRemovedAuthors)),
+			(3, "View All Authors", authorization.HasPermission(Permission.ViewAllContributors)),
+			(4, "View Removed Authors", authorization.HasPermission(Permission.ViewRemovedContributors)),
 			(5, "Back", true)
 		};
 

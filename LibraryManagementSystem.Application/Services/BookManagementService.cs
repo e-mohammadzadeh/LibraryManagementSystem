@@ -324,7 +324,7 @@ public class BookManagementService : IBookManagementService
 
 	public IReadOnlyList<BookDto> GetRemovedBooks()
 	{
-		if (!_authorization.HasPermission(Permission.ViewRemovedAuthors)) return [];
+		if (!_authorization.HasPermission(Permission.ViewRemovedContributors)) return [];
 		return [.. _bookRepository.GetAll(EntityFilter.Removed).Select(a => a.ToDto())];
 	}
 
