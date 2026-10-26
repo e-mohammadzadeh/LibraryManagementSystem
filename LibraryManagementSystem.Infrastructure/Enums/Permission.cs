@@ -8,10 +8,9 @@ public enum Permission
 	RemoveContributor,
 	SearchForMember,
 	FullSearchContributor,
+	FullSortContributor,
 
 
-	SortAuthorForMember,
-	FullSortAuthor,
 	ViewAuthorDetails,
 	ViewAuthorBooks,
 	ViewAllAuthors,
@@ -20,8 +19,6 @@ public enum Permission
 	
 
 	// Translators
-	SortTranslatorForMember,
-	FullSortTranslator,
 	ViewTranslatorDetails,
 	ViewTranslatorBooks,
 	ViewAllTranslators,

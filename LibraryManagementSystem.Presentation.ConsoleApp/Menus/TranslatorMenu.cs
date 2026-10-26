@@ -26,8 +26,7 @@ public static class TranslatorMenu
 			    Permission.RemoveContributor,
 			    Permission.SearchForMember,
 			    Permission.FullSearchContributor,
-			    Permission.SortTranslatorForMember,
-			    Permission.FullSortTranslator,
+			    Permission.FullSortContributor,
 			    Permission.ViewTranslatorDetails,
 			    Permission.ViewAllTranslators))
 		{
@@ -52,7 +51,8 @@ public static class TranslatorMenu
 			{
 				case 1:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.AddContributor, Messages.AccessDenied))
+					if (!SessionGuard.RequirePermission(authorization, Permission.AddContributor,
+						    Messages.AccessDenied))
 						break;
 					Console.Clear();
 					AddTranslator(translatorManagementService);
@@ -91,9 +91,6 @@ public static class TranslatorMenu
 				}
 				case 5:
 				{
-					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-						    Permission.SortTranslatorForMember, Permission.FullSortTranslator))
-						break;
 					Console.Clear();
 					SortTranslators(translatorManagementService, authorization);
 					ConsoleHelper.Pause();
@@ -129,8 +126,7 @@ public static class TranslatorMenu
 			(3, "Remove Translator", authorization.HasPermission(Permission.RemoveContributor)),
 			(4, "Search Translator",
 				authorization.HasAnyPermission(Permission.SearchForMember, Permission.FullSearchContributor)),
-			(5, "Sort Translators",
-				authorization.HasAnyPermission(Permission.SortTranslatorForMember, Permission.FullSortTranslator)),
+			(5, "Sort Translators", authorization.HasPermission( Permission.FullSortContributor)),
 			(6, "View Translators",
 				authorization.HasAnyPermission(Permission.ViewTranslatorDetails, Permission.ViewTranslatorBooks,
 					Permission.ViewAllTranslators)),
@@ -416,7 +412,7 @@ public static class TranslatorMenu
 	private static void SortTranslators(TranslatorManagementService translatorManagementService,
 		IAuthorizationService authorization)
 	{
-		if (!authorization.HasAnyPermission(Permission.SortTranslatorForMember, Permission.FullSortTranslator))
+		if (!authorization.HasPermission(Permission.FullSortContributor))
 		{
 			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
@@ -458,7 +454,7 @@ public static class TranslatorMenu
 
 			var sortDescription = $"{selectedField} ({sortDirection})";
 
-			var canViewFullDetails = authorization.HasPermission(Permission.FullSortTranslator);
+			var canViewFullDetails = authorization.HasPermission(Permission.FullSortContributor);
 			if (canViewFullDetails)
 				TranslatorPrinter.PrintFullTable(sortedTranslators, $"Sorted Translators - {sortDescription}");
 			else
@@ -480,7 +476,7 @@ public static class TranslatorMenu
 			(ContributorSortField.Email, "Email")
 		};
 
-		if (!authorization.HasPermission(Permission.FullSortAuthor)) return fields;
+		if (!authorization.HasPermission(Permission.FullSortContributor)) return fields;
 		fields.Insert(3, (ContributorSortField.NationalCode, "National Code"));
 		fields.Add((ContributorSortField.BirthDate, "Birth Date"));
 		fields.Add((ContributorSortField.BookCount, "Book Count"));

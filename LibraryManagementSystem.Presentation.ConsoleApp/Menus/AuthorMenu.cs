@@ -24,8 +24,7 @@ public static class AuthorMenu
 			    Permission.RemoveContributor,
 			    Permission.SearchForMember,
 			    Permission.FullSearchContributor,
-			    Permission.SortAuthorForMember,
-			    Permission.FullSortAuthor,
+			    Permission.FullSortContributor,
 			    Permission.ViewAuthorDetails,
 			    Permission.ViewAllAuthors))
 		{
@@ -49,7 +48,8 @@ public static class AuthorMenu
 			{
 				case 1:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.AddContributor, Messages.AccessDenied))
+					if (!SessionGuard.RequirePermission(authorization, Permission.AddContributor,
+						    Messages.AccessDenied))
 						break;
 					Console.Clear();
 					AddAuthor(authorManagementService);
@@ -58,7 +58,8 @@ public static class AuthorMenu
 				}
 				case 2:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.EditContributor, Messages.AccessDenied))
+					if (!SessionGuard.RequirePermission(authorization, Permission.EditContributor,
+						    Messages.AccessDenied))
 						break;
 					Console.Clear();
 					EditAuthor(authorManagementService, authorization, session);
@@ -67,7 +68,8 @@ public static class AuthorMenu
 				}
 				case 3:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveContributor, Messages.AccessDenied))
+					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveContributor,
+						    Messages.AccessDenied))
 						break;
 					Console.Clear();
 					RemoveAuthor(authorManagementService, authorization);
@@ -85,9 +87,6 @@ public static class AuthorMenu
 				}
 				case 5:
 				{
-					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-						    Permission.SortAuthorForMember, Permission.FullSortAuthor))
-						break;
 					Console.Clear();
 					SortAuthors(authorManagementService, authorization);
 					ConsoleHelper.Pause();
@@ -123,8 +122,7 @@ public static class AuthorMenu
 			(3, "Remove Author", authorization.HasPermission(Permission.RemoveContributor)),
 			(4, "Search Author",
 				authorization.HasAnyPermission(Permission.SearchForMember, Permission.FullSearchContributor)),
-			(5, "Sort Authors",
-				authorization.HasAnyPermission(Permission.SortAuthorForMember, Permission.FullSortAuthor)),
+			(5, "Sort Authors", authorization.HasPermission(Permission.FullSortContributor)),
 			(6, "View Authors",
 				authorization.HasAnyPermission(Permission.ViewAuthorDetails, Permission.ViewAuthorBooks,
 					Permission.ViewAllAuthors)),
@@ -404,7 +402,7 @@ public static class AuthorMenu
 	private static void SortAuthors(AuthorManagementService authorManagementService,
 		IAuthorizationService authorization)
 	{
-		if (!authorization.HasAnyPermission(Permission.SortAuthorForMember, Permission.FullSortAuthor))
+		if (!authorization.HasPermission(Permission.FullSortContributor))
 		{
 			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
@@ -445,7 +443,7 @@ public static class AuthorMenu
 
 			var sortDescription = $"{field} ({sortDirection})";
 
-			var canViewFullDetails = authorization.HasPermission(Permission.FullSortAuthor);
+			var canViewFullDetails = authorization.HasPermission(Permission.FullSortContributor);
 			if (canViewFullDetails)
 				AuthorPrinter.PrintFullTable(sortedAuthors, $"Sorted Authors - {sortDescription}");
 			else
@@ -467,7 +465,7 @@ public static class AuthorMenu
 			(ContributorSortField.Email, "Email")
 		};
 
-		if (!authorization.HasPermission(Permission.FullSortAuthor)) return fields;
+		if (!authorization.HasPermission(Permission.FullSortContributor)) return fields;
 		fields.Insert(3, (ContributorSortField.NationalCode, "National Code"));
 		fields.Add((ContributorSortField.BirthDate, "Birth Date"));
 		fields.Add((ContributorSortField.BookCount, "Book Count"));
