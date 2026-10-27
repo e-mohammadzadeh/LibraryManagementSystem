@@ -53,16 +53,7 @@ public class UserManagementService : IUserManagementService
 		if (_userRepository.Exists(dto.PhoneNumber, u => u.PhoneNumber))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
 
-		if (!(dto.RoleName switch
-		    {
-			    LibraryUserRole.Member => _authorization.HasPermission(Permission.AssignMemberRole),
-			    LibraryUserRole.Librarian => _authorization.HasPermission(Permission.AssignLibrarianRole),
-			    LibraryUserRole.Admin => _authorization.HasPermission(Permission.AssignAdminRole),
-			    _ => false
-		    }))
-		{
-			return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
-		}
+		if (!CanAssignRole(dto.RoleName)) return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
 
 		var role = _roleRepository.GetByName(dto.RoleName);
 
@@ -106,15 +97,8 @@ public class UserManagementService : IUserManagementService
 		if (_userRepository.Exists(dto.PhoneNumber, u => u.PhoneNumber, dto.Id))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
 
-		var allowed = dto.RoleName switch
-		{
-			LibraryUserRole.Member => _authorization.HasPermission(Permission.AssignMemberRole),
-			LibraryUserRole.Librarian => _authorization.HasPermission(Permission.AssignLibrarianRole),
-			LibraryUserRole.Admin => _authorization.HasPermission(Permission.AssignAdminRole),
-			_ => false
-		};
+		if (!CanAssignRole(dto.RoleName)) return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
 
-		if (!allowed) return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
 
 		user.FirstName = dto.FirstName;
 		user.LastName = dto.LastName;
@@ -261,8 +245,6 @@ public class UserManagementService : IUserManagementService
 
 		switch (isOwn)
 		{
-			case true when !_authorization.HasPermission(Permission.ChangeOwnPassword):
-				return ServiceResult<string>.Fail(Messages.AccessDenied);
 			case false when !_authorization.HasPermission(Permission.ChangePassword):
 				return ServiceResult<string>.Fail(Messages.OnlyAdminCanResetPassword);
 		}
@@ -382,5 +364,18 @@ public class UserManagementService : IUserManagementService
 	{
 		var user = _userRepository.GetById(userId, EntityFilter.Active);
 		user?.LastLoginDate = user.PreviousLoginDate;
+	}
+
+
+
+	public bool CanAssignRole(LibraryUserRole role)
+	{
+		return role switch
+		{
+			LibraryUserRole.Member => _authorization.HasPermission(Permission.AssignMemberRole),
+			LibraryUserRole.Librarian => _authorization.HasPermission(Permission.AssignLibrarianRole),
+			LibraryUserRole.Admin => _authorization.HasPermission(Permission.AssignAdminRole),
+			_ => false
+		};
 	}
 }

@@ -29,12 +29,11 @@ public static class RolePermissionMap
 
 			Permission.AddUser,
 			Permission.EditUser,
+			Permission.EditOwnProfile,
 			Permission.SearchUser,
 			Permission.SortUser,
 			Permission.ViewUserDetails,
-			Permission.ViewOwnDetails,
 			Permission.ViewAllUsers,
-			Permission.ChangeOwnPassword,
 			Permission.RenewMemberMembership,
 
 
@@ -91,8 +90,6 @@ public static class RolePermissionMap
 			Permission.ViewFineHistory,
 			Permission.MyFullLoanHistory,
 
-			Permission.ViewOwnDetails,
-			Permission.ChangeOwnPassword,
 			Permission.EditOwnProfile,
 			Permission.AssignMemberRole
 		]

@@ -23,9 +23,8 @@ public static class UserMenu
 	{
 		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied, Permission.AddUser,
 			    Permission.EditUser, Permission.RemoveUser, Permission.SearchUser, Permission.SortUser,
-			    Permission.ViewUserDetails, Permission.ViewOwnDetails, Permission.ViewAllUsers,
-			    Permission.ChangePassword, Permission.ChangeOwnPassword, Permission.RenewLibrarianMembership,
-			    Permission.RenewMemberMembership))
+			    Permission.ViewUserDetails, Permission.ViewAllUsers, Permission.ChangePassword,
+			    Permission.RenewLibrarianMembership, Permission.RenewMemberMembership))
 			return;
 
 		while (true)
@@ -46,8 +45,6 @@ public static class UserMenu
 			{
 				case 1:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.AddUser, Messages.AccessDenied))
-						break;
 					Console.Clear();
 					AddUser(userManagementService, roleManagementService, authorization);
 					ConsoleHelper.Pause();
@@ -55,9 +52,6 @@ public static class UserMenu
 				}
 				case 2:
 				{
-					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied, Permission.EditUser,
-						    Permission.EditOwnProfile))
-						break;
 					Console.Clear();
 					EditUser(userManagementService, roleManagementService, authorization, session);
 					ConsoleHelper.Pause();
@@ -65,8 +59,6 @@ public static class UserMenu
 				}
 				case 3:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveUser, Messages.AccessDenied))
-						break;
 					Console.Clear();
 					RemoveUser(userManagementService, authorization, session);
 					ConsoleHelper.Pause();
@@ -74,8 +66,6 @@ public static class UserMenu
 				}
 				case 4:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.SearchUser, Messages.AccessDenied))
-						break;
 					Console.Clear();
 					SearchUser(userManagementService, roleManagementService, authorization);
 					ConsoleHelper.Pause();
@@ -83,8 +73,6 @@ public static class UserMenu
 				}
 				case 5:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.SortUser, Messages.AccessDenied))
-						break;
 					Console.Clear();
 					SortUsers(userManagementService, authorization);
 					ConsoleHelper.Pause();
@@ -92,10 +80,6 @@ public static class UserMenu
 				}
 				case 6:
 				{
-					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-						    Permission.ViewUserDetails, Permission.ViewOwnDetails, Permission.ViewAllUsers,
-						    Permission.ViewRemovedUsers))
-						break;
 					Console.Clear();
 					ViewUsers(userManagementService, authorization, session, statisticsService);
 					ConsoleHelper.Pause();
@@ -113,9 +97,6 @@ public static class UserMenu
 				}
 				case 8:
 				{
-					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-						    Permission.ChangePassword, Permission.ChangeOwnPassword))
-						break;
 					Console.Clear();
 					ChangePassword(userManagementService, session, authorization);
 					ConsoleHelper.Pause();
@@ -140,13 +121,11 @@ public static class UserMenu
 			(3, "Remove User", authorization.HasPermission(Permission.RemoveUser)),
 			(4, "Search User", authorization.HasPermission(Permission.SearchUser)),
 			(5, "Sort Users", authorization.HasPermission(Permission.SortUser)),
-			(6, "View Users",
-				authorization.HasAnyPermission(Permission.ViewUserDetails, Permission.ViewOwnDetails,
-					Permission.ViewAllUsers, Permission.ViewRemovedUsers)),
+			(6, "View Users", authorization.HasAnyPermission(Permission.ViewUserDetails, Permission.ViewAllUsers,
+				Permission.ViewRemovedUsers)),
 			(7, "Renew Membership",
 				authorization.HasAnyPermission(Permission.RenewMemberMembership, Permission.RenewLibrarianMembership)),
-			(8, "Change Password",
-				authorization.HasAnyPermission(Permission.ChangePassword, Permission.ChangeOwnPassword)),
+			(8, "Change Password", authorization.HasPermission(Permission.ChangePassword)),
 			(9, "Back", true)
 		};
 
@@ -164,7 +143,7 @@ public static class UserMenu
 		}
 
 		Console.WriteLine(new string('=', 36) + " ADDING USER MENU " + new string('=', 36));
-		var userDto = PromptForUserDto(roleManagementService, authorization);
+		var userDto = PromptForUserDto(userManagementService, roleManagementService);
 		if (userDto is null) return;
 
 		var result = userManagementService.AddUser(userDto);
@@ -172,13 +151,13 @@ public static class UserMenu
 	}
 
 
-	private static UserDto? PromptForUserDto(RoleManagementService roleManagementService,
-		IAuthorizationService authorization)
+	private static UserDto? PromptForUserDto(UserManagementService userManagementService,
+		RoleManagementService roleManagementService)
 	{
 		var fields = PersonHelper.PromptForPersonFields("user");
 		if (fields is null) return null;
 
-		var availableRoles = GetAssignableRoles(roleManagementService, authorization);
+		var availableRoles = GetAssignableRoles(userManagementService, roleManagementService);
 		if (availableRoles.Count == 0)
 		{
 			ConsoleHelper.ShowError(Messages.NoRolesToAssign);
@@ -216,22 +195,16 @@ public static class UserMenu
 	}
 
 
-	private static IReadOnlyList<RoleDto> GetAssignableRoles(RoleManagementService roleManagementService,
-		IAuthorizationService authorization)
+	private static IReadOnlyList<RoleDto> GetAssignableRoles(UserManagementService userManagementService
+		, RoleManagementService roleManagementService)
 	{
 		return
 		[
 			.. roleManagementService.GetAllRoles()
-				.Where(role => role.Name switch
-				{
-					LibraryUserRole.Member => authorization.HasPermission(Permission.AssignMemberRole),
-					LibraryUserRole.Librarian => authorization.HasPermission(Permission.AssignLibrarianRole),
-					LibraryUserRole.Admin => authorization.HasPermission(Permission.AssignAdminRole),
-					_ => false
-				}).Select(role => role.ToDto())
+				.Where(role => userManagementService.CanAssignRole(role.Name))
+				.Select(role => role.ToDto())
 		];
 	}
-
 
 
 	private static void EditUser(UserManagementService userManagementService,
@@ -308,33 +281,69 @@ public static class UserMenu
 			switch (fieldName)
 			{
 				case "First Name":
-					PromptAndApply(() => ConsoleHelper.GetValidName("\nEnter new first name",
-							ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength),
-						v => desiredUser.FirstName = v);
-					break;
+				{
+					var userNewFirstName = ConsoleHelper.GetValidName("\nEnter new first name",
+						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
+					if (userNewFirstName != null)
+					{
+						desiredUser.FirstName = userNewFirstName;
+						var result = userManagementService.UpdateUser(desiredUser, session, session.CurrentUser.Id);
+						ConsoleHelper.ShowResult(result);
+					}
 
+					break;
+				}
 				case "Last Name":
-					PromptAndApply(() => ConsoleHelper.GetValidName("\nEnter new last name",
-							ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength),
-						v => desiredUser.LastName = v);
-					break;
+				{
+					var userNewLastName = ConsoleHelper.GetValidName("\nEnter new last name",
+						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
+					if (userNewLastName != null)
+					{
+						desiredUser.LastName = userNewLastName;
+						var result = userManagementService.UpdateUser(desiredUser, session, session.CurrentUser.Id);
+						ConsoleHelper.ShowResult(result);
+					}
 
+					break;
+				}
 				case "National Code":
-					PromptAndApply(() => ConsoleHelper.GetValidNationalCode("\nEnter new national code"),
-						v => desiredUser.NationalCode = v);
-					break;
+				{
+					var userNewNationalCode = ConsoleHelper.GetValidNationalCode("\nEnter new national code");
+					if (userNewNationalCode != null)
+					{
+						desiredUser.NationalCode = userNewNationalCode;
+						var result = userManagementService.UpdateUser(desiredUser, session, session.CurrentUser.Id);
+						ConsoleHelper.ShowResult(result);
+					}
 
+					break;
+				}
 				case "Email":
-					PromptAndApply(() => ConsoleHelper.GetValidEmail("\nEnter new email"),
-						v => desiredUser.Email = Email.Create(v));
-					break;
+				{
+					var userNewEmail = ConsoleHelper.GetValidEmail("\nEnter new email");
+					if (userNewEmail != null)
+					{
+						desiredUser.Email = Email.Create(userNewEmail);
+						var result = userManagementService.UpdateUser(desiredUser, session, session.CurrentUser.Id);
+						ConsoleHelper.ShowResult(result);
+					}
 
+					break;
+				}
 				case "Phone Number":
-					PromptAndApply(() => ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number"),
-						v => desiredUser.PhoneNumber = PhoneNumber.Create(v));
-					break;
+				{
+					var userNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number");
+					if (userNewPhoneNumber != null)
+					{
+						desiredUser.PhoneNumber = PhoneNumber.Create(userNewPhoneNumber);
+						var result = userManagementService.UpdateUser(desiredUser, session, session.CurrentUser.Id);
+						ConsoleHelper.ShowResult(result);
+					}
 
+					break;
+				}
 				case "Birth Date":
+				{
 					var newBirthDate = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
 					if (newBirthDate is not null)
 					{
@@ -344,20 +353,21 @@ public static class UserMenu
 					}
 
 					break;
-
+				}
 				case "Role":
 				{
 					var availableRoles = roleManagementService.GetAllRoles().Select(r => r.ToDto()).ToList();
 					var newRole = ConsoleHelper.ReadRoles("\nSelect role for this user", availableRoles,
 						allowMultiple: false);
-					if (newRole is null) break;
+					if (newRole != null)
+					{
+						desiredUser.RoleName = newRole[0].Name;
+						var result = userManagementService.UpdateUser(desiredUser, session, session.CurrentUser.Id);
+						ConsoleHelper.ShowResult(result);
+					}
 
-					desiredUser.RoleName = newRole[0].Name;
-					var result = userManagementService.UpdateUser(desiredUser, session, session.CurrentUser.Id);
-					ConsoleHelper.ShowResult(result);
 					break;
 				}
-
 				case "Back":
 					ConsoleHelper.ShowInfo(string.Format(Messages.EditCancelled, "User"));
 					return;
@@ -365,16 +375,6 @@ public static class UserMenu
 
 			var continueEditing = ConsoleHelper.ReadYesNo(Messages.EditContinuesQuestion);
 			if (continueEditing != true) return;
-
-			void PromptAndApply(Func<string?> readValue, Action<string> apply)
-			{
-				var value = readValue();
-				if (value is null) return;
-
-				apply(value);
-				var result = userManagementService.UpdateUser(desiredUser, session, session.CurrentUser.Id);
-				ConsoleHelper.ShowResult(result);
-			}
 		}
 	}
 
@@ -608,13 +608,8 @@ public static class UserMenu
 		ICurrentUserSession session, LibraryStatisticsService statisticsService)
 	{
 		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-			    Permission.ViewUserDetails,
-			    Permission.ViewOwnDetails,
-			    Permission.ViewAllUsers,
-			    Permission.ViewRemovedUsers))
-		{
+			    Permission.ViewUserDetails, Permission.ViewAllUsers, Permission.ViewRemovedUsers))
 			return;
-		}
 
 		while (true)
 		{
@@ -634,9 +629,6 @@ public static class UserMenu
 			{
 				case 1:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewOwnDetails,
-						    Messages.AccessDenied))
-						break;
 					Console.Clear();
 					var userDto = userManagementService.GetUserById(session.CurrentUser.Id);
 					if (userDto is null)
@@ -646,9 +638,7 @@ public static class UserMenu
 					}
 
 					UserPrinter.PrintDetails(userDto, "My Details");
-
 					if (userDto.ShouldRemove) ConsoleHelper.ShowError(Messages.AccountScheduledForRemoval);
-
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -708,7 +698,7 @@ public static class UserMenu
 	{
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
-			(1, "View Own Details", authorization.HasPermission(Permission.ViewOwnDetails)),
+			(1, "View Own Details", true),
 			(2, "View User Details", authorization.HasPermission(Permission.ViewUserDetails)),
 			(3, "View All Users", authorization.HasPermission(Permission.ViewAllUsers)),
 			(4, "View Removed Users", authorization.HasPermission(Permission.ViewRemovedUsers)),
@@ -763,10 +753,9 @@ public static class UserMenu
 	private static void ChangePassword(UserManagementService userManagementService, ICurrentUserSession session,
 		IAuthorizationService authorization)
 	{
-		var canOwn = authorization.HasPermission(Permission.ChangeOwnPassword);
 		var canResetOthers = authorization.HasPermission(Permission.ChangePassword);
 
-		if (!canOwn && !canResetOthers)
+		if (!canResetOthers)
 		{
 			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
@@ -777,32 +766,37 @@ public static class UserMenu
 		Guid targetUserId;
 		var isOwn = true;
 
-		if (canResetOthers && canOwn)
+		if (canResetOthers)
 		{
 			Console.WriteLine("1. Change my password");
 			Console.WriteLine("2. Reset another user's password");
 			var choice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 2);
-			if (choice is null) return;
-
-			if (choice == 1)
+			switch (choice)
 			{
-				targetUserId = session.CurrentUser.Id;
-			}
-			else
-			{
-				var user = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
-					list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)),
-					Messages.NotAvailableUser);
-				if (user is null) return;
-
-				if (user.ShouldRemove)
-				{
-					ConsoleHelper.ShowError(Messages.UserFlaggedForRemoval);
+				case null:
 					return;
+				case 1:
+				{
+					targetUserId = session.CurrentUser.Id;
+					break;
 				}
+				default:
+				{
+					var user = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
+						list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)),
+						Messages.NotAvailableUser);
+					if (user is null) return;
 
-				targetUserId = user.Id;
-				isOwn = session.CurrentUser.Id == targetUserId;
+					if (user.ShouldRemove)
+					{
+						ConsoleHelper.ShowError(Messages.UserFlaggedForRemoval);
+						return;
+					}
+
+					targetUserId = user.Id;
+					isOwn = session.CurrentUser.Id == targetUserId;
+					break;
+				}
 			}
 		}
 		else if (canResetOthers)
