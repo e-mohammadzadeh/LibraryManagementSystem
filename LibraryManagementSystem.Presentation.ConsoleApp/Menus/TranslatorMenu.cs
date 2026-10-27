@@ -126,14 +126,7 @@ public static class TranslatorMenu
 			(7, "Back", true)
 		};
 
-		var availableItems = items.Where(i => i.IsAvailable).ToList();
-		Console.WriteLine(new string('=', 33) + " TRANSLATOR MENU " + new string('=', 33));
-		var displayNumber = 1;
-		foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
-
-		Console.WriteLine(new string('=', 82));
-		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
-		return availableItems[choice!.Value - 1].ActionId;
+		return MenuHelper.DisplayMenu("TRANSLATOR MENU", items);
 	}
 
 
@@ -594,14 +587,7 @@ public static class TranslatorMenu
 			(5, "Back", true)
 		};
 
-		var availableItems = items.Where(i => i.IsAvailable).ToList();
-		Console.WriteLine(new string('=', 33) + " VIEW TRANSLATOR MENU " + new string('=', 33));
-		var displayNumber = 1;
-		foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
-
-		Console.WriteLine(new string('=', 82));
-		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
-		return availableItems[choice!.Value - 1].ActionId;
+		return MenuHelper.DisplayMenu("VIEW TRANSLATOR MENU", items);
 	}
 
 

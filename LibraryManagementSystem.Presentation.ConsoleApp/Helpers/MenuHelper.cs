@@ -141,4 +141,23 @@ public static class MenuHelper
 		ConsoleHelper.ShowWarning(emptyMessage);
 		return null;
 	}
+
+
+	public static T? DisplayMenu<T>(string title, List<(T Action, string DisplayText, bool IsAvailable)> items)
+	{
+		var availableItems = items.Where(item => item.IsAvailable).ToList();
+
+		if (availableItems.Count == 0) return default;
+
+		Console.Clear();
+		Console.WriteLine(new string('=', 37) + $" {title} " + new string('=', 37));
+
+		for (var i = 0; i < availableItems.Count; i++) Console.WriteLine($"{i + 1}. {availableItems[i].DisplayText}");
+
+		Console.WriteLine(new string('=', 82));
+
+		var choice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, availableItems.Count);
+
+		return choice is null ? default : availableItems[choice.Value - 1].Action;
+	}
 }

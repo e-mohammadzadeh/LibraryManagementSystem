@@ -122,16 +122,7 @@ public static class AuthorMenu
 			(7, "Back", true)
 		};
 
-
-		var availableItems = items.Where(i => i.IsAvailable).ToList();
-		Console.WriteLine(new string('=', 35) + " AUTHOR MENU " + new string('=', 35));
-
-		var displayNumber = 1;
-		foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
-
-		Console.WriteLine(new string('=', 82));
-		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
-		return availableItems[choice!.Value - 1].ActionId;
+		return MenuHelper.DisplayMenu("AUTHOR MENU", items);
 	}
 
 
@@ -583,15 +574,7 @@ public static class AuthorMenu
 			(5, "Back", true)
 		};
 
-		var availableItems = items.Where(i => i.IsAvailable).ToList();
-		Console.WriteLine(new string('=', 35) + " VIEW AUTHOR MENU " + new string('=', 35));
-
-		var displayNumber = 1;
-		foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
-
-		Console.WriteLine(new string('=', 82));
-		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
-		return availableItems[choice!.Value - 1].ActionId;
+		return MenuHelper.DisplayMenu("VIEW AUTHOR MENU", items);
 	}
 
 

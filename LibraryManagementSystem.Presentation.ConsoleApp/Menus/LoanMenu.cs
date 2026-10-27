@@ -133,22 +133,10 @@ public static class LoanMenu
 			(5, "View Loans",
 				authorization.HasAnyPermission(Permission.MyActiveLoans, Permission.ViewActiveLoans,
 					Permission.MyOverdueLoans, Permission.ViewOverdueLoans)),
-			(7, "Back", true)
+			(6, "Back", true)
 		};
 
-		var availableItems = items.Where(i => i.IsAvailable).ToList();
-
-		while (true)
-		{
-			Console.WriteLine(new string('=', 36) + " LOAN MENU " + new string('=', 36));
-
-			var displayNumber = 1;
-			foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
-
-			Console.WriteLine(new string('=', 83));
-			var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
-			return availableItems[choice!.Value - 1].ActionId;
-		}
+		return MenuHelper.DisplayMenu("LOAN MENU", items);
 	}
 
 
@@ -468,13 +456,7 @@ public static class LoanMenu
 			(5, "Back", true)
 		};
 
-		var available = items.Where(i => i.Available).ToList();
-		Console.WriteLine(new string('=', 35) + " VIEW LOAN MENU " + new string('=', 35));
-		for (var i = 0; i < available.Count; i++) Console.WriteLine($"{i + 1}. {available[i].Text}");
-		Console.WriteLine(new string('=', 82));
-
-		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, available.Count, allowCancel: false);
-		return available[choice!.Value - 1].ActionId;
+		return MenuHelper.DisplayMenu("VIEW LOAN MENU", items);
 	}
 
 
@@ -487,18 +469,10 @@ public static class LoanMenu
 			(LoanFilter.Overdue, "Overdue", authorization.HasPermission(overduePermission)),
 			(LoanFilter.Inactive, "Inactive", authorization.HasPermission(inactivePermission)),
 			(LoanFilter.All, "All", allowAll && authorization.HasPermission(Permission.ViewAllLoans)),
-			(LoanFilter.All, "Back", true) // sentinel; handled by index
+			(LoanFilter.All, "Back", true)
 		};
 
-		var available = items.Where(i => i.Available).ToList();
-		Console.Clear();
-		Console.WriteLine(new string('=', 37) + " LOAN FILTER " + new string('=', 37));
-		for (var i = 0; i < available.Count; i++) Console.WriteLine($"{i + 1}. {available[i].Text}");
-		Console.WriteLine(new string('=', 82));
-
-		var choice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, available.Count);
-		if (choice is null || available[choice.Value - 1].Text == "Back") return null;
-		return available[choice.Value - 1].Filter;
+		return MenuHelper.DisplayMenu("LOAN FILTER", items);
 	}
 
 

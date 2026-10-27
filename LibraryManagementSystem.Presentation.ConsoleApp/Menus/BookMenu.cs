@@ -132,14 +132,7 @@ public static class BookMenu
 			(7, "Back", true)
 		};
 
-		var availableItems = items.Where(i => i.IsAvailable).ToList();
-		Console.WriteLine(new string('=', 36) + " BOOK MENU " + new string('=', 36));
-		var displayNumber = 1;
-		foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
-
-		Console.WriteLine(new string('=', 82));
-		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
-		return availableItems[choice!.Value - 1].ActionId;
+		return MenuHelper.DisplayMenu("BOOK MENU", items);
 	}
 
 
@@ -1064,15 +1057,7 @@ public static class BookMenu
 			(5, "Back", true)
 		};
 
-		var availableItems = items.Where(i => i.IsAvailable).ToList();
-		Console.WriteLine(new string('=', 35) + " VIEW BOOK MENU " + new string('=', 35));
-
-		var displayNumber = 1;
-		foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
-
-		Console.WriteLine(new string('=', 82));
-		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
-		return availableItems[choice!.Value - 1].ActionId;
+		return MenuHelper.DisplayMenu("VIEW BOOK MENU", items);
 	}
 
 
