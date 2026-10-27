@@ -458,12 +458,4 @@ public class BookManagementService : IBookManagementService
 		book.BookTranslators.Add(bt);
 		translator.BookTranslators.Add(bt);
 	}
-
-
-	public IReadOnlyList<ContributorDto> GetAuthorsByBooks(Guid bookId)
-	{
-		var book = _bookRepository.GetById(bookId, EntityFilter.Active);
-		if (book is null) return [];
-		return [.. book.BookAuthors.Select(ba => ba.Author.ToDto())];
-	}
 }

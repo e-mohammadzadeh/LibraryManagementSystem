@@ -29,7 +29,6 @@ public static class BookMenu
 			    Permission.EditBook,
 			    Permission.RemoveBook,
 			    Permission.SearchBook,
-			    Permission.SortBookForMember,
 			    Permission.FullSortBook,
 			    Permission.ViewBookDetails,
 			    Permission.ViewAllBooks))
@@ -91,19 +90,13 @@ public static class BookMenu
 				}
 				case 5:
 				{
-					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-						    Permission.SortBookForMember, Permission.FullSortBook))
-						break;
 					Console.Clear();
-					SortTranslator(bookManagementService, authorization);
+					SortBook(bookManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case 6:
 				{
-					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-						    Permission.ViewBookDetails, Permission.ViewAllBooks))
-						break;
 					Console.Clear();
 					ViewBooks(bookManagementService, loanManagementService, authorization, session, statisticsService);
 					ConsoleHelper.Pause();
@@ -127,7 +120,7 @@ public static class BookMenu
 			(2, "Edit Book", authorization.HasPermission(Permission.EditBook)),
 			(3, "Remove Book", authorization.HasPermission(Permission.RemoveBook)),
 			(4, "Search Book", authorization.HasPermission(Permission.SearchBook)),
-			(5, "Sort Book", authorization.HasAnyPermission(Permission.SortBookForMember, Permission.FullSortBook)),
+			(5, "Sort Book", authorization.HasPermission( Permission.FullSortBook)),
 			(6, "View Book", authorization.HasAnyPermission(Permission.ViewBookDetails, Permission.ViewAllBooks)),
 			(7, "Back", true)
 		};
@@ -871,9 +864,9 @@ public static class BookMenu
 
 
 
-	private static void SortTranslator(BookManagementService bookManagementService, IAuthorizationService authorization)
+	private static void SortBook(BookManagementService bookManagementService, IAuthorizationService authorization)
 	{
-		if (!authorization.HasAnyPermission(Permission.SortBookForMember, Permission.FullSortBook))
+		if (!authorization.HasAnyPermission(Permission.FullSortBook))
 		{
 			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
@@ -1001,16 +994,6 @@ public static class BookMenu
 				}
 				case 2:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewBookAuthors,
-						    Messages.AccessDenied))
-						break;
-					Console.Clear();
-					ViewAuthorsByBooks(bookManagementService);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case 3:
-				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllBooks, Messages.AccessDenied))
 						break;
 					Console.Clear();
@@ -1022,7 +1005,7 @@ public static class BookMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 4:
+				case 3:
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewRemovedBooks,
 						    Messages.AccessDenied))
@@ -1036,7 +1019,7 @@ public static class BookMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 5:
+				case 4:
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToBookMenu);
 					return;
@@ -1051,10 +1034,9 @@ public static class BookMenu
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
 			(1, "View Book Details", authorization.HasPermission(Permission.ViewBookDetails)),
-			(2, "View Book's Authors", authorization.HasPermission(Permission.ViewBookAuthors)),
-			(3, "View All Books", authorization.HasPermission(Permission.ViewAllBooks)),
-			(4, "View Removed Books", authorization.HasPermission(Permission.ViewRemovedBooks)),
-			(5, "Back", true)
+			(2, "View All Books", authorization.HasPermission(Permission.ViewAllBooks)),
+			(3, "View Removed Books", authorization.HasPermission(Permission.ViewRemovedBooks)),
+			(4, "Back", true)
 		};
 
 		return MenuHelper.DisplayMenu("VIEW BOOK MENU", items);
@@ -1078,15 +1060,4 @@ public static class BookMenu
 		var loans = loanManagementService.GetLoanByBook(desiredBook.Id, session, LoanFilter.Active);
 		BookPrinter.PrintLoanHistory(loans);
 	}
-
-
-	private static void ViewAuthorsByBooks(BookManagementService bookManagementService)
-	{
-		var desiredBook = SelectExistingBook(bookManagementService, "Book's Authors");
-		if (desiredBook is null) return;
-
-		var authors = bookManagementService.GetAuthorsByBooks(desiredBook.Id);
-		AuthorPrinter.PrintTable(authors);
-	}
-
 }

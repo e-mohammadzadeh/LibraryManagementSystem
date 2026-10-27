@@ -515,10 +515,6 @@
 							"permission": "ViewBookDetails"
 						},
 						{
-							"id": "books.view.bookauthors",  // it's better to remove it
-							"label": "View Book's Authors"
-						},
-						{
 							"id": "books.view.allbooks",
 							"label": "View All Books"
 						},

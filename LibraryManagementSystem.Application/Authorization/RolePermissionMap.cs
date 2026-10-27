@@ -24,7 +24,6 @@ public static class RolePermissionMap
 			Permission.SearchBook,
 			Permission.FullSortBook,
 			Permission.ViewBookDetails,
-			Permission.ViewBookAuthors,
 			Permission.ViewAllBooks,
 
 
@@ -77,7 +76,6 @@ public static class RolePermissionMap
 			Permission.ViewAllContributors,
 
 			Permission.SearchBook,
-			Permission.SortBookForMember,
 			Permission.ViewAllBooks,
 
 			Permission.PayFine,

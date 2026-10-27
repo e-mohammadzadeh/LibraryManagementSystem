@@ -47,17 +47,9 @@ public class AuthorizationService : IAuthorizationService
 	}
 
 
-	public bool CanAccessAuthorManagement()
+	public bool CanAccessContributorManagement()
 	{
-		return HasAnyPermission(Permission.AddContributor, Permission.EditContributor, Permission.SearchForMember,
-			Permission.FullSearchContributor, Permission.FullSortContributor,
-			Permission.ViewContributorDetails, Permission.ViewAllContributors);
-	}
-
-
-	public bool CanAccessTranslatorManagement()
-	{
-		return HasAnyPermission(Permission.AddContributor, Permission.EditContributor,
+		return HasAnyPermission(Permission.AddContributor, Permission.EditContributor, Permission.RemoveContributor,
 			Permission.SearchForMember, Permission.FullSearchContributor, Permission.FullSortContributor,
 			Permission.ViewContributorDetails, Permission.ViewAllContributors);
 	}
@@ -66,7 +58,7 @@ public class AuthorizationService : IAuthorizationService
 	public bool CanAccessBookManagement()
 	{
 		return HasAnyPermission(Permission.AddBook, Permission.EditBook, Permission.RemoveBook, Permission.SearchBook,
-			Permission.ViewBookDetails, Permission.ViewAllBooks);
+			Permission.FullSortBook, Permission.ViewBookDetails, Permission.ViewAllBooks);
 	}
 
 

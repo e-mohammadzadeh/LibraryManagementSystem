@@ -104,8 +104,8 @@ public static class MainMenu
 	{
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
-			(1, "Authors", authorization.CanAccessAuthorManagement()),
-			(2, "Translators", authorization.CanAccessTranslatorManagement()),
+			(1, "Authors", authorization.CanAccessContributorManagement()),
+			(2, "Translators", authorization.CanAccessContributorManagement()),
 			(3, "Books", authorization.CanAccessBookManagement()),
 			(4, "Members", authorization.CanAccessUserManagement()),
 			(5, "Loans", authorization.CanAccessLoanManagement()),
