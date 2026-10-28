@@ -64,9 +64,7 @@ public class AuthorizationService : IAuthorizationService
 
 	public bool CanAccessFineManagement()
 	{
-		return HasAnyPermission(Permission.WaiveFine, Permission.ViewFines,
-			Permission.ViewFinesByUser, Permission.ViewUnpaidFines, Permission.ViewUnpaidFinesByUser,
-			Permission.ViewFineHistory, Permission.FineHistoryByUser);
+		return HasAnyPermission(Permission.WaiveFine, Permission.ViewFinesByUser, Permission.ViewAllFines);
 	}
 
 

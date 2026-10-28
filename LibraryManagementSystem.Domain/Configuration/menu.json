@@ -833,7 +833,7 @@
 						{
 							"id": "fines.view.full",
 							"label": "Full History",
-							"permission": "ViewFineHistory"
+							"permission": "ViewAllFines"
 						}
 					]
 				},

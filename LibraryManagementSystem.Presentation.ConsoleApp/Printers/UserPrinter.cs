@@ -1,4 +1,4 @@
-﻿using LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Users;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 

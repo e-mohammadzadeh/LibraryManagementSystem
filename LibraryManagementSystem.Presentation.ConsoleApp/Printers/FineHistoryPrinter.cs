@@ -1,6 +1,6 @@
-﻿using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
+﻿using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using System.Text;
+using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Fine;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;

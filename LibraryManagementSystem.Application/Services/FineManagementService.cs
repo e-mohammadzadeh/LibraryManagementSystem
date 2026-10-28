@@ -154,7 +154,7 @@ public class FineManagementService : IFineManagementService
 
 	public IReadOnlyList<FineDto> GetFineHistory()
 	{
-		if (!_authorization.HasPermission(Permission.ViewFineHistory)) return [];
+		if (!_authorization.HasPermission(Permission.ViewAllFines)) return [];
 
 		return [.. _fineRepository.GetAll(FineFilter.All).Select(fine => fine.ToDto())];
 	}
@@ -163,7 +163,7 @@ public class FineManagementService : IFineManagementService
 	public IReadOnlyList<FineDto> GetFineHistoryByUser(Guid userId, ICurrentUserSession session)
 	{
 		if ((session.IsSelfServiceMember && session.CurrentUser.Id != userId) ||
-		    !_authorization.HasAnyPermission(Permission.FineHistoryByUser, Permission.ViewFineHistory))
+		    !_authorization.HasAnyPermission(Permission.ViewAllFines))
 			return [];
 
 		return [.. _fineRepository.GetByUserId(userId, FineFilter.All).Select(fine => fine.ToDto())];

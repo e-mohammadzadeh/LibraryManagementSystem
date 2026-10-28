@@ -49,16 +49,6 @@ public enum Permission
 
 
 
-	// Fines
-	WaiveFine,
-	ViewFines,
-	ViewFinesByUser,
-	ViewUnpaidFines,
-	ViewUnpaidFinesByUser,
-	ViewFineHistory,
-	FineHistoryByUser,
-
-
 	// Loans
 	ViewAllLoans,
 	ViewLoansByUser,
@@ -66,6 +56,14 @@ public enum Permission
 	SearchLoans,
 
 
+
+	// Fines
+	WaiveFine,
+	ViewFinesByUser,
+	ViewAllFines,
+
+
+	
 	// System
 	ViewStatistics,
 	ViewAuditLog
