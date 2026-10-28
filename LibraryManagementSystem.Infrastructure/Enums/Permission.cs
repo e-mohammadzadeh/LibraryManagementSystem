@@ -61,9 +61,6 @@ public enum Permission
 
 
 	// Loans
-	BorrowBook,
-	ReturnBook,
-	RenewLoan,
 	ViewAllLoans,
 	ViewActiveLoans,
 	ViewInactiveLoans,

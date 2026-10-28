@@ -1,11 +1,15 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Books;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.DTOs.Library;
+using LibraryManagementSystem.Infrastructure.DTOs.Loans;
 using LibraryManagementSystem.Infrastructure.DTOs.Users;
 using LibraryManagementSystem.Infrastructure.Enums;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
+using LibraryManagementSystem.Infrastructure.Interfaces;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
@@ -159,5 +163,38 @@ public static class MenuHelper
 		var choice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, availableItems.Count);
 
 		return choice is null ? default : availableItems[choice.Value - 1].Action;
+	}
+
+
+	public static LoanDto? SelectActiveLoan(LoanManagementService loanManagementService,
+		UserManagementService userManagementService, ICurrentUserSession session, string purpose)
+	{
+		Guid userId;
+		if (session.IsSelfServiceMember)
+			userId = session.CurrentUser.Id;
+		else
+		{
+			var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(),
+				users => UserPrinter.PrintTable(users));
+			if (user is null)
+			{
+				ConsoleHelper.ShowWarning(Messages.UserNotFound);
+				return null;
+			}
+
+			userId = user.Id;
+		}
+
+		var loans = loanManagementService.GetLoansByUser(userId, session, LoanFilter.Active);
+		if (loans.Count == 0)
+		{
+			ConsoleHelper.ShowWarning(Messages.UserHasNoBorrowedBooks);
+			return null;
+		}
+
+		Console.Clear();
+		LoanPrinter.PrintTable(loans);
+		var selection = ConsoleHelper.ReadInt($"Enter loan id to {purpose}", 1, loans.Count);
+		return selection is null ? null : loans[selection.Value - 1];
 	}
 }

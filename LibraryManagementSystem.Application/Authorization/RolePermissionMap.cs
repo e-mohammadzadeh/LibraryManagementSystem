@@ -45,9 +45,7 @@ public static class RolePermissionMap
 			Permission.ViewFineHistory,
 			Permission.FineHistoryByUser,
 
-			Permission.BorrowBook,
-			Permission.ReturnBook,
-			Permission.RenewLoan,
+
 			Permission.ViewActiveLoans,
 			Permission.ViewInactiveLoans,
 			Permission.ViewOverdueLoans,
@@ -81,9 +79,7 @@ public static class RolePermissionMap
 			Permission.ViewFines,
 			Permission.ViewUnpaidFines,
 
-			Permission.BorrowBook,
-			Permission.ReturnBook,
-			Permission.RenewLoan,
+
 			Permission.MyActiveLoans,
 			Permission.MyInactiveLoans,
 			Permission.MyOverdueLoans,

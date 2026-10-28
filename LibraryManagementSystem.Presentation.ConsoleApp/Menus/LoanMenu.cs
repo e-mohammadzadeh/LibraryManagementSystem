@@ -23,9 +23,6 @@ public static class LoanMenu
 		if (!SessionGuard.RequireAnyPermission(
 			    authorization,
 			    Messages.AccessDenied,
-			    Permission.BorrowBook,
-			    Permission.ReturnBook,
-			    Permission.RenewLoan,
 			    Permission.ViewActiveLoans,
 			    Permission.ViewOverdueLoans,
 			    Permission.ViewLoanHistory,
@@ -63,8 +60,6 @@ public static class LoanMenu
 			{
 				case 1:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.BorrowBook, Messages.AccessDenied))
-						break;
 					Console.Clear();
 					BorrowBook(loanManagementService, bookManagementService, userManagementService, session,
 						authorization);
@@ -73,8 +68,6 @@ public static class LoanMenu
 				}
 				case 2:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ReturnBook, Messages.AccessDenied))
-						break;
 					Console.Clear();
 					ReturnBook(loanManagementService, userManagementService, session);
 					ConsoleHelper.Pause();
@@ -82,8 +75,6 @@ public static class LoanMenu
 				}
 				case 3:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.RenewLoan, Messages.AccessDenied))
-						break;
 					Console.Clear();
 					RenewLoan(loanManagementService, userManagementService, session);
 					ConsoleHelper.Pause();
@@ -126,9 +117,9 @@ public static class LoanMenu
 	{
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
-			(1, "Borrow Book", authorization.HasPermission(Permission.BorrowBook)),
-			(2, "Return Book", authorization.HasPermission(Permission.ReturnBook)),
-			(3, "Renew Loan", authorization.HasPermission(Permission.RenewLoan)),
+			(1, "Borrow Book", true),
+			(2, "Return Book", true),
+			(3, "Renew Loan", true),
 			(4, "Search Loans", authorization.HasPermission(Permission.SearchLoans)),
 			(5, "View Loans",
 				authorization.HasAnyPermission(Permission.MyActiveLoans, Permission.ViewActiveLoans,
@@ -193,43 +184,10 @@ public static class LoanMenu
 	}
 
 
-	private static LoanDto? SelectActiveLoan(LoanManagementService loanManagementService,
-		UserManagementService userManagementService, ICurrentUserSession session, string purpose)
-	{
-		Guid userId;
-		if (session.IsSelfServiceMember)
-			userId = session.CurrentUser.Id;
-		else
-		{
-			var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(),
-				users => UserPrinter.PrintTable(users));
-			if (user is null)
-			{
-				ConsoleHelper.ShowWarning(Messages.UserNotFound);
-				return null;
-			}
-
-			userId = user.Id;
-		}
-
-		var loans = loanManagementService.GetLoansByUser(userId, session, LoanFilter.Active);
-		if (loans.Count == 0)
-		{
-			ConsoleHelper.ShowWarning(Messages.UserHasNoBorrowedBooks);
-			return null;
-		}
-
-		Console.Clear();
-		LoanPrinter.PrintTable(loans);
-		var selection = ConsoleHelper.ReadInt($"Enter loan id to {purpose}", 1, loans.Count);
-		return selection is null ? null : loans[selection.Value - 1];
-	}
-
-
 	private static void ReturnBook(LoanManagementService loanManagementService,
 		UserManagementService userManagementService, ICurrentUserSession session)
 	{
-		var loan = SelectActiveLoan(loanManagementService, userManagementService, session, "return");
+		var loan = MenuHelper.SelectActiveLoan(loanManagementService, userManagementService, session, "return");
 		if (loan is null) return;
 
 		var result = loanManagementService.ReturnBook(loan.Id, session);
@@ -240,7 +198,7 @@ public static class LoanMenu
 	private static void RenewLoan(LoanManagementService loanManagementService,
 		UserManagementService userManagementService, ICurrentUserSession session)
 	{
-		var loan = SelectActiveLoan(loanManagementService, userManagementService, session, "renew");
+		var loan = MenuHelper.SelectActiveLoan(loanManagementService, userManagementService, session, "renew");
 		if (loan is null) return;
 
 		var result = loanManagementService.RenewLoan(loan.Id, session);
