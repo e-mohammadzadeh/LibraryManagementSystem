@@ -20,17 +20,15 @@ public static class Program
 	{
 		Console.OutputEncoding = Encoding.UTF8;
 
-		var menuDefinition = MenuLoader.Load();
-		var menuService = new MenuService(menuDefinition);
-		var loanOptions = menuService.GetChildren("loans.view.inactive");
+		//var menuDefinition = MenuLoader.Load();
+		//var menuService = new MenuService(menuDefinition);
+		//var loanOptions = menuService.GetChildren("loans.view.inactive");
 
-		foreach (var option in loanOptions)
-		{
-			Console.WriteLine($"{option.Id} - {option.Label}");
-		}
-
-
-		ConsoleHelper.Pause();
+		//foreach (var option in loanOptions)
+		//{
+		//	Console.WriteLine($"{option.Id} - {option.Label}");
+		//}
+		//ConsoleHelper.Pause();
 
 		try
 		{

@@ -45,22 +45,9 @@ public static class RolePermissionMap
 			Permission.ViewFineHistory,
 			Permission.FineHistoryByUser,
 
-
-			Permission.ViewActiveLoans,
-			Permission.ViewInactiveLoans,
-			Permission.ViewOverdueLoans,
-			Permission.ViewLoanHistory,
-			Permission.MyActiveLoans,
-			Permission.MyInactiveLoans,
-			Permission.ViewActiveLoansByUser,
-			Permission.ViewInactiveLoansByUser,
-			Permission.ViewActiveLoansByBook,
-			Permission.ViewInactiveLoansByBook,
-			Permission.ViewOverdueLoansByUser,
-			Permission.ViewOverdueLoansByBook,
-			Permission.LoanHistoryByUser,
-			Permission.LoanHistoryByBook,
-			Permission.FullLibraryHistory,
+			Permission.MyLoans,
+			Permission.ViewLoansByUser,
+			Permission.ViewLoansByBook,
 			Permission.SearchLoans,
 
 			Permission.ViewStatistics
@@ -80,11 +67,8 @@ public static class RolePermissionMap
 			Permission.ViewUnpaidFines,
 
 
-			Permission.MyActiveLoans,
-			Permission.MyInactiveLoans,
-			Permission.MyOverdueLoans,
+			Permission.MyLoans,
 			Permission.ViewFineHistory,
-			Permission.MyFullLoanHistory,
 
 			Permission.EditOwnProfile,
 			Permission.AssignMemberRole

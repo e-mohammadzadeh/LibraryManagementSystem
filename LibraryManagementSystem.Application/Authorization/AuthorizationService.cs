@@ -72,18 +72,17 @@ public class AuthorizationService : IAuthorizationService
 
 	public bool CanAccessLoanManagement()
 	{
-		return HasAnyPermission(Permission.ViewActiveLoans, Permission.ViewOverdueLoans, Permission.ViewLoanHistory,
-			Permission.MyActiveLoans, Permission.ViewActiveLoansByUser, Permission.ViewActiveLoansByBook,
-			Permission.MyOverdueLoans, Permission.ViewOverdueLoansByUser, Permission.ViewOverdueLoansByBook,
-			Permission.LoanHistoryByUser, Permission.LoanHistoryByBook, Permission.FullLibraryHistory,
-			Permission.MyFullLoanHistory, Permission.SearchLoans);
+		return HasAnyPermission(Permission.MyLoans, Permission.ViewLoansByUser, Permission.ViewLoansByBook,
+			Permission.SearchLoans);
 	}
 
 
 	public bool CanAccessUserManagement()
 	{
-		return HasAnyPermission(Permission.AddUser, Permission.EditUser, Permission.RemoveUser, Permission.SearchUser, Permission.SortUser,
-			Permission.ViewUserDetails, Permission.ViewAllUsers, Permission.ChangePassword,Permission.RenewLibrarianMembership, Permission.RenewMemberMembership);
+		return HasAnyPermission(Permission.AddUser, Permission.EditUser, Permission.RemoveUser, Permission.SearchUser,
+			Permission.SortUser,
+			Permission.ViewUserDetails, Permission.ViewAllUsers, Permission.ChangePassword,
+			Permission.RenewLibrarianMembership, Permission.RenewMemberMembership);
 	}
 
 

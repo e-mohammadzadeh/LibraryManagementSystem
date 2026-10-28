@@ -116,9 +116,9 @@ public class LoanManagementService
 	}
 
 
-	public ServiceResult<LoanDto> RenewLoan(Guid loanId, ICurrentUserSession session)
+	public ServiceResult<LoanDto> RenewLoan(LoanDto dto, ICurrentUserSession session)
 	{
-		var loan = _loanRepository.GetById(loanId, LoanFilter.Active);
+		var loan = _loanRepository.GetById(dto.Id, LoanFilter.Active);
 		if (loan is null) return ServiceResult<LoanDto>.Fail(Messages.ActiveLoanNotFound);
 
 		if (session.IsSelfServiceMember && session.CurrentUser.Id != loan.UserId)
@@ -133,10 +133,10 @@ public class LoanManagementService
 		if (_fineRepository.HasFines(loan.UserId, FineFilter.Unpaid))
 			return ServiceResult<LoanDto>.Fail(Messages.UserHasUnpaidFines);
 
-		Renew(loan);
+		ReturnBook(loan.Id, session);
 		_loanRepository.Update(loan);
-
-		_auditLog.Record(AuditAction.LoanRenewed, "Loan", loanId, "Loan renewed.");
+		BorrowBook(dto, session);
+		_loanRepository.Update(loan);
 
 		return ServiceResult<LoanDto>.Ok(loan.ToDto(), Messages.RenewedSuccessfully);
 	}
@@ -144,7 +144,7 @@ public class LoanManagementService
 
 	public IReadOnlyList<LoanDto> GetAllLoans(ICurrentUserSession session, LoanFilter filter)
 	{
-		if (_authorization.HasPermission(Permission.MyActiveLoans) || session.IsSelfServiceMember)
+		if (_authorization.HasPermission(Permission.MyLoans) || session.IsSelfServiceMember)
 			return [.. _loanRepository.GetByUserId(session.CurrentUser.Id, filter).Select(loan => loan.ToDto())];
 
 		return [.. _loanRepository.GetAll(filter).Select(loan => loan.ToDto())];
@@ -237,13 +237,6 @@ public class LoanManagementService
 
 		loan.ReturnDate = returnDate ?? DateOnly.FromDateTime(DateTime.Today);
 		loan.Status = LoanStatus.Returned;
-	}
-
-
-	private static void Renew(Loan loan)
-	{
-		loan.DueDate = loan.DueDate.AddDays(ValidationConstants.LoanPeriodDays);
-		loan.RenewalCount++;
 	}
 
 

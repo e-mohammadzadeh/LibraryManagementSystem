@@ -61,24 +61,10 @@ public enum Permission
 
 
 	// Loans
+	MyLoans,
 	ViewAllLoans,
-	ViewActiveLoans,
-	ViewInactiveLoans,
-	ViewOverdueLoans,
-	MyActiveLoans,
-	MyInactiveLoans,
-	ViewActiveLoansByUser,
-	ViewInactiveLoansByUser,
-	ViewActiveLoansByBook,
-	ViewInactiveLoansByBook,
-	MyOverdueLoans,
-	ViewOverdueLoansByUser,
-	ViewOverdueLoansByBook,
-	ViewLoanHistory,
-	LoanHistoryByUser,
-	LoanHistoryByBook,
-	FullLibraryHistory,
-	MyFullLoanHistory,
+	ViewLoansByUser,
+	ViewLoansByBook,
 	SearchLoans,
 
 
