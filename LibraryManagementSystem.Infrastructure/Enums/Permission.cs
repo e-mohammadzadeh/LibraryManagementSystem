@@ -50,7 +50,6 @@ public enum Permission
 
 
 	// Fines
-	PayFine,
 	WaiveFine,
 	ViewFines,
 	ViewFinesByUser,

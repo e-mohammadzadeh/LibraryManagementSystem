@@ -37,7 +37,11 @@ public static class RolePermissionMap
 			Permission.RenewMemberMembership,
 
 
-			Permission.PayFine,
+			Permission.ViewLoansByUser,
+			Permission.ViewLoansByBook,
+			Permission.SearchLoans,
+
+
 			Permission.ViewFines,
 			Permission.ViewFinesByUser,
 			Permission.ViewUnpaidFines,
@@ -45,9 +49,6 @@ public static class RolePermissionMap
 			Permission.ViewFineHistory,
 			Permission.FineHistoryByUser,
 
-			Permission.ViewLoansByUser,
-			Permission.ViewLoansByBook,
-			Permission.SearchLoans,
 
 			Permission.ViewStatistics
 		],
@@ -61,7 +62,6 @@ public static class RolePermissionMap
 			Permission.SearchBook,
 			Permission.ViewAllBooks,
 
-			Permission.PayFine,
 			Permission.ViewFines,
 			Permission.ViewUnpaidFines,
 

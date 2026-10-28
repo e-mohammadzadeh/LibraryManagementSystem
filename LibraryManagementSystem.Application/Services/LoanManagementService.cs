@@ -1,5 +1,4 @@
-﻿using LibraryManagementSystem.Application.Authorization;
-using LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
@@ -21,15 +20,13 @@ public class LoanManagementService
 	private readonly IFineRepository _fineRepository;
 	private readonly IFineManagementService _fineManagementService;
 	private readonly IUserAutoRemovalService _userAutoRemovalService;
-	private readonly IAuthorizationService _authorization;
 	private readonly IAuditLogManagementService _auditLog;
 
 
 	public LoanManagementService(ILoanRepository loanRepository, IUserRepository userRepository,
 		IBookRepository bookRepository, IBookManagementService bookService,
 		IFineRepository fineRepository, IFineManagementService fineManagementService,
-		IUserAutoRemovalService userAutoRemovalService, IAuthorizationService authorization,
-		IAuditLogManagementService auditLog)
+		IUserAutoRemovalService userAutoRemovalService, IAuditLogManagementService auditLog)
 	{
 		_loanRepository = loanRepository;
 		_userRepository = userRepository;
@@ -38,7 +35,6 @@ public class LoanManagementService
 		_fineRepository = fineRepository;
 		_fineManagementService = fineManagementService;
 		_userAutoRemovalService = userAutoRemovalService;
-		_authorization = authorization;
 		_auditLog = auditLog;
 	}
 

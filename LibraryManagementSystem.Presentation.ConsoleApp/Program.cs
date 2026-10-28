@@ -5,7 +5,6 @@ using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 using System.Text;
-using LibraryManagementSystem.Application.Menu;
 using LibraryManagementSystem.Application.Repositories.InMemory;
 using LibraryManagementSystem.Application.Security;
 using LibraryManagementSystem.Application.Seeders;
@@ -64,7 +63,7 @@ public static class Program
 			var authorService = new AuthorManagementService(authorRepo, authorization, auditLogService);
 			var translatorService = new TranslatorManagementService(translatorRepo, authorization, auditLogService);
 			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, iBookService, fineRepo,
-				fineService, userAutoRemovalService, authorization, auditLogService);
+				fineService, userAutoRemovalService, auditLogService);
 			var userService = new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher,
 				authorization, auditLogService);
 			var bookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo, auditLogService,

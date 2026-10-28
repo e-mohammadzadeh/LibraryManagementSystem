@@ -19,7 +19,6 @@ public static class FineMenu
 		if (!SessionGuard.RequireAnyPermission(
 			    authorization,
 			    Messages.AccessDenied,
-			    Permission.PayFine,
 			    Permission.WaiveFine,
 			    Permission.ViewFines,
 			    Permission.ViewFinesByUser,
@@ -48,8 +47,6 @@ public static class FineMenu
 			{
 				case 1:
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.PayFine, Messages.AccessDenied))
-						break;
 					Console.Clear();
 					PayFine(fineManagementService, session);
 					ConsoleHelper.Pause();
@@ -85,7 +82,7 @@ public static class FineMenu
 	{
 		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
 		{
-			(1, "Pay Fine", authorization.HasPermission(Permission.PayFine)),
+			(1, "Pay Fine", true),
 			(2, "Waive Fine", authorization.HasPermission(Permission.WaiveFine)),
 			(3, "View Fines", authorization.HasPermission(Permission.ViewFines)),
 			(4, "Back", true)
