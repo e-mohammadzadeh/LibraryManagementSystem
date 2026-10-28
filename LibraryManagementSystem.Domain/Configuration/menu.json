@@ -281,7 +281,7 @@
 							"permission": "ViewContributorDetails"
 						},
 						{
-							"id": "translators.view.translatorbooks", // it's better to remove it
+							"id": "translators.view.translatorbooks",
 							"label": "View Translator's Books"
 						},
 						{
