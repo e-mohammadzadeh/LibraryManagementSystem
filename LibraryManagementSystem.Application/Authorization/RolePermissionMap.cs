@@ -45,7 +45,6 @@ public static class RolePermissionMap
 			Permission.ViewFineHistory,
 			Permission.FineHistoryByUser,
 
-			Permission.MyLoans,
 			Permission.ViewLoansByUser,
 			Permission.ViewLoansByBook,
 			Permission.SearchLoans,
@@ -66,8 +65,6 @@ public static class RolePermissionMap
 			Permission.ViewFines,
 			Permission.ViewUnpaidFines,
 
-
-			Permission.MyLoans,
 			Permission.ViewFineHistory,
 
 			Permission.EditOwnProfile,

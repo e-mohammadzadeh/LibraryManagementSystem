@@ -61,7 +61,6 @@ public enum Permission
 
 
 	// Loans
-	MyLoans,
 	ViewAllLoans,
 	ViewLoansByUser,
 	ViewLoansByBook,

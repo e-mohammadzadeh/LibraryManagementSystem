@@ -790,7 +790,7 @@
 						{
 							"id": "loans.view.full",
 							"label": "Full History",
-							"permission": "ViewLoanHistory"
+							"permission": "ViewAllLoans"
 						},
 						{
 							"id": "loans.view.back",

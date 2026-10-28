@@ -72,8 +72,7 @@ public class AuthorizationService : IAuthorizationService
 
 	public bool CanAccessLoanManagement()
 	{
-		return HasAnyPermission(Permission.MyLoans, Permission.ViewLoansByUser, Permission.ViewLoansByBook,
-			Permission.SearchLoans);
+		return HasAnyPermission(Permission.ViewLoansByUser, Permission.ViewLoansByBook, Permission.SearchLoans);
 	}
 
 
