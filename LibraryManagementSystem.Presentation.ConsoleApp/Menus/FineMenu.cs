@@ -1,12 +1,10 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
-using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.Interfaces;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
-using System.Diagnostics;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Fine;
 
@@ -146,7 +144,7 @@ public static class FineMenu
 					BrowseMyFines(fineManagementService, session, authorization);
 					break;
 				case 2:
-					BrowseFinesByUser(fineManagementService, userManagementService, session, authorization);
+					BrowseFinesByUser(fineManagementService, userManagementService, authorization);
 					break;
 				case 3:
 					BrowseFinesFullLibrary(fineManagementService, session, authorization);
@@ -161,69 +159,57 @@ public static class FineMenu
 	}
 
 
-	// ---------- Scope menu (axis 1) ----------
-
-	private static int ShowViewFineMenu(IAuthorizationService authorization) {
-		var items = new List<(int ActionId, string Text, bool Available)>
+	private static int ShowViewFineMenu(IAuthorizationService authorization)
 	{
-		(1, "My fines", true),   // everyone
-		(2, "By user", authorization.HasPermission(Permission.ViewFinesByUser)),
-		(3, "Full library", authorization.HasPermission(Permission.ViewAllFines)),
-		(4, "Back", true)
-	};
+		var items = new List<(int ActionId, string Text, bool Available)>
+		{
+			(1, "My fines", true),
+			(2, "By user", authorization.HasPermission(Permission.ViewFinesByUser)),
+			(3, "Full library", authorization.HasPermission(Permission.ViewAllFines)),
+			(4, "Back", true)
+		};
 
 		return MenuHelper.DisplayMenu("VIEW FINES", items);
 	}
 
 
-	// ---------- Status filter (axis 2) — shared by all scopes ----------
-
-	/// <summary>
-	/// Asks Paid/Unpaid(/All). Returns null on Back or cancel.
-	/// filterPermission=null means universally allowed (own fines).
-	/// </summary>
-	private static FineFilter? PickFineFilter(IAuthorizationService authorization,
-		Permission? filterPermission, bool allowAll) {
-		var canView = filterPermission is null || authorization.HasPermission(filterPermission.Value);
-
-		var items = new List<(FineFilter? Filter, string Text, bool Available)>
+	private static FineFilter? PickFineFilter(IAuthorizationService authorization, Permission? filterPermission,
+		bool allowAll)
 	{
-		(FineFilter.Unpaid, "Unpaid", canView),
-		(FineFilter.Paid,   "Paid",   canView),
-		(FineFilter.All,    "All (history)",
-			allowAll && authorization.HasPermission(Permission.ViewAllFines)),
-		(null, "Back", true)
-	};
+		var canView = filterPermission is null || authorization.HasPermission(filterPermission.Value);
+		var items = new List<(FineFilter? Filter, string Text, bool Available)>
+		{
+			(FineFilter.Unpaid, "Unpaid", canView),
+			(FineFilter.Paid, "Paid", canView),
+			(FineFilter.All, "All (history)", allowAll && authorization.HasPermission(Permission.ViewAllFines)),
+			(null, "Back", true)
+		};
 
 		return MenuHelper.DisplayMenu("FINE STATUS", items);
 	}
 
 
-	// ---------- Scope implementations ----------
-
 	private static void BrowseMyFines(IFineManagementService fineManagementService,
-		ICurrentUserSession session, IAuthorizationService authorization) {
+		ICurrentUserSession session, IAuthorizationService authorization)
+	{
 		var filter = PickFineFilter(authorization, filterPermission: null, allowAll: false);
-		if (filter is null)
-			return;
+		if (filter is null) return;
 
 		Console.Clear();
-		DisplayFines(fineManagementService.GetFinesByUser(session.CurrentUser!.Id, filter.Value),
+		DisplayFines(fineManagementService.GetFinesByUser(session.CurrentUser.Id, filter.Value),
 			filter.Value == FineFilter.Unpaid ? Messages.UnpaidFineNotFound : Messages.FineNotFound);
 	}
 
 
 	private static void BrowseFinesByUser(IFineManagementService fineManagementService,
-		UserManagementService userManagementService, ICurrentUserSession session,
-		IAuthorizationService authorization) {
+		UserManagementService userManagementService, IAuthorizationService authorization)
+	{
 		var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(),
 			users => UserPrinter.PrintTable(users));
-		if (user is null)
-			return;
+		if (user is null) return;
 
 		var filter = PickFineFilter(authorization, Permission.ViewFinesByUser, allowAll: true);
-		if (filter is null)
-			return;
+		if (filter is null) return;
 
 		Console.Clear();
 		DisplayFines(fineManagementService.GetFinesByUser(user.Id, filter.Value), Messages.FineNotFound);
@@ -231,17 +217,18 @@ public static class FineMenu
 
 
 	private static void BrowseFinesFullLibrary(IFineManagementService fineManagementService,
-		ICurrentUserSession session, IAuthorizationService authorization) {
+		ICurrentUserSession session, IAuthorizationService authorization)
+	{
 		var filter = PickFineFilter(authorization, Permission.ViewAllFines, allowAll: true);
-		if (filter is null)
-			return;
+		if (filter is null) return;
 
 		Console.Clear();
 		DisplayFines(fineManagementService.GetAll(session, filter.Value), Messages.FineNotFound);
 	}
 
 
-	private static void DisplayFines(IReadOnlyList<FineDto> fines, string emptyMessage) {
+	private static void DisplayFines(IReadOnlyList<FineDto> fines, string emptyMessage)
+	{
 		if (fines.Count == 0)
 		{
 			ConsoleHelper.ShowWarning(emptyMessage);

@@ -331,6 +331,7 @@ public static class Messages
 	public const string BackToBookMenu = "\nBacking to Book Menu...";
 	public const string BackToUserMenu = "\nBacking to User Menu...";
 	public const string BackToLoanMenu = "\nBacking to Loan Menu...";
+	public const string BackToFineMenu = "\nBacking to Fine Menu...";
 
 	// Exit
 	public const string ExitingProgram = "\nExiting Program...";

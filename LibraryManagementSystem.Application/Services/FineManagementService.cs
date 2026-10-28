@@ -1,5 +1,4 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
-using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
@@ -150,24 +149,6 @@ public class FineManagementService : IFineManagementService
 
 
 	public decimal GetTotalUnpaidAmount(Guid userId) => _fineRepository.GetAmount(userId, FineFilter.Unpaid);
-
-
-	public IReadOnlyList<FineDto> GetFineHistory()
-	{
-		if (!_authorization.HasPermission(Permission.ViewAllFines)) return [];
-
-		return [.. _fineRepository.GetAll(FineFilter.All).Select(fine => fine.ToDto())];
-	}
-
-
-	public IReadOnlyList<FineDto> GetFineHistoryByUser(Guid userId, ICurrentUserSession session)
-	{
-		if ((session.IsSelfServiceMember && session.CurrentUser.Id != userId) ||
-		    !_authorization.HasAnyPermission(Permission.ViewAllFines))
-			return [];
-
-		return [.. _fineRepository.GetByUserId(userId, FineFilter.All).Select(fine => fine.ToDto())];
-	}
 
 
 	private static void Pay(Fine fine)

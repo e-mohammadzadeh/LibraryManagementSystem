@@ -11,6 +11,4 @@ public interface IFineManagementService
 	ServiceResult<FineDto> WaiveFine(Guid fineId);
 	IReadOnlyList<FineDto> GetAll(ICurrentUserSession session, FineFilter filter);
 	IReadOnlyList<FineDto> GetFinesByUser(Guid userId, FineFilter filter);
-	IReadOnlyList<FineDto> GetFineHistory();
-	IReadOnlyList<FineDto> GetFineHistoryByUser(Guid userId, ICurrentUserSession session);
 }
