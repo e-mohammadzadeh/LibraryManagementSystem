@@ -36,7 +36,7 @@ public static class RolePermissionMap
 			Permission.ViewAllUsers,
 			Permission.RenewMemberMembership,
 
-
+			Permission.ViewLoan,
 			Permission.ViewLoansByUser,
 			Permission.ViewLoansByBook,
 			Permission.SearchLoans,
@@ -58,7 +58,9 @@ public static class RolePermissionMap
 			Permission.SearchBook,
 			Permission.ViewAllBooks,
 
-			Permission.ViewAllFines,
+			Permission.ViewLoan,
+
+			Permission.ViewFine,
 
 			Permission.EditOwnProfile,
 			Permission.AssignMemberRole

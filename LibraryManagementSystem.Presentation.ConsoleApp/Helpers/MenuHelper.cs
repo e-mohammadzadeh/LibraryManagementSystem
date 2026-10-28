@@ -1,5 +1,4 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
-using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Books;
@@ -153,7 +152,6 @@ public static class MenuHelper
 
 		if (availableItems.Count == 0) return default;
 
-		Console.Clear();
 		Console.WriteLine(new string('=', 37) + $" {title} " + new string('=', 37));
 
 		for (var i = 0; i < availableItems.Count; i++) Console.WriteLine($"{i + 1}. {availableItems[i].DisplayText}");

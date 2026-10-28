@@ -50,6 +50,7 @@ public enum Permission
 
 
 	// Loans
+	ViewLoan,
 	ViewAllLoans,
 	ViewLoansByUser,
 	ViewLoansByBook,
@@ -58,6 +59,7 @@ public enum Permission
 
 
 	// Fines
+	ViewFine,
 	WaiveFine,
 	ViewFinesByUser,
 	ViewAllFines,

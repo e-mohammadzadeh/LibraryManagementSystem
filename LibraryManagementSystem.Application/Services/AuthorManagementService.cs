@@ -174,8 +174,6 @@ public class AuthorManagementService
 	public IReadOnlyList<ContributorDto> GetAllAuthors(ContributorSortField sortField = ContributorSortField.FullName,
 		SortDirection sortDirection = SortDirection.Ascending)
 	{
-		if (!_authorization.HasPermission(Permission.ViewAllUsers)) return [];
-
 		var authors = _authorRepository.GetAll(EntityFilter.Active).Select(a => a.ToDto());
 		Func<ContributorDto, object> keySelector = sortField switch
 		{

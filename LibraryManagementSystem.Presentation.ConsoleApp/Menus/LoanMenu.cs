@@ -22,6 +22,7 @@ public static class LoanMenu
 		if (!SessionGuard.RequireAnyPermission(
 			    authorization,
 			    Messages.AccessDenied,
+				Permission.ViewLoan,
 			    Permission.ViewLoansByUser,
 			    Permission.ViewLoansByBook,
 			    Permission.SearchLoans))

@@ -6,7 +6,7 @@ namespace LibraryManagementSystem.Application.Authentication;
 
 public class CurrentUserSession : ICurrentUserSession
 {
-	public AuthUserDto CurrentUser { get; set; } = null!;
+	public AuthUserDto CurrentUser { get; private set; } = null!;
 	public bool IsAuthenticated { get; private set; }
 	public IReadOnlySet<Permission> Permissions => CurrentUser.Permissions;
 
@@ -40,5 +40,5 @@ public class CurrentUserSession : ICurrentUserSession
 	public bool IsMember => HasRole(LibraryUserRole.Member);
 
 
-	public bool IsSelfServiceMember => IsMember && !IsAdmin && !IsLibrarian;
+	public bool IsSelfServiceMember => IsMember;
 }

@@ -63,21 +63,22 @@ public class AuthorizationService : IAuthorizationService
 
 	public bool CanAccessFineManagement()
 	{
-		return HasAnyPermission(Permission.WaiveFine, Permission.ViewFinesByUser, Permission.ViewAllFines);
+		return HasAnyPermission(Permission.ViewFine, Permission.WaiveFine, Permission.ViewFinesByUser,
+			Permission.ViewAllFines);
 	}
 
 
 	public bool CanAccessLoanManagement()
 	{
-		return HasAnyPermission(Permission.ViewLoansByUser, Permission.ViewLoansByBook, Permission.SearchLoans);
+		return HasAnyPermission(Permission.ViewLoan, Permission.ViewLoansByUser, Permission.ViewLoansByBook,
+			Permission.SearchLoans);
 	}
 
 
 	public bool CanAccessUserManagement()
 	{
 		return HasAnyPermission(Permission.AddUser, Permission.EditUser, Permission.RemoveUser, Permission.SearchUser,
-			Permission.SortUser,
-			Permission.ViewUserDetails, Permission.ViewAllUsers, Permission.ChangePassword,
+			Permission.SortUser, Permission.ViewUserDetails, Permission.ViewAllUsers, Permission.ChangePassword,
 			Permission.RenewLibrarianMembership, Permission.RenewMemberMembership);
 	}
 
@@ -85,5 +86,5 @@ public class AuthorizationService : IAuthorizationService
 	public bool CanAccessAuditLogManagement() { return HasAnyPermission(Permission.ViewAuditLog); }
 
 
-	public bool CanAccessStatistics() { return HasAnyPermission(Permission.ViewStatistics); }
+	public bool CanAccessStatistics() { return HasPermission(Permission.ViewStatistics); }
 }

@@ -1,12 +1,12 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.DTOs.Fine;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.Interfaces;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
-using LibraryManagementSystem.Infrastructure.Common;
-using LibraryManagementSystem.Infrastructure.DTOs.Fine;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
@@ -19,6 +19,7 @@ public static class FineMenu
 		if (!SessionGuard.RequireAnyPermission(
 			    authorization,
 			    Messages.AccessDenied,
+				Permission.ViewFine,
 			    Permission.WaiveFine,
 			    Permission.ViewFinesByUser,
 			    Permission.ViewAllFines))
@@ -92,7 +93,14 @@ public static class FineMenu
 			? fineManagementService.GetFinesByUser(session.CurrentUser.Id, FineFilter.Unpaid)
 			: fineManagementService.GetAll(session, FineFilter.Unpaid);
 
-		DisplayFines(unpaidFines, Messages.UnpaidFineNotFound);
+		if (unpaidFines.Count == 0)
+		{
+			ConsoleHelper.ShowWarning(Messages.UnpaidFineNotFound);
+			return;
+		}
+
+		Console.Clear();
+		FinePrinter.PrintTable(unpaidFines);
 
 		var selection = ConsoleHelper.ReadInt(Messages.FineIdForPay, 1, unpaidFines.Count);
 		if (selection is null) return;
@@ -110,7 +118,15 @@ public static class FineMenu
 	private static void WaiveFine(IFineManagementService fineManagementService, ICurrentUserSession session)
 	{
 		var unpaidFines = fineManagementService.GetAll(session, FineFilter.Unpaid);
-		DisplayFines(unpaidFines, Messages.UnpaidFineNotFound);
+
+		if (unpaidFines.Count == 0)
+		{
+			ConsoleHelper.ShowWarning(Messages.UnpaidFineNotFound);
+			return;
+		}
+
+		Console.Clear();
+		FinePrinter.PrintTable(unpaidFines);
 
 		var selection = ConsoleHelper.ReadInt(Messages.FineIdForWaive, 1, unpaidFines.Count);
 		if (selection is null) return;
@@ -137,21 +153,32 @@ public static class FineMenu
 
 		while (true)
 		{
-			var actionId = ShowViewFineMenu(authorization);
-			switch (actionId)
+			Console.Clear();
+			switch (ShowViewFineMenu(authorization))
 			{
 				case 1:
+				{
+					Console.Clear();
 					BrowseMyFines(fineManagementService, session, authorization);
 					break;
+				}
 				case 2:
+				{
+					Console.Clear();
 					BrowseFinesByUser(fineManagementService, userManagementService, authorization);
 					break;
+				}
 				case 3:
+				{
+					Console.Clear();
 					BrowseFinesFullLibrary(fineManagementService, session, authorization);
 					break;
+				}
 				case 4:
+				{
 					ConsoleHelper.ShowInfo(Messages.BackToFineMenu);
 					return;
+				}
 			}
 
 			ConsoleHelper.Pause();
