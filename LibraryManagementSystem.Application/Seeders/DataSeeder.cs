@@ -607,15 +607,21 @@ public static class DataSeeder
 		var users = userRepository.GetAll(EntityFilter.Active);
 		var books = bookRepository.GetAll(EntityFilter.Active);
 		var today = DateOnly.FromDateTime(DateTime.Today);
+		Console.WriteLine(GetBook(6).Title);
+		Console.WriteLine(GetBook(1).Title);
+		Console.WriteLine(GetBook(9).Title);
+		Console.WriteLine(GetBook(10).Title);
+		Console.WriteLine("w8");
+		Console.ReadKey(true);
 
 		CreateActiveLoan(GetUser(4), GetBook(0), loanRepository, bookService);
 		CreateActiveLoan(GetUser(4), GetBook(1), loanRepository, bookService);
 		CreateActiveLoan(GetUser(5), GetBook(5), loanRepository, bookService);
 		CreateActiveLoan(GetUser(6), GetBook(2), loanRepository, bookService);
-		CreateActiveLoan(GetUser(6), GetBook(8), loanRepository, bookService);
+		CreateActiveLoan(GetUser(6), GetBook(8), loanRepository, bookService);//
 		CreateActiveLoan(GetUser(6), GetBook(10), loanRepository, bookService);
-		CreateActiveLoan(GetUser(8), GetBook(3), loanRepository, bookService);
-		CreateActiveLoan(GetUser(7), GetBook(4), loanRepository, bookService);
+		CreateActiveLoan(GetUser(8), GetBook(3), loanRepository, bookService);//
+		CreateActiveLoan(GetUser(7), GetBook(4), loanRepository, bookService);//
 		CreateActiveLoan(GetUser(4), GetBook(10), loanRepository, bookService);
 
 
@@ -624,7 +630,7 @@ public static class DataSeeder
 		CreateReturnedLoan(GetUser(7), GetBook(9), loanRepository, bookService, fineRepository, today.AddDays(-15),
 			today.AddDays(-2));
 		CreateReturnedLoan(GetUser(9), GetBook(7), loanRepository, bookService, fineRepository, today.AddDays(-35),
-			today.AddDays(-10));
+			today.AddDays(-10));//
 		CreateReturnedLoan(GetUser(9), GetBook(11), loanRepository, bookService, fineRepository, today.AddDays(-22),
 			today);
 		CreateReturnedLoan(GetUser(4), GetBook(12), loanRepository, bookService, fineRepository, today.AddDays(-63),
@@ -668,8 +674,8 @@ public static class DataSeeder
 		};
 		bookService.BorrowCopy(book.Id);
 		bookService.ReturnCopy(book.Id);
-		loan.ReturnDate = returnDate;
 		loanRepository.Add(loan);
+		loan.ReturnDate = returnDate;
 		if (!(loan.ReturnDate > loan.DueDate)) return;
 		var fine = new Fine
 		{

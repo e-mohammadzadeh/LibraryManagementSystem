@@ -2,12 +2,62 @@
 using LibraryManagementSystem.Domain.Exceptions;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
+using LibraryManagementSystem.Infrastructure.ValueObjects;
 
 namespace LibraryManagementSystem.Application.Repositories.InMemory;
 
 public class InMemoryAuthorRepository : IAuthorRepository
 {
-	private readonly List<Author> _authors = [];
+	private readonly List<Author> _authors;
+	public InMemoryAuthorRepository() { _authors = CreateSeedData(); }
+
+
+	private static List<Author> CreateSeedData()
+	{
+		return
+		[
+			new Author
+			{
+				FirstName = "George",
+				LastName = "Orwell",
+				NationalCode = "1234567890",
+				Email = Email.Create("orwell@example.com"),
+				PhoneNumber = PhoneNumber.Create("09120000001"),
+				BirthDate = new DateOnly(1903, 6, 25),
+				Biography = "English novelist and essayist."
+			},
+			new Author
+			{
+				FirstName = "Aldous",
+				LastName = "Huxley",
+				NationalCode = "0987654321",
+				Email = Email.Create("huxley@example.com"),
+				PhoneNumber = PhoneNumber.Create("09120000002"),
+				BirthDate = new DateOnly(1894, 11, 26),
+				Biography = "English writer and social critic."
+			},
+			new Author
+			{
+				FirstName = "Ray",
+				LastName = "Bradbury",
+				NationalCode = "1122334455",
+				Email = Email.Create("bradbury@example.com"),
+				PhoneNumber = PhoneNumber.Create("09120000003"),
+				BirthDate = new DateOnly(1920, 8, 22),
+				Biography = "American science fiction and fantasy writer."
+			},
+			new Author
+			{
+				FirstName = "J.K.",
+				LastName = "Rowling",
+				NationalCode = "0087654321",
+				Email = Email.Create("rowling@example.com"),
+				PhoneNumber = PhoneNumber.Create("09120000004"),
+				BirthDate = new DateOnly(1965, 7, 31),
+				Biography = "British author of the Harry Potter series."
+			}
+		];
+	}
 
 
 	public void Add(Author author)

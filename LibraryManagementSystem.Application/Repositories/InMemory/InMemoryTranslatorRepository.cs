@@ -2,12 +2,62 @@
 using LibraryManagementSystem.Domain.Exceptions;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
+using LibraryManagementSystem.Infrastructure.ValueObjects;
 
 namespace LibraryManagementSystem.Application.Repositories.InMemory;
 
 public class InMemoryTranslatorRepository : ITranslatorRepository
 {
-	private readonly List<Translator> _translators = [];
+	private readonly List<Translator> _translators;
+	public InMemoryTranslatorRepository() { _translators = CreateSeedData(); }
+
+
+	private static List<Translator> CreateSeedData()
+	{
+		return
+		[
+			new Translator
+			{
+				FirstName = "Najaf",
+				LastName = "Daryabandari",
+				NationalCode = "1234567890",
+				Email = Email.Create("najaf.daryabandari@example.com"),
+				PhoneNumber = PhoneNumber.Create("09123456789"),
+				BirthDate = new DateOnly(1921, 6, 12),
+				Biography = "Good Iranian translator."
+			},
+			new Translator
+			{
+				FirstName = "Ahmad",
+				LastName = "Golshiri",
+				NationalCode = "0987654321",
+				Email = Email.Create("ahmad.golshiri@example.com"),
+				PhoneNumber = PhoneNumber.Create("09127654321"),
+				BirthDate = new DateOnly(1940, 3, 25),
+				Biography = "Good Iranian translator."
+			},
+			new Translator
+			{
+				FirstName = "Mansoureh",
+				LastName = "Pirnia",
+				NationalCode = "1122334455",
+				Email = Email.Create("mansoureh.pirnia@example.com"),
+				PhoneNumber = PhoneNumber.Create("09129876543"),
+				BirthDate = new DateOnly(1955, 11, 8),
+				Biography = "Good Iranian translator."
+			},
+			new Translator
+			{
+				FirstName = "Reza",
+				LastName = "SeyedHosseini",
+				NationalCode = "6677889900",
+				Email = Email.Create("reza.seyedhosseini@example.com"),
+				PhoneNumber = PhoneNumber.Create("09121122334"),
+				BirthDate = new DateOnly(1968, 9, 17),
+				Biography = "Good Iranian translator."
+			}
+		];
+	}
 
 
 	public void Add(Translator translator)
