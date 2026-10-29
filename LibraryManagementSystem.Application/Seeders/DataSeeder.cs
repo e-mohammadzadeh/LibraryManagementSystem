@@ -607,12 +607,6 @@ public static class DataSeeder
 		var users = userRepository.GetAll(EntityFilter.Active);
 		var books = bookRepository.GetAll(EntityFilter.Active);
 		var today = DateOnly.FromDateTime(DateTime.Today);
-		Console.WriteLine(GetBook(6).Title);
-		Console.WriteLine(GetBook(1).Title);
-		Console.WriteLine(GetBook(9).Title);
-		Console.WriteLine(GetBook(10).Title);
-		Console.WriteLine("w8");
-		Console.ReadKey(true);
 
 		CreateActiveLoan(GetUser(4), GetBook(0), loanRepository, bookService);
 		CreateActiveLoan(GetUser(4), GetBook(1), loanRepository, bookService);

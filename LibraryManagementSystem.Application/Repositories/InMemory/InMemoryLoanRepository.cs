@@ -8,8 +8,30 @@ namespace LibraryManagementSystem.Application.Repositories.InMemory;
 
 public class InMemoryLoanRepository : ILoanRepository
 {
-	private readonly List<Loan> _loans = [];
+	private readonly List<Loan> _loans;
+	public InMemoryLoanRepository(IUserRepository users, IBookRepository books)
+	{
+		_loans = CreateSeedData(users, books);
+	}
 
+	private static List<Loan> CreateSeedData(IUserRepository users, IBookRepository books)
+	{
+		var member = users.GetAll(EntityFilter.Active).First(u => u.Email.Value == "m.ahmadi@example.com");
+		var book = books.GetAll(EntityFilter.Active).First(b => b.Title == "1984");
+
+		if (book.AvailableCopies > 0)
+			book.BorrowCopy(); // or your domain method
+
+		var loan = new Loan
+		{
+			User = member,
+			UserId = member.Id,
+			Book = book,
+			BookId = book.Id,
+			BorrowDate = DateOnly.FromDateTime(DateTime.Today)
+		};
+		return [loan, /* returned loans, etc. */];
+	}
 
 	public void Add(Loan loan)
 	{
