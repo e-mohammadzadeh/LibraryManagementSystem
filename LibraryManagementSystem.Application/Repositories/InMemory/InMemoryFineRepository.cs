@@ -9,7 +9,11 @@ namespace LibraryManagementSystem.Application.Repositories.InMemory;
 
 public class InMemoryFineRepository : IFineRepository
 {
-	private readonly List<Fine> _fines = [];
+	private readonly List<Fine> _fines;
+	public InMemoryFineRepository(ILoanRepository loans)
+	{
+		_fines = CreateSeedData(loans);
+	}
 
 
 	public void Add(Fine fine)

@@ -25,6 +25,7 @@ public class InMemoryLoanRepository : ILoanRepository
 		var member7 = users.GetAll(EntityFilter.Active).First(u => u.Email.Value == "n.salehi@example.com");
 		var member8 = users.GetAll(EntityFilter.Active).First(u => u.Email.Value == "a.rezaei@example.com");
 		var member9 = users.GetAll(EntityFilter.Active).First(u => u.Email.Value == "maryam.khalili@example.com");
+		var today = DateOnly.FromDateTime(DateTime.Today);
 
 		var book1 = books.GetAll(EntityFilter.Active).First(b => b.Title == "1984");
 		if (book1.AvailableCopies > 0) book1.AvailableCopies--;
@@ -104,7 +105,8 @@ public class InMemoryLoanRepository : ILoanRepository
 			UserId = member4.Id,
 			Book = book7,
 			BookId = book7.Id,
-			BorrowDate = DateOnly.FromDateTime(DateTime.Today)
+			BorrowDate = today.AddDays(-25),
+			ReturnDate = today.AddDays(-5)
 		};
 
 
@@ -116,7 +118,8 @@ public class InMemoryLoanRepository : ILoanRepository
 			UserId = member9.Id,
 			Book = book8,
 			BookId = book8.Id,
-			BorrowDate = DateOnly.FromDateTime(DateTime.Today)
+			BorrowDate = today.AddDays(-35),
+			ReturnDate = today.AddDays(-10)
 		};
 
 
@@ -139,7 +142,8 @@ public class InMemoryLoanRepository : ILoanRepository
 			UserId = member7.Id,
 			Book = book10,
 			BookId = book10.Id,
-			BorrowDate = DateOnly.FromDateTime(DateTime.Today)
+			BorrowDate = today.AddDays(-15),
+			ReturnDate = today.AddDays(-2)
 		};
 
 
@@ -159,7 +163,8 @@ public class InMemoryLoanRepository : ILoanRepository
 			UserId = member4.Id,
 			Book = book11,
 			BookId = book11.Id,
-			BorrowDate = DateOnly.FromDateTime(DateTime.Today)
+			BorrowDate = today.AddDays(-22),
+			ReturnDate = today
 		};
 
 
@@ -182,7 +187,8 @@ public class InMemoryLoanRepository : ILoanRepository
 			UserId = member4.Id,
 			Book = book13,
 			BookId = book13.Id,
-			BorrowDate = DateOnly.FromDateTime(DateTime.Today)
+			BorrowDate = today.AddDays(-63),
+			ReturnDate = today.AddDays(-5)
 		};
 
 		return [loan1, loan2, loan3, loan4, loan5, loan6, loan7, loan8, loan9, loan10, loan11, loan12, loan13, loan14];

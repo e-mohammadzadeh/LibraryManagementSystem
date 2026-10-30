@@ -1,14 +1,14 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.Services;
-using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
-using LibraryManagementSystem.Presentation.ConsoleApp.Menus;
-using System.Text;
 using LibraryManagementSystem.Application.Repositories.InMemory;
 using LibraryManagementSystem.Application.Security;
 using LibraryManagementSystem.Application.Seeders;
+using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Infrastructure.Interfaces;
+using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
+using LibraryManagementSystem.Presentation.ConsoleApp.Menus;
+using System.Text;
 
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp;
@@ -32,18 +32,18 @@ public static class Program
 		try
 		{
 			// ── Repositories ──────────────────────────
-			var userRepo = new InMemoryUserRepository();
+			var passwordHasher = new PasswordHasher();
+			var roleRepo = new InMemoryRoleRepository();
+			var userRepo = new InMemoryUserRepository(roleRepo, passwordHasher);
 			var authorRepo = new InMemoryAuthorRepository();
 			var translatorRepo = new InMemoryTranslatorRepository();
-			var bookRepo = new InMemoryBookRepository();
-			var roleRepo = new InMemoryRoleRepository();
-			var loanRepo = new InMemoryLoanRepository();
+			var bookRepo = new InMemoryBookRepository(authorRepo, translatorRepo);
+			var loanRepo = new InMemoryLoanRepository(userRepo, bookRepo);
 			var fineRepo = new InMemoryFineRepository();
 			var auditLogRepo = new InMemoryAuditLogRepository();
 
 
 			// ── Infrastructure Services ───────────────
-			var passwordHasher = new PasswordHasher();
 			ICurrentUserSession currentUserSession = new CurrentUserSession();
 			IAuthorizationService authorization = new AuthorizationService(currentUserSession, loanRepo);
 
