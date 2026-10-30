@@ -92,6 +92,7 @@ public class FineManagementService : IFineManagementService
 		{
 			Pay(fine);
 			_fineRepository.Update(fine);
+			fine.Loan.IsActive = false;
 			_auditLog.Record(AuditAction.FinePaid, "Fine", fineId, "Fine paid.");
 
 			var removalResult = _userAutoRemovalService.TryAutoRemove(fine.UserId);

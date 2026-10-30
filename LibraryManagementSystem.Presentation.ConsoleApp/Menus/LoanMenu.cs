@@ -22,7 +22,7 @@ public static class LoanMenu
 		if (!SessionGuard.RequireAnyPermission(
 			    authorization,
 			    Messages.AccessDenied,
-				Permission.ViewLoan,
+			    Permission.ViewLoan,
 			    Permission.ViewLoansByUser,
 			    Permission.ViewLoansByBook,
 			    Permission.SearchLoans))
@@ -331,8 +331,8 @@ public static class LoanMenu
 		UserManagementService userManagementService, BookManagementService bookManagementService,
 		ICurrentUserSession session, IAuthorizationService authorization, LibraryStatisticsService statisticsService)
 	{
-		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied, Permission.ViewLoansByUser,
-			    Permission.ViewLoansByBook, Permission.ViewAllLoans))
+		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied, Permission.ViewLoan,
+			    Permission.ViewLoansByUser, Permission.ViewLoansByBook, Permission.ViewAllLoans))
 			return;
 
 		while (true)
@@ -391,10 +391,12 @@ public static class LoanMenu
 	}
 
 
-	private static LoanFilter? PickLoanFilter(IAuthorizationService authorization, Permission? filterPermission, bool allowAll)
+	private static LoanFilter? PickLoanFilter(IAuthorizationService authorization, Permission? filterPermission,
+		bool allowAll)
 	{
 		var canView = filterPermission is null || authorization.HasPermission(filterPermission.Value);
 
+		Console.Clear();
 		var items = new List<(LoanFilter? Filter, string Text, bool Available)>
 		{
 			(LoanFilter.Active, "Active", canView),

@@ -369,7 +369,7 @@ public class InMemoryLoanRepository : ILoanRepository
 		return filter switch
 		{
 			LoanFilter.All => source,
-			LoanFilter.Active => source.Where(l => l.IsActive),
+			LoanFilter.Active => source.Where(l => l is { IsActive: true, ReturnDate: null }),
 			LoanFilter.Inactive => source.Where(l => !l.IsActive),
 			LoanFilter.Overdue => source.Where(l => l.IsOverdue),
 			LoanFilter.Returned => source.Where(l => l.ReturnDate.HasValue),

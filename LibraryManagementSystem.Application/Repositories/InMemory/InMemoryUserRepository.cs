@@ -25,6 +25,7 @@ public class InMemoryUserRepository : IUserRepository
 		var memberRole = roles.GetAll().First(r => r.Name == LibraryUserRole.Member);
 		var librarianRole = roles.GetAll().First(r => r.Name == LibraryUserRole.Librarian);
 
+		var hash = hasher.CreatePasswordHash("Admin@123");
 		var admin = new User
 		{
 			Id = Guid.CreateVersion7(),
@@ -35,12 +36,17 @@ public class InMemoryUserRepository : IUserRepository
 			PhoneNumber = PhoneNumber.Create("09120000010"),
 			BirthDate = new DateOnly(1985, 3, 15),
 			Role = adminRole,
-			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-100)),
+			CreatedAt = DateTime.UtcNow.AddDays(-100),
+			IsActive = true,
+			MembershipExpiryDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-100)).AddYears(1),
+			PasswordHash = hash.Hash,
+			PasswordSalt = hash.Salt,
+			IsRemoved = false,
+			ShouldRemove = false
 		};
-		var hash = hasher.CreatePasswordHash("Admin@123");
-		admin.PasswordHash = hash.Hash;
-		admin.PasswordSalt = hash.Salt;
 
+		hash = hasher.CreatePasswordHash("Librarian1@123");
 		var librarian1 = new User
 		{
 			Id = Guid.CreateVersion7(),
@@ -51,13 +57,18 @@ public class InMemoryUserRepository : IUserRepository
 			PhoneNumber = PhoneNumber.Create("09120000011"),
 			BirthDate = new DateOnly(1990, 5, 20),
 			Role = librarianRole,
-			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-70)),
+			CreatedAt = DateTime.UtcNow.AddDays(-70),
+			IsActive = true,
+			MembershipExpiryDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-70)).AddYears(1),
+			PasswordHash = hash.Hash,
+			PasswordSalt = hash.Salt,
+			IsRemoved = false,
+			ShouldRemove = false
 		};
 
-		hash = hasher.CreatePasswordHash("Librarian1@123");
-		librarian1.PasswordHash = hash.Hash;
-		librarian1.PasswordSalt = hash.Salt;
 
+		hash = hasher.CreatePasswordHash("Librarian2@123");
 		var librarian2 = new User
 		{
 			Id = Guid.CreateVersion7(),
@@ -68,12 +79,18 @@ public class InMemoryUserRepository : IUserRepository
 			PhoneNumber = PhoneNumber.Create("09120000014"),
 			BirthDate = new DateOnly(1988, 11, 5),
 			Role = librarianRole,
-			MembershipStartDate = new DateOnly(2026, 1, 15)
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-70)),
+			CreatedAt = DateTime.UtcNow.AddDays(-70),
+			IsActive = true,
+			MembershipExpiryDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-70)).AddYears(1),
+			PasswordHash = hash.Hash,
+			PasswordSalt = hash.Salt,
+			IsRemoved = false,
+			ShouldRemove = false
 		};
-		hash = hasher.CreatePasswordHash("Librarian2@123");
-		librarian2.PasswordHash = hash.Hash;
-		librarian2.PasswordSalt = hash.Salt;
 
+
+		hash = hasher.CreatePasswordHash("Librarian3@123");
 		var librarian3 = new User
 		{
 			Id = Guid.CreateVersion7(),
@@ -84,12 +101,18 @@ public class InMemoryUserRepository : IUserRepository
 			PhoneNumber = PhoneNumber.Create("09120000015"),
 			BirthDate = new DateOnly(1992, 4, 18),
 			Role = librarianRole,
-			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-70)),
+			CreatedAt = DateTime.UtcNow.AddDays(-70),
+			IsActive = true,
+			MembershipExpiryDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-70)).AddYears(1),
+			PasswordHash = hash.Hash,
+			PasswordSalt = hash.Salt,
+			IsRemoved = false,
+			ShouldRemove = false
 		};
-		hash = hasher.CreatePasswordHash("Librarian3@123");
-		librarian3.PasswordHash = hash.Hash;
-		librarian3.PasswordSalt = hash.Salt;
 
+
+		hash = hasher.CreatePasswordHash("Member1@123");
 		var member1 = new User
 		{
 			Id = Guid.CreateVersion7(),
@@ -100,11 +123,16 @@ public class InMemoryUserRepository : IUserRepository
 			PhoneNumber = PhoneNumber.Create("09120000012"),
 			BirthDate = new DateOnly(1998, 1, 10),
 			Role = memberRole,
-			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-70)),
+			CreatedAt = DateTime.UtcNow.AddDays(-70),
+			IsActive = true,
+			MembershipExpiryDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-70)).AddYears(1),
+			PasswordHash = hash.Hash,
+			PasswordSalt = hash.Salt,
+			IsRemoved = false,
+			ShouldRemove = false
 		};
-		hash = hasher.CreatePasswordHash("Member1@123");
-		member1.PasswordHash = hash.Hash;
-		member1.PasswordSalt = hash.Salt;
+
 
 		var member2 = new User
 		{
@@ -116,7 +144,14 @@ public class InMemoryUserRepository : IUserRepository
 			PhoneNumber = PhoneNumber.Create("09120000013"),
 			BirthDate = new DateOnly(2000, 7, 25),
 			Role = memberRole,
-			MembershipStartDate = new DateOnly(2026, 9, 1)
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-70)),
+			CreatedAt = DateTime.UtcNow.AddDays(-70),
+			IsActive = true,
+			MembershipExpiryDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-70)).AddYears(1),
+			PasswordHash = hash.Hash,
+			PasswordSalt = hash.Salt,
+			IsRemoved = false,
+			ShouldRemove = false
 		};
 
 		var member3 = new User
@@ -129,9 +164,17 @@ public class InMemoryUserRepository : IUserRepository
 			PhoneNumber = PhoneNumber.Create("09120000016"),
 			BirthDate = new DateOnly(1995, 9, 12),
 			Role = memberRole,
-			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-70)),
+			CreatedAt = DateTime.UtcNow.AddDays(-70),
+			IsActive = true,
+			MembershipExpiryDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-70)).AddYears(1),
+			PasswordHash = hash.Hash,
+			PasswordSalt = hash.Salt,
+			IsRemoved = false,
+			ShouldRemove = false
 		};
 
+		hash = hasher.CreatePasswordHash("Member4@123");
 		var member4 = new User
 		{
 			Id = Guid.CreateVersion7(),
@@ -142,11 +185,16 @@ public class InMemoryUserRepository : IUserRepository
 			PhoneNumber = PhoneNumber.Create("09120000017"),
 			BirthDate = new DateOnly(2001, 2, 28),
 			Role = memberRole,
-			MembershipStartDate = new DateOnly(2025, 10, 1)
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-70)),
+			CreatedAt = DateTime.UtcNow.AddDays(-70),
+			IsActive = true,
+			MembershipExpiryDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-70)).AddYears(1),
+			PasswordHash = hash.Hash,
+			PasswordSalt = hash.Salt,
+			IsRemoved = false,
+			ShouldRemove = false
 		};
-		hash = hasher.CreatePasswordHash("Member4@123");
-		member4.PasswordHash = hash.Hash;
-		member4.PasswordSalt = hash.Salt;
+
 
 		var member5 = new User
 		{
@@ -158,7 +206,14 @@ public class InMemoryUserRepository : IUserRepository
 			PhoneNumber = PhoneNumber.Create("09120000018"),
 			BirthDate = new DateOnly(1997, 6, 15),
 			Role = memberRole,
-			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-70)),
+			CreatedAt = DateTime.UtcNow.AddDays(-70),
+			IsActive = true,
+			MembershipExpiryDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-70)).AddYears(1),
+			PasswordHash = hash.Hash,
+			PasswordSalt = hash.Salt,
+			IsRemoved = false,
+			ShouldRemove = false
 		};
 
 		var member6 = new User
@@ -171,7 +226,14 @@ public class InMemoryUserRepository : IUserRepository
 			PhoneNumber = PhoneNumber.Create("09120000019"),
 			BirthDate = new DateOnly(1999, 10, 3),
 			Role = memberRole,
-			MembershipStartDate = new DateOnly(2025, 9, 10)
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-70)),
+			CreatedAt = DateTime.UtcNow.AddDays(-70),
+			IsActive = true,
+			MembershipExpiryDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-70)).AddYears(1),
+			PasswordHash = hash.Hash,
+			PasswordSalt = hash.Salt,
+			IsRemoved = false,
+			ShouldRemove = false
 		};
 
 		var member7 = new User
@@ -184,7 +246,14 @@ public class InMemoryUserRepository : IUserRepository
 			PhoneNumber = PhoneNumber.Create("09120000020"),
 			BirthDate = new DateOnly(1987, 12, 22),
 			Role = memberRole,
-			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-70)),
+			CreatedAt = DateTime.UtcNow.AddDays(-70),
+			IsActive = true,
+			MembershipExpiryDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-70)).AddYears(1),
+			PasswordHash = hash.Hash,
+			PasswordSalt = hash.Salt,
+			IsRemoved = false,
+			ShouldRemove = false
 		};
 
 		var member8 = new User
@@ -197,7 +266,14 @@ public class InMemoryUserRepository : IUserRepository
 			PhoneNumber = PhoneNumber.Create("09120000021"),
 			BirthDate = new DateOnly(2002, 5, 7),
 			Role = memberRole,
-			MembershipStartDate = new DateOnly(2026, 10, 1)
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-70)),
+			CreatedAt = DateTime.UtcNow.AddDays(-70),
+			IsActive = true,
+			MembershipExpiryDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-70)).AddYears(1),
+			PasswordHash = hash.Hash,
+			PasswordSalt = hash.Salt,
+			IsRemoved = false,
+			ShouldRemove = false
 		};
 
 		var member9 = new User
@@ -210,7 +286,14 @@ public class InMemoryUserRepository : IUserRepository
 			PhoneNumber = PhoneNumber.Create("09120000022"),
 			BirthDate = new DateOnly(1996, 8, 19),
 			Role = memberRole,
-			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-65)),
+			CreatedAt = DateTime.UtcNow.AddDays(-65),
+			IsActive = true,
+			MembershipExpiryDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-65)).AddYears(1),
+			PasswordHash = hash.Hash,
+			PasswordSalt = hash.Salt,
+			IsRemoved = false,
+			ShouldRemove = false
 		};
 
 		var member10 = new User
@@ -223,7 +306,14 @@ public class InMemoryUserRepository : IUserRepository
 			PhoneNumber = PhoneNumber.Create("09120000023"),
 			BirthDate = new DateOnly(2003, 3, 30),
 			Role = memberRole,
-			MembershipStartDate = new DateOnly(2025, 12, 1)
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-65)),
+			CreatedAt = DateTime.UtcNow.AddDays(-65),
+			IsActive = true,
+			MembershipExpiryDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-65)).AddYears(1),
+			PasswordHash = hash.Hash,
+			PasswordSalt = hash.Salt,
+			IsRemoved = false,
+			ShouldRemove = false
 		};
 
 		var member11 = new User
@@ -236,7 +326,14 @@ public class InMemoryUserRepository : IUserRepository
 			PhoneNumber = PhoneNumber.Create("09120000024"),
 			BirthDate = new DateOnly(1994, 7, 14),
 			Role = memberRole,
-			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-65)),
+			CreatedAt = DateTime.UtcNow.AddDays(-65),
+			IsActive = true,
+			MembershipExpiryDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-65)).AddYears(1),
+			PasswordHash = hash.Hash,
+			PasswordSalt = hash.Salt,
+			IsRemoved = false,
+			ShouldRemove = false
 		};
 
 		var member12 = new User
@@ -249,7 +346,14 @@ public class InMemoryUserRepository : IUserRepository
 			PhoneNumber = PhoneNumber.Create("09120000025"),
 			BirthDate = new DateOnly(1991, 11, 9),
 			Role = memberRole,
-			MembershipStartDate = new DateOnly(2026, 1, 1)
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-65)),
+			CreatedAt = DateTime.UtcNow.AddDays(-65),
+			IsActive = true,
+			MembershipExpiryDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-65)).AddYears(1),
+			PasswordHash = hash.Hash,
+			PasswordSalt = hash.Salt,
+			IsRemoved = false,
+			ShouldRemove = false
 		};
 
 		return

@@ -26,8 +26,6 @@ public class InMemoryFineRepository : IFineRepository
 			var overdueDays = loan.ReturnDate.Value.DayNumber - loan.DueDate.DayNumber;
 			if (overdueDays <= 0) continue;
 
-			var amount = FineCalculator(overdueDays);
-
 			var fine = new Fine
 			{
 				Id = Guid.CreateVersion7(),
@@ -35,9 +33,10 @@ public class InMemoryFineRepository : IFineRepository
 				LoanId = loan.Id,
 				UserId = loan.UserId,
 				OverdueDays = overdueDays,
-				Money = Money.Create(amount),
+				Money = Money.Create(FineCalculator(overdueDays)),
 				Status = FineStatus.Unpaid,
 				Reason = $"Fine is created for book \"{loan.Book.Title}\" (ID: {loan.Book.Id}).",
+				CreatedAt = DateTime.UtcNow
 			};
 
 			fines.Add(fine);

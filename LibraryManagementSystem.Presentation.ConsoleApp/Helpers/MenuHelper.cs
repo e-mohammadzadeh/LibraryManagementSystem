@@ -172,7 +172,7 @@ public static class MenuHelper
 			userId = session.CurrentUser.Id;
 		else
 		{
-			var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(),
+			var user = SelectUser(userManagementService.GetAllUsers(),
 				users => UserPrinter.PrintTable(users));
 			if (user is null)
 			{
