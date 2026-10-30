@@ -36,7 +36,14 @@ public class InMemoryLoanRepository : ILoanRepository
 			UserId = member4.Id,
 			Book = book1,
 			BookId = book1.Id,
-			BorrowDate = DateOnly.FromDateTime(DateTime.Today)
+			BorrowDate = DateOnly.FromDateTime(DateTime.Today),
+			CreatedAt = DateTime.UtcNow,
+			DueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(14)),
+			Action = LoanHistoryAction.Borrowed,
+			IsActive = true,
+			IsOverdue = false,
+			Status = LoanStatus.Borrowed,
+			ReturnDate = null
 		};
 
 		var book2 = books.GetAll(EntityFilter.Active).First(b => b.Title == "Brave New World");
@@ -48,7 +55,14 @@ public class InMemoryLoanRepository : ILoanRepository
 			UserId = member4.Id,
 			Book = book2,
 			BookId = book2.Id,
-			BorrowDate = DateOnly.FromDateTime(DateTime.Today)
+			BorrowDate = DateOnly.FromDateTime(DateTime.Today),
+			CreatedAt = DateTime.UtcNow,
+			DueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(14)),
+			Action = LoanHistoryAction.Borrowed,
+			IsActive = true,
+			IsOverdue = false,
+			Status = LoanStatus.Borrowed,
+			ReturnDate = null
 		};
 
 		var book3 = books.GetAll(EntityFilter.Active).First(b => b.Title == "Fahrenheit 451");
@@ -60,7 +74,14 @@ public class InMemoryLoanRepository : ILoanRepository
 			UserId = member6.Id,
 			Book = book3,
 			BookId = book3.Id,
-			BorrowDate = DateOnly.FromDateTime(DateTime.Today)
+			BorrowDate = DateOnly.FromDateTime(DateTime.Today),
+			CreatedAt = DateTime.UtcNow,
+			DueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(14)),
+			Action = LoanHistoryAction.Borrowed,
+			IsActive = true,
+			IsOverdue = false,
+			Status = LoanStatus.Borrowed,
+			ReturnDate = null
 		};
 
 
@@ -73,7 +94,14 @@ public class InMemoryLoanRepository : ILoanRepository
 			UserId = member8.Id,
 			Book = book4,
 			BookId = book4.Id,
-			BorrowDate = DateOnly.FromDateTime(DateTime.Today)
+			BorrowDate = DateOnly.FromDateTime(DateTime.Today),
+			CreatedAt = DateTime.UtcNow,
+			DueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(14)),
+			Action = LoanHistoryAction.Borrowed,
+			IsActive = true,
+			IsOverdue = false,
+			Status = LoanStatus.Borrowed,
+			ReturnDate = null
 		};
 
 
@@ -86,7 +114,14 @@ public class InMemoryLoanRepository : ILoanRepository
 			UserId = member7.Id,
 			Book = book5,
 			BookId = book5.Id,
-			BorrowDate = DateOnly.FromDateTime(DateTime.Today)
+			BorrowDate = DateOnly.FromDateTime(DateTime.Today),
+			CreatedAt = DateTime.UtcNow,
+			DueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(14)),
+			Action = LoanHistoryAction.Borrowed,
+			IsActive = true,
+			IsOverdue = false,
+			Status = LoanStatus.Borrowed,
+			ReturnDate = null
 		};
 
 
@@ -99,7 +134,14 @@ public class InMemoryLoanRepository : ILoanRepository
 			UserId = member5.Id,
 			Book = book6,
 			BookId = book6.Id,
-			BorrowDate = DateOnly.FromDateTime(DateTime.Today)
+			BorrowDate = DateOnly.FromDateTime(DateTime.Today),
+			CreatedAt = DateTime.UtcNow,
+			DueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(14)),
+			Action = LoanHistoryAction.Borrowed,
+			IsActive = true,
+			IsOverdue = false,
+			Status = LoanStatus.Borrowed,
+			ReturnDate = null
 		};
 
 
@@ -112,12 +154,18 @@ public class InMemoryLoanRepository : ILoanRepository
 			UserId = member4.Id,
 			Book = book7,
 			BookId = book7.Id,
-			BorrowDate = today.AddDays(-25)
+			BorrowDate = today.AddDays(-25),
+			CreatedAt = DateTime.UtcNow.AddDays(-25),
+			DueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-11)),
+			Action = LoanHistoryAction.Returned,
+			IsActive = true,
+			IsOverdue = true,
+			Status = LoanStatus.Returned,
 		};
 		if (book7.AvailableCopies < book7.TotalCopies) book7.AvailableCopies++;
 		loan7.ReturnDate = today.AddDays(-5);
 
-			var book8 = books.GetAll(EntityFilter.Active).First(b => b.Title == "Pride and Prejudice");
+		var book8 = books.GetAll(EntityFilter.Active).First(b => b.Title == "Pride and Prejudice");
 		if (book8.AvailableCopies > 0) book8.AvailableCopies--;
 		var loan8 = new Loan
 		{
@@ -127,8 +175,15 @@ public class InMemoryLoanRepository : ILoanRepository
 			Book = book8,
 			BookId = book8.Id,
 			BorrowDate = today.AddDays(-35),
-			ReturnDate = today.AddDays(-10)
+			CreatedAt = DateTime.UtcNow.AddDays(-35),
+			DueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-21)),
+			Action = LoanHistoryAction.Returned,
+			IsActive = true,
+			IsOverdue = true,
+			Status = LoanStatus.Returned,
 		};
+		if (book8.AvailableCopies < book8.TotalCopies) book8.AvailableCopies++;
+		loan8.ReturnDate = today.AddDays(-10);
 
 
 		var book9 = books.GetAll(EntityFilter.Active).First(b => b.Title == "The Hobbit");
@@ -140,7 +195,14 @@ public class InMemoryLoanRepository : ILoanRepository
 			UserId = member6.Id,
 			Book = book9,
 			BookId = book9.Id,
-			BorrowDate = DateOnly.FromDateTime(DateTime.Today)
+			BorrowDate = DateOnly.FromDateTime(DateTime.Today),
+			CreatedAt = DateTime.UtcNow,
+			DueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(14)),
+			Action = LoanHistoryAction.Borrowed,
+			IsActive = true,
+			IsOverdue = false,
+			Status = LoanStatus.Borrowed,
+			ReturnDate = null
 		};
 
 		var book10 = books.GetAll(EntityFilter.Active).First(b => b.Title == "Dune");
@@ -153,8 +215,15 @@ public class InMemoryLoanRepository : ILoanRepository
 			Book = book10,
 			BookId = book10.Id,
 			BorrowDate = today.AddDays(-15),
-			ReturnDate = today.AddDays(-2)
+			CreatedAt = DateTime.UtcNow.AddDays(-15),
+			DueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1)),
+			Action = LoanHistoryAction.Returned,
+			IsActive = true,
+			IsOverdue = true,
+			Status = LoanStatus.Returned
 		};
+		if (book10.AvailableCopies < book10.TotalCopies) book10.AvailableCopies++;
+		loan10.ReturnDate = today.AddDays(-2);
 
 
 		var book11 = books.GetAll(EntityFilter.Active).First(b => b.Title == "The Alchemist");
@@ -166,8 +235,16 @@ public class InMemoryLoanRepository : ILoanRepository
 			UserId = member6.Id,
 			Book = book11,
 			BookId = book11.Id,
-			BorrowDate = DateOnly.FromDateTime(DateTime.Today)
+			BorrowDate = DateOnly.FromDateTime(DateTime.Today),
+			CreatedAt = DateTime.UtcNow,
+			DueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(14)),
+			Action = LoanHistoryAction.Borrowed,
+			IsActive = true,
+			IsOverdue = false,
+			Status = LoanStatus.Borrowed,
+			ReturnDate = null
 		};
+
 		var loan12 = new Loan
 		{
 			Id = Guid.CreateVersion7(),
@@ -176,8 +253,15 @@ public class InMemoryLoanRepository : ILoanRepository
 			Book = book11,
 			BookId = book11.Id,
 			BorrowDate = today.AddDays(-22),
-			ReturnDate = today
+			CreatedAt = DateTime.UtcNow.AddDays(-22),
+			DueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-8)),
+			Action = LoanHistoryAction.Returned,
+			IsActive = true,
+			IsOverdue = true,
+			Status = LoanStatus.Returned,
 		};
+		if (book11.AvailableCopies < book11.TotalCopies) book11.AvailableCopies++;
+		loan12.ReturnDate = today;
 
 
 		var book12 = books.GetAll(EntityFilter.Active).First(b => b.Title == "Sapiens: A Brief History of Humankind");
@@ -189,7 +273,14 @@ public class InMemoryLoanRepository : ILoanRepository
 			UserId = member9.Id,
 			Book = book12,
 			BookId = book12.Id,
-			BorrowDate = DateOnly.FromDateTime(DateTime.Today)
+			BorrowDate = DateOnly.FromDateTime(DateTime.Today),
+			CreatedAt = DateTime.UtcNow,
+			DueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(14)),
+			Action = LoanHistoryAction.Borrowed,
+			IsActive = true,
+			IsOverdue = false,
+			Status = LoanStatus.Borrowed,
+			ReturnDate = null
 		};
 
 		var book13 = books.GetAll(EntityFilter.Active).First(b => b.Title == "The Da Vinci Code");
@@ -202,8 +293,16 @@ public class InMemoryLoanRepository : ILoanRepository
 			Book = book13,
 			BookId = book13.Id,
 			BorrowDate = today.AddDays(-63),
-			ReturnDate = today.AddDays(-5)
+			CreatedAt = DateTime.UtcNow.AddDays(-63),
+			DueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-49)),
+			Action = LoanHistoryAction.Returned,
+			IsActive = true,
+			IsOverdue = true,
+			Status = LoanStatus.Returned,
 		};
+		if (book13.AvailableCopies < book13.TotalCopies) book13.AvailableCopies++;
+		loan14.ReturnDate = today.AddDays(-5);
+
 
 		return [loan1, loan2, loan3, loan4, loan5, loan6, loan7, loan8, loan9, loan10, loan11, loan12, loan13, loan14];
 	}

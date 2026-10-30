@@ -25,7 +25,9 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 				Email = Email.Create("najaf.daryabandari@example.com"),
 				PhoneNumber = PhoneNumber.Create("09123456789"),
 				BirthDate = new DateOnly(1921, 6, 12),
-				Biography = "Good Iranian translator."
+				Biography = "Good Iranian translator.",
+				CreatedAt = DateTime.UtcNow.AddDays(-70),
+				IsRemoved = false
 			},
 			new Translator
 			{
@@ -36,7 +38,9 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 				Email = Email.Create("ahmad.golshiri@example.com"),
 				PhoneNumber = PhoneNumber.Create("09127654321"),
 				BirthDate = new DateOnly(1940, 3, 25),
-				Biography = "Good Iranian translator."
+				Biography = "Good Iranian translator.",
+				CreatedAt = DateTime.UtcNow.AddDays(-70),
+				IsRemoved = false
 			},
 			new Translator
 			{
@@ -47,7 +51,9 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 				Email = Email.Create("mansoureh.pirnia@example.com"),
 				PhoneNumber = PhoneNumber.Create("09129876543"),
 				BirthDate = new DateOnly(1955, 11, 8),
-				Biography = "Good Iranian translator."
+				Biography = "Good Iranian translator.",
+				CreatedAt = DateTime.UtcNow.AddDays(-70),
+				IsRemoved = false
 			},
 			new Translator
 			{
@@ -58,7 +64,9 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 				Email = Email.Create("reza.seyedhosseini@example.com"),
 				PhoneNumber = PhoneNumber.Create("09121122334"),
 				BirthDate = new DateOnly(1968, 9, 17),
-				Biography = "Good Iranian translator."
+				Biography = "Good Iranian translator.",
+				CreatedAt = DateTime.UtcNow.AddDays(-70),
+				IsRemoved = false
 			}
 		];
 	}

@@ -25,7 +25,10 @@ public class InMemoryAuthorRepository : IAuthorRepository
 				Email = Email.Create("orwell@example.com"),
 				PhoneNumber = PhoneNumber.Create("09120000001"),
 				BirthDate = new DateOnly(1903, 6, 25),
-				Biography = "English novelist and essayist."
+				Biography = "English novelist and essayist.",
+				CreatedAt = DateTime.UtcNow.AddDays(-90),
+				IsRemoved = false
+
 			},
 			new Author
 			{
@@ -36,7 +39,9 @@ public class InMemoryAuthorRepository : IAuthorRepository
 				Email = Email.Create("huxley@example.com"),
 				PhoneNumber = PhoneNumber.Create("09120000002"),
 				BirthDate = new DateOnly(1894, 11, 26),
-				Biography = "English writer and social critic."
+				Biography = "English writer and social critic.",
+				CreatedAt = DateTime.UtcNow.AddDays(-90),
+				IsRemoved = false
 			},
 			new Author
 			{
@@ -47,7 +52,9 @@ public class InMemoryAuthorRepository : IAuthorRepository
 				Email = Email.Create("bradbury@example.com"),
 				PhoneNumber = PhoneNumber.Create("09120000003"),
 				BirthDate = new DateOnly(1920, 8, 22),
-				Biography = "American science fiction and fantasy writer."
+				Biography = "American science fiction and fantasy writer.",
+				CreatedAt = DateTime.UtcNow.AddDays(-90),
+				IsRemoved = false
 			},
 			new Author
 			{
@@ -58,7 +65,9 @@ public class InMemoryAuthorRepository : IAuthorRepository
 				Email = Email.Create("rowling@example.com"),
 				PhoneNumber = PhoneNumber.Create("09120000004"),
 				BirthDate = new DateOnly(1965, 7, 31),
-				Biography = "British author of the Harry Potter series."
+				Biography = "British author of the Harry Potter series.",
+				CreatedAt = DateTime.UtcNow.AddDays(-90),
+				IsRemoved = false,
 			}
 		];
 	}

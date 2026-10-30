@@ -40,7 +40,10 @@ public class InMemoryBookRepository : IBookRepository
 			Genre = BookGenre.Create(Genre.ScienceFiction),
 			Publisher = "HarperCollins",
 			OriginalLanguage = Language.Arabic,
-			Description = "A dystopian novel."
+			Description = "A dystopian novel.",
+			CreatedAt = DateTime.UtcNow.AddDays(-65),
+			IsRemoved = false,
+			AvailableCopies = 5
 		};
 		book1.BookAuthors.Add(new BookAuthor { Book = book1, BookId = book1.Id, Author = a1, AuthorId = a1.Id });
 		book1.BookTranslators.Add(new BookTranslator
@@ -62,7 +65,10 @@ public class InMemoryBookRepository : IBookRepository
 			Genre = BookGenre.Create(Genre.ScienceFiction),
 			Publisher = "Amir Kabir Publishing",
 			OriginalLanguage = Language.Chinese,
-			Description = "A dystopian novel."
+			Description = "A dystopian novel.",
+			CreatedAt = DateTime.UtcNow.AddDays(-65),
+			IsRemoved = false,
+			AvailableCopies = 5
 		};
 		book2.BookAuthors.Add(new BookAuthor { Book = book2, BookId = book2.Id, Author = a1, AuthorId = a1.Id });
 		book2.BookAuthors.Add(new BookAuthor { Book = book2, BookId = book2.Id, Author = a2, AuthorId = a2.Id });
@@ -79,7 +85,10 @@ public class InMemoryBookRepository : IBookRepository
 			Genre = BookGenre.Create(Genre.Horror),
 			Publisher = "Oxford University Press",
 			OriginalLanguage = Language.English,
-			Description = "A dystopian novel."
+			Description = "A dystopian novel.",
+			CreatedAt = DateTime.UtcNow.AddDays(-65),
+			IsRemoved = false,
+			AvailableCopies = 5
 		};
 		book3.BookAuthors.Add(new BookAuthor { Book = book3, BookId = book3.Id, Author = a2, AuthorId = a2.Id });
 		book3.BookAuthors.Add(new BookAuthor { Book = book3, BookId = book3.Id, Author = a3, AuthorId = a3.Id });
@@ -99,7 +108,10 @@ public class InMemoryBookRepository : IBookRepository
 			Genre = BookGenre.Create(Genre.Fantasy),
 			Publisher = "HarperCollins",
 			OriginalLanguage = Language.French,
-			Description = "A young wizard discovers his magical heritage."
+			Description = "A young wizard discovers his magical heritage.",
+			CreatedAt = DateTime.UtcNow.AddDays(-65),
+			IsRemoved = false,
+			AvailableCopies = 3
 		};
 		book4.BookAuthors.Add(new BookAuthor { Book = book4, BookId = book4.Id, Author = a2, AuthorId = a2.Id });
 		book4.BookTranslators.Add(new BookTranslator
@@ -115,7 +127,10 @@ public class InMemoryBookRepository : IBookRepository
 			Genre = BookGenre.Create(Genre.Historical),
 			Publisher = "Oxford University Press",
 			OriginalLanguage = Language.German,
-			Description = "An allegorical novella."
+			Description = "An allegorical novella.",
+			CreatedAt = DateTime.UtcNow.AddDays(-65),
+			IsRemoved = false,
+			AvailableCopies = 4
 		};
 		book5.BookAuthors.Add(new BookAuthor { Book = book5, BookId = book5.Id, Author = a1, AuthorId = a1.Id });
 		book5.BookAuthors.Add(new BookAuthor { Book = book5, BookId = book5.Id, Author = a2, AuthorId = a2.Id });
@@ -134,7 +149,10 @@ public class InMemoryBookRepository : IBookRepository
 			Genre = BookGenre.Create(Genre.ScienceFiction),
 			Publisher = "Amir Kabir Publishing",
 			OriginalLanguage = Language.Italian,
-			Description = "A story about racism and justice in the American South."
+			Description = "A story about racism and justice in the American South.",
+			CreatedAt = DateTime.UtcNow.AddDays(-65),
+			IsRemoved = false,
+			AvailableCopies = 6
 		};
 		book6.BookAuthors.Add(new BookAuthor { Book = book6, BookId = book6.Id, Author = a4, AuthorId = a4.Id });
 		book6.BookAuthors.Add(new BookAuthor { Book = book6, BookId = book6.Id, Author = a1, AuthorId = a1.Id });
@@ -155,7 +173,10 @@ public class InMemoryBookRepository : IBookRepository
 			Genre = BookGenre.Create(Genre.Horror),
 			Publisher = "Oxford University Press",
 			OriginalLanguage = Language.Japanese,
-			Description = "A tale of wealth, love, and the American Dream."
+			Description = "A tale of wealth, love, and the American Dream.",
+			CreatedAt = DateTime.UtcNow.AddDays(-65),
+			IsRemoved = false,
+			AvailableCopies = 4
 		};
 		book7.BookAuthors.Add(new BookAuthor { Book = book7, BookId = book7.Id, Author = a4, AuthorId = a4.Id });
 		book7.BookTranslators.Add(new BookTranslator
@@ -171,7 +192,10 @@ public class InMemoryBookRepository : IBookRepository
 			Genre = BookGenre.Create(Genre.Romance),
 			Publisher = "Macmillan Publishers",
 			OriginalLanguage = Language.Persian,
-			Description = "A witty story about love and social class."
+			Description = "A witty story about love and social class.",
+			CreatedAt = DateTime.UtcNow.AddDays(-65),
+			IsRemoved = false,
+			AvailableCopies = 5
 		};
 		book8.BookAuthors.Add(new BookAuthor { Book = book8, BookId = book8.Id, Author = a4, AuthorId = a4.Id });
 		book8.BookTranslators.Add(new BookTranslator
@@ -187,7 +211,10 @@ public class InMemoryBookRepository : IBookRepository
 			Genre = BookGenre.Create(Genre.Fantasy),
 			Publisher = "Amir Kabir Publishing",
 			OriginalLanguage = Language.Russian,
-			Description = "A hobbit embarks on an unexpected journey."
+			Description = "A hobbit embarks on an unexpected journey.",
+			CreatedAt = DateTime.UtcNow.AddDays(-65),
+			IsRemoved = false,
+			AvailableCopies = 7
 		};
 		book9.BookAuthors.Add(new BookAuthor { Book = book9, BookId = book9.Id, Author = a4, AuthorId = a4.Id });
 		book9.BookAuthors.Add(new BookAuthor { Book = book9, BookId = book9.Id, Author = a3, AuthorId = a3.Id });
@@ -206,7 +233,10 @@ public class InMemoryBookRepository : IBookRepository
 			Genre = BookGenre.Create(Genre.ScienceFiction),
 			Publisher = "HarperCollins",
 			OriginalLanguage = Language.Spanish,
-			Description = "Epic science fiction on a desert planet."
+			Description = "Epic science fiction on a desert planet.",
+			CreatedAt = DateTime.UtcNow.AddDays(-65),
+			IsRemoved = false,
+			AvailableCopies = 4
 		};
 		book10.BookAuthors.Add(new BookAuthor { Book = book10, BookId = book10.Id, Author = a4, AuthorId = a4.Id });
 		book10.BookTranslators.Add(new BookTranslator
@@ -222,7 +252,10 @@ public class InMemoryBookRepository : IBookRepository
 			Genre = BookGenre.Create(Genre.ScienceFiction),
 			Publisher = "Macmillan Publishers",
 			OriginalLanguage = Language.English,
-			Description = "A shepherd's journey to find his personal legend."
+			Description = "A shepherd's journey to find his personal legend.",
+			CreatedAt = DateTime.UtcNow.AddDays(-65),
+			IsRemoved = false,
+			AvailableCopies = 8
 		};
 		book11.BookAuthors.Add(new BookAuthor { Book = book11, BookId = book11.Id, Author = a4, AuthorId = a4.Id });
 		book11.BookTranslators.Add(new BookTranslator
@@ -238,7 +271,10 @@ public class InMemoryBookRepository : IBookRepository
 			Genre = BookGenre.Create(Genre.Historical),
 			Publisher = "Macmillan Publishers",
 			OriginalLanguage = Language.Persian,
-			Description = "A groundbreaking exploration of human history."
+			Description = "A groundbreaking exploration of human history.",
+			CreatedAt = DateTime.UtcNow.AddDays(-65),
+			IsRemoved = false,
+			AvailableCopies = 3
 		};
 		book12.BookAuthors.Add(new BookAuthor { Book = book12, BookId = book12.Id, Author = a4, AuthorId = a4.Id });
 		book12.BookTranslators.Add(new BookTranslator
@@ -254,7 +290,10 @@ public class InMemoryBookRepository : IBookRepository
 			Genre = BookGenre.Create(Genre.Mystery),
 			Publisher = "Oxford University Press",
 			OriginalLanguage = Language.Chinese,
-			Description = "A thrilling mystery involving art and secret societies."
+			Description = "A thrilling mystery involving art and secret societies.",
+			CreatedAt = DateTime.UtcNow.AddDays(-65),
+			IsRemoved = false,
+			AvailableCopies = 5
 		};
 		book13.BookAuthors.Add(new BookAuthor { Book = book13, BookId = book13.Id, Author = a1, AuthorId = a1.Id });
 		book13.BookAuthors.Add(new BookAuthor { Book = book13, BookId = book13.Id, Author = a2, AuthorId = a2.Id });
@@ -279,7 +318,10 @@ public class InMemoryBookRepository : IBookRepository
 			Genre = BookGenre.Create(Genre.Biography),
 			Publisher = "Amir Kabir Publishing",
 			OriginalLanguage = Language.Russian,
-			Description = "A story of self-invention and overcoming adversity."
+			Description = "A story of self-invention and overcoming adversity.",
+			CreatedAt = DateTime.UtcNow.AddDays(-65),
+			IsRemoved = false,
+			AvailableCopies = 4
 		};
 		book14.BookAuthors.Add(new BookAuthor { Book = book14, BookId = book14.Id, Author = a4, AuthorId = a4.Id });
 		book14.BookTranslators.Add(new BookTranslator
@@ -295,7 +337,10 @@ public class InMemoryBookRepository : IBookRepository
 			Genre = BookGenre.Create(Genre.Thriller),
 			Publisher = "Oxford University Press",
 			OriginalLanguage = Language.Italian,
-			Description = "A woman shoots her husband and never speaks again."
+			Description = "A woman shoots her husband and never speaks again.",
+			CreatedAt = DateTime.UtcNow.AddDays(-65),
+			IsRemoved = false,
+			AvailableCopies = 6
 		};
 		book15.BookAuthors.Add(new BookAuthor { Book = book15, BookId = book15.Id, Author = a4, AuthorId = a4.Id });
 		book15.BookTranslators.Add(new BookTranslator
