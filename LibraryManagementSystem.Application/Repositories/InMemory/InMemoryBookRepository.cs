@@ -32,6 +32,7 @@ public class InMemoryBookRepository : IBookRepository
 
 		var book1 = new Book
 		{
+			Id = Guid.CreateVersion7(),
 			Title = "1984",
 			ISBN = ISBN.Create("978-0-452-28423-4"),
 			PublishDate = new DateOnly(1949, 6, 8),
@@ -53,6 +54,7 @@ public class InMemoryBookRepository : IBookRepository
 
 		var book2 = new Book
 		{
+			Id = Guid.CreateVersion7(),
 			Title = "Brave New World",
 			ISBN = ISBN.Create("9780060850524"),
 			PublishDate = new DateOnly(1932, 1, 1),
@@ -69,6 +71,7 @@ public class InMemoryBookRepository : IBookRepository
 
 		var book3 = new Book
 		{
+			Id = Guid.CreateVersion7(),
 			Title = "Fahrenheit 451",
 			ISBN = ISBN.Create("9781451673319"),
 			PublishDate = new DateOnly(1953, 1, 1),
@@ -88,6 +91,7 @@ public class InMemoryBookRepository : IBookRepository
 
 		var book4 = new Book
 		{
+			Id = Guid.CreateVersion7(),
 			Title = "Harry Potter and the Philosopher's Stone",
 			ISBN = ISBN.Create("978-0-7475-3269-9"),
 			PublishDate = new DateOnly(1997, 6, 26),
@@ -103,6 +107,7 @@ public class InMemoryBookRepository : IBookRepository
 
 		var book5 = new Book
 		{
+			Id = Guid.CreateVersion7(),
 			Title = "Animal Farm",
 			ISBN = ISBN.Create("978-0-452-28424-1"),
 			PublishDate = new DateOnly(1945, 8, 17),
@@ -121,6 +126,7 @@ public class InMemoryBookRepository : IBookRepository
 
 		var book6 = new Book
 		{
+			Id = Guid.CreateVersion7(),
 			Title = "To Kill a Mockingbird",
 			ISBN = ISBN.Create("9780061120084"),
 			PublishDate = new DateOnly(1960, 7, 11),
@@ -141,6 +147,7 @@ public class InMemoryBookRepository : IBookRepository
 
 		var book7 = new Book
 		{
+			Id = Guid.CreateVersion7(),
 			Title = "The Great Gatsby",
 			ISBN = ISBN.Create("9780743273565"),
 			PublishDate = new DateOnly(1925, 4, 10),
@@ -156,6 +163,7 @@ public class InMemoryBookRepository : IBookRepository
 
 		var book8 = new Book
 		{
+			Id = Guid.CreateVersion7(),
 			Title = "Pride and Prejudice",
 			ISBN = ISBN.Create("9780141439518"),
 			PublishDate = new DateOnly(1813, 1, 28),
@@ -171,6 +179,7 @@ public class InMemoryBookRepository : IBookRepository
 
 		var book9 = new Book
 		{
+			Id = Guid.CreateVersion7(),
 			Title = "The Hobbit",
 			ISBN = ISBN.Create("9780547928210"),
 			PublishDate = new DateOnly(1937, 9, 21),
@@ -189,6 +198,7 @@ public class InMemoryBookRepository : IBookRepository
 
 		var book10 = new Book
 		{
+			Id = Guid.CreateVersion7(),
 			Title = "Dune",
 			ISBN = ISBN.Create("9780441172719"),
 			PublishDate = new DateOnly(1965, 8, 1),
@@ -204,6 +214,7 @@ public class InMemoryBookRepository : IBookRepository
 
 		var book11 = new Book
 		{
+			Id = Guid.CreateVersion7(),
 			Title = "The Alchemist",
 			ISBN = ISBN.Create("9780062315007"),
 			PublishDate = new DateOnly(1988, 1, 1),
@@ -219,6 +230,7 @@ public class InMemoryBookRepository : IBookRepository
 
 		var book12 = new Book
 		{
+			Id = Guid.CreateVersion7(),
 			Title = "Sapiens: A Brief History of Humankind",
 			ISBN = ISBN.Create("9780062316097"),
 			PublishDate = new DateOnly(2011, 1, 1),
@@ -234,6 +246,7 @@ public class InMemoryBookRepository : IBookRepository
 
 		var book13 = new Book
 		{
+			Id = Guid.CreateVersion7(),
 			Title = "The Da Vinci Code",
 			ISBN = ISBN.Create("9780307474278"),
 			PublishDate = new DateOnly(2003, 3, 18),
@@ -258,6 +271,7 @@ public class InMemoryBookRepository : IBookRepository
 
 		var book14 = new Book
 		{
+			Id = Guid.CreateVersion7(),
 			Title = "Educated: A Memoir",
 			ISBN = ISBN.Create("9780062420091"),
 			PublishDate = new DateOnly(2018, 2, 20),
@@ -273,6 +287,7 @@ public class InMemoryBookRepository : IBookRepository
 
 		var book15 = new Book
 		{
+			Id = Guid.CreateVersion7(),
 			Title = "The Silent Patient",
 			ISBN = ISBN.Create("9781250301697"),
 			PublishDate = new DateOnly(2019, 2, 5),

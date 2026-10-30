@@ -39,7 +39,7 @@ public static class Program
 			var translatorRepo = new InMemoryTranslatorRepository();
 			var bookRepo = new InMemoryBookRepository(authorRepo, translatorRepo);
 			var loanRepo = new InMemoryLoanRepository(userRepo, bookRepo);
-			var fineRepo = new InMemoryFineRepository();
+			var fineRepo = new InMemoryFineRepository(loanRepo);
 			var auditLogRepo = new InMemoryAuditLogRepository();
 
 
@@ -77,8 +77,8 @@ public static class Program
 
 			Console.Title = "Library Management System";
 			// Seed data for development/testing
-			DataSeeder.Seed(authorRepo, translatorRepo, bookService, bookRepo, userRepo, iUserService, loanRepo,
-				roleRepo, fineRepo, passwordHasher);
+			//DataSeeder.Seed(authorRepo, translatorRepo, bookService, bookRepo, userRepo, iUserService, loanRepo,
+			//	roleRepo, fineRepo, passwordHasher);
 
 			while (true)
 			{

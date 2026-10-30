@@ -10,9 +10,40 @@ namespace LibraryManagementSystem.Application.Repositories.InMemory;
 public class InMemoryFineRepository : IFineRepository
 {
 	private readonly List<Fine> _fines;
-	public InMemoryFineRepository(ILoanRepository loans)
+	public InMemoryFineRepository(ILoanRepository loans) { _fines = CreateSeedData(loans); }
+
+
+	private static List<Fine> CreateSeedData(ILoanRepository loans)
 	{
-		_fines = CreateSeedData(loans);
+		var fines = new List<Fine>();
+		var returnedLoans = loans.GetAll(LoanFilter.Returned);
+
+		foreach (var loan in returnedLoans)
+		{
+			if (loan.ReturnDate is null) continue;
+			if (loan.ReturnDate <= loan.DueDate) continue;
+
+			var overdueDays = loan.ReturnDate.Value.DayNumber - loan.DueDate.DayNumber;
+			if (overdueDays <= 0) continue;
+
+			var amount = FineCalculator(overdueDays);
+
+			var fine = new Fine
+			{
+				Id = Guid.CreateVersion7(),
+				Loan = loan,
+				LoanId = loan.Id,
+				UserId = loan.UserId,
+				OverdueDays = overdueDays,
+				Money = Money.Create(amount),
+				Status = FineStatus.Unpaid,
+				Reason = $"Fine is created for book \"{loan.Book.Title}\" (ID: {loan.Book.Id}).",
+			};
+
+			fines.Add(fine);
+		}
+
+		return fines;
 	}
 
 
@@ -58,7 +89,7 @@ public class InMemoryFineRepository : IFineRepository
 	}
 
 
-	public bool HasFines(Guid userId, FineFilter filter = FineFilter.Unpaid) 
+	public bool HasFines(Guid userId, FineFilter filter = FineFilter.Unpaid)
 	{
 		return ApplyFilter(_fines, filter).Any(f => f.UserId == userId);
 	}

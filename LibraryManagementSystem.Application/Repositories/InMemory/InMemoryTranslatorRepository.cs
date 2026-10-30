@@ -18,6 +18,7 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 		[
 			new Translator
 			{
+				Id = Guid.CreateVersion7(),
 				FirstName = "Najaf",
 				LastName = "Daryabandari",
 				NationalCode = "1234567890",
@@ -28,6 +29,7 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 			},
 			new Translator
 			{
+				Id = Guid.CreateVersion7(),
 				FirstName = "Ahmad",
 				LastName = "Golshiri",
 				NationalCode = "0987654321",
@@ -38,6 +40,7 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 			},
 			new Translator
 			{
+				Id = Guid.CreateVersion7(),
 				FirstName = "Mansoureh",
 				LastName = "Pirnia",
 				NationalCode = "1122334455",
@@ -48,6 +51,7 @@ public class InMemoryTranslatorRepository : ITranslatorRepository
 			},
 			new Translator
 			{
+				Id = Guid.CreateVersion7(),
 				FirstName = "Reza",
 				LastName = "SeyedHosseini",
 				NationalCode = "6677889900",

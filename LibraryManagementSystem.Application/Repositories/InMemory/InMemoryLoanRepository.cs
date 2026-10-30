@@ -31,6 +31,7 @@ public class InMemoryLoanRepository : ILoanRepository
 		if (book1.AvailableCopies > 0) book1.AvailableCopies--;
 		var loan1 = new Loan
 		{
+			Id = Guid.CreateVersion7(),
 			User = member4,
 			UserId = member4.Id,
 			Book = book1,
@@ -42,6 +43,7 @@ public class InMemoryLoanRepository : ILoanRepository
 		if (book2.AvailableCopies > 0) book2.AvailableCopies--;
 		var loan2 = new Loan
 		{
+			Id = Guid.CreateVersion7(),
 			User = member4,
 			UserId = member4.Id,
 			Book = book2,
@@ -53,6 +55,7 @@ public class InMemoryLoanRepository : ILoanRepository
 		if (book3.AvailableCopies > 0) book3.AvailableCopies--;
 		var loan3 = new Loan
 		{
+			Id = Guid.CreateVersion7(),
 			User = member6,
 			UserId = member6.Id,
 			Book = book3,
@@ -65,6 +68,7 @@ public class InMemoryLoanRepository : ILoanRepository
 		if (book4.AvailableCopies > 0) book4.AvailableCopies--;
 		var loan4 = new Loan
 		{
+			Id = Guid.CreateVersion7(),
 			User = member8,
 			UserId = member8.Id,
 			Book = book4,
@@ -77,6 +81,7 @@ public class InMemoryLoanRepository : ILoanRepository
 		if (book5.AvailableCopies > 0) book5.AvailableCopies--;
 		var loan5 = new Loan
 		{
+			Id = Guid.CreateVersion7(),
 			User = member7,
 			UserId = member7.Id,
 			Book = book5,
@@ -89,6 +94,7 @@ public class InMemoryLoanRepository : ILoanRepository
 		if (book6.AvailableCopies > 0) book6.AvailableCopies--;
 		var loan6 = new Loan
 		{
+			Id = Guid.CreateVersion7(),
 			User = member5,
 			UserId = member5.Id,
 			Book = book6,
@@ -101,19 +107,21 @@ public class InMemoryLoanRepository : ILoanRepository
 		if (book7.AvailableCopies > 0) book7.AvailableCopies--;
 		var loan7 = new Loan
 		{
+			Id = Guid.CreateVersion7(),
 			User = member4,
 			UserId = member4.Id,
 			Book = book7,
 			BookId = book7.Id,
-			BorrowDate = today.AddDays(-25),
-			ReturnDate = today.AddDays(-5)
+			BorrowDate = today.AddDays(-25)
 		};
+		if (book7.AvailableCopies < book7.TotalCopies) book7.AvailableCopies++;
+		loan7.ReturnDate = today.AddDays(-5);
 
-
-		var book8 = books.GetAll(EntityFilter.Active).First(b => b.Title == "Pride and Prejudice");
+			var book8 = books.GetAll(EntityFilter.Active).First(b => b.Title == "Pride and Prejudice");
 		if (book8.AvailableCopies > 0) book8.AvailableCopies--;
 		var loan8 = new Loan
 		{
+			Id = Guid.CreateVersion7(),
 			User = member9,
 			UserId = member9.Id,
 			Book = book8,
@@ -127,6 +135,7 @@ public class InMemoryLoanRepository : ILoanRepository
 		if (book9.AvailableCopies > 0) book9.AvailableCopies--;
 		var loan9 = new Loan
 		{
+			Id = Guid.CreateVersion7(),
 			User = member6,
 			UserId = member6.Id,
 			Book = book9,
@@ -138,6 +147,7 @@ public class InMemoryLoanRepository : ILoanRepository
 		if (book10.AvailableCopies > 0) book10.AvailableCopies--;
 		var loan10 = new Loan
 		{
+			Id = Guid.CreateVersion7(),
 			User = member7,
 			UserId = member7.Id,
 			Book = book10,
@@ -151,6 +161,7 @@ public class InMemoryLoanRepository : ILoanRepository
 		if (book11.AvailableCopies > 0) book11.AvailableCopies--;
 		var loan11 = new Loan
 		{
+			Id = Guid.CreateVersion7(),
 			User = member6,
 			UserId = member6.Id,
 			Book = book11,
@@ -159,6 +170,7 @@ public class InMemoryLoanRepository : ILoanRepository
 		};
 		var loan12 = new Loan
 		{
+			Id = Guid.CreateVersion7(),
 			User = member4,
 			UserId = member4.Id,
 			Book = book11,
@@ -172,6 +184,7 @@ public class InMemoryLoanRepository : ILoanRepository
 		if (book12.AvailableCopies > 0) book12.AvailableCopies--;
 		var loan13 = new Loan
 		{
+			Id = Guid.CreateVersion7(),
 			User = member9,
 			UserId = member9.Id,
 			Book = book12,
@@ -183,6 +196,7 @@ public class InMemoryLoanRepository : ILoanRepository
 		if (book13.AvailableCopies > 0) book13.AvailableCopies--;
 		var loan14 = new Loan
 		{
+			Id = Guid.CreateVersion7(),
 			User = member4,
 			UserId = member4.Id,
 			Book = book13,

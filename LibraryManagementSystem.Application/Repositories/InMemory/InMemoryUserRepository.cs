@@ -27,6 +27,7 @@ public class InMemoryUserRepository : IUserRepository
 
 		var admin = new User
 		{
+			Id = Guid.CreateVersion7(),
 			FirstName = "Sara",
 			LastName = "Admin",
 			NationalCode = "3780254901",
@@ -42,6 +43,7 @@ public class InMemoryUserRepository : IUserRepository
 
 		var librarian1 = new User
 		{
+			Id = Guid.CreateVersion7(),
 			FirstName = "Ali",
 			LastName = "Librarian",
 			NationalCode = "3780254902",
@@ -58,6 +60,7 @@ public class InMemoryUserRepository : IUserRepository
 
 		var librarian2 = new User
 		{
+			Id = Guid.CreateVersion7(),
 			FirstName = "Reza",
 			LastName = "Karimi",
 			NationalCode = "3780254903",
@@ -73,6 +76,7 @@ public class InMemoryUserRepository : IUserRepository
 
 		var librarian3 = new User
 		{
+			Id = Guid.CreateVersion7(),
 			FirstName = "Zahra",
 			LastName = "Rahimi",
 			NationalCode = "3780254904",
@@ -88,6 +92,7 @@ public class InMemoryUserRepository : IUserRepository
 
 		var member1 = new User
 		{
+			Id = Guid.CreateVersion7(),
 			FirstName = "Mohammad",
 			LastName = "Ahmadi",
 			NationalCode = "3780254905",
@@ -103,6 +108,7 @@ public class InMemoryUserRepository : IUserRepository
 
 		var member2 = new User
 		{
+			Id = Guid.CreateVersion7(),
 			FirstName = "Fateme",
 			LastName = "Hosseini",
 			NationalCode = "3780254906",
@@ -115,6 +121,7 @@ public class InMemoryUserRepository : IUserRepository
 
 		var member3 = new User
 		{
+			Id = Guid.CreateVersion7(),
 			FirstName = "Hossein",
 			LastName = "Moradi",
 			NationalCode = "3780254907",
@@ -127,6 +134,7 @@ public class InMemoryUserRepository : IUserRepository
 
 		var member4 = new User
 		{
+			Id = Guid.CreateVersion7(),
 			FirstName = "Narges",
 			LastName = "Salehi",
 			NationalCode = "3780254908",
@@ -142,6 +150,7 @@ public class InMemoryUserRepository : IUserRepository
 
 		var member5 = new User
 		{
+			Id = Guid.CreateVersion7(),
 			FirstName = "Ali",
 			LastName = "Rezaei",
 			NationalCode = "3780254909",
@@ -154,6 +163,7 @@ public class InMemoryUserRepository : IUserRepository
 
 		var member6 = new User
 		{
+			Id = Guid.CreateVersion7(),
 			FirstName = "Maryam",
 			LastName = "Khalili",
 			NationalCode = "3780254910",
@@ -166,6 +176,7 @@ public class InMemoryUserRepository : IUserRepository
 
 		var member7 = new User
 		{
+			Id = Guid.CreateVersion7(),
 			FirstName = "Seyed",
 			LastName = "Mousavi",
 			NationalCode = "3780254911",
@@ -178,6 +189,7 @@ public class InMemoryUserRepository : IUserRepository
 
 		var member8 = new User
 		{
+			Id = Guid.CreateVersion7(),
 			FirstName = "Leila",
 			LastName = "Pourahmadi",
 			NationalCode = "3780254912",
@@ -190,6 +202,7 @@ public class InMemoryUserRepository : IUserRepository
 
 		var member9 = new User
 		{
+			Id = Guid.CreateVersion7(),
 			FirstName = "Mehdi",
 			LastName = "Hashemi",
 			NationalCode = "3780254913",
@@ -202,6 +215,7 @@ public class InMemoryUserRepository : IUserRepository
 
 		var member10 = new User
 		{
+			Id = Guid.CreateVersion7(),
 			FirstName = "Sara",
 			LastName = "Nikoo",
 			NationalCode = "3780254914",
@@ -214,6 +228,7 @@ public class InMemoryUserRepository : IUserRepository
 
 		var member11 = new User
 		{
+			Id = Guid.CreateVersion7(),
 			FirstName = "Amir",
 			LastName = "Jafari",
 			NationalCode = "3780254915",
@@ -226,6 +241,7 @@ public class InMemoryUserRepository : IUserRepository
 
 		var member12 = new User
 		{
+			Id = Guid.CreateVersion7(),
 			FirstName = "Fatemeh",
 			LastName = "Ebrahimi",
 			NationalCode = "3780254916",

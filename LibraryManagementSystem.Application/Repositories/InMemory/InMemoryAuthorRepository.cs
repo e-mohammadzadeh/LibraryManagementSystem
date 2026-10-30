@@ -18,6 +18,7 @@ public class InMemoryAuthorRepository : IAuthorRepository
 		[
 			new Author
 			{
+				Id = Guid.CreateVersion7(),
 				FirstName = "George",
 				LastName = "Orwell",
 				NationalCode = "1234567890",
@@ -28,6 +29,7 @@ public class InMemoryAuthorRepository : IAuthorRepository
 			},
 			new Author
 			{
+				Id = Guid.CreateVersion7(),
 				FirstName = "Aldous",
 				LastName = "Huxley",
 				NationalCode = "0987654321",
@@ -38,6 +40,7 @@ public class InMemoryAuthorRepository : IAuthorRepository
 			},
 			new Author
 			{
+				Id = Guid.CreateVersion7(),
 				FirstName = "Ray",
 				LastName = "Bradbury",
 				NationalCode = "1122334455",
@@ -48,6 +51,7 @@ public class InMemoryAuthorRepository : IAuthorRepository
 			},
 			new Author
 			{
+				Id = Guid.CreateVersion7(),
 				FirstName = "J.K.",
 				LastName = "Rowling",
 				NationalCode = "0087654321",
