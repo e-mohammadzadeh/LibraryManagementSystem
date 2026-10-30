@@ -39,7 +39,7 @@ public class FineManagementService : IFineManagementService
 
 	public ServiceResult<FineDto> CreateFineForLoan(Guid loanId)
 	{
-		var loan = _loanRepository.GetById(loanId, LoanFilter.Active);
+		var loan = _loanRepository.GetById(loanId, LoanFilter.Returned);
 		if (loan is null) return ServiceResult<FineDto>.Fail(Messages.NotLoanMatched);
 
 		if (loan.ReturnDate is null) return ServiceResult<FineDto>.Fail(Messages.LoanNotYetReturned);

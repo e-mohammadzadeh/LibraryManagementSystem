@@ -36,7 +36,8 @@ public class InMemoryFineRepository : IFineRepository
 				Money = Money.Create(FineCalculator(overdueDays)),
 				Status = FineStatus.Unpaid,
 				Reason = $"Fine is created for book \"{loan.Book.Title}\" (ID: {loan.Book.Id}).",
-				CreatedAt = DateTime.UtcNow
+				CreatedAt = DateTime.UtcNow,
+				PaidAt = DateOnly.FromDateTime(DateTime.UtcNow)
 			};
 
 			fines.Add(fine);
@@ -54,6 +55,7 @@ public class InMemoryFineRepository : IFineRepository
 		fine.Money = Money.Create(FineCalculator(fine.OverdueDays));
 		fine.Status = FineStatus.Unpaid;
 		fine.CreatedAt = DateTime.UtcNow;
+		fine.PaidAt = DateOnly.FromDateTime(DateTime.UtcNow);
 		_fines.Add(fine);
 	}
 
