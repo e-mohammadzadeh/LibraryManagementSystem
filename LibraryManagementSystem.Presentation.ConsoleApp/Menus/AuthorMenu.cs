@@ -1,5 +1,4 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
-using LibraryManagementSystem.Application.Menu;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
@@ -42,9 +41,9 @@ public static class AuthorMenu
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
 			else
 				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
-			switch (AuthorMenuList(authorization))
+			switch (AuthorMenuList(menuService))
 			{
-				case 1:
+				case "authors.add":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.AddContributor,
 						    Messages.AccessDenied))
@@ -54,7 +53,7 @@ public static class AuthorMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 2:
+				case "authors.edit":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.EditContributor,
 						    Messages.AccessDenied))
@@ -64,7 +63,7 @@ public static class AuthorMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 3:
+				case "authors.remove":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveContributor,
 						    Messages.AccessDenied))
@@ -74,27 +73,27 @@ public static class AuthorMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 4:
+				case "authors.search":
 				{
 					SearchAuthor(authorManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 5:
+				case "authors.sort":
 				{
 					Console.Clear();
 					SortAuthors(authorManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 6:
+				case "authors.view":
 				{
 					Console.Clear();
-					ViewAuthors(authorManagementService, authorization, session, statisticsService);
+					ViewAuthors(authorManagementService, authorization, session, statisticsService, menuService);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 7:
+				case "authors.back":
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					return;
@@ -104,25 +103,9 @@ public static class AuthorMenu
 	}
 
 
-	private static int AuthorMenuList(IMenuService menuService)
+	private static string? AuthorMenuList(IMenuService menuService)
 	{
-		//var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
-		//{
-		//	(1, "Add Author", authorization.HasPermission(Permission.AddContributor)),
-		//	(2, "Edit Author", authorization.HasPermission(Permission.EditContributor)),
-		//	(3, "Remove Author", authorization.HasPermission(Permission.RemoveContributor)),
-		//	(4, "Search Author",
-		//		authorization.HasAnyPermission(Permission.SearchForMember, Permission.FullSearchContributor)),
-		//	(5, "Sort Authors", authorization.HasPermission(Permission.FullSortContributor)),
-		//	(6, "View Authors",
-		//		authorization.HasAnyPermission(Permission.ViewContributorDetails, Permission.ViewContributorBooks,
-		//			Permission.ViewAllContributors)),
-		//	(7, "Back", true)
-		//};
-
-		//return MenuHelper.DisplayMenu("AUTHOR MENU", items);
-		var items = menuService.GetVisibleChildren("authors");
-
+		var items = menuService.GetChildren("authors");
 		return MenuHelper.DisplayMenu("AUTHOR MENU", items);
 	}
 
@@ -482,7 +465,7 @@ public static class AuthorMenu
 
 
 	private static void ViewAuthors(AuthorManagementService authorManagementService,
-		IAuthorizationService authorization, ICurrentUserSession session, LibraryStatisticsService statisticsService)
+		IAuthorizationService authorization, ICurrentUserSession session, LibraryStatisticsService statisticsService, IMenuService menuService)
 	{
 		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied, Permission.ViewContributorDetails,
 			    Permission.ViewContributorBooks, Permission.ViewAllContributors))
@@ -501,9 +484,9 @@ public static class AuthorMenu
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
 			else
 				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
-			switch (ViewAuthorMenuList(authorization))
+			switch (ViewAuthorMenuList(menuService))
 			{
-				case 1:
+				case "authors.view.authordetails":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewContributorDetails,
 						    Messages.AccessDenied))
@@ -515,14 +498,14 @@ public static class AuthorMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 2:
+				case "authors.view.authorbooks":
 				{
 					Console.Clear();
 					ViewBooksByAuthor(authorManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 3:
+				case "authors.view.allauthors":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllContributors,
 						    Messages.AccessDenied))
@@ -540,7 +523,7 @@ public static class AuthorMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 4:
+				case "authors.view.removedauthors":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewRemovedContributors,
 						    Messages.AccessDenied))
@@ -554,7 +537,7 @@ public static class AuthorMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 5:
+				case "authors.view.back":
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToAuthorMenu);
 					return;
@@ -564,17 +547,9 @@ public static class AuthorMenu
 	}
 
 
-	private static int ViewAuthorMenuList(IAuthorizationService authorization)
+	private static string? ViewAuthorMenuList(IMenuService menuService)
 	{
-		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
-		{
-			(1, "View Author Details", authorization.HasPermission(Permission.ViewContributorDetails)),
-			(2, "View Author's Books", authorization.HasPermission(Permission.ViewContributorBooks)),
-			(3, "View All Authors", authorization.HasPermission(Permission.ViewAllContributors)),
-			(4, "View Removed Authors", authorization.HasPermission(Permission.ViewRemovedContributors)),
-			(5, "Back", true)
-		};
-
+		var items = menuService.GetChildren("authors.view");
 		return MenuHelper.DisplayMenu("VIEW AUTHOR MENU", items);
 	}
 

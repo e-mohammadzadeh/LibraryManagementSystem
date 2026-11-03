@@ -1,4 +1,6 @@
-﻿namespace LibraryManagementSystem.Infrastructure.Interfaces;
+﻿using LibraryManagementSystem.Infrastructure.DTOs;
+
+namespace LibraryManagementSystem.Infrastructure.Interfaces;
 
 public interface IMenuService
 {

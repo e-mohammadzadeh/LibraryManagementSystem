@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.DTOs;
 using LibraryManagementSystem.Infrastructure.DTOs.Books;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.DTOs.Library;
@@ -146,21 +147,19 @@ public static class MenuHelper
 	}
 
 
-	public static T? DisplayMenu<T>(string title, List<(T Action, string DisplayText, bool IsAvailable)> items)
+	public static string? DisplayMenu(string title, IReadOnlyList<MenuOptionDto> items)
 	{
-		var availableItems = items.Where(item => item.IsAvailable).ToList();
-
-		if (availableItems.Count == 0) return default;
+		if (items.Count == 0) return null;
 
 		Console.WriteLine(new string('=', 37) + $" {title} " + new string('=', 37));
 
-		for (var i = 0; i < availableItems.Count; i++) Console.WriteLine($"{i + 1}. {availableItems[i].DisplayText}");
+		for (var i = 0; i < items.Count; i++) Console.WriteLine($"{i + 1}. {items[i].Label}");
 
 		Console.WriteLine(new string('=', 82));
 
-		var choice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, availableItems.Count);
+		var choice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, items.Count);
 
-		return choice is null ? default : availableItems[choice.Value - 1].Action;
+		return choice is null ? null : items[choice.Value - 1].Id;
 	}
 
 
