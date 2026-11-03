@@ -18,7 +18,7 @@ public static class UserMenu
 {
 	public static void UserMenuController(UserManagementService userManagementService,
 		RoleManagementService roleManagementService, LibraryStatisticsService statisticsService,
-		ICurrentUserSession session, IAuthorizationService authorization)
+		ICurrentUserSession session, IAuthorizationService authorization, IMenuService menuService)
 	{
 		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied, Permission.AddUser,
 			    Permission.EditUser, Permission.RemoveUser, Permission.SearchUser, Permission.SortUser,
@@ -40,51 +40,51 @@ public static class UserMenu
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
 			else
 				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
-			switch (UserMenuList(authorization))
+			switch (UserMenuList(menuService))
 			{
-				case 1:
+				case "users.register":
 				{
 					Console.Clear();
 					AddUser(userManagementService, roleManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 2:
+				case "users.edit":
 				{
 					Console.Clear();
 					EditUser(userManagementService, roleManagementService, authorization, session);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 3:
+				case "users.remove":
 				{
 					Console.Clear();
 					RemoveUser(userManagementService, authorization, session);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 4:
+				case "users.search":
 				{
 					Console.Clear();
-					SearchUser(userManagementService, roleManagementService, authorization);
+					SearchUser(userManagementService, menuService, roleManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 5:
+				case "users.sort":
 				{
 					Console.Clear();
-					SortUsers(userManagementService, authorization);
+					SortUsers(userManagementService, authorization, menuService);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 6:
+				case "users.view":
 				{
 					Console.Clear();
-					ViewUsers(userManagementService, authorization, session, statisticsService);
+					ViewUsers(userManagementService, authorization, session, statisticsService, menuService);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 7:
+				case "users.renew":
 				{
 					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
 						    Permission.RenewLibrarianMembership, Permission.RenewMemberMembership))
@@ -94,14 +94,14 @@ public static class UserMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 8:
+				case "users.change-password":
 				{
 					Console.Clear();
 					ChangePassword(userManagementService, session, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 9:
+				case "users.back":
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					return;
@@ -111,23 +111,9 @@ public static class UserMenu
 	}
 
 
-	private static int UserMenuList(IAuthorizationService authorization)
+	private static string? UserMenuList(IMenuService menuService)
 	{
-		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
-		{
-			(1, "Register User", authorization.HasPermission(Permission.AddUser)),
-			(2, "Edit User", authorization.HasAnyPermission(Permission.EditUser, Permission.EditOwnProfile)),
-			(3, "Remove User", authorization.HasPermission(Permission.RemoveUser)),
-			(4, "Search User", authorization.HasPermission(Permission.SearchUser)),
-			(5, "Sort Users", authorization.HasPermission(Permission.SortUser)),
-			(6, "View Users", authorization.HasAnyPermission(Permission.ViewUserDetails, Permission.ViewAllUsers,
-				Permission.ViewRemovedUsers)),
-			(7, "Renew Membership",
-				authorization.HasAnyPermission(Permission.RenewMemberMembership, Permission.RenewLibrarianMembership)),
-			(8, "Change Password", authorization.HasPermission(Permission.ChangePassword)),
-			(9, "Back", true)
-		};
-
+		var items = menuService.GetChildren("users");
 		return MenuHelper.DisplayMenu("USER MENU", items);
 	}
 
@@ -406,7 +392,7 @@ public static class UserMenu
 	}
 
 
-	private static void SearchUser(UserManagementService userManagementService,
+	private static void SearchUser(UserManagementService userManagementService, IMenuService menuService,
 		RoleManagementService roleManagementService, IAuthorizationService authorization)
 	{
 		if (!authorization.HasPermission(Permission.SearchUser))
@@ -415,34 +401,28 @@ public static class UserMenu
 			return;
 		}
 
+		if (userManagementService.GetAllUsers().Count == 0)
+		{
+			ConsoleHelper.ShowWarning(Messages.NotAvailableUser);
+			return;
+		}
+
 		while (true)
 		{
 			Console.Clear();
-			Console.WriteLine(new string('=', 36) + " SEARCHING USER MENU " + new string('=', 36));
-			if (userManagementService.GetAllUsers().Count == 0)
+			var selectedId = MenuHelper.DisplayMenu("SEARCHING USER MENU", menuService.GetChildren("users.search"));
+
+			if (selectedId is null) return;
+
+			if (selectedId.Equals("users.search.back", StringComparison.OrdinalIgnoreCase))
 			{
-				ConsoleHelper.ShowWarning(Messages.NotAvailableUser);
+				ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "User"));
 				return;
 			}
 
-			var items = new List<(int Id, string Label)>
+			switch (selectedId.ToLowerInvariant())
 			{
-				(1, "Name"),
-				(2, "National Code"),
-				(3, "Email"),
-				(4, "Phone Number"),
-				(5, "Role"),
-				(6, "Back")
-			};
-
-			for (var i = 0; i < items.Count; i++) Console.WriteLine($"{i + 1}. {items[i].Label}");
-
-			var searchMenuChoice = ConsoleHelper.ReadInt(Messages.SearchMenuQuestion, 1, 6);
-			if (searchMenuChoice is null) return;
-
-			switch (items[searchMenuChoice.Value - 1].Id)
-			{
-				case 1:
+				case "users.search.name":
 				{
 					PersonHelper.SearchAndDisplay(Messages.SearchName,
 						term => userManagementService.SearchUser(term, UserSearchField.FullName),
@@ -450,7 +430,7 @@ public static class UserMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 2:
+				case "users.search.national-code":
 				{
 					PersonHelper.SearchAndDisplay(Messages.SearchNationalCode,
 						term => userManagementService.SearchUser(term, UserSearchField.NationalCode),
@@ -458,7 +438,7 @@ public static class UserMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 3:
+				case "users.search.email":
 				{
 					PersonHelper.SearchAndDisplay(Messages.SearchEmail,
 						term => userManagementService.SearchUser(term, UserSearchField.Email),
@@ -466,7 +446,7 @@ public static class UserMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 4:
+				case "users.search.phone-number":
 				{
 					PersonHelper.SearchAndDisplay(Messages.SearchPhoneNumber,
 						term => userManagementService.SearchUser(term, UserSearchField.PhoneNumber),
@@ -474,16 +454,17 @@ public static class UserMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 5:
+				case "users.search.role":
 				{
 					SearchRoleAndDisplay(userManagementService, roleManagementService, "Enter a role to search");
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 6:
+				default:
 				{
-					ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "User"));
-					return;
+					ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
+					ConsoleHelper.Pause();
+					break;
 				}
 			}
 		}
@@ -514,7 +495,8 @@ public static class UserMenu
 	}
 
 
-	private static void SortUsers(UserManagementService userManagementService, IAuthorizationService authorization)
+	private static void SortUsers(UserManagementService userManagementService, IAuthorizationService authorization,
+		IMenuService menuService)
 	{
 		if (!authorization.HasPermission(Permission.SortUser))
 		{
@@ -522,89 +504,63 @@ public static class UserMenu
 			return;
 		}
 
-		var sortFields = GetAvailableUserSortFields();
-		while (true)
+		MenuHelper.SortByMenu<UserSortField, UserDto>(
+			menuService,
+			sortMenuId: "users.sort",
+			menuTitle: "SORT USERS",
+			mapField: TryMapUserSortField,
+			loadSorted: userManagementService.GetAllUsers,
+			display: (users, description) =>
+				UserPrinter.PrintFullTable(users, $"Sorted Users - {description}"),
+			emptyMessage: Messages.NotAvailableUser,
+			entityNameForCancel: "User",
+			backMenuId: "users.sort.back");
+	}
+
+
+	private static bool TryMapUserSortField(string menuId, out UserSortField field)
+	{
+		switch (menuId.ToLowerInvariant())
 		{
-			Console.Clear();
-			var fieldHeaders = new[] { "#", "Sort By" };
-			var fieldRows = sortFields
-				.Select((f, index) => new string[][] { [(index + 1).ToString()], [f.Label] }).ToList();
-			fieldRows.Add([[(sortFields.Count + 1).ToString()], ["Back"]]);
-
-
-			ConsoleTable.PrintTable("Sort Users", fieldHeaders, fieldRows);
-
-			var backOption = sortFields.Count + 1;
-			var choice = ConsoleHelper.ReadInt(Messages.SortFieldQuestion, 1, backOption);
-			if (choice is null) return;
-
-			if (choice == backOption)
-			{
-				ConsoleHelper.ShowInfo(string.Format(Messages.SortCancelled, "User"));
-				return;
-			}
-
-			var (field, _) = sortFields[choice.Value - 1];
-			var sortDirection = SelectSortDirection();
-			if (sortDirection is null) continue;
-
-			var sortedUsers = userManagementService.GetAllUsers(field, sortDirection.Value);
-			if (sortedUsers.Count == 0)
-			{
-				ConsoleHelper.ShowWarning(Messages.NotAvailableUser);
-				continue;
-			}
-
-			UserPrinter.PrintFullTable(sortedUsers, $"Sorted Users - {field} ({sortDirection})");
-			ConsoleHelper.Pause();
+			case "users.sort.firstname":
+				field = UserSortField.FirstName;
+				return true;
+			case "users.sort.lastname":
+				field = UserSortField.LastName;
+				return true;
+			case "users.sort.fullname":
+				field = UserSortField.FullName;
+				return true;
+			case "users.sort.national-code":
+				field = UserSortField.NationalCode;
+				return true;
+			case "users.sort.email":
+				field = UserSortField.Email;
+				return true;
+			case "users.sort.birthdate":
+				field = UserSortField.BirthDate;
+				return true;
+			case "users.sort.role":
+				field = UserSortField.Role;
+				return true;
+			case "users.sort.membership-start":
+				field = UserSortField.MembershipStartDate;
+				return true;
+			case "users.sort.membership-expiry":
+				field = UserSortField.MembershipExpiryDate;
+				return true;
+			case "users.sort.last-login":
+				field = UserSortField.LastLoginDate;
+				return true;
+			default:
+				field = default;
+				return false;
 		}
 	}
 
 
-	private static List<(UserSortField Field, string Label)> GetAvailableUserSortFields()
-	{
-		return
-		[
-			(UserSortField.FirstName, "First Name"),
-			(UserSortField.LastName, "Last Name"),
-			(UserSortField.FullName, "Full Name"),
-			(UserSortField.NationalCode, "National Code"),
-			(UserSortField.Email, "Email"),
-			(UserSortField.BirthDate, "Birth Date"),
-			(UserSortField.Role, "Role"),
-			(UserSortField.MembershipStartDate, "Membership Start Date"),
-			(UserSortField.MembershipExpiryDate, "Membership Expiry Date"),
-			(UserSortField.LastLoginDate, "Last Login Date")
-		];
-	}
-
-
-
-	private static SortDirection? SelectSortDirection()
-	{
-		var directionHeaders = new[] { "#", "Direction" };
-		var directionRows = new List<string[][]>
-		{
-			new string[][] { ["1"], ["Ascending"] },
-			new string[][] { ["2"], ["Descending"] },
-			new string[][] { ["3"], ["Back"] }
-		};
-		ConsoleTable.PrintTable("Sort Direction", directionHeaders, directionRows);
-
-		var directionChoice = ConsoleHelper.ReadInt(Messages.SortDirectionQuestion, 1, 3);
-		if (directionChoice is null) return null;
-
-		return directionChoice.Value switch
-		{
-			1 => SortDirection.Ascending,
-			2 => SortDirection.Descending,
-			_ => null
-		};
-	}
-
-
 	private static void ViewUsers(UserManagementService userManagementService, IAuthorizationService authorization,
-		ICurrentUserSession session, LibraryStatisticsService statisticsService)
+		ICurrentUserSession session, LibraryStatisticsService statisticsService, IMenuService menuService)
 	{
 		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
 			    Permission.ViewUserDetails, Permission.ViewAllUsers, Permission.ViewRemovedUsers))
@@ -624,9 +580,9 @@ public static class UserMenu
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
 			else
 				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
-			switch (ViewUserMenuList(authorization))
+			switch (ViewUserMenuList(menuService))
 			{
-				case 1:
+				case "users.view.own-details":
 				{
 					Console.Clear();
 					var userDto = userManagementService.GetUserById(session.CurrentUser.Id);
@@ -641,7 +597,7 @@ public static class UserMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 2:
+				case "users.view.user-details":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewUserDetails,
 						    Messages.AccessDenied))
@@ -655,7 +611,7 @@ public static class UserMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 3:
+				case "users.view.all-users":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllUsers, Messages.AccessDenied))
 						break;
@@ -668,7 +624,7 @@ public static class UserMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 4:
+				case "users.view.removed-users":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewRemovedUsers,
 						    Messages.AccessDenied))
@@ -682,7 +638,7 @@ public static class UserMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 5:
+				case "users.view.back":
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToUserMenu);
 					return;
@@ -693,17 +649,9 @@ public static class UserMenu
 
 
 
-	private static int ViewUserMenuList(IAuthorizationService authorization)
+	private static string? ViewUserMenuList(IMenuService menuService)
 	{
-		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
-		{
-			(1, "View Own Details", true),
-			(2, "View User Details", authorization.HasPermission(Permission.ViewUserDetails)),
-			(3, "View All Users", authorization.HasPermission(Permission.ViewAllUsers)),
-			(4, "View Removed Users", authorization.HasPermission(Permission.ViewRemovedUsers)),
-			(5, "Back", true)
-		};
-
+		var items = menuService.GetChildren("users.view");
 		return MenuHelper.DisplayMenu("VIEW USER MENU", items);
 	}
 

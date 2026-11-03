@@ -658,15 +658,15 @@
 							"label": "Role"
 						},
 						{
-							"id": "users.sort.membershipstart",
+							"id": "users.sort.membership-start",
 							"label": "Membership Start Date"
 						},
 						{
-							"id": "users.sort.membershipexpiry",
+							"id": "users.sort.membership-expiry",
 							"label": "Membership Expiry Date"
 						},
 						{
-							"id": "users.sort.lastlogin",
+							"id": "users.sort.last-login",
 							"label": "Last Login Date"
 						}
 					]
@@ -676,21 +676,21 @@
 					"label": "View Users",
 					"children": [
 						{
-							"id": "users.view.owndetails",
+							"id": "users.view.own-details",
 							"label": "View Own Details"
 						},
 						{
-							"id": "users.view.userdetails",
+							"id": "users.view.user-details",
 							"label": "View User Details",
 							"permission": ["ViewUserDetails"]
 						},
 						{
-							"id": "users.view.allusers",
+							"id": "users.view.all-users",
 							"label": "View All Users",
 							"permission": ["ViewAllUsers"]
 						},
 						{
-							"id": "users.view.removedusers",
+							"id": "users.view.removed-users",
 							"label": "View Removed Users",
 							"permission": ["ViewRemovedUsers"]
 						},
@@ -706,17 +706,17 @@
 					"permission": [ "RenewLibrarianMembership", "RenewMemberMembership" ]
 				},
 				{
-					"id": "users.changepassword",
+					"id": "users.change-password",
 					"label": "Change Password",
 					"children": [
 						{
-							"id": "users.changepassword.mypassword",
+							"id": "users.change-password.mypassword",
 							"label": "Change My Password"
 						},
 						{
-							"id": "users.changepassword.otheruser",
+							"id": "users.change-password.otheruser",
 							"label": "Reset Another User's Password",
-							"permission": ["ChangePassword"]
+							"permission": [ "ChangePassword" ]
 						}
 					]
 				},
