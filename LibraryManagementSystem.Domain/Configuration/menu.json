@@ -280,20 +280,20 @@
 					"label": "View Translators",
 					"children": [
 						{
-							"id": "translators.view.translatordetails",
+							"id": "translators.view.translator-details",
 							"label": "View Translators Details",
 							"permission": ["ViewContributorDetails"]
 						},
 						{
-							"id": "translators.view.translatorbooks",
+							"id": "translators.view.translator-books",
 							"label": "View Translator's Books"
 						},
 						{
-							"id": "translators.view.alltranslators",
+							"id": "translators.view.all-translators",
 							"label": "View All Translators"
 						},
 						{
-							"id": "translators.view.removedtranslators",
+							"id": "translators.view.removed-translators",
 							"label": "View Removed Translators",
 							"permission": ["ViewRemovedContributors"]
 						},

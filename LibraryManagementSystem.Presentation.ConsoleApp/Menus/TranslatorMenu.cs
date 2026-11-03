@@ -15,7 +15,8 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 public static class TranslatorMenu
 {
 	public static void TranslatorMenuController(TranslatorManagementService translatorManagementService,
-		LibraryStatisticsService statisticsService, ICurrentUserSession session, IAuthorizationService authorization)
+		LibraryStatisticsService statisticsService, ICurrentUserSession session, IAuthorizationService authorization,
+		IMenuService menuService)
 	{
 		if (!SessionGuard.RequireAnyPermission(
 			    authorization,
@@ -46,9 +47,9 @@ public static class TranslatorMenu
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
 			else
 				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
-			switch (TranslatorMenuList(authorization))
+			switch (TranslatorMenuList(menuService))
 			{
-				case 1:
+				case "translators.add":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.AddContributor,
 						    Messages.AccessDenied))
@@ -58,7 +59,7 @@ public static class TranslatorMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 2:
+				case "translators.edit":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.EditContributor,
 						    Messages.AccessDenied))
@@ -68,7 +69,7 @@ public static class TranslatorMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 3:
+				case "translators.remove":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveContributor,
 						    Messages.AccessDenied))
@@ -78,28 +79,29 @@ public static class TranslatorMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 4:
+				case "translators.search":
 				{
 					Console.Clear();
-					SearchTranslator(translatorManagementService, authorization);
+					SearchTranslator(translatorManagementService, authorization, menuService);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 5:
+				case "translators.sort":
 				{
 					Console.Clear();
-					SortTranslators(translatorManagementService, authorization);
+					SortTranslators(translatorManagementService, menuService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 6:
+				case "translators.view":
 				{
 					Console.Clear();
-					ViewTranslators(translatorManagementService, authorization, session, statisticsService);
+					ViewTranslators(translatorManagementService, menuService, authorization, session,
+						statisticsService);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 7:
+				case "translators.back":
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					return;
@@ -109,22 +111,9 @@ public static class TranslatorMenu
 	}
 
 
-	private static int TranslatorMenuList(IAuthorizationService authorization)
+	private static string? TranslatorMenuList(IMenuService menuService)
 	{
-		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
-		{
-			(1, "Add Translator", authorization.HasPermission(Permission.AddContributor)),
-			(2, "Edit Translator", authorization.HasPermission(Permission.EditContributor)),
-			(3, "Remove Translator", authorization.HasPermission(Permission.RemoveContributor)),
-			(4, "Search Translator",
-				authorization.HasAnyPermission(Permission.SearchForMember, Permission.FullSearchContributor)),
-			(5, "Sort Translators", authorization.HasPermission(Permission.FullSortContributor)),
-			(6, "View Translators",
-				authorization.HasAnyPermission(Permission.ViewContributorDetails, Permission.ViewContributorBooks,
-					Permission.ViewAllContributors)),
-			(7, "Back", true)
-		};
-
+		var items = menuService.GetChildren("translators");
 		return MenuHelper.DisplayMenu("TRANSLATOR MENU", items);
 	}
 
@@ -324,11 +313,17 @@ public static class TranslatorMenu
 
 
 	private static void SearchTranslator(TranslatorManagementService translatorManagementService,
-		IAuthorizationService authorization)
+		IAuthorizationService authorization, IMenuService menuService)
 	{
 		if (!authorization.HasAnyPermission(Permission.SearchForMember, Permission.FullSearchContributor))
 		{
 			ConsoleHelper.ShowError(Messages.AccessDenied);
+			return;
+		}
+
+		if (translatorManagementService.GetAllTranslators().Count == 0)
+		{
+			ConsoleHelper.ShowWarning(Messages.NotAvailableTranslator);
 			return;
 		}
 
@@ -340,41 +335,27 @@ public static class TranslatorMenu
 		while (true)
 		{
 			Console.Clear();
-			Console.WriteLine(new string('=', 36) + " SEARCHING TRANSLATOR MENU " + new string('=', 36));
-
-			if (translatorManagementService.GetAllTranslators().Count == 0)
+			var items = menuService.GetChildren("translators.search");
+			var selectedItem = MenuHelper.DisplayMenu("SEARCHING TRANSLATOR MENU", items);
+			switch (selectedItem)
 			{
-				ConsoleHelper.ShowWarning(Messages.NotAvailableTranslator);
-				return;
+				case null:
+					return;
+				case "translators.search.back":
+					ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "Translator"));
+					return;
 			}
 
-			var items = new List<(TranslatorSearchField? Field, string Label, Permission[] RequiredPermissions)>
+			var field = selectedItem switch
 			{
-				(TranslatorSearchField.Name, "Name",
-					[Permission.FullSearchContributor, Permission.SearchForMember]),
-				(TranslatorSearchField.NationalCode, "National Code", [Permission.FullSearchContributor]),
-				(TranslatorSearchField.Email, "Email",
-					[Permission.FullSearchContributor, Permission.SearchForMember]),
-				(TranslatorSearchField.PhoneNumber, "Phone Number", [Permission.FullSearchContributor]),
+				"translators.search.name" => TranslatorSearchField.Name,
+				"translators.search.national-code" => TranslatorSearchField.NationalCode,
+				"translators.search.email" => TranslatorSearchField.Email,
+				"translators.search.phone-number" => TranslatorSearchField.PhoneNumber,
+				_ => (TranslatorSearchField?)null
 			};
 
-			var available = items.Where(i =>
-				i.RequiredPermissions.Length == 0 || authorization.HasAnyPermission(i.RequiredPermissions)).ToList();
-
-			var displayNumber = 1;
-			foreach (var (_, label, _) in available) Console.WriteLine($"{displayNumber++}. {label}");
-			Console.WriteLine($"{displayNumber}. Back");
-
-			var choice = ConsoleHelper.ReadInt(Messages.SearchMenuQuestion, 1, displayNumber);
-			if (choice is null) return;
-
-			if (choice == displayNumber) // Back
-			{
-				ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "Translator"));
-				return;
-			}
-
-			var (field, _, _) = available[choice.Value - 1];
+			if (field is null) continue;
 
 			var prompt = field switch
 			{
@@ -386,7 +367,7 @@ public static class TranslatorMenu
 			};
 
 			PersonHelper.SearchAndDisplay(prompt,
-				term => translatorManagementService.SearchTranslator(term, field!.Value), printer,
+				term => translatorManagementService.SearchTranslator(term, field.Value), printer,
 				Messages.NotTranslatorMatched);
 
 			ConsoleHelper.Pause();
@@ -395,104 +376,63 @@ public static class TranslatorMenu
 
 
 	private static void SortTranslators(TranslatorManagementService translatorManagementService,
+		IMenuService menuService,
 		IAuthorizationService authorization)
 	{
-		if (!authorization.HasPermission(Permission.FullSortContributor))
-		{
-			ConsoleHelper.ShowError(Messages.AccessDenied);
-			return;
-		}
-
-		var sortFields = GetAvailableTranslatorSortFields(authorization);
-		while (true)
-		{
-			Console.Clear();
-			var fieldHeaders = new[] { "#", "Sort By" };
-			var fieldRows = sortFields
-				.Select((field, index) => new string[][] { [(index + 1).ToString()], [field.Label] }).ToList();
-			fieldRows.Add([[(sortFields.Count + 1).ToString()], ["Back"]]);
-
-
-			ConsoleTable.PrintTable("Sort Translator", fieldHeaders, fieldRows);
-
-			var backOption = sortFields.Count + 1;
-			var choice = ConsoleHelper.ReadInt(Messages.SortFieldQuestion, 1, backOption);
-			if (choice is null) return;
-
-			if (choice == backOption)
+		MenuHelper.SortByMenu<ContributorSortField, ContributorDto>(
+			menuService,
+			"translators.sort",
+			"SORT TRANSLATORS",
+			TryMapTranslatorSortField,
+			translatorManagementService.GetAllTranslators,
+			(list, description) =>
 			{
-				ConsoleHelper.ShowInfo(string.Format(Messages.SortCancelled, "Translator"));
-				return;
-			}
-
-			var (selectedField, _) = sortFields[choice.Value - 1];
-			var sortDirection = SelectSortDirection();
-			if (sortDirection is null) continue;
-
-			var sortedTranslators =
-				translatorManagementService.GetAllTranslators(selectedField, sortDirection.Value);
-			if (sortedTranslators.Count == 0)
-			{
-				ConsoleHelper.ShowWarning(Messages.NotAvailableTranslator);
-				continue;
-			}
-
-			var sortDescription = $"{selectedField} ({sortDirection})";
-
-			var canViewFullDetails = authorization.HasPermission(Permission.FullSortContributor);
-			if (canViewFullDetails)
-				TranslatorPrinter.PrintFullTable(sortedTranslators, $"Sorted Translators - {sortDescription}");
-			else
-				TranslatorPrinter.PrintTable(sortedTranslators, $"Sorted Translators - {sortDescription}");
-
-			ConsoleHelper.Pause();
-		}
+				var title = $"Sorted Translators - {description}";
+				if (authorization.HasPermission(Permission.FullSortContributor))
+					TranslatorPrinter.PrintFullTable(list, title);
+				else
+					TranslatorPrinter.PrintTable(list, title);
+			},
+			Messages.NotAvailableTranslator,
+			"Translator",
+			"translators.sort.back");
 	}
 
 
-	private static List<(ContributorSortField Field, string Label)> GetAvailableTranslatorSortFields(
-		IAuthorizationService authorization)
+	private static bool TryMapTranslatorSortField(string menuId, out ContributorSortField field)
 	{
-		var fields = new List<(ContributorSortField Field, string Label)>
+		switch (menuId.ToLowerInvariant())
 		{
-			(ContributorSortField.FirstName, "First Name"),
-			(ContributorSortField.LastName, "Last Name"),
-			(ContributorSortField.FullName, "Full Name"),
-			(ContributorSortField.Email, "Email")
-		};
-
-		if (!authorization.HasPermission(Permission.FullSortContributor)) return fields;
-		fields.Insert(3, (ContributorSortField.NationalCode, "National Code"));
-		fields.Add((ContributorSortField.BirthDate, "Birth Date"));
-		fields.Add((ContributorSortField.BookCount, "Book Count"));
-		return fields;
-	}
-
-
-	private static SortDirection? SelectSortDirection()
-	{
-		var directionHeaders = new[] { "#", "Direction" };
-		var directionRows = new List<string[][]>
-		{
-			new string[][] { ["1"], ["Ascending"] },
-			new string[][] { ["2"], ["Descending"] },
-			new string[][] { ["3"], ["Back"] }
-		};
-		ConsoleTable.PrintTable("Sort Direction", directionHeaders, directionRows);
-
-		var directionChoice = ConsoleHelper.ReadInt(Messages.SortDirectionQuestion, 1, 3);
-		if (directionChoice is null) return null;
-
-		return directionChoice.Value switch
-		{
-			1 => SortDirection.Ascending,
-			2 => SortDirection.Descending,
-			_ => null
-		};
+			case "translators.sort.firstname":
+				field = ContributorSortField.FirstName;
+				return true;
+			case "translators.sort.lastname":
+				field = ContributorSortField.LastName;
+				return true;
+			case "translators.sort.fullname":
+				field = ContributorSortField.FullName;
+				return true;
+			case "translators.sort.email":
+				field = ContributorSortField.Email;
+				return true;
+			case "translators.sort.national-code":
+				field = ContributorSortField.NationalCode;
+				return true;
+			case "translators.sort.birthdate":
+				field = ContributorSortField.BirthDate;
+				return true;
+			case "translators.sort.book-count":
+				field = ContributorSortField.BookCount;
+				return true;
+			default:
+				field = default;
+				return false;
+		}
 	}
 
 
 	private static void ViewTranslators(TranslatorManagementService translatorManagementService,
+		IMenuService menuService,
 		IAuthorizationService authorization, ICurrentUserSession session, LibraryStatisticsService statisticsService)
 	{
 		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
@@ -513,9 +453,9 @@ public static class TranslatorMenu
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
 			else
 				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
-			switch (ViewTranslatorMenuList(authorization))
+			switch (ViewTranslatorMenuList(menuService))
 			{
-				case 1:
+				case "translators.view.translator-details":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewContributorDetails,
 						    Messages.AccessDenied))
@@ -528,14 +468,14 @@ public static class TranslatorMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 2:
+				case "translators.view.translator-books":
 				{
 					Console.Clear();
 					ViewBooksByTranslator(translatorManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 3:
+				case "translators.view.all-translators":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllContributors,
 						    Messages.AccessDenied))
@@ -551,7 +491,7 @@ public static class TranslatorMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 4:
+				case "translators.view.removed-translators":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewRemovedContributors,
 						    Messages.AccessDenied))
@@ -565,7 +505,7 @@ public static class TranslatorMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 5:
+				case "translators.view.back":
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToTranslatorMenu);
 					return;
@@ -575,17 +515,9 @@ public static class TranslatorMenu
 	}
 
 
-	private static int ViewTranslatorMenuList(IAuthorizationService authorization)
+	private static string? ViewTranslatorMenuList(IMenuService menuService)
 	{
-		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
-		{
-			(1, "View Translator Details", authorization.HasPermission(Permission.ViewContributorDetails)),
-			(2, "View Translator's Books", authorization.HasPermission(Permission.ViewContributorBooks)),
-			(3, "View All Translators", authorization.HasPermission(Permission.ViewAllContributors)),
-			(4, "View Removed Translators", authorization.HasPermission(Permission.ViewRemovedContributors)),
-			(5, "Back", true)
-		};
-
+		var items = menuService.GetChildren("translators.view");
 		return MenuHelper.DisplayMenu("VIEW TRANSLATOR MENU", items);
 	}
 
