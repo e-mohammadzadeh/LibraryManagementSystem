@@ -24,7 +24,7 @@
 							"label": "Last Name"
 						},
 						{
-							"id": "authors.edit.nationalcode",
+							"id": "authors.edit.national-code",
 							"label": "National Code"
 						},
 						{
@@ -32,7 +32,7 @@
 							"label": "Email"
 						},
 						{
-							"id": "authors.edit.phonenumber",
+							"id": "authors.edit.phone-number",
 							"label": "Phone Number"
 						},
 						{
@@ -63,7 +63,7 @@
 							"label": "Name"
 						},
 						{
-							"id": "authors.search.nationalcode",
+							"id": "authors.search.national-code",
 							"label": "National Code",
 							"permission": ["FullSearchContributor"]
 						},
@@ -72,7 +72,7 @@
 							"label": "Email"
 						},
 						{
-							"id": "authors.search.phonenumber",
+							"id": "authors.search.phone-number",
 							"label": "Phone Number",
 							"permission": ["FullSearchContributor"]
 						},
@@ -103,7 +103,7 @@
 							"label": "Email"
 						},
 						{
-							"id": "authors.sort.nationalcode",
+							"id": "authors.sort.national-code",
 							"label": "National Code",
 							"permission": ["FullSortContributor"]
 						},
@@ -115,7 +115,11 @@
 						{
 							"id": "authors.sort.bookcount",
 							"label": "Book Count",
-							"permission": ["FullSortContributor"]
+							"permission": [ "FullSortContributor" ]
+						},
+						{
+							"id": "authors.sort.back",
+							"label": "Back"
 						}
 					]
 				},
@@ -176,7 +180,7 @@
 							"label": "Last Name"
 						},
 						{
-							"id": "translators.edit.nationalcode",
+							"id": "translators.edit.national-code",
 							"label": "National Code"
 						},
 						{
@@ -184,7 +188,7 @@
 							"label": "Email"
 						},
 						{
-							"id": "translators.edit.phonenumber",
+							"id": "translators.edit.phone-number",
 							"label": "Phone Number"
 						},
 						{
@@ -215,7 +219,7 @@
 							"label": "Name"
 						},
 						{
-							"id": "translators.search.nationalcode",
+							"id": "translators.search.national-code",
 							"label": "National Code",
 							"permission": ["FullSearchContributor"]
 						},
@@ -224,7 +228,7 @@
 							"label": "Email"
 						},
 						{
-							"id": "translators.search.phonenumber",
+							"id": "translators.search.phone-number",
 							"label": "Phone Number",
 							"permission": ["FullSearchContributor"]
 						},
@@ -255,7 +259,7 @@
 							"label": "Email"
 						},
 						{
-							"id": "translators.sort.nationalcode",
+							"id": "translators.sort.national-code",
 							"label": "National Code",
 							"permission":["FullSortContributor"]
 						},
@@ -557,7 +561,7 @@
 							"label": "Last Name"
 						},
 						{
-							"id": "users.edit.nationalcode",
+							"id": "users.edit.national-code",
 							"label": "National Code"
 						},
 						{
@@ -566,7 +570,7 @@
 							"permission": ["EditUser"]
 						},
 						{
-							"id": "users.edit.phonenumber",
+							"id": "users.edit.phone-number",
 							"label": "Phone Number"
 						},
 						{
@@ -599,7 +603,7 @@
 							"label": "Name"
 						},
 						{
-							"id": "users.search.nationalcode",
+							"id": "users.search.national-code",
 							"label": "National Code"
 						},
 						{
@@ -607,7 +611,7 @@
 							"label": "Email"
 						},
 						{
-							"id": "users.search.phonenumber",
+							"id": "users.search.phone-number",
 							"label": "Phone Number"
 						},
 						{
@@ -638,7 +642,7 @@
 							"label": "Full Name"
 						},
 						{
-							"id": "users.sort.nationalcode",
+							"id": "users.sort.national-code",
 							"label": "National Code"
 						},
 						{
@@ -756,7 +760,7 @@
 							"label": "Member Name"
 						},
 						{
-							"id": "loans.search.nationalcode",
+							"id": "loans.search.national-code",
 							"label": "Member's National Code"
 						},
 						{

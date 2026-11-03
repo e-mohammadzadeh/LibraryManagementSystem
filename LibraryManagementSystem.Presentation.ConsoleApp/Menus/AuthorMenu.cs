@@ -15,7 +15,8 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 public static class AuthorMenu
 {
 	public static void AuthorMenuController(AuthorManagementService authorManagementService,
-		LibraryStatisticsService statisticsService, ICurrentUserSession session, IAuthorizationService authorization, IMenuService menuService)
+		LibraryStatisticsService statisticsService, ICurrentUserSession session, IAuthorizationService authorization,
+		IMenuService menuService)
 	{
 		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
 			    Permission.AddContributor,
@@ -75,14 +76,14 @@ public static class AuthorMenu
 				}
 				case "authors.search":
 				{
-					SearchAuthor(authorManagementService, authorization);
+					SearchAuthor(authorManagementService, authorization, menuService);
 					ConsoleHelper.Pause();
 					break;
 				}
 				case "authors.sort":
 				{
 					Console.Clear();
-					SortAuthors(authorManagementService, authorization);
+					SortAuthors(authorManagementService, menuService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -303,11 +304,17 @@ public static class AuthorMenu
 
 
 	private static void SearchAuthor(AuthorManagementService authorManagementService,
-		IAuthorizationService authorization)
+		IAuthorizationService authorization, IMenuService menuService)
 	{
 		if (!authorization.HasAnyPermission(Permission.SearchForMember, Permission.FullSearchContributor))
 		{
 			ConsoleHelper.ShowError(Messages.AccessDenied);
+			return;
+		}
+
+		if (authorManagementService.GetAllAuthors().Count == 0)
+		{
+			ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
 			return;
 		}
 
@@ -318,38 +325,29 @@ public static class AuthorMenu
 		while (true)
 		{
 			Console.Clear();
-			Console.WriteLine(new string('=', 36) + " SEARCHING AUTHOR MENU " + new string('=', 36));
-			if (authorManagementService.GetAllAuthors().Count == 0)
+			var items = menuService.GetChildren("authors.search");
+			var selectedItem = MenuHelper.DisplayMenu("SEARCHING AUTHOR MENU", items);
+			switch (selectedItem)
 			{
-				ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
-				return;
+				case null:
+					return;
+				case "authors.search.back":
+					ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "Author"));
+					return;
 			}
 
-			var items = new List<(AuthorSearchField? Field, string Label, Permission[] RequiredPermissions)>
+			var field = selectedItem switch
 			{
-				(AuthorSearchField.Name, "Name", [Permission.FullSearchContributor, Permission.SearchForMember]),
-				(AuthorSearchField.NationalCode, "National Code", [Permission.FullSearchContributor]),
-				(AuthorSearchField.Email, "Email", [Permission.FullSearchContributor, Permission.SearchForMember]),
-				(AuthorSearchField.PhoneNumber, "Phone Number", [Permission.FullSearchContributor]),
+				"authors.search.name" => AuthorSearchField.Name,
+				"authors.search.national-code" => AuthorSearchField.NationalCode,
+				"authors.search.email" => AuthorSearchField.Email,
+				"authors.search.phone-number" => AuthorSearchField.PhoneNumber,
+				_ => (AuthorSearchField?)null
 			};
-			var available = items.Where(i =>
-				i.RequiredPermissions.Length == 0 || authorization.HasAnyPermission(i.RequiredPermissions)).ToList();
 
-			var displayNumber = 1;
-			foreach (var (_, label, _) in available) Console.WriteLine($"{displayNumber++}. {label}");
-			Console.WriteLine($"{displayNumber}. Back");
+			if (field is null) continue;
 
-			var choice = ConsoleHelper.ReadInt(Messages.SearchMenuQuestion, 1, displayNumber);
-			if (choice is null) return;
-
-			if (choice == displayNumber) // Back
-			{
-				ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "Author"));
-				return;
-			}
-
-			var (field, _, _) = available[choice.Value - 1];
-			var prompt = field switch
+			var prompt = field.Value switch
 			{
 				AuthorSearchField.Name => Messages.SearchName,
 				AuthorSearchField.NationalCode => Messages.SearchNationalCode,
@@ -358,60 +356,56 @@ public static class AuthorMenu
 				_ => "Enter search term"
 			};
 
-			PersonHelper.SearchAndDisplay(prompt,
-				term => authorManagementService.SearchAuthor(term, field!.Value), printer,
-				Messages.NotAuthorMatched);
-
+			PersonHelper.SearchAndDisplay(prompt, term => authorManagementService.SearchAuthor(term, field.Value),
+				printer, Messages.NotAuthorMatched);
 			ConsoleHelper.Pause();
 		}
 	}
 
 
-	private static void SortAuthors(AuthorManagementService authorManagementService,
+	private static void SortAuthors(AuthorManagementService authorManagementService, IMenuService menuService,
 		IAuthorizationService authorization)
 	{
-		if (!authorization.HasPermission(Permission.FullSortContributor))
+		if (!authorization.HasAnyPermission(Permission.FullSortContributor))
 		{
 			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
 		}
 
-		var sortFields = GetAvailableAuthorSortFields(authorization);
 		while (true)
 		{
 			Console.Clear();
-			var fieldHeaders = new[] { "#", "Sort By" };
-			var fieldRows = sortFields
-				.Select((f, index) => new string[][] { [(index + 1).ToString()], [f.Label] }).ToList();
-			fieldRows.Add([[(sortFields.Count + 1).ToString()], ["Back"]]);
+			var selectedId = MenuHelper.DisplayMenu("SORT AUTHORS", menuService.GetChildren("authors.sort"));
+			if (selectedId is null) return;
 
-
-			ConsoleTable.PrintTable("Sort Authors", fieldHeaders, fieldRows);
-
-			var backOption = sortFields.Count + 1;
-			var choice = ConsoleHelper.ReadInt(Messages.SortFieldQuestion, 1, backOption);
-			if (choice is null) return;
-
-			if (choice == backOption)
+			if (selectedId.Equals("authors.sort.back", StringComparison.OrdinalIgnoreCase))
 			{
 				ConsoleHelper.ShowInfo(string.Format(Messages.SortCancelled, "Author"));
 				return;
 			}
 
-			var (field, _) = sortFields[choice.Value - 1];
+			if (!TryMapAuthorSortField(selectedId, out var field))
+			{
+				ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
+				ConsoleHelper.Pause();
+				continue;
+			}
+
 			var sortDirection = SelectSortDirection();
-			if (sortDirection is null) continue;
+			if (sortDirection is null)
+				continue;
 
 			var sortedAuthors = authorManagementService.GetAllAuthors(field, sortDirection.Value);
 			if (sortedAuthors.Count == 0)
 			{
 				ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
+				ConsoleHelper.Pause();
 				continue;
 			}
 
 			var sortDescription = $"{field} ({sortDirection})";
-
 			var canViewFullDetails = authorization.HasPermission(Permission.FullSortContributor);
+
 			if (canViewFullDetails)
 				AuthorPrinter.PrintFullTable(sortedAuthors, $"Sorted Authors - {sortDescription}");
 			else
@@ -422,24 +416,36 @@ public static class AuthorMenu
 	}
 
 
-	private static List<(ContributorSortField Field, string Label)> GetAvailableAuthorSortFields(
-		IAuthorizationService authorization)
-	{
-		var fields = new List<(ContributorSortField Field, string Label)>
+	private static bool TryMapAuthorSortField(string menuId, out ContributorSortField field) {
+		switch (menuId.ToLowerInvariant())
 		{
-			(ContributorSortField.FirstName, "First Name"),
-			(ContributorSortField.LastName, "Last Name"),
-			(ContributorSortField.FullName, "Full Name"),
-			(ContributorSortField.Email, "Email")
-		};
-
-		if (!authorization.HasPermission(Permission.FullSortContributor)) return fields;
-		fields.Insert(3, (ContributorSortField.NationalCode, "National Code"));
-		fields.Add((ContributorSortField.BirthDate, "Birth Date"));
-		fields.Add((ContributorSortField.BookCount, "Book Count"));
-		return fields;
+			case "authors.sort.firstname":
+				field = ContributorSortField.FirstName;
+				return true;
+			case "authors.sort.lastname":
+				field = ContributorSortField.LastName;
+				return true;
+			case "authors.sort.fullname":
+				field = ContributorSortField.FullName;
+				return true;
+			case "authors.sort.email":
+				field = ContributorSortField.Email;
+				return true;
+			case "authors.sort.national-code":
+				field = ContributorSortField.NationalCode;
+				return true;
+			case "authors.sort.birthdate":
+				field = ContributorSortField.BirthDate;
+				return true;
+			case "authors.sort.bookcount":
+				field = ContributorSortField.BookCount;
+				return true;
+			default:
+				field = default;
+				return false;
+		}
 	}
-
+	
 
 	private static SortDirection? SelectSortDirection()
 	{
@@ -465,7 +471,8 @@ public static class AuthorMenu
 
 
 	private static void ViewAuthors(AuthorManagementService authorManagementService,
-		IAuthorizationService authorization, ICurrentUserSession session, LibraryStatisticsService statisticsService, IMenuService menuService)
+		IAuthorizationService authorization, ICurrentUserSession session, LibraryStatisticsService statisticsService,
+		IMenuService menuService)
 	{
 		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied, Permission.ViewContributorDetails,
 			    Permission.ViewContributorBooks, Permission.ViewAllContributors))
@@ -557,7 +564,8 @@ public static class AuthorMenu
 	private static void ViewBooksByAuthor(AuthorManagementService authorManagementService,
 		IAuthorizationService authorization)
 	{
-		if (!SessionGuard.RequirePermission(authorization, Permission.ViewContributorBooks, Messages.AccessDenied)) return;
+		if (!SessionGuard.RequirePermission(authorization, Permission.ViewContributorBooks, Messages.AccessDenied))
+			return;
 		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
 			author => MenuHelper.SelectAuthor(author, authorization), Messages.NotAvailableAuthor);
 		if (desiredAuthor is null) return;
