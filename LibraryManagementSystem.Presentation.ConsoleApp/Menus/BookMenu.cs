@@ -19,7 +19,7 @@ public static class BookMenu
 	public static void BookMenuController(AuthorManagementService authorManagementService,
 		TranslatorManagementService translatorManagementService, BookManagementService bookManagementService,
 		LoanManagementService loanManagementService, LibraryStatisticsService statisticsService,
-		ICurrentUserSession session, IAuthorizationService authorization)
+		ICurrentUserSession session, IAuthorizationService authorization, IMenuService menuService)
 	{
 		if (!SessionGuard.RequireAnyPermission(
 			    authorization,
@@ -49,9 +49,9 @@ public static class BookMenu
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
 			else
 				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
-			switch (BookMenuList(authorization))
+			switch (BookMenuList(menuService))
 			{
-				case 1:
+				case "books.add":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.AddBook, Messages.AccessDenied))
 						break;
@@ -60,7 +60,7 @@ public static class BookMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 2:
+				case "books.edit":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.EditBook, Messages.AccessDenied))
 						break;
@@ -69,7 +69,7 @@ public static class BookMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 3:
+				case "books.remove":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveBook, Messages.AccessDenied))
 						break;
@@ -78,30 +78,31 @@ public static class BookMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 4:
+				case "books.search":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.SearchBook, Messages.AccessDenied))
 						break;
 					Console.Clear();
-					SearchBook(bookManagementService, authorization);
+					SearchBook(bookManagementService, authorization, menuService);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 5:
+				case "books.sort":
 				{
 					Console.Clear();
-					SortBook(bookManagementService, authorization);
+					SortBook(bookManagementService, authorization, menuService);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 6:
+				case "books.view":
 				{
 					Console.Clear();
-					ViewBooks(bookManagementService, loanManagementService, authorization, session, statisticsService);
+					ViewBooks(bookManagementService, loanManagementService, authorization, session, statisticsService,
+						menuService);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 7:
+				case "books.back":
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					return;
@@ -111,19 +112,9 @@ public static class BookMenu
 	}
 
 
-	private static int BookMenuList(IAuthorizationService authorization)
+	private static string? BookMenuList(IMenuService menuService)
 	{
-		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
-		{
-			(1, "Add Book", authorization.HasPermission(Permission.AddBook)),
-			(2, "Edit Book", authorization.HasPermission(Permission.EditBook)),
-			(3, "Remove Book", authorization.HasPermission(Permission.RemoveBook)),
-			(4, "Search Book", authorization.HasPermission(Permission.SearchBook)),
-			(5, "Sort Book", authorization.HasPermission( Permission.FullSortBook)),
-			(6, "View Book", authorization.HasAnyPermission(Permission.ViewBookDetails, Permission.ViewAllBooks)),
-			(7, "Back", true)
-		};
-
+		var items = menuService.GetChildren("books");
 		return MenuHelper.DisplayMenu("BOOK MENU", items);
 	}
 
@@ -676,34 +667,33 @@ public static class BookMenu
 	}
 
 
-	private static void SearchBook(BookManagementService bookManagementService, IAuthorizationService authorization)
+	private static void SearchBook(BookManagementService bookManagementService, IAuthorizationService authorization,
+		IMenuService menuService)
 	{
+		if (bookManagementService.GetAllBooks().Count == 0)
+		{
+			ConsoleHelper.ShowWarning(Messages.NotAvailableBook);
+			return;
+		}
+
 		while (true)
 		{
 			Console.Clear();
-			Console.WriteLine(new string('=', 36) + " SEARCHING BOOK MENU " + new string('=', 36));
-			var booksList = bookManagementService.GetAllBooks();
-			if (booksList.Count == 0)
+			var selectedId = MenuHelper.DisplayMenu("SEARCHING BOOK MENU", menuService.GetChildren("books.search"));
+			if (selectedId is null) return;
+
+			if (selectedId.Equals("books.search.back", StringComparison.OrdinalIgnoreCase))
 			{
-				ConsoleHelper.ShowWarning(Messages.NotAvailableBook);
+				ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "Book"));
 				return;
 			}
-
-			Console.WriteLine("{0, -20}", "1. Title");
-			Console.WriteLine("{0, -20}", "2. ISBN");
-			Console.WriteLine("{0, -20}", "3. Author");
-			Console.WriteLine("{0, -20}", "4. Translator");
-			Console.WriteLine("{0, -20}", "5. Publish Date");
-			Console.WriteLine("{0, -20}", "6. Genre");
-			Console.WriteLine("{0, -20}", "7. Publisher");
-			Console.WriteLine("8. Back");
 
 			var searchMenuChoice = ConsoleHelper.ReadInt(Messages.SearchMenuQuestion, 1, 8);
 			if (searchMenuChoice == null) return;
 
-			switch (searchMenuChoice)
+			switch (selectedId.ToLowerInvariant())
 			{
-				case 1:
+				case "books.search.title":
 				{
 					Console.Clear();
 					var searchTerm = ConsoleHelper.ReadString("Enter a title to search");
@@ -713,7 +703,7 @@ public static class BookMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 2:
+				case "books.search.isbn":
 				{
 					Console.Clear();
 					var searchTerm = ConsoleHelper.ReadISBN("Enter an ISBN to search");
@@ -723,7 +713,7 @@ public static class BookMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 3:
+				case "books.search.author":
 				{
 					Console.Clear();
 					var searchTerm = ConsoleHelper.ReadString("Enter an author name");
@@ -733,7 +723,7 @@ public static class BookMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 4:
+				case "books.search.translator":
 				{
 					Console.Clear();
 					var searchTerm = ConsoleHelper.ReadString("Enter a translator name");
@@ -743,15 +733,15 @@ public static class BookMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 5:
+				case "books.search.publishdate":
 				{
 					Console.Clear();
-					var results = SearchByPublishDate(bookManagementService);
+					var results = SearchByPublishDate(bookManagementService, menuService);
 					DisplayBookResults(results!, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 6:
+				case "books.search.genre":
 				{
 					Console.Clear();
 					var searchTerm = ConsoleHelper.ReadGenre("Enter a genre to search");
@@ -761,7 +751,7 @@ public static class BookMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 7:
+				case "books.search.publisher":
 				{
 					Console.Clear();
 					var searchTerm = ConsoleHelper.ReadString("Enter a publisher to search");
@@ -771,11 +761,10 @@ public static class BookMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 8:
-				{
-					ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "Book"));
-					return;
-				}
+				default:
+					ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
+					ConsoleHelper.Pause();
+					continue;
 			}
 		}
 	}
@@ -793,171 +782,132 @@ public static class BookMenu
 	}
 
 
-	private static IReadOnlyList<BookDto>? SearchByPublishDate(BookManagementService bookManagementService)
+	private static IReadOnlyList<BookDto>? SearchByPublishDate(BookManagementService bookManagementService,
+		IMenuService menuService)
 	{
-		Console.WriteLine("Search by Publish Date:");
-		Console.WriteLine("1. Exact date");
-		Console.WriteLine("2. Before date");
-		Console.WriteLine("3. After date");
-		Console.WriteLine("4. Date range");
-		Console.WriteLine("5. Back");
-
-		var modeChoice = ConsoleHelper.ReadInt(Messages.SortFieldQuestion, 1, 5);
-		if (modeChoice is null or 5) return null;
-
-		var mode = (DateSearchMode)(modeChoice.Value - 1);
-
-		DateOnly from;
-		DateOnly to;
-
-		switch (mode)
-		{
-			case DateSearchMode.Exact:
-			{
-				var date = ConsoleHelper.ReadDateOnly("Enter a publish date to search");
-				if (date is null) return null;
-				from = date.Value;
-				to = date.Value;
-				break;
-			}
-			case DateSearchMode.Before:
-			{
-				var date = ConsoleHelper.ReadDateOnly("Enter date (find books published before this date)");
-				if (date is null) return null;
-				from = DateOnly.MinValue;
-				to = date.Value;
-				break;
-			}
-			case DateSearchMode.After:
-			{
-				var date = ConsoleHelper.ReadDateOnly("Enter date (find books published after this date)");
-				if (date is null) return null;
-				from = date.Value;
-				to = DateOnly.MaxValue;
-				break;
-			}
-			case DateSearchMode.Range:
-			{
-				var startDate = ConsoleHelper.ReadDateOnly("Enter start date");
-				if (startDate is null) return null;
-
-				var endDate = ConsoleHelper.ReadDateOnly("Enter end date");
-				if (endDate is null) return null;
-
-				if (endDate.Value < startDate.Value)
-				{
-					ConsoleHelper.ShowError("End date cannot be before start date.");
-					return null;
-				}
-
-				from = startDate.Value;
-				to = endDate.Value;
-				break;
-			}
-			default:
-				return null;
-		}
-
-		return bookManagementService.SearchBooksByDate(from, to, book => book.PublishDate);
-	}
-
-
-
-	private static void SortBook(BookManagementService bookManagementService, IAuthorizationService authorization)
-	{
-		if (!authorization.HasAnyPermission(Permission.FullSortBook))
-		{
-			ConsoleHelper.ShowError(Messages.AccessDenied);
-			return;
-		}
-
-		var sortFields = GetAvailableBookSortFields(authorization);
 		while (true)
 		{
 			Console.Clear();
-			var fieldHeaders = new[] { "#", "Sort By" };
-			var fieldRows = sortFields
-				.Select((f, index) => new string[][] { [(index + 1).ToString()], [f.Label] }).ToList();
-			fieldRows.Add([[(sortFields.Count + 1).ToString()], ["Back"]]);
 
-			ConsoleTable.PrintTable("Sort Book", fieldHeaders, fieldRows);
+			var selectedId = MenuHelper.DisplayMenu("SEARCH BY PUBLISH DATE",
+				menuService.GetChildren("books.search.publishdate"));
+			if (selectedId is null) return null;
 
-			var backOption = sortFields.Count + 1;
-			var choice = ConsoleHelper.ReadInt(Messages.SortFieldQuestion, 1, backOption);
-			if (choice is null) return;
+			if (selectedId.Equals("books.search.publishdate.back", StringComparison.OrdinalIgnoreCase)) return null;
 
-			if (choice == backOption)
+			DateOnly from;
+			DateOnly to;
+			switch (selectedId.ToLowerInvariant())
 			{
-				ConsoleHelper.ShowInfo(string.Format(Messages.SortCancelled, "Book"));
-				return;
+				case "books.search.publishdate.exact":
+				{
+					var date = ConsoleHelper.ReadDateOnly("Enter a publish date to search");
+					if (date is null) return null;
+					from = to = date.Value;
+					break;
+				}
+				case "books.search.publishdate.before":
+				{
+					var date = ConsoleHelper.ReadDateOnly("Enter date (find books published before this date)");
+					if (date is null) return null;
+					from = DateOnly.MinValue;
+					to = date.Value;
+					break;
+				}
+				case "books.search.publishdate.after":
+				{
+					var date = ConsoleHelper.ReadDateOnly("Enter date (find books published after this date)");
+					if (date is null) return null;
+					from = date.Value;
+					to = DateOnly.MaxValue;
+					break;
+				}
+				case "books.search.publishdate.daterange":
+				{
+					var startDate = ConsoleHelper.ReadDateOnly("Enter start date");
+					if (startDate is null) return null;
+
+					var endDate = ConsoleHelper.ReadDateOnly("Enter end date");
+					if (endDate is null) return null;
+
+					if (endDate.Value < startDate.Value)
+					{
+						ConsoleHelper.ShowError("End date cannot be before start date.");
+						ConsoleHelper.Pause();
+						continue;
+					}
+
+					from = startDate.Value;
+					to = endDate.Value;
+					break;
+				}
+				default:
+					ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
+					ConsoleHelper.Pause();
+					continue;
 			}
 
-			var (field, _) = sortFields[choice.Value - 1];
-			var sortDirection = SelectSortDirection();
-			if (sortDirection is null) continue;
-
-			var sortedBooks = bookManagementService.GetAllBooks(field, sortDirection.Value);
-			if (sortedBooks.Count == 0)
-			{
-				ConsoleHelper.ShowWarning(Messages.NotAvailableBook);
-				continue;
-			}
-
-			var sortDescription = $"{field} ({sortDirection})";
-
-			BookPrinter.PrintTable(sortedBooks, authorization, $"Sorted Books - {sortDescription}");
-
-			ConsoleHelper.Pause();
+			return bookManagementService.SearchBooksByDate(from, to, book => book.PublishDate);
 		}
 	}
 
 
-	private static List<(BookSortField Field, string Label)> GetAvailableBookSortFields(
-		IAuthorizationService authorization)
-	{
-		var fields = new List<(BookSortField Field, string Label)>
-		{
-			(BookSortField.Title, "Title"),
-			(BookSortField.ISBN, "ISBN"),
-			(BookSortField.Author, "Author"),
-			(BookSortField.Translator, "Translator"),
-			(BookSortField.PublishDate, "Publish Date"),
-			(BookSortField.Genre, "Genre"),
-			(BookSortField.Publisher, "Publisher"),
-		};
 
-		if (!authorization.HasPermission(Permission.FullSortBook)) return fields;
-		fields.Insert(8, (BookSortField.AvailableCopies, "Available Copies"));
-		return fields;
+	private static void SortBook(BookManagementService bookManagementService, IAuthorizationService authorization,
+		IMenuService menuService)
+	{
+		MenuHelper.SortByMenu<BookSortField, BookDto>(
+			menuService,
+			"books.sort",
+			"SORT BOOKS",
+			TryMapBookSortField,
+			bookManagementService.GetAllBooks,
+			display: (books, description) =>
+				BookPrinter.PrintTable(books, authorization, $"Sorted Books - {description}"),
+			Messages.NotAvailableBook,
+			"Book",
+			"books.sort.back");
 	}
 
 
-	private static SortDirection? SelectSortDirection()
+	private static bool TryMapBookSortField(string menuId, out BookSortField field)
 	{
-		var directionHeaders = new[] { "#", "Direction" };
-		var directionRows = new List<string[][]>
+		switch (menuId.ToLowerInvariant())
 		{
-			new string[][] { ["1"], ["Ascending"] },
-			new string[][] { ["2"], ["Descending"] },
-			new string[][] { ["3"], ["Back"] }
-		};
-		ConsoleTable.PrintTable("Sort Direction", directionHeaders, directionRows);
-
-		var directionChoice = ConsoleHelper.ReadInt(Messages.SortDirectionQuestion, 1, 3);
-		if (directionChoice is null) return null;
-
-		return directionChoice.Value switch
-		{
-			1 => SortDirection.Ascending,
-			2 => SortDirection.Descending,
-			_ => null
-		};
+			case "books.sort.title":
+				field = BookSortField.Title;
+				return true;
+			case "books.sort.isbn":
+				field = BookSortField.ISBN;
+				return true;
+			case "books.sort.author":
+				field = BookSortField.Author;
+				return true;
+			case "books.sort.translator":
+				field = BookSortField.Translator;
+				return true;
+			case "books.sort.publishdate":
+				field = BookSortField.PublishDate;
+				return true;
+			case "books.sort.genre":
+				field = BookSortField.Genre;
+				return true;
+			case "books.sort.publisher":
+				field = BookSortField.Publisher;
+				return true;
+			case "books.sort.availablecopies":
+				field = BookSortField.AvailableCopies;
+				return true;
+			default:
+				field = default;
+				return false;
+		}
 	}
 
 
 	private static void ViewBooks(BookManagementService bookManagementService,
 		LoanManagementService loanManagementService, IAuthorizationService authorization,
-		ICurrentUserSession session, LibraryStatisticsService statisticsService)
+		ICurrentUserSession session, LibraryStatisticsService statisticsService, IMenuService menuService)
 	{
 		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
 			    Permission.ViewBookDetails, Permission.ViewAllBooks))
@@ -979,9 +929,9 @@ public static class BookMenu
 			else
 				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
 
-			switch (ViewBookMenuList(authorization))
+			switch (ViewBookMenuList(menuService))
 			{
-				case 1:
+				case "books.view.bookdetails":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewBookDetails,
 						    Messages.AccessDenied))
@@ -991,7 +941,7 @@ public static class BookMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 2:
+				case "books.view.allbooks":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllBooks, Messages.AccessDenied))
 						break;
@@ -1004,7 +954,7 @@ public static class BookMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 3:
+				case "books.view.removedbooks":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewRemovedBooks,
 						    Messages.AccessDenied))
@@ -1018,7 +968,7 @@ public static class BookMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 4:
+				case "books.view.back":
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToBookMenu);
 					return;
@@ -1028,16 +978,9 @@ public static class BookMenu
 	}
 
 
-	private static int ViewBookMenuList(IAuthorizationService authorization)
+	private static string? ViewBookMenuList(IMenuService menuService)
 	{
-		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
-		{
-			(1, "View Book Details", authorization.HasPermission(Permission.ViewBookDetails)),
-			(2, "View All Books", authorization.HasPermission(Permission.ViewAllBooks)),
-			(3, "View Removed Books", authorization.HasPermission(Permission.ViewRemovedBooks)),
-			(4, "Back", true)
-		};
-
+		var items = menuService.GetChildren("books.view");
 		return MenuHelper.DisplayMenu("VIEW BOOK MENU", items);
 	}
 
