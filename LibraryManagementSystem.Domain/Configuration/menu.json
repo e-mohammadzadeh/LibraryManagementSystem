@@ -113,7 +113,7 @@
 							"permission": ["FullSortContributor"]
 						},
 						{
-							"id": "authors.sort.bookcount",
+							"id": "authors.sort.book-count",
 							"label": "Book Count",
 							"permission": [ "FullSortContributor" ]
 						},
@@ -128,20 +128,20 @@
 					"label": "View Authors",
 					"children": [
 						{
-							"id": "authors.view.authordetails",
+							"id": "authors.view.author-details",
 							"label": "View Author Details",
 							"permission": ["ViewContributorDetails"]
 						},
 						{
-							"id": "authors.view.authorbooks",
+							"id": "authors.view.author-books",
 							"label": "View Author's Books"
 						},
 						{
-							"id": "authors.view.allauthors",
+							"id": "authors.view.all-authors",
 							"label": "View All Authors"
 						},
 						{
-							"id": "authors.view.removedauthors",
+							"id": "authors.view.removed-authors",
 							"label": "View Removed Authors",
 							"permission": ["ViewRemovedContributors"]
 						},

@@ -9,6 +9,7 @@ using LibraryManagementSystem.Infrastructure.DTOs.Loans;
 using LibraryManagementSystem.Infrastructure.DTOs.Users;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
+using LibraryManagementSystem.Infrastructure.Enums.Sort;
 using LibraryManagementSystem.Infrastructure.Interfaces;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -193,5 +194,84 @@ public static class MenuHelper
 		LoanPrinter.PrintTable(loans);
 		var selection = ConsoleHelper.ReadInt($"Enter loan id to {purpose}", 1, loans.Count);
 		return selection is null ? null : loans[selection.Value - 1];
+	}
+
+
+	public static void SortByMenu<TField, TItem>(IMenuService menuService, string sortMenuId, string menuTitle,
+		TryMapSortField<TField> mapField, Func<TField, SortDirection, IReadOnlyList<TItem>> loadSorted,
+		Action<IReadOnlyList<TItem>, string> display, string emptyMessage, string entityNameForCancel,
+		string? backMenuId = null) where TField : struct where TItem : class
+	{
+		while (true)
+		{
+			Console.Clear();
+
+			var selectedId = MenuHelper.DisplayMenu(menuTitle, menuService.GetChildren(sortMenuId));
+			if (selectedId is null) return;
+			if (IsBack(selectedId, backMenuId, sortMenuId))
+			{
+				ConsoleHelper.ShowInfo(string.Format(Messages.SortCancelled, entityNameForCancel));
+				return;
+			}
+
+			if (!mapField(selectedId, out var field))
+			{
+				ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
+				ConsoleHelper.Pause();
+				continue;
+			}
+
+			var direction = SelectSortDirection();
+			if (direction is null) continue;
+
+			var items = loadSorted(field, direction.Value);
+			if (items.Count == 0)
+			{
+				ConsoleHelper.ShowWarning(emptyMessage);
+				ConsoleHelper.Pause();
+				continue;
+			}
+
+			var description = $"{field} ({direction})";
+			display(items, description);
+			ConsoleHelper.Pause();
+		}
+	}
+
+
+	public delegate bool TryMapSortField<TField>(string menuId, out TField field) where TField : struct;
+
+
+	private static bool IsBack(string selectedId, string? backMenuId, string sortMenuId)
+	{
+		if (backMenuId is not null && selectedId.Equals(backMenuId, StringComparison.OrdinalIgnoreCase)) return true;
+		if (selectedId.Equals($"{sortMenuId}.back", StringComparison.OrdinalIgnoreCase)) return true;
+		if (selectedId.EndsWith(".back", StringComparison.OrdinalIgnoreCase)) return true;
+
+		return false;
+	}
+
+
+	private static SortDirection? SelectSortDirection()
+	{
+		var headers = new[] { "#", "Direction" };
+		var rows = new List<string[][]>
+		{
+			new string[][] { ["1"], ["Ascending"] },
+			new string[][] { ["2"], ["Descending"] },
+			new string[][] { ["3"], ["Back"] }
+		};
+
+		ConsoleTable.PrintTable("Sort Direction", headers, rows);
+
+		var choice = ConsoleHelper.ReadInt(Messages.SortDirectionQuestion, 1, 3);
+		if (choice is null) return null;
+
+		return choice.Value switch
+		{
+			1 => SortDirection.Ascending,
+			2 => SortDirection.Descending,
+			_ => null
+		};
 	}
 }

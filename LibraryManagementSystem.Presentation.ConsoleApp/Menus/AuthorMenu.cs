@@ -366,57 +366,28 @@ public static class AuthorMenu
 	private static void SortAuthors(AuthorManagementService authorManagementService, IMenuService menuService,
 		IAuthorizationService authorization)
 	{
-		if (!authorization.HasAnyPermission(Permission.FullSortContributor))
-		{
-			ConsoleHelper.ShowError(Messages.AccessDenied);
-			return;
-		}
-
-		while (true)
-		{
-			Console.Clear();
-			var selectedId = MenuHelper.DisplayMenu("SORT AUTHORS", menuService.GetChildren("authors.sort"));
-			if (selectedId is null) return;
-
-			if (selectedId.Equals("authors.sort.back", StringComparison.OrdinalIgnoreCase))
+		MenuHelper.SortByMenu<ContributorSortField, ContributorDto>(
+			menuService,
+			sortMenuId: "authors.sort",
+			menuTitle: "SORT AUTHORS",
+			mapField: TryMapAuthorSortField,
+			loadSorted: authorManagementService.GetAllAuthors,
+			display: (authors, description) =>
 			{
-				ConsoleHelper.ShowInfo(string.Format(Messages.SortCancelled, "Author"));
-				return;
-			}
-
-			if (!TryMapAuthorSortField(selectedId, out var field))
-			{
-				ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
-				ConsoleHelper.Pause();
-				continue;
-			}
-
-			var sortDirection = SelectSortDirection();
-			if (sortDirection is null)
-				continue;
-
-			var sortedAuthors = authorManagementService.GetAllAuthors(field, sortDirection.Value);
-			if (sortedAuthors.Count == 0)
-			{
-				ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
-				ConsoleHelper.Pause();
-				continue;
-			}
-
-			var sortDescription = $"{field} ({sortDirection})";
-			var canViewFullDetails = authorization.HasPermission(Permission.FullSortContributor);
-
-			if (canViewFullDetails)
-				AuthorPrinter.PrintFullTable(sortedAuthors, $"Sorted Authors - {sortDescription}");
-			else
-				AuthorPrinter.PrintTable(sortedAuthors, $"Sorted Authors - {sortDescription}");
-
-			ConsoleHelper.Pause();
-		}
+				var title = $"Sorted Authors - {description}";
+				if (authorization.HasPermission(Permission.FullSortContributor))
+					AuthorPrinter.PrintFullTable(authors, title);
+				else
+					AuthorPrinter.PrintTable(authors, title);
+			},
+			emptyMessage: Messages.NotAvailableAuthor,
+			entityNameForCancel: "Author",
+			backMenuId: "authors.sort.back");
 	}
 
 
-	private static bool TryMapAuthorSortField(string menuId, out ContributorSortField field) {
+	private static bool TryMapAuthorSortField(string menuId, out ContributorSortField field)
+	{
 		switch (menuId.ToLowerInvariant())
 		{
 			case "authors.sort.firstname":
@@ -437,36 +408,13 @@ public static class AuthorMenu
 			case "authors.sort.birthdate":
 				field = ContributorSortField.BirthDate;
 				return true;
-			case "authors.sort.bookcount":
+			case "authors.sort.book-count":
 				field = ContributorSortField.BookCount;
 				return true;
 			default:
 				field = default;
 				return false;
 		}
-	}
-	
-
-	private static SortDirection? SelectSortDirection()
-	{
-		var directionHeaders = new[] { "#", "Direction" };
-		var directionRows = new List<string[][]>
-		{
-			new string[][] { ["1"], ["Ascending"] },
-			new string[][] { ["2"], ["Descending"] },
-			new string[][] { ["3"], ["Back"] }
-		};
-		ConsoleTable.PrintTable("Sort Direction", directionHeaders, directionRows);
-
-		var directionChoice = ConsoleHelper.ReadInt(Messages.SortDirectionQuestion, 1, 3);
-		if (directionChoice is null) return null;
-
-		return directionChoice.Value switch
-		{
-			1 => SortDirection.Ascending,
-			2 => SortDirection.Descending,
-			_ => null
-		};
 	}
 
 
@@ -493,7 +441,7 @@ public static class AuthorMenu
 				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
 			switch (ViewAuthorMenuList(menuService))
 			{
-				case "authors.view.authordetails":
+				case "authors.view.author-details":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewContributorDetails,
 						    Messages.AccessDenied))
@@ -505,14 +453,14 @@ public static class AuthorMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case "authors.view.authorbooks":
+				case "authors.view.author-books":
 				{
 					Console.Clear();
 					ViewBooksByAuthor(authorManagementService, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case "authors.view.allauthors":
+				case "authors.view.all-authors":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllContributors,
 						    Messages.AccessDenied))
@@ -530,7 +478,7 @@ public static class AuthorMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case "authors.view.removedauthors":
+				case "authors.view.removed-authors":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewRemovedContributors,
 						    Messages.AccessDenied))
