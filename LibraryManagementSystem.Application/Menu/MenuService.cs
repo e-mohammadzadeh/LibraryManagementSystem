@@ -1,14 +1,20 @@
-﻿namespace LibraryManagementSystem.Application.Menu;
+﻿using LibraryManagementSystem.Application.Authorization;
+using LibraryManagementSystem.Infrastructure.Enums;
+using LibraryManagementSystem.Infrastructure.Interfaces;
 
-public sealed class MenuService
+namespace LibraryManagementSystem.Application.Menu;
+
+public sealed class MenuService : IMenuService
 {
 	private readonly MenuDefinition _menu;
+	private readonly IAuthorizationService _authorization;
 
 
-	public MenuService(MenuDefinition menu)
+	public MenuService(MenuDefinition menu, IAuthorizationService authorization)
 	{
 		ArgumentNullException.ThrowIfNull(menu);
 		_menu = menu;
+		_authorization = authorization;
 	}
 
 
@@ -20,7 +26,7 @@ public sealed class MenuService
 
 		if (item is null) return [];
 
-		return [.. item.Children.Select(child => new MenuOptionDto(child.Id, child.Label))];
+		return [.. item.Children.Where(CanDisplay).Select(child => new MenuOptionDto(child.Id, child.Label))];
 	}
 
 
@@ -34,5 +40,27 @@ public sealed class MenuService
 		}
 
 		return null;
+	}
+
+
+	private bool CanDisplay(MenuItem item)
+	{
+		if (item.Permissions.Count == 0)
+			return true;
+
+		foreach (var permissionName in item.Permissions)
+		{
+			if (!Enum.TryParse<Permission>(
+				    permissionName, true, out var permission))
+			{
+				throw new InvalidOperationException(
+					$"Unknown permission '{permissionName}' in menu configuration.");
+			}
+
+			if (_authorization.HasPermission(permission))
+				return true;
+		}
+
+		return false;
 	}
 }

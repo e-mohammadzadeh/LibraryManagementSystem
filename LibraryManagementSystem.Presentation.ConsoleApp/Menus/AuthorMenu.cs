@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
+using LibraryManagementSystem.Application.Menu;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
@@ -15,7 +16,7 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 public static class AuthorMenu
 {
 	public static void AuthorMenuController(AuthorManagementService authorManagementService,
-		LibraryStatisticsService statisticsService, ICurrentUserSession session, IAuthorizationService authorization)
+		LibraryStatisticsService statisticsService, ICurrentUserSession session, IAuthorizationService authorization, IMenuService menuService)
 	{
 		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
 			    Permission.AddContributor,
@@ -26,9 +27,7 @@ public static class AuthorMenu
 			    Permission.FullSortContributor,
 			    Permission.ViewContributorDetails,
 			    Permission.ViewAllContributors))
-		{
 			return;
-		}
 
 		while (true)
 		{
@@ -105,21 +104,24 @@ public static class AuthorMenu
 	}
 
 
-	private static int AuthorMenuList(IAuthorizationService authorization)
+	private static int AuthorMenuList(IMenuService menuService)
 	{
-		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
-		{
-			(1, "Add Author", authorization.HasPermission(Permission.AddContributor)),
-			(2, "Edit Author", authorization.HasPermission(Permission.EditContributor)),
-			(3, "Remove Author", authorization.HasPermission(Permission.RemoveContributor)),
-			(4, "Search Author",
-				authorization.HasAnyPermission(Permission.SearchForMember, Permission.FullSearchContributor)),
-			(5, "Sort Authors", authorization.HasPermission(Permission.FullSortContributor)),
-			(6, "View Authors",
-				authorization.HasAnyPermission(Permission.ViewContributorDetails, Permission.ViewContributorBooks,
-					Permission.ViewAllContributors)),
-			(7, "Back", true)
-		};
+		//var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
+		//{
+		//	(1, "Add Author", authorization.HasPermission(Permission.AddContributor)),
+		//	(2, "Edit Author", authorization.HasPermission(Permission.EditContributor)),
+		//	(3, "Remove Author", authorization.HasPermission(Permission.RemoveContributor)),
+		//	(4, "Search Author",
+		//		authorization.HasAnyPermission(Permission.SearchForMember, Permission.FullSearchContributor)),
+		//	(5, "Sort Authors", authorization.HasPermission(Permission.FullSortContributor)),
+		//	(6, "View Authors",
+		//		authorization.HasAnyPermission(Permission.ViewContributorDetails, Permission.ViewContributorBooks,
+		//			Permission.ViewAllContributors)),
+		//	(7, "Back", true)
+		//};
+
+		//return MenuHelper.DisplayMenu("AUTHOR MENU", items);
+		var items = menuService.GetVisibleChildren("authors");
 
 		return MenuHelper.DisplayMenu("AUTHOR MENU", items);
 	}

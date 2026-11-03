@@ -2,5 +2,5 @@
 
 public class Author : Contributor
 {
-	public ICollection<BookAuthor> BookAuthors { get; set; } = new List<BookAuthor>();
+	public ICollection<BookAuthor> BookAuthors { get; set; } = [];
 }

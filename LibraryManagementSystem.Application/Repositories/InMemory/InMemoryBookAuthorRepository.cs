@@ -308,7 +308,6 @@ public class InMemoryBookAuthorRepository : IBookAuthorRepository
 			AvailableCopies = 6
 		};
 
-
 		var ba1 = new BookAuthor { Book = b1, BookId = b1.Id, Author = a1, AuthorId = a1.Id };
 		var ba2 = new BookAuthor { Book = b2, BookId = b2.Id, Author = a1, AuthorId = a1.Id };
 		var ba3 = new BookAuthor { Book = b2, BookId = b2.Id, Author = a2, AuthorId = a2.Id };
@@ -336,11 +335,18 @@ public class InMemoryBookAuthorRepository : IBookAuthorRepository
 		var ba25 = new BookAuthor { Book = b14, BookId = b14.Id, Author = a4, AuthorId = a4.Id };
 		var ba26 = new BookAuthor { Book = b15, BookId = b15.Id, Author = a4, AuthorId = a4.Id };
 
-		return
-		[
-			ba1, ba2, ba3, ba4, ba5, ba6, ba7, ba8, ba9, ba10, ba11, ba12, ba13, ba14, ba15, ba16, ba17, ba18, ba19,
-			ba20, ba21, ba22, ba23, ba24, ba25, ba26
-		];
+		//a1.BookAuthors.Add([ba1, ba2]);
+
+
+		List<BookAuthor> bookAuthors = [ba1, ba2, ba3, ba4, ba5, ba6, ba7, ba8, ba9, ba10, ba11, ba12, ba13, ba14, ba15, ba16, ba17, ba18, ba19,
+			ba20, ba21, ba22, ba23, ba24, ba25, ba26];
+
+		a1.BookAuthors = [ba1, ba2, ba8, ba13, ba21];
+		a2.BookAuthors = [ba2, ba3, ba7, ba9, ba22];
+		a3.BookAuthors = [ba5, ba10, ba17, ba23];
+		a4.BookAuthors = [ba6, ba11, ba12, ba14, ba15, ba16, ba18, ba19, ba20, ba24, ba25, ba26];
+
+		return bookAuthors;
 	}
 
 
@@ -349,6 +355,7 @@ public class InMemoryBookAuthorRepository : IBookAuthorRepository
 	{
 		ArgumentNullException.ThrowIfNull(bookAuthor);
 
+		bookAuthor.Id = Guid.CreateVersion7();
 		var alreadyExists = _bookAuthors.Any(ba =>
 			ba.BookId == bookAuthor.BookId &&
 			ba.AuthorId == bookAuthor.AuthorId);
@@ -356,6 +363,7 @@ public class InMemoryBookAuthorRepository : IBookAuthorRepository
 		if (alreadyExists) throw new InvalidOperationException("This author is already associated with this book.");
 
 		_bookAuthors.Add(bookAuthor);
+		
 	}
 
 
