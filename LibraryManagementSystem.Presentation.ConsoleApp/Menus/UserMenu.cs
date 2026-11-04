@@ -97,7 +97,7 @@ public static class UserMenu
 				case "users.change-password":
 				{
 					Console.Clear();
-					ChangePassword(userManagementService, session, authorization);
+					ChangePassword(userManagementService, session, authorization, menuService);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -698,67 +698,46 @@ public static class UserMenu
 
 
 	private static void ChangePassword(UserManagementService userManagementService, ICurrentUserSession session,
-		IAuthorizationService authorization)
+		IAuthorizationService authorization, IMenuService menuService)
 	{
-		var canResetOthers = authorization.HasPermission(Permission.ChangePassword);
-
-		if (!canResetOthers)
-		{
-			ConsoleHelper.ShowError(Messages.AccessDenied);
-			return;
-		}
-
-		Console.WriteLine(new string('=', 36) + " CHANGE PASSWORD " + new string('=', 36));
-
+		Console.Clear();
+		var selectedItem = MenuHelper.DisplayMenu("CHANGE PASSWORD", menuService.GetChildren("users.change-password"));
+		if (selectedItem is null) return;
 		Guid targetUserId;
-		var isOwn = true;
+		var isOwn = false;
 
-		if (canResetOthers)
+		switch (selectedItem)
 		{
-			Console.WriteLine("1. Change my password");
-			Console.WriteLine("2. Reset another user's password");
-			var choice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 2);
-			switch (choice)
+			case "users.change-password.own":
 			{
-				case null:
-					return;
-				case 1:
-				{
-					targetUserId = session.CurrentUser.Id;
-					break;
-				}
-				default:
-				{
-					var user = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
-						list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)),
-						Messages.NotAvailableUser);
-					if (user is null) return;
-
-					if (user.ShouldRemove)
-					{
-						ConsoleHelper.ShowError(Messages.UserFlaggedForRemoval);
-						return;
-					}
-
-					targetUserId = user.Id;
-					isOwn = session.CurrentUser.Id == targetUserId;
-					break;
-				}
+				targetUserId = session.CurrentUser.Id;
+				isOwn = true;
+				break;
 			}
-		}
-		else if (canResetOthers)
-		{
-			var user = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
-				list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)),
-				Messages.NotAvailableUser);
-			if (user is null) return;
+			case "users.change-password.other":
+			{
+				if (!authorization.HasPermission(Permission.ChangePassword))
+				{
+					ConsoleHelper.ShowError(Messages.AccessDenied);
+					return;
+				}
 
-			targetUserId = user.Id;
-			isOwn = session.CurrentUser.Id == targetUserId;
-		}
-		else // own only
-		{
-			targetUserId = session.CurrentUser.Id;
+				var user = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
+					list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)),
+					Messages.NotAvailableUser);
+				if (user is null) return;
+				if (user.ShouldRemove)
+				{
+					ConsoleHelper.ShowError(Messages.UserFlaggedForRemoval);
+					return;
+				}
+
+				targetUserId = user.Id;
+				isOwn = targetUserId == session.CurrentUser.Id;
+				break;
+			}
+			default:
+				return;
 		}
 
 		string? currentPassword = null;
@@ -780,7 +759,7 @@ public static class UserMenu
 			return;
 		}
 
-		var result = userManagementService.ChangePassword(targetUserId, currentPassword!, newPassword, session);
+		var result = userManagementService.ChangePassword(targetUserId, currentPassword, newPassword, session);
 		ConsoleHelper.ShowResult(result);
 	}
 }

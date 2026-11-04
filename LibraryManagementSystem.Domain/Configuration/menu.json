@@ -380,7 +380,7 @@
 							]
 						},
 						{
-							"id": "books.edit.publishdate",
+							"id": "books.edit.publish-date",
 							"label": "Publish Date"
 						},
 						{
@@ -431,27 +431,27 @@
 							"label": "Translator"
 						},
 						{
-							"id": "books.search.publishdate",
+							"id": "books.search.publish-date",
 							"label": "Publish Date",
 							"children": [
 								{
-									"id": "books.search.publishdate.exact",
+									"id": "books.search.publish-date.exact",
 									"label": "Exact date"
 								},
 								{
-									"id": "books.search.publishdate.before",
+									"id": "books.search.publish-date.before",
 									"label": "Before date"
 								},
 								{
-									"id": "books.search.publishdate.after",
+									"id": "books.search.publish-date.after",
 									"label": "After date"
 								},
 								{
-									"id": "books.search.publishdate.daterange",
+									"id": "books.search.publish-date.date-range",
 									"label": "Date range"
 								},
 								{
-									"id": "books.search.publishdate.back",
+									"id": "books.search.publish-date.back",
 									"label": "Back"
 								}
 							]
@@ -491,7 +491,7 @@
 							"label": "Translator"
 						},
 						{
-							"id": "books.sort.publishdate",
+							"id": "books.sort.publish-date",
 							"label": "Publish Date"
 						},
 						{
@@ -514,16 +514,16 @@
 					"label": "View Book",
 					"children": [
 						{
-							"id": "books.view.bookdetails",
+							"id": "books.view.book-details",
 							"label": "View Book Details",
 							"permission": ["ViewBookDetails"]
 						},
 						{
-							"id": "books.view.allbooks",
+							"id": "books.view.all-books",
 							"label": "View All Books"
 						},
 						{
-							"id": "books.view.removedbooks",
+							"id": "books.view.removed-books",
 							"label": "View Removed Books",
 							"permission": ["ViewRemovedBooks"]
 						},
@@ -782,22 +782,49 @@
 							"label": "My Loans"
 						},
 						{
-							"id": "loans.view.byuser",
+							"id": "loans.view.by-user",
 							"label": "By User",
-							"permission": ["ViewLoansByUser"]
+							"permission": [ "ViewLoansByUser" ]
 						},
 						{
-							"id": "loans.view.bybook",
+							"id": "loans.view.by-book",
 							"label": "By Book",
-							"permission": ["ViewLoansByBook"]
+							"permission": [ "ViewLoansByBook" ]
 						},
 						{
 							"id": "loans.view.full",
 							"label": "Full History",
-							"permission": ["ViewAllLoans"]
+							"permission": [ "ViewAllLoans" ]
 						},
 						{
 							"id": "loans.view.back",
+							"label": "Back"
+						}
+					]
+				},
+				{
+					"id": "loans.filter",
+					"label": "Loan Filter",
+					"children": [
+						{
+							"id": "loans.filter.active",
+							"label": "Active"
+						},
+						{
+							"id": "loans.filter.overdue",
+							"label": "Overdue"
+						},
+						{
+							"id": "loans.filter.inactive",
+							"label": "Inactive"
+						},
+						{
+							"id": "loans.filter.all",
+							"label": "All",
+							"permissions": [ "ViewAllLoans" ]
+						},
+						{
+							"id": "loans.filter.back",
 							"label": "Back"
 						}
 					]

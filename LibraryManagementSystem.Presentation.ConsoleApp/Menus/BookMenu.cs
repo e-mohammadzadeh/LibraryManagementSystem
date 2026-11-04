@@ -762,9 +762,11 @@ public static class BookMenu
 					break;
 				}
 				default:
+				{
 					ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
 					ConsoleHelper.Pause();
 					continue;
+				}
 			}
 		}
 	}
@@ -790,23 +792,23 @@ public static class BookMenu
 			Console.Clear();
 
 			var selectedId = MenuHelper.DisplayMenu("SEARCH BY PUBLISH DATE",
-				menuService.GetChildren("books.search.publishdate"));
+				menuService.GetChildren("books.search.publish-date"));
 			if (selectedId is null) return null;
 
-			if (selectedId.Equals("books.search.publishdate.back", StringComparison.OrdinalIgnoreCase)) return null;
+			if (selectedId.Equals("books.search.publish-date.back", StringComparison.OrdinalIgnoreCase)) return null;
 
 			DateOnly from;
 			DateOnly to;
 			switch (selectedId.ToLowerInvariant())
 			{
-				case "books.search.publishdate.exact":
+				case "books.search.publish-date.exact":
 				{
 					var date = ConsoleHelper.ReadDateOnly("Enter a publish date to search");
 					if (date is null) return null;
 					from = to = date.Value;
 					break;
 				}
-				case "books.search.publishdate.before":
+				case "books.search.publish-date.before":
 				{
 					var date = ConsoleHelper.ReadDateOnly("Enter date (find books published before this date)");
 					if (date is null) return null;
@@ -814,7 +816,7 @@ public static class BookMenu
 					to = date.Value;
 					break;
 				}
-				case "books.search.publishdate.after":
+				case "books.search.publish-date.after":
 				{
 					var date = ConsoleHelper.ReadDateOnly("Enter date (find books published after this date)");
 					if (date is null) return null;
@@ -822,7 +824,7 @@ public static class BookMenu
 					to = DateOnly.MaxValue;
 					break;
 				}
-				case "books.search.publishdate.daterange":
+				case "books.search.publish-date.date-range":
 				{
 					var startDate = ConsoleHelper.ReadDateOnly("Enter start date");
 					if (startDate is null) return null;
@@ -886,7 +888,7 @@ public static class BookMenu
 			case "books.sort.translator":
 				field = BookSortField.Translator;
 				return true;
-			case "books.sort.publishdate":
+			case "books.sort.publish-date":
 				field = BookSortField.PublishDate;
 				return true;
 			case "books.sort.genre":
@@ -931,7 +933,7 @@ public static class BookMenu
 
 			switch (ViewBookMenuList(menuService))
 			{
-				case "books.view.bookdetails":
+				case "books.view.book-details":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewBookDetails,
 						    Messages.AccessDenied))
@@ -941,7 +943,7 @@ public static class BookMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case "books.view.allbooks":
+				case "books.view.all-books":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllBooks, Messages.AccessDenied))
 						break;
@@ -954,7 +956,7 @@ public static class BookMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case "books.view.removedbooks":
+				case "books.view.removed-books":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.ViewRemovedBooks,
 						    Messages.AccessDenied))
