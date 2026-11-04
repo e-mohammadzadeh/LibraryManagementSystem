@@ -3,12 +3,12 @@ using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Repositories.InMemory;
 using LibraryManagementSystem.Application.Security;
-using LibraryManagementSystem.Application.Seeders;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Infrastructure.Interfaces;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 using System.Text;
+using LibraryManagementSystem.Application.Menu;
 
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp;
@@ -19,15 +19,7 @@ public static class Program
 	{
 		Console.OutputEncoding = Encoding.UTF8;
 
-		//var menuDefinition = MenuLoader.Load();
-		//var menuService = new MenuService(menuDefinition);
-		//var loanOptions = menuService.GetChildren("loans.view.inactive");
-
-		//foreach (var option in loanOptions)
-		//{
-		//	Console.WriteLine($"{option.Id} - {option.Label}");
-		//}
-		//ConsoleHelper.Pause();
+		var menuDefinition = MenuLoader.Load();
 
 		try
 		{
@@ -57,6 +49,7 @@ public static class Program
 				passwordHasher, authorization, auditLogService);
 			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo, iUserService,
 				userAutoRemovalService, authorization, auditLogService);
+			IMenuService menuService = new MenuService(menuDefinition, authorization);
 
 
 			// ── Application Services ──────────────────
@@ -89,7 +82,7 @@ public static class Program
 
 				var result = MainMenu.MainMenuController(authorService, translatorService, userService, bookService,
 					loanService, fineService, authService, currentUserSession, authorization, statisticsService,
-					auditLogService, roleService);
+					auditLogService, roleService, menuService);
 
 				if (result == MainMenuResult.Exit) return;
 				ConsoleHelper.Pause();

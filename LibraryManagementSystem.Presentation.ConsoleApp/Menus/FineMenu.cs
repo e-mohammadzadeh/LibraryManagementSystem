@@ -14,12 +14,12 @@ public static class FineMenu
 {
 	public static void FineMenuController(IFineManagementService fineManagementService,
 		UserManagementService userManagementService, ICurrentUserSession session,
-		LibraryStatisticsService statisticsService, IAuthorizationService authorization)
+		LibraryStatisticsService statisticsService, IAuthorizationService authorization, IMenuService menuService)
 	{
 		if (!SessionGuard.RequireAnyPermission(
 			    authorization,
 			    Messages.AccessDenied,
-				Permission.ViewFine,
+			    Permission.ViewFine,
 			    Permission.WaiveFine,
 			    Permission.ViewFinesByUser,
 			    Permission.ViewAllFines))
@@ -38,16 +38,16 @@ public static class FineMenu
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
 			else
 				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
-			switch (FineMenuList(authorization))
+			switch (FineMenuList(menuService))
 			{
-				case 1:
+				case "fines.pay":
 				{
 					Console.Clear();
 					PayFine(fineManagementService, session);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 2:
+				case "fines.waive":
 				{
 					if (!SessionGuard.RequirePermission(authorization, Permission.WaiveFine, Messages.AccessDenied))
 						break;
@@ -56,14 +56,14 @@ public static class FineMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 3:
+				case "fines.view":
 				{
 					Console.Clear();
-					ViewFines(fineManagementService, userManagementService, session, authorization);
+					ViewFines(fineManagementService, userManagementService, session, menuService);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 4:
+				case "fines.back":
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					return;
@@ -73,16 +73,9 @@ public static class FineMenu
 	}
 
 
-	private static int FineMenuList(IAuthorizationService authorization)
+	private static string? FineMenuList(IMenuService menuService)
 	{
-		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
-		{
-			(1, "Pay Fine", true),
-			(2, "Waive Fine", authorization.HasPermission(Permission.WaiveFine)),
-			(3, "View Fines", true),
-			(4, "Back", true)
-		};
-
+		var items = menuService.GetChildren("fines");
 		return MenuHelper.DisplayMenu("FINE MENU", items);
 	}
 
@@ -142,8 +135,7 @@ public static class FineMenu
 
 
 	private static void ViewFines(IFineManagementService fineManagementService,
-		UserManagementService userManagementService, ICurrentUserSession session,
-		IAuthorizationService authorization)
+		UserManagementService userManagementService, ICurrentUserSession session, IMenuService menuService)
 	{
 		if (!session.IsAuthenticated)
 		{
@@ -154,27 +146,27 @@ public static class FineMenu
 		while (true)
 		{
 			Console.Clear();
-			switch (ShowViewFineMenu(authorization))
+			switch (ShowViewFineMenu(menuService))
 			{
-				case 1:
+				case "fines.view.own":
 				{
 					Console.Clear();
-					BrowseMyFines(fineManagementService, session, authorization);
+					BrowseMyFines(fineManagementService, session, menuService);
 					break;
 				}
-				case 2:
+				case "fines.view.by-user":
 				{
 					Console.Clear();
-					BrowseFinesByUser(fineManagementService, userManagementService, authorization);
+					BrowseFinesByUser(fineManagementService, userManagementService, menuService);
 					break;
 				}
-				case 3:
+				case "fines.view.full":
 				{
 					Console.Clear();
-					BrowseFinesFullLibrary(fineManagementService, session, authorization);
+					BrowseFinesFullLibrary(fineManagementService, session, menuService);
 					break;
 				}
-				case 4:
+				case "fines.view.back":
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToFineMenu);
 					return;
@@ -186,40 +178,31 @@ public static class FineMenu
 	}
 
 
-	private static int ShowViewFineMenu(IAuthorizationService authorization)
+	private static string? ShowViewFineMenu(IMenuService menuService)
 	{
-		var items = new List<(int ActionId, string Text, bool Available)>
-		{
-			(1, "My fines", true),
-			(2, "By user", authorization.HasPermission(Permission.ViewFinesByUser)),
-			(3, "Full library", authorization.HasPermission(Permission.ViewAllFines)),
-			(4, "Back", true)
-		};
-
-		return MenuHelper.DisplayMenu("VIEW FINES", items);
+		var items = menuService.GetChildren("fines.view");
+		return MenuHelper.DisplayMenu("VIEW FINES MENU", items);
 	}
 
 
-	private static FineFilter? PickFineFilter(IAuthorizationService authorization, Permission? filterPermission,
-		bool allowAll)
+	private static FineFilter? PickFineFilter(IMenuService menuService)
 	{
-		var canView = filterPermission is null || authorization.HasPermission(filterPermission.Value);
-		var items = new List<(FineFilter? Filter, string Text, bool Available)>
+		var selectedItem = MenuHelper.DisplayMenu("FINE FILTER", menuService.GetChildren("fines.filter"));
+		return selectedItem switch
 		{
-			(FineFilter.Unpaid, "Unpaid", canView),
-			(FineFilter.Paid, "Paid", canView),
-			(FineFilter.All, "All (history)", allowAll && authorization.HasPermission(Permission.ViewAllFines)),
-			(null, "Back", true)
+			"fines.filter.unpaid" => FineFilter.Unpaid,
+			"fines.filter.paid" => FineFilter.Paid,
+			"fines.filter.waived" => FineFilter.Waived,
+			"fines.filter.all" => FineFilter.All, 
+			_ => null
 		};
-
-		return MenuHelper.DisplayMenu("FINE STATUS", items);
 	}
 
 
 	private static void BrowseMyFines(IFineManagementService fineManagementService,
-		ICurrentUserSession session, IAuthorizationService authorization)
+		ICurrentUserSession session, IMenuService menuService)
 	{
-		var filter = PickFineFilter(authorization, filterPermission: null, allowAll: false);
+		var filter = PickFineFilter(menuService);
 		if (filter is null) return;
 
 		Console.Clear();
@@ -229,13 +212,13 @@ public static class FineMenu
 
 
 	private static void BrowseFinesByUser(IFineManagementService fineManagementService,
-		UserManagementService userManagementService, IAuthorizationService authorization)
+		UserManagementService userManagementService, IMenuService menuService)
 	{
 		var user = MenuHelper.SelectUser(userManagementService.GetAllUsers(),
 			users => UserPrinter.PrintTable(users));
 		if (user is null) return;
 
-		var filter = PickFineFilter(authorization, Permission.ViewFinesByUser, allowAll: true);
+		var filter = PickFineFilter(menuService);
 		if (filter is null) return;
 
 		Console.Clear();
@@ -244,9 +227,9 @@ public static class FineMenu
 
 
 	private static void BrowseFinesFullLibrary(IFineManagementService fineManagementService,
-		ICurrentUserSession session, IAuthorizationService authorization)
+		ICurrentUserSession session, IMenuService menuService)
 	{
-		var filter = PickFineFilter(authorization, Permission.ViewAllFines, allowAll: true);
+		var filter = PickFineFilter(menuService);
 		if (filter is null) return;
 
 		Console.Clear();
