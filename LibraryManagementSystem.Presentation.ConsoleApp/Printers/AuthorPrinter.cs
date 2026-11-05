@@ -11,12 +11,13 @@ public static class AuthorPrinter
 		Console.Clear();
 		var rows = new List<(string Label, string[] ValueLines)>
 		{
-			("Name", [$"{author.FirstName} {author.LastName}"]),
+			("First Name", [author.FirstName]),
+			("Last Name", [author.LastName]),
 			("National Code", [author.NationalCode]),
 			("Email", [author.Email]),
 			("Phone Number", [author.PhoneNumber]),
 			("Birth Date", [author.BirthDate.ToString("yyyy-MM-dd")]),
-			("Biography", [author.Biography!]),
+			("Biography", [string.IsNullOrWhiteSpace(author.Biography) ? "—" : author.Biography]),
 			("Created At", [author.CreatedAt.ToString("yyyy-MM-dd HH:mm")]),
 			("Updated At", [author.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "N/A"]),
 		};

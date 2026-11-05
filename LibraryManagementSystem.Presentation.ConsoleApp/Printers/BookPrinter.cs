@@ -31,7 +31,7 @@ public static class BookPrinter
 			: details.Translators.Select(t => t.Email.ToString()).ToArray();
 		var rows = new List<(string Label, string[] ValueLines)>
 		{
-			("Name", [details.Title]),
+			("Title", [details.Title]),
 			("ISBN", [details.ISBN]),
 			("Author(s)", authorNames),
 			("Author Email(s)", authorEmails),

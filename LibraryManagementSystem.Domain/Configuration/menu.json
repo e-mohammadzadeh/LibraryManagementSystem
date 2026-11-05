@@ -366,7 +366,7 @@
 											"label": "Add a translator"
 										},
 										{
-											"id": "books.edit.translator.removeone",
+											"id": "books.edit.translator.remove-one",
 											"label": "Remove a translator"
 										},
 										{
@@ -374,7 +374,7 @@
 											"label": "Replace all translators"
 										},
 										{
-											"id": "books.edit.translator.removeall",
+											"id": "books.edit.translator.remove-all",
 											"label": "Remove all translators"
 										},
 										{
@@ -388,7 +388,7 @@
 									"label": "Publish Date"
 								},
 								{
-									"id": "books.edit.totalcopies",
+									"id": "books.edit.total-copies",
 									"label": "Total Copies"
 								},
 								{

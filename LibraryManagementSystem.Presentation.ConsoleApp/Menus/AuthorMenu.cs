@@ -152,29 +152,8 @@ public static class AuthorMenu
 		while (true)
 		{
 			Console.Clear();
-			var headers = new[] { "#", "Field", "Current Value" };
-
-			var rows = new List<string[][]>
-			{
-				new[] { ["First Name"], new[] { desiredAuthor.FirstName } },
-				new[] { ["Last Name"], new[] { desiredAuthor.LastName } },
-				new[] { ["National Code"], new[] { desiredAuthor.NationalCode } },
-				new[] { ["Email"], new[] { desiredAuthor.Email.ToString() } },
-				new[] { ["Phone Number"], new[] { desiredAuthor.PhoneNumber.ToString() } },
-				new[] { ["Birth Date"], new[] { desiredAuthor.BirthDate.ToString("yyyy-MM-dd") } },
-				new[]
-				{
-					["Biography"],
-					new[] { string.IsNullOrWhiteSpace(desiredAuthor.Biography) ? "—" : desiredAuthor.Biography }
-				}
-			};
-
-			ConsoleTable.PrintTable("AUTHOR DETAILS", headers, rows);
-
-			var items = menuService.GetChildren("authors.edit");
-
-			var selectedItem = MenuHelper.DisplayMenu("EDIT AUTHOR MENU", items);
-
+			AuthorPrinter.PrintDetails(desiredAuthor);
+			var selectedItem = MenuHelper.DisplayMenu("EDIT AUTHOR MENU", menuService.GetChildren("authors.edit"));
 			switch (selectedItem)
 			{
 				case null:
@@ -202,7 +181,6 @@ public static class AuthorMenu
 				{
 					var value = ConsoleHelper.GetValidName("\nEnter new last name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
-
 					if (value != null)
 						desiredAuthor.LastName = value;
 					else
@@ -212,7 +190,6 @@ public static class AuthorMenu
 				case "authors.edit.national-code":
 				{
 					var value = ConsoleHelper.GetValidNationalCode("\nEnter new national code");
-
 					if (value != null)
 						desiredAuthor.NationalCode = value;
 					else
@@ -232,7 +209,6 @@ public static class AuthorMenu
 				case "authors.edit.phone-number":
 				{
 					var value = ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number");
-
 					if (value != null)
 						desiredAuthor.PhoneNumber = PhoneNumber.Create(value);
 					else
@@ -242,7 +218,6 @@ public static class AuthorMenu
 				case "authors.edit.birthdate":
 				{
 					var value = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
-
 					if (value != null)
 						desiredAuthor.BirthDate = value.Value;
 					else
@@ -252,7 +227,6 @@ public static class AuthorMenu
 				case "authors.edit.biography":
 				{
 					var value = ConsoleHelper.ReadString("\nEnter new biography");
-
 					if (value != null)
 						desiredAuthor.Biography = value;
 					else

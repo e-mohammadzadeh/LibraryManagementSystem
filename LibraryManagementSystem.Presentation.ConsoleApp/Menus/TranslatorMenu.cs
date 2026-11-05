@@ -156,28 +156,9 @@ public static class TranslatorMenu
 		while (true)
 		{
 			Console.Clear();
-			var headers = new[] { "#", "Field", "Current Value" };
-
-			var rows = new List<string[][]>
-			{
-				new[] { ["First Name"], new[] { desiredTranslator.FirstName } },
-				new[] { ["Last Name"], new[] { desiredTranslator.LastName } },
-				new[] { ["National Code"], new[] { desiredTranslator.NationalCode } },
-				new[] { ["Email"], new[] { desiredTranslator.Email.ToString() } },
-				new[] { ["Phone Number"], new[] { desiredTranslator.PhoneNumber.ToString() } },
-				new[] { ["Birth Date"], new[] { desiredTranslator.BirthDate.ToString("yyyy-MM-dd") } },
-				new[]
-				{
-					["Biography"],
-					new[] { string.IsNullOrWhiteSpace(desiredTranslator.Biography) ? "-" : desiredTranslator.Biography }
-				},
-			};
-
-			ConsoleTable.PrintTable("TRANSLATOR DETAILS", headers, rows);
-
-			var items = menuService.GetChildren("translators.edit");
-
-			var selectedItem = MenuHelper.DisplayMenu("EDIT TRANSLATOR MENU", items);
+			TranslatorPrinter.PrintDetails(desiredTranslator);
+			var selectedItem =
+				MenuHelper.DisplayMenu("EDIT TRANSLATOR MENU", menuService.GetChildren("translators.edit"));
 
 			switch (selectedItem)
 			{
@@ -189,14 +170,12 @@ public static class TranslatorMenu
 			}
 
 			var updated = true;
-
 			switch (selectedItem)
 			{
 				case "translators.edit.firstname":
 				{
 					var value = ConsoleHelper.GetValidName("\nEnter new first name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
-
 					if (value != null)
 						desiredTranslator.FirstName = value;
 					else
@@ -207,7 +186,6 @@ public static class TranslatorMenu
 				{
 					var value = ConsoleHelper.GetValidName("\nEnter new last name",
 						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
-
 					if (value != null)
 						desiredTranslator.LastName = value;
 					else
@@ -217,7 +195,6 @@ public static class TranslatorMenu
 				case "translators.edit.national-code":
 				{
 					var value = ConsoleHelper.GetValidNationalCode("\nEnter new national code");
-
 					if (value != null)
 						desiredTranslator.NationalCode = value;
 					else
@@ -227,7 +204,6 @@ public static class TranslatorMenu
 				case "translators.edit.email":
 				{
 					var value = ConsoleHelper.GetValidEmail("\nEnter new email");
-
 					if (value != null)
 						desiredTranslator.Email = Email.Create(value);
 					else
@@ -237,7 +213,6 @@ public static class TranslatorMenu
 				case "translators.edit.phone-number":
 				{
 					var value = ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number");
-
 					if (value != null)
 						desiredTranslator.PhoneNumber = PhoneNumber.Create(value);
 					else
@@ -247,7 +222,6 @@ public static class TranslatorMenu
 				case "translators.edit.birthdate":
 				{
 					var value = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
-
 					if (value != null)
 						desiredTranslator.BirthDate = value.Value;
 					else
@@ -257,7 +231,6 @@ public static class TranslatorMenu
 				case "translators.edit.biography":
 				{
 					var value = ConsoleHelper.ReadString("\nEnter new biography");
-
 					if (value != null)
 						desiredTranslator.Biography = value;
 					else

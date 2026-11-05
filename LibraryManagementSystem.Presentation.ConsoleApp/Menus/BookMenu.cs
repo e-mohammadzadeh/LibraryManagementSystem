@@ -65,7 +65,8 @@ public static class BookMenu
 					if (!SessionGuard.RequirePermission(authorization, Permission.EditBook, Messages.AccessDenied))
 						break;
 					Console.Clear();
-					EditBook(authorManagementService, translatorManagementService, bookManagementService, session);
+					EditBook(authorManagementService, menuService, translatorManagementService, bookManagementService,
+						session);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -259,7 +260,7 @@ public static class BookMenu
 	}
 
 
-	private static void EditBook(AuthorManagementService authorManagementService,
+	private static void EditBook(AuthorManagementService authorManagementService, IMenuService menuService,
 		TranslatorManagementService translatorManagementService, BookManagementService bookManagementService,
 		ICurrentUserSession session)
 	{
@@ -269,174 +270,132 @@ public static class BookMenu
 		while (true)
 		{
 			ConsoleHelper.ClearConsole();
-			var headers = new[] { "#", "Field", "Current Value" };
-
-			var authorLines = desiredBook.Authors.Count > 0
-				? desiredBook.Authors.Select(a => $"{a.FirstName} {a.LastName}").ToArray()
-				: ["—"];
-
-			var translatorLines = desiredBook.Translators.Count > 0
-				? desiredBook.Translators.Select(t => $"{t.FirstName} {t.LastName}").ToArray()
-				: ["None"];
-
-			var descriptionLines = string.IsNullOrWhiteSpace(desiredBook.Description)
-				? ["—"]
-				: ConsoleTable.WrapText(desiredBook.Description, 40);
-
-			var rows = new List<string[][]>
+			BookPrinter.PrintDetails(desiredBook);
+			var selectedItem = MenuHelper.DisplayMenu("EDIT BOOK MENU", menuService.GetChildren("books.edit"));
+			switch (selectedItem)
 			{
-				new string[][] { ["1"], ["Book Name"], [desiredBook.Title] },
-				new string[][] { ["2"], ["ISBN"], [desiredBook.ISBN] },
-				new[] { ["3"], ["Author(s)"], authorLines },
-				new[] { ["4"], ["Translator(s)"], translatorLines },
-				new string[][] { ["5"], ["Publish Date"], [desiredBook.PublishDate.ToString("yyyy-MM-dd")] },
-				new string[][]
-				{
-					["6"], ["Total Copies"], [desiredBook.TotalCopies + $" ({desiredBook.AvailableCopies} available)"]
-				},
-				new string[][] { ["7"], ["Genre"], [desiredBook.Genre.ToString()] },
-				new string[][] { ["8"], ["Publisher"], [desiredBook.Publisher] },
-				new[] { ["9"], ["Description"], descriptionLines },
-				new string[][] { ["10"], ["Back"], ["—"] }
-			};
-
-			ConsoleTable.PrintTable("Edit Book", headers, rows);
-
-			var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 10);
-			if (editMenuChoice is null) return;
-
-			switch (editMenuChoice)
-			{
-				case 1:
-				{
-					var bookName = ConsoleHelper.GetValidName("\nEnter the new book name",
-						ValidationConstants.MinBookNameLength, ValidationConstants.MaxBookNameLength);
-
-					if (bookName != null)
-					{
-						desiredBook.Title = bookName;
-						var result = bookManagementService.UpdateBook(desiredBook, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
-					break;
-				}
-				case 2:
-				{
-					var isbn = ConsoleHelper.ReadISBN("\nEnter the new ISBN");
-					if (isbn != null)
-					{
-						desiredBook.ISBN = ISBN.Create(isbn);
-						var result = bookManagementService.UpdateBook(desiredBook, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
-					break;
-				}
-				case 3:
-				{
-					var newAuthors = AuthorSubMenu(desiredBook.Id, authorManagementService, bookManagementService);
-
-					if (newAuthors != null)
-					{
-						desiredBook.Authors = newAuthors;
-						var result = bookManagementService.UpdateBook(desiredBook, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
-					break;
-				}
-				case 4:
-				{
-					var results = TranslatorSubMenu(desiredBook.Id, translatorManagementService, bookManagementService);
-
-					if (results != null)
-					{
-						var (newTranslators, newLanguage) = results.Value;
-						desiredBook.Translators = newTranslators;
-						if (newLanguage != null) desiredBook.TranslatedLanguage = newLanguage.Value;
-						var result = bookManagementService.UpdateBook(desiredBook, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
-					break;
-				}
-				case 5:
-				{
-					var publishDate = ConsoleHelper.GetValidDate("\nEnter the new publish date");
-					if (publishDate != null)
-					{
-						desiredBook.PublishDate = publishDate.Value;
-						var result = bookManagementService.UpdateBook(desiredBook, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
-					break;
-				}
-				case 6:
-				{
-					var totalCopies = ConsoleHelper.ReadInt("\nEnter the new total copies",
-						ValidationConstants.MinBookCopies, ValidationConstants.MaxBookCopies);
-
-					if (totalCopies != null)
-					{
-						desiredBook.TotalCopies = totalCopies.Value;
-						var result = bookManagementService.UpdateBook(desiredBook, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
-					break;
-				}
-				case 7:
-				{
-					ConsoleHelper.DisplayGenres();
-					var genreId =
-						ConsoleHelper.ReadInt("\nEnter the new genre id", 1, Enum.GetValues<Genre>().Length + 1);
-					if (genreId is null) break;
-
-					desiredBook.Genre = BookGenre.Create((Genre)(genreId - 1));
-					var result = bookManagementService.UpdateBook(desiredBook, session.CurrentUser.Id);
-					ConsoleHelper.ShowResult(result);
-					break;
-				}
-				case 8:
-				{
-					var publisher = ConsoleHelper.GetValidName("\nEnter the new publisher",
-						ValidationConstants.MinPublisherNameLength, ValidationConstants.MaxPublisherNameLength);
-
-					if (publisher != null)
-					{
-						desiredBook.Publisher = publisher;
-						var result = bookManagementService.UpdateBook(desiredBook, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
-					break;
-				}
-				case 9:
-				{
-					var description = ConsoleHelper.ReadString("\nEnter the new description");
-
-					if (description != null)
-					{
-						desiredBook.Description = description;
-						var result = bookManagementService.UpdateBook(desiredBook, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
-					break;
-				}
-				case 10:
-				{
+				case null:
+					return;
+				case "books.edit.back":
 					ConsoleHelper.ShowInfo(string.Format(Messages.EditCancelled, "Book"));
 					return;
+			}
+
+			var updated = true;
+
+			switch (selectedItem)
+			{
+				case "books.edit.title":
+				{
+					var value = ConsoleHelper.GetValidName("\nEnter the new book name",
+						ValidationConstants.MinBookNameLength, ValidationConstants.MaxBookNameLength);
+					if (value != null)
+						desiredBook.Title = value;
+					else
+						updated = false;
+					break;
 				}
+				case "books.edit.isbn":
+				{
+					var value = ConsoleHelper.ReadISBN("\nEnter the new ISBN");
+					if (value != null)
+						desiredBook.ISBN = ISBN.Create(value);
+					else
+						updated = false;
+					break;
+				}
+				case "books.edit.authors":
+				{
+					var value = AuthorSubMenu(desiredBook.Id, authorManagementService, bookManagementService,
+						menuService);
+					if (value != null)
+						desiredBook.Authors = value;
+					else
+						updated = false;
+					break;
+				}
+				case "books.edit.translator":
+				{
+					var value = TranslatorSubMenu(desiredBook.Id, translatorManagementService, menuService,
+						bookManagementService);
+					if (value != null)
+					{
+						var (newTranslators, newLanguage) = value.Value;
+						desiredBook.Translators = newTranslators;
+						if (newLanguage != null) desiredBook.TranslatedLanguage = newLanguage.Value;
+					}
+					else
+						updated = false;
+
+					break;
+				}
+				case "books.edit.publish-date":
+				{
+					var value = ConsoleHelper.GetValidDate("\nEnter the new publish date");
+					if (value != null)
+						desiredBook.PublishDate = value.Value;
+					else
+						updated = false;
+					break;
+				}
+				case "books.edit.total-copies":
+				{
+					var value = ConsoleHelper.ReadInt("\nEnter the new total copies", ValidationConstants.MinBookCopies,
+						ValidationConstants.MaxBookCopies);
+					if (value != null)
+						desiredBook.TotalCopies = value.Value;
+					else
+						updated = false;
+
+					break;
+				}
+				case "books.edit.genre":
+				{
+					ConsoleHelper.DisplayGenres();
+					var genreId = ConsoleHelper.ReadInt("\nEnter the new genre id", 1,
+						Enum.GetValues<Genre>().Length + 1);
+					if (genreId != null)
+						desiredBook.Genre = BookGenre.Create((Genre)(genreId - 1));
+					else
+						updated = false;
+					break;
+				}
+				case "books.edit.publisher":
+				{
+					var value = ConsoleHelper.GetValidName("\nEnter the new publisher",
+						ValidationConstants.MinPublisherNameLength, ValidationConstants.MaxPublisherNameLength);
+					if (value != null)
+						desiredBook.Publisher = value;
+					else
+						updated = false;
+					break;
+				}
+				case "books.edit.description":
+				{
+					var value = ConsoleHelper.ReadString("\nEnter the new description");
+					if (value != null)
+						desiredBook.Description = value;
+					else
+						updated = false;
+
+					break;
+				}
+				default:
+				{
+					updated = false;
+					break;
+				}
+			}
+
+			if (updated)
+			{
+				var result = bookManagementService.UpdateBook(desiredBook, session.CurrentUser.Id);
+				ConsoleHelper.ShowResult(result);
 			}
 
 			var choice = ConsoleHelper.ReadYesNo(Messages.EditContinuesQuestion);
 			if (choice != true) return;
 
-			// Refresh desiredBook details for subsequent edits in loop
 			var refreshedBook = bookManagementService.GetBookById(desiredBook.Id);
 			if (refreshedBook is not null) desiredBook = refreshedBook;
 		}
@@ -454,7 +413,7 @@ public static class BookMenu
 
 
 	private static List<ContributorDto>? AuthorSubMenu(Guid bookId, AuthorManagementService authorManagementService,
-		BookManagementService bookManagementService)
+		BookManagementService bookManagementService, IMenuService menuService)
 	{
 		var currentBook = bookManagementService.GetBookById(bookId);
 		if (currentBook is null)
@@ -465,17 +424,13 @@ public static class BookMenu
 
 		var currentAuthors = currentBook.Authors;
 
-		Console.WriteLine(Messages.SubMenuPrompt);
-		Console.WriteLine("\t1. Add an author");
-		Console.WriteLine("\t2. Remove an author");
-		Console.WriteLine("\t3. Replace all authors");
-		Console.WriteLine("\t4. Back");
-		var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 4);
-		if (editMenuChoice is null) return null;
+		var items = menuService.GetChildren("books.edit.authors");
+		var selectedItem = MenuHelper.DisplayMenu("AUTHOR MENU", items);
+		if (selectedItem is null) return null;
 
-		switch (editMenuChoice)
+		switch (selectedItem)
 		{
-			case 1:
+			case "books.edit.authors.add":
 			{
 				var allAuthors = authorManagementService.GetAllAuthors();
 				if (allAuthors.Count == 0)
@@ -498,7 +453,7 @@ public static class BookMenu
 				// New list = existing author IDs + newly selected IDs
 				return [.. currentAuthors.Concat(newlySelected).DistinctBy(a => a.Id)];
 			}
-			case 2:
+			case "books.edit.authors.remove":
 			{
 				if (currentAuthors.Count <= 1)
 				{
@@ -513,7 +468,7 @@ public static class BookMenu
 				var authorToRemove = selectedForRemoval[0];
 				return [.. currentAuthors.Where(a => a.Id != authorToRemove.Id)];
 			}
-			case 3:
+			case "books.edit.authors.replace":
 			{
 				var allAuthors = authorManagementService.GetAllAuthors();
 				if (allAuthors.Count == 0)
@@ -526,7 +481,7 @@ public static class BookMenu
 				if (newAuthors is null || newAuthors.Count == 0) break;
 				return newAuthors;
 			}
-			case 4:
+			case "books.edit.authors.back":
 			{
 				ConsoleHelper.ShowInfo("Author edit cancelled. Returning to Edit Menu...");
 				break;
@@ -538,7 +493,7 @@ public static class BookMenu
 
 
 	private static (List<ContributorDto>, Language?)? TranslatorSubMenu(Guid bookId,
-		TranslatorManagementService translatorManagementService,
+		TranslatorManagementService translatorManagementService, IMenuService menuService,
 		BookManagementService bookManagementService)
 	{
 		var currentBook = bookManagementService.GetBookById(bookId);
@@ -550,18 +505,13 @@ public static class BookMenu
 
 		var currentTranslators = currentBook.Translators;
 
-		Console.WriteLine(Messages.SubMenuPrompt);
-		Console.WriteLine("\t1. Add a translator");
-		Console.WriteLine("\t2. Remove a translator");
-		Console.WriteLine("\t3. Replace all translators");
-		Console.WriteLine("\t4. Remove all translators");
-		Console.WriteLine("\t5. Back");
-		var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 5);
-		if (editMenuChoice is null) return null;
+		var items = menuService.GetChildren("books.edit.translator");
+		var selectedItem = MenuHelper.DisplayMenu("TRANSLATOR MENU", items);
+		if (selectedItem is null) return null;
 
-		switch (editMenuChoice)
+		switch (selectedItem)
 		{
-			case 1:
+			case "books.edit.translator.add":
 			{
 				var allTranslators = translatorManagementService.GetAllTranslators();
 				if (allTranslators.Count == 0)
@@ -595,7 +545,7 @@ public static class BookMenu
 
 				return (currentTranslators.Concat(newlySelected).DistinctBy(t => t.Id).ToList(), language);
 			}
-			case 2:
+			case "books.edit.translator.remove-one":
 			{
 				if (currentBook.Translators.Count == 0)
 				{
@@ -610,7 +560,7 @@ public static class BookMenu
 				var translatorToRemove = selectedForRemoval[0];
 				return ([.. currentBook.Translators.Where(t => t.Id != translatorToRemove.Id)], null);
 			}
-			case 3:
+			case "books.edit.translator.replace":
 			{
 				var allTranslators = translatorManagementService.GetAllTranslators();
 				if (allTranslators.Count == 0)
@@ -628,7 +578,7 @@ public static class BookMenu
 
 				return (newTranslators, language);
 			}
-			case 4:
+			case "books.edit.translator.remove-all":
 			{
 				if (currentBook.Translators.Count == 0)
 				{
@@ -641,7 +591,7 @@ public static class BookMenu
 
 				return ([], null);
 			}
-			case 5:
+			case "books.edit.translator.back":
 			{
 				ConsoleHelper.ShowInfo("Translator edit cancelled. Returning to Edit Menu...");
 				break;

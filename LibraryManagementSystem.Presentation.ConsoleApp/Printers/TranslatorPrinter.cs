@@ -11,11 +11,13 @@ public class TranslatorPrinter
 		Console.Clear();
 		var rows = new List<(string Label, string[] ValueLines)>
 		{
-			("Name", [$"{translator.FirstName} {translator.LastName}"]),
+			("First Name", [translator.FirstName]),
+			("Last Name", [translator.LastName]),
 			("National Code", [translator.NationalCode]),
 			("Email", [translator.Email]),
 			("Phone Number", [translator.PhoneNumber]),
 			("Birth Date", [translator.BirthDate.ToString("yyyy-MM-dd")]),
+			("Biography", [string.IsNullOrWhiteSpace(translator.Biography) ? "—" : translator.Biography]),
 			("Created At", [translator.CreatedAt.ToString("yyyy-MM-dd HH:mm")]),
 			("Updated At", [translator.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "N/A"]),
 		};

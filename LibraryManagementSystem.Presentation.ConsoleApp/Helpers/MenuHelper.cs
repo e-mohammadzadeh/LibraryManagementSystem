@@ -152,7 +152,7 @@ public static class MenuHelper
 	{
 		if (items.Count == 0) return null;
 
-		Console.WriteLine(new string('=', 37) + $" {title} " + new string('=', 37));
+		Console.WriteLine(new string('=', 33) + $" {title} " + new string('=', 33));
 
 		for (var i = 0; i < items.Count; i++) Console.WriteLine($"{i + 1}. {items[i].Label}");
 
