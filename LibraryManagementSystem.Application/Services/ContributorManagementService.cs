@@ -3,7 +3,9 @@ using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
+using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
+using LibraryManagementSystem.Infrastructure.Enums.Search;
 
 namespace LibraryManagementSystem.Application.Services;
 
@@ -75,6 +77,33 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 		return ServiceResult<ContributorDto>.Ok(entity.ToDto(), successMessage);
 	}
 
+
+	protected ServiceResult<ContributorDto> RemoveContributor(Guid id, string removeFailedMessage,
+		string hasAssociatedBook, string successMessage)
+	{
+		var entity = Repository.GetById(id, EntityFilter.Active);
+		if (entity is null || entity.IsRemoved) return ServiceResult<ContributorDto>.Fail(removeFailedMessage);
+
+		if (getbook.Count > 0) return ServiceResult<ContributorDto>.Fail(hasAssociatedBook);
+
+		Repository.Remove(entity);
+		return ServiceResult<ContributorDto>.Ok(entity.ToDto(), successMessage);
+	}
+
+
+	protected IReadOnlyList<ContributorDto> SearchContributor(string searchItem, ContributorSearchField field)
+	{
+		var requiredPermission = field switch
+		{
+			ContributorSearchField.Name => new[] { Permission.SearchForMember, Permission.FullSearchContributor },
+			ContributorSearchField.NationalCode => new[] { Permission.FullSearchContributor },
+			ContributorSearchField.Email => new[] { Permission.SearchForMember, Permission.FullSearchContributor },
+			ContributorSearchField.PhoneNumber => new[] { Permission.FullSearchContributor },
+			_ => throw new ArgumentOutOfRangeException(nameof(field))
+		};
+
+		
+	}
 
 
 

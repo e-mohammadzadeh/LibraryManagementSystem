@@ -1,7 +1,6 @@
 ﻿namespace LibraryManagementSystem.Infrastructure.Enums.Search;
 
-public enum AuthorSearchField
-{
+public enum ContributorSearchField {
 	Name,
 	NationalCode,
 	Email,
