@@ -1,6 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Common;
@@ -14,17 +13,15 @@ using LibraryManagementSystem.Infrastructure.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
 
-public class AuthorManagementService
+public class AuthorManagementService : ContributorManagementService<Author>
 {
-	private readonly IAuthorRepository _authorRepository;
 	private readonly IAuthorizationService _authorization;
 	private readonly IAuditLogManagementService _auditLog;
 
 
 	public AuthorManagementService(IAuthorRepository authorRepository, IAuthorizationService authorization,
-		IAuditLogManagementService auditLog)
+		IAuditLogManagementService auditLog) : base(authorRepository)
 	{
-		_authorRepository = authorRepository;
 		_authorization = authorization;
 		_auditLog = auditLog;
 	}
@@ -32,70 +29,37 @@ public class AuthorManagementService
 
 	public ServiceResult<ContributorDto> AddAuthor(ContributorDto dto)
 	{
-		if (_authorRepository.Exists(dto.NationalCode, a => a.NationalCode))
-			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByNationalCode);
+		var result = new AddContributor(
+			dto,
+			Messages.DuplicateAuthorsNotAllowedByNationalCode,
+			Messages.DuplicateAuthorsNotAllowedByEmail,
+			Messages.DuplicateAuthorsNotAllowedByPhoneNumber,
+			Messages.AuthorAddedSuccessfully);
 
-		if (_authorRepository.Exists(dto.Email, a => a.Email))
-			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByEmail);
-
-		if (_authorRepository.Exists(dto.PhoneNumber, a => a.PhoneNumber))
-			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByPhoneNumber);
-
-		var newAuthor = new Author
-		{
-			FirstName = dto.FirstName,
-			LastName = dto.LastName,
-			NationalCode = dto.NationalCode,
-			Email = dto.Email,
-			PhoneNumber = dto.PhoneNumber,
-			BirthDate = dto.BirthDate,
-			Biography = dto.Biography
-		};
-
-		_authorRepository.Add(newAuthor);
-		_auditLog.Record(AuditAction.AuthorCreated, "Author", newAuthor.Id, "Author created.");
-
-		return ServiceResult<ContributorDto>.Ok(newAuthor.ToDto(), Messages.AuthorAddedSuccessfully);
+		if (result.IsSuccess)
+			_auditLog.Record(AuditAction.AuthorCreated, "Author", result.Id, "Author created.");
+		return ServiceResult<ContributorDto>.Ok(result.ToDto(), Messages.AuthorAddedSuccessfully);
 	}
 
 
 	public ServiceResult<ContributorDto> UpdateAuthor(ContributorDto dto, Guid? updatedBy = null)
 	{
-		var author = _authorRepository.GetById(dto.Id, EntityFilter.Active);
-		if (author is null || author.IsRemoved) return ServiceResult<ContributorDto>.Fail(Messages.AuthorUpdateFailed);
+		var result = new UpdateContributor(
+			dto,
+			updatedBy,
+			Messages.AuthorUpdateFailed,
+			Messages.DuplicateAuthorsNotAllowedByNationalCode,
+			Messages.DuplicateAuthorsNotAllowedByEmail,
+			Messages.DuplicateAuthorsNotAllowedByPhoneNumber,
+			Messages.AuthorUpdatedSuccessfully);
 
-		if (IsNoOpUpdateAuthor(author, dto))
-			return ServiceResult<ContributorDto>.Warning(author.ToDto(), Messages.NoChangesDetected);
+		if (result.IsSuccess)
+		{
+			var auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(author, dto);
+			_auditLog.Record(AuditAction.AuthorUpdated, "Author", dto.Id, auditDetails ?? "Author updated.");
+		}
 
-		if (string.IsNullOrWhiteSpace(dto.FirstName) || string.IsNullOrWhiteSpace(dto.LastName) ||
-		    string.IsNullOrWhiteSpace(dto.NationalCode) || string.IsNullOrWhiteSpace(dto.Email) ||
-		    string.IsNullOrWhiteSpace(dto.PhoneNumber))
-			return ServiceResult<ContributorDto>.Fail(Messages.AuthorUpdateFailed);
-
-		if (_authorRepository.Exists(dto.NationalCode, a => a.NationalCode, dto.Id))
-			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByNationalCode);
-
-		if (_authorRepository.Exists(dto.Email, a => a.Email, dto.Id))
-			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByEmail);
-
-		if (_authorRepository.Exists(dto.PhoneNumber, a => a.PhoneNumber, dto.Id))
-			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateAuthorsNotAllowedByPhoneNumber);
-
-		var auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(author, dto);
-
-		author.FirstName = dto.FirstName;
-		author.LastName = dto.LastName;
-		author.NationalCode = dto.NationalCode;
-		author.Email = dto.Email;
-		author.PhoneNumber = dto.PhoneNumber;
-		author.BirthDate = dto.BirthDate;
-		author.Biography = dto.Biography;
-		author.UpdatedByUserId = updatedBy;
-
-		_authorRepository.Update(author);
-		_auditLog.Record(AuditAction.AuthorUpdated, "Author", dto.Id, auditDetails ?? "Author updated.");
-
-		return ServiceResult<ContributorDto>.Ok(author.ToDto(), Messages.AuthorUpdatedSuccessfully);
+		return result;
 	}
 
 
