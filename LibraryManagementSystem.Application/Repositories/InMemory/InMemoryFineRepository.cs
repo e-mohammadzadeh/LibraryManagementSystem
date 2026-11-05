@@ -9,42 +9,7 @@ namespace LibraryManagementSystem.Application.Repositories.InMemory;
 
 public class InMemoryFineRepository : IFineRepository
 {
-	private readonly List<Fine> _fines;
-	public InMemoryFineRepository(ILoanRepository loans) { _fines = CreateSeedData(loans); }
-
-
-	private static List<Fine> CreateSeedData(ILoanRepository loans)
-	{
-		var fines = new List<Fine>();
-		var returnedLoans = loans.GetAll(LoanFilter.Returned);
-
-		foreach (var loan in returnedLoans)
-		{
-			if (loan.ReturnDate is null) continue;
-			if (loan.ReturnDate <= loan.DueDate) continue;
-
-			var overdueDays = loan.ReturnDate.Value.DayNumber - loan.DueDate.DayNumber;
-			if (overdueDays <= 0) continue;
-
-			var fine = new Fine
-			{
-				Id = Guid.CreateVersion7(),
-				Loan = loan,
-				LoanId = loan.Id,
-				UserId = loan.UserId,
-				OverdueDays = overdueDays,
-				Money = Money.Create(FineCalculator(overdueDays)),
-				Status = FineStatus.Unpaid,
-				Reason = $"Fine is created for book \"{loan.Book.Title}\" (ID: {loan.Book.Id}).",
-				CreatedAt = DateTime.UtcNow,
-				PaidAt = DateOnly.FromDateTime(DateTime.UtcNow)
-			};
-
-			fines.Add(fine);
-		}
-
-		return fines;
-	}
+	private readonly List<Fine> _fines =[];
 
 
 	public void Add(Fine fine)

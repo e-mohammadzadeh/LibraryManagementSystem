@@ -23,7 +23,7 @@ public class InMemoryContributorRepository<T> : IContributorRepository<T> where 
 	public IReadOnlyList<T> GetAll(EntityFilter filter = EntityFilter.Active) => [.. ApplyFilter(_items, filter)];
 
 
-	public bool Exists<TValue>(TValue value, Func<T, TValue> selector, Guid? excludeId = null) =>
+	public bool Exists<TValue>(TValue value, Func<T, TValue> selector, Guid? excludeId) =>
 		_items.Any(x =>
 			!x.IsRemoved &&
 			(excludeId is null || x.Id != excludeId) &&

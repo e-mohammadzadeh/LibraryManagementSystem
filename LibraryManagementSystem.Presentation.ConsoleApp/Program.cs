@@ -29,9 +29,9 @@ public static class Program
 			var userRepo = new InMemoryUserRepository(roleRepo, passwordHasher);
 			var authorRepo = new InMemoryAuthorRepository();
 			var translatorRepo = new InMemoryTranslatorRepository();
-			var bookRepo = new InMemoryBookRepository(authorRepo, translatorRepo);
-			var loanRepo = new InMemoryLoanRepository(userRepo, bookRepo);
-			var fineRepo = new InMemoryFineRepository(loanRepo);
+			var bookRepo = new InMemoryBookRepository();
+			var loanRepo = new InMemoryLoanRepository();
+			var fineRepo = new InMemoryFineRepository();
 			var auditLogRepo = new InMemoryAuditLogRepository();
 
 
