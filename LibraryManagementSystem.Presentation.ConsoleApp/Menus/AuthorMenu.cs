@@ -60,7 +60,7 @@ public static class AuthorMenu
 						    Messages.AccessDenied))
 						break;
 					Console.Clear();
-					EditAuthor(authorManagementService, authorization, session);
+					EditAuthor(authorManagementService, authorization, session, menuService);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -140,11 +140,8 @@ public static class AuthorMenu
 	}
 
 
-	private static readonly string[] Item = ["—"];
-
-
 	private static void EditAuthor(AuthorManagementService authorManagementService, IAuthorizationService authorization,
-		ICurrentUserSession session)
+		ICurrentUserSession session, IMenuService menuService)
 	{
 		Console.WriteLine(new string('=', 36) + " EDITING AUTHOR MENU " + new string('=', 36));
 		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
@@ -159,127 +156,120 @@ public static class AuthorMenu
 
 			var rows = new List<string[][]>
 			{
-				new[] { ["1"], ["First Name"], new[] { desiredAuthor.FirstName } },
-				new[] { ["2"], ["Last Name"], new[] { desiredAuthor.LastName } },
-				new[] { ["3"], ["National Code"], new[] { desiredAuthor.NationalCode } },
-				new[] { ["4"], ["Email"], new[] { desiredAuthor.Email.ToString() } },
-				new[] { ["5"], ["Phone Number"], new[] { desiredAuthor.PhoneNumber.ToString() } },
-				new[] { ["6"], ["Birth Date"], new[] { desiredAuthor.BirthDate.ToString("yyyy-MM-dd") } },
+				new[] { ["First Name"], new[] { desiredAuthor.FirstName } },
+				new[] { ["Last Name"], new[] { desiredAuthor.LastName } },
+				new[] { ["National Code"], new[] { desiredAuthor.NationalCode } },
+				new[] { ["Email"], new[] { desiredAuthor.Email.ToString() } },
+				new[] { ["Phone Number"], new[] { desiredAuthor.PhoneNumber.ToString() } },
+				new[] { ["Birth Date"], new[] { desiredAuthor.BirthDate.ToString("yyyy-MM-dd") } },
 				new[]
 				{
-					["7"], ["Biography"],
-					string.IsNullOrWhiteSpace(desiredAuthor.Biography)
-						? ["—"]
-						: new[] { desiredAuthor.Biography }
-				},
-				new[] { ["8"], ["Back"], Item }
+					["Biography"],
+					new[] { string.IsNullOrWhiteSpace(desiredAuthor.Biography) ? "—" : desiredAuthor.Biography }
+				}
 			};
 
-			ConsoleTable.PrintTable("Edit Author", headers, rows);
+			ConsoleTable.PrintTable("AUTHOR DETAILS", headers, rows);
 
-			var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 8);
-			if (editMenuChoice == null) return;
+			var items = menuService.GetChildren("authors.edit");
 
-			switch (editMenuChoice)
+			var selectedItem = MenuHelper.DisplayMenu("EDIT AUTHOR MENU", items);
+
+			switch (selectedItem)
 			{
-				case 1:
-				{
-					var authorNewFirstName = ConsoleHelper.GetValidName("\nEnter new first name",
-						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
-					if (authorNewFirstName != null)
-					{
-						desiredAuthor.FirstName = authorNewFirstName;
-						var result = authorManagementService.UpdateAuthor(desiredAuthor, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
-					break;
-				}
-				case 2:
-				{
-					var authorNewLastName = ConsoleHelper.GetValidName("\nEnter new last name",
-						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
-
-					if (authorNewLastName != null)
-					{
-						desiredAuthor.LastName = authorNewLastName;
-						var result = authorManagementService.UpdateAuthor(desiredAuthor, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
-					break;
-				}
-				case 3:
-				{
-					var authorNewNationalCode = ConsoleHelper.GetValidNationalCode("\nEnter new national code");
-
-					if (authorNewNationalCode != null)
-					{
-						desiredAuthor.NationalCode = authorNewNationalCode;
-						var result = authorManagementService.UpdateAuthor(desiredAuthor, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
-					break;
-				}
-				case 4:
-				{
-					var authorNewEmail = ConsoleHelper.GetValidEmail("\nEnter new email");
-
-					if (authorNewEmail != null)
-					{
-						desiredAuthor.Email = Email.Create(authorNewEmail);
-						var result = authorManagementService.UpdateAuthor(desiredAuthor, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
-					break;
-				}
-				case 5:
-				{
-					Console.Clear();
-					var authorNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number");
-
-					if (authorNewPhoneNumber != null)
-					{
-						desiredAuthor.PhoneNumber = PhoneNumber.Create(authorNewPhoneNumber);
-						var result = authorManagementService.UpdateAuthor(desiredAuthor, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
-					break;
-				}
-				case 6:
-				{
-					var authorNewBirthDate = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
-
-					if (authorNewBirthDate != null)
-					{
-						desiredAuthor.BirthDate = authorNewBirthDate.Value;
-						var result = authorManagementService.UpdateAuthor(desiredAuthor, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
-					break;
-				}
-				case 7:
-				{
-					var authorNewBiography = ConsoleHelper.ReadString("\nEnter new biography");
-
-					if (authorNewBiography != null)
-					{
-						desiredAuthor.Biography = authorNewBiography;
-						var result = authorManagementService.UpdateAuthor(desiredAuthor, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
-					break;
-				}
-				case 8:
-				{
+				case null:
+					return;
+				case "authors.edit.back":
 					ConsoleHelper.ShowInfo(string.Format(Messages.EditCancelled, "Author"));
 					return;
+			}
+
+			var updated = true;
+
+			switch (selectedItem)
+			{
+				case "authors.edit.firstname":
+				{
+					var value = ConsoleHelper.GetValidName("\nEnter new first name",
+						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
+					if (value != null)
+						desiredAuthor.FirstName = value;
+					else
+						updated = false;
+					break;
 				}
+				case "authors.edit.lastname":
+				{
+					var value = ConsoleHelper.GetValidName("\nEnter new last name",
+						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
+
+					if (value != null)
+						desiredAuthor.LastName = value;
+					else
+						updated = false;
+					break;
+				}
+				case "authors.edit.national-code":
+				{
+					var value = ConsoleHelper.GetValidNationalCode("\nEnter new national code");
+
+					if (value != null)
+						desiredAuthor.NationalCode = value;
+					else
+						updated = false;
+					break;
+				}
+				case "authors.edit.email":
+				{
+					var value = ConsoleHelper.GetValidEmail("\nEnter new email");
+
+					if (value != null)
+						desiredAuthor.Email = Email.Create(value);
+					else
+						updated = false;
+					break;
+				}
+				case "authors.edit.phone-number":
+				{
+					var value = ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number");
+
+					if (value != null)
+						desiredAuthor.PhoneNumber = PhoneNumber.Create(value);
+					else
+						updated = false;
+					break;
+				}
+				case "authors.edit.birthdate":
+				{
+					var value = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
+
+					if (value != null)
+						desiredAuthor.BirthDate = value.Value;
+					else
+						updated = false;
+					break;
+				}
+				case "authors.edit.biography":
+				{
+					var value = ConsoleHelper.ReadString("\nEnter new biography");
+
+					if (value != null)
+						desiredAuthor.Biography = value;
+					else
+						updated = false;
+					break;
+				}
+				default:
+				{
+					updated = false;
+					break;
+				}
+			}
+
+			if (updated)
+			{
+				var result = authorManagementService.UpdateAuthor(desiredAuthor, session.CurrentUser.Id);
+				ConsoleHelper.ShowResult(result);
 			}
 
 			var choice = ConsoleHelper.ReadYesNo(Messages.EditContinuesQuestion);

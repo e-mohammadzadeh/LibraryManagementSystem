@@ -85,7 +85,7 @@ public static class MainMenu
 				case "auditLog":
 				{
 					Console.Clear();
-					AuditLogMenu.AuditLogMenuController(auditLogManagementService, authorization, session,
+					AuditLogMenu.AuditLogMenuController(auditLogManagementService, menuService, authorization, session,
 						statisticsService);
 					ConsoleHelper.Pause();
 					break;

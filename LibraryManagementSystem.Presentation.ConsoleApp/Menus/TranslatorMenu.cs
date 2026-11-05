@@ -65,7 +65,7 @@ public static class TranslatorMenu
 						    Messages.AccessDenied))
 						break;
 					Console.Clear();
-					EditTranslator(translatorManagementService, authorization, session);
+					EditTranslator(translatorManagementService, authorization, session, menuService);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -144,11 +144,9 @@ public static class TranslatorMenu
 	}
 
 
-	private static readonly string[] Item = ["—"];
-
 
 	private static void EditTranslator(TranslatorManagementService translatorManagementService,
-		IAuthorizationService authorization, ICurrentUserSession session)
+		IAuthorizationService authorization, ICurrentUserSession session, IMenuService menuService)
 	{
 		Console.WriteLine(new string('=', 36) + " EDITING TRANSLATOR MENU " + new string('=', 36));
 		var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
@@ -162,134 +160,121 @@ public static class TranslatorMenu
 
 			var rows = new List<string[][]>
 			{
-				new[] { ["1"], ["First Name"], new[] { desiredTranslator.FirstName } },
-				new[] { ["2"], ["Last Name"], new[] { desiredTranslator.LastName } },
-				new[] { ["3"], ["National Code"], new[] { desiredTranslator.NationalCode } },
-				new[] { ["4"], ["Email"], new[] { desiredTranslator.Email.ToString() } },
-				new[] { ["5"], ["Phone Number"], new[] { desiredTranslator.PhoneNumber.ToString() } },
-				new[] { ["6"], ["Birth Date"], new[] { desiredTranslator.BirthDate.ToString("yyyy-MM-dd") } },
+				new[] { ["First Name"], new[] { desiredTranslator.FirstName } },
+				new[] { ["Last Name"], new[] { desiredTranslator.LastName } },
+				new[] { ["National Code"], new[] { desiredTranslator.NationalCode } },
+				new[] { ["Email"], new[] { desiredTranslator.Email.ToString() } },
+				new[] { ["Phone Number"], new[] { desiredTranslator.PhoneNumber.ToString() } },
+				new[] { ["Birth Date"], new[] { desiredTranslator.BirthDate.ToString("yyyy-MM-dd") } },
 				new[]
 				{
-					["7"], ["Biography"],
-					string.IsNullOrWhiteSpace(desiredTranslator.Biography)
-						? ["-"]
-						: new[] { desiredTranslator.Biography }
+					["Biography"],
+					new[] { string.IsNullOrWhiteSpace(desiredTranslator.Biography) ? "-" : desiredTranslator.Biography }
 				},
-				new[] { ["8"], ["Back"], Item }
 			};
 
-			ConsoleTable.PrintTable("Edit Translator", headers, rows);
+			ConsoleTable.PrintTable("TRANSLATOR DETAILS", headers, rows);
 
-			var editMenuChoice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, 7);
-			if (editMenuChoice == null) return;
+			var items = menuService.GetChildren("translators.edit");
 
-			switch (editMenuChoice)
+			var selectedItem = MenuHelper.DisplayMenu("EDIT TRANSLATOR MENU", items);
+
+			switch (selectedItem)
 			{
-				case 1:
-				{
-					var translatorNewFirstName = ConsoleHelper.GetValidName("\nEnter new first name",
-						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
-
-					if (translatorNewFirstName != null)
-					{
-						desiredTranslator.FirstName = translatorNewFirstName;
-						var result =
-							translatorManagementService.UpdateTranslator(desiredTranslator, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
-					break;
-				}
-				case 2:
-				{
-					var translatorNewLastName = ConsoleHelper.GetValidName("\nEnter new last name",
-						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
-
-					if (translatorNewLastName != null)
-					{
-						desiredTranslator.LastName = translatorNewLastName;
-						var result =
-							translatorManagementService.UpdateTranslator(desiredTranslator, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
-					break;
-				}
-				case 3:
-				{
-					var translatorNewNationalCode = ConsoleHelper.GetValidNationalCode("\nEnter new national code");
-
-					if (translatorNewNationalCode != null)
-					{
-						desiredTranslator.NationalCode = translatorNewNationalCode;
-						var result =
-							translatorManagementService.UpdateTranslator(desiredTranslator, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
-					break;
-				}
-				case 4:
-				{
-					var translatorNewEmail = ConsoleHelper.GetValidEmail("\nEnter new email");
-
-					if (translatorNewEmail != null)
-					{
-						desiredTranslator.Email = Email.Create(translatorNewEmail);
-						var result =
-							translatorManagementService.UpdateTranslator(desiredTranslator, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
-					break;
-				}
-				case 5:
-				{
-					var translatorNewPhoneNumber = ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number");
-
-					if (translatorNewPhoneNumber != null)
-					{
-						desiredTranslator.PhoneNumber = PhoneNumber.Create(translatorNewPhoneNumber);
-						var result =
-							translatorManagementService.UpdateTranslator(desiredTranslator, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
-					break;
-				}
-				case 6:
-				{
-					var translatorNewBirthDate = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
-
-					if (translatorNewBirthDate != null)
-					{
-						desiredTranslator.BirthDate = translatorNewBirthDate.Value;
-						var result =
-							translatorManagementService.UpdateTranslator(desiredTranslator, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
-					break;
-				}
-				case 7:
-				{
-					var translatorNewBiography = ConsoleHelper.ReadString("\nEnter new biography");
-
-					if (translatorNewBiography != null)
-					{
-						desiredTranslator.Biography = translatorNewBiography;
-						var result =
-							translatorManagementService.UpdateTranslator(desiredTranslator, session.CurrentUser.Id);
-						ConsoleHelper.ShowResult(result);
-					}
-
-					break;
-				}
-				case 8:
-				{
+				case null:
+					return;
+				case "translators.edit.back":
 					ConsoleHelper.ShowInfo(string.Format(Messages.EditCancelled, "Translator"));
 					return;
+			}
+
+			var updated = true;
+
+			switch (selectedItem)
+			{
+				case "translators.edit.firstname":
+				{
+					var value = ConsoleHelper.GetValidName("\nEnter new first name",
+						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
+
+					if (value != null)
+						desiredTranslator.FirstName = value;
+					else
+						updated = false;
+					break;
 				}
+				case "translators.edit.lastname":
+				{
+					var value = ConsoleHelper.GetValidName("\nEnter new last name",
+						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
+
+					if (value != null)
+						desiredTranslator.LastName = value;
+					else
+						updated = false;
+					break;
+				}
+				case "translators.edit.national-code":
+				{
+					var value = ConsoleHelper.GetValidNationalCode("\nEnter new national code");
+
+					if (value != null)
+						desiredTranslator.NationalCode = value;
+					else
+						updated = false;
+					break;
+				}
+				case "translators.edit.email":
+				{
+					var value = ConsoleHelper.GetValidEmail("\nEnter new email");
+
+					if (value != null)
+						desiredTranslator.Email = Email.Create(value);
+					else
+						updated = false;
+					break;
+				}
+				case "translators.edit.phone-number":
+				{
+					var value = ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number");
+
+					if (value != null)
+						desiredTranslator.PhoneNumber = PhoneNumber.Create(value);
+					else
+						updated = false;
+					break;
+				}
+				case "translators.edit.birthdate":
+				{
+					var value = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
+
+					if (value != null)
+						desiredTranslator.BirthDate = value.Value;
+					else
+						updated = false;
+					break;
+				}
+				case "translators.edit.biography":
+				{
+					var value = ConsoleHelper.ReadString("\nEnter new biography");
+
+					if (value != null)
+						desiredTranslator.Biography = value;
+					else
+						updated = false;
+					break;
+				}
+				default:
+				{
+					updated = false;
+					break;
+				}
+			}
+
+			if (updated)
+			{
+				var result = translatorManagementService.UpdateTranslator(desiredTranslator, session.CurrentUser.Id);
+				ConsoleHelper.ShowResult(result);
 			}
 
 			var choice = ConsoleHelper.ReadYesNo(Messages.EditContinuesQuestion);

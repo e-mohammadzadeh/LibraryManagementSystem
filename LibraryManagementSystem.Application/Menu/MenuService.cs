@@ -51,12 +51,8 @@ public sealed class MenuService : IMenuService
 
 		foreach (var permissionName in item.Permissions)
 		{
-			if (!Enum.TryParse<Permission>(
-				    permissionName, true, out var permission))
-			{
-				throw new InvalidOperationException(
-					$"Unknown permission '{permissionName}' in menu configuration.");
-			}
+			if (!Enum.TryParse<Permission>(permissionName, true, out var permission))
+				throw new InvalidOperationException($"Unknown permission '{permissionName}' in menu configuration.");
 
 			if (_authorization.HasPermission(permission))
 				return true;

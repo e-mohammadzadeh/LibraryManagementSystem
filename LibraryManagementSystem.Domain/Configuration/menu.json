@@ -12,12 +12,12 @@
 						{
 							"id": "authors.add",
 							"label": "Add Author",
-							"permission": [ "AddContributor" ]
+							"permissions": [ "AddContributor" ]
 						},
 						{
 							"id": "authors.edit",
 							"label": "Edit Author",
-							"permission": [ "EditContributor" ],
+							"permissions": [ "EditContributor" ],
 							"children": [
 								{
 									"id": "authors.edit.firstname",
@@ -56,7 +56,7 @@
 						{
 							"id": "authors.remove",
 							"label": "Remove Author",
-							"permission": [ "RemoveContributor" ]
+							"permissions": [ "RemoveContributor" ]
 						},
 						{
 							"id": "authors.search",
@@ -69,7 +69,7 @@
 								{
 									"id": "authors.search.national-code",
 									"label": "National Code",
-									"permission": [ "FullSearchContributor" ]
+									"permissions": [ "FullSearchContributor" ]
 								},
 								{
 									"id": "authors.search.email",
@@ -78,7 +78,7 @@
 								{
 									"id": "authors.search.phone-number",
 									"label": "Phone Number",
-									"permission": [ "FullSearchContributor" ]
+									"permissions": [ "FullSearchContributor" ]
 								},
 								{
 									"id": "authors.search.back",
@@ -109,17 +109,17 @@
 								{
 									"id": "authors.sort.national-code",
 									"label": "National Code",
-									"permission": [ "FullSortContributor" ]
+									"permissions": [ "FullSortContributor" ]
 								},
 								{
 									"id": "authors.sort.birthdate",
 									"label": "Birth Date",
-									"permission": [ "FullSortContributor" ]
+									"permissions": [ "FullSortContributor" ]
 								},
 								{
 									"id": "authors.sort.book-count",
 									"label": "Book Count",
-									"permission": [ "FullSortContributor" ]
+									"permissions": [ "FullSortContributor" ]
 								},
 								{
 									"id": "authors.sort.back",
@@ -134,7 +134,7 @@
 								{
 									"id": "authors.view.author-details",
 									"label": "View Author Details",
-									"permission": [ "ViewContributorDetails" ]
+									"permissions": [ "ViewContributorDetails" ]
 								},
 								{
 									"id": "authors.view.author-books",
@@ -147,7 +147,7 @@
 								{
 									"id": "authors.view.removed-authors",
 									"label": "View Removed Authors",
-									"permission": [ "ViewRemovedContributors" ]
+									"permissions": [ "ViewRemovedContributors" ]
 								},
 								{
 									"id": "authors.view.back",
@@ -168,12 +168,12 @@
 						{
 							"id": "translators.add",
 							"label": "Add Translator",
-							"permission": [ "AddContributor" ]
+							"permissions": [ "AddContributor" ]
 						},
 						{
 							"id": "translators.edit",
 							"label": "Edit Translator",
-							"permission": [ "EditContributor" ],
+							"permissions": [ "EditContributor" ],
 							"children": [
 								{
 									"id": "translators.edit.firstname",
@@ -212,7 +212,7 @@
 						{
 							"id": "translators.remove",
 							"label": "Remove Translator",
-							"permission": [ "RemoveContributor" ]
+							"permissions": [ "RemoveContributor" ]
 						},
 						{
 							"id": "translators.search",
@@ -225,7 +225,7 @@
 								{
 									"id": "translators.search.national-code",
 									"label": "National Code",
-									"permission": [ "FullSearchContributor" ]
+									"permissions": [ "FullSearchContributor" ]
 								},
 								{
 									"id": "translators.search.email",
@@ -234,7 +234,7 @@
 								{
 									"id": "translators.search.phone-number",
 									"label": "Phone Number",
-									"permission": [ "FullSearchContributor" ]
+									"permissions": [ "FullSearchContributor" ]
 								},
 								{
 									"id": "translators.search.back",
@@ -265,17 +265,17 @@
 								{
 									"id": "translators.sort.national-code",
 									"label": "National Code",
-									"permission": [ "FullSortContributor" ]
+									"permissions": [ "FullSortContributor" ]
 								},
 								{
 									"id": "translators.sort.birthdate",
 									"label": "Birth Date",
-									"permission": [ "FullSortContributor" ]
+									"permissions": [ "FullSortContributor" ]
 								},
 								{
 									"id": "translators.sort.bookcount",
 									"label": "Book Count",
-									"permission": [ "FullSortContributor" ]
+									"permissions": [ "FullSortContributor" ]
 								}
 							]
 						},
@@ -286,7 +286,7 @@
 								{
 									"id": "translators.view.translator-details",
 									"label": "View Translators Details",
-									"permission": [ "ViewContributorDetails" ]
+									"permissions": [ "ViewContributorDetails" ]
 								},
 								{
 									"id": "translators.view.translator-books",
@@ -299,7 +299,7 @@
 								{
 									"id": "translators.view.removed-translators",
 									"label": "View Removed Translators",
-									"permission": [ "ViewRemovedContributors" ]
+									"permissions": [ "ViewRemovedContributors" ]
 								},
 								{
 									"id": "translators.view.back",
@@ -320,12 +320,12 @@
 						{
 							"id": "books.add",
 							"label": "Add Book",
-							"permission": [ "AddBook" ]
+							"permissions": [ "AddBook" ]
 						},
 						{
 							"id": "books.edit",
 							"label": "Edit Book",
-							"permission": [ "EditBook" ],
+							"permissions": [ "EditBook" ],
 							"children": [
 								{
 									"id": "books.edit.title",
@@ -412,7 +412,7 @@
 						{
 							"id": "books.remove",
 							"label": "Remove Book",
-							"permission": [ "RemoveBook" ]
+							"permissions": [ "RemoveBook" ]
 						},
 						{
 							"id": "books.search",
@@ -509,7 +509,7 @@
 								{
 									"id": "books.sort.availablecopies",
 									"label": "Available Copies",
-									"permission": [ "FullSortBook" ]
+									"permissions": [ "FullSortBook" ]
 								}
 							]
 						},
@@ -520,7 +520,7 @@
 								{
 									"id": "books.view.book-details",
 									"label": "View Book Details",
-									"permission": [ "ViewBookDetails" ]
+									"permissions": [ "ViewBookDetails" ]
 								},
 								{
 									"id": "books.view.all-books",
@@ -529,7 +529,7 @@
 								{
 									"id": "books.view.removed-books",
 									"label": "View Removed Books",
-									"permission": [ "ViewRemovedBooks" ]
+									"permissions": [ "ViewRemovedBooks" ]
 								},
 								{
 									"id": "books.view.back",
@@ -550,7 +550,7 @@
 						{
 							"id": "users.register",
 							"label": "Register User",
-							"permission": [ "AddUser" ]
+							"permissions": [ "AddUser" ]
 						},
 						{
 							"id": "users.edit",
@@ -571,7 +571,7 @@
 								{
 									"id": "users.edit.email",
 									"label": "Email",
-									"permission": [ "EditUser" ]
+									"permissions": [ "EditUser" ]
 								},
 								{
 									"id": "users.edit.phone-number",
@@ -584,7 +584,7 @@
 								{
 									"id": "users.edit.role",
 									"label": "Role",
-									"permission": [ "EditUserRole" ]
+									"permissions": [ "EditUserRole" ]
 								},
 								{
 									"id": "users.edit.back",
@@ -595,12 +595,12 @@
 						{
 							"id": "users.remove",
 							"label": "Remove User",
-							"permission": [ "RemoveUser" ]
+							"permissions": [ "RemoveUser" ]
 						},
 						{
 							"id": "users.search",
 							"label": "Search User",
-							"permission": [ "SearchUser" ],
+							"permissions": [ "SearchUser" ],
 							"children": [
 								{
 									"id": "users.search.name",
@@ -631,7 +631,7 @@
 						{
 							"id": "users.sort",
 							"label": "Sort Users",
-							"permission": [ "SortUser" ],
+							"permissions": [ "SortUser" ],
 							"children": [
 								{
 									"id": "users.sort.firstname",
@@ -686,17 +686,17 @@
 								{
 									"id": "users.view.user-details",
 									"label": "View User Details",
-									"permission": [ "ViewUserDetails" ]
+									"permissions": [ "ViewUserDetails" ]
 								},
 								{
 									"id": "users.view.all-users",
 									"label": "View All Users",
-									"permission": [ "ViewAllUsers" ]
+									"permissions": [ "ViewAllUsers" ]
 								},
 								{
 									"id": "users.view.removed-users",
 									"label": "View Removed Users",
-									"permission": [ "ViewRemovedUsers" ]
+									"permissions": [ "ViewRemovedUsers" ]
 								},
 								{
 									"id": "users.view.back",
@@ -707,7 +707,7 @@
 						{
 							"id": "users.renew",
 							"label": "Renew Membership",
-							"permission": [ "RenewLibrarianMembership", "RenewMemberMembership" ]
+							"permissions": [ "RenewLibrarianMembership", "RenewMemberMembership" ]
 						},
 						{
 							"id": "users.change-password",
@@ -720,7 +720,7 @@
 								{
 									"id": "users.change-password.otheruser",
 									"label": "Reset Another User's Password",
-									"permission": [ "ChangePassword" ]
+									"permissions": [ "ChangePassword" ]
 								}
 							]
 						},
@@ -749,7 +749,7 @@
 						{
 							"id": "loans.search",
 							"label": "Search Loan",
-							"permission": [ "SearchLoans" ],
+							"permissions": [ "SearchLoans" ],
 							"children": [
 								{
 									"id": "loans.search.title",
@@ -788,17 +788,17 @@
 								{
 									"id": "loans.view.by-user",
 									"label": "By User",
-									"permission": [ "ViewLoansByUser" ]
+									"permissions": [ "ViewLoansByUser" ]
 								},
 								{
 									"id": "loans.view.by-book",
 									"label": "By Book",
-									"permission": [ "ViewLoansByBook" ]
+									"permissions": [ "ViewLoansByBook" ]
 								},
 								{
 									"id": "loans.view.full",
 									"label": "Full History",
-									"permission": [ "ViewAllLoans" ]
+									"permissions": [ "ViewAllLoans" ]
 								},
 								{
 									"id": "loans.view.back",
@@ -850,7 +850,7 @@
 						{
 							"id": "fines.waive",
 							"label": "Waive Fine",
-							"permission": [ "WaiveFine" ]
+							"permissions": [ "WaiveFine" ]
 						},
 						{
 							"id": "fines.view",
@@ -863,12 +863,12 @@
 								{
 									"id": "fines.view.by-user",
 									"label": "By User",
-									"permission": [ "ViewFinesByUser" ]
+									"permissions": [ "ViewFinesByUser" ]
 								},
 								{
 									"id": "fines.view.full",
 									"label": "Full History",
-									"permission": [ "ViewAllFines" ]
+									"permissions": [ "ViewAllFines" ]
 								},
 								{
 									"id": "fines.view.back",
@@ -912,12 +912,12 @@
 				{
 					"id": "auditLog",
 					"label": "Audit Log",
-					"permission": [ "ViewAuditLog" ],
+					"permissions": [ "ViewAuditLog" ],
 					"children": [
 						{
 							"id": "auditLog.view",
 							"label": "View Audit Log",
-							"permission": [ "ViewAuditLog" ]
+							"permissions": [ "ViewAuditLog" ]
 						},
 						{
 							"id": "auditLog.back",
