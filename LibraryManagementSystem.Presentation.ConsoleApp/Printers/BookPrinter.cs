@@ -12,8 +12,6 @@ public static class BookPrinter
 	public static void PrintDetails(BookDto details)
 	{
 		ConsoleHelper.ClearConsole();
-
-		// One name/email per line when there are many (wraps cleanly in the value column)
 		var authorNames = details.Authors.Count == 0
 			? ["—"]
 			: details.Authors.Select(a => $"{a.FirstName} {a.LastName}").ToArray();

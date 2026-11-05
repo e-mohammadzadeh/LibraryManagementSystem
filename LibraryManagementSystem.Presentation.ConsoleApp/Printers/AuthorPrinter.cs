@@ -17,7 +17,7 @@ public static class AuthorPrinter
 			("Email", [author.Email]),
 			("Phone Number", [author.PhoneNumber]),
 			("Birth Date", [author.BirthDate.ToString("yyyy-MM-dd")]),
-			("Biography", [string.IsNullOrWhiteSpace(author.Biography) ? "—" : author.Biography]),
+			("Biography", [author.Biography ?? "N/A"]),
 			("Created At", [author.CreatedAt.ToString("yyyy-MM-dd HH:mm")]),
 			("Updated At", [author.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "N/A"]),
 		};

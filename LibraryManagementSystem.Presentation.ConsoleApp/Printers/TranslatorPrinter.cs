@@ -17,7 +17,7 @@ public class TranslatorPrinter
 			("Email", [translator.Email]),
 			("Phone Number", [translator.PhoneNumber]),
 			("Birth Date", [translator.BirthDate.ToString("yyyy-MM-dd")]),
-			("Biography", [string.IsNullOrWhiteSpace(translator.Biography) ? "—" : translator.Biography]),
+			("Biography", [translator.Biography ?? "N/A"]),
 			("Created At", [translator.CreatedAt.ToString("yyyy-MM-dd HH:mm")]),
 			("Updated At", [translator.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "N/A"]),
 		};
