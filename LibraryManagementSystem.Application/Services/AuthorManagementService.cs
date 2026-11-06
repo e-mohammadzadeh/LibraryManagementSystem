@@ -1,5 +1,4 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
-using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Common;
@@ -7,7 +6,6 @@ using LibraryManagementSystem.Infrastructure.DTOs.Books;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
-using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
 using LibraryManagementSystem.Infrastructure.Interfaces;
 
@@ -29,63 +27,48 @@ public class AuthorManagementService : ContributorManagementService<Author>
 
 	public ServiceResult<ContributorDto> AddAuthor(ContributorDto dto)
 	{
-		var result = new AddContributor(
+		var result = AddContributor(
 			dto,
 			Messages.DuplicateAuthorsNotAllowedByNationalCode,
 			Messages.DuplicateAuthorsNotAllowedByEmail,
 			Messages.DuplicateAuthorsNotAllowedByPhoneNumber,
 			Messages.AuthorAddedSuccessfully);
 
-		if (result.IsSuccess)
-			_auditLog.Record(AuditAction.AuthorCreated, "Author", result.Id, "Author created.");
-		return ServiceResult<ContributorDto>.Ok(result.ToDto(), Messages.AuthorAddedSuccessfully);
+		if (result.IsSuccess) _auditLog.Record(AuditAction.AuthorCreated, "Author", result.Data!.Id, "Author created.");
+		return result;
 	}
 
 
 	public ServiceResult<ContributorDto> UpdateAuthor(ContributorDto dto, Guid? updatedBy = null)
 	{
-		var result = new UpdateContributor(
+		var result = UpdateContributor(
 			dto,
 			updatedBy,
 			Messages.AuthorUpdateFailed,
 			Messages.DuplicateAuthorsNotAllowedByNationalCode,
 			Messages.DuplicateAuthorsNotAllowedByEmail,
 			Messages.DuplicateAuthorsNotAllowedByPhoneNumber,
-			Messages.AuthorUpdatedSuccessfully);
+			Messages.AuthorUpdatedSuccessfully,
+			out var auditDetails);
 
 		if (result.IsSuccess)
-		{
-			var auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(author, dto);
 			_auditLog.Record(AuditAction.AuthorUpdated, "Author", dto.Id, auditDetails ?? "Author updated.");
-		}
-
 		return result;
 	}
 
 
-	private static bool IsNoOpUpdateAuthor(Author author, ContributorDto dto)
+
+	public ServiceResult<ContributorDto> RemoveAuthor(Guid id)
 	{
-		return (dto.FirstName == author.FirstName) &&
-		       (dto.LastName == author.LastName) &&
-		       (dto.NationalCode == author.NationalCode) &&
-		       (dto.Email == author.Email) &&
-		       (dto.PhoneNumber == author.PhoneNumber) &&
-		       (dto.BirthDate == author.BirthDate) &&
-		       (dto.Biography == null || dto.Biography == author.Biography);
-	}
+		var result = RemoveContributor(
+			id,
+			a => a.BookAuthors.Count != 0,
+			Messages.AuthorRemoveFailed,
+			Messages.AuthorHasAssociatedBooks,
+			Messages.AuthorRemovedSuccessfully);
 
-
-	public ServiceResult<ContributorDto> RemoveAuthor(Guid authorId)
-	{
-		var author = _authorRepository.GetById(authorId, EntityFilter.Active);
-		if (author is null || author.IsRemoved) return ServiceResult<ContributorDto>.Fail(Messages.AuthorRemoveFailed);
-
-		if (author.BookAuthors.Count != 0) return ServiceResult<ContributorDto>.Fail(Messages.AuthorHasAssociatedBooks);
-
-		_authorRepository.Remove(author);
-		_auditLog.Record(AuditAction.AuthorRemoved, "Author", authorId, "Author removed.");
-
-		return ServiceResult<ContributorDto>.Ok(author.ToDto(), Messages.AuthorRemovedSuccessfully);
+		if (result.IsSuccess) _auditLog.Record(AuditAction.AuthorRemoved, "Author", id, "Author removed.");
+		return result;
 	}
 
 

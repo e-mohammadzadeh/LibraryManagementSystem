@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Application.Mapping;
+﻿using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Common;
@@ -46,14 +47,12 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 
 
 	protected ServiceResult<ContributorDto> UpdateContributor(ContributorDto dto, Guid? updatedBy,
-		string updateFailedMessage, string duplicateNationalCodeMessage, string duplicateEmailMessage,
-		string duplicatePhoneNumberMessage, string successMessage)
+		string notFoundMessage, string duplicateNationalCodeMessage, string duplicateEmailMessage,
+		string duplicatePhoneNumberMessage, string successMessage, out string? auditDetails)
 	{
-		var entity = Repository.GetById(dto.Id, EntityFilter.Active);
-		if (entity is null || entity.IsRemoved) return ServiceResult<ContributorDto>.Fail(updateFailedMessage);
-
-		if (IsNoOp(entity, dto))
-			return ServiceResult<ContributorDto>.Warning(entity.ToDto(), Messages.NoChangesDetected);
+		auditDetails = null;
+		var contributor = Repository.GetById(dto.Id, EntityFilter.Active);
+		if (contributor is null || contributor.IsRemoved) return ServiceResult<ContributorDto>.Fail(notFoundMessage);
 
 		if (Repository.Exists(dto.NationalCode, c => c.NationalCode, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(duplicateNationalCodeMessage);
@@ -64,30 +63,36 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 		if (Repository.Exists(dto.PhoneNumber, c => c.PhoneNumber, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(duplicatePhoneNumberMessage);
 
-		entity.FirstName = dto.FirstName;
-		entity.LastName = dto.LastName;
-		entity.NationalCode = dto.NationalCode;
-		entity.Email = dto.Email;
-		entity.PhoneNumber = dto.PhoneNumber;
-		entity.BirthDate = dto.BirthDate;
-		entity.Biography = dto.Biography;
-		entity.UpdatedByUserId = updatedBy;
+		if (IsNoOpUpdate(contributor, dto))
+			return ServiceResult<ContributorDto>.Warning(contributor.ToDto(), Messages.NoChangesDetected);
 
-		Repository.Update(entity);
-		return ServiceResult<ContributorDto>.Ok(entity.ToDto(), successMessage);
+		contributor.FirstName = dto.FirstName;
+		contributor.LastName = dto.LastName;
+		contributor.NationalCode = dto.NationalCode;
+		contributor.Email = dto.Email;
+		contributor.PhoneNumber = dto.PhoneNumber;
+		contributor.BirthDate = dto.BirthDate;
+		contributor.Biography = dto.Biography;
+		contributor.UpdatedByUserId = updatedBy;
+
+		auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(contributor, dto);
+
+		Repository.Update(contributor);
+		return ServiceResult<ContributorDto>.Ok(contributor.ToDto(), successMessage);
 	}
 
 
-	protected ServiceResult<ContributorDto> RemoveContributor(Guid id, string removeFailedMessage,
-		string hasAssociatedBook, string successMessage)
+	protected ServiceResult<ContributorDto> RemoveContributor(Guid id, Func<TEntity, bool> hasAssociatedBooks,
+		string removeFailedMessage, string hasAssociatedBooksMessage, string successMessage)
 	{
-		var entity = Repository.GetById(id, EntityFilter.Active);
-		if (entity is null || entity.IsRemoved) return ServiceResult<ContributorDto>.Fail(removeFailedMessage);
+		var contributor = Repository.GetById(id, EntityFilter.Active);
+		if (contributor is null || contributor.IsRemoved)
+			return ServiceResult<ContributorDto>.Fail(removeFailedMessage);
 
-		if (getbook.Count > 0) return ServiceResult<ContributorDto>.Fail(hasAssociatedBook);
+		if (hasAssociatedBooks(contributor)) return ServiceResult<ContributorDto>.Fail(hasAssociatedBooksMessage);
 
-		Repository.Remove(entity);
-		return ServiceResult<ContributorDto>.Ok(entity.ToDto(), successMessage);
+		Repository.Remove(contributor);
+		return ServiceResult<ContributorDto>.Ok(contributor.ToDto(), successMessage);
 	}
 
 
@@ -101,15 +106,11 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 			ContributorSearchField.PhoneNumber => new[] { Permission.FullSearchContributor },
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};
-
-		
 	}
 
 
 
-
-
-	private static bool IsNoOp(TEntity entity, ContributorDto dto) =>
+	private static bool IsNoOpUpdate(TEntity entity, ContributorDto dto) =>
 		dto.FirstName == entity.FirstName &&
 		dto.LastName == entity.LastName &&
 		dto.NationalCode == entity.NationalCode &&

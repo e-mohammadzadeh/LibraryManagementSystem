@@ -1,6 +1,4 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
-using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Common;
@@ -8,23 +6,20 @@ using LibraryManagementSystem.Infrastructure.DTOs.Books;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
-using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
 using LibraryManagementSystem.Infrastructure.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
 
-public class TranslatorManagementService
+public class TranslatorManagementService : ContributorManagementService<Translator>
 {
-	private readonly ITranslatorRepository _translatorRepository;
 	private readonly IAuthorizationService _authorization;
 	private readonly IAuditLogManagementService _auditLog;
 
 
 	public TranslatorManagementService(ITranslatorRepository translatorRepository, IAuthorizationService authorization,
-		IAuditLogManagementService auditLog)
+		IAuditLogManagementService auditLog) : base(translatorRepository)
 	{
-		_translatorRepository = translatorRepository;
 		_authorization = authorization;
 		_auditLog = auditLog;
 	}
@@ -32,99 +27,50 @@ public class TranslatorManagementService
 
 	public ServiceResult<ContributorDto> AddTranslator(ContributorDto dto)
 	{
-		if (_translatorRepository.Exists(dto.NationalCode, t => t.NationalCode))
-			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByNationalCode);
+		var result = AddContributor(
+			dto,
+			Messages.DuplicateTranslatorsNotAllowedByNationalCode,
+			Messages.DuplicateTranslatorsNotAllowedByEmail,
+			Messages.DuplicateTranslatorsNotAllowedByPhoneNumber,
+			Messages.TranslatorAddedSuccessfully);
 
-		if (_translatorRepository.Exists(dto.Email, t => t.Email))
-			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByEmail);
-
-		if (_translatorRepository.Exists(dto.PhoneNumber, t => t.PhoneNumber))
-			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByPhoneNumber);
-
-		var newTranslator = new Translator
-		{
-			FirstName = dto.FirstName,
-			LastName = dto.LastName,
-			NationalCode = dto.NationalCode,
-			Email = dto.Email,
-			PhoneNumber = dto.PhoneNumber,
-			BirthDate = dto.BirthDate,
-			Biography = dto.Biography
-		};
-
-		_translatorRepository.Add(newTranslator);
-		_auditLog.Record(AuditAction.TranslatorCreated, "Translator", newTranslator.Id, "Translator created.");
-
-		return ServiceResult<ContributorDto>.Ok(newTranslator.ToDto(), Messages.TranslatorAddedSuccessfully);
+		if (result.IsSuccess)
+			_auditLog.Record(AuditAction.TranslatorCreated, "Translator", result.Data!.Id, "Translator created.");
+		return result;
 	}
 
 
 	public ServiceResult<ContributorDto> UpdateTranslator(ContributorDto dto, Guid? updatedBy = null)
 	{
-		var translator = _translatorRepository.GetById(dto.Id, EntityFilter.Active);
-		if (translator is null || translator.IsRemoved)
-			return ServiceResult<ContributorDto>.Fail(Messages.TranslatorUpdateFailed);
+		var result = UpdateContributor(
+			dto,
+			updatedBy,
+			Messages.TranslatorUpdateFailed,
+			Messages.DuplicateTranslatorsNotAllowedByNationalCode,
+			Messages.DuplicateTranslatorsNotAllowedByEmail,
+			Messages.DuplicateTranslatorsNotAllowedByPhoneNumber,
+			Messages.TranslatorUpdatedSuccessfully,
+			out var auditDetails);
 
-		if (IsNoOpUpdateTranslator(translator, dto))
-			return ServiceResult<ContributorDto>.Fail(Messages.NoChangesDetected);
-
-		if (string.IsNullOrWhiteSpace(dto.FirstName) || string.IsNullOrWhiteSpace(dto.LastName) ||
-		    string.IsNullOrWhiteSpace(dto.NationalCode) || string.IsNullOrWhiteSpace(dto.Email) ||
-		    string.IsNullOrWhiteSpace(dto.PhoneNumber))
-			return ServiceResult<ContributorDto>.Fail(Messages.TranslatorUpdateFailed);
-
-		if (_translatorRepository.Exists(dto.NationalCode, t => t.NationalCode, dto.Id))
-			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByNationalCode);
-
-		if (_translatorRepository.Exists(dto.Email, t => t.Email, dto.Id))
-			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByEmail);
-
-		if (_translatorRepository.Exists(dto.PhoneNumber, t => t.PhoneNumber, dto.Id))
-			return ServiceResult<ContributorDto>.Fail(Messages.DuplicateTranslatorsNotAllowedByPhoneNumber);
-
-		var auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(translator, dto);
-
-		translator.FirstName = dto.FirstName;
-		translator.LastName = dto.LastName;
-		translator.NationalCode = dto.NationalCode;
-		translator.Email = dto.Email;
-		translator.PhoneNumber = dto.PhoneNumber;
-		translator.BirthDate = dto.BirthDate;
-		translator.Biography = dto.Biography;
-		translator.UpdatedByUserId = updatedBy;
-
-		_translatorRepository.Update(translator);
-		_auditLog.Record(AuditAction.TranslatorUpdated, "Translator", dto.Id, auditDetails ?? "Translator updated.");
-
-		return ServiceResult<ContributorDto>.Ok(translator.ToDto(), Messages.TranslatorUpdatedSuccessfully);
+		if (result.IsSuccess)
+			_auditLog.Record(AuditAction.TranslatorUpdated, "Translator", dto.Id,
+				auditDetails ?? "Translator updated.");
+		return result;
 	}
 
 
-	private static bool IsNoOpUpdateTranslator(Translator translator, ContributorDto dto)
+
+	public ServiceResult<ContributorDto> RemoveTranslator(Guid id)
 	{
-		return (dto.FirstName == translator.FirstName) &&
-		       (dto.LastName == translator.LastName) &&
-		       (dto.NationalCode == translator.NationalCode) &&
-		       (dto.Email == translator.Email) &&
-		       (dto.PhoneNumber == translator.PhoneNumber) &&
-		       (dto.BirthDate == translator.BirthDate) &&
-		       (dto.Biography == null || dto.Biography == translator.Biography);
-	}
+		var result = RemoveContributor(
+			id,
+			t => t.BookTranslators.Count != 0,
+			Messages.TranslatorRemoveFailed,
+			Messages.TranslatorHasAssociatedBooks,
+			Messages.TranslatorRemovedSuccessfully);
 
-
-	public ServiceResult<ContributorDto> RemoveTranslator(Guid translatorId)
-	{
-		var translator = _translatorRepository.GetById(translatorId, EntityFilter.Active);
-		if (translator is null || translator.IsRemoved)
-			return ServiceResult<ContributorDto>.Fail(Messages.TranslatorRemoveFailed);
-
-		if (translator.BookTranslators.Count != 0)
-			return ServiceResult<ContributorDto>.Fail(Messages.TranslatorHasAssociatedBooks);
-
-		_translatorRepository.Remove(translator);
-		_auditLog.Record(AuditAction.TranslatorRemoved, "Translator", translatorId, "Translator removed.");
-
-		return ServiceResult<ContributorDto>.Ok(translator.ToDto(), Messages.TranslatorRemovedSuccessfully);
+		if (result.IsSuccess) _auditLog.Record(AuditAction.TranslatorRemoved, "Translator", id, "Translator removed.");
+		return result;
 	}
 
 
@@ -175,7 +121,8 @@ public class TranslatorManagementService
 	}
 
 
-	public IReadOnlyList<ContributorDto> GetAllTranslators(ContributorSortField sortField = ContributorSortField.FullName,
+	public IReadOnlyList<ContributorDto> GetAllTranslators(
+		ContributorSortField sortField = ContributorSortField.FullName,
 		SortDirection sortDirection = SortDirection.Ascending)
 	{
 		var translators = _translatorRepository.GetAll(EntityFilter.Active).Select(t => t.ToDto());
