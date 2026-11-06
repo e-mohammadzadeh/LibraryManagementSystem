@@ -18,7 +18,7 @@ public class AuthorMenu
 		LibraryStatisticsService statisticsService, ICurrentUserSession session, IAuthorizationService authorization,
 		IMenuService menuService)
 	{
-		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
+		if (!authorization.HasAnyPermission(
 			    Permission.AddContributor,
 			    Permission.EditContributor,
 			    Permission.RemoveContributor,
@@ -27,17 +27,13 @@ public class AuthorMenu
 			    Permission.FullSortContributor,
 			    Permission.ViewContributorDetails,
 			    Permission.ViewAllContributors))
+		{
+			ConsoleHelper.ShowError(Messages.AccessDenied);
 			return;
+		}
 
 		while (true)
 		{
-			if (!session.IsAuthenticated)
-			{
-				ConsoleHelper.ShowError(Messages.SessionExpired);
-				ConsoleHelper.Pause();
-				return;
-			}
-
 			ConsoleHelper.ClearConsole();
 			if (authorization.CanAccessStatistics())
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
@@ -47,9 +43,8 @@ public class AuthorMenu
 			{
 				case "authors.add":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.AddContributor,
-						    Messages.AccessDenied))
-						break;
+					if (!authorization.HasPermission(Permission.AddContributor)) break;
+
 					Console.Clear();
 					AddAuthor(authorManagementService);
 					ConsoleHelper.Pause();
@@ -57,9 +52,7 @@ public class AuthorMenu
 				}
 				case "authors.edit":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.EditContributor,
-						    Messages.AccessDenied))
-						break;
+					if (!authorization.HasPermission(Permission.EditContributor)) break;
 					Console.Clear();
 					EditAuthor(authorManagementService, authorization, session, menuService);
 					ConsoleHelper.Pause();
@@ -67,9 +60,7 @@ public class AuthorMenu
 				}
 				case "authors.remove":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveContributor,
-						    Messages.AccessDenied))
-						break;
+					if (!authorization.HasPermission(Permission.RemoveContributor)) break;
 					Console.Clear();
 					RemoveAuthor(authorManagementService, authorization);
 					ConsoleHelper.Pause();
@@ -77,6 +68,8 @@ public class AuthorMenu
 				}
 				case "authors.search":
 				{
+					if (!authorization.HasAnyPermission(Permission.SearchForMember, Permission.FullSearchContributor))
+						break;
 					Console.Clear();
 					SearchAuthor(authorManagementService, authorization, menuService);
 					ConsoleHelper.Pause();
@@ -91,6 +84,9 @@ public class AuthorMenu
 				}
 				case "authors.view":
 				{
+					if (!authorization.HasAnyPermission(Permission.ViewContributorDetails,
+						    Permission.ViewContributorBooks, Permission.ViewAllContributors))
+						break;
 					Console.Clear();
 					ViewAuthors(authorManagementService, authorization, session, statisticsService, menuService);
 					ConsoleHelper.Pause();
@@ -272,21 +268,16 @@ public class AuthorMenu
 	private static void SearchAuthor(AuthorManagementService authorManagementService,
 		IAuthorizationService authorization, IMenuService menuService)
 	{
-		if (!authorization.HasAnyPermission(Permission.SearchForMember, Permission.FullSearchContributor))
-		{
-			ConsoleHelper.ShowError(Messages.AccessDenied);
-			return;
-		}
-
 		if (authorManagementService.GetAllAuthors().Count == 0)
 		{
 			ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
 			return;
 		}
 
-		Action<IReadOnlyList<ContributorDto>> printer = authorization.HasAnyPermission(Permission.ViewContributorDetails, Permission.FullSearchContributor)
-			? author => AuthorPrinter.PrintFullTable(author, "Search Result")
-			: author => AuthorPrinter.PrintTable(author, "Search Result");
+		Action<IReadOnlyList<ContributorDto>> printer =
+			authorization.HasAnyPermission(Permission.ViewContributorDetails, Permission.FullSearchContributor)
+				? author => AuthorPrinter.PrintFullTable(author, "Search Result")
+				: author => AuthorPrinter.PrintTable(author, "Search Result");
 
 		while (true)
 		{
@@ -388,19 +379,8 @@ public class AuthorMenu
 		IAuthorizationService authorization, ICurrentUserSession session, LibraryStatisticsService statisticsService,
 		IMenuService menuService)
 	{
-		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied, Permission.ViewContributorDetails,
-			    Permission.ViewContributorBooks, Permission.ViewAllContributors))
-			return;
-
 		while (true)
 		{
-			if (!session.IsAuthenticated)
-			{
-				ConsoleHelper.ShowError(Messages.SessionExpired);
-				ConsoleHelper.Pause();
-				return;
-			}
-
 			ConsoleHelper.ClearConsole();
 			if (authorization.CanAccessStatistics())
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
@@ -410,8 +390,7 @@ public class AuthorMenu
 			{
 				case "authors.view.author-details":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewContributorDetails,
-						    Messages.AccessDenied))
+					if (!authorization.HasPermission(Permission.ViewContributorDetails))
 						break;
 					Console.Clear();
 					var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
@@ -429,10 +408,8 @@ public class AuthorMenu
 				}
 				case "authors.view.all-authors":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllContributors,
-						    Messages.AccessDenied))
+					if (!authorization.HasPermission(Permission.ViewAllContributors))
 						break;
-
 					Console.Clear();
 					var authors = authorManagementService.GetAllAuthors();
 
@@ -447,8 +424,7 @@ public class AuthorMenu
 				}
 				case "authors.view.removed-authors":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewRemovedContributors,
-						    Messages.AccessDenied))
+					if (!authorization.HasPermission(Permission.ViewRemovedContributors))
 						break;
 					Console.Clear();
 					var removedAuthors = authorManagementService.GetRemovedAuthors();
@@ -479,7 +455,7 @@ public class AuthorMenu
 	private static void ViewBooksByAuthor(AuthorManagementService authorManagementService,
 		IAuthorizationService authorization)
 	{
-		if (!SessionGuard.RequirePermission(authorization, Permission.ViewContributorBooks, Messages.AccessDenied))
+		if (!authorization.HasPermission(Permission.ViewContributorBooks))
 			return;
 		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
 			author => MenuHelper.SelectAuthor(author, authorization), Messages.NotAvailableAuthor);

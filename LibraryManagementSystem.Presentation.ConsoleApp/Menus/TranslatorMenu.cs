@@ -18,9 +18,7 @@ public class TranslatorMenu
 		LibraryStatisticsService statisticsService, ICurrentUserSession session, IAuthorizationService authorization,
 		IMenuService menuService)
 	{
-		if (!SessionGuard.RequireAnyPermission(
-			    authorization,
-			    Messages.AccessDenied,
+		if (!authorization.HasAnyPermission(
 			    Permission.AddContributor,
 			    Permission.EditContributor,
 			    Permission.RemoveContributor,
@@ -29,19 +27,10 @@ public class TranslatorMenu
 			    Permission.FullSortContributor,
 			    Permission.ViewContributorDetails,
 			    Permission.ViewAllContributors))
-		{
 			return;
-		}
 
 		while (true)
 		{
-			if (!session.IsAuthenticated)
-			{
-				ConsoleHelper.ShowError(Messages.SessionExpired);
-				ConsoleHelper.Pause();
-				return;
-			}
-
 			ConsoleHelper.ClearConsole();
 			if (authorization.CanAccessStatistics())
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
@@ -51,9 +40,7 @@ public class TranslatorMenu
 			{
 				case "translators.add":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.AddContributor,
-						    Messages.AccessDenied))
-						break;
+					if (!authorization.HasPermission(Permission.AddContributor)) break;
 					Console.Clear();
 					AddTranslator(translatorManagementService);
 					ConsoleHelper.Pause();
@@ -61,9 +48,7 @@ public class TranslatorMenu
 				}
 				case "translators.edit":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.EditContributor,
-						    Messages.AccessDenied))
-						break;
+					if (!authorization.HasPermission(Permission.EditContributor)) break;
 					Console.Clear();
 					EditTranslator(translatorManagementService, authorization, session, menuService);
 					ConsoleHelper.Pause();
@@ -71,9 +56,7 @@ public class TranslatorMenu
 				}
 				case "translators.remove":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveContributor,
-						    Messages.AccessDenied))
-						break;
+					if (!authorization.HasPermission(Permission.RemoveContributor)) break;
 					Console.Clear();
 					RemoveTranslator(translatorManagementService, authorization);
 					ConsoleHelper.Pause();
@@ -134,12 +117,14 @@ public class TranslatorMenu
 		var fields = PersonHelper.PromptForPersonFields("translator");
 		if (fields is null) return null;
 
+		var biography = ConsoleHelper.ReadString("You can add a biography (Optional)", true);
+
 		var email = Email.Create(fields.Email);
 		var phoneNumber = PhoneNumber.Create(fields.PhoneNumber);
 		return new ContributorDto
 		{
 			FirstName = fields.FirstName, LastName = fields.LastName, NationalCode = fields.NationalCode,
-			Email = email, PhoneNumber = phoneNumber, BirthDate = fields.BirthDate
+			Email = email, PhoneNumber = phoneNumber, BirthDate = fields.BirthDate, Biography = biography
 		};
 	}
 
@@ -393,19 +378,12 @@ public class TranslatorMenu
 		IMenuService menuService,
 		IAuthorizationService authorization, ICurrentUserSession session, LibraryStatisticsService statisticsService)
 	{
-		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-			    Permission.ViewContributorDetails, Permission.ViewContributorBooks, Permission.ViewAllContributors))
+		if (!authorization.HasAnyPermission(Permission.ViewContributorDetails, Permission.ViewContributorBooks,
+			    Permission.ViewAllContributors))
 			return;
 
 		while (true)
 		{
-			if (!session.IsAuthenticated)
-			{
-				ConsoleHelper.ShowError(Messages.SessionExpired);
-				ConsoleHelper.Pause();
-				return;
-			}
-
 			ConsoleHelper.ClearConsole();
 			if (authorization.CanAccessStatistics())
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
@@ -415,8 +393,7 @@ public class TranslatorMenu
 			{
 				case "translators.view.translator-details":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewContributorDetails,
-						    Messages.AccessDenied))
+					if (!authorization.HasPermission(Permission.ViewContributorDetails))
 						break;
 					Console.Clear();
 					var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
@@ -435,8 +412,7 @@ public class TranslatorMenu
 				}
 				case "translators.view.all-translators":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllContributors,
-						    Messages.AccessDenied))
+					if (!authorization.HasPermission(Permission.ViewAllContributors))
 						break;
 					Console.Clear();
 					var translators = translatorManagementService.GetAllTranslators();
@@ -451,8 +427,7 @@ public class TranslatorMenu
 				}
 				case "translators.view.removed-translators":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewRemovedContributors,
-						    Messages.AccessDenied))
+					if (!authorization.HasPermission(Permission.ViewRemovedContributors))
 						break;
 					Console.Clear();
 					var removedTranslators = translatorManagementService.GetRemovedTranslators();
@@ -483,7 +458,7 @@ public class TranslatorMenu
 	private static void ViewBooksByTranslator(TranslatorManagementService translatorManagementService,
 		IAuthorizationService authorization)
 	{
-		if (!SessionGuard.RequirePermission(authorization, Permission.ViewContributorBooks, Messages.AccessDenied))
+		if (!authorization.HasPermission(Permission.ViewContributorBooks))
 			return;
 		var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
 			translator => MenuHelper.SelectTranslator(translator, authorization), Messages.NotAvailableTranslator);

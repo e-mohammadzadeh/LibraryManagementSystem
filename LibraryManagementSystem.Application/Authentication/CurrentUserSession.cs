@@ -33,7 +33,7 @@ public class CurrentUserSession : ICurrentUserSession
 	}
 
 
-	private bool HasRole(LibraryUserRole role) { return CurrentUser.RoleName.Equals(role); }
+	private bool HasRole(LibraryUserRole role) { return CurrentUser.RoleName.Equals(role) && IsAuthenticated; }
 
 	public bool IsAdmin => HasRole(LibraryUserRole.Admin);
 	public bool IsLibrarian => HasRole(LibraryUserRole.Librarian);

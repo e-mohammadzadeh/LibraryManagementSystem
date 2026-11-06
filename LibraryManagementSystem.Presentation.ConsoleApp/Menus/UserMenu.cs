@@ -20,7 +20,7 @@ public static class UserMenu
 		RoleManagementService roleManagementService, LibraryStatisticsService statisticsService,
 		ICurrentUserSession session, IAuthorizationService authorization, IMenuService menuService)
 	{
-		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied, Permission.AddUser,
+		if (!authorization.HasAnyPermission(Permission.AddUser,
 			    Permission.EditUser, Permission.RemoveUser, Permission.SearchUser, Permission.SortUser,
 			    Permission.ViewUserDetails, Permission.ViewAllUsers, Permission.ChangePassword,
 			    Permission.RenewLibrarianMembership, Permission.RenewMemberMembership))
@@ -28,13 +28,6 @@ public static class UserMenu
 
 		while (true)
 		{
-			if (!session.IsAuthenticated)
-			{
-				ConsoleHelper.ShowError(Messages.SessionExpired);
-				ConsoleHelper.Pause();
-				return;
-			}
-
 			ConsoleHelper.ClearConsole();
 			if (authorization.CanAccessStatistics())
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
@@ -79,6 +72,9 @@ public static class UserMenu
 				}
 				case "users.view":
 				{
+					if (!authorization.HasAnyPermission(Permission.ViewUserDetails, Permission.ViewAllUsers,
+						    Permission.ViewRemovedUsers))
+						return;
 					Console.Clear();
 					ViewUsers(userManagementService, authorization, session, statisticsService, menuService);
 					ConsoleHelper.Pause();
@@ -86,8 +82,8 @@ public static class UserMenu
 				}
 				case "users.renew":
 				{
-					if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-						    Permission.RenewLibrarianMembership, Permission.RenewMemberMembership))
+					if (!authorization.HasAnyPermission(Permission.RenewLibrarianMembership,
+						    Permission.RenewMemberMembership))
 						return;
 					Console.Clear();
 					RenewMembership(userManagementService, authorization);
@@ -562,19 +558,8 @@ public static class UserMenu
 	private static void ViewUsers(UserManagementService userManagementService, IAuthorizationService authorization,
 		ICurrentUserSession session, LibraryStatisticsService statisticsService, IMenuService menuService)
 	{
-		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-			    Permission.ViewUserDetails, Permission.ViewAllUsers, Permission.ViewRemovedUsers))
-			return;
-
 		while (true)
 		{
-			if (!session.IsAuthenticated)
-			{
-				ConsoleHelper.ShowError(Messages.SessionExpired);
-				ConsoleHelper.Pause();
-				return;
-			}
-
 			ConsoleHelper.ClearConsole();
 			if (authorization.CanAccessStatistics())
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
@@ -599,9 +584,7 @@ public static class UserMenu
 				}
 				case "users.view.user-details":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewUserDetails,
-						    Messages.AccessDenied))
-						break;
+					if (!authorization.HasPermission(Permission.ViewUserDetails)) break;
 					Console.Clear();
 					var userDto = MenuHelper.SelectExisting(userManagementService.GetAllUsers(),
 						list => MenuHelper.SelectUser(list, users => UserPrinter.PrintTable(users)),
@@ -613,8 +596,7 @@ public static class UserMenu
 				}
 				case "users.view.all-users":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllUsers, Messages.AccessDenied))
-						break;
+					if (!authorization.HasPermission(Permission.ViewAllUsers)) break;
 					Console.Clear();
 					var users = userManagementService.GetAllUsers();
 					if (users.Count is 0)
@@ -626,9 +608,7 @@ public static class UserMenu
 				}
 				case "users.view.removed-users":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewRemovedUsers,
-						    Messages.AccessDenied))
-						break;
+					if (!authorization.HasPermission(Permission.ViewRemovedUsers)) break;
 					Console.Clear();
 					var removedUsers = userManagementService.GetRemovedUsers();
 					if (removedUsers.Count is 0)

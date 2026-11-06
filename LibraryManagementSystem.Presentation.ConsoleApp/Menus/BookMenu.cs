@@ -21,29 +21,17 @@ public static class BookMenu
 		LoanManagementService loanManagementService, LibraryStatisticsService statisticsService,
 		ICurrentUserSession session, IAuthorizationService authorization, IMenuService menuService)
 	{
-		if (!SessionGuard.RequireAnyPermission(
-			    authorization,
-			    Messages.AccessDenied,
-			    Permission.AddBook,
+		if (!authorization.HasAnyPermission(Permission.AddBook,
 			    Permission.EditBook,
 			    Permission.RemoveBook,
 			    Permission.SearchBook,
 			    Permission.FullSortBook,
 			    Permission.ViewBookDetails,
 			    Permission.ViewAllBooks))
-		{
 			return;
-		}
 
 		while (true)
 		{
-			if (!session.IsAuthenticated)
-			{
-				ConsoleHelper.ShowError(Messages.SessionExpired);
-				ConsoleHelper.Pause();
-				return;
-			}
-
 			ConsoleHelper.ClearConsole();
 			if (authorization.CanAccessStatistics())
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
@@ -53,8 +41,7 @@ public static class BookMenu
 			{
 				case "books.add":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.AddBook, Messages.AccessDenied))
-						break;
+					if (!authorization.HasPermission(Permission.AddBook)) break;
 					Console.Clear();
 					AddBook(authorManagementService, translatorManagementService, bookManagementService);
 					ConsoleHelper.Pause();
@@ -62,8 +49,7 @@ public static class BookMenu
 				}
 				case "books.edit":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.EditBook, Messages.AccessDenied))
-						break;
+					if (!authorization.HasPermission(Permission.EditBook)) break;
 					Console.Clear();
 					EditBook(authorManagementService, menuService, translatorManagementService, bookManagementService,
 						session);
@@ -72,8 +58,7 @@ public static class BookMenu
 				}
 				case "books.remove":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.RemoveBook, Messages.AccessDenied))
-						break;
+					if (!authorization.HasPermission(Permission.RemoveBook)) break;
 					Console.Clear();
 					RemoveBook(bookManagementService);
 					ConsoleHelper.Pause();
@@ -81,8 +66,7 @@ public static class BookMenu
 				}
 				case "books.search":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.SearchBook, Messages.AccessDenied))
-						break;
+					if (!authorization.HasPermission(Permission.SearchBook)) break;
 					Console.Clear();
 					SearchBook(bookManagementService, authorization, menuService);
 					ConsoleHelper.Pause();
@@ -97,6 +81,7 @@ public static class BookMenu
 				}
 				case "books.view":
 				{
+					if (!authorization.HasAnyPermission(Permission.ViewBookDetails, Permission.ViewAllBooks)) return;
 					Console.Clear();
 					ViewBooks(bookManagementService, loanManagementService, authorization, session, statisticsService,
 						menuService);
@@ -861,20 +846,8 @@ public static class BookMenu
 		LoanManagementService loanManagementService, IAuthorizationService authorization,
 		ICurrentUserSession session, LibraryStatisticsService statisticsService, IMenuService menuService)
 	{
-		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied,
-			    Permission.ViewBookDetails, Permission.ViewAllBooks))
-		{
-			return;
-		}
-
 		while (true)
 		{
-			if (!session.IsAuthenticated)
-			{
-				ConsoleHelper.ShowError(Messages.SessionExpired);
-				return;
-			}
-
 			ConsoleHelper.ClearConsole();
 			if (authorization.CanAccessStatistics())
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
@@ -885,9 +858,7 @@ public static class BookMenu
 			{
 				case "books.view.book-details":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewBookDetails,
-						    Messages.AccessDenied))
-						break;
+					if (!authorization.HasPermission(Permission.ViewBookDetails)) break;
 					Console.Clear();
 					ViewBookDetails(bookManagementService, loanManagementService, session);
 					ConsoleHelper.Pause();
@@ -895,8 +866,7 @@ public static class BookMenu
 				}
 				case "books.view.all-books":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAllBooks, Messages.AccessDenied))
-						break;
+					if (!authorization.HasPermission(Permission.ViewAllBooks)) break;
 					Console.Clear();
 					var books = bookManagementService.GetAllBooks();
 					if (books.Count is 0)
@@ -908,9 +878,7 @@ public static class BookMenu
 				}
 				case "books.view.removed-books":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewRemovedBooks,
-						    Messages.AccessDenied))
-						break;
+					if (!authorization.HasPermission(Permission.ViewRemovedBooks)) break;
 					Console.Clear();
 					var removedBooks = bookManagementService.GetRemovedBooks();
 					if (removedBooks.Count is 0)

@@ -16,10 +16,7 @@ public static class FineMenu
 		UserManagementService userManagementService, ICurrentUserSession session,
 		LibraryStatisticsService statisticsService, IAuthorizationService authorization, IMenuService menuService)
 	{
-		if (!SessionGuard.RequireAnyPermission(
-			    authorization,
-			    Messages.AccessDenied,
-			    Permission.ViewFine,
+		if (!authorization.HasAnyPermission(Permission.ViewFine,
 			    Permission.WaiveFine,
 			    Permission.ViewFinesByUser,
 			    Permission.ViewAllFines))
@@ -27,12 +24,6 @@ public static class FineMenu
 
 		while (true)
 		{
-			if (!session.IsAuthenticated)
-			{
-				ConsoleHelper.ShowError(Messages.SessionExpired);
-				return;
-			}
-
 			ConsoleHelper.ClearConsole();
 			if (authorization.CanAccessStatistics())
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
@@ -49,7 +40,7 @@ public static class FineMenu
 				}
 				case "fines.waive":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.WaiveFine, Messages.AccessDenied))
+					if (!authorization.HasPermission(Permission.WaiveFine))
 						break;
 					Console.Clear();
 					WaiveFine(fineManagementService, session);
@@ -137,12 +128,6 @@ public static class FineMenu
 	private static void ViewFines(IFineManagementService fineManagementService,
 		UserManagementService userManagementService, ICurrentUserSession session, IMenuService menuService)
 	{
-		if (!session.IsAuthenticated)
-		{
-			ConsoleHelper.ShowError(Messages.SessionExpired);
-			return;
-		}
-
 		while (true)
 		{
 			Console.Clear();

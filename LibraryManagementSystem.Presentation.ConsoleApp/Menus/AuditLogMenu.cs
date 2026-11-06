@@ -14,17 +14,10 @@ public static class AuditLogMenu
 		IMenuService menuService, IAuthorizationService authorization, ICurrentUserSession session,
 		LibraryStatisticsService statisticsService)
 	{
-		if (!SessionGuard.RequirePermission(authorization, Permission.ViewAuditLog, Messages.AccessDenied)) return;
+		if (!authorization.HasPermission(Permission.ViewAuditLog)) return;
 
 		while (true)
 		{
-			if (!session.IsAuthenticated)
-			{
-				ConsoleHelper.ShowError(Messages.SessionExpired);
-				ConsoleHelper.Pause();
-				return;
-			}
-
 			ConsoleHelper.ClearConsole();
 			if (authorization.CanAccessStatistics())
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
@@ -34,7 +27,7 @@ public static class AuditLogMenu
 			{
 				case "audit-log.view":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.ViewAuditLog, Messages.AccessDenied))
+					if (!authorization.HasPermission(Permission.ViewAuditLog))
 						break;
 					Console.Clear();
 					var auditLogs = auditLogManagementService.GetAll();

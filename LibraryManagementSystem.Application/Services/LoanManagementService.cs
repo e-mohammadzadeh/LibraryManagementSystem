@@ -214,7 +214,6 @@ public class LoanManagementService
 
 	public IReadOnlyList<LoanDto> GetOwnLoansByBook(Guid bookId, ICurrentUserSession session)
 	{
-		if (!session.IsAuthenticated) return [];
 		return
 		[
 			.._loanRepository.GetLoansByBookAndUser(bookId, session.CurrentUser.Id, LoanFilter.All)

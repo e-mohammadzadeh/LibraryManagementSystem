@@ -19,26 +19,15 @@ public static class LoanMenu
 		UserManagementService userManagementService, BookManagementService bookManagementService,
 		LibraryStatisticsService statisticsService, ICurrentUserSession session, IAuthorizationService authorization)
 	{
-		if (!SessionGuard.RequireAnyPermission(
-			    authorization,
-			    Messages.AccessDenied,
-			    Permission.ViewLoan,
+		if (!authorization.HasAnyPermission(Permission.ViewLoan,
 			    Permission.ViewLoansByUser,
 			    Permission.ViewLoansByBook,
 			    Permission.SearchLoans))
 			return;
 
-
 		var continueProgram = true;
 		while (continueProgram)
 		{
-			if (!session.IsAuthenticated)
-			{
-				ConsoleHelper.ShowError(Messages.SessionExpired);
-				ConsoleHelper.Pause();
-				return;
-			}
-
 			ConsoleHelper.ClearConsole();
 			if (authorization.CanAccessStatistics())
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
@@ -70,8 +59,7 @@ public static class LoanMenu
 				}
 				case "loans.search":
 				{
-					if (!SessionGuard.RequirePermission(authorization, Permission.SearchLoans, Messages.AccessDenied))
-						break;
+					if (!authorization.HasPermission(Permission.SearchLoans)) break;
 					Console.Clear();
 					SearchLoan(loanManagementService, session, menuService);
 					ConsoleHelper.Pause();
@@ -79,6 +67,9 @@ public static class LoanMenu
 				}
 				case "loans.view":
 				{
+					if (!authorization.HasAnyPermission(Permission.ViewLoan, Permission.ViewLoansByUser,
+						    Permission.ViewLoansByBook, Permission.ViewAllLoans))
+						return;
 					Console.Clear();
 					ViewLoans(loanManagementService, menuService, userManagementService, bookManagementService, session,
 						authorization, statisticsService);
@@ -321,18 +312,8 @@ public static class LoanMenu
 		UserManagementService userManagementService, BookManagementService bookManagementService,
 		ICurrentUserSession session, IAuthorizationService authorization, LibraryStatisticsService statisticsService)
 	{
-		if (!SessionGuard.RequireAnyPermission(authorization, Messages.AccessDenied, Permission.ViewLoan,
-			    Permission.ViewLoansByUser, Permission.ViewLoansByBook, Permission.ViewAllLoans))
-			return;
-
 		while (true)
 		{
-			if (!session.IsAuthenticated)
-			{
-				ConsoleHelper.ShowError(Messages.SessionExpired);
-				return;
-			}
-
 			ConsoleHelper.ClearConsole();
 			if (authorization.CanAccessStatistics())
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
