@@ -1,11 +1,12 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
+using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Books;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.Enums;
-using LibraryManagementSystem.Infrastructure.Enums.Filters;
+using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
 using LibraryManagementSystem.Infrastructure.Interfaces;
 
@@ -55,8 +56,7 @@ public class AuthorManagementService : ContributorManagementService<Author>
 			_auditLog.Record(AuditAction.AuthorUpdated, "Author", dto.Id, auditDetails ?? "Author updated.");
 		return result;
 	}
-
-
+	
 
 	public ServiceResult<ContributorDto> RemoveAuthor(Guid id)
 	{
@@ -72,16 +72,16 @@ public class AuthorManagementService : ContributorManagementService<Author>
 	}
 
 
-	public IReadOnlyList<ContributorDto> SearchAuthor(string searchItem, AuthorSearchField field)
+	public IReadOnlyList<ContributorDto> SearchAuthor(string searchItem, ContributorSearchField field)
 	{
 		if (string.IsNullOrWhiteSpace(searchItem)) return [];
 
 		var requiredPermission = field switch
 		{
-			AuthorSearchField.Name => [Permission.SearchForMember, Permission.FullSearchContributor],
-			AuthorSearchField.NationalCode => [Permission.FullSearchContributor],
-			AuthorSearchField.Email => [Permission.SearchForMember, Permission.FullSearchContributor],
-			AuthorSearchField.PhoneNumber => new[] { Permission.FullSearchContributor },
+			ContributorSearchField.Name => [Permission.SearchForMember, Permission.FullSearchContributor],
+			ContributorSearchField.NationalCode => [Permission.FullSearchContributor],
+			ContributorSearchField.Email => [Permission.SearchForMember, Permission.FullSearchContributor],
+			ContributorSearchField.PhoneNumber => new[] { Permission.FullSearchContributor },
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};
 
@@ -89,62 +89,32 @@ public class AuthorManagementService : ContributorManagementService<Author>
 
 		Func<Author, string?> selector = field switch
 		{
-			AuthorSearchField.Name => a => $"{a.FirstName} {a.LastName}",
-			AuthorSearchField.NationalCode => a => a.NationalCode,
-			AuthorSearchField.Email => a => a.Email,
-			AuthorSearchField.PhoneNumber => a => a.PhoneNumber,
+			ContributorSearchField.Name => a => $"{a.FirstName} {a.LastName}",
+			ContributorSearchField.NationalCode => a => a.NationalCode,
+			ContributorSearchField.Email => a => a.Email,
+			ContributorSearchField.PhoneNumber => a => a.PhoneNumber,
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};
 
-		return
-		[
-			.. _authorRepository.GetAll(EntityFilter.Active)
-				.Where(author =>
-				{
-					var value = selector(author);
-					return value is not null &&
-					       value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
-				})
-				.Select(author => author.ToDto())
-		];
-	}
-
-
-	public IReadOnlyList<BookDto> GetBooksByAuthor(Guid authorId)
-	{
-		var author = _authorRepository.GetById(authorId, EntityFilter.Active);
-		if (author is null) return [];
-		return [.. author.BookAuthors.Select(b => b.Book.ToDto())];
+		return SearchContributor(searchItem, selector);
 	}
 
 
 	public IReadOnlyList<ContributorDto> GetAllAuthors(ContributorSortField sortField = ContributorSortField.FullName,
 		SortDirection sortDirection = SortDirection.Ascending)
 	{
-		var authors = _authorRepository.GetAll(EntityFilter.Active).Select(a => a.ToDto());
-		Func<ContributorDto, object> keySelector = sortField switch
-		{
-			ContributorSortField.FirstName => a => a.FirstName,
-			ContributorSortField.LastName => a => a.LastName,
-			ContributorSortField.FullName => a => $"{a.FirstName} {a.LastName}",
-			ContributorSortField.NationalCode => a => a.NationalCode,
-			ContributorSortField.Email => a => a.Email,
-			ContributorSortField.BirthDate => a => a.BirthDate,
-			ContributorSortField.BookCount => a => GetBooksByAuthor(a.Id).Count,
-			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
-		};
+		return GetAllContributors(sortField, sortDirection, id => GetBooksByAuthor(id).Count);
+	}
 
-		var sorted = sortDirection == SortDirection.Ascending
-			? authors.OrderBy(keySelector)
-			: authors.OrderByDescending(keySelector);
 
-		return [.. sorted];
+	public IReadOnlyList<BookDto> GetBooksByAuthor(Guid authorId)
+	{
+		return GetBooksByContributor(authorId, a => a.BookAuthors.Select(ba => ba.Book.ToDto()));
 	}
 
 
 	public IReadOnlyList<ContributorDto> GetRemovedAuthors()
 	{
-		if (!_authorization.HasPermission(Permission.ViewRemovedContributors)) return [];
-		return [.. _authorRepository.GetAll(EntityFilter.Removed).Select(a => a.ToDto())];
+		return !_authorization.HasPermission(Permission.ViewRemovedContributors) ? [] : GetRemovedContributors();
 	}
 }
