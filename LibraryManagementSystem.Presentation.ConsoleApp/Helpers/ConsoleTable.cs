@@ -27,7 +27,7 @@ public static class ConsoleTable
 
 
 	// Prints a key-value style table perfect for entity details. Values can contain multiple lines separated by \n or as string arrays.
-	public static void PrintKeyValueTable(string title, List<(string Label, string[] ValueLines)> rows,
+	public static void PrintKeyValueTable(string? title, List<(string Label, string[] ValueLines)> rows,
 		int labelWidth = 18, int valueWidth = 55)
 	{
 		int[] widths = [labelWidth, valueWidth];
@@ -68,7 +68,7 @@ public static class ConsoleTable
 
 
 	/// Prints a generic multi-column table with headers. Each cell can contain multiple lines.
-	public static void PrintTable(string title, string[] headers, List<string[][]> rows)
+	public static void PrintTable(string? title, string[] headers, List<string[][]> rows)
 	{
 		var colCount = headers.Length;
 		var widths = new int[headers.Length];
@@ -188,7 +188,7 @@ public static class ConsoleTable
 	}
 
 
-	private static string CenterText(string text, int width)
+	private static string CenterText(string? text, int width)
 	{
 		if (string.IsNullOrEmpty(text)) return new string(' ', width);
 		if (text.Length > width - 2) text = text[..(width - 2)];

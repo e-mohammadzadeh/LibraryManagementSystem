@@ -6,7 +6,6 @@ using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
 using LibraryManagementSystem.Infrastructure.Interfaces;
-using LibraryManagementSystem.Infrastructure.ValueObjects;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -125,111 +124,14 @@ public class AuthorMenu
 		ICurrentUserSession session, IMenuService menuService)
 	{
 		Console.WriteLine(new string('=', 36) + " EDITING AUTHOR MENU " + new string('=', 36));
+
 		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
 			author => MenuHelper.SelectAuthor(author, authorization),
 			Messages.NotAvailableAuthor);
 		if (desiredAuthor is null) return;
 
-		while (true)
-		{
-			Console.Clear();
-			AuthorPrinter.PrintDetails(desiredAuthor);
-			var selectedItem = MenuHelper.DisplayMenu("EDIT AUTHOR MENU", menuService.GetChildren("authors.edit"));
-			switch (selectedItem)
-			{
-				case null:
-					return;
-				case "authors.edit.back":
-					ConsoleHelper.ShowInfo(string.Format(Messages.EditCancelled, "Author"));
-					return;
-			}
-
-			var updated = true;
-
-			switch (selectedItem)
-			{
-				case "authors.edit.firstname":
-				{
-					var value = ConsoleHelper.GetValidName("\nEnter new first name",
-						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
-					if (value != null)
-						desiredAuthor.FirstName = value;
-					else
-						updated = false;
-					break;
-				}
-				case "authors.edit.lastname":
-				{
-					var value = ConsoleHelper.GetValidName("\nEnter new last name",
-						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
-					if (value != null)
-						desiredAuthor.LastName = value;
-					else
-						updated = false;
-					break;
-				}
-				case "authors.edit.national-code":
-				{
-					var value = ConsoleHelper.GetValidNationalCode("\nEnter new national code");
-					if (value != null)
-						desiredAuthor.NationalCode = value;
-					else
-						updated = false;
-					break;
-				}
-				case "authors.edit.email":
-				{
-					var value = ConsoleHelper.GetValidEmail("\nEnter new email");
-
-					if (value != null)
-						desiredAuthor.Email = Email.Create(value);
-					else
-						updated = false;
-					break;
-				}
-				case "authors.edit.phone-number":
-				{
-					var value = ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number");
-					if (value != null)
-						desiredAuthor.PhoneNumber = PhoneNumber.Create(value);
-					else
-						updated = false;
-					break;
-				}
-				case "authors.edit.birthdate":
-				{
-					var value = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
-					if (value != null)
-						desiredAuthor.BirthDate = value.Value;
-					else
-						updated = false;
-					break;
-				}
-				case "authors.edit.biography":
-				{
-					var value = ConsoleHelper.ReadString("\nEnter new biography");
-					if (value != null)
-						desiredAuthor.Biography = value;
-					else
-						updated = false;
-					break;
-				}
-				default:
-				{
-					updated = false;
-					break;
-				}
-			}
-
-			if (updated)
-			{
-				var result = authorManagementService.UpdateAuthor(desiredAuthor, session.CurrentUser.Id);
-				ConsoleHelper.ShowResult(result);
-			}
-
-			var choice = ConsoleHelper.ReadYesNo(Messages.EditContinuesQuestion);
-			if (choice != true) return;
-		}
+		ContributorMenu.EditContributor(desiredAuthor, "Author", "authors", menuService,
+			authorManagementService.UpdateAuthor, session.CurrentUser.Id);
 	}
 
 

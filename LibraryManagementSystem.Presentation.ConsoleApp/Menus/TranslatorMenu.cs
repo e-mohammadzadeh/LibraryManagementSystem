@@ -6,7 +6,6 @@ using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
 using LibraryManagementSystem.Infrastructure.Interfaces;
-using LibraryManagementSystem.Infrastructure.ValueObjects;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
@@ -120,106 +119,8 @@ public class TranslatorMenu
 			translator => MenuHelper.SelectTranslator(translator, authorization), Messages.NotAvailableTranslator);
 		if (desiredTranslator is null) return;
 
-		while (true)
-		{
-			Console.Clear();
-			TranslatorPrinter.PrintDetails(desiredTranslator);
-			var selectedItem =
-				MenuHelper.DisplayMenu("EDIT TRANSLATOR MENU", menuService.GetChildren("translators.edit"));
-
-			switch (selectedItem)
-			{
-				case null:
-					return;
-				case "translators.edit.back":
-					ConsoleHelper.ShowInfo(string.Format(Messages.EditCancelled, "Translator"));
-					return;
-			}
-
-			var updated = true;
-			switch (selectedItem)
-			{
-				case "translators.edit.firstname":
-				{
-					var value = ConsoleHelper.GetValidName("\nEnter new first name",
-						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
-					if (value != null)
-						desiredTranslator.FirstName = value;
-					else
-						updated = false;
-					break;
-				}
-				case "translators.edit.lastname":
-				{
-					var value = ConsoleHelper.GetValidName("\nEnter new last name",
-						ValidationConstants.MinNameLength, ValidationConstants.MaxNameLength);
-					if (value != null)
-						desiredTranslator.LastName = value;
-					else
-						updated = false;
-					break;
-				}
-				case "translators.edit.national-code":
-				{
-					var value = ConsoleHelper.GetValidNationalCode("\nEnter new national code");
-					if (value != null)
-						desiredTranslator.NationalCode = value;
-					else
-						updated = false;
-					break;
-				}
-				case "translators.edit.email":
-				{
-					var value = ConsoleHelper.GetValidEmail("\nEnter new email");
-					if (value != null)
-						desiredTranslator.Email = Email.Create(value);
-					else
-						updated = false;
-					break;
-				}
-				case "translators.edit.phone-number":
-				{
-					var value = ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number");
-					if (value != null)
-						desiredTranslator.PhoneNumber = PhoneNumber.Create(value);
-					else
-						updated = false;
-					break;
-				}
-				case "translators.edit.birthdate":
-				{
-					var value = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
-					if (value != null)
-						desiredTranslator.BirthDate = value.Value;
-					else
-						updated = false;
-					break;
-				}
-				case "translators.edit.biography":
-				{
-					var value = ConsoleHelper.ReadString("\nEnter new biography");
-					if (value != null)
-						desiredTranslator.Biography = value;
-					else
-						updated = false;
-					break;
-				}
-				default:
-				{
-					updated = false;
-					break;
-				}
-			}
-
-			if (updated)
-			{
-				var result = translatorManagementService.UpdateTranslator(desiredTranslator, session.CurrentUser.Id);
-				ConsoleHelper.ShowResult(result);
-			}
-
-			var choice = ConsoleHelper.ReadYesNo(Messages.EditContinuesQuestion);
-			if (choice != true) return;
-		}
+		ContributorMenu.EditContributor(desiredTranslator, "Translator", "translators", menuService,
+			translatorManagementService.UpdateTranslator, session.CurrentUser.Id);
 	}
 
 
@@ -375,8 +276,7 @@ public class TranslatorMenu
 			{
 				case "translators.view.translator-details":
 				{
-					if (!authorization.HasPermission(Permission.ViewContributorDetails))
-						break;
+					if (!authorization.HasPermission(Permission.ViewContributorDetails)) break;
 					Console.Clear();
 					var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
 						translator => MenuHelper.SelectTranslator(translator, authorization),
@@ -394,8 +294,7 @@ public class TranslatorMenu
 				}
 				case "translators.view.all-translators":
 				{
-					if (!authorization.HasPermission(Permission.ViewAllContributors))
-						break;
+					if (!authorization.HasPermission(Permission.ViewAllContributors)) break;
 					Console.Clear();
 					var translators = translatorManagementService.GetAllTranslators();
 					if (translators.Count == 0)
@@ -409,8 +308,7 @@ public class TranslatorMenu
 				}
 				case "translators.view.removed-translators":
 				{
-					if (!authorization.HasPermission(Permission.ViewRemovedContributors))
-						break;
+					if (!authorization.HasPermission(Permission.ViewRemovedContributors)) break;
 					Console.Clear();
 					var removedTranslators = translatorManagementService.GetRemovedTranslators();
 					if (removedTranslators.Count is 0)
@@ -440,8 +338,7 @@ public class TranslatorMenu
 	private static void ViewBooksByTranslator(TranslatorManagementService translatorManagementService,
 		IAuthorizationService authorization)
 	{
-		if (!authorization.HasPermission(Permission.ViewContributorBooks))
-			return;
+		if (!authorization.HasPermission(Permission.ViewContributorBooks)) return;
 		var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
 			translator => MenuHelper.SelectTranslator(translator, authorization), Messages.NotAvailableTranslator);
 		if (desiredTranslator is null) return;
