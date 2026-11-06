@@ -109,28 +109,11 @@ public class AuthorMenu
 	}
 
 
-	public static ContributorDto? PromptForAuthorDto()
-	{
-		var fields = PersonHelper.PromptForPersonFields("author");
-		if (fields is null) return null;
-
-		var biography = ConsoleHelper.ReadString("You can add a biography (Optional)", true);
-
-		var email = Email.Create(fields.Email);
-		var phoneNumber = PhoneNumber.Create(fields.PhoneNumber);
-
-		return new ContributorDto
-		{
-			FirstName = fields.FirstName, LastName = fields.LastName, NationalCode = fields.NationalCode,
-			Email = email, PhoneNumber = phoneNumber, BirthDate = fields.BirthDate, Biography = biography
-		};
-	}
-
 
 	private static void AddAuthor(AuthorManagementService authorManagementService)
 	{
 		Console.WriteLine(new string('=', 36) + " ADDING AUTHOR MENU " + new string('=', 36));
-		var authorDto = PromptForAuthorDto();
+		var authorDto = ContributorMenu.PromptForContributorDto("author");
 		if (authorDto is null) return;
 
 		var result = authorManagementService.AddAuthor(authorDto);

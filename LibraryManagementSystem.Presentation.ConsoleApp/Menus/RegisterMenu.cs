@@ -13,7 +13,7 @@ public static class RegisterMenu
 		Console.Clear();
 		Console.WriteLine(new string('=', 30) + " CREATE ACCOUNT " + new string('=', 30));
 
-		var fields = PersonHelper.PromptForPersonFields("user");
+		var fields = ContributorMenu.PromptForContributorDto("user", false);
 		if (fields is null)
 		{
 			ConsoleHelper.ShowInfo(Messages.RegistrationCancelled);

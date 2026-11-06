@@ -104,30 +104,12 @@ public class TranslatorMenu
 	private static void AddTranslator(TranslatorManagementService translatorManagementService)
 	{
 		Console.WriteLine(new string('=', 36) + " ADDING TRANSLATOR MENU " + new string('=', 36));
-		var translatorDto = PromptForTranslatorDto();
+		var translatorDto = ContributorMenu.PromptForContributorDto("translator");
 		if (translatorDto is null) return;
 
 		var result = translatorManagementService.AddTranslator(translatorDto);
 		ConsoleHelper.ShowResult(result);
 	}
-
-
-	public static ContributorDto? PromptForTranslatorDto()
-	{
-		var fields = PersonHelper.PromptForPersonFields("translator");
-		if (fields is null) return null;
-
-		var biography = ConsoleHelper.ReadString("You can add a biography (Optional)", true);
-
-		var email = Email.Create(fields.Email);
-		var phoneNumber = PhoneNumber.Create(fields.PhoneNumber);
-		return new ContributorDto
-		{
-			FirstName = fields.FirstName, LastName = fields.LastName, NationalCode = fields.NationalCode,
-			Email = email, PhoneNumber = phoneNumber, BirthDate = fields.BirthDate, Biography = biography
-		};
-	}
-
 
 
 	private static void EditTranslator(TranslatorManagementService translatorManagementService,

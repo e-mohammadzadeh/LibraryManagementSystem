@@ -5,34 +5,6 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
 internal static class PersonHelper
 {
-	internal static PersonFieldsResult? PromptForPersonFields(string entityLabel = "")
-	{
-		var label = string.IsNullOrWhiteSpace(entityLabel) ? "" : $"{entityLabel}'s ";
-
-		var firstName = ConsoleHelper.GetValidName($"Enter {label}first name", ValidationConstants.MinNameLength,
-			ValidationConstants.MaxNameLength);
-		if (firstName is null) return null;
-
-		var lastName = ConsoleHelper.GetValidName($"Enter {label}last name", ValidationConstants.MinNameLength,
-			ValidationConstants.MaxNameLength);
-		if (lastName is null) return null;
-
-		var nationalCode = ConsoleHelper.GetValidNationalCode($"Enter {label}national code");
-		if (nationalCode is null) return null;
-
-		var email = ConsoleHelper.GetValidEmail($"Enter {label}email");
-		if (email is null) return null;
-
-		var phoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter phone number");
-		if (phoneNumber is null) return null;
-
-		var birthDate = ConsoleHelper.GetValidBirthDate($"Enter {label}birth date");
-		return birthDate is null
-			? null
-			: new PersonFieldsResult(firstName, lastName, nationalCode, email, phoneNumber, birthDate.Value);
-	}
-
-
 	internal static void SearchAndDisplay<TEntity>(string prompt, Func<string, IReadOnlyList<TEntity>> searchFn,
 		Action<IReadOnlyList<TEntity>> printFn, string noResultsMessage)
 	{

@@ -135,7 +135,7 @@ public static class UserMenu
 	private static UserDto? PromptForUserDto(UserManagementService userManagementService,
 		RoleManagementService roleManagementService)
 	{
-		var fields = PersonHelper.PromptForPersonFields("user");
+		var fields = ContributorMenu.PromptForContributorDto("user", false);
 		if (fields is null) return null;
 
 		var availableRoles = GetAssignableRoles(userManagementService, roleManagementService);
