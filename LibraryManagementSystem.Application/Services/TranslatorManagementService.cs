@@ -19,7 +19,7 @@ public class TranslatorManagementService : ContributorManagementService<Translat
 
 
 	public TranslatorManagementService(ITranslatorRepository translatorRepository, IAuthorizationService authorization,
-		IAuditLogManagementService auditLog) : base(translatorRepository)
+		IAuditLogManagementService auditLog) : base(translatorRepository, authorization)
 	{
 		_authorization = authorization;
 		_auditLog = auditLog;
@@ -78,17 +78,6 @@ public class TranslatorManagementService : ContributorManagementService<Translat
 	{
 		if (string.IsNullOrWhiteSpace(searchItem)) return [];
 
-		var requiredPermission = field switch
-		{
-			ContributorSearchField.Name => [Permission.SearchForMember, Permission.FullSearchContributor],
-			ContributorSearchField.NationalCode => [Permission.FullSearchContributor],
-			ContributorSearchField.Email => [Permission.SearchForMember, Permission.FullSearchContributor],
-			ContributorSearchField.PhoneNumber => new[] { Permission.FullSearchContributor },
-			_ => throw new ArgumentOutOfRangeException(nameof(field))
-		};
-
-		if (!_authorization.HasAnyPermission(requiredPermission)) return [];
-
 		Func<Translator, string?> selector = field switch
 		{
 			ContributorSearchField.Name => t => $"{t.FirstName} {t.LastName}",
@@ -98,7 +87,7 @@ public class TranslatorManagementService : ContributorManagementService<Translat
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};
 
-		return SearchContributor(searchItem, selector);
+		return SearchContributor(searchItem, field, selector);
 	}
 
 

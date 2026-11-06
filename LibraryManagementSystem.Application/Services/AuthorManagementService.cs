@@ -19,7 +19,7 @@ public class AuthorManagementService : ContributorManagementService<Author>
 
 
 	public AuthorManagementService(IAuthorRepository authorRepository, IAuthorizationService authorization,
-		IAuditLogManagementService auditLog) : base(authorRepository)
+		IAuditLogManagementService auditLog) : base(authorRepository, authorization)
 	{
 		_authorization = authorization;
 		_auditLog = auditLog;
@@ -56,7 +56,7 @@ public class AuthorManagementService : ContributorManagementService<Author>
 			_auditLog.Record(AuditAction.AuthorUpdated, "Author", dto.Id, auditDetails ?? "Author updated.");
 		return result;
 	}
-	
+
 
 	public ServiceResult<ContributorDto> RemoveAuthor(Guid id)
 	{
@@ -76,17 +76,6 @@ public class AuthorManagementService : ContributorManagementService<Author>
 	{
 		if (string.IsNullOrWhiteSpace(searchItem)) return [];
 
-		var requiredPermission = field switch
-		{
-			ContributorSearchField.Name => [Permission.SearchForMember, Permission.FullSearchContributor],
-			ContributorSearchField.NationalCode => [Permission.FullSearchContributor],
-			ContributorSearchField.Email => [Permission.SearchForMember, Permission.FullSearchContributor],
-			ContributorSearchField.PhoneNumber => new[] { Permission.FullSearchContributor },
-			_ => throw new ArgumentOutOfRangeException(nameof(field))
-		};
-
-		if (!_authorization.HasAnyPermission(requiredPermission)) return [];
-
 		Func<Author, string?> selector = field switch
 		{
 			ContributorSearchField.Name => a => $"{a.FirstName} {a.LastName}",
@@ -96,7 +85,7 @@ public class AuthorManagementService : ContributorManagementService<Author>
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};
 
-		return SearchContributor(searchItem, selector);
+		return SearchContributor(searchItem, field, selector);
 	}
 
 

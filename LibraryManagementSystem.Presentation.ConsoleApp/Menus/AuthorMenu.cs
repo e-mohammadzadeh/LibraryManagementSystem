@@ -302,21 +302,21 @@ public static class AuthorMenu
 
 			var field = selectedItem switch
 			{
-				"authors.search.name" => AuthorSearchField.Name,
-				"authors.search.national-code" => AuthorSearchField.NationalCode,
-				"authors.search.email" => AuthorSearchField.Email,
-				"authors.search.phone-number" => AuthorSearchField.PhoneNumber,
-				_ => (AuthorSearchField?)null
+				"authors.search.name" => ContributorSearchField.Name,
+				"authors.search.national-code" => ContributorSearchField.NationalCode,
+				"authors.search.email" => ContributorSearchField.Email,
+				"authors.search.phone-number" => ContributorSearchField.PhoneNumber,
+				_ => (ContributorSearchField?)null
 			};
 
 			if (field is null) continue;
 
 			var prompt = field.Value switch
 			{
-				AuthorSearchField.Name => Messages.SearchName,
-				AuthorSearchField.NationalCode => Messages.SearchNationalCode,
-				AuthorSearchField.Email => Messages.SearchEmail,
-				AuthorSearchField.PhoneNumber => Messages.SearchPhoneNumber,
+				ContributorSearchField.Name => Messages.SearchName,
+				ContributorSearchField.NationalCode => Messages.SearchNationalCode,
+				ContributorSearchField.Email => Messages.SearchEmail,
+				ContributorSearchField.PhoneNumber => Messages.SearchPhoneNumber,
 				_ => "Enter search term"
 			};
 

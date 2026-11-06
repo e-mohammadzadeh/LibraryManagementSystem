@@ -306,21 +306,21 @@ public static class TranslatorMenu
 
 			var field = selectedItem switch
 			{
-				"translators.search.name" => TranslatorSearchField.Name,
-				"translators.search.national-code" => TranslatorSearchField.NationalCode,
-				"translators.search.email" => TranslatorSearchField.Email,
-				"translators.search.phone-number" => TranslatorSearchField.PhoneNumber,
-				_ => (TranslatorSearchField?)null
+				"translators.search.name" => ContributorSearchField.Name,
+				"translators.search.national-code" => ContributorSearchField.NationalCode,
+				"translators.search.email" => ContributorSearchField.Email,
+				"translators.search.phone-number" => ContributorSearchField.PhoneNumber,
+				_ => (ContributorSearchField?)null
 			};
 
 			if (field is null) continue;
 
 			var prompt = field switch
 			{
-				TranslatorSearchField.Name => Messages.SearchName,
-				TranslatorSearchField.NationalCode => Messages.SearchNationalCode,
-				TranslatorSearchField.Email => Messages.SearchEmail,
-				TranslatorSearchField.PhoneNumber => Messages.SearchPhoneNumber,
+				ContributorSearchField.Name => Messages.SearchName,
+				ContributorSearchField.NationalCode => Messages.SearchNationalCode,
+				ContributorSearchField.Email => Messages.SearchEmail,
+				ContributorSearchField.PhoneNumber => Messages.SearchPhoneNumber,
 				_ => "Enter search term"
 			};
 

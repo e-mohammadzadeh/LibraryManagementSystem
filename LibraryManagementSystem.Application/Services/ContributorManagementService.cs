@@ -1,11 +1,14 @@
-﻿using LibraryManagementSystem.Application.Common;
+﻿using LibraryManagementSystem.Application.Authorization;
+using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Books;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
+using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
+using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
 
 namespace LibraryManagementSystem.Application.Services;
@@ -13,9 +16,15 @@ namespace LibraryManagementSystem.Application.Services;
 public abstract class ContributorManagementService<TEntity> where TEntity : Contributor, new()
 {
 	protected readonly IContributorRepository<TEntity> Repository;
+	protected readonly IAuthorizationService Authorization;
 
 
-	protected ContributorManagementService(IContributorRepository<TEntity> repository) { Repository = repository; }
+	protected ContributorManagementService(IContributorRepository<TEntity> repository,
+		IAuthorizationService authorization)
+	{
+		Repository = repository;
+		Authorization = authorization;
+	}
 
 
 	protected ServiceResult<ContributorDto> AddContributor(ContributorDto dto, string duplicateNationalCodeMessage,
@@ -96,8 +105,20 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 	}
 
 
-	protected IReadOnlyList<ContributorDto> SearchContributor(string searchItem, Func<TEntity, string?> selector)
+	protected IReadOnlyList<ContributorDto> SearchContributor(string searchItem, ContributorSearchField field,
+		Func<TEntity, string?> selector)
 	{
+		var requiredPermission = field switch
+		{
+			ContributorSearchField.Name => [Permission.SearchForMember, Permission.FullSearchContributor],
+			ContributorSearchField.NationalCode => [Permission.FullSearchContributor],
+			ContributorSearchField.Email => [Permission.SearchForMember, Permission.FullSearchContributor],
+			ContributorSearchField.PhoneNumber => new[] { Permission.FullSearchContributor },
+			_ => throw new ArgumentOutOfRangeException(nameof(field))
+		};
+
+		if (!Authorization.HasAnyPermission(requiredPermission)) return [];
+
 		return
 		[
 			..
