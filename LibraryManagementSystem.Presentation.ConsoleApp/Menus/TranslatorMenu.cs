@@ -3,7 +3,6 @@ using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.Enums;
-using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
 using LibraryManagementSystem.Infrastructure.Interfaces;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
@@ -127,12 +126,11 @@ public class TranslatorMenu
 	private static void RemoveTranslator(TranslatorManagementService translatorManagementService,
 		IAuthorizationService authorization)
 	{
-		// TODO	(SQL Server)	Implement SOFT DELETE system with flags like `IsDeleted = true` or `IsActive = False`
 		Console.WriteLine(new string('=', 36) + " REMOVING TRANSLATOR MENU " + new string('=', 36));
 		var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
 			translator => MenuHelper.SelectTranslator(translator, authorization), Messages.NotAvailableTranslator);
 
-		PersonHelper.PerformRemove(desiredTranslator, desiredTranslator?.FirstName ?? "",
+		ContributorMenu.RemoveContributor(desiredTranslator, desiredTranslator?.FirstName ?? "",
 			desiredTranslator?.LastName ?? "", TranslatorPrinter.PrintDetails,
 			() => translatorManagementService.RemoveTranslator(desiredTranslator!.Id));
 	}
@@ -141,63 +139,8 @@ public class TranslatorMenu
 	private static void SearchTranslator(TranslatorManagementService translatorManagementService,
 		IAuthorizationService authorization, IMenuService menuService)
 	{
-		if (!authorization.HasAnyPermission(Permission.SearchForMember, Permission.FullSearchContributor))
-		{
-			ConsoleHelper.ShowError(Messages.AccessDenied);
-			return;
-		}
-
-		if (translatorManagementService.GetAllTranslators().Count == 0)
-		{
-			ConsoleHelper.ShowWarning(Messages.NotAvailableTranslator);
-			return;
-		}
-
-		Action<IReadOnlyList<ContributorDto>> printer =
-			authorization.HasAnyPermission(Permission.ViewContributorDetails, Permission.FullSearchContributor)
-				? translator => TranslatorPrinter.PrintFullTable(translator, "Search Result")
-				: translator => TranslatorPrinter.PrintTable(translator, "Search Result");
-
-		while (true)
-		{
-			Console.Clear();
-			var items = menuService.GetChildren("translators.search");
-			var selectedItem = MenuHelper.DisplayMenu("SEARCHING TRANSLATOR MENU", items);
-			switch (selectedItem)
-			{
-				case null:
-					return;
-				case "translators.search.back":
-					ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "Translator"));
-					return;
-			}
-
-			var field = selectedItem switch
-			{
-				"translators.search.name" => ContributorSearchField.Name,
-				"translators.search.national-code" => ContributorSearchField.NationalCode,
-				"translators.search.email" => ContributorSearchField.Email,
-				"translators.search.phone-number" => ContributorSearchField.PhoneNumber,
-				_ => (ContributorSearchField?)null
-			};
-
-			if (field is null) continue;
-
-			var prompt = field switch
-			{
-				ContributorSearchField.Name => Messages.SearchName,
-				ContributorSearchField.NationalCode => Messages.SearchNationalCode,
-				ContributorSearchField.Email => Messages.SearchEmail,
-				ContributorSearchField.PhoneNumber => Messages.SearchPhoneNumber,
-				_ => "Enter search term"
-			};
-
-			PersonHelper.SearchAndDisplay(prompt,
-				term => translatorManagementService.SearchTranslator(term, field.Value), printer,
-				Messages.NotTranslatorMatched);
-
-			ConsoleHelper.Pause();
-		}
+		ContributorMenu.SearchContributor(translatorManagementService.GetAllTranslators(), "Translator", "translators",
+			menuService, authorization, translatorManagementService.SearchTranslator, Messages.NotTranslatorMatched);
 	}
 
 

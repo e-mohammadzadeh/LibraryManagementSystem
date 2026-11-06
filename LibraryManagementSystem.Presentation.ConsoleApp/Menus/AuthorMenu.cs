@@ -3,7 +3,6 @@ using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.Enums;
-using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
 using LibraryManagementSystem.Infrastructure.Interfaces;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
@@ -138,13 +137,12 @@ public class AuthorMenu
 	private static void RemoveAuthor(AuthorManagementService authorManagementService,
 		IAuthorizationService authorization)
 	{
-		// TODO	(SQL Server)	Implement SOFT DELETE system with flags like `IsDeleted = true` or `IsActive = False`
 		Console.WriteLine(new string('=', 36) + " REMOVING AUTHOR MENU " + new string('=', 36));
 		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
 			author => MenuHelper.SelectAuthor(author, authorization),
 			Messages.NotAvailableAuthor);
 
-		PersonHelper.PerformRemove(desiredAuthor, desiredAuthor?.FirstName ?? "", desiredAuthor?.LastName ?? "",
+		ContributorMenu.RemoveContributor(desiredAuthor, desiredAuthor?.FirstName ?? "", desiredAuthor?.LastName ?? "",
 			AuthorPrinter.PrintDetails, () => authorManagementService.RemoveAuthor(desiredAuthor!.Id));
 	}
 
@@ -153,55 +151,8 @@ public class AuthorMenu
 	private static void SearchAuthor(AuthorManagementService authorManagementService,
 		IAuthorizationService authorization, IMenuService menuService)
 	{
-		if (authorManagementService.GetAllAuthors().Count == 0)
-		{
-			ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
-			return;
-		}
-
-		Action<IReadOnlyList<ContributorDto>> printer =
-			authorization.HasAnyPermission(Permission.ViewContributorDetails, Permission.FullSearchContributor)
-				? author => AuthorPrinter.PrintFullTable(author, "Search Result")
-				: author => AuthorPrinter.PrintTable(author, "Search Result");
-
-		while (true)
-		{
-			Console.Clear();
-			var items = menuService.GetChildren("authors.search");
-			var selectedItem = MenuHelper.DisplayMenu("SEARCHING AUTHOR MENU", items);
-			switch (selectedItem)
-			{
-				case null:
-					return;
-				case "authors.search.back":
-					ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "Author"));
-					return;
-			}
-
-			var field = selectedItem switch
-			{
-				"authors.search.name" => ContributorSearchField.Name,
-				"authors.search.national-code" => ContributorSearchField.NationalCode,
-				"authors.search.email" => ContributorSearchField.Email,
-				"authors.search.phone-number" => ContributorSearchField.PhoneNumber,
-				_ => (ContributorSearchField?)null
-			};
-
-			if (field is null) continue;
-
-			var prompt = field.Value switch
-			{
-				ContributorSearchField.Name => Messages.SearchName,
-				ContributorSearchField.NationalCode => Messages.SearchNationalCode,
-				ContributorSearchField.Email => Messages.SearchEmail,
-				ContributorSearchField.PhoneNumber => Messages.SearchPhoneNumber,
-				_ => "Enter search term"
-			};
-
-			PersonHelper.SearchAndDisplay(prompt, term => authorManagementService.SearchAuthor(term, field.Value),
-				printer, Messages.NotAuthorMatched);
-			ConsoleHelper.Pause();
-		}
+		ContributorMenu.SearchContributor(authorManagementService.GetAllAuthors(), "Author", "authors", menuService,
+			authorization, authorManagementService.SearchAuthor, Messages.NotAuthorMatched);
 	}
 
 
@@ -275,8 +226,7 @@ public class AuthorMenu
 			{
 				case "authors.view.author-details":
 				{
-					if (!authorization.HasPermission(Permission.ViewContributorDetails))
-						break;
+					if (!authorization.HasPermission(Permission.ViewContributorDetails)) break;
 					Console.Clear();
 					var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
 						author => MenuHelper.SelectAuthor(author, authorization), Messages.NotAvailableAuthor);
@@ -293,8 +243,7 @@ public class AuthorMenu
 				}
 				case "authors.view.all-authors":
 				{
-					if (!authorization.HasPermission(Permission.ViewAllContributors))
-						break;
+					if (!authorization.HasPermission(Permission.ViewAllContributors)) break;
 					Console.Clear();
 					var authors = authorManagementService.GetAllAuthors();
 
@@ -309,8 +258,7 @@ public class AuthorMenu
 				}
 				case "authors.view.removed-authors":
 				{
-					if (!authorization.HasPermission(Permission.ViewRemovedContributors))
-						break;
+					if (!authorization.HasPermission(Permission.ViewRemovedContributors)) break;
 					Console.Clear();
 					var removedAuthors = authorManagementService.GetRemovedAuthors();
 					if (removedAuthors.Count is 0)
@@ -340,8 +288,7 @@ public class AuthorMenu
 	private static void ViewBooksByAuthor(AuthorManagementService authorManagementService,
 		IAuthorizationService authorization)
 	{
-		if (!authorization.HasPermission(Permission.ViewContributorBooks))
-			return;
+		if (!authorization.HasPermission(Permission.ViewContributorBooks)) return;
 		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
 			author => MenuHelper.SelectAuthor(author, authorization), Messages.NotAvailableAuthor);
 		if (desiredAuthor is null) return;

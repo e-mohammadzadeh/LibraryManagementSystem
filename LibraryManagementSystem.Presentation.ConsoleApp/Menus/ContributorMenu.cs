@@ -1,5 +1,8 @@
-﻿using LibraryManagementSystem.Infrastructure.Common;
+﻿using LibraryManagementSystem.Application.Authorization;
+using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
+using LibraryManagementSystem.Infrastructure.Enums;
+using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Interfaces;
 using LibraryManagementSystem.Infrastructure.ValueObjects;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
@@ -185,5 +188,101 @@ public abstract class ContributorMenu
 			var choice = ConsoleHelper.ReadYesNo(Messages.EditContinuesQuestion);
 			if (choice != true) return;
 		}
+	}
+
+
+	public static void RemoveContributor<T>(T? contributor, string firstName, string lastName,
+		Action<T> printDetailsFn, Func<ServiceResult<T>> removeFn) where T : class
+	{
+		if (contributor is null) return;
+
+		printDetailsFn(contributor);
+		var choice = ConsoleHelper.ReadYesNo($"Are you sure you want to remove {firstName} {lastName}");
+
+		if (choice != true) return;
+
+		var result = removeFn();
+		ConsoleHelper.ShowResult(result);
+	}
+
+
+	public static void SearchContributor(IReadOnlyList<ContributorDto> contributors, string contributorName,
+		string menuIdPrefix, IMenuService menuService, IAuthorizationService authorization,
+		Func<string, ContributorSearchField, IReadOnlyList<ContributorDto>> searchContributor, string notMatchedMessage)
+	{
+		if (contributors.Count == 0)
+		{
+			ConsoleHelper.ShowWarning(contributorName == "Author"
+				? Messages.NotAvailableAuthor
+				: Messages.NotAvailableTranslator);
+			return;
+		}
+
+		Action<IReadOnlyList<ContributorDto>> printer = authorization.HasAnyPermission(
+			Permission.ViewContributorDetails,
+			Permission.FullSearchContributor)
+			? results => ContributorPrinter.PrintFullTable(results, "Search Result")
+			: results => ContributorPrinter.PrintTable(results, "Search Result");
+
+		while (true)
+		{
+			Console.Clear();
+
+			var selectedItem = MenuHelper.DisplayMenu($"SEARCHING {contributorName.ToUpper()} MENU",
+				menuService.GetChildren($"{menuIdPrefix}.search"));
+
+			switch (selectedItem)
+			{
+				case null:
+					return;
+
+				case var _ when selectedItem == $"{menuIdPrefix}.search.back":
+					ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, contributorName));
+					return;
+			}
+
+			var field = selectedItem switch
+			{
+				_ when selectedItem == $"{menuIdPrefix}.search.name" => ContributorSearchField.Name,
+				_ when selectedItem == $"{menuIdPrefix}.search.national-code" => ContributorSearchField.NationalCode,
+				_ when selectedItem == $"{menuIdPrefix}.search.email" => ContributorSearchField.Email,
+				_ when selectedItem == $"{menuIdPrefix}.search.phone-number" => ContributorSearchField.PhoneNumber,
+				_ => (ContributorSearchField?)null
+			};
+
+			if (field is null) continue;
+
+			var prompt = field.Value switch
+			{
+				ContributorSearchField.Name => Messages.SearchName,
+				ContributorSearchField.NationalCode => Messages.SearchNationalCode,
+				ContributorSearchField.Email => Messages.SearchEmail,
+				ContributorSearchField.PhoneNumber => Messages.SearchPhoneNumber,
+				_ => "Enter search term"
+			};
+
+			SearchAndDisplay(prompt, term => searchContributor(term, field.Value), printer,
+				notMatchedMessage);
+			ConsoleHelper.Pause();
+		}
+	}
+
+
+
+	public static void SearchAndDisplay<T>(string prompt, Func<string, IReadOnlyList<T>> searchFn,
+		Action<IReadOnlyList<T>> printFn, string noResultsMessage)
+	{
+		Console.Clear();
+		var searchItem = ConsoleHelper.ReadString(prompt);
+		if (searchItem is null) return;
+
+		var result = searchFn(searchItem);
+		if (result.Count == 0)
+		{
+			ConsoleHelper.ShowWarning(noResultsMessage);
+			return;
+		}
+
+		printFn(result);
 	}
 }

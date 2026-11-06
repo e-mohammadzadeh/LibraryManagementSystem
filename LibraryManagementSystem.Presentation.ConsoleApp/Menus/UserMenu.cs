@@ -382,7 +382,7 @@ public static class UserMenu
 			return;
 		}
 
-		PersonHelper.PerformRemove(desiredUser, desiredUser.FirstName, desiredUser.LastName,
+		ContributorMenu.RemoveContributor(desiredUser, desiredUser.FirstName, desiredUser.LastName,
 			user => UserPrinter.PrintDetails(user),
 			() => userManagementService.RemoveUser(desiredUser.Id, session));
 	}
@@ -420,7 +420,7 @@ public static class UserMenu
 			{
 				case "users.search.name":
 				{
-					PersonHelper.SearchAndDisplay(Messages.SearchName,
+					ContributorMenu.SearchAndDisplay(Messages.SearchName,
 						term => userManagementService.SearchUser(term, UserSearchField.FullName),
 						u => UserPrinter.PrintFullTable(u), Messages.NotUserMatched);
 					ConsoleHelper.Pause();
@@ -428,7 +428,7 @@ public static class UserMenu
 				}
 				case "users.search.national-code":
 				{
-					PersonHelper.SearchAndDisplay(Messages.SearchNationalCode,
+					ContributorMenu.SearchAndDisplay(Messages.SearchNationalCode,
 						term => userManagementService.SearchUser(term, UserSearchField.NationalCode),
 						u => UserPrinter.PrintFullTable(u), Messages.NotUserMatched);
 					ConsoleHelper.Pause();
@@ -436,7 +436,7 @@ public static class UserMenu
 				}
 				case "users.search.email":
 				{
-					PersonHelper.SearchAndDisplay(Messages.SearchEmail,
+					ContributorMenu.SearchAndDisplay(Messages.SearchEmail,
 						term => userManagementService.SearchUser(term, UserSearchField.Email),
 						u => UserPrinter.PrintFullTable(u), Messages.NotUserMatched);
 					ConsoleHelper.Pause();
@@ -444,7 +444,7 @@ public static class UserMenu
 				}
 				case "users.search.phone-number":
 				{
-					PersonHelper.SearchAndDisplay(Messages.SearchPhoneNumber,
+					ContributorMenu.SearchAndDisplay(Messages.SearchPhoneNumber,
 						term => userManagementService.SearchUser(term, UserSearchField.PhoneNumber),
 						u => UserPrinter.PrintFullTable(u), Messages.NotUserMatched);
 					ConsoleHelper.Pause();
