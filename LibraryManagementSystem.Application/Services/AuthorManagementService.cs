@@ -14,14 +14,12 @@ namespace LibraryManagementSystem.Application.Services;
 
 public class AuthorManagementService : ContributorManagementService<Author>
 {
-	private readonly IAuthorizationService _authorization;
 	private readonly IAuditLogManagementService _auditLog;
 
 
 	public AuthorManagementService(IAuthorRepository authorRepository, IAuthorizationService authorization,
 		IAuditLogManagementService auditLog) : base(authorRepository, authorization)
 	{
-		_authorization = authorization;
 		_auditLog = auditLog;
 	}
 
@@ -102,8 +100,5 @@ public class AuthorManagementService : ContributorManagementService<Author>
 	}
 
 
-	public IReadOnlyList<ContributorDto> GetRemovedAuthors()
-	{
-		return !_authorization.HasPermission(Permission.ViewRemovedContributors) ? [] : GetRemovedContributors();
-	}
+	public IReadOnlyList<ContributorDto> GetRemovedAuthors() => GetRemovedContributors();
 }

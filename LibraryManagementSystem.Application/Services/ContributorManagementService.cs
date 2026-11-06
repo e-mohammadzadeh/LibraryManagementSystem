@@ -63,6 +63,9 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 		var contributor = Repository.GetById(dto.Id, EntityFilter.Active);
 		if (contributor is null || contributor.IsRemoved) return ServiceResult<ContributorDto>.Fail(notFoundMessage);
 
+		if (IsNoOpUpdate(contributor, dto))
+			return ServiceResult<ContributorDto>.Warning(contributor.ToDto(), Messages.NoChangesDetected);
+
 		if (Repository.Exists(dto.NationalCode, c => c.NationalCode, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(duplicateNationalCodeMessage);
 
@@ -72,8 +75,7 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 		if (Repository.Exists(dto.PhoneNumber, c => c.PhoneNumber, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(duplicatePhoneNumberMessage);
 
-		if (IsNoOpUpdate(contributor, dto))
-			return ServiceResult<ContributorDto>.Warning(contributor.ToDto(), Messages.NoChangesDetected);
+		auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(contributor, dto);
 
 		contributor.FirstName = dto.FirstName;
 		contributor.LastName = dto.LastName;
@@ -83,8 +85,6 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 		contributor.BirthDate = dto.BirthDate;
 		contributor.Biography = dto.Biography;
 		contributor.UpdatedByUserId = updatedBy;
-
-		auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(contributor, dto);
 
 		Repository.Update(contributor);
 		return ServiceResult<ContributorDto>.Ok(contributor.ToDto(), successMessage);
@@ -169,6 +169,7 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 
 	protected IReadOnlyList<ContributorDto> GetRemovedContributors()
 	{
+		if (!Authorization.HasPermission(Permission.ViewRemovedContributors)) return [];
 		return [.. Repository.GetAll(EntityFilter.Removed).Select(contributor => contributor.ToDto())];
 	}
 

@@ -14,14 +14,12 @@ namespace LibraryManagementSystem.Application.Services;
 
 public class TranslatorManagementService : ContributorManagementService<Translator>
 {
-	private readonly IAuthorizationService _authorization;
 	private readonly IAuditLogManagementService _auditLog;
 
 
 	public TranslatorManagementService(ITranslatorRepository translatorRepository, IAuthorizationService authorization,
 		IAuditLogManagementService auditLog) : base(translatorRepository, authorization)
 	{
-		_authorization = authorization;
 		_auditLog = auditLog;
 	}
 
@@ -105,8 +103,5 @@ public class TranslatorManagementService : ContributorManagementService<Translat
 	}
 
 
-	public IReadOnlyList<ContributorDto> GetRemovedTranslators()
-	{
-		return !_authorization.HasPermission(Permission.ViewRemovedContributors) ? [] : GetRemovedContributors();
-	}
+	public IReadOnlyList<ContributorDto> GetRemovedTranslators() => GetRemovedContributors();
 }

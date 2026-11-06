@@ -12,7 +12,7 @@ using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
-public static class TranslatorMenu
+public class TranslatorMenu
 {
 	public static void TranslatorMenuController(TranslatorManagementService translatorManagementService,
 		LibraryStatisticsService statisticsService, ICurrentUserSession session, IAuthorizationService authorization,

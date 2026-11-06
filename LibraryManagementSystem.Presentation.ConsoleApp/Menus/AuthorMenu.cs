@@ -12,7 +12,7 @@ using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
-public static class AuthorMenu
+public class AuthorMenu
 {
 	public static void AuthorMenuController(AuthorManagementService authorManagementService,
 		LibraryStatisticsService statisticsService, ICurrentUserSession session, IAuthorizationService authorization,
@@ -34,6 +34,7 @@ public static class AuthorMenu
 			if (!session.IsAuthenticated)
 			{
 				ConsoleHelper.ShowError(Messages.SessionExpired);
+				ConsoleHelper.Pause();
 				return;
 			}
 
@@ -76,6 +77,7 @@ public static class AuthorMenu
 				}
 				case "authors.search":
 				{
+					Console.Clear();
 					SearchAuthor(authorManagementService, authorization, menuService);
 					ConsoleHelper.Pause();
 					break;
@@ -282,7 +284,7 @@ public static class AuthorMenu
 			return;
 		}
 
-		Action<IReadOnlyList<ContributorDto>> printer = authorization.HasAnyPermission(Permission.FullSearchContributor)
+		Action<IReadOnlyList<ContributorDto>> printer = authorization.HasAnyPermission(Permission.ViewContributorDetails, Permission.FullSearchContributor)
 			? author => AuthorPrinter.PrintFullTable(author, "Search Result")
 			: author => AuthorPrinter.PrintTable(author, "Search Result");
 
@@ -395,6 +397,7 @@ public static class AuthorMenu
 			if (!session.IsAuthenticated)
 			{
 				ConsoleHelper.ShowError(Messages.SessionExpired);
+				ConsoleHelper.Pause();
 				return;
 			}
 
