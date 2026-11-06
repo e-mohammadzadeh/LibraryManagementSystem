@@ -63,8 +63,8 @@ public static class MenuHelper
 
 		Action<IReadOnlyList<ContributorDto>> printer =
 			authorization.HasPermission(Permission.ViewContributorDetails)
-				? author => AuthorPrinter.PrintFullTable(author)
-				: author => AuthorPrinter.PrintTable(author);
+				? author => ContributorPrinter.PrintFullTable(author)
+				: author => ContributorPrinter.PrintTable(author);
 		while (true)
 		{
 			printer(authorsList);
@@ -88,8 +88,8 @@ public static class MenuHelper
 
 		Action<IReadOnlyList<ContributorDto>> printer =
 			authorization.HasAnyPermission(Permission.ViewContributorDetails, Permission.ViewAllContributors)
-				? translator => TranslatorPrinter.PrintFullTable(translator)
-				: translator => TranslatorPrinter.PrintTable(translator);
+				? translator => ContributorPrinter.PrintFullTable(translator)
+				: translator => ContributorPrinter.PrintTable(translator);
 
 		while (true)
 		{

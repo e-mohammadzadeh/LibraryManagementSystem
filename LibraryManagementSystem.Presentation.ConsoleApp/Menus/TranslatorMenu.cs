@@ -131,7 +131,7 @@ public class TranslatorMenu
 			translator => MenuHelper.SelectTranslator(translator, authorization), Messages.NotAvailableTranslator);
 
 		ContributorMenu.RemoveContributor(desiredTranslator, desiredTranslator?.FirstName ?? "",
-			desiredTranslator?.LastName ?? "", TranslatorPrinter.PrintDetails,
+			desiredTranslator?.LastName ?? "", x => ContributorPrinter.PrintDetails(x, "Remove"),
 			() => translatorManagementService.RemoveTranslator(desiredTranslator!.Id));
 	}
 
@@ -158,9 +158,9 @@ public class TranslatorMenu
 			{
 				var title = $"Sorted Translators - {description}";
 				if (authorization.HasPermission(Permission.FullSortContributor))
-					TranslatorPrinter.PrintFullTable(list, title);
+					ContributorPrinter.PrintFullTable(list, title);
 				else
-					TranslatorPrinter.PrintTable(list, title);
+					ContributorPrinter.PrintTable(list, title);
 			},
 			Messages.NotAvailableTranslator,
 			"Translator",
@@ -200,81 +200,31 @@ public class TranslatorMenu
 	}
 
 
-	private static void ViewTranslators(TranslatorManagementService translatorManagementService,
+	private static void ViewTranslators(
+		TranslatorManagementService translatorManagementService,
 		IMenuService menuService,
-		IAuthorizationService authorization, ICurrentUserSession session, LibraryStatisticsService statisticsService)
+		IAuthorizationService authorization,
+		ICurrentUserSession session,
+		LibraryStatisticsService statisticsService)
 	{
-		if (!authorization.HasAnyPermission(Permission.ViewContributorDetails, Permission.ViewContributorBooks,
-			    Permission.ViewAllContributors))
-			return;
-
-		while (true)
-		{
-			ConsoleHelper.ClearConsole();
-			if (authorization.CanAccessStatistics())
-				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
-			else
-				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
-			switch (ViewTranslatorMenuList(menuService))
-			{
-				case "translators.view.translator-details":
-				{
-					if (!authorization.HasPermission(Permission.ViewContributorDetails)) break;
-					Console.Clear();
-					var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
-						translator => MenuHelper.SelectTranslator(translator, authorization),
-						Messages.NotAvailableTranslator);
-					if (desiredTranslator is not null) TranslatorPrinter.PrintDetails(desiredTranslator);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case "translators.view.translator-books":
-				{
-					Console.Clear();
-					ViewBooksByTranslator(translatorManagementService, authorization);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case "translators.view.all-translators":
-				{
-					if (!authorization.HasPermission(Permission.ViewAllContributors)) break;
-					Console.Clear();
-					var translators = translatorManagementService.GetAllTranslators();
-					if (translators.Count == 0)
-						ConsoleHelper.ShowWarning(Messages.NotAvailableTranslator);
-					else if (authorization.HasPermission(Permission.ViewContributorDetails))
-						TranslatorPrinter.PrintFullTable(translators);
-					else
-						TranslatorPrinter.PrintTable(translators);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case "translators.view.removed-translators":
-				{
-					if (!authorization.HasPermission(Permission.ViewRemovedContributors)) break;
-					Console.Clear();
-					var removedTranslators = translatorManagementService.GetRemovedTranslators();
-					if (removedTranslators.Count is 0)
-						ConsoleHelper.ShowWarning(Messages.NotAvailableRemovedTranslator);
-					else
-						TranslatorPrinter.PrintFullTable(removedTranslators);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case "translators.view.back":
-				{
-					ConsoleHelper.ShowInfo(Messages.BackToTranslatorMenu);
-					return;
-				}
-			}
-		}
-	}
-
-
-	private static string? ViewTranslatorMenuList(IMenuService menuService)
-	{
-		var items = menuService.GetChildren("translators.view");
-		return MenuHelper.DisplayMenu("VIEW TRANSLATOR MENU", items);
+		ContributorMenu.ViewContributors(
+			contributorName: "Translator",
+			menuIdPrefix: "translators",
+			backMessage: Messages.BackToTranslatorMenu,
+			unavailableMessage: Messages.NotAvailableTranslator,
+			unavailableRemovedMessage: Messages.NotAvailableRemovedTranslator,
+			menuService: menuService,
+			authorization: authorization,
+			session: session,
+			statisticsService: statisticsService,
+			getAllContributors: () => translatorManagementService.GetAllTranslators(),
+			getRemovedContributors: translatorManagementService.GetRemovedTranslators,
+			selectContributor: () => MenuHelper.SelectExisting(
+				translatorManagementService.GetAllTranslators(),
+				translator => MenuHelper.SelectTranslator(translator, authorization),
+				Messages.NotAvailableTranslator),
+			viewBooks: () => ViewBooksByTranslator(translatorManagementService, authorization),
+			requireViewPermission: true);
 	}
 
 

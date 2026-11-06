@@ -86,7 +86,7 @@ public class AuthorMenu
 						    Permission.ViewContributorBooks, Permission.ViewAllContributors))
 						break;
 					Console.Clear();
-					ViewAuthors(authorManagementService, authorization, session, statisticsService, menuService);
+					ViewAuthors(authorManagementService, menuService, authorization, session, statisticsService);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -143,7 +143,7 @@ public class AuthorMenu
 			Messages.NotAvailableAuthor);
 
 		ContributorMenu.RemoveContributor(desiredAuthor, desiredAuthor?.FirstName ?? "", desiredAuthor?.LastName ?? "",
-			AuthorPrinter.PrintDetails, () => authorManagementService.RemoveAuthor(desiredAuthor!.Id));
+			x => ContributorPrinter.PrintDetails(x, "Remove"), () => authorManagementService.RemoveAuthor(desiredAuthor!.Id));
 	}
 
 
@@ -169,9 +169,9 @@ public class AuthorMenu
 			{
 				var title = $"Sorted Authors - {description}";
 				if (authorization.HasPermission(Permission.FullSortContributor))
-					AuthorPrinter.PrintFullTable(authors, title);
+					ContributorPrinter.PrintFullTable(authors, title);
 				else
-					AuthorPrinter.PrintTable(authors, title);
+					ContributorPrinter.PrintTable(authors, title);
 			},
 			emptyMessage: Messages.NotAvailableAuthor,
 			entityNameForCancel: "Author",
@@ -211,77 +211,29 @@ public class AuthorMenu
 	}
 
 
-	private static void ViewAuthors(AuthorManagementService authorManagementService,
-		IAuthorizationService authorization, ICurrentUserSession session, LibraryStatisticsService statisticsService,
-		IMenuService menuService)
+	private static void ViewAuthors(
+		AuthorManagementService authorManagementService,
+		IMenuService menuService,
+		IAuthorizationService authorization,
+		ICurrentUserSession session,
+		LibraryStatisticsService statisticsService)
 	{
-		while (true)
-		{
-			ConsoleHelper.ClearConsole();
-			if (authorization.CanAccessStatistics())
-				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
-			else
-				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
-			switch (ViewAuthorMenuList(menuService))
-			{
-				case "authors.view.author-details":
-				{
-					if (!authorization.HasPermission(Permission.ViewContributorDetails)) break;
-					Console.Clear();
-					var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
-						author => MenuHelper.SelectAuthor(author, authorization), Messages.NotAvailableAuthor);
-					if (desiredAuthor is not null) AuthorPrinter.PrintDetails(desiredAuthor);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case "authors.view.author-books":
-				{
-					Console.Clear();
-					ViewBooksByAuthor(authorManagementService, authorization);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case "authors.view.all-authors":
-				{
-					if (!authorization.HasPermission(Permission.ViewAllContributors)) break;
-					Console.Clear();
-					var authors = authorManagementService.GetAllAuthors();
-
-					if (authors.Count == 0)
-						ConsoleHelper.ShowWarning(Messages.NotAvailableAuthor);
-					else if (authorization.HasPermission(Permission.ViewContributorDetails))
-						AuthorPrinter.PrintFullTable(authors);
-					else
-						AuthorPrinter.PrintTable(authors);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case "authors.view.removed-authors":
-				{
-					if (!authorization.HasPermission(Permission.ViewRemovedContributors)) break;
-					Console.Clear();
-					var removedAuthors = authorManagementService.GetRemovedAuthors();
-					if (removedAuthors.Count is 0)
-						ConsoleHelper.ShowWarning(Messages.NotAvailableRemovedAuthor);
-					else
-						AuthorPrinter.PrintFullTable(removedAuthors);
-					ConsoleHelper.Pause();
-					break;
-				}
-				case "authors.view.back":
-				{
-					ConsoleHelper.ShowInfo(Messages.BackToAuthorMenu);
-					return;
-				}
-			}
-		}
-	}
-
-
-	private static string? ViewAuthorMenuList(IMenuService menuService)
-	{
-		var items = menuService.GetChildren("authors.view");
-		return MenuHelper.DisplayMenu("VIEW AUTHOR MENU", items);
+		ContributorMenu.ViewContributors(
+			contributorName: "Author",
+			menuIdPrefix: "authors",
+			backMessage: Messages.BackToAuthorMenu,
+			unavailableMessage: Messages.NotAvailableAuthor,
+			unavailableRemovedMessage: Messages.NotAvailableRemovedAuthor,
+			menuService: menuService,
+			authorization: authorization,
+			session: session,
+			statisticsService: statisticsService,
+			getAllContributors: () => authorManagementService.GetAllAuthors(),
+			getRemovedContributors: authorManagementService.GetRemovedAuthors,
+			selectContributor: () => MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
+				a => MenuHelper.SelectAuthor(a, authorization), Messages.NotAvailableAuthor),
+			viewBooks: () => ViewBooksByAuthor(authorManagementService, authorization),
+			requireViewPermission: true);
 	}
 
 

@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
+using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.Enums;
@@ -268,7 +269,6 @@ public abstract class ContributorMenu
 	}
 
 
-
 	public static void SearchAndDisplay<T>(string prompt, Func<string, IReadOnlyList<T>> searchFn,
 		Action<IReadOnlyList<T>> printFn, string noResultsMessage)
 	{
@@ -284,5 +284,114 @@ public abstract class ContributorMenu
 		}
 
 		printFn(result);
+	}
+
+
+	public static void ViewContributors(
+		string contributorName,
+		string menuIdPrefix,
+		string backMessage,
+		string unavailableMessage,
+		string unavailableRemovedMessage,
+		IMenuService menuService,
+		IAuthorizationService authorization,
+		ICurrentUserSession session,
+		LibraryStatisticsService statisticsService,
+		Func<IReadOnlyList<ContributorDto>> getAllContributors,
+		Func<IReadOnlyList<ContributorDto>> getRemovedContributors,
+		Func<ContributorDto?> selectContributor,
+		Action viewBooks,
+		bool requireViewPermission = false)
+	{
+		if (requireViewPermission &&
+		    !authorization.HasAnyPermission(
+			    Permission.ViewContributorDetails,
+			    Permission.ViewContributorBooks,
+			    Permission.ViewAllContributors))
+			return;
+
+		var contributorNameLower = contributorName.ToLowerInvariant();
+		var pluralName = $"{contributorNameLower}s";
+
+		while (true)
+		{
+			ConsoleHelper.ClearConsole();
+
+			if (authorization.CanAccessStatistics())
+				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
+			else
+				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
+
+			var selectedItem = MenuHelper.DisplayMenu($"VIEW {contributorName.ToUpperInvariant()} MENU",
+				menuService.GetChildren($"{menuIdPrefix}.view"));
+
+			switch (selectedItem)
+			{
+				case null:
+					return;
+
+				case var _ when selectedItem == $"{menuIdPrefix}.view.back":
+					ConsoleHelper.ShowInfo(backMessage);
+					return;
+
+				case var _ when selectedItem == $"{menuIdPrefix}.view.{contributorNameLower}-details":
+				{
+					if (!authorization.HasPermission(Permission.ViewContributorDetails)) break;
+
+					Console.Clear();
+
+					var contributor = selectContributor();
+
+					if (contributor is not null) ContributorPrinter.PrintDetails(contributor);
+
+					ConsoleHelper.Pause();
+					break;
+				}
+
+				case var _ when selectedItem == $"{menuIdPrefix}.view.{contributorNameLower}-books":
+				{
+					Console.Clear();
+					viewBooks();
+					ConsoleHelper.Pause();
+					break;
+				}
+
+				case var _ when selectedItem == $"{menuIdPrefix}.view.all-{pluralName}":
+				{
+					if (!authorization.HasPermission(Permission.ViewAllContributors)) break;
+
+					Console.Clear();
+
+					var contributors = getAllContributors();
+
+					if (contributors.Count == 0)
+						ConsoleHelper.ShowWarning(unavailableMessage);
+					else if (authorization.HasPermission(Permission.ViewContributorDetails))
+						ContributorPrinter.PrintFullTable(contributors);
+					else
+						ContributorPrinter.PrintTable(contributors);
+
+					ConsoleHelper.Pause();
+					break;
+				}
+
+				case var _ when selectedItem == $"{menuIdPrefix}.view.removed-{pluralName}":
+				{
+					if (!authorization.HasPermission(Permission.ViewRemovedContributors)) break;
+
+					Console.Clear();
+
+					var removedContributors = getRemovedContributors();
+
+					if (removedContributors.Count == 0)
+						ConsoleHelper.ShowWarning(unavailableRemovedMessage);
+					else
+						ContributorPrinter.PrintFullTable(removedContributors);
+
+					ConsoleHelper.Pause();
+					break;
+				}
+			}
+		}
 	}
 }
