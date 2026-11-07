@@ -88,9 +88,7 @@ public abstract class ContributorMenu
 			{
 				case var _ when selectedItem == $"{menuIdPrefix}.edit.firstname":
 				{
-					var value = ConsoleHelper.GetValidName(
-						"\nEnter new first name",
-						ValidationConstants.MinNameLength,
+					var value = ConsoleHelper.GetValidName("\nEnter new first name", ValidationConstants.MinNameLength,
 						ValidationConstants.MaxNameLength);
 
 					if (value != null)
@@ -102,9 +100,7 @@ public abstract class ContributorMenu
 				}
 				case var _ when selectedItem == $"{menuIdPrefix}.edit.lastname":
 				{
-					var value = ConsoleHelper.GetValidName(
-						"\nEnter new last name",
-						ValidationConstants.MinNameLength,
+					var value = ConsoleHelper.GetValidName("\nEnter new last name", ValidationConstants.MinNameLength,
 						ValidationConstants.MaxNameLength);
 
 					if (value != null)
