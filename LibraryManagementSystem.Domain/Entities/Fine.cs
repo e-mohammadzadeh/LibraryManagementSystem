@@ -1,80 +1,22 @@
 ﻿using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Infrastructure.Enums;
+using LibraryManagementSystem.Infrastructure.ValueObjects;
 
 namespace LibraryManagementSystem.Domain.Entities;
 
 public class Fine
 {
-	public Fine(Loan loan, string? reason = null)
-	{
-		ArgumentNullException.ThrowIfNull(loan);
-		if (loan.ReturnDate is null) throw new InvalidOperationException("Cannot create a fine for a loan that has not been returned.");
-		var overdueDays = loan.ReturnDate.Value.DayNumber - loan.DueDate.DayNumber;
-		if (overdueDays <= 0) throw new ArgumentException("Cannot create a fine for a loan that was not returned late.");
-
-		FineId = ++_nextFineId;
-		Loan = loan;
-		LoanId = loan.LoanId;
-		UserId = loan.UserId;
-		OverdueDays = overdueDays;
-		Amount = FineCalculator(overdueDays);
-		Status = FineStatus.Unpaid;
-		Reason = reason ?? $"Overdue by {overdueDays} day(s)";
-		DailyRate = 1m;
-		CreatedAt = DateTime.Now;
-	}
-
-
-	private static int _nextFineId;
-	public int FineId { get; private set; }
-	public int LoanId { get; private set; }
-	public Loan Loan { get; private set; }
-	public int UserId { get; private set; }
-	public int OverdueDays { get; private set; }
-	public decimal Amount { get; private set; }
-	public FineStatus Status { get; private set; }
-	public string Reason { get; private set; }
-	public decimal DailyRate { get; private set; }
-	public DateTime CreatedAt { get; private set; }
-	public DateTime? UpdatedAt { get; private set; }
-	public DateOnly? PaidAt { get; private set; }
-
-
-	private static decimal FineCalculator(int overdueDays)
-	{
-		const decimal maxUnpaidFineThreshold = 150m; // 47 days hits cap
-		const decimal initialDailyRate = 0.50m;
-		const int fixedRateDays = 5;
-		const decimal geometricRatio = 1.08m;
-
-		if (overdueDays <= 0) return 0m;
-
-		var flatTotal = Math.Min(overdueDays, fixedRateDays) * initialDailyRate;
-
-		if (overdueDays <= fixedRateDays) return Math.Min(flatTotal, maxUnpaidFineThreshold);
-
-		var geometricDays = overdueDays - fixedRateDays;
-		var geometricTotal = initialDailyRate * ((decimal)Math.Pow((double)geometricRatio, geometricDays) - 1m) /
-		                     (geometricRatio - 1m);
-
-		var total = flatTotal + geometricTotal;
-		return Math.Min(total, maxUnpaidFineThreshold);
-	}
-
-
-	public void Pay()
-	{
-		if (Status == FineStatus.Paid) throw new InvalidOperationException("Fine is already paid.");
-		if (Status == FineStatus.Waived) throw new InvalidOperationException("Fine has been waived.");
-		Status = FineStatus.Paid;
-		PaidAt = DateOnly.FromDateTime(DateTime.Today);
-		UpdatedAt = DateTime.Now;
-	}
-
-
-	public void Waive()
-	{
-		if (Status == FineStatus.Paid) throw new InvalidOperationException("Cannot waive an already paid fine.");
-		Status = FineStatus.Waived;
-		UpdatedAt = DateTime.Now;
-	}
+	public Guid Id { get; set; }
+	public Loan Loan { get; set; } = null!;
+	public Guid LoanId { get; set; }
+	public Guid UserId { get; set; }
+	public int OverdueDays { get; set; }
+	public Money Money { get; set; } = null!;
+	public FineStatus Status { get; set; }
+	public DateOnly? PaidAt { get; set; }
+	public string Reason { get; set; } = string.Empty;
+	public FineHistoryAction Action { get; set; }
+	public DateTime CreatedAt { get; set; }
+	public DateTime? UpdatedAt { get; set; }
+	public Guid? UpdatedByUserId { get; set; }
 }

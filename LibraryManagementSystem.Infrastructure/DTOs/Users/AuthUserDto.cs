@@ -1,0 +1,16 @@
+﻿using LibraryManagementSystem.Infrastructure.Enums;
+
+namespace LibraryManagementSystem.Infrastructure.DTOs.Users;
+
+public class AuthUserDto
+{
+	public Guid Id { get; init; }
+	public string FullName { get; init; } = null!;
+	public string Email { get; init; } = null!;
+	public LibraryUserRole RoleName { get; init; }
+	public IReadOnlySet<Permission> Permissions { get; init; } = new HashSet<Permission>();
+	public bool IsActive { get; init; }
+	public DateOnly MembershipExpiryDate { get; init; }
+	public bool ShouldRemove { get; init; }
+	public DateTime? LastLoginDate { get; init; }
+}

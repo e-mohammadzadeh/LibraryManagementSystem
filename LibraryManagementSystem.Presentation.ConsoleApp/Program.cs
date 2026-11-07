@@ -1,13 +1,15 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Application.Repositories.InMemory;
+using LibraryManagementSystem.Application.Security;
 using LibraryManagementSystem.Application.Services;
-using LibraryManagementSystem.Infrastructure.Repositories.InMemory;
-using LibraryManagementSystem.Infrastructure.Security;
-using LibraryManagementSystem.Infrastructure.Seeders;
+using LibraryManagementSystem.Infrastructure.Interfaces;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 using System.Text;
+using LibraryManagementSystem.Application.Menu;
+
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp;
 
@@ -17,58 +19,59 @@ public static class Program
 	{
 		Console.OutputEncoding = Encoding.UTF8;
 
+		var menuDefinition = MenuLoader.Load();
+
 		try
 		{
 			// ── Repositories ──────────────────────────
-			var userRepo = new InMemoryUserRepository();
+			var passwordHasher = new PasswordHasher();
+			var roleRepo = new InMemoryRoleRepository();
+			var userRepo = new InMemoryUserRepository(roleRepo, passwordHasher);
 			var authorRepo = new InMemoryAuthorRepository();
 			var translatorRepo = new InMemoryTranslatorRepository();
 			var bookRepo = new InMemoryBookRepository();
-			var roleRepo = new InMemoryRoleRepository();
 			var loanRepo = new InMemoryLoanRepository();
-			var loanHistoryRepo = new InMemoryLoanHistory();
 			var fineRepo = new InMemoryFineRepository();
-			var fineHistoryRepo = new InMemoryFineHistory();
 			var auditLogRepo = new InMemoryAuditLogRepository();
 
 
 			// ── Infrastructure Services ───────────────
-			var passwordHasher = new PasswordHasher();
 			ICurrentUserSession currentUserSession = new CurrentUserSession();
 			IAuthorizationService authorization = new AuthorizationService(currentUserSession, loanRepo);
 
-			Console.Title = "Library Management System";
-			// Seed data for development/testing
-			DataSeeder.Seed(authorRepo, translatorRepo, bookRepo, userRepo, loanRepo, roleRepo, fineRepo,
-				passwordHasher);
-
-
 			// ── Application Interfaces ──────────────────
-			IUserAutoRemovalService userAutoRemovalService = new UserAutoRemovalService(userRepo, loanRepo, fineRepo);
-			ILoanHistoryManagementService loanHistoryService = new LoanHistoryManagementService(loanHistoryRepo);
-			IFineHistoryManagementService fineHistoryService = new FineHistoryManagementService(fineHistoryRepo);
 			IAuditLogManagementService auditLogService =
 				new AuditLogManagementService(userRepo, auditLogRepo, currentUserSession);
-			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo,
-				userAutoRemovalService, authorization, loanHistoryService, fineHistoryService, auditLogService);
+			IUserAutoRemovalService userAutoRemovalService = new UserAutoRemovalService(userRepo, loanRepo, fineRepo);
+			IBookManagementService iBookService = new BookManagementService(authorRepo, translatorRepo, bookRepo,
+				loanRepo, auditLogService, authorization);
+			IUserManagementService iUserService = new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo,
+				passwordHasher, authorization, auditLogService);
+			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo, iUserService,
+				userAutoRemovalService, authorization, auditLogService);
+			IMenuService menuService = new MenuService(menuDefinition, authorization);
 
 
 			// ── Application Services ──────────────────
 			var authorService = new AuthorManagementService(authorRepo, authorization, auditLogService);
 			var translatorService = new TranslatorManagementService(translatorRepo, authorization, auditLogService);
-			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, fineService,
-				userAutoRemovalService, authorization, loanHistoryService, auditLogService);
-			var loanHistory = new LoanHistoryManagementService(loanHistoryRepo);
-			var fineHistory = new FineHistoryManagementService(fineHistoryRepo);
-			var userService =
-				new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher, authorization,
-					auditLogService);
-			var bookService =
-				new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo, auditLogService);
-			var authService =
-				new AuthenticationService(userRepo, roleRepo, passwordHasher, currentUserSession, auditLogService);
+			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, iBookService, fineRepo,
+				fineService, userAutoRemovalService, auditLogService);
+			var userService = new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher,
+				authorization, auditLogService);
+			var bookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo, auditLogService,
+				authorization);
+			var authService = new AuthenticationService(userRepo, iUserService, roleRepo, passwordHasher,
+				currentUserSession, auditLogService);
 			var statisticsService =
 				new LibraryStatisticsService(bookRepo, authorRepo, translatorRepo, userRepo, loanRepo);
+			var roleService = new RoleManagementService(roleRepo);
+
+
+			Console.Title = "Library Management System";
+			// Seed data for development/testing
+			//DataSeeder.Seed(authorRepo, translatorRepo, bookService, bookRepo, userRepo, iUserService, loanRepo,
+			//	roleRepo, fineRepo, passwordHasher);
 
 			while (true)
 			{
@@ -79,7 +82,7 @@ public static class Program
 
 				var result = MainMenu.MainMenuController(authorService, translatorService, userService, bookService,
 					loanService, fineService, authService, currentUserSession, authorization, statisticsService,
-					loanHistory, fineHistory, auditLogService);
+					auditLogService, roleService, menuService);
 
 				if (result == MainMenuResult.Exit) return;
 				ConsoleHelper.Pause();

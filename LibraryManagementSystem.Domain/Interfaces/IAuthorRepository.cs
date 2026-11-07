@@ -1,18 +1,7 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
-using LibraryManagementSystem.Domain.Enums.Filters;
 
 namespace LibraryManagementSystem.Domain.Interfaces;
 
-public interface IAuthorRepository
+public interface IAuthorRepository : IContributorRepository<Author>
 {
-	void Add(Author author);
-	Author? FindById(int id);
-	Author? FindByName(string firstName, string lastName);
-	IReadOnlyList<Author> GetAll(EntityFilter filter);
-	bool ExistsByNationalCode(string nationalCode, int excludeId = -1);
-	bool ExistsByEmail(string email, int excludeId = -1);
-	bool ExistsByPhoneNumber(string phoneNumber, int excludeId = -1);
-	void Remove(Author author);
-	IReadOnlyList<Author> Search(string searchItem, Func<Author, string?> selector);
-	void Update(Author author);
 }

@@ -1,8 +1,9 @@
-﻿using LibraryManagementSystem.Application.Authentication;
-using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.DTOs.Users;
-using LibraryManagementSystem.Domain.Enums;
-using LibraryManagementSystem.Domain.Interfaces;
+﻿using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.DTOs.Users;
+using LibraryManagementSystem.Infrastructure.Enums;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
+using LibraryManagementSystem.Infrastructure.Interfaces;
 
 namespace LibraryManagementSystem.Application.Authorization;
 
@@ -21,9 +22,7 @@ public class AuthorizationService : IAuthorizationService
 
 	public bool HasPermission(Permission permission)
 	{
-		if (!_session.IsAuthenticated || _session.CurrentUser is null) return false;
-
-		return _session.Permissions.Contains(permission);
+		return _session.IsAuthenticated && _session.Permissions.Contains(permission);
 	}
 
 
@@ -34,77 +33,58 @@ public class AuthorizationService : IAuthorizationService
 	{
 		if (!_session.IsAuthenticated) return ServiceResult<string>.Fail(Messages.AuthenticationRequired);
 
-		if (!user.IsActive)
-			return ServiceResult<string>.Fail(Messages.InactiveAccount);
+		if (!user.IsActive) return ServiceResult<string>.Fail(Messages.InactiveAccount);
 
-		if (user.ShouldRemove)
-			return ServiceResult<string>.Fail(Messages.UserAutoRemovedSuccessfully);
+		if (user.ShouldRemove) return ServiceResult<string>.Fail(Messages.UserAutoRemovedSuccessfully);
 
 		if (user.MembershipExpiryDate < DateOnly.FromDateTime(DateTime.Today))
 			return ServiceResult<string>.Fail(Messages.MembershipExpired);
 
-		return _loanRepository.HasOverdueLoans(user.Id)
+		return _loanRepository.GetByUserId(user.Id, LoanFilter.Overdue).Count > 0
 			? ServiceResult<string>.Fail(Messages.BorrowBlockedDueToOverdue)
 			: ServiceResult<string>.Ok("Eligible to borrow.", "Borrowing allowed.");
 	}
 
 
-	public bool CanAccessAuthorManagement()
+	public bool CanAccessContributorManagement()
 	{
-		return HasAnyPermission(Permission.AddAuthor, Permission.EditAuthor, Permission.SearchAuthorForMember,
-			Permission.FullSearchAuthor, Permission.SortAuthorForMember, Permission.FullSortAuthor,
-			Permission.ViewAuthorDetails, Permission.ViewAllAuthors);
-	}
-
-
-	public bool CanAccessTranslatorManagement()
-	{
-		return HasAnyPermission(Permission.AddTranslator, Permission.EditTranslator,
-			Permission.SearchTranslatorForMember, Permission.FullSearchTranslator, Permission.SortTranslatorForMember,
-			Permission.FullSortTranslator, Permission.ViewTranslatorDetails, Permission.ViewAllTranslators);
+		return HasAnyPermission(Permission.AddContributor, Permission.EditContributor, Permission.RemoveContributor,
+			Permission.SearchForMember, Permission.FullSearchContributor, Permission.FullSortContributor,
+			Permission.ViewContributorDetails, Permission.ViewAllContributors);
 	}
 
 
 	public bool CanAccessBookManagement()
 	{
 		return HasAnyPermission(Permission.AddBook, Permission.EditBook, Permission.RemoveBook, Permission.SearchBook,
-			Permission.ViewBookDetails, Permission.ViewAllBooks);
+			Permission.FullSortBook, Permission.ViewBookDetails, Permission.ViewAllBooks);
 	}
 
 
 	public bool CanAccessFineManagement()
 	{
-		return HasAnyPermission(Permission.PayFine, Permission.WaiveFine, Permission.ViewFines,
-			Permission.ViewFinesByUser, Permission.ViewUnpaidFines, Permission.ViewUnpaidFinesByUser,
-			Permission.ViewFineHistory, Permission.FineHistoryByUser);
+		return HasAnyPermission(Permission.ViewFine, Permission.WaiveFine, Permission.ViewFinesByUser,
+			Permission.ViewAllFines);
 	}
 
 
 	public bool CanAccessLoanManagement()
 	{
-		return HasAnyPermission(Permission.BorrowBook, Permission.ReturnBook, Permission.RenewLoan,
-			Permission.ViewActiveLoans, Permission.ViewOverdueLoans, Permission.ViewLoanHistory,
-			Permission.MyActiveLoans, Permission.ViewActiveLoansByUser, Permission.ViewActiveLoansByBook,
-			Permission.MyOverdueLoans, Permission.ViewOverdueLoansByUser, Permission.ViewOverdueLoansByBook,
-			Permission.LoanHistoryByUser, Permission.LoanHistoryByBook, Permission.FullLibraryHistory,
-			Permission.MyFullLoanHistory, Permission.SearchLoans);
+		return HasAnyPermission(Permission.ViewLoan, Permission.ViewLoansByUser, Permission.ViewLoansByBook,
+			Permission.SearchLoans);
 	}
 
 
 	public bool CanAccessUserManagement()
 	{
 		return HasAnyPermission(Permission.AddUser, Permission.EditUser, Permission.RemoveUser, Permission.SearchUser,
-			Permission.ViewUserDetails, Permission.ViewOwnDetails, Permission.ViewOwnDetails, Permission.ViewAllUsers,
-			Permission.ChangePassword, Permission.ChangeOwnPassword, Permission.RenewLibrarianMembership,
-			Permission.RenewMemberMembership);
+			Permission.SortUser, Permission.ViewUserDetails, Permission.ViewAllUsers, Permission.ChangePassword,
+			Permission.RenewLibrarianMembership, Permission.RenewMemberMembership);
 	}
 
 
-	public bool CanAccessAuditLogManagement()
-	{
-		return HasAnyPermission(Permission.ViewAuditLog);
-	}
+	public bool CanAccessAuditLogManagement() { return HasAnyPermission(Permission.ViewAuditLog); }
 
 
-	public bool CanAccessStatistics() { return HasAnyPermission(Permission.ViewStatistics); }
+	public bool CanAccessStatistics() { return HasPermission(Permission.ViewStatistics); }
 }

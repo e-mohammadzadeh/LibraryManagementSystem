@@ -1,24 +1,15 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
 
 namespace LibraryManagementSystem.Domain.Interfaces;
 
 public interface ILoanRepository
 {
 	void Add(Loan loan);
-	Loan? FindById(int id);
-	IReadOnlyList<Loan> GetAll();
-	IReadOnlyList<Loan> GetAllByUser(int userId);
-	Loan? GetActiveLoanById(int loanId);
-	IReadOnlyList<Loan> GetActiveLoansByUser(int userId);
-	IReadOnlyList<Loan> GetActiveLoansByBook(int bookId);
-	IReadOnlyList<Loan> GetReturnedLoans();
-	int CountActiveLoansByUser(int userId);
-	bool HasActiveLoans(int userId, int bookId);
-	bool HasOverdueLoans(int userId);
-	IReadOnlyList<Loan> GetActiveLoans();
-	IReadOnlyList<Loan> GetLoansByBook(int bookId);
-	IReadOnlyList<Loan> GetLoansByBookAndUser(int bookId, int userId);
-	IReadOnlyList<Loan> GetOverdueLoans();
+	Loan? GetById(Guid id, LoanFilter filter);
+	IReadOnlyList<Loan> GetAll(LoanFilter filter);
+	IReadOnlyList<Loan> GetByUserId(Guid userId, LoanFilter filter);
+	IReadOnlyList<Loan> GetByBookId(Guid bookId, LoanFilter filter);
+	IReadOnlyList<Loan> GetLoansByBookAndUser(Guid bookId, Guid userId, LoanFilter filter);
 	void Update(Loan loan);
-	int CountActiveLoans();
 }

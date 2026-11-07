@@ -1,5 +1,5 @@
-﻿using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.DTOs.Loans;
+﻿using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.DTOs.Loans;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
@@ -11,7 +11,7 @@ public static class LoanPrinter
 		Console.Clear();
 		var rows = new List<(string Label, string[] ValueLines)>
 		{
-			("ID", [loan.LoanId.ToString()]),
+			("ID", [loan.Id.ToString()]),
 			("Book Name", [loan.BookName]),
 			("Book Id", [loan.BookId.ToString()]),
 			("User Name", [loan.UserName]),
@@ -40,11 +40,11 @@ public static class LoanPrinter
 
 		var headers = new[] { "ID", "Book", "User", "Borrow Date", "Return Date", "Due Date", "Status", "Overdue" };
 
-		var rows = loans.Select(loan => new[]
+		var rows = loans.Select((loan, index) => new[]
 		{
-			[loan.LoanId.ToString()],
-			ConsoleTable.WrapText(loan.BookName, 24),
-			ConsoleTable.WrapText(loan.UserName, 24),
+			[(index + 1).ToString()],
+			ConsoleTable.WrapText(loan.BookName, 40),
+			ConsoleTable.WrapText(loan.UserName, 35),
 			[loan.BorrowDate.ToString("yyyy-MM-dd")],
 			[loan.ReturnDate?.ToString("yyyy-MM-dd") ?? "N/A"],
 			[loan.DueDate.ToString("yyyy-MM-dd")],

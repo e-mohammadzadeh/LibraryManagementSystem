@@ -1,5 +1,5 @@
-﻿using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.DTOs.Fine;
+﻿using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.DTOs.Fine;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
@@ -11,13 +11,13 @@ public static class FinePrinter
 		Console.Clear();
 		var rows = new List<(string Label, string[] ValueLines)>
 		{
-			("Fine ID", [fine.FineId.ToString()]),
-			("Loan ID", [fine.LoanId.ToString()]),
-			("User ID", [fine.UserId.ToString()]),
+			("Fine ID", [fine.Id.ToString()]),
+			("Loan ID", [fine.LoanId.ToString()[..8]]),
+			("User ID", [fine.UserId.ToString()[..8]]),
 			("User", [fine.UserFullName]),
 			("Book", [fine.BookName]),
 			("Overdue Days", [fine.OverdueDays.ToString()]),
-			("Amount", [$"{fine.Amount:F2}"]),
+			("Amount", [fine.Money.ToString()]),
 			("Status", [fine.Status.ToString()]),
 			("Reason", string.IsNullOrWhiteSpace(fine.Reason) ? ["N/A"] : fine.Reason.Split('\n')),
 			("Created At", [fine.CreatedAt.ToString("yyyy-MM-dd HH:mm")]),
@@ -38,15 +38,15 @@ public static class FinePrinter
 		}
 
 		Console.Clear();
-		var headers = new[] { "ID", "Loan ID", "User", "Book", "Amount", "Days", "Status" };
+		var headers = new[] { "#", "Loan ID", "User", "Book", "Amount", "Days", "Status" };
 
-		var rows = fines.Select(fine => new[]
+		var rows = fines.Select((fine, index) => new[]
 		{
-			[fine.FineId.ToString()],
-			[fine.LoanId.ToString()],
+			[(index + 1).ToString()],
+			[fine.LoanId.ToString()[..8]],
 			ConsoleTable.WrapText(fine.UserFullName, 28),
 			ConsoleTable.WrapText(fine.BookName, 35),
-			[$"{fine.Amount:F2}"],
+			[fine.Money.ToString()],
 			[fine.OverdueDays.ToString()],
 			[fine.Status.ToString()]
 		}).ToList();

@@ -1,20 +1,17 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
-using LibraryManagementSystem.Domain.Enums.Filters;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
+using LibraryManagementSystem.Infrastructure.ValueObjects;
 
 namespace LibraryManagementSystem.Domain.Interfaces;
 
 public interface IUserRepository
 {
 	void Add(User user);
-	User? FindById(int id);
-	User? FindByName(string firstName, string lastName);
-	User? FindByEmail(string email);
+	User? GetById(Guid id, EntityFilter filter);
+	User? GetByName(string firstName, string lastName, EntityFilter filter);
+	User? GetByEmail(Email email, EntityFilter filter);
 	IReadOnlyList<User> GetAll(EntityFilter filter);
-	bool ExistsByNationalCode(string nationalCode, int excludeId = -1);
-	bool ExistsByEmail(string email, int excludeId = -1);
-	bool ExistsByPhoneNumber(string phoneNumber, int excludeId = -1);
-	void Update(User user);
+	bool Exists<T>(T value, Func<User, T> selector, Guid? excludeId = null);
 	void Remove(User user);
-	IReadOnlyList<User> Search(string searchTerm, Func<User, string?> selector);
-	IReadOnlyList<User> SearchByRole(IReadOnlyList<int> roleId);
+	void Update(User user);
 }

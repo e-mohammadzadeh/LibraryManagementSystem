@@ -1,4 +1,4 @@
-﻿using LibraryManagementSystem.Domain.Enums;
+﻿using LibraryManagementSystem.Infrastructure.Enums;
 
 namespace LibraryManagementSystem.Application.Authorization;
 
@@ -9,25 +9,14 @@ public static class RolePermissionMap
 		[LibraryUserRole.Admin] = [.. Enum.GetValues<Permission>()],
 		[LibraryUserRole.Librarian] =
 		[
-			Permission.AddAuthor,
-			Permission.EditAuthor,
-			Permission.FullSearchAuthor,
-			Permission.FullSortAuthor,
-			Permission.ViewAuthorDetails,
-			Permission.ViewAuthorBooks,
-			Permission.ViewAllAuthors,
-			Permission.ViewAuthorFullDetails,
-
-
-			Permission.AddTranslator,
-			Permission.EditTranslator,
-			Permission.FullSearchTranslator,
-			Permission.FullSortTranslator,
-			Permission.ViewTranslatorDetails,
-			Permission.ViewTranslatorBooks,
-			Permission.ViewAllTranslators,
-			Permission.ViewTranslatorFullDetails,
-
+			Permission.AddContributor,
+			Permission.EditContributor,
+			Permission.FullSearchContributor,
+			Permission.FullSortContributor,
+			Permission.ViewContributorDetails,
+			Permission.ViewAllContributors,
+			Permission.ViewContributorBooks,
+			
 
 			Permission.AddBook,
 			Permission.EditBook,
@@ -40,72 +29,40 @@ public static class RolePermissionMap
 
 			Permission.AddUser,
 			Permission.EditUser,
+			Permission.EditOwnProfile,
 			Permission.SearchUser,
 			Permission.SortUser,
 			Permission.ViewUserDetails,
-			Permission.ViewOwnDetails,
 			Permission.ViewAllUsers,
-			Permission.ChangeOwnPassword,
 			Permission.RenewMemberMembership,
 
-
-			Permission.PayFine,
-			Permission.ViewFines,
-			Permission.ViewFinesByUser,
-			Permission.ViewUnpaidFines,
-			Permission.ViewUnpaidFinesByUser,
-			Permission.ViewFineHistory,
-			Permission.FineHistoryByUser,
-
-			Permission.BorrowBook,
-			Permission.ReturnBook,
-			Permission.RenewLoan,
-			Permission.ViewActiveLoans,
-			Permission.ViewOverdueLoans,
-			Permission.ViewLoanHistory,
-			Permission.MyActiveLoans,
-			Permission.ViewActiveLoansByUser,
-			Permission.ViewActiveLoansByBook,
-			Permission.ViewOverdueLoansByUser,
-			Permission.ViewOverdueLoansByBook,
-			Permission.LoanHistoryByUser,
-			Permission.LoanHistoryByBook,
-			Permission.FullLibraryHistory,
+			Permission.ViewLoan,
+			Permission.ViewLoansByUser,
+			Permission.ViewLoansByBook,
 			Permission.SearchLoans,
+
+
+			Permission.ViewFinesByUser,
+			Permission.ViewAllFines,
+
 
 			Permission.ViewStatistics
 		],
 
 		[LibraryUserRole.Member] =
 		[
-			Permission.SearchAuthorForMember,
-			Permission.SortAuthorForMember,
-			Permission.ViewAuthorBooks,
-			Permission.ViewAllAuthors,
-
-			Permission.SearchTranslatorForMember,
-			Permission.SortTranslatorForMember,
-			Permission.ViewTranslatorBooks,
-			Permission.ViewAllTranslators,
+			Permission.SearchForMember,
+			Permission.ViewContributorBooks,
+			Permission.ViewAllContributors,
 
 			Permission.SearchBook,
-			Permission.SortBookForMember,
 			Permission.ViewAllBooks,
 
-			Permission.PayFine,
-			Permission.ViewFines,
-			Permission.ViewUnpaidFines,
+			Permission.ViewLoan,
 
-			Permission.BorrowBook,
-			Permission.ReturnBook,
-			Permission.RenewLoan,
-			Permission.MyActiveLoans,
-			Permission.MyOverdueLoans,
-			Permission.ViewFineHistory,
-			Permission.MyFullLoanHistory,
+			Permission.ViewFine,
 
-			Permission.ViewOwnDetails,
-			Permission.ChangeOwnPassword,
+			Permission.EditOwnProfile,
 			Permission.AssignMemberRole
 		]
 	};

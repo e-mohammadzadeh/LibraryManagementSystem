@@ -1,11 +1,13 @@
-﻿using LibraryManagementSystem.Application.Authentication;
-using LibraryManagementSystem.Application.Authorization;
-using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.DTOs.Fine;
+﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.DTOs.Fine;
+using LibraryManagementSystem.Infrastructure.Enums;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
+using LibraryManagementSystem.Infrastructure.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
 
@@ -14,78 +16,83 @@ public class FineManagementService : IFineManagementService
 	private readonly IFineRepository _fineRepository;
 	private readonly ILoanRepository _loanRepository;
 	private readonly IUserRepository _userRepository;
+	private readonly IUserManagementService _userService;
 	private readonly IUserAutoRemovalService _userAutoRemovalService;
 	private readonly IAuthorizationService _authorization;
-	private readonly ILoanHistoryManagementService _loanHistoryManagementService;
-	private readonly IFineHistoryManagementService _fineHistoryManagementService;
 	private readonly IAuditLogManagementService _auditLog;
 
 
 	public FineManagementService(IFineRepository fineRepository, ILoanRepository loanRepository,
-		IUserRepository userRepository, IUserAutoRemovalService userAutoRemovalService,
-		IAuthorizationService authorization, ILoanHistoryManagementService loanHistoryManagementService,
-		IFineHistoryManagementService fineHistoryManagementService, IAuditLogManagementService auditLog)
+		IUserRepository userRepository, IUserManagementService userService,
+		IUserAutoRemovalService userAutoRemovalService, IAuthorizationService authorization,
+		IAuditLogManagementService auditLog)
 	{
 		_fineRepository = fineRepository;
 		_loanRepository = loanRepository;
 		_userRepository = userRepository;
+		_userService = userService;
 		_userAutoRemovalService = userAutoRemovalService;
 		_authorization = authorization;
-		_loanHistoryManagementService = loanHistoryManagementService;
-		_fineHistoryManagementService = fineHistoryManagementService;
 		_auditLog = auditLog;
 	}
 
 
-	public ServiceResult<FineDto> CreateFineForLoan(int loanId)
+	public ServiceResult<FineDto> CreateFineForLoan(Guid loanId)
 	{
-		var loan = _loanRepository.FindById(loanId);
+		var loan = _loanRepository.GetById(loanId, LoanFilter.Returned);
 		if (loan is null) return ServiceResult<FineDto>.Fail(Messages.NotLoanMatched);
 
 		if (loan.ReturnDate is null) return ServiceResult<FineDto>.Fail(Messages.LoanNotYetReturned);
 
 		if (loan.ReturnDate <= loan.DueDate) return ServiceResult<FineDto>.Fail(Messages.NoFine);
 
-		var existing = _fineRepository.GetByLoanId(loanId);
+		var existing = _fineRepository.GetByLoanId(loanId, FineFilter.Unpaid);
 		if (existing.Count > 0) return ServiceResult<FineDto>.Fail(Messages.FineAlreadyExists);
 
-		var fine = new Fine(loan);
-		_fineRepository.Add(fine);
-		_fineHistoryManagementService.Record(fine, FineHistoryAction.CreateFine);
+		var fine = new Fine
+		{
+			Loan = loan,
+			LoanId = loanId,
+			UserId = loan.UserId,
+			OverdueDays = loan.ReturnDate.Value.DayNumber - loan.DueDate.DayNumber,
+			Reason = $"Fine is created for book \"{loan.Book.Title}\" (ID: {loan.Book.Id}).",
+			Action = FineHistoryAction.CreateFine
+		};
 
-		var totalUnpaid = _fineRepository.GetTotalUnpaidAmount(loan.UserId);
-		if (fine.Amount >= ValidationConstants.MaxUnpaidFineThreshold ||
+		_fineRepository.Add(fine);
+
+		var totalUnpaid = _fineRepository.GetAmount(loan.UserId, FineFilter.Unpaid);
+		if (fine.Money >= ValidationConstants.MaxUnpaidFineThreshold ||
 		    totalUnpaid >= ValidationConstants.MaxUnpaidFineThreshold)
 		{
-			var user = _userRepository.FindById(loan.UserId);
+			var user = _userRepository.GetById(loan.UserId, EntityFilter.Active);
 			if (user is not null && !user.ShouldRemove)
 			{
-				user.FlagForRemoval();
-				_userRepository.Update(user);
+				_userService.FlagForRemoval(user.Id);
 				return ServiceResult<FineDto>.Warning(fine.ToDto(),
 					string.Format(Messages.UserEligibleForRemoval, user.FirstName, user.LastName));
 			}
 		}
-		_auditLog.Record(AuditAction.FineCreated, "Fine", fine.FineId, "Fine created.");
+
+		_auditLog.Record(AuditAction.FineCreated, "Fine", fine.Id, "Fine created.");
 
 		return ServiceResult<FineDto>.Ok(fine.ToDto(), Messages.FineCreatedSuccessfully);
 	}
 
 
 
-	public ServiceResult<FineDto> PayFine(int fineId, ICurrentUserSession session)
+	public ServiceResult<FineDto> PayFine(Guid fineId, ICurrentUserSession session)
 	{
-		var fine = _fineRepository.FindById(fineId);
+		var fine = _fineRepository.GetById(fineId, FineFilter.Unpaid);
 		if (fine is null) return ServiceResult<FineDto>.Fail(Messages.FineNotFound);
 
-		if (session.IsSelfServiceMember && session.UserId != fine.UserId)
+		if (session.IsSelfServiceMember && session.CurrentUser.Id != fine.UserId)
 			return ServiceResult<FineDto>.Fail(Messages.CanPayOwnFine);
 		try
 		{
-			fine.Pay();
+			Pay(fine);
 			_fineRepository.Update(fine);
-			_loanHistoryManagementService.Record(fine.Loan, LoanHistoryAction.FinePaid);
-			_fineHistoryManagementService.Record(fine, FineHistoryAction.FinePaid);
+			fine.Loan.IsActive = false;
 			_auditLog.Record(AuditAction.FinePaid, "Fine", fineId, "Fine paid.");
 
 			var removalResult = _userAutoRemovalService.TryAutoRemove(fine.UserId);
@@ -100,20 +107,21 @@ public class FineManagementService : IFineManagementService
 	}
 
 
-	public ServiceResult<FineDto> WaiveFine(int fineId)
+	public ServiceResult<FineDto> WaiveFine(Guid fineId)
 	{
 		if (!_authorization.HasPermission(Permission.WaiveFine))
 			return ServiceResult<FineDto>.Fail(Messages.AdminOnlyWaive);
 
-		var fine = _fineRepository.FindById(fineId);
+		var fine = _fineRepository.GetById(fineId, FineFilter.Unpaid);
 		if (fine is null) return ServiceResult<FineDto>.Fail(Messages.FineNotFound);
 
 		try
 		{
-			fine.Waive();
+			Waive(fine);
 			_fineRepository.Update(fine);
-			_loanHistoryManagementService.Record(fine.Loan, LoanHistoryAction.FineWaived);
-			_fineHistoryManagementService.Record(fine, FineHistoryAction.FineWaived);
+
+			Pay(fine);
+			_fineRepository.Update(fine);
 			_auditLog.Record(AuditAction.FineWaived, "Fine", fineId, "Fine waived.");
 
 			var removalResult = _userAutoRemovalService.TryAutoRemove(fine.UserId);
@@ -129,41 +137,43 @@ public class FineManagementService : IFineManagementService
 	}
 
 
-	public IReadOnlyList<FineDto> GetAllUnpaidFines(ICurrentUserSession session)
+	public IReadOnlyList<FineDto> GetAll(ICurrentUserSession session, FineFilter filter)
 	{
 		return session.IsSelfServiceMember
-			? GetUnpaidFinesByUser(session.UserId!.Value)
-			: [.. _fineRepository.GetAllUnpaid().Select(f => f.ToDto())];
+			? GetFinesByUser(session.CurrentUser.Id, filter)
+			: [.. _fineRepository.GetAll(filter).Select(f => f.ToDto())];
 	}
 
 
-	public IReadOnlyList<FineDto> GetFinesByUser(int userId) =>
-		[.. _fineRepository.GetByUserId(userId).Select(fine => fine.ToDto())];
+	public IReadOnlyList<FineDto> GetFinesByUser(Guid userId, FineFilter filter = FineFilter.All) =>
+		[.. _fineRepository.GetByUserId(userId, filter).Select(fine => fine.ToDto())];
 
 
-	public IReadOnlyList<FineDto> GetUnpaidFinesByUser(int userId) =>
-		[.. _fineRepository.GetUnpaidByUserId(userId).Select(fine => fine.ToDto())];
+	public decimal GetTotalUnpaidAmount(Guid userId) => _fineRepository.GetAmount(userId, FineFilter.Unpaid);
 
 
-	public decimal GetTotalUnpaidAmount(int userId) => _fineRepository.GetTotalUnpaidAmount(userId);
-
-	public bool HasUnpaidFines(int userId) => _fineRepository.HasUnpaidFines(userId);
-
-
-	public IReadOnlyList<FineDto> GetFineHistory()
+	private static void Pay(Fine fine)
 	{
-		if (!_authorization.HasPermission(Permission.ViewFineHistory)) return [];
+		switch (fine.Status)
+		{
+			case FineStatus.Paid:
+				throw new InvalidOperationException("Fine is already paid.");
+			case FineStatus.Waived:
+				throw new InvalidOperationException("Fine has been waived.");
+		}
 
-		return [.. _fineRepository.GetHistory().Select(fine => fine.ToDto())];
+		fine.Status = FineStatus.Paid;
+		fine.PaidAt = DateOnly.FromDateTime(DateTime.Today);
+		fine.UpdatedAt = DateTime.Now;
+		fine.Action = FineHistoryAction.FinePaid;
 	}
 
 
-	public IReadOnlyList<FineDto> GetFineHistoryByUser(int userId, ICurrentUserSession session)
+	private static void Waive(Fine fine)
 	{
-		if ((session.IsSelfServiceMember && session.UserId != userId) ||
-		    !_authorization.HasAnyPermission(Permission.FineHistoryByUser, Permission.ViewFineHistory))
-			return [];
-
-		return [.. _fineRepository.GetHistoryByUserId(userId).Select(fine => fine.ToDto())];
+		if (fine.Status == FineStatus.Paid) throw new InvalidOperationException("Cannot waive an already paid fine.");
+		fine.Status = FineStatus.Waived;
+		fine.UpdatedAt = DateTime.Now;
+		fine.Action = FineHistoryAction.FineWaived;
 	}
 }

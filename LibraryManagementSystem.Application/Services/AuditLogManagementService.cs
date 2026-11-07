@@ -1,9 +1,10 @@
-﻿using LibraryManagementSystem.Application.Authentication;
-using LibraryManagementSystem.Application.DTOs.AuditLog;
-using LibraryManagementSystem.Application.Mapping;
+﻿using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
-using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Infrastructure.DTOs.AuditLog;
+using LibraryManagementSystem.Infrastructure.Enums;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
+using LibraryManagementSystem.Infrastructure.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
 
@@ -23,11 +24,16 @@ public class AuditLogManagementService : IAuditLogManagementService
 	}
 
 
-	public void Record(AuditAction action, string entityType, int entityId, string? details = null)
+	public void Record(AuditAction action, string entityType, Guid entityId, string? details = null)
 	{
-		if (!_currentUserSession.IsAuthenticated || !_currentUserSession.UserId.HasValue) return;
-
-		var auditLog = new AuditLog(_currentUserSession.UserId.Value, action, entityType, entityId, details);
+		var auditLog = new AuditLog
+		{
+			PerformedByUserId = details?.Contains("registered") == true ? entityId : _currentUserSession.CurrentUser.Id,
+			Action = action,
+			EntityType = entityType,
+			EntityId = entityId,
+			Details = details
+		};
 		_auditLogRepository.Add(auditLog);
 	}
 
@@ -35,13 +41,13 @@ public class AuditLogManagementService : IAuditLogManagementService
 	public IReadOnlyList<AuditLogDto> GetAll() { return MapToDto(_auditLogRepository.GetAll()); }
 
 
-	public IReadOnlyList<AuditLogDto> GetByPerformedByUserId(int userId)
+	public IReadOnlyList<AuditLogDto> GetByPerformedByUserId(Guid userId)
 	{
 		return MapToDto(_auditLogRepository.GetByPerformedByUserId(userId));
 	}
 
 
-	public IReadOnlyList<AuditLogDto> GetByEntity(string entityType, int entityId)
+	public IReadOnlyList<AuditLogDto> GetByEntity(string entityType, Guid entityId)
 	{
 		return MapToDto(_auditLogRepository.GetByEntity(entityType, entityId));
 	}
@@ -53,8 +59,7 @@ public class AuditLogManagementService : IAuditLogManagementService
 		[
 			.. auditLogs.OrderByDescending(a => a.OccurredAt).Select(auditLog =>
 			{
-				var user = _userRepository.FindById(
-					auditLog.PerformedByUserId);
+				var user = _userRepository.GetById(auditLog.PerformedByUserId, EntityFilter.All);
 
 				var performedByName = user is not null
 					? $"{user.FirstName} {user.LastName}"

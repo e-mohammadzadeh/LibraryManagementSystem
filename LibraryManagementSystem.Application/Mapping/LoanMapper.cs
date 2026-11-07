@@ -1,5 +1,5 @@
-﻿using LibraryManagementSystem.Application.DTOs.Loans;
-using LibraryManagementSystem.Domain.Entities;
+﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Infrastructure.DTOs.Loans;
 
 namespace LibraryManagementSystem.Application.Mapping;
 
@@ -9,10 +9,10 @@ public static class LoanMapper
 	{
 		return new LoanDto
 		{
-			LoanId = loan.LoanId,
-			BookName = loan.Book.BookName,
+			Id = loan.Id,
+			BookName = loan.Book.Title,
 			BookId = loan.BookId,
-			BookISBN = loan.Book.InternationalStandardBookNumber,
+			BookISBN = loan.Book.ISBN,
 			UserName = $"{loan.User.FirstName} {loan.User.LastName}",
 			UserId = loan.UserId,
 			UserNationalCode = loan.User.NationalCode,

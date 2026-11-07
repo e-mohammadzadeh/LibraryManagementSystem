@@ -1,45 +1,18 @@
-﻿namespace LibraryManagementSystem.Domain.Entities;
+﻿using LibraryManagementSystem.Infrastructure.ValueObjects;
+
+namespace LibraryManagementSystem.Domain.Entities;
 
 public abstract class Person
 {
-	protected Person(string firstName, string lastName, string nationalCode, string email, string phoneNumber,
-		DateOnly birthDate)
-	{
-		FirstName = firstName;
-		LastName = lastName;
-		NationalCode = nationalCode;
-		Email = email;
-		PhoneNumber = phoneNumber;
-		BirthDate = birthDate;
-		CreatedAt = DateTime.Now;
-		IsRemoved = false;
-	}
-
-
-	public int Id { get; protected init; }
-	public string FirstName { get; private set; }
-	public string LastName { get; private set; }
-	public string NationalCode { get; private set; }
-	public string Email { get; private set; }
-	public string PhoneNumber { get; private set; }
-	public DateOnly BirthDate { get; private set; }
-	public DateTime CreatedAt { get; }
-	public DateTime? UpdatedAt { get; private set; }
-	public bool IsRemoved { get; protected set; }
-
-
-	protected void MarkAsUpdated() { UpdatedAt = DateTime.Now; }
-
-
-	protected void UpdateCore(string? firstName, string? lastName, string? nationalCode, string? email,
-		string? phoneNumber, DateOnly? birthDate)
-	{
-		MarkAsUpdated();
-		FirstName = firstName ?? FirstName;
-		LastName = lastName ?? LastName;
-		NationalCode = nationalCode ?? NationalCode;
-		Email = email ?? Email;
-		PhoneNumber = phoneNumber ?? PhoneNumber;
-		BirthDate = birthDate ?? BirthDate;
-	}
+	public Guid Id { get; set; }
+	public string FirstName { get; set; } = string.Empty;
+	public string LastName { get; set; } = string.Empty;
+	public string NationalCode { get; set; } = string.Empty;
+	public Email Email { get; set; } = null!;
+	public PhoneNumber PhoneNumber { get; set; } = null!;
+	public DateOnly BirthDate { get; set; }
+	public DateTime CreatedAt { get; set; }
+	public DateTime? UpdatedAt { get; set; }
+	public Guid? UpdatedByUserId { get; set; }
+	public bool IsRemoved { get; set; }
 }

@@ -1,7 +1,8 @@
-﻿using LibraryManagementSystem.Application.Authentication;
-using LibraryManagementSystem.Application.Authorization;
+﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.Interfaces;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
@@ -13,85 +14,81 @@ public static class MainMenu
 		BookManagementService bookManagementService, LoanManagementService loanManagementService,
 		IFineManagementService fineManagementService, AuthenticationService authenticationService,
 		ICurrentUserSession session, IAuthorizationService authorization, LibraryStatisticsService statisticsService,
-		LoanHistoryManagementService loanHistoryManagementService,
-		FineHistoryManagementService fineHistoryManagementService, IAuditLogManagementService auditLogManagementService)
+		IAuditLogManagementService auditLogManagementService, RoleManagementService roleManagementService,
+		IMenuService menuService)
 	{
 		while (true)
 		{
-			if (!session.IsAuthenticated)
-			{
-				ConsoleHelper.ShowError(Messages.SessionExpired);
-				ConsoleHelper.Pause();
-				return MainMenuResult.Logout;
-			}
-
 			Console.Clear();
 			if (authorization.CanAccessStatistics())
 				MenuHelper.Print(statisticsService.GetLibraryStatistics(session), session.CurrentUser);
 			else
 				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
-			switch (MainMenuList(authorization))
+			switch (MainMenuList(menuService))
 			{
-				case 1:
+				case "authors":
 				{
 					Console.Clear();
-					AuthorMenu.AuthorMenuController(authorManagementService, statisticsService, session, authorization);
+					AuthorMenu.AuthorMenuController(authorManagementService, statisticsService, session, authorization,
+						menuService);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 2:
+				case "translators":
 				{
 					Console.Clear();
 					TranslatorMenu.TranslatorMenuController(translatorManagementService, statisticsService, session,
-						authorization);
+						authorization, menuService);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 3:
+				case "books":
 				{
 					Console.Clear();
 					BookMenu.BookMenuController(authorManagementService, translatorManagementService,
-						bookManagementService, loanManagementService, statisticsService, session, authorization);
+						bookManagementService, loanManagementService, statisticsService, session, authorization,
+						menuService);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 4:
+				case "users":
 				{
 					Console.Clear();
-					UserMenu.UserMenuController(userManagementService, statisticsService, session, authorization);
+					UserMenu.UserMenuController(userManagementService, roleManagementService, statisticsService,
+						session, authorization, menuService);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 5:
+				case "loans":
 				{
 					Console.Clear();
-					LoanMenu.LoanMenuController(loanManagementService, userManagementService, bookManagementService,
-						statisticsService, session, authorization, loanHistoryManagementService);
+					LoanMenu.LoanMenuController(loanManagementService, menuService, userManagementService,
+						bookManagementService, statisticsService, session, authorization);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 6:
+				case "fines":
 				{
 					Console.Clear();
 					FineMenu.FineMenuController(fineManagementService, userManagementService, session,
-						statisticsService, authorization, fineHistoryManagementService);
+						statisticsService, authorization, menuService);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 7:
+				case "auditLog":
 				{
 					Console.Clear();
-					AuditLogMenu.AuditLogMenuController(auditLogManagementService, authorization, session,
+					AuditLogMenu.AuditLogMenuController(auditLogManagementService, menuService, authorization, session,
 						statisticsService);
 					ConsoleHelper.Pause();
 					break;
 				}
-				case 8:
+				case "logout":
 				{
 					ConsoleHelper.ShowResult(authenticationService.Logout());
 					return MainMenuResult.Logout;
 				}
-				case 9:
+				case "exit":
 				{
 					ConsoleHelper.ShowInfo(Messages.ExitingProgram);
 					return MainMenuResult.Exit;
@@ -101,29 +98,9 @@ public static class MainMenu
 	}
 
 
-	private static int MainMenuList(IAuthorizationService authorization)
+	private static string? MainMenuList(IMenuService menuService)
 	{
-		var items = new List<(int ActionId, string DisplayText, bool IsAvailable)>
-		{
-			(1, "Authors", authorization.CanAccessAuthorManagement()),
-			(2, "Translators", authorization.CanAccessTranslatorManagement()),
-			(3, "Books", authorization.CanAccessBookManagement()),
-			(4, "Members", authorization.CanAccessUserManagement()),
-			(5, "Loans", authorization.CanAccessLoanManagement()),
-			(6, "Fines", authorization.CanAccessFineManagement()),
-			(7, "Audit Log", authorization.CanAccessAuditLogManagement()),
-			(8, "Logout", true),
-			(9, "Exit Application", true)
-		};
-
-		var availableItems = items.Where(i => i.IsAvailable).ToList();
-
-		Console.WriteLine(new string('=', 36) + " MAIN MENU " + new string('=', 36));
-		var displayNumber = 1;
-		foreach (var (_, displayText, _) in availableItems) Console.WriteLine($"{displayNumber++}. {displayText}");
-
-		Console.WriteLine(new string('=', 82));
-		var choice = ConsoleHelper.ReadInt(Messages.MainMenuQuestion, 1, availableItems.Count, false);
-		return availableItems[choice!.Value - 1].ActionId;
+		var items = menuService.GetChildren("main");
+		return MenuHelper.DisplayMenu("MAIN MENU", items);
 	}
 }

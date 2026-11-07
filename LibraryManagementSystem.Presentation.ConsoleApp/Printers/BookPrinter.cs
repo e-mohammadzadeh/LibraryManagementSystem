@@ -1,50 +1,58 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
-using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.DTOs.Books;
-using LibraryManagementSystem.Application.DTOs.Loans;
-using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.DTOs.Books;
+using LibraryManagementSystem.Infrastructure.DTOs.Loans;
+using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
 public static class BookPrinter
 {
-	public static void PrintDetails(BookDto book)
+	public static void PrintDetails(BookDto details)
 	{
 		ConsoleHelper.ClearConsole();
+		var authorNames = details.Authors.Count == 0
+			? ["—"]
+			: details.Authors.Select(a => $"{a.FirstName} {a.LastName}").ToArray();
 
-		// One name/email per line when there are many (wraps cleanly in the value column)
-		var authorNames = book.Authors.Count == 0 ? ["—"] : book.Authors.Select(a => a.FullName).ToArray();
-		var authorEmails = book.Authors.Count == 0 ? ["—"] : book.Authors.Select(a => a.Email).ToArray();
-		var translatorNames = book.Translators.Count == 0 ? ["—"] : book.Translators.Select(t => t.FullName).ToArray();
-		var translatorEmails = book.Translators.Count == 0 ? ["—"] : book.Translators.Select(t => t.Email).ToArray();
+		var authorEmails = details.Authors.Count == 0
+			? ["—"]
+			: details.Authors.Select(a => a.Email.ToString()).ToArray();
 
+		var translatorNames = details.Translators.Count == 0
+			? ["—"]
+			: details.Translators.Select(t => $"{t.FirstName} {t.LastName}").ToArray();
+
+		var translatorEmails = details.Translators.Count == 0
+			? ["—"]
+			: details.Translators.Select(t => t.Email.ToString()).ToArray();
 		var rows = new List<(string Label, string[] ValueLines)>
 		{
-			("Name", [book.BookName]),
-			("ISBN", [book.ISBN]),
+			("Title", [details.Title]),
+			("ISBN", [details.ISBN]),
 			("Author(s)", authorNames),
 			("Author Email(s)", authorEmails),
 			("Translator(s)", translatorNames),
 			("Translator Email(s)", translatorEmails),
-			("Publication Date", [book.PublishDate.ToString("yyyy-MM-dd")]),
-			("Genre", [book.Genre]),
-			("Publisher", [book.Publisher]),
-			("Total Copies", [book.TotalCopies.ToString()]),
-			("Available Copies", [book.AvailableCopies.ToString()]),
-			("Description", string.IsNullOrWhiteSpace(book.Description) ? ["—"] : book.Description.Split('\n')),
-			("Created At", [book.CreatedAt.ToString("yyyy-MM-dd HH:mm")]),
-			("Updated At", [book.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "N/A"]),
+			("Publication Date", [details.PublishDate.ToString("yyyy-MM-dd")]),
+			("Genre", [details.Genre.ToString()]),
+			("Publisher", [details.Publisher]),
+			("Total Copies", [details.TotalCopies.ToString()]),
+			("Available Copies", [details.AvailableCopies.ToString()]),
+			("Description", string.IsNullOrWhiteSpace(details.Description) ? ["—"] : details.Description.Split('\n')),
+			("Created At", [details.CreatedAt.ToString("yyyy-MM-dd HH:mm")]),
+			("Updated At", [details.UpdatedAt.ToString("yyyy-MM-dd HH:mm")]),
 		};
 
 		ConsoleTable.PrintKeyValueTable("Book Details", rows, labelWidth: 22, valueWidth: 55);
 	}
 
 
-	public static void PrintTable(IReadOnlyList<BookDto> books, IAuthorizationService? authorization = null,
+	public static void PrintTable(IReadOnlyList<BookDto> details, IAuthorizationService? authorization = null,
 		string title = "Book List")
 	{
-		if (books.Count == 0)
+		if (details.Count == 0)
 		{
 			ConsoleHelper.ShowError(Messages.NotAvailableBook);
 			return;
@@ -58,49 +66,50 @@ public static class BookPrinter
 
 		var headers = new[]
 		{
-			"ID", "Book Name", "ISBN", "Author(s)", "Translator(s)", "Genre", "Publish Date", "Description", "Publisher",
+			"#", "Book Name", "ISBN", "Author(s)", "Translator(s)", "Genre", "Publish Date", "Description",
+			"Publisher",
 			"Availability"
 		};
 
-		var rows = books.Select(book =>
+		var rows = details.Select((item, index) =>
 		{
-			var authors = book.Authors.Count > 0
-				? book.Authors.Select(a => a.FullName).ToArray()
+			var authors = item.Authors.Count > 0
+				? item.Authors.Select(a => $"{a.FirstName} {a.LastName}").ToArray()
 				: ["—"];
 
-			var translators = book.Translators.Count > 0
-				? book.Translators.Select(t => t.FullName).ToArray()
+			var translators = item.Translators.Count > 0
+				? item.Translators.Select(t => $"{t.FirstName} {t.LastName}").ToArray()
 				: ["—"];
 
-			var description = string.IsNullOrWhiteSpace(book.Description)
+			var description = string.IsNullOrWhiteSpace(item.Description)
 				? ["—"]
-				: ConsoleTable.WrapText(book.Description, ValidationConstants.DescriptionWrapWidthInTable);
+				: ConsoleTable.WrapText(item.Description, ValidationConstants.DescriptionWrapWidthInTable);
 
-			var publisher = string.IsNullOrWhiteSpace(book.Publisher)
+			var publisher = string.IsNullOrWhiteSpace(item.Publisher)
 				? ["-"]
-				: ConsoleTable.WrapText(book.Publisher, ValidationConstants.DescriptionWrapWidthInTable);
+				: ConsoleTable.WrapText(item.Publisher, ValidationConstants.DescriptionWrapWidthInTable);
 
 			var availability = showExactCopies
-				? [$"{book.AvailableCopies}/{book.TotalCopies}"]
-				: new[] { book.AvailableCopies > 0 ? "Available" : "Not available" };
+				? [$"{item.AvailableCopies}/{item.TotalCopies}"]
+				: new[] { item.AvailableCopies > 0 ? "Available" : "Not available" };
 
-			var bookName = ConsoleTable.WrapText(book.BookName, ValidationConstants.BookNameWrapWidthInTable);
+			var bookName = ConsoleTable.WrapText(item.Title, ValidationConstants.BookNameWrapWidthInTable);
 
 			return new[]
 			{
-				[book.BookId.ToString()],
+				[(index + 1).ToString()],
 				bookName,
-				[book.ISBN],
+				[item.ISBN],
 				authors,
 				translators,
-				[book.Genre.ToString()],
-				[book.PublishDate.ToString("yyyy-MM-dd")],
+				[item.Genre.ToString()],
+				[item.PublishDate.ToString("yyyy-MM-dd")],
 				description,
 				publisher,
 				availability
 			};
 		}).ToList();
-		
+
 		ConsoleTable.PrintTable(title, headers, rows);
 	}
 

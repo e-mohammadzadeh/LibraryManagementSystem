@@ -1,11 +1,16 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
-using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.DTOs.Authors;
-using LibraryManagementSystem.Application.DTOs.Books;
-using LibraryManagementSystem.Application.DTOs.Library;
-using LibraryManagementSystem.Application.DTOs.Translators;
-using LibraryManagementSystem.Application.DTOs.Users;
-using LibraryManagementSystem.Domain.Enums;
+using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.DTOs;
+using LibraryManagementSystem.Infrastructure.DTOs.Books;
+using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
+using LibraryManagementSystem.Infrastructure.DTOs.Library;
+using LibraryManagementSystem.Infrastructure.DTOs.Loans;
+using LibraryManagementSystem.Infrastructure.DTOs.Users;
+using LibraryManagementSystem.Infrastructure.Enums;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
+using LibraryManagementSystem.Infrastructure.Enums.Sort;
+using LibraryManagementSystem.Infrastructure.Interfaces;
 using LibraryManagementSystem.Presentation.ConsoleApp.Printers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
@@ -18,7 +23,7 @@ public static class MenuHelper
 		{
 			Console.ForegroundColor = ConsoleColor.Cyan;
 			Console.WriteLine(
-				$"Logged in as: {currentUser.FullName} ({currentUser.Email} - {string.Join(", ", currentUser.Roles)})");
+				$"Logged in as: {currentUser.FullName} ({currentUser.Email} - {currentUser.RoleName})");
 			Console.ResetColor();
 			Console.WriteLine();
 		}
@@ -41,13 +46,14 @@ public static class MenuHelper
 	{
 		if (currentUser is null) return;
 		Console.ForegroundColor = ConsoleColor.Cyan;
-		Console.WriteLine($"Logged in as: {currentUser.FullName} ({string.Join(", ", currentUser.Roles)})");
+		Console.WriteLine($"Logged in as: {currentUser.FullName} ({currentUser.RoleName})");
 		Console.ResetColor();
 		Console.WriteLine();
 	}
 
 
-	public static AuthorDto? SelectAuthor(IReadOnlyList<AuthorDto> authorsList, IAuthorizationService authorization)
+	public static ContributorDto? SelectAuthor(IReadOnlyList<ContributorDto> authorsList,
+		IAuthorizationService authorization)
 	{
 		if (authorsList.Count == 0)
 		{
@@ -55,29 +61,23 @@ public static class MenuHelper
 			return null;
 		}
 
-		Action<IReadOnlyList<AuthorDto>> printer =
-			authorization.HasPermission(Permission.ViewAuthorFullDetails)
-				? author => AuthorPrinter.PrintFullTable(author)
-				: author => AuthorPrinter.PrintTable(author);
+		Action<IReadOnlyList<ContributorDto>> printer =
+			authorization.HasPermission(Permission.ViewContributorDetails)
+				? author => ContributorPrinter.PrintFullTable(author)
+				: author => ContributorPrinter.PrintTable(author);
 		while (true)
 		{
 			printer(authorsList);
 			// TODO	Max parameter has some logical issues when authors are removed and new authors are added.
-			var desiredAuthorId = ConsoleHelper.ReadInt("Enter the number of the author you wish", 1,
-				authorsList.Max(a => a.Id));
-
-			if (desiredAuthorId is null) return null;
-
-			var desiredAuthor = authorsList.FirstOrDefault(a => a.Id == desiredAuthorId.Value);
-			if (desiredAuthor != null) return desiredAuthor;
-
-			ConsoleHelper.ShowError(Messages.AuthorNotFound);
+			var desiredAuthorId =
+				ConsoleHelper.ReadInt("Enter the number of the author you wish", 1, authorsList.Count);
+			return desiredAuthorId is null ? null : authorsList[desiredAuthorId.Value - 1];
 		}
 	}
 
 
 
-	public static TranslatorDto? SelectTranslator(IReadOnlyList<TranslatorDto> translatorsList,
+	public static ContributorDto? SelectTranslator(IReadOnlyList<ContributorDto> translatorsList,
 		IAuthorizationService authorization)
 	{
 		if (translatorsList.Count == 0)
@@ -86,24 +86,18 @@ public static class MenuHelper
 			return null;
 		}
 
-		Action<IReadOnlyList<TranslatorDto>> printer =
-			authorization.HasAnyPermission(Permission.ViewTranslatorDetails, Permission.ViewAllTranslators)
-				? translator => TranslatorPrinter.PrintFullTable(translator)
-				: translator => TranslatorPrinter.PrintTable(translator);
+		Action<IReadOnlyList<ContributorDto>> printer =
+			authorization.HasAnyPermission(Permission.ViewContributorDetails, Permission.ViewAllContributors)
+				? translator => ContributorPrinter.PrintFullTable(translator)
+				: translator => ContributorPrinter.PrintTable(translator);
 
 		while (true)
 		{
 			printer(translatorsList);
 			// TODO	Max parameter has some logical issues when authors are removed and new authors are added.
 			var desiredTranslatorId =
-				ConsoleHelper.ReadInt(Messages.SelectTranslatorQuestion, 1, translatorsList.Max(t => t.Id));
-
-			if (desiredTranslatorId is null) return null;
-
-			var desiredTranslator = translatorsList.FirstOrDefault(t => t.Id == desiredTranslatorId.Value);
-			if (desiredTranslator != null) return desiredTranslator;
-
-			ConsoleHelper.ShowError(Messages.TranslatorNotFound);
+				ConsoleHelper.ReadInt(Messages.SelectTranslatorQuestion, 1, translatorsList.Count);
+			return desiredTranslatorId is null ? null : translatorsList[desiredTranslatorId.Value - 1];
 		}
 	}
 
@@ -119,14 +113,9 @@ public static class MenuHelper
 		while (true)
 		{
 			BookPrinter.PrintTable(booksList, authorization: null, title);
-			var desiredBookId = ConsoleHelper.ReadInt(Messages.SelectBookQuestion, 1, booksList.Max(b => b.BookId));
+			var desiredId = ConsoleHelper.ReadInt(Messages.SelectBookQuestion, 1, booksList.Count);
 
-			if (desiredBookId is null) return null;
-
-			var desiredBook = booksList.FirstOrDefault(b => b.BookId == desiredBookId.Value);
-			if (desiredBook != null) return desiredBook;
-
-			ConsoleHelper.ShowError(Messages.BookNotFound);
+			return desiredId is null ? null : booksList[desiredId.Value - 1];
 		}
 	}
 
@@ -143,14 +132,9 @@ public static class MenuHelper
 		{
 			printer(usersList);
 			// TODO	Max parameter has some logical issues when authors are removed and new authors are added.
-			var desiredMemberId = ConsoleHelper.ReadInt(Messages.SelectMemberQuestion, 1, usersList.Max(u => u.Id));
+			var desiredId = ConsoleHelper.ReadInt(Messages.SelectMemberQuestion, 1, usersList.Count);
 
-			if (desiredMemberId is null) return null;
-
-			var desiredMember = usersList.FirstOrDefault(m => m.Id == desiredMemberId.Value);
-			if (desiredMember != null) return desiredMember;
-
-			ConsoleHelper.ShowError(Messages.UserNotFound);
+			return desiredId is null ? null : usersList[desiredId.Value - 1];
 		}
 	}
 
@@ -161,5 +145,133 @@ public static class MenuHelper
 		if (items.Count != 0) return selectFn(items);
 		ConsoleHelper.ShowWarning(emptyMessage);
 		return null;
+	}
+
+
+	public static string? DisplayMenu(string title, IReadOnlyList<MenuOptionDto> items)
+	{
+		if (items.Count == 0) return null;
+
+		Console.WriteLine(new string('=', 33) + $" {title} " + new string('=', 33));
+
+		for (var i = 0; i < items.Count; i++) Console.WriteLine($"{i + 1}. {items[i].Label}");
+
+		Console.WriteLine(new string('=', 82));
+
+		var choice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, items.Count);
+
+		return choice is null ? null : items[choice.Value - 1].Id;
+	}
+
+
+	public static LoanDto? SelectActiveLoan(LoanManagementService loanManagementService,
+		UserManagementService userManagementService, ICurrentUserSession session, string purpose)
+	{
+		Guid userId;
+		if (session.IsSelfServiceMember)
+			userId = session.CurrentUser.Id;
+		else
+		{
+			var user = SelectUser(userManagementService.GetAllUsers(),
+				users => UserPrinter.PrintTable(users));
+			if (user is null)
+			{
+				ConsoleHelper.ShowWarning(Messages.UserNotFound);
+				return null;
+			}
+
+			userId = user.Id;
+		}
+
+		var loans = loanManagementService.GetLoansByUser(userId, session, LoanFilter.Active);
+		if (loans.Count == 0)
+		{
+			ConsoleHelper.ShowWarning(Messages.UserHasNoBorrowedBooks);
+			return null;
+		}
+
+		Console.Clear();
+		LoanPrinter.PrintTable(loans);
+		var selection = ConsoleHelper.ReadInt($"Enter loan id to {purpose}", 1, loans.Count);
+		return selection is null ? null : loans[selection.Value - 1];
+	}
+
+
+	public static void SortByMenu<TField, TItem>(IMenuService menuService, string sortMenuId, string menuTitle,
+		TryMapSortField<TField> mapField, Func<TField, SortDirection, IReadOnlyList<TItem>> loadSorted,
+		Action<IReadOnlyList<TItem>, string> display, string emptyMessage, string entityNameForCancel,
+		string? backMenuId = null) where TField : struct where TItem : class
+	{
+		while (true)
+		{
+			Console.Clear();
+
+			var selectedId = MenuHelper.DisplayMenu(menuTitle, menuService.GetChildren(sortMenuId));
+			if (selectedId is null) return;
+			if (IsBack(selectedId, backMenuId, sortMenuId))
+			{
+				ConsoleHelper.ShowInfo(string.Format(Messages.SortCancelled, entityNameForCancel));
+				return;
+			}
+
+			if (!mapField(selectedId, out var field))
+			{
+				ConsoleHelper.ShowError(Messages.InvalidMenuChoice);
+				ConsoleHelper.Pause();
+				continue;
+			}
+
+			var direction = SelectSortDirection();
+			if (direction is null) continue;
+
+			var items = loadSorted(field, direction.Value);
+			if (items.Count == 0)
+			{
+				ConsoleHelper.ShowWarning(emptyMessage);
+				ConsoleHelper.Pause();
+				continue;
+			}
+
+			var description = $"{field} ({direction})";
+			display(items, description);
+			ConsoleHelper.Pause();
+		}
+	}
+
+
+	public delegate bool TryMapSortField<TField>(string menuId, out TField field) where TField : struct;
+
+
+	private static bool IsBack(string selectedId, string? backMenuId, string sortMenuId)
+	{
+		if (backMenuId is not null && selectedId.Equals(backMenuId, StringComparison.OrdinalIgnoreCase)) return true;
+		if (selectedId.Equals($"{sortMenuId}.back", StringComparison.OrdinalIgnoreCase)) return true;
+		if (selectedId.EndsWith(".back", StringComparison.OrdinalIgnoreCase)) return true;
+
+		return false;
+	}
+
+
+	private static SortDirection? SelectSortDirection()
+	{
+		var headers = new[] { "#", "Direction" };
+		var rows = new List<string[][]>
+		{
+			new string[][] { ["1"], ["Ascending"] },
+			new string[][] { ["2"], ["Descending"] },
+			new string[][] { ["3"], ["Back"] }
+		};
+
+		ConsoleTable.PrintTable("Sort Direction", headers, rows);
+
+		var choice = ConsoleHelper.ReadInt(Messages.SortDirectionQuestion, 1, 3);
+		if (choice is null) return null;
+
+		return choice.Value switch
+		{
+			1 => SortDirection.Ascending,
+			2 => SortDirection.Descending,
+			_ => null
+		};
 	}
 }

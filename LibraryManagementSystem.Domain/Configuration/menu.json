@@ -1,0 +1,939 @@
+{
+	"title": "Library Management System",
+	"items": [
+		{
+			"id": "main",
+			"label": "Main",
+			"children": [
+				{
+					"id": "authors",
+					"label": "Authors",
+					"children": [
+						{
+							"id": "authors.add",
+							"label": "Add Author",
+							"permissions": [ "AddContributor" ]
+						},
+						{
+							"id": "authors.edit",
+							"label": "Edit Author",
+							"permissions": [ "EditContributor" ],
+							"children": [
+								{
+									"id": "authors.edit.firstname",
+									"label": "First Name"
+								},
+								{
+									"id": "authors.edit.lastname",
+									"label": "Last Name"
+								},
+								{
+									"id": "authors.edit.national-code",
+									"label": "National Code"
+								},
+								{
+									"id": "authors.edit.email",
+									"label": "Email"
+								},
+								{
+									"id": "authors.edit.phone-number",
+									"label": "Phone Number"
+								},
+								{
+									"id": "authors.edit.birthdate",
+									"label": "Birth Date"
+								},
+								{
+									"id": "authors.edit.biography",
+									"label": "Biography"
+								},
+								{
+									"id": "authors.edit.back",
+									"label": "Back"
+								}
+							]
+						},
+						{
+							"id": "authors.remove",
+							"label": "Remove Author",
+							"permissions": [ "RemoveContributor" ]
+						},
+						{
+							"id": "authors.search",
+							"label": "Search Author",
+							"children": [
+								{
+									"id": "authors.search.name",
+									"label": "Name"
+								},
+								{
+									"id": "authors.search.national-code",
+									"label": "National Code",
+									"permissions": [ "FullSearchContributor" ]
+								},
+								{
+									"id": "authors.search.email",
+									"label": "Email"
+								},
+								{
+									"id": "authors.search.phone-number",
+									"label": "Phone Number",
+									"permissions": [ "FullSearchContributor" ]
+								},
+								{
+									"id": "authors.search.back",
+									"label": "Back"
+								}
+							]
+						},
+						{
+							"id": "authors.sort",
+							"label": "Sort Authors",
+							"children": [
+								{
+									"id": "authors.sort.firstname",
+									"label": "First Name"
+								},
+								{
+									"id": "authors.sort.lastname",
+									"label": "Last Name"
+								},
+								{
+									"id": "authors.sort.fullname",
+									"label": "Full Name"
+								},
+								{
+									"id": "authors.sort.email",
+									"label": "Email"
+								},
+								{
+									"id": "authors.sort.national-code",
+									"label": "National Code",
+									"permissions": [ "FullSortContributor" ]
+								},
+								{
+									"id": "authors.sort.birthdate",
+									"label": "Birth Date",
+									"permissions": [ "FullSortContributor" ]
+								},
+								{
+									"id": "authors.sort.book-count",
+									"label": "Book Count",
+									"permissions": [ "FullSortContributor" ]
+								},
+								{
+									"id": "authors.sort.back",
+									"label": "Back"
+								}
+							]
+						},
+						{
+							"id": "authors.view",
+							"label": "View Authors",
+							"children": [
+								{
+									"id": "authors.view.author-details",
+									"label": "View Author Details",
+									"permissions": [ "ViewContributorDetails" ]
+								},
+								{
+									"id": "authors.view.author-books",
+									"label": "View Author's Books"
+								},
+								{
+									"id": "authors.view.all-authors",
+									"label": "View All Authors"
+								},
+								{
+									"id": "authors.view.removed-authors",
+									"label": "View Removed Authors",
+									"permissions": [ "ViewRemovedContributors" ]
+								},
+								{
+									"id": "authors.view.back",
+									"label": "Back"
+								}
+							]
+						},
+						{
+							"id": "authors.back",
+							"label": "Back"
+						}
+					]
+				},
+				{
+					"id": "translators",
+					"label": "Translators",
+					"children": [
+						{
+							"id": "translators.add",
+							"label": "Add Translator",
+							"permissions": [ "AddContributor" ]
+						},
+						{
+							"id": "translators.edit",
+							"label": "Edit Translator",
+							"permissions": [ "EditContributor" ],
+							"children": [
+								{
+									"id": "translators.edit.firstname",
+									"label": "First Name"
+								},
+								{
+									"id": "translators.edit.lastname",
+									"label": "Last Name"
+								},
+								{
+									"id": "translators.edit.national-code",
+									"label": "National Code"
+								},
+								{
+									"id": "translators.edit.email",
+									"label": "Email"
+								},
+								{
+									"id": "translators.edit.phone-number",
+									"label": "Phone Number"
+								},
+								{
+									"id": "translators.edit.birthdate",
+									"label": "Birth Date"
+								},
+								{
+									"id": "translators.edit.biography",
+									"label": "Biography"
+								},
+								{
+									"id": "translators.edit.back",
+									"label": "Back"
+								}
+							]
+						},
+						{
+							"id": "translators.remove",
+							"label": "Remove Translator",
+							"permissions": [ "RemoveContributor" ]
+						},
+						{
+							"id": "translators.search",
+							"label": "Search Translator",
+							"children": [
+								{
+									"id": "translators.search.name",
+									"label": "Name"
+								},
+								{
+									"id": "translators.search.national-code",
+									"label": "National Code",
+									"permissions": [ "FullSearchContributor" ]
+								},
+								{
+									"id": "translators.search.email",
+									"label": "Email"
+								},
+								{
+									"id": "translators.search.phone-number",
+									"label": "Phone Number",
+									"permissions": [ "FullSearchContributor" ]
+								},
+								{
+									"id": "translators.search.back",
+									"label": "Back"
+								}
+							]
+						},
+						{
+							"id": "translators.sort",
+							"label": "Sort Translators",
+							"children": [
+								{
+									"id": "translators.sort.firstname",
+									"label": "First Name"
+								},
+								{
+									"id": "translators.sort.lastname",
+									"label": "Last Name"
+								},
+								{
+									"id": "translators.sort.fullname",
+									"label": "Full Name"
+								},
+								{
+									"id": "translators.sort.email",
+									"label": "Email"
+								},
+								{
+									"id": "translators.sort.national-code",
+									"label": "National Code",
+									"permissions": [ "FullSortContributor" ]
+								},
+								{
+									"id": "translators.sort.birthdate",
+									"label": "Birth Date",
+									"permissions": [ "FullSortContributor" ]
+								},
+								{
+									"id": "translators.sort.bookcount",
+									"label": "Book Count",
+									"permissions": [ "FullSortContributor" ]
+								}
+							]
+						},
+						{
+							"id": "translators.view",
+							"label": "View Translators",
+							"children": [
+								{
+									"id": "translators.view.translator-details",
+									"label": "View Translators Details",
+									"permissions": [ "ViewContributorDetails" ]
+								},
+								{
+									"id": "translators.view.translator-books",
+									"label": "View Translator's Books"
+								},
+								{
+									"id": "translators.view.all-translators",
+									"label": "View All Translators"
+								},
+								{
+									"id": "translators.view.removed-translators",
+									"label": "View Removed Translators",
+									"permissions": [ "ViewRemovedContributors" ]
+								},
+								{
+									"id": "translators.view.back",
+									"label": "Back"
+								}
+							]
+						},
+						{
+							"id": "translators.back",
+							"label": "Back"
+						}
+					]
+				},
+				{
+					"id": "books",
+					"label": "Books",
+					"children": [
+						{
+							"id": "books.add",
+							"label": "Add Book",
+							"permissions": [ "AddBook" ]
+						},
+						{
+							"id": "books.edit",
+							"label": "Edit Book",
+							"permissions": [ "EditBook" ],
+							"children": [
+								{
+									"id": "books.edit.title",
+									"label": "Title"
+								},
+								{
+									"id": "books.edit.isbn",
+									"label": "ISBN"
+								},
+								{
+									"id": "books.edit.authors",
+									"label": "Author",
+									"children": [
+										{
+											"id": "books.edit.authors.add",
+											"label": "Add an author"
+										},
+										{
+											"id": "books.edit.authors.remove",
+											"label": "Remove an author"
+										},
+										{
+											"id": "books.edit.authors.replace",
+											"label": "Replace all authors"
+										},
+										{
+											"id": "books.edit.authors.back",
+											"label": "Back"
+										}
+									]
+								},
+								{
+									"id": "books.edit.translator",
+									"label": "Translator",
+									"children": [
+										{
+											"id": "books.edit.translator.add",
+											"label": "Add a translator"
+										},
+										{
+											"id": "books.edit.translator.remove-one",
+											"label": "Remove a translator"
+										},
+										{
+											"id": "books.edit.translator.replace",
+											"label": "Replace all translators"
+										},
+										{
+											"id": "books.edit.translator.remove-all",
+											"label": "Remove all translators"
+										},
+										{
+											"id": "books.edit.translator.back",
+											"label": "Back"
+										}
+									]
+								},
+								{
+									"id": "books.edit.publish-date",
+									"label": "Publish Date"
+								},
+								{
+									"id": "books.edit.total-copies",
+									"label": "Total Copies"
+								},
+								{
+									"id": "books.edit.genre",
+									"label": "Genre"
+								},
+								{
+									"id": "books.edit.publisher",
+									"label": "Publisher"
+								},
+								{
+									"id": "books.edit.description",
+									"label": "Description"
+								},
+								{
+									"id": "books.edit.back",
+									"label": "Back"
+								}
+							]
+						},
+						{
+							"id": "books.remove",
+							"label": "Remove Book",
+							"permissions": [ "RemoveBook" ]
+						},
+						{
+							"id": "books.search",
+							"label": "Search Book",
+							"children": [
+								{
+									"id": "books.search.title",
+									"label": "Title"
+								},
+								{
+									"id": "books.search.isbn",
+									"label": "ISBN"
+								},
+								{
+									"id": "books.search.author",
+									"label": "Author"
+								},
+								{
+									"id": "books.search.translator",
+									"label": "Translator"
+								},
+								{
+									"id": "books.search.publish-date",
+									"label": "Publish Date",
+									"children": [
+										{
+											"id": "books.search.publish-date.exact",
+											"label": "Exact date"
+										},
+										{
+											"id": "books.search.publish-date.before",
+											"label": "Before date"
+										},
+										{
+											"id": "books.search.publish-date.after",
+											"label": "After date"
+										},
+										{
+											"id": "books.search.publish-date.date-range",
+											"label": "Date range"
+										},
+										{
+											"id": "books.search.publish-date.back",
+											"label": "Back"
+										}
+									]
+								},
+								{
+									"id": "books.search.genre",
+									"label": "Genre"
+								},
+								{
+									"id": "books.search.publisher",
+									"label": "Publisher"
+								},
+								{
+									"id": "books.search.back",
+									"label": "Back"
+								}
+							]
+						},
+						{
+							"id": "books.sort",
+							"label": "Sort Book",
+							"children": [
+								{
+									"id": "books.sort.title",
+									"label": "Title"
+								},
+								{
+									"id": "books.sort.isbn",
+									"label": "ISBN"
+								},
+								{
+									"id": "books.sort.author",
+									"label": "Author"
+								},
+								{
+									"id": "books.sort.translator",
+									"label": "Translator"
+								},
+								{
+									"id": "books.sort.publish-date",
+									"label": "Publish Date"
+								},
+								{
+									"id": "books.sort.genre",
+									"label": "Genre"
+								},
+								{
+									"id": "books.sort.publisher",
+									"label": "Publisher"
+								},
+								{
+									"id": "books.sort.availablecopies",
+									"label": "Available Copies",
+									"permissions": [ "FullSortBook" ]
+								}
+							]
+						},
+						{
+							"id": "books.view",
+							"label": "View Book",
+							"children": [
+								{
+									"id": "books.view.book-details",
+									"label": "View Book Details",
+									"permissions": [ "ViewBookDetails" ]
+								},
+								{
+									"id": "books.view.all-books",
+									"label": "View All Books"
+								},
+								{
+									"id": "books.view.removed-books",
+									"label": "View Removed Books",
+									"permissions": [ "ViewRemovedBooks" ]
+								},
+								{
+									"id": "books.view.back",
+									"label": "Back"
+								}
+							]
+						},
+						{
+							"id": "books.back",
+							"label": "Back"
+						}
+					]
+				},
+				{
+					"id": "users",
+					"label": "Users",
+					"children": [
+						{
+							"id": "users.register",
+							"label": "Register User",
+							"permissions": [ "AddUser" ]
+						},
+						{
+							"id": "users.edit",
+							"label": "Edit User",
+							"children": [
+								{
+									"id": "users.edit.firstname",
+									"label": "First Name"
+								},
+								{
+									"id": "users.edit.lastname",
+									"label": "Last Name"
+								},
+								{
+									"id": "users.edit.national-code",
+									"label": "National Code"
+								},
+								{
+									"id": "users.edit.email",
+									"label": "Email",
+									"permissions": [ "EditUser" ]
+								},
+								{
+									"id": "users.edit.phone-number",
+									"label": "Phone Number"
+								},
+								{
+									"id": "users.edit.birthdate",
+									"label": "Birth Date"
+								},
+								{
+									"id": "users.edit.role",
+									"label": "Role",
+									"permissions": [ "EditUserRole" ]
+								},
+								{
+									"id": "users.edit.back",
+									"label": "Back"
+								}
+							]
+						},
+						{
+							"id": "users.remove",
+							"label": "Remove User",
+							"permissions": [ "RemoveUser" ]
+						},
+						{
+							"id": "users.search",
+							"label": "Search User",
+							"permissions": [ "SearchUser" ],
+							"children": [
+								{
+									"id": "users.search.name",
+									"label": "Name"
+								},
+								{
+									"id": "users.search.national-code",
+									"label": "National Code"
+								},
+								{
+									"id": "users.search.email",
+									"label": "Email"
+								},
+								{
+									"id": "users.search.phone-number",
+									"label": "Phone Number"
+								},
+								{
+									"id": "users.search.role",
+									"label": "Role"
+								},
+								{
+									"id": "users.search.back",
+									"label": "Back"
+								}
+							]
+						},
+						{
+							"id": "users.sort",
+							"label": "Sort Users",
+							"permissions": [ "SortUser" ],
+							"children": [
+								{
+									"id": "users.sort.firstname",
+									"label": "First Name"
+								},
+								{
+									"id": "users.sort.lastname",
+									"label": "Last Name"
+								},
+								{
+									"id": "users.sort.fullname",
+									"label": "Full Name"
+								},
+								{
+									"id": "users.sort.national-code",
+									"label": "National Code"
+								},
+								{
+									"id": "users.sort.email",
+									"label": "Email"
+								},
+								{
+									"id": "users.sort.birthdate",
+									"label": "Birth Date"
+								},
+								{
+									"id": "users.sort.role",
+									"label": "Role"
+								},
+								{
+									"id": "users.sort.membership-start",
+									"label": "Membership Start Date"
+								},
+								{
+									"id": "users.sort.membership-expiry",
+									"label": "Membership Expiry Date"
+								},
+								{
+									"id": "users.sort.last-login",
+									"label": "Last Login Date"
+								}
+							]
+						},
+						{
+							"id": "users.view",
+							"label": "View Users",
+							"children": [
+								{
+									"id": "users.view.own-details",
+									"label": "View Own Details"
+								},
+								{
+									"id": "users.view.user-details",
+									"label": "View User Details",
+									"permissions": [ "ViewUserDetails" ]
+								},
+								{
+									"id": "users.view.all-users",
+									"label": "View All Users",
+									"permissions": [ "ViewAllUsers" ]
+								},
+								{
+									"id": "users.view.removed-users",
+									"label": "View Removed Users",
+									"permissions": [ "ViewRemovedUsers" ]
+								},
+								{
+									"id": "users.view.back",
+									"label": "Back"
+								}
+							]
+						},
+						{
+							"id": "users.renew",
+							"label": "Renew Membership",
+							"permissions": [ "RenewLibrarianMembership", "RenewMemberMembership" ]
+						},
+						{
+							"id": "users.change-password",
+							"label": "Change Password",
+							"children": [
+								{
+									"id": "users.change-password.mypassword",
+									"label": "Change My Password"
+								},
+								{
+									"id": "users.change-password.otheruser",
+									"label": "Reset Another User's Password",
+									"permissions": [ "ChangePassword" ]
+								}
+							]
+						},
+						{
+							"id": "users.back",
+							"label": "Back"
+						}
+					]
+				},
+				{
+					"id": "loans",
+					"label": "Loans",
+					"children": [
+						{
+							"id": "loans.borrow",
+							"label": "Borrow Book"
+						},
+						{
+							"id": "loans.return",
+							"label": "Return Book"
+						},
+						{
+							"id": "loans.renew",
+							"label": "Renew Loan"
+						},
+						{
+							"id": "loans.search",
+							"label": "Search Loan",
+							"permissions": [ "SearchLoans" ],
+							"children": [
+								{
+									"id": "loans.search.title",
+									"label": "Title"
+								},
+								{
+									"id": "loans.search.isbn",
+									"label": "ISBN"
+								},
+								{
+									"id": "loans.search.name",
+									"label": "Member Name"
+								},
+								{
+									"id": "loans.search.national-code",
+									"label": "Member's National Code"
+								},
+								{
+									"id": "loans.search.status",
+									"label": "Status (Active/Returned)"
+								},
+								{
+									"id": "loans.search.back",
+									"label": "Back"
+								}
+							]
+						},
+						{
+							"id": "loans.view",
+							"label": "View Loans",
+							"children": [
+								{
+									"id": "loans.view.own",
+									"label": "My Loans"
+								},
+								{
+									"id": "loans.view.by-user",
+									"label": "By User",
+									"permissions": [ "ViewLoansByUser" ]
+								},
+								{
+									"id": "loans.view.by-book",
+									"label": "By Book",
+									"permissions": [ "ViewLoansByBook" ]
+								},
+								{
+									"id": "loans.view.full",
+									"label": "Full History",
+									"permissions": [ "ViewAllLoans" ]
+								},
+								{
+									"id": "loans.view.back",
+									"label": "Back"
+								}
+							]
+						},
+						{
+							"id": "loans.filter",
+							"label": "Loan Filter",
+							"children": [
+								{
+									"id": "loans.filter.active",
+									"label": "Active"
+								},
+								{
+									"id": "loans.filter.overdue",
+									"label": "Overdue"
+								},
+								{
+									"id": "loans.filter.inactive",
+									"label": "Inactive"
+								},
+								{
+									"id": "loans.filter.all",
+									"label": "All",
+									"permissions": [ "ViewAllLoans" ]
+								},
+								{
+									"id": "loans.filter.back",
+									"label": "Back"
+								}
+							]
+						},
+						{
+							"id": "loans.back",
+							"label": "Back"
+						}
+					]
+				},
+				{
+					"id": "fines",
+					"label": "Fines",
+					"children": [
+						{
+							"id": "fines.pay",
+							"label": "Pay Fine"
+						},
+						{
+							"id": "fines.waive",
+							"label": "Waive Fine",
+							"permissions": [ "WaiveFine" ]
+						},
+						{
+							"id": "fines.view",
+							"label": "View Fine",
+							"children": [
+								{
+									"id": "fines.view.own",
+									"label": "My Fines"
+								},
+								{
+									"id": "fines.view.by-user",
+									"label": "By User",
+									"permissions": [ "ViewFinesByUser" ]
+								},
+								{
+									"id": "fines.view.full",
+									"label": "Full History",
+									"permissions": [ "ViewAllFines" ]
+								},
+								{
+									"id": "fines.view.back",
+									"label": "Back"
+								}
+							]
+						},
+						{
+							"id": "fines.filter",
+							"label": "fines Filter",
+							"children": [
+								{
+									"id": "fines.filter.unpaid",
+									"label": "Unpaid"
+								},
+								{
+									"id": "fines.filter.paid",
+									"label": "Paid"
+								},
+								{
+									"id": "fines.filter.waived",
+									"label": "Waived"
+								},
+								{
+									"id": "fines.filter.all",
+									"label": "All",
+									"permissions": [ "ViewAllFines" ]
+								},
+								{
+									"id": "fines.filter.back",
+									"label": "Back"
+								}
+							]
+						},
+						{
+							"id": "fines.back",
+							"label": "Back"
+						}
+					]
+				},
+				{
+					"id": "auditLog",
+					"label": "Audit Log",
+					"permissions": [ "ViewAuditLog" ],
+					"children": [
+						{
+							"id": "auditLog.view",
+							"label": "View Audit Log",
+							"permissions": [ "ViewAuditLog" ]
+						},
+						{
+							"id": "auditLog.back",
+							"label": "Back"
+						}
+					]
+				},
+				{
+					"id": "logout",
+					"label": "Logout"
+				},
+				{
+					"id": "exit",
+					"label": "Exit Application"
+				}
+			]
+		}
+	]
+}

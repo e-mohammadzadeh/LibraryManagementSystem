@@ -27,7 +27,7 @@ public static class ConsoleTable
 
 
 	// Prints a key-value style table perfect for entity details. Values can contain multiple lines separated by \n or as string arrays.
-	public static void PrintKeyValueTable(string title, List<(string Label, string[] ValueLines)> rows,
+	public static void PrintKeyValueTable(string? title, List<(string Label, string[] ValueLines)> rows,
 		int labelWidth = 18, int valueWidth = 55)
 	{
 		int[] widths = [labelWidth, valueWidth];
@@ -68,18 +68,17 @@ public static class ConsoleTable
 
 
 	/// Prints a generic multi-column table with headers. Each cell can contain multiple lines.
-	public static void PrintTable(string title, string[] headers, List<string[][]> rows)
+	public static void PrintTable(string? title, string[] headers, List<string[][]> rows)
 	{
 		var colCount = headers.Length;
-
-		// Calculate column widths based on content
-		var widths = new int[colCount];
-		for (var c = 0; c < colCount; c++)
+		var widths = new int[headers.Length];
+		for (var c = 0; c < headers.Length; c++)
 		{
-			var maxLen = headers[c].Length;
-			maxLen = rows.Select(row => row[c].Max(line => line?.Length ?? 0)).Prepend(maxLen).Max();
-
-			widths[c] = maxLen + 2; // +2 for padding
+			widths[c] = rows
+				.SelectMany(row => row[c])
+				.Select(line => line?.Length ?? 0)
+				.Append(headers[c].Length)
+				.Max() + 2;
 		}
 
 		var innerWidth = widths.Sum() + (colCount - 1); // Sum + inner borders
@@ -189,7 +188,7 @@ public static class ConsoleTable
 	}
 
 
-	private static string CenterText(string text, int width)
+	private static string CenterText(string? text, int width)
 	{
 		if (string.IsNullOrEmpty(text)) return new string(' ', width);
 		if (text.Length > width - 2) text = text[..(width - 2)];

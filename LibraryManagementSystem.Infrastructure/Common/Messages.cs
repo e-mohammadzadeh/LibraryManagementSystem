@@ -1,0 +1,345 @@
+﻿namespace LibraryManagementSystem.Infrastructure.Common;
+
+public static class Messages
+{
+	// 1. GENERAL MESSAGES (Cross‑cutting) ────────────────────────────────────────────────────────────
+	public const string PressToContinue = "\nPress any key to continue...";
+	public const string NoChangesDetected = "No changes detected. The new value is identical to the current one.";			
+	public const string EmptyInput = "Input cannot be empty. Please try again.";
+	public const string InvalidInput = "Invalid input. Please try again.";
+	public const string InvalidNumber = "Invalid number. Please try again.";
+	public const string InvalidYesNo = "Invalid input. Please enter 'y' or 'n'.";
+	public const string InvalidMenuChoice = "Invalid selection. Please try again.\n";
+	public const string InvalidDateRange = "Invalid date. Please enter a date on or before today.";
+	public const string InvalidDateFormat = "Invalid date format. Please use ISO format (e.g., 2026-12-27).";
+	public const string DuplicateRemoved = "Duplicate items were removed.";
+	public const string NotAllowedMultiSelections = "Multiple selections are not allowed. Please enter a single number.";
+
+
+
+	// 2. VALIDATION MESSAGES (Format‑specific) ────────────────────────────────────────────────────────────
+	public const string InvalidNationalCode = "Invalid national code. Please enter exactly 10 digits without dashes or spaces.";
+	public const string InvalidEmail = "Invalid email address. Please enter a valid email (e.g., name@domain.com).";
+	public const string InvalidPhoneNumber = "Invalid phone number. Please enter exactly 11 digits.";
+	public const string InvalidBirthDate = "Invalid birth date. Please enter a past date that is no more than 120 years ago.";
+	public const string InvalidCharacters = "The name can only contain letters, numbers, spaces, and basic punctuation.";
+	public const string ConsecutiveSpacesNotAllowed = "The name cannot contain consecutive spaces.";
+	public const string InvalidOptionSelection = "Please select at least one option.";
+
+
+
+	// 3. Password Validation ────────────────────────────────────────────────────────────
+	public static readonly string MinimumPasswordLength = $"Password must contain at least {ValidationConstants.MinPasswordLength} characters.";
+	public const string MaximumPasswordLength = "Password cannot contain more than 64 characters.";
+	public const string OneUppercaseLetter = "Password must contain at least one uppercase letter.";
+	public const string OneLowercaseLetter = "Password must contain at least one lowercase letter.";
+	public const string PasswordContainDigit = "Password must contain at least one digit.";
+	public const string PasswordContainSpecialCharacter = "Password must contain at least one special character.";
+	public const string NotEmptyPassword = "Password cannot be empty.";
+	public const string PasswordChangedSuccessfully = "\nPassword changed successfully.";
+	public const string PasswordChangeFailed = "Failed to change password. Please check your current password and try again.";
+	public const string CanChangeOwnPassword = "You can only change your own password.";
+	public const string PasswordMatchedFailed = "\nNew password and confirmation do not match.";
+	public const string SelectDifferentNewPassword = "New password must be different from the current password.";
+	public const string PasswordResetSuccessfully = "Password was reset successfully.";
+	public const string OnlyAdminCanResetPassword = "Only an administrator can reset another user's password.";
+	public const string UserFlaggedForRemoval = "This account is flagged for removal. You cannot change the password.";
+
+
+	// 4. AUTHOR MESSAGES ────────────────────────────────────────────────────────────
+	// Add
+	public const string AuthorAddedSuccessfully = "Author added successfully.";
+	public const string DuplicateAuthorNameWarning = "An author with the same name already exists (ID: {0}).";
+
+	// Update
+	public const string AuthorUpdatedSuccessfully = "Author updated successfully.";
+	public const string AuthorUpdateFailed = "Failed to update author.";
+
+	// Remove
+	public const string AuthorRemovedSuccessfully = "Author removed successfully.";
+	public const string AuthorRemoveFailed = "Failed to remove author.";
+	public const string CannotRemoveLastAuthor = "Cannot remove the only author. A book must have at least one author.";
+	public const string AuthorHasAssociatedBooks = "This author cannot be removed because they have associated books.";
+
+	// Search
+	public const string NotAvailableAuthor = "No authors found. Please add a new author first.";
+	public const string NotAuthorMatched = "No authors matched your search.";
+	public const string AuthorNotFoundFormat = "Author with ID {0} was not found.";
+	public const string AuthorNotFound = "Author not found.";
+	public const string NotAvailableRemovedAuthor = "No removed authors found.";
+
+
+
+	// Duplicate
+	public const string DuplicateAuthorsNotAllowed = "Duplicate authors are not allowed. Please enter each author only once.";
+	public const string DuplicateAuthorsNotAllowedByNationalCode = "An author with the same national code already exists.";
+	public const string DuplicateAuthorsNotAllowedByEmail = "An author with the same email already exists.";
+	public const string DuplicateAuthorsNotAllowedByPhoneNumber = "An author with the same phone number already exists.";
+
+
+
+
+	// 5. TRANSLATOR MESSAGES ────────────────────────────────────────────────────────────
+	// Add
+	public const string TranslatorAddedSuccessfully = "Translator added successfully.";
+	public const string AllTranslatorsAssigned = "All available translators are already assigned to this book.";
+	public const string AddTranslatorInAdd = "\nNo translators found. Do you want to create a new translator now (Optional)";
+	public const string DuplicateTranslatorNameWarning = "A translator with the same name already exists (ID: {0}).";
+
+
+	// Update
+	public const string TranslatorUpdatedSuccessfully = "Translator updated successfully.";
+	public const string TranslatorUpdateFailed = "Failed to update translator.";
+
+	// Remove
+	public const string TranslatorRemovedSuccessfully = "Translator removed successfully.";
+	public const string TranslatorRemoveFailed = "Failed to remove translator.";
+	public const string NoTranslatorToRemove = "This book has no translators to remove.";
+	public const string RemoveAllTranslators = "Are you sure you want to remove ALL translators from this book";
+	public const string TranslatorHasAssociatedBooks = "This translator cannot be removed because they have associated books.";
+
+	// Search
+	public const string NotAvailableTranslator = "No translators found. Please add a new translator first.";
+	public const string NotTranslatorMatched = "No translators matched your search.";
+	public const string TranslatorNotFoundFormat = "Translator with ID {0} was not found.";
+	public const string TranslatorNotFound = "Translator not found.";
+	public const string NotAvailableRemovedTranslator = "No removed translators found.";
+
+
+
+	// Duplicate
+	public const string DuplicateTranslatorsNotAllowed = "Duplicate translators are not allowed. Please enter each translator only once.";
+	public const string DuplicateTranslatorsNotAllowedByNationalCode = "A translator with the same national code already exists.";
+	public const string DuplicateTranslatorsNotAllowedByEmail = "A translator with the same email already exists.";
+	public const string DuplicateTranslatorsNotAllowedByPhoneNumber = "A translator with the same phone number already exists.";
+
+
+
+	// 6. BOOK MESSAGES ────────────────────────────────────────────────────────────
+	// Add
+	public const string BookAddedSuccessfully = "Book added successfully.";
+	public const string NotEnoughAuthors = "All available authors are already assigned to this book.";
+	public const string AuthorCreationFailed = "Failed to retrieve the newly created author.";
+	public const string BookRequiresAtLeastOneAuthor = "A book must have at least one author.";
+
+	// Update
+	public const string BookUpdatedSuccessfully = "Book updated successfully.";
+	public const string TotalCopiesUpdateInvalid = "Cannot update total copies because it would result in negative available copies.";
+
+	// Remove
+	public const string BookRemovedSuccessfully = "Book removed successfully.";
+	public const string BookRemoveFailed = "Failed to remove book.";
+	public const string BookRemoveFailedBorrowed = "Failed to remove book. It is currently borrowed by user(s) with ID: {0}";
+	public const string BookRemoveConfirmation = "\nAre you sure you want to remove '{0}'";
+
+	// Search
+	public const string NotAvailableBook = "No books found. Please add a new book first.";
+	public const string NotBookMatched = "No books matched your search.";
+	public const string AuthorHasNoBooks = "No books are associated with this author.";
+	public const string TranslatorHasNoBooks = "No books are associated with this translator.";
+	public const string BookNotFound = "Book not found.";
+	public const string NotAvailableRemovedBook = "No removed books found.";
+
+
+	// Duplicate
+	public const string DuplicateBooksNotAllowedByName = "A book with the same name already exists.";
+	public const string DuplicateBooksNotAllowedByISBN = "A book with the same ISBN already exists.";
+	public const string AuthorAlreadyAssignedToBook = "This author is already associated with this book.";
+
+	// Validation
+	public const string InvalidBookName = "Invalid book name. Please enter a name between 3 and 100 characters.";
+	public const string InvalidISBN = "Invalid ISBN format. Please enter a valid 10 or 13 digit ISBN.";
+	public const string InvalidGenre = "Invalid genre. Please select a valid genre.";
+	public const string InvalidLanguage = "Invalid language. Please select a valid language.";
+	public const string WrongTotalCopies = "Total copies must be greater than zero.";
+	public const string InvalidIdSelection = "ID {0} is not in the available list. Please select from the list above.";
+
+
+	// 7. USER (Member/Admin/Manager) MESSAGES ────────────────────────────────────────────────────────────
+	// Add
+	public const string UserAddedSuccessfully = "User added successfully.";
+	public const string UserRegistrationSuccessfully = "Registration successful.";
+	public const string DuplicateUserNameWarning = "A user with the same name already exists (ID: {0}).";
+	public const string UserRegistrationFailed =  "Registration failed. Please try again.";
+
+	// Update
+	public const string UserUpdatedSuccessfully = "User updated successfully.";
+	public const string UserUpdateFailed = "Failed to update user.";
+
+	// Remove
+	public const string UserRemovedSuccessfully = "User removed successfully.";
+	public const string UserRemoveFailed = "Failed to remove user.";
+	public const string CannotRemoveYourself = "You cannot remove your own account.";
+	public const string UserRemovalFailedByActiveLoans = "This user cannot be removed because they have active loans.";
+	public const string UserRemovalFailedByUnpaidFines = "This user cannot be removed because they have unpaid fines.";
+	public const string UserAutoRemovedSuccessfully = "User has been automatically removed from the system after settling all obligations.";
+	public const string UserEligibleForRemoval = "User {0} {1} has been flagged for removal. They must pay all fines and return all books before their account is deleted.";
+	public const string UserAutoRemoveNotEligible = "User does not meet auto-removal conditions.";
+	public const string UserMarkedForRemoval = "User {0} has been flagged for removal. You can't renew membership.";
+	public const string AccountScheduledForRemoval = "Your account is scheduled for removal because your unpaid fines have reached the maximum allowed limit. Please settle your outstanding fines and return all borrowed books to avoid removal.";
+
+	// Search
+	public const string NotAvailableUser = "No users found. Please add a new user first.";
+	public const string NotAvailableRemovedUser = "No removed users found.";
+	public const string NotUserMatched = "No users matched your search.";
+	public const string UserNotFound = "User not found.";
+
+	// Duplicate
+	public const string DuplicateUsersNotAllowedByNationalCode = "A user with the same national code already exists.";
+	public const string DuplicateUsersNotAllowedByEmail = "A user with the same email already exists.";
+	public const string DuplicateUsersNotAllowedByPhoneNumber = "A user with the same phone number already exists.";
+	public const string DuplicateUsersNotAllowedByRole = "This user already has this role.";
+
+	// Membership
+	public const string MembershipExpired = "Membership expired. Please renew your membership.";
+	public const string InactiveAccount = "This account is inactive. Please contact an administrator.";
+	public const string InvalidMembershipRenewalPeriod = "Invalid membership renewal period. Please enter a valid period.";
+	public const string LibrarianCanRenewMembersOnly = "Librarians can Only renew member accounts.";
+	public const string MembershipRenewedSuccessfully = "Membership renewed successfully.";
+	public const string NoRenewableUser = "No renewable users found";
+	public const string RenewInactiveMembership = "Only an administrator can renew the membership of an inactive user.";
+
+	// Role
+	public const string FailureDuplicateRolesSelected = "Duplicate roles selected.";
+	public const string NotRoleMatched = "No roles matched your search.";
+	public const string SelectRolePrompt = "Select a role for this user:";
+	public const string NotAvailableRoles = "One or more selected roles do not exist.";
+	public const string AdminCanChangeRole = "Only Admin can change user roles.";
+	public const string NoRolesToAssign = "No roles available to assign.";
+	public const string CanOnlyAssignAllowedRoles = "You are not allowed to assign one or more of the selected roles.";
+
+
+
+
+	// 8. LOAN MESSAGES ────────────────────────────────────────────────────────────
+	// Borrow / Return / Renew
+	public const string BorrowedSuccessfully = "Book borrowed successfully.";
+	public const string ReturnedSuccessfully = "Book returned successfully.";
+	public const string RenewedSuccessfully = "Loan renewed successfully.";
+	public const string LoanNotYetReturned = "Loan has not been returned yet.";
+	public const string FlaggedForRemoval = "This account has been flagged for removal due to reaching the maximum fine limit. {0} is disabled.";
+	public const string BorrowFailedForFine = "You cannot borrow books while you have unpaid fines. Please pay your fines first.";
+
+	// Search / Availability
+	public const string NotAvailableLoan = "No loans found.";
+	public const string NotAvailableBookToBorrow = "No books are currently available to borrow.";
+	public const string NotLoanMatched = "No loans matched your search.";
+	public const string NoActiveLoans = "No active loans found.";
+	public const string NoInactiveLoans = "No inactive loans found.";
+	public const string NoOverdueLoans = "No overdue loans at the moment.";
+	public const string NotAvailableActionLoan = "No actionable loans found.";
+	public const string LoansRetrievedSuccessfully = "Loans retrieved successfully.";
+	public const string NotAvailableLoanHistory = "No loan history records found.";
+
+	// User‑specific Loan Errors
+	public const string MaximumLoansReached = "Borrowing failed. This user has reached the maximum number of active loans.";
+	public const string BookAlreadyBorrowed = "This user has already borrowed this book. Please return it before borrowing another copy.";
+	public const string ActiveLoanNotFound = "No active loan found for the selected user and book.";
+	public const string UserHasNoBorrowedBooks = "This user has no borrowed books.";
+	public const string NoLoanHistoryForUser = "This user has no loan history.";
+	public const string NoLoanHistoryForBook = "\nThis book has no loan history.";
+	public const string UserHasUnpaidFines = "You cannot renew a loan while you have unpaid fines. Please pay your fines first.";
+	public const string BorrowBlockedDueToOverdue = "You have overdue loans. Please return all overdue books before borrowing more.";
+
+	// Copy Availability
+	public const string NotEnoughCopiesAvailable = "Not enough copies available for this book.";
+
+
+
+
+
+
+	// 9. FINE MESSAGES ────────────────────────────────────────────────────────────
+	public const string FineCreatedSuccessfully = "Fine created successfully.";
+	public const string FineNotFound = "Fine not found.";
+	public const string UnpaidFineNotFound = "No unpaid fines found.";
+	public const string FinePaidSuccessfully = "Fine paid successfully.";
+	public const string FineWaivedSuccessfully = "Fine waived successfully.";
+	public const string NoFine = "This loan was returned on time. No fine has been applied.";
+	public const string FineAlreadyExists = "An unpaid fine already exists for this loan.";
+	public const string CanPayOwnFine = "You can only pay your own fines";
+	public const string AdminOnlyWaive = "Only Admin can waive fines.";
+	public const string NotAvailableFineHistory = "No Fine history records found.";
+
+
+
+
+	// 10. Authentication & Authorization ────────────────────────────────────────────────────────────
+	public const string LoginSuccess = "Login successful.";
+	public const string LoginFailed = "Login failed.";
+	public const string LogoutSuccess = "{0} Logged out successfully.";
+	public const string LoginInputRequired = "Email and password are required.";
+	public const string InvalidLoginInput = "Invalid email or password.";
+	public const string AccessDenied = "Access denied. You do not have permission to perform this action.";
+	public const string SessionExpired = "Your session has expired. Please log in again.";
+	public const string AuthenticationRequired = "Access denied. You must be logged in.";
+	public const string AdminRoleRequired = "Access denied. Admin role required.";
+	public const string LibrarianRoleRequired = "Access denied. Librarian role required.";
+	public const string MemberRoleRequired = "Access denied. Member role required.";
+	public const string AdminOrLibrarianRoleRequired = "Access denied. Admin or Librarian role required.";
+	public const string LibraryStatisticsAccessDenied = "Access denied. Only Admin or Librarian can view library statistics.";
+	public const string NoUserLoggedIn = "No user is currently logged in.";
+	public const string BorrowBookForYourself = "You can only borrow books for yourself.";
+	public const string ReturnOwnLoans = "You can only return your own loans.";
+	public const string RenewOwnLoans = "You can only renew your own loans.";
+	public const string ViewOwnLoans = "You can only view your own loans.";
+	public const string NotAuthorized = "You are not authorized to access this menu.\n";
+	public const string RegistrationSuccessLoginPrompt = "Account created successfully! You can now log in.";
+
+
+
+	// 12. AuditLog ────────────────────────────────────────────────────────────
+	public const string NotAvailableAuditLog = "No audit logs found.";
+
+
+
+	// 13. UI Prompts & Questions ────────────────────────────────────────────────────────────
+	public const string MainMenuQuestion = "Please enter a number";
+	public const string AuthorSelectionForRemove = "Select the author you want to remove";
+	public const string EditMenuQuestion = "Enter the number of the field you wish to edit";
+	public const string SelectTranslatorQuestion = "Enter the number of the translator you wish";
+	public const string SelectBookQuestion = "Enter the number of the book you wish";
+	public const string SelectMemberQuestion = "Enter the number of the member you wish";
+	public const string EditContinuesQuestion = "\nDo you want to edit another field";
+	public const string PasswordPrompt = "Enter a password for the user's login account";
+	public const string SelectReplacementTranslators = "Select the new translator(s) for this book";
+	public const string SearchMenuQuestion = "Select a search field by entering its number";
+	public const string TranslatorSelectionForRemove = "Select the translator you want to remove";
+	public const string SubMenuPrompt = "\nWhat do you want to do?";
+	public const string EnterEmailPrompt = "Enter your email address";
+	public const string EnterPasswordPrompt = "Enter your {0} password";
+	public const string PasswordConfirmation = "Confirm new password";
+	public const string FineIdForPay = "Enter Fine ID to pay";
+	public const string FineIdForWaive = "Enter Fine ID to waive";
+	public const string ConfirmToPay = "Are you sure you want to pay this fine";
+	public const string ConfirmToWaive = "Are you sure you want to waive this fine";
+	public const string EnterYearForRenewMembership = "Enter number of years to renew (default 1)";
+	public const string SearchName = "Enter a name to search";
+	public const string SearchNationalCode = "Enter a national code to search";
+	public const string SearchEmail = "Enter an email to search";
+	public const string SearchPhoneNumber = "Enter a phone number to search";
+	public const string SortFieldQuestion = "Enter the number of the field you want to sort by:";
+	public const string SortDirectionQuestion = "Select the sort direction:";
+	public const string SelectTranslationLanguage = "\nSelect the language of the translation:";
+
+
+	// 14. Navigation ────────────────────────────────────────────────────────────
+	// Back
+	public const string BackToMainMenu = "\nBacking to main menu...";
+	public const string BackToAuthorMenu = "\nBacking to Author Menu...";
+	public const string BackToTranslatorMenu = "\nBacking to Translator Menu...";
+	public const string BackToBookMenu = "\nBacking to Book Menu...";
+	public const string BackToUserMenu = "\nBacking to User Menu...";
+	public const string BackToLoanMenu = "\nBacking to Loan Menu...";
+	public const string BackToFineMenu = "\nBacking to Fine Menu...";
+
+	// Exit
+	public const string ExitingProgram = "\nExiting Program...";
+
+	// Cancel
+	public const string SearchCancelled = "\n\nSearch cancelled. Returning to {0} Menu...";
+	public const string SortCancelled = "{0} sorting cancelled.";
+	public const string EditCancelled = "\n\nEdit cancelled. Returning to {0} Menu...";
+	public const string RegistrationCancelled = "\nRegistration cancelled";
+
+}

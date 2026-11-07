@@ -2,17 +2,9 @@
 
 public class BookAuthor
 {
-	public BookAuthor(Book book, Author author)
-	{
-		Book = book ?? throw new ArgumentNullException(nameof(book));
-		Author = author ?? throw new ArgumentNullException(nameof(author));
-
-		BookId = book.BookId;
-		AuthorId = author.Id;
-	}
-
-	public int BookId { get; private set; }
-	public Book Book { get; private set; }
-	public int AuthorId { get; private set; }
-	public Author Author { get; private set; }
+	public Guid Id { get; set; }
+	public Guid BookId { get; set; }
+	public virtual Book Book { get; set; } = null!;
+	public Guid AuthorId { get; set; }
+	public virtual Author Author { get; set; } = null!;
 }

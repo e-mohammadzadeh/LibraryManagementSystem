@@ -1,19 +1,12 @@
-﻿namespace LibraryManagementSystem.Domain.Entities;
+﻿using LibraryManagementSystem.Infrastructure.Enums;
+
+namespace LibraryManagementSystem.Domain.Entities;
 
 public class BookTranslator
 {
-	public BookTranslator(Book book, Translator translator)
-	{
-		Book = book ?? throw new ArgumentNullException(nameof(book));
-		Translator = translator ?? throw new ArgumentNullException(nameof(translator));
-
-		BookId = book.BookId;
-		TranslatorId = translator.Id;
-	}
-
-
-	public int BookId { get; private set; }
-	public Book Book { get; private set; }
-	public int TranslatorId { get; private set; }
-	public Translator Translator { get; private set; }
+	public Guid BookId { get; set; }
+	public Book Book { get; set; } = null!;
+	public Guid TranslatorId { get; set; }
+	public Translator Translator { get; set; } = null!;
+	public Language? TranslationLanguage { get; set; }
 }

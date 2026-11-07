@@ -1,6 +1,7 @@
-﻿using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.DTOs.Users;
-using LibraryManagementSystem.Application.Services;
+﻿using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.DTOs.Users;
+using LibraryManagementSystem.Infrastructure.ValueObjects;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
@@ -12,7 +13,7 @@ public static class RegisterMenu
 		Console.Clear();
 		Console.WriteLine(new string('=', 30) + " CREATE ACCOUNT " + new string('=', 30));
 
-		var fields = PersonHelper.PromptForPersonFields("user");
+		var fields = ContributorMenu.PromptForContributorDto("user", false);
 		if (fields is null)
 		{
 			ConsoleHelper.ShowInfo(Messages.RegistrationCancelled);
@@ -30,15 +31,14 @@ public static class RegisterMenu
 			ConsoleHelper.ShowError(Messages.PasswordMatchedFailed);
 		}
 
-		var dto = new CreateUserDto
+		var dto = new UserDto
 		{
 			FirstName = fields.FirstName,
 			LastName = fields.LastName,
 			NationalCode = fields.NationalCode,
-			Email = fields.Email,
-			PhoneNumber = fields.PhoneNumber,
+			Email = Email.Create(fields.Email),
+			PhoneNumber = PhoneNumber.Create(fields.PhoneNumber),
 			BirthDate = fields.BirthDate,
-			RoleIds = [1], // Force role to be Member
 			Password = newPassword
 		};
 

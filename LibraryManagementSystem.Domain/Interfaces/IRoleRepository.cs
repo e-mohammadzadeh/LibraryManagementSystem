@@ -1,9 +1,11 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Infrastructure.Enums;
 
 namespace LibraryManagementSystem.Domain.Interfaces;
 
 public interface IRoleRepository
 {
-	IReadOnlyList<Role> GetAllRoles();
-	IReadOnlyList<Role> FindByIds(IEnumerable<int> ids);
+	IReadOnlyList<Role> GetAll();
+	Role? GetById(Guid id);
+	Role? GetByName(LibraryUserRole name);
 }

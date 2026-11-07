@@ -1,20 +1,16 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
 
 namespace LibraryManagementSystem.Domain.Interfaces;
 
 public interface IBookRepository
 {
 	void Add(Book book);
-	Book? FindById(int id);
-	IReadOnlyList<Book> GetAll();
-
-	bool ExistsByName(string name, int excludeBookId = -1);
-	bool ExistsByISBN(string isbn, int excludeBookId = -1);
-
-	IReadOnlyList<Book> GetAvailableBooks();
+	Book? GetById(Guid id, EntityFilter filter);
+	IReadOnlyList<Book> GetAll(EntityFilter filter);
+	IReadOnlyList<Book> GetByAuthorId(Guid authorId, EntityFilter filter);
+	IReadOnlyList<Book> GetByTranslatorId(Guid translatorId, EntityFilter filter);
+	bool Exists<T>(T value, Func<Book, T> selector, Guid? excludeId = null);
 	void Remove(Book book);
-	//	TODO Split search methods into some methods to support search books by author - search books by translator - search books by publisher - search books by genre - search books by multiple authors
-	IReadOnlyList<Book> Search(string searchTerm, Func<Book, string?> selector);
-	IReadOnlyList<Book> SearchByDate(DateOnly from, DateOnly to, Func<Book, DateOnly> selector);
 	void Update(Book book);
 }

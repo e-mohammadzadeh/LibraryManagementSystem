@@ -1,0 +1,17 @@
+﻿using LibraryManagementSystem.Domain.Enums;
+
+namespace LibraryManagementSystem.Infrastructure.Enums;
+
+public static class FineHistoryActionExtensions
+{
+	public static string GetDefaultDescription(this FineHistoryAction action)
+	{
+		return action switch
+		{
+			FineHistoryAction.CreateFine => "Fine Created.",
+			FineHistoryAction.FinePaid => "Fine Paid.",
+			FineHistoryAction.FineWaived => "Fine waived.",
+			_ => "Action performed."
+		};
+	}
+}

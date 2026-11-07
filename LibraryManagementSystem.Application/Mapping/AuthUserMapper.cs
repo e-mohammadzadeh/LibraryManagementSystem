@@ -1,6 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
-using LibraryManagementSystem.Application.DTOs.Users;
 using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Infrastructure.DTOs.Users;
 
 namespace LibraryManagementSystem.Application.Mapping;
 
@@ -8,14 +8,14 @@ public static class AuthUserMapper
 {
 	public static AuthUserDto ToAuthUserDto(this User user)
 	{
-		var permissions = user.UserRoles.SelectMany(ur => RolePermissionMap.GetPermissions(ur.Role.Name)).ToHashSet();
+		var permissions = RolePermissionMap.GetPermissions(user.Role.Name).ToHashSet();
 
 		return new AuthUserDto
 		{
 			Id = user.Id,
 			FullName = $"{user.FirstName} {user.LastName}",
 			Email = user.Email,
-			Roles = [.. user.UserRoles.Select(ur => ur.Role.Name)],
+			RoleName = user.Role.Name,
 			Permissions = permissions,
 			IsActive = user.IsActive,
 			MembershipExpiryDate = user.MembershipExpiryDate,

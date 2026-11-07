@@ -1,5 +1,5 @@
-﻿using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.DTOs.AuditLog;
+﻿using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.DTOs.AuditLog;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
@@ -14,8 +14,8 @@ public class AuditLogPrinter
 			return;
 		}
 
-		var headers = new[] { "ID", "Date & Time", "Performed By", "User ID", "Action", "Entity", "Entity ID", "Details" };
-		var rows = auditLogs.Select(log =>
+		var headers = new[] { "#", "Date & Time", "Performed By", "User ID", "Action", "Entity", "Entity ID", "Details" };
+		var rows = auditLogs.Select((log, index) =>
 			{
 				var details = string.IsNullOrWhiteSpace(log.Details)
 					? ["—"]
@@ -23,7 +23,7 @@ public class AuditLogPrinter
 
 				return new[]
 				{
-					[log.Id.ToString()],
+					[(index + 1).ToString()],
 					[log.OccurredAt.ToString("yyyy-MM-dd HH:mm")],
 					ConsoleTable.WrapText(log.PerformedByName, 25),
 					[log.PerformedByUserId.ToString()],

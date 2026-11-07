@@ -1,5 +1,5 @@
-﻿using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.DTOs.Users;
+﻿using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.DTOs.Users;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Printers;
@@ -11,13 +11,12 @@ public class UserPrinter
 		Console.Clear();
 		var rows = new List<(string Label, string[] ValueLines)>
 		{
-			("ID", [user.Id.ToString()]),
 			("Name", [user.FullName]),
 			("National Code", [user.NationalCode]),
 			("Email", [user.Email]),
 			("Phone Number", [user.PhoneNumber]),
 			("Birth Date", [user.BirthDate.ToString("yyyy-MM-dd")]),
-			("Role", [string.Join(", ", user.Roles)]),
+			("Role", [user.RoleName.ToString()]),
 			("Active From", [user.MembershipStartDate.ToString("yyyy-MM-dd")]),
 			("Active Until", [user.MembershipExpiryDate.ToString("yyyy-MM-dd")]),
 			("Is Active", [user.IsActive ? "Yes" : "No"]),
@@ -41,15 +40,15 @@ public class UserPrinter
 		Console.Clear();
 		var headers = new[]
 		{
-			"ID", "User Name", "Email", "Role", "Is Active",
+			"#", "User Name", "Email", "Role", "Is Active",
 		};
 
-		var rows = users.Select(user => new[]
+		var rows = users.Select((user, index) => new[]
 		{
-			[user.Id.ToString()],
+			[(index + 1).ToString()],
 			ConsoleTable.WrapText(user.FullName, 20),
 			ConsoleTable.WrapText(user.Email, 30),
-			user.Roles.Count > 0 ? user.Roles.Select(r => r.ToString()).ToArray() : ["—"],
+			[user.RoleName.ToString()],
 			[user.IsActive ? "Yes" : "No"],
 		}).ToList();
 
@@ -67,15 +66,15 @@ public class UserPrinter
 		Console.Clear();
 		var headers = new[]
 		{
-			"ID", "User Name", "Email", "Role", "Is Active", "Active From", "Active Until",
+			"#", "User Name", "Email", "Role", "Is Active", "Active From", "Active Until",
 		};
 
-		var rows = users.Select(user => new[]
+		var rows = users.Select((user, index) => new[]
 		{
-			[user.Id.ToString()],
+			[(index + 1).ToString()],
 			ConsoleTable.WrapText(user.FullName, 20),
 			ConsoleTable.WrapText(user.Email, 30),
-			user.Roles.Count > 0 ? user.Roles.Select(r => r.ToString()).ToArray() : ["—"],
+			[user.RoleName.ToString()],
 			[user.IsActive ? "Yes" : "No"],
 			[user.MembershipStartDate.ToString("yyyy-MM-dd")],
 			[user.MembershipExpiryDate.ToString("yyyy-MM-dd")]
@@ -96,18 +95,18 @@ public class UserPrinter
 		Console.Clear();
 		var headers = new[]
 		{
-			"ID", "User Name", "National Code", "Email", "Phone", "Role", "Active From", "Active Until", "Is Active",
+			"#", "User Name", "National Code", "Email", "Phone", "Role", "Active From", "Active Until", "Is Active",
 			"Should Remove", "Last Login", "Updated At"
 		};
 
-		var rows = users.Select(user => new[]
+		var rows = users.Select((user, index) => new[]
 		{
-			[user.Id.ToString()],
+			[(index + 1).ToString()],
 			ConsoleTable.WrapText(user.FullName, 20),
 			[user.NationalCode],
 			ConsoleTable.WrapText(user.Email, 30),
 			[user.PhoneNumber],
-			user.Roles.Count > 0 ? user.Roles.Select(r => r.ToString()).ToArray() : ["—"],
+			[user.RoleName.ToString()],
 			[user.MembershipStartDate.ToString("yyyy-MM-dd")],
 			[user.MembershipExpiryDate.ToString("yyyy-MM-dd")],
 			[user.IsActive ? "Yes" : "No"],

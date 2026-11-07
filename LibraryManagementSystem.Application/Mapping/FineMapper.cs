@@ -1,5 +1,5 @@
-﻿using LibraryManagementSystem.Application.DTOs.Fine;
-using LibraryManagementSystem.Domain.Entities;
+﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Infrastructure.DTOs.Fine;
 
 namespace LibraryManagementSystem.Application.Mapping;
 
@@ -9,16 +9,15 @@ public static class FineMapper
 	{
 		return new FineDto
 		{
-			FineId = fine.FineId,
+			Id = fine.Id,
 			LoanId = fine.LoanId,
 			UserId = fine.UserId,
 			UserFullName = $"{fine.Loan.User.FirstName} {fine.Loan.User.LastName}",
-			BookName = fine.Loan.Book.BookName,
+			BookName = fine.Loan.Book.Title,
 			OverdueDays = fine.OverdueDays,
-			Amount = fine.Amount,
+			Money = fine.Money,
 			Status = fine.Status,
 			Reason = fine.Reason,
-			DailyRate = fine.DailyRate,
 			CreatedAt = fine.CreatedAt,
 			UpdatedAt = fine.UpdatedAt,
 			PaidAt = fine.PaidAt

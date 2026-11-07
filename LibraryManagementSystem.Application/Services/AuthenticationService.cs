@@ -1,26 +1,31 @@
-﻿using LibraryManagementSystem.Application.Authentication;
-using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.DTOs.Users;
-using LibraryManagementSystem.Application.Mapping;
+﻿using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
-using LibraryManagementSystem.Domain.Enums;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.DTOs.Users;
+using LibraryManagementSystem.Infrastructure.Enums;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
+using LibraryManagementSystem.Infrastructure.Interfaces;
+using LibraryManagementSystem.Infrastructure.ValueObjects;
 
 namespace LibraryManagementSystem.Application.Services;
 
 public class AuthenticationService
 {
 	private readonly IUserRepository _userRepository;
+	private readonly IUserManagementService _userService;
 	private readonly IRoleRepository _roleRepository;
 	private readonly IPasswordHasher _passwordHasher;
 	private readonly ICurrentUserSession _currentUserSession;
 	private readonly IAuditLogManagementService _auditLog;
 
 
-	public AuthenticationService(IUserRepository userRepository, IRoleRepository roleRepository,
-		IPasswordHasher passwordHasher, ICurrentUserSession currentUserSession, IAuditLogManagementService auditLog)
+	public AuthenticationService(IUserRepository userRepository, IUserManagementService userService,
+		IRoleRepository roleRepository, IPasswordHasher passwordHasher, ICurrentUserSession currentUserSession,
+		IAuditLogManagementService auditLog)
 	{
 		_userRepository = userRepository;
+		_userService = userService;
 		_roleRepository = roleRepository;
 		_passwordHasher = passwordHasher;
 		_currentUserSession = currentUserSession;
@@ -28,13 +33,12 @@ public class AuthenticationService
 	}
 
 
-	public ServiceResult<AuthUserDto> Login(string email, string password)
+	public ServiceResult<AuthUserDto> Login(Email email, string password)
 	{
-		email = email.Trim().ToLower();
 		if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
 			return ServiceResult<AuthUserDto>.Fail(Messages.LoginInputRequired);
 
-		var user = _userRepository.FindByEmail(email);
+		var user = _userRepository.GetByEmail(email, EntityFilter.Active);
 		if (user is null || user.IsRemoved ||
 		    !_passwordHasher.VerifyPassword(password, user.PasswordHash, user.PasswordSalt))
 			return ServiceResult<AuthUserDto>.Fail(Messages.InvalidLoginInput);
@@ -46,8 +50,8 @@ public class AuthenticationService
 		if (user.MembershipExpiryDate < DateOnly.FromDateTime(DateTime.Today))
 			return ServiceResult<AuthUserDto>.Fail(Messages.MembershipExpired);
 
-		user.UpdateLastLogin();
-		_userRepository.Update(user);
+		_userService.UpdateLastLogin(user.Id);
+
 		var authUser = user.ToAuthUserDto();
 		_currentUserSession.Login(authUser);
 		_auditLog.Record(AuditAction.UserLoggedIn, "User", user.Id, "User logged in.");
@@ -60,14 +64,15 @@ public class AuthenticationService
 	{
 		if (!_currentUserSession.IsAuthenticated) return ServiceResult<string>.Fail(Messages.NoUserLoggedIn);
 
-		var currentUser = _currentUserSession.CurrentUser!;
+		var currentUser = _currentUserSession.CurrentUser;
 		var username = currentUser.FullName;
-		var user = _userRepository.FindByEmail(currentUser.Email);
+		var email = Email.Create(currentUser.Email);
+		var user = _userRepository.GetByEmail(email, EntityFilter.Active);
 
 		_auditLog.Record(AuditAction.UserLoggedOut, "User", currentUser.Id, "User logged out.");
 		if (user is not null)
 		{
-			user.UpdateLastLoginInLogout();
+			_userService.UpdateLastLoginInLogout(user.Id);
 			_currentUserSession.Logout();
 		}
 
@@ -75,28 +80,34 @@ public class AuthenticationService
 	}
 
 
-	public ServiceResult<AuthUserDto> Register(CreateUserDto dto)
+	public ServiceResult<AuthUserDto> Register(UserDto dto)
 	{
-		string? warningMessage = null;
-
-		if (_userRepository.ExistsByNationalCode(dto.NationalCode))
+		if (_userRepository.Exists(dto.NationalCode, u => u.NationalCode))
 			return ServiceResult<AuthUserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
 
-		if (_userRepository.ExistsByEmail(dto.Email))
+		if (_userRepository.Exists(dto.Email, u => u.Email))
 			return ServiceResult<AuthUserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
 
-		var existingSameName = _userRepository.FindByName(dto.FirstName, dto.LastName);
-		if (existingSameName is not null)
-			warningMessage = string.Format(Messages.DuplicateUserNameWarning, existingSameName.Id);
+		if (_userRepository.Exists(dto.PhoneNumber, u => u.PhoneNumber))
+			return ServiceResult<AuthUserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
 
-		var role = _roleRepository.FindByIds(dto.RoleIds);
+		var role = _roleRepository.GetByName(LibraryUserRole.Member);
 
-		var result = _passwordHasher.CreatePasswordHash(dto.Password!);
+		var result = _passwordHasher.CreatePasswordHash(dto.Password);
 
-		var newUser = new User(dto.FirstName, dto.LastName, dto.NationalCode, dto.Email, dto.PhoneNumber, dto.BirthDate,
-			role);
+		var newUser = new User
+		{
+			FirstName = dto.FirstName,
+			LastName = dto.LastName,
+			NationalCode = dto.NationalCode,
+			Email = dto.Email,
+			PhoneNumber = dto.PhoneNumber,
+			BirthDate = dto.BirthDate,
+			Role = role!,
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
+		};
 
-		newUser.SetPasswordHash(result.Hash, result.Salt);
+		_userService.SetPasswordHash(newUser.Id, result.Hash, result.Salt);
 		_userRepository.Add(newUser);
 		_auditLog.Record(AuditAction.UserCreated, "User", newUser.Id, "New user registered.");
 
@@ -104,8 +115,6 @@ public class AuthenticationService
 		_currentUserSession.Login(authUser);
 		_auditLog.Record(AuditAction.UserLoggedIn, "User", newUser.Id, "User logged in after registration.");
 
-		return warningMessage is not null
-			? ServiceResult<AuthUserDto>.Warning(authUser, warningMessage)
-			: ServiceResult<AuthUserDto>.Ok(authUser, Messages.UserRegistrationSuccessfully);
+		return ServiceResult<AuthUserDto>.Ok(authUser, Messages.UserRegistrationSuccessfully);
 	}
 }

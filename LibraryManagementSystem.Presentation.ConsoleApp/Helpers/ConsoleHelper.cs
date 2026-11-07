@@ -1,11 +1,11 @@
 ﻿using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.DTOs;
-using LibraryManagementSystem.Application.DTOs.Authors;
-using LibraryManagementSystem.Application.DTOs.Translators;
 using LibraryManagementSystem.Application.Validators;
-using LibraryManagementSystem.Domain.Entities;
-using LibraryManagementSystem.Domain.Enums;
 using System.Text;
+using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.DTOs;
+using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
+using LibraryManagementSystem.Infrastructure.DTOs.Role;
+using LibraryManagementSystem.Infrastructure.Enums;
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
@@ -156,7 +156,7 @@ public static class ConsoleHelper
 	}
 
 
-	private static List<int>? ReadMultiSelect<T>(string prompt, IReadOnlyList<T>? items, Func<T, int> idSelector,
+	private static List<T>? ReadMultiSelect<T>(string prompt, IReadOnlyList<T>? items, Func<T, Guid> idSelector,
 		Func<T, string> displayNameSelector, bool allowMultiple = true, bool allowEmpty = false)
 	{
 		if (items == null || items.Count == 0)
@@ -171,13 +171,13 @@ public static class ConsoleHelper
 			return null;
 		}
 
-		var options = items.Select(item => new OptionItem
+		var options = items.Select((item, _) => new OptionItem
 			{ Id = idSelector(item), DisplayName = displayNameSelector(item) }).ToList();
 
 		while (true)
 		{
 			Console.WriteLine("\nAvailable options: ");
-			foreach (var opt in options) Console.WriteLine($"	{opt.Id}. {opt.DisplayName}");
+			for (var i = 0; i < options.Count; i++) Console.WriteLine($"\t{i + 1}. {options[i].DisplayName}");
 
 			var instruction = allowMultiple
 				? "Enter numbers separated by commas (e.g., 1,2,3 or type 'cancel' to abort)"
@@ -207,23 +207,26 @@ public static class ConsoleHelper
 
 			var distinctIds = selectedIds!.Distinct().ToList();
 			if (distinctIds.Count != selectedIds!.Count) ShowWarning(Messages.DuplicateRemoved);
-			return distinctIds;
+
+			var selectedItems = distinctIds.Select(id => items.First(item => idSelector(item) == id)).ToList();
+
+			return selectedItems;
 		}
 	}
 
 
-	private static (bool isValid, List<int>? SelectedIds, string? error) ParseMultiSelect(string input,
+	private static (bool isValid, List<Guid>? SelectedIds, string? error) ParseMultiSelect(string input,
 		List<OptionItem> validOptions, bool allowMultiple)
 	{
 		var parts = input.Split(',', StringSplitOptions.RemoveEmptyEntries);
-		var result = new List<int>();
+		var result = new List<Guid>();
 
 		if (!allowMultiple && parts.Length > 1) return (false, null, Messages.NotAllowedMultiSelections);
 
 		foreach (var part in parts)
 		{
 			var cleaned = part.Trim();
-			if (!int.TryParse(cleaned, out var id)) return (false, null, $"{cleaned} is not a valid number.");
+			if (!Guid.TryParse(cleaned, out var id)) return (false, null, $"{cleaned} is not a valid GUID.");
 			if (validOptions.All(o => o.Id != id)) return (false, null, string.Format(Messages.InvalidIdSelection, id));
 			result.Add(id);
 		}
@@ -233,8 +236,8 @@ public static class ConsoleHelper
 	}
 
 
-	public static List<int>? ReadAuthors(string prompt, IReadOnlyList<AuthorDto> authors, bool allowMultiple = true,
-		bool allowEmpty = false)
+	public static List<ContributorDto>? ReadAuthorDtos(string prompt, IReadOnlyList<ContributorDto> authors,
+		bool allowMultiple = true, bool allowEmpty = false)
 	{
 		return ReadMultiSelect(prompt, authors, idSelector: a => a.Id,
 			displayNameSelector: a => $"{a.FirstName} {a.LastName}", allowMultiple: allowMultiple,
@@ -242,21 +245,35 @@ public static class ConsoleHelper
 	}
 
 
-	public static List<int>? ReadTranslators(string prompt, IReadOnlyList<TranslatorDto> translators,
-		bool allowMultiple = true, bool allowEmpty = true)
+	public static List<ContributorDto>? ReadTranslatorDtos(string prompt,
+		IReadOnlyList<ContributorDto> translators, bool allowMultiple = true, bool allowEmpty = true)
 	{
 		return ReadMultiSelect(prompt, translators, idSelector: t => t.Id,
 			displayNameSelector: t => $"{t.FirstName} {t.LastName}", allowMultiple, allowEmpty);
 	}
 
 
-	public static IReadOnlyList<int>? ReadRoles(string prompt, IReadOnlyList<Role> roles, bool allowMultiple = true,
-		bool allowEmpty = false)
+	public static IReadOnlyList<RoleDto>? ReadRoles(string prompt, IReadOnlyList<RoleDto> roles,
+		bool allowMultiple = true, bool allowEmpty = false)
 	{
 		return ReadMultiSelect(prompt, roles, idSelector: r => r.Id, displayNameSelector: r => r.Name.ToString(),
 			allowMultiple, allowEmpty);
 	}
 
+
+	public static TEnum? ReadEnum<TEnum>(string prompt) where TEnum : struct, Enum
+	{
+		var values = Enum.GetValues<TEnum>();
+
+		Console.WriteLine(prompt);
+		for (var i = 0; i < values.Length; i++) Console.WriteLine($"\t{i + 1}. {values[i]}");
+
+		var choice = ReadInt("Enter the number of your choice", 1, values.Length);
+		return choice is null ? null : values[choice.Value - 1];
+	}
+
+
+	public static Language? ReadLanguage(string prompt) { return ReadEnum<Language>(prompt); }
 
 
 	private static string? GetValidString(string prompt, Func<string, ValidationResult> validator)
@@ -394,6 +411,16 @@ public static class ConsoleHelper
 		var rows = values.Select((t, i) => (string[][])[[(i + 1).ToString()], [SplitCamelCase(t.ToString())]]).ToList();
 		ConsoleTable.PrintTable("Genre List", headers, rows);
 	}
+
+
+	public static void DisplayLanguages()
+	{
+		var headers = new[] { "ID", "Language" };
+		var values = Enum.GetValues<Language>();
+		var rows = values.Select((t, i) => (string[][])[[(i + 1).ToString()], [SplitCamelCase(t.ToString())]]).ToList();
+		ConsoleTable.PrintTable("Language List", headers, rows);
+	}
+
 
 
 	private static string SplitCamelCase(string input)

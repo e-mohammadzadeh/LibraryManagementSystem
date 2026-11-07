@@ -1,5 +1,5 @@
-﻿using LibraryManagementSystem.Application.DTOs.Users;
-using LibraryManagementSystem.Domain.Entities;
+﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Infrastructure.DTOs.Users;
 
 namespace LibraryManagementSystem.Application.Mapping;
 
@@ -16,7 +16,7 @@ public static class UserMapper
 			Email = user.Email,
 			PhoneNumber = user.PhoneNumber,
 			BirthDate = user.BirthDate,
-			Roles = [.. user.UserRoles.Select(ur => ur.Role.Name)],
+			RoleName = user.Role.Name,
 			MembershipStartDate = user.MembershipStartDate,
 			MembershipExpiryDate = user.MembershipExpiryDate,
 			ShouldRemove = user.ShouldRemove,

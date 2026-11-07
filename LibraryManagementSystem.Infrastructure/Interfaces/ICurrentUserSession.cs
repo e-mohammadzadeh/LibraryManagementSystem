@@ -1,0 +1,18 @@
+﻿using LibraryManagementSystem.Infrastructure.DTOs.Users;
+using LibraryManagementSystem.Infrastructure.Enums;
+
+namespace LibraryManagementSystem.Infrastructure.Interfaces;
+
+public interface ICurrentUserSession
+{
+	AuthUserDto CurrentUser { get; }
+	bool IsAuthenticated { get; }
+	void Login(AuthUserDto user);
+	void Logout();
+	void UpdateCurrentUser(AuthUserDto user);
+	IReadOnlySet<Permission> Permissions { get; }
+	bool IsAdmin { get; }
+	bool IsLibrarian { get; }
+	bool IsMember { get; }
+	bool IsSelfServiceMember { get; }
+}

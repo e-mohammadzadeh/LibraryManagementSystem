@@ -1,0 +1,32 @@
+﻿namespace LibraryManagementSystem.Infrastructure.Common;
+
+public static class ValidationConstants
+{
+	public const int MinNameLength = 2;
+	public const int MaxNameLength = 50;
+	public const int MinBookNameLength = 3;
+	public const int MaxBookNameLength = 100;
+	public const int MinPublisherNameLength = 4;
+	public const int MaxPublisherNameLength = 100;
+	public const int MaxBookCopies = 10;
+	public const int MinBookCopies = 1;
+	public const int NationalCodeLength = 10;
+	public const int PhoneNumberLength = 11;
+	public const int ISBN13Length = 13;
+	public const int MinRoleId = 1;
+	public const int MaxRoleId = 3;
+	public const int MaxActiveLoansPerUser = 3;
+	public const decimal MaxUnpaidFineThreshold = 150m;  // 47 days hits cap
+	public const decimal InitialDailyRate = 0.50m;
+	public const int FixedRateDays = 5;
+	public const decimal GeometricRatio = 1.08m;
+	public const int MinRenewMembershipYear = 1;
+	public const int MaxRenewMembershipYear = 3;
+	public const int DescriptionWrapWidthInTable = 28;
+	public const int BookNameWrapWidthInTable = 30;
+	public const int MinPasswordLength = 8;
+	public const int LoanPeriodDays = 14;
+	public const int MaxRenewals = 1;
+	public const string DateFormat = "yyyy-MM-dd";
+
+}
