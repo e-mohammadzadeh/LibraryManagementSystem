@@ -14,9 +14,9 @@ public class PersonConfiguration : IEntityTypeConfiguration<Person>
 		builder.Property(p => p.FirstName).IsRequired().HasMaxLength(100);
 		builder.Property(p => p.LastName).IsRequired().HasMaxLength(100);
 		builder.Property(p => p.NationalCode).IsRequired().HasMaxLength(20);
-		builder.Property(p => p.Email).HasConversion(email => email.Value, value => Email.Create(value)).IsRequired();
+		builder.Property(p => p.Email).HasConversion(email => email.Value, value => Email.Create(value)).IsRequired().HasMaxLength(254);
 		builder.Property(p => p.PhoneNumber).HasConversion(ph => ph.Value, value => PhoneNumber.Create(value))
-			.IsRequired();
+			.IsRequired().HasMaxLength(16);
 		builder.Property(p => p.BirthDate).IsRequired();
 
 		builder.HasDiscriminator<string>("PersonType")
