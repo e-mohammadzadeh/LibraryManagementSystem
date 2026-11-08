@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Infrastructure.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -20,8 +21,10 @@ public class FineConfiguration : IEntityTypeConfiguration<Fine>
 			.HasForeignKey(f => f.UserId)
 			.OnDelete(DeleteBehavior.Restrict);
 
-		builder.HasIndex(f => f.LoanId);
+		builder.HasIndex(f => f.LoanId).IsUnique();
 		builder.Property(f => f.OverdueDays).IsRequired();
+		builder.Property(f => f.Money).HasConversion(money => money.Amount, amount => Money.Create(amount))
+			.HasPrecision(18, 2).IsRequired();
 		builder.Property(f => f.Status).IsRequired();
 		builder.Property(f => f.PaidAt);
 		builder.Property(f => f.Reason).IsRequired().HasMaxLength(500);
