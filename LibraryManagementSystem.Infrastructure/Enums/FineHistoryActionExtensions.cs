@@ -1,6 +1,4 @@
-﻿using LibraryManagementSystem.Domain.Enums;
-
-namespace LibraryManagementSystem.Infrastructure.Enums;
+﻿namespace LibraryManagementSystem.Infrastructure.Enums;
 
 public static class FineHistoryActionExtensions
 {

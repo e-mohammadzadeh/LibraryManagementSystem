@@ -1,5 +1,5 @@
-﻿using LibraryManagementSystem.Domain.Enums;
-using LibraryManagementSystem.Infrastructure.DTOs.Fine;
+﻿using LibraryManagementSystem.Infrastructure.DTOs.Fine;
+using LibraryManagementSystem.Infrastructure.Enums;
 
 namespace LibraryManagementSystem.Infrastructure.Interfaces;
 
