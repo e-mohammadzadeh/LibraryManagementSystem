@@ -21,6 +21,7 @@ public class PersonConfiguration : IEntityTypeConfiguration<Person>
 
 		builder.HasDiscriminator<string>("PersonType")
 			.HasValue<Author>("Author")
-			.HasValue<Translator>("Translator");
+			.HasValue<Translator>("Translator")
+			.HasValue<User>("User");
 	}
 }

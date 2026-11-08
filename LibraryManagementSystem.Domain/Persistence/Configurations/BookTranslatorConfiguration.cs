@@ -15,13 +15,11 @@ public class BookTranslatorConfiguration : IEntityTypeConfiguration<BookTranslat
 		});
 
 		builder.HasOne(bt => bt.Book)
-			.WithMany()
-			.HasForeignKey(bt => bt.BookId)
-			.OnDelete(DeleteBehavior.Cascade);
+			.WithMany(b => b.BookTranslators)
+			.HasForeignKey(bt => bt.BookId);
 
 		builder.HasOne(bt => bt.Translator)
 			.WithMany(t => t.BookTranslators)
-			.HasForeignKey(bt => bt.TranslatorId)
-			.OnDelete(DeleteBehavior.Cascade);
+			.HasForeignKey(bt => bt.TranslatorId);
 	}
 }
