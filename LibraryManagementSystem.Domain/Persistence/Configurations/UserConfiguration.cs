@@ -11,7 +11,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 		builder.HasOne(u => u.Role)
 			.WithMany()
 			.HasForeignKey(u => u.RoleId)
-			.OnDelete(DeleteBehavior.Cascade);
+			.OnDelete(DeleteBehavior.Restrict);
 
 		builder.Property(u => u.IsActive).IsRequired();
 		builder.Property(u => u.MembershipStartDate).IsRequired();

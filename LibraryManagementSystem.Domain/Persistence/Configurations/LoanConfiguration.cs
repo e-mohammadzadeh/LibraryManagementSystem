@@ -17,7 +17,7 @@ public class LoanConfiguration : IEntityTypeConfiguration<Loan>
 
 		builder.HasOne(l => l.User)
 			.WithMany()
-			.HasForeignKey(l => l.BookId)
+			.HasForeignKey(l => l.UserId)
 			.OnDelete(DeleteBehavior.Restrict);
 
 		builder.Property(l => l.BorrowDate).IsRequired();
