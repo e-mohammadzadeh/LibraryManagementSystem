@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LibraryManagementSystem.Domain.Persistence.Migrations
 {
     [DbContext(typeof(LibraryDbContext))]
-    [Migration("20261109140204_InitialCreate")]
+    [Migration("20261109142319_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -139,7 +139,8 @@ namespace LibraryManagementSystem.Domain.Persistence.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.HasIndex("BookId");
+                    b.HasIndex("BookId", "AuthorId")
+                        .IsUnique();
 
                     b.ToTable("BookAuthors");
                 });

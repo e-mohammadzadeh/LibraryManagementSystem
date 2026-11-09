@@ -255,9 +255,10 @@ namespace LibraryManagementSystem.Domain.Persistence.Migrations
                 column: "AuthorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BookAuthors_BookId",
+                name: "IX_BookAuthors_BookId_AuthorId",
                 table: "BookAuthors",
-                column: "BookId");
+                columns: new[] { "BookId", "AuthorId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Books_ISBN",

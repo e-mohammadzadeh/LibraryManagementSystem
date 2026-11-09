@@ -136,7 +136,8 @@ namespace LibraryManagementSystem.Domain.Persistence.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.HasIndex("BookId");
+                    b.HasIndex("BookId", "AuthorId")
+                        .IsUnique();
 
                     b.ToTable("BookAuthors");
                 });
