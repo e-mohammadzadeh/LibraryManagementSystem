@@ -10,6 +10,8 @@ public class BookAuthorConfiguration :IEntityTypeConfiguration<BookAuthor>
 	{
 		builder.HasKey(ba => ba.Id);
 
+		builder.HasIndex(ba => new { ba.BookId, ba.AuthorId }).IsUnique();
+
 		builder.HasOne(ba => ba.Book)
 			.WithMany(b => b.BookAuthors)
 			.HasForeignKey(ba => ba.BookId);
