@@ -9,6 +9,7 @@ using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 using System.Text;
 using LibraryManagementSystem.Application.Menu;
+using LibraryManagementSystem.Application.Repositories.EFCore;
 using LibraryManagementSystem.Domain.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,9 +38,9 @@ public static class Program
 			var passwordHasher = new PasswordHasher();
 			var roleRepo = new InMemoryRoleRepository();
 			var userRepo = new InMemoryUserRepository(roleRepo, passwordHasher);
-			var authorRepo = new InMemoryAuthorRepository();
-			var translatorRepo = new InMemoryTranslatorRepository();
-			var bookRepo = new InMemoryBookRepository();
+			var authorRepo = new AuthorRepository(dbContext);
+			var translatorRepo = new TranslatorRepository(dbContext);
+			var bookRepo = new BookRepository(dbContext);
 			var loanRepo = new InMemoryLoanRepository();
 			var fineRepo = new InMemoryFineRepository();
 			var auditLogRepo = new InMemoryAuditLogRepository();

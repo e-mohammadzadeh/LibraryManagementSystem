@@ -28,13 +28,16 @@ public abstract class ContributorRepository<T> : IContributorRepository<T> where
 	}
 
 
-	public T? GetById(Guid id, EntityFilter filter)
+	public T? GetById(Guid id, EntityFilter filter = EntityFilter.Active)
 	{
 		return ApplyFilter(DbSet.AsNoTracking(), filter).FirstOrDefault(c => c.Id == id);
 	}
 
 
-	public IReadOnlyList<T> GetAll(EntityFilter filter) { return [.. ApplyFilter(DbSet.AsNoTracking(), filter)]; }
+	public IReadOnlyList<T> GetAll(EntityFilter filter = EntityFilter.Active)
+	{
+		return [.. ApplyFilter(DbSet.AsNoTracking(), filter)];
+	}
 
 
 	public bool Exists<TValue>(TValue value, Func<T, TValue> selector, Guid? excludeId = null)
@@ -47,9 +50,9 @@ public abstract class ContributorRepository<T> : IContributorRepository<T> where
 			.Where(c => !c.IsRemoved)
 			.AsEnumerable()
 			.Any(c =>
-				(excludeId == null || c.Id != excludeId) && 
+				(excludeId == null || c.Id != excludeId) &&
 				EqualityComparer<TValue>.Default.Equals(selector(c), value)
-				);
+			);
 	}
 
 
@@ -59,7 +62,6 @@ public abstract class ContributorRepository<T> : IContributorRepository<T> where
 
 		if (entity.IsRemoved) return;
 		var tracked = DbSet.FirstOrDefault(c => c.Id == entity.Id) ?? throw CreateNotFoundException(entity.Id);
-
 		tracked.IsRemoved = true;
 		tracked.UpdatedAt = DateTime.UtcNow;
 
