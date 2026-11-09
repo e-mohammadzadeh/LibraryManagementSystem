@@ -9,6 +9,8 @@ using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 using System.Text;
 using LibraryManagementSystem.Application.Menu;
+using LibraryManagementSystem.Domain.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp;
@@ -23,6 +25,14 @@ public static class Program
 
 		try
 		{
+			// ── Database ─────────────────────────────────
+			var options = new DbContextOptionsBuilder<LibraryDbContext>().UseSqlServer(
+					@"Server=(localdb)\MSSQLLocalDB;Database=LibraryManagementSystemDb;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True")
+				.Options;
+			using var dbContext = new LibraryDbContext(options);
+			if (!dbContext.Database.CanConnect()) throw new Exception("Could not connect to the library database.");
+			Console.WriteLine("Database connection successful!");
+
 			// ── Repositories ──────────────────────────
 			var passwordHasher = new PasswordHasher();
 			var roleRepo = new InMemoryRoleRepository();
