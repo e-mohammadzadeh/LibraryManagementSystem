@@ -4,6 +4,7 @@ using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Domain.Persistence;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace LibraryManagementSystem.Application.Repositories.EFCore;
 
@@ -65,18 +66,15 @@ public class BookRepository : IBookRepository
 	}
 
 
-	public bool Exists<TValue>(TValue value, Func<Book, TValue> selector, Guid? excludeId = null)
+	public bool Exists<TValue>(Expression<Func<Book, bool>> predicate, Guid? excludeId = null)
 	{
-		ArgumentNullException.ThrowIfNull(selector);
+		ArgumentNullException.ThrowIfNull(predicate);
 
 		return DbSet
 			.AsNoTracking()
 			.Where(b => !b.IsRemoved)
-			.AsEnumerable()
-			.Any(b =>
-				(excludeId == null || b.Id != excludeId) &&
-				EqualityComparer<TValue>.Default.Equals(selector(b), value)
-			);
+			.Where(predicate)
+			.Any(b => excludeId == null || b.Id != excludeId);
 	}
 
 
@@ -98,9 +96,9 @@ public class BookRepository : IBookRepository
 		ArgumentNullException.ThrowIfNull(book);
 
 		var tracked = DbSet
-			.Include(b => b.BookAuthors)
-			.Include(b => b.BookTranslators)
-			.FirstOrDefault(b => b.Id == book.Id)
+			              .Include(b => b.BookAuthors)
+			              .Include(b => b.BookTranslators)
+			              .FirstOrDefault(b => b.Id == book.Id)
 		              ?? throw CreateNotFoundException(book.Id);
 
 		tracked.Title = book.Title;
@@ -138,14 +136,22 @@ public class BookRepository : IBookRepository
 
 	private void UpdateAuthors(Book tracked, Book updated)
 	{
-		tracked.BookAuthors.Clear();
+		var incomingIds = updated.BookAuthors
+			.Select(ba => ba.AuthorId)
+			.ToHashSet();
 
-		foreach (var bookAuthor in updated.BookAuthors)
+		var existingIds = tracked.BookAuthors
+			.Select(ba => ba.AuthorId)
+			.ToHashSet();
+
+		tracked.BookAuthors.Remove(ba => !incomingIds.Contains(ba.AuthorId));
+
+		foreach (var authorId in incomingIds.Except(existingIds))
 		{
 			tracked.BookAuthors.Add(new BookAuthor
 			{
 				BookId = tracked.Id,
-				AuthorId = bookAuthor.AuthorId
+				AuthorId = authorId
 			});
 		}
 	}
@@ -153,14 +159,22 @@ public class BookRepository : IBookRepository
 
 	private void UpdateTranslators(Book tracked, Book updated)
 	{
-		tracked.BookTranslators.Clear();
+		var incomingIds = updated.BookTranslators
+			.Select(bt => bt.TranslatorId)
+			.ToHashSet();
 
-		foreach (var bookTranslator in updated.BookTranslators)
+		var existingIds = tracked.BookTranslators
+			.Select(bt => bt.TranslatorId)
+			.ToHashSet();
+
+		tracked.BookTranslators.Remove(bt => !incomingIds.Contains(bt.TranslatorId));
+
+		foreach (var translatorId in incomingIds.Except(existingIds))
 		{
 			tracked.BookTranslators.Add(new BookTranslator
 			{
 				BookId = tracked.Id,
-				TranslatorId = bookTranslator.TranslatorId
+				TranslatorId = translatorId
 			});
 		}
 	}

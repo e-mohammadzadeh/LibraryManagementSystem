@@ -14,7 +14,7 @@ public class BookConfiguration : IEntityTypeConfiguration<Book>
 		builder.Property(b => b.Title).IsRequired().HasMaxLength(300);
 		builder.Property(b => b.ISBN).HasConversion(isbn => isbn.Value, value => ISBN.Create(value)).IsRequired()
 			.HasMaxLength(13);
-		builder.HasIndex(b => b.ISBN).IsUnique();
+		builder.HasIndex(b => b.ISBN).IsUnique().HasFilter("[IsRemoved] = 0");
 		builder.Property(b => b.PublishDate).IsRequired();
 		builder.Property(b => b.Genre).HasConversion(genre => genre.Value, value => BookGenre.Create(value))
 			.IsRequired();

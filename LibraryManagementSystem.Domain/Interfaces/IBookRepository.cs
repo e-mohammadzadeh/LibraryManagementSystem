@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
+using System.Linq.Expressions;
 
 namespace LibraryManagementSystem.Domain.Interfaces;
 
@@ -10,7 +11,7 @@ public interface IBookRepository
 	IReadOnlyList<Book> GetAll(EntityFilter filter);
 	IReadOnlyList<Book> GetByAuthorId(Guid authorId, EntityFilter filter);
 	IReadOnlyList<Book> GetByTranslatorId(Guid translatorId, EntityFilter filter);
-	bool Exists<T>(T value, Func<Book, T> selector, Guid? excludeId = null);
+	bool Exists<T>(Expression<Func<Book, bool>> predicate, Guid? excludeId = null);
 	void Remove(Book book);
 	void Update(Book book);
 }
