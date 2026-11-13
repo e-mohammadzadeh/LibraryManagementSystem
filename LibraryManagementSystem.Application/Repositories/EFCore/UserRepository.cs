@@ -21,41 +21,34 @@ public class UserRepository : IUserRepository
 	}
 
 
+	private IQueryable<User> Query(EntityFilter filter) =>
+		ApplyFilter(DbSet.AsNoTracking().Include(u => u.Role), filter);
+
+
 	public void Add(User user)
 	{
 		ArgumentNullException.ThrowIfNull(user);
+
+		user.Role = null;
 
 		DbSet.Add(user);
 		Context.SaveChanges();
 	}
 
 
-	public User? GetById(Guid id, EntityFilter filter = EntityFilter.Active)
-	{
-		return ApplyFilter(DbSet.AsNoTracking(), filter).FirstOrDefault(u => u.Id == id);
-	}
+	public User? GetById(Guid id, EntityFilter filter = EntityFilter.Active) =>
+		Query(filter).FirstOrDefault(u => u.Id == id);
 
 
-	public IReadOnlyList<User> GetAll(EntityFilter filter = EntityFilter.Active)
-	{
-		return [.. ApplyFilter(DbSet.AsNoTracking(), filter)];
-	}
+	public IReadOnlyList<User> GetAll(EntityFilter filter = EntityFilter.Active) => [.. Query(filter)];
 
 
-	public User? GetByName(string firstName, string lastName, EntityFilter filter = EntityFilter.Active)
-	{
-		return ApplyFilter(DbSet.AsNoTracking(), filter)
-			.FirstOrDefault(u =>
-				u.FirstName.Equals(firstName, StringComparison.OrdinalIgnoreCase) &&
-				u.LastName.Equals(lastName, StringComparison.OrdinalIgnoreCase));
-	}
+	public User? GetByName(string firstName, string lastName, EntityFilter filter = EntityFilter.Active) =>
+		Query(filter).FirstOrDefault(u => u.FirstName == firstName && u.LastName == lastName);
 
 
-	public User? GetByEmail(Email email, EntityFilter filter = EntityFilter.Active)
-	{
-		return ApplyFilter(DbSet.AsNoTracking(), filter)
-			.FirstOrDefault(u => u.Email.Equals(email));
-	}
+	public User? GetByEmail(Email email, EntityFilter filter = EntityFilter.Active) =>
+		Query(filter).FirstOrDefault(u => u.Email == email);
 
 
 	public bool Exists<TValue>(TValue value, Func<User, TValue> selector, Guid? excludeId)
@@ -68,8 +61,7 @@ public class UserRepository : IUserRepository
 			.AsEnumerable()
 			.Any(u =>
 				(excludeId == null || u.Id != excludeId) &&
-				EqualityComparer<TValue>.Default.Equals(selector(u), value)
-			);
+				EqualityComparer<TValue>.Default.Equals(selector(u), value));
 	}
 
 
@@ -98,7 +90,19 @@ public class UserRepository : IUserRepository
 		tracked.Email = user.Email;
 		tracked.PhoneNumber = user.PhoneNumber;
 		tracked.BirthDate = user.BirthDate;
-		tracked.Role = user.Role;
+
+		tracked.IsActive = user.IsActive;
+		tracked.MembershipStartDate = user.MembershipStartDate;
+		tracked.MembershipExpiryDate = user.MembershipExpiryDate;
+		tracked.ShouldRemove = user.ShouldRemove;
+
+		tracked.PasswordHash = user.PasswordHash;
+		tracked.PasswordSalt = user.PasswordSalt;
+		tracked.LastLoginDate = user.LastLoginDate;
+		tracked.PreviousLoginDate = user.PreviousLoginDate;
+
+		tracked.RoleId = user.RoleId;
+
 		tracked.UpdatedAt = DateTime.UtcNow;
 		tracked.UpdatedByUserId = user.UpdatedByUserId;
 
