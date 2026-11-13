@@ -27,7 +27,7 @@ public static class Program
 		try
 		{
 			var config = new ConfigurationBuilder()
-				.SetBasePath(AppContext.BaseDirectory)
+				.SetBasePath(Path.Combine(AppContext.BaseDirectory, "Configuration"))
 				.AddJsonFile("appsettings.json", optional: false)
 				.Build();
 
@@ -122,6 +122,9 @@ public static class Program
 
 		services.AddScoped<FineManagementService>();
 		services.AddScoped<IFineManagementService>(sp => sp.GetRequiredService<FineManagementService>());
+
+		services.AddScoped<UserManagementService>();
+		services.AddScoped<IUserManagementService>(sp => sp.GetRequiredService<UserManagementService>());
 
 		services.AddScoped<MenuService>();
 		services.AddScoped<IMenuService>(sp => sp.GetRequiredService<MenuService>());
