@@ -1,7 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.Repositories.InMemory;
 using LibraryManagementSystem.Application.Security;
 using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Infrastructure.Interfaces;
@@ -10,9 +9,11 @@ using LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 using System.Text;
 using LibraryManagementSystem.Application.Menu;
 using LibraryManagementSystem.Application.Repositories.EFCore;
+using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Domain.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp;
@@ -23,76 +24,42 @@ public static class Program
 	{
 		Console.OutputEncoding = Encoding.UTF8;
 
-		var menuDefinition = MenuLoader.Load();
-
 		try
 		{
-			// ── Database ─────────────────────────────────
 			var config = new ConfigurationBuilder()
 				.SetBasePath(AppContext.BaseDirectory)
 				.AddJsonFile("appsettings.json", optional: false)
 				.Build();
 
 			var connectionString = config.GetConnectionString("LibraryDb")
-			                       ?? throw new InvalidOperationException("Connection string 'LibraryDb' was not found.");
+			                       ?? throw new InvalidOperationException(
+				                       "Connection string 'LibraryDb' was not found.");
 
-			var options = new DbContextOptionsBuilder<LibraryDbContext>()
-				.UseSqlServer(connectionString)
-				.Options;
+			using var provider = BuildServiceProvider(connectionString);
+			using var scope = provider.CreateScope();
+			var sp = scope.ServiceProvider;
 
-			using var dbContext = new LibraryDbContext(options);
-			dbContext.Database.Migrate();
+			// ── Database ─────────────────────────────────
+			var options = sp.GetRequiredService<LibraryDbContext>().Database.Migrate();
 			Console.WriteLine("Database ready!");
 
-			// ── Repositories ──────────────────────────
-			var passwordHasher = new PasswordHasher();
-			var roleRepo = new RoleRepository(dbContext);
-			var userRepo = new InMemoryUserRepository(roleRepo, passwordHasher);
-			var authorRepo = new AuthorRepository(dbContext);
-			var translatorRepo = new TranslatorRepository(dbContext);
-			var bookRepo = new BookRepository(dbContext);
-			var loanRepo = new InMemoryLoanRepository();
-			var fineRepo = new InMemoryFineRepository();
-			var auditLogRepo = new InMemoryAuditLogRepository();
 
-
-			// ── Infrastructure Services ───────────────
-			ICurrentUserSession currentUserSession = new CurrentUserSession();
-			IAuthorizationService authorization = new AuthorizationService(currentUserSession, loanRepo);
-
-			// ── Application Interfaces ──────────────────
-			IAuditLogManagementService auditLogService =
-				new AuditLogManagementService(userRepo, auditLogRepo, currentUserSession);
-			IUserAutoRemovalService userAutoRemovalService = new UserAutoRemovalService(userRepo, loanRepo, fineRepo);
-			IBookManagementService iBookService = new BookManagementService(authorRepo, translatorRepo, bookRepo,
-				loanRepo, auditLogService, authorization);
-			IUserManagementService iUserService = new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo,
-				passwordHasher, authorization, auditLogService);
-			IFineManagementService fineService = new FineManagementService(fineRepo, loanRepo, userRepo, iUserService,
-				userAutoRemovalService, authorization, auditLogService);
-			IMenuService menuService = new MenuService(menuDefinition, authorization);
-
-
-			// ── Application Services ──────────────────
-			var authorService = new AuthorManagementService(authorRepo, authorization, auditLogService);
-			var translatorService = new TranslatorManagementService(translatorRepo, authorization, auditLogService);
-			var loanService = new LoanManagementService(loanRepo, userRepo, bookRepo, iBookService, fineRepo,
-				fineService, userAutoRemovalService, auditLogService);
-			var userService = new UserManagementService(userRepo, roleRepo, loanRepo, fineRepo, passwordHasher,
-				authorization, auditLogService);
-			var bookService = new BookManagementService(authorRepo, translatorRepo, bookRepo, loanRepo, auditLogService,
-				authorization);
-			var authService = new AuthenticationService(userRepo, iUserService, roleRepo, passwordHasher,
-				currentUserSession, auditLogService);
-			var statisticsService =
-				new LibraryStatisticsService(bookRepo, authorRepo, translatorRepo, userRepo, loanRepo);
-			var roleService = new RoleManagementService(roleRepo);
-
+			// ── Resolve what the menus need ───────────
+			var currentUserSession = sp.GetRequiredService<ICurrentUserSession>();
+			var authorization = sp.GetRequiredService<IAuthorizationService>();
+			var authService = sp.GetRequiredService<AuthenticationService>();
+			var authorService = sp.GetRequiredService<AuthorManagementService>();
+			var translatorService = sp.GetRequiredService<TranslatorManagementService>();
+			var userService = sp.GetRequiredService<UserManagementService>();
+			var bookService = sp.GetRequiredService<BookManagementService>();
+			var loanService = sp.GetRequiredService<LoanManagementService>();
+			var fineService = sp.GetRequiredService<IFineManagementService>();
+			var statisticsService = sp.GetRequiredService<LibraryStatisticsService>();
+			var auditLogService = sp.GetRequiredService<IAuditLogManagementService>();
+			var roleService = sp.GetRequiredService<RoleManagementService>();
+			var menuService = sp.GetRequiredService<IMenuService>();
 
 			Console.Title = "Library Management System";
-			// Seed data for development/testing
-			//DataSeeder.Seed(authorRepo, translatorRepo, bookService, bookRepo, userRepo, iUserService, loanRepo,
-			//	roleRepo, fineRepo, passwordHasher);
 
 			while (true)
 			{
@@ -115,5 +82,61 @@ public static class Program
 			                        ex.Message + "\n" + new string('=', 50));
 			ConsoleHelper.Pause();
 		}
+	}
+
+
+	private static IServiceProvider BuildServiceProvider(string connectionString)
+	{
+		var services = new ServiceCollection();
+
+		// ── Database ─────────────────────────────────
+		services.AddDbContext<LibraryDbContext>(o => o.UseSqlServer(connectionString));
+
+		// ── Singletons (no scoped dependencies) ───────────────────────────────
+		services.AddSingleton(MenuLoader.Load());
+		services.AddSingleton<IPasswordHasher, PasswordHasher>();
+
+		// ── Repositories ──────────────────────────────────────────────────────
+		services.AddScoped<IRoleRepository, RoleRepository>();
+		services.AddScoped<IAuthorRepository, AuthorRepository>();
+		services.AddScoped<ITranslatorRepository, TranslatorRepository>();
+		services.AddScoped<IBookRepository, BookRepository>();
+		services.AddScoped<IUserRepository, UserRepository>();
+		services.AddScoped<ILoanRepository, LoanRepository>();
+		services.AddScoped<IFineRepository, FineRepository>();
+		services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+
+		// ── Infrastructure services ─────────────────────────────────────────────
+		services.AddScoped<ICurrentUserSession, CurrentUserSession>();
+		services.AddScoped<IAuthorizationService, AuthorizationService>();
+
+		// ── Application services (interface + concrete share one instance) ──────
+		services.AddScoped<AuditLogManagementService>();
+		services.AddScoped<IAuditLogManagementService>(sp => sp.GetRequiredService<AuditLogManagementService>());
+
+		services.AddScoped<UserAutoRemovalService>();
+		services.AddScoped<IUserAutoRemovalService>(sp => sp.GetRequiredService<UserAutoRemovalService>());
+
+		services.AddScoped<BookManagementService>();
+		services.AddScoped<IBookManagementService>(sp => sp.GetRequiredService<BookManagementService>());
+
+		services.AddScoped<FineManagementService>();
+		services.AddScoped<IFineManagementService>(sp => sp.GetRequiredService<FineManagementService>());
+
+		services.AddScoped<MenuService>();
+		services.AddScoped<IMenuService>(sp => sp.GetRequiredService<MenuService>());
+
+		services.AddScoped<AuthorManagementService>();
+		services.AddScoped<TranslatorManagementService>();
+		services.AddScoped<LoanManagementService>();
+		services.AddScoped<AuthenticationService>();
+		services.AddScoped<LibraryStatisticsService>();
+		services.AddScoped<RoleManagementService>();
+
+		return services.BuildServiceProvider(new ServiceProviderOptions
+		{
+			ValidateScopes = true,
+			ValidateOnBuild = true
+		});
 	}
 }
