@@ -11,14 +11,9 @@ namespace LibraryManagementSystem.Application.Repositories.EFCore;
 public class BookRepository : IBookRepository
 {
 	protected readonly LibraryDbContext Context;
-	protected readonly DbSet<Book> DbSet;
 
 
-	public BookRepository(LibraryDbContext context)
-	{
-		Context = context;
-		DbSet = context.Set<Book>();
-	}
+	public BookRepository(LibraryDbContext context) => Context = context;
 
 
 	public void Add(Book book)
@@ -30,52 +25,48 @@ public class BookRepository : IBookRepository
 		book.CreatedAt = DateTime.UtcNow;
 		book.IsRemoved = false;
 
-		DbSet.Add(book);
+		Context.Books.Add(book);
 		Context.SaveChanges();
 	}
 
 
-	public Book? GetById(Guid id, EntityFilter filter = EntityFilter.Active)
-	{
-		return ApplyFilter(DbSet.AsNoTracking(), filter).FirstOrDefault(b => b.Id == id);
-	}
+	public Book? GetById(Guid id, EntityFilter filter = EntityFilter.Active) =>
+		ApplyFilter(Context.Books.AsNoTracking(), filter)
+			.FirstOrDefault(b => b.Id == id);
 
 
-	public IReadOnlyList<Book> GetAll(EntityFilter filter = EntityFilter.Active)
-	{
-		return [.. ApplyFilter(DbSet.AsNoTracking(), filter)];
-	}
+	public IReadOnlyList<Book> GetAll(EntityFilter filter = EntityFilter.Active) =>
+	[
+		.. ApplyFilter(Context.Books.AsNoTracking(), filter)
+			.OrderByDescending(b => b.CreatedAt)
+	];
 
 
-	public IReadOnlyList<Book> GetByAuthorId(Guid id, EntityFilter filter = EntityFilter.Active)
-	{
-		return
-		[
-			.. ApplyFilter(DbSet.AsNoTracking(), filter)
-				.Where(b => b.BookAuthors
-					.Any(a => a.AuthorId == id)
-				)
-		];
-	}
+
+	public IReadOnlyList<Book> GetByAuthorId(Guid id, EntityFilter filter = EntityFilter.Active) =>
+	[
+		.. ApplyFilter(Context.Books.AsNoTracking(), filter)
+			.Where(b => b.BookAuthors
+				.Any(a => a.AuthorId == id))
+	];
 
 
-	public IReadOnlyList<Book> GetByTranslatorId(Guid id, EntityFilter filter = EntityFilter.Active)
-	{
-		return
-		[
-			.. ApplyFilter(DbSet.AsNoTracking(), filter)
-				.Where(bt => bt.BookTranslators
-					.Any(t => t.TranslatorId == id)
-				)
-		];
-	}
+
+	public IReadOnlyList<Book> GetByTranslatorId(Guid id, EntityFilter filter = EntityFilter.Active) =>
+	[
+		.. ApplyFilter(Context.Books.AsNoTracking(), filter)
+			.Where(bt => bt.BookTranslators
+				.Any(t => t.TranslatorId == id)
+			)
+	];
+
 
 
 	public bool Exists<TValue>(Expression<Func<Book, bool>> predicate, Guid? excludeId = null)
 	{
 		ArgumentNullException.ThrowIfNull(predicate);
 
-		return DbSet
+		return Context.Books
 			.AsNoTracking()
 			.Where(b => !b.IsRemoved)
 			.Where(predicate)
@@ -88,7 +79,7 @@ public class BookRepository : IBookRepository
 		ArgumentNullException.ThrowIfNull(book);
 
 		if (book.IsRemoved) return;
-		var tracked = DbSet.FirstOrDefault(b => b.Id == book.Id) ?? throw CreateNotFoundException(book.Id);
+		var tracked = Context.Books.FirstOrDefault(b => b.Id == book.Id) ?? throw CreateNotFoundException(book.Id);
 		tracked.IsRemoved = true;
 		tracked.UpdatedAt = DateTime.UtcNow;
 
@@ -100,7 +91,7 @@ public class BookRepository : IBookRepository
 	{
 		ArgumentNullException.ThrowIfNull(book);
 
-		var tracked = DbSet
+		var tracked = Context.Books
 			              .Include(b => b.BookAuthors)
 			              .Include(b => b.BookTranslators)
 			              .FirstOrDefault(b => b.Id == book.Id)

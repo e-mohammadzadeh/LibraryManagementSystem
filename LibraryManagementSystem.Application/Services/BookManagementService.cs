@@ -39,7 +39,7 @@ public class BookManagementService : IBookManagementService
 
 	public ServiceResult<BookDto> AddBook(BookDto dto)
 	{
-		if (_bookRepository.Exists(dto.Title, b => b.Title))
+		if (_bookRepository.Exists(b => b.Title == dto.Title, dto.Id))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByName);
 
 		if (_bookRepository.Exists(dto.ISBN, b => b.ISBN))

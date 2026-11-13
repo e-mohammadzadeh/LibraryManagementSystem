@@ -11,18 +11,14 @@ namespace LibraryManagementSystem.Application.Repositories.EFCore;
 public class UserRepository : IUserRepository
 {
 	protected readonly LibraryDbContext Context;
-	protected readonly DbSet<User> DbSet;
 
 
-	public UserRepository(LibraryDbContext context)
-	{
-		Context = context;
-		DbSet = context.Set<User>();
-	}
+	public UserRepository(LibraryDbContext context) => Context = context;
+
 
 
 	private IQueryable<User> Query(EntityFilter filter) =>
-		ApplyFilter(DbSet.AsNoTracking().Include(u => u.Role), filter);
+		ApplyFilter(Context.Users.AsNoTracking().Include(u => u.Role), filter);
 
 
 	public void Add(User user)
@@ -31,7 +27,7 @@ public class UserRepository : IUserRepository
 
 		user.Role = null;
 
-		DbSet.Add(user);
+		Context.Users.Add(user);
 		Context.SaveChanges();
 	}
 
@@ -40,7 +36,8 @@ public class UserRepository : IUserRepository
 		Query(filter).FirstOrDefault(u => u.Id == id);
 
 
-	public IReadOnlyList<User> GetAll(EntityFilter filter = EntityFilter.Active) => [.. Query(filter)];
+	public IReadOnlyList<User> GetAll(EntityFilter filter = EntityFilter.Active) =>
+		[.. Query(filter).OrderByDescending(u => u.CreatedAt)];
 
 
 	public User? GetByName(string firstName, string lastName, EntityFilter filter = EntityFilter.Active) =>
@@ -55,7 +52,7 @@ public class UserRepository : IUserRepository
 	{
 		ArgumentNullException.ThrowIfNull(selector);
 
-		return DbSet
+		return Context.Users
 			.AsNoTracking()
 			.Where(u => !u.IsRemoved)
 			.AsEnumerable()
@@ -70,7 +67,7 @@ public class UserRepository : IUserRepository
 		ArgumentNullException.ThrowIfNull(user);
 
 		if (user.IsRemoved) return;
-		var tracked = DbSet.FirstOrDefault(u => u.Id == user.Id) ?? throw CreateNotFoundException(user.Id);
+		var tracked = Context.Users.FirstOrDefault(u => u.Id == user.Id) ?? throw CreateNotFoundException(user.Id);
 		tracked.IsRemoved = true;
 		tracked.UpdatedAt = DateTime.UtcNow;
 
@@ -82,7 +79,7 @@ public class UserRepository : IUserRepository
 	{
 		ArgumentNullException.ThrowIfNull(user);
 
-		var tracked = DbSet.FirstOrDefault(u => u.Id == user.Id) ?? throw CreateNotFoundException(user.Id);
+		var tracked = Context.Users.FirstOrDefault(u => u.Id == user.Id) ?? throw CreateNotFoundException(user.Id);
 
 		tracked.FirstName = user.FirstName;
 		tracked.LastName = user.LastName;

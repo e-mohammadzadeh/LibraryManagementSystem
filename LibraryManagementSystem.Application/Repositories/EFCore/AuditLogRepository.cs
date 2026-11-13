@@ -10,7 +10,7 @@ public class AuditLogRepository : IAuditLogRepository
 	protected readonly LibraryDbContext Context;
 
 
-	public AuditLogRepository(LibraryDbContext context) { Context = context; }
+	public AuditLogRepository(LibraryDbContext context) => Context = context;
 
 
 	public void Add(AuditLog auditLog)

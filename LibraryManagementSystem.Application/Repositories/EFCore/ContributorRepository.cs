@@ -3,6 +3,7 @@ using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Domain.Persistence;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace LibraryManagementSystem.Application.Repositories.EFCore;
 
@@ -23,36 +24,34 @@ public abstract class ContributorRepository<T> : IContributorRepository<T> where
 	{
 		ArgumentNullException.ThrowIfNull(entity);
 
+		entity.Id = Guid.CreateVersion7();
+		entity.CreatedAt = DateTime.UtcNow;
+
 		DbSet.Add(entity);
 		Context.SaveChanges();
 	}
 
 
-	public T? GetById(Guid id, EntityFilter filter = EntityFilter.Active)
+	public T? GetById(Guid id, EntityFilter filter = EntityFilter.Active) => 
+		ApplyFilter(DbSet.AsNoTracking(), filter)
+			.FirstOrDefault(c => c.Id == id);
+
+
+	public IReadOnlyList<T> GetAll(EntityFilter filter = EntityFilter.Active) => 
+		[.. ApplyFilter(DbSet.AsNoTracking(), filter)
+			.OrderByDescending(c => c.CreatedAt)];
+	
+
+
+	public bool Exists(Expression<Func<T, bool>> predicate, Guid? excludeId = null)
 	{
-		return ApplyFilter(DbSet.AsNoTracking(), filter).FirstOrDefault(c => c.Id == id);
-	}
-
-
-	public IReadOnlyList<T> GetAll(EntityFilter filter = EntityFilter.Active)
-	{
-		return [.. ApplyFilter(DbSet.AsNoTracking(), filter)];
-	}
-
-
-	public bool Exists<TValue>(TValue value, Func<T, TValue> selector, Guid? excludeId = null)
-	{
-		// TODO need some improvements based on database
-		ArgumentNullException.ThrowIfNull(selector);
+		ArgumentNullException.ThrowIfNull(predicate);
 
 		return DbSet
 			.AsNoTracking()
 			.Where(c => !c.IsRemoved)
-			.AsEnumerable()
-			.Any(c =>
-				(excludeId == null || c.Id != excludeId) &&
-				EqualityComparer<TValue>.Default.Equals(selector(c), value)
-			);
+			.Where(predicate)
+			.Any(c => excludeId == null || c.Id != excludeId);
 	}
 
 
