@@ -144,7 +144,9 @@ public class BookRepository : IBookRepository
 			.Select(ba => ba.AuthorId)
 			.ToHashSet();
 
-		tracked.BookAuthors.Remove(ba => !incomingIds.Contains(ba.AuthorId));
+		var toRemove = tracked.BookAuthors.Where(ba => !incomingIds.Contains(ba.AuthorId)).ToList();
+
+		Context.Set<BookAuthor>().RemoveRange(toRemove);
 
 		foreach (var authorId in incomingIds.Except(existingIds))
 		{
@@ -167,7 +169,9 @@ public class BookRepository : IBookRepository
 			.Select(bt => bt.TranslatorId)
 			.ToHashSet();
 
-		tracked.BookTranslators.Remove(bt => !incomingIds.Contains(bt.TranslatorId));
+		var toRemove = tracked.BookTranslators.Where(bt => !incomingIds.Contains(bt.TranslatorId)).ToList();
+
+		Context.Set<BookTranslator>().RemoveRange(toRemove);
 
 		foreach (var translatorId in incomingIds.Except(existingIds))
 		{

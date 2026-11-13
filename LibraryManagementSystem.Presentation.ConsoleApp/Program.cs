@@ -12,6 +12,7 @@ using LibraryManagementSystem.Application.Menu;
 using LibraryManagementSystem.Application.Repositories.EFCore;
 using LibraryManagementSystem.Domain.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp;
@@ -27,16 +28,25 @@ public static class Program
 		try
 		{
 			// ── Database ─────────────────────────────────
-			var options = new DbContextOptionsBuilder<LibraryDbContext>().UseSqlServer(
-					@"Server=(localdb)\MSSQLLocalDB;Database=LibraryManagementSystemDb;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True")
+			var config = new ConfigurationBuilder()
+				.SetBasePath(AppContext.BaseDirectory)
+				.AddJsonFile("appsettings.json", optional: false)
+				.Build();
+
+			var connectionString = config.GetConnectionString("LibraryDb")
+			                       ?? throw new InvalidOperationException("Connection string 'LibraryDb' was not found.");
+
+			var options = new DbContextOptionsBuilder<LibraryDbContext>()
+				.UseSqlServer(connectionString)
 				.Options;
+
 			using var dbContext = new LibraryDbContext(options);
-			if (!dbContext.Database.CanConnect()) throw new Exception("Could not connect to the library database.");
-			Console.WriteLine("Database connection successful!");
+			dbContext.Database.Migrate();
+			Console.WriteLine("Database ready!");
 
 			// ── Repositories ──────────────────────────
 			var passwordHasher = new PasswordHasher();
-			var roleRepo = new InMemoryRoleRepository();
+			var roleRepo = new RoleRepository(dbContext);
 			var userRepo = new InMemoryUserRepository(roleRepo, passwordHasher);
 			var authorRepo = new AuthorRepository(dbContext);
 			var translatorRepo = new TranslatorRepository(dbContext);
