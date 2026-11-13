@@ -25,6 +25,11 @@ public class BookRepository : IBookRepository
 	{
 		ArgumentNullException.ThrowIfNull(book);
 
+		book.Id = Guid.CreateVersion7();
+		book.AvailableCopies = book.TotalCopies;
+		book.CreatedAt = DateTime.UtcNow;
+		book.IsRemoved = false;
+
 		DbSet.Add(book);
 		Context.SaveChanges();
 	}
