@@ -26,43 +26,37 @@ public static class Program
 
 		try
 		{
-			var config = new ConfigurationBuilder()
-				.SetBasePath(Path.Combine(AppContext.BaseDirectory, "Configuration"))
-				.AddJsonFile("appsettings.json", optional: false)
-				.Build();
+			var configuration = LoadConfiguration();
+			using var provider = BuildServiceProvider(configuration);
+			using (var scope = provider.CreateScope())
+			{
+				var context = scope.ServiceProvider.GetRequiredService<LibraryDbContext>();
+				context.Database.Migrate();
+			}
 
-			var connectionString = config.GetConnectionString("LibraryDb")
-			                       ?? throw new InvalidOperationException(
-				                       "Connection string 'LibraryDb' was not found.");
-
-			using var provider = BuildServiceProvider(connectionString);
-			using var scope = provider.CreateScope();
-			var sp = scope.ServiceProvider;
-
-			// ── Database ─────────────────────────────────
-			sp.GetRequiredService<LibraryDbContext>().Database.Migrate();
 			Console.WriteLine("Database ready!");
-
-
-			// ── Resolve what the menus need ───────────
-			var currentUserSession = sp.GetRequiredService<ICurrentUserSession>();
-			var authorization = sp.GetRequiredService<IAuthorizationService>();
-			var authService = sp.GetRequiredService<AuthenticationService>();
-			var authorService = sp.GetRequiredService<AuthorManagementService>();
-			var translatorService = sp.GetRequiredService<TranslatorManagementService>();
-			var userService = sp.GetRequiredService<UserManagementService>();
-			var bookService = sp.GetRequiredService<BookManagementService>();
-			var loanService = sp.GetRequiredService<LoanManagementService>();
-			var fineService = sp.GetRequiredService<IFineManagementService>();
-			var statisticsService = sp.GetRequiredService<LibraryStatisticsService>();
-			var auditLogService = sp.GetRequiredService<IAuditLogManagementService>();
-			var roleService = sp.GetRequiredService<RoleManagementService>();
-			var menuService = sp.GetRequiredService<IMenuService>();
-
 			Console.Title = "Library Management System";
 
 			while (true)
 			{
+				using var scope = provider.CreateScope();
+				var sp = scope.ServiceProvider;
+
+				// ── Resolve what the menus need ───────────
+				var currentUserSession = sp.GetRequiredService<ICurrentUserSession>();
+				var authorization = sp.GetRequiredService<IAuthorizationService>();
+				var authService = sp.GetRequiredService<AuthenticationService>();
+				var authorService = sp.GetRequiredService<AuthorManagementService>();
+				var translatorService = sp.GetRequiredService<TranslatorManagementService>();
+				var userService = sp.GetRequiredService<UserManagementService>();
+				var bookService = sp.GetRequiredService<BookManagementService>();
+				var loanService = sp.GetRequiredService<LoanManagementService>();
+				var fineService = sp.GetRequiredService<IFineManagementService>();
+				var statisticsService = sp.GetRequiredService<LibraryStatisticsService>();
+				var auditLogService = sp.GetRequiredService<IAuditLogManagementService>();
+				var roleService = sp.GetRequiredService<RoleManagementService>();
+				var menuService = sp.GetRequiredService<IMenuService>();
+
 				Console.Clear();
 				var loggedInUser = LoginMenu.ShowLoginMenu(authService);
 				ConsoleHelper.Pause();
@@ -85,9 +79,24 @@ public static class Program
 	}
 
 
-	private static ServiceProvider BuildServiceProvider(string connectionString)
+	private static IConfiguration LoadConfiguration()
+	{
+		var configurationPath = Path.Combine(AppContext.BaseDirectory, "Configuration");
+
+		return new ConfigurationBuilder()
+			.SetBasePath(configurationPath)
+			.AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+			.AddEnvironmentVariables()
+			.Build();
+	}
+
+
+	private static ServiceProvider BuildServiceProvider(IConfiguration configuration)
 	{
 		var services = new ServiceCollection();
+
+		var connectionString = configuration.GetConnectionString("LibraryDb") ??
+		                       throw new InvalidOperationException("Connection string 'LibraryDb' was not found.");
 
 		// ── Database ─────────────────────────────────
 		services.AddDbContext<LibraryDbContext>(o => o.UseSqlServer(connectionString));
