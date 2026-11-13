@@ -39,10 +39,10 @@ public class BookManagementService : IBookManagementService
 
 	public ServiceResult<BookDto> AddBook(BookDto dto)
 	{
-		if (_bookRepository.Exists(b => b.Title == dto.Title, dto.Id))
+		if (_bookRepository.Exists(b => b.Title == dto.Title))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByName);
 
-		if (_bookRepository.Exists(dto.ISBN, b => b.ISBN))
+		if (_bookRepository.Exists(b => b.ISBN == dto.ISBN))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByISBN);
 
 		if (!Enum.IsDefined(dto.OriginalLanguage) || (!Enum.IsDefined(dto.TranslatedLanguage)))
@@ -104,10 +104,10 @@ public class BookManagementService : IBookManagementService
 		if (IsNoOpUpdateBook(book, dto))
 			return ServiceResult<BookDto>.Warning(book.ToDto(), Messages.NoChangesDetected);
 
-		if (_bookRepository.Exists(dto.Title, b => b.Title, dto.Id))
+		if (_bookRepository.Exists(b => b.Title == dto.Title, dto.Id))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByName);
 
-		if (_bookRepository.Exists(dto.ISBN, b => b.ISBN, dto.Id))
+		if (_bookRepository.Exists(b => b.ISBN == dto.ISBN, dto.Id))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByISBN);
 
 		if (!Enum.IsDefined(dto.Genre.Value)) return ServiceResult<BookDto>.Fail(Messages.InvalidGenre);

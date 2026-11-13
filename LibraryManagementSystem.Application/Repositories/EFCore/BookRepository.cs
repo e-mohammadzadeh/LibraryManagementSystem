@@ -5,6 +5,7 @@ using LibraryManagementSystem.Domain.Persistence;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace LibraryManagementSystem.Application.Repositories.EFCore;
 
@@ -62,15 +63,17 @@ public class BookRepository : IBookRepository
 
 
 
-	public bool Exists<TValue>(Expression<Func<Book, bool>> predicate, Guid? excludeId = null)
+	public bool Exists(Expression<Func<Book, bool>> predicate, Guid? excludeId = null)
 	{
 		ArgumentNullException.ThrowIfNull(predicate);
 
-		return Context.Books
+		var query = Context.Books
 			.AsNoTracking()
 			.Where(b => !b.IsRemoved)
-			.Where(predicate)
-			.Any(b => excludeId == null || b.Id != excludeId);
+			.Where(predicate);
+
+		if (excludeId.HasValue) query = query.Where(b => b.Id != excludeId.Value);
+		return query.Any();
 	}
 
 

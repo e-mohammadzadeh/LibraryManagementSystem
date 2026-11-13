@@ -32,26 +32,30 @@ public abstract class ContributorRepository<T> : IContributorRepository<T> where
 	}
 
 
-	public T? GetById(Guid id, EntityFilter filter = EntityFilter.Active) => 
+	public T? GetById(Guid id, EntityFilter filter = EntityFilter.Active) =>
 		ApplyFilter(DbSet.AsNoTracking(), filter)
 			.FirstOrDefault(c => c.Id == id);
 
 
-	public IReadOnlyList<T> GetAll(EntityFilter filter = EntityFilter.Active) => 
-		[.. ApplyFilter(DbSet.AsNoTracking(), filter)
-			.OrderByDescending(c => c.CreatedAt)];
-	
+	public IReadOnlyList<T> GetAll(EntityFilter filter = EntityFilter.Active) =>
+	[
+		.. ApplyFilter(DbSet.AsNoTracking(), filter)
+			.OrderByDescending(c => c.CreatedAt)
+	];
+
 
 
 	public bool Exists(Expression<Func<T, bool>> predicate, Guid? excludeId = null)
 	{
 		ArgumentNullException.ThrowIfNull(predicate);
 
-		return DbSet
+		var query = DbSet
 			.AsNoTracking()
 			.Where(c => !c.IsRemoved)
-			.Where(predicate)
-			.Any(c => excludeId == null || c.Id != excludeId);
+			.Where(predicate);
+
+		if (excludeId.HasValue) query = query.Where(c => c.Id != excludeId.Value);
+		return query.Any();
 	}
 
 

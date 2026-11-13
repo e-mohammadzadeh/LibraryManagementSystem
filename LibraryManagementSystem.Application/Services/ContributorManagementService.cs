@@ -30,13 +30,13 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 	protected ServiceResult<ContributorDto> AddContributor(ContributorDto dto, string duplicateNationalCodeMessage,
 		string duplicateEmailMessage, string duplicatePhoneNumberMessage, string successMessage)
 	{
-		if (Repository.Exists(dto.NationalCode, c => c.NationalCode))
+		if (Repository.Exists(c => c.NationalCode == dto.NationalCode))
 			return ServiceResult<ContributorDto>.Fail(duplicateNationalCodeMessage);
 
-		if (Repository.Exists(dto.Email, c => c.Email))
+		if (Repository.Exists(c => c.Email == dto.Email))
 			return ServiceResult<ContributorDto>.Fail(duplicateEmailMessage);
 
-		if (Repository.Exists(dto.PhoneNumber, c => c.PhoneNumber))
+		if (Repository.Exists(c => c.PhoneNumber == dto.PhoneNumber))
 			return ServiceResult<ContributorDto>.Fail(duplicatePhoneNumberMessage);
 
 		var contributor = new TEntity
@@ -66,13 +66,13 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 		if (IsNoOpUpdate(contributor, dto))
 			return ServiceResult<ContributorDto>.Warning(contributor.ToDto(), Messages.NoChangesDetected);
 
-		if (Repository.Exists(dto.NationalCode, c => c.NationalCode, dto.Id))
+		if (Repository.Exists(c => c.NationalCode == dto.NationalCode, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(duplicateNationalCodeMessage);
 
-		if (Repository.Exists(dto.Email, c => c.Email, dto.Id))
+		if (Repository.Exists(c => c.Email == dto.Email, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(duplicateEmailMessage);
 
-		if (Repository.Exists(dto.PhoneNumber, c => c.PhoneNumber, dto.Id))
+		if (Repository.Exists(c => c.PhoneNumber == dto.PhoneNumber, dto.Id))
 			return ServiceResult<ContributorDto>.Fail(duplicatePhoneNumberMessage);
 
 		auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(contributor, dto);

@@ -40,7 +40,7 @@ public static class Program
 			var sp = scope.ServiceProvider;
 
 			// ── Database ─────────────────────────────────
-			var options = sp.GetRequiredService<LibraryDbContext>().Database.Migrate();
+			sp.GetRequiredService<LibraryDbContext>().Database.Migrate();
 			Console.WriteLine("Database ready!");
 
 
@@ -85,7 +85,7 @@ public static class Program
 	}
 
 
-	private static IServiceProvider BuildServiceProvider(string connectionString)
+	private static ServiceProvider BuildServiceProvider(string connectionString)
 	{
 		var services = new ServiceCollection();
 
