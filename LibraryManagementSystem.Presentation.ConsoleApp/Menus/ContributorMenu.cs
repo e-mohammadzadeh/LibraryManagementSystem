@@ -41,11 +41,17 @@ public abstract class ContributorMenu
 		if (birthDate is null) return null;
 
 		DateOnly? deathDate = null;
-		if ((personKind is PersonInputKind.Author or PersonInputKind.Translator) &&
-		    Validator.IsOlderThan130(birthDate.Value))
+		var isDeceased = ConsoleHelper.ReadYesNo("Is this contributor deceased?");
+
+		if (isDeceased)
 		{
-			deathDate = ConsoleHelper.GetValidDeathDate($"Enter {label}death date", birthDate.Value);
-			if (deathDate is null) return null;
+			if ((personKind is PersonInputKind.Author or PersonInputKind.Translator) &&
+			    Validator.IsOlderThan130(birthDate.Value))
+			{
+				deathDate = ConsoleHelper.GetValidDeathDate($"Enter {label}death date", birthDate.Value);
+				if (deathDate is null)
+					return null;
+			}
 		}
 
 		var biography = personKind is PersonInputKind.Author or PersonInputKind.Translator
@@ -151,7 +157,7 @@ public abstract class ContributorMenu
 
 				case var _ when selectedItem == $"{menuIdPrefix}.edit.birthdate":
 				{
-					var value = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
+					var value = ConsoleHelper.GetValidContributorBirthDate("\nEnter new birth date");
 
 					if (value != null)
 						contributor.BirthDate = value.Value;

@@ -133,6 +133,35 @@ public static class Validator
 	}
 
 
+	public static ValidationResult ContributorDateValidator(DateOnly birthDate, DateOnly? deathDate) {
+		var today = DateOnly.FromDateTime(DateTime.Today);
+
+		if (birthDate > today.AddYears(-7))
+			return ValidationResult.Fail(Messages.InvalidContributorBirthDate);
+
+		if (birthDate < today.AddYears(-130))
+			if (deathDate is null)
+				return ValidationResult.Fail(Messages.DeathDateRequired);
+
+		if (deathDate is null)
+			return ValidationResult.Success();
+
+		if (deathDate > today)
+			return ValidationResult.Fail(Messages.DeathDateCannotBeInFuture);
+
+		if (deathDate < birthDate)
+			return ValidationResult.Fail(Messages.DeathDateBeforeBirthDate);
+
+		if (deathDate < birthDate.AddYears(7))
+			return ValidationResult.Fail(Messages.MinimumLifespanNotMet);
+
+		if (deathDate > birthDate.AddYears(130))
+			return ValidationResult.Fail(Messages.MaximumLifespanExceeded);
+
+		return ValidationResult.Success();
+	}
+
+
 	public static ValidationResult PasswordValidator(string password)
 	{
 		if (string.IsNullOrWhiteSpace(password)) return ValidationResult.Fail(Messages.NotEmptyPassword);

@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Mapping;
+using LibraryManagementSystem.Application.Validators;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Exceptions;
 using LibraryManagementSystem.Domain.Interfaces;
@@ -54,6 +55,10 @@ public class UserManagementService : IUserManagementService
 		if (_userRepository.Exists(u => u.PhoneNumber == dto.PhoneNumber))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
 
+		var dateValidation = Validator.UserBirthDateValidator(dto.BirthDate);
+
+		if (!dateValidation.IsValid) return ServiceResult<UserDto>.Fail(dateValidation.ErrorMessage!);
+
 		if (!CanAssignRole(dto.RoleName)) return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
 
 		var role = _roleRepository.GetByName(dto.RoleName);
@@ -72,7 +77,9 @@ public class UserManagementService : IUserManagementService
 			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
 		};
 
-		SetPasswordHash(newUser.Id, result.Hash, result.Salt);
+		newUser.PasswordHash = result.Hash;
+		newUser.PasswordSalt = result.Salt;
+
 		_userRepository.Add(newUser);
 		_auditLog.Record(AuditAction.UserCreated, "User", newUser.Id, "New user created.");
 

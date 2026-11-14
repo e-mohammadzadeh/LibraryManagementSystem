@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Mapping;
+using LibraryManagementSystem.Application.Validators;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Common;
@@ -39,6 +40,9 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 		if (Repository.Exists(c => c.PhoneNumber == dto.PhoneNumber))
 			return ServiceResult<ContributorDto>.Fail(duplicatePhoneNumberMessage);
 
+		var dateValidation = Validator.ContributorDateValidator(dto.BirthDate, dto.DeathDate);
+		if (!dateValidation.IsValid) return ServiceResult<ContributorDto>.Fail(dateValidation.ErrorMessage!);
+
 		var contributor = new TEntity
 		{
 			FirstName = dto.FirstName,
@@ -47,6 +51,7 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 			Email = dto.Email,
 			PhoneNumber = dto.PhoneNumber,
 			BirthDate = dto.BirthDate,
+			DeathDate = dto.DeathDate,
 			Biography = dto.Biography
 		};
 

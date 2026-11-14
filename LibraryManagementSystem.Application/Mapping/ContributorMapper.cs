@@ -16,6 +16,7 @@ public static class ContributorMapper
 			Email = entity.Email,
 			PhoneNumber = entity.PhoneNumber,
 			BirthDate = entity.BirthDate,
+			DeathDate = entity.DeathDate,
 			Biography = entity.Biography,
 			CreatedAt = entity.CreatedAt,
 			UpdatedAt = entity.UpdatedAt

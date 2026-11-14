@@ -191,7 +191,7 @@ public static class BookMenu
 		var createdAuthors = new List<ContributorDto>();
 		while (true)
 		{
-			var authorDto = ContributorMenu.PromptForContributorDto("author");
+			var authorDto = ContributorMenu.PromptForContributorDto(PersonInputKind.Author);
 			if (authorDto is null)
 			{
 				if (createdAuthors.Count == 0) return null;
@@ -227,7 +227,7 @@ public static class BookMenu
 		var createdIds = new List<ContributorDto>();
 		while (true)
 		{
-			var translatorDto = ContributorMenu.PromptForContributorDto("translator");
+			var translatorDto = ContributorMenu.PromptForContributorDto(PersonInputKind.Translator);
 			if (translatorDto is null) break;
 			var addResult = translatorManagementService.AddTranslator(translatorDto);
 			ConsoleHelper.ShowResult(addResult);
