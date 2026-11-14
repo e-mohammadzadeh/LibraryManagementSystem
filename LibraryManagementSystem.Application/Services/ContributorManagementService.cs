@@ -18,27 +18,33 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 {
 	protected readonly IContributorRepository<TEntity> Repository;
 	protected readonly IAuthorizationService Authorization;
+	protected readonly PersonUniquenessChecker UniquenessChecker;
 
 
 	protected ContributorManagementService(IContributorRepository<TEntity> repository,
-		IAuthorizationService authorization)
+		IAuthorizationService authorization, PersonUniquenessChecker uniquenessChecker)
 	{
 		Repository = repository;
 		Authorization = authorization;
+		UniquenessChecker = uniquenessChecker;
 	}
 
 
 	protected ServiceResult<ContributorDto> AddContributor(ContributorDto dto, string duplicateNationalCodeMessage,
 		string duplicateEmailMessage, string duplicatePhoneNumberMessage, string successMessage)
 	{
-		if (Repository.Exists(c => c.NationalCode == dto.NationalCode))
-			return ServiceResult<ContributorDto>.Fail(duplicateNationalCodeMessage);
-
-		if (Repository.Exists(c => c.Email == dto.Email))
-			return ServiceResult<ContributorDto>.Fail(duplicateEmailMessage);
-
-		if (Repository.Exists(c => c.PhoneNumber == dto.PhoneNumber))
-			return ServiceResult<ContributorDto>.Fail(duplicatePhoneNumberMessage);
+		var duplicate = UniquenessChecker.Check(dto.NationalCode, dto.Email, dto.PhoneNumber);
+		switch (duplicate)
+		{
+			case DuplicateField.NationalCode:
+				return ServiceResult<ContributorDto>.Fail(duplicateNationalCodeMessage);
+			case DuplicateField.Email:
+				return ServiceResult<ContributorDto>.Fail(duplicateEmailMessage);
+			case DuplicateField.PhoneNumber:
+				return ServiceResult<ContributorDto>.Fail(duplicatePhoneNumberMessage);
+			case DuplicateField.None:
+				throw new ArgumentOutOfRangeException();
+		}
 
 		var dateValidation = Validator.ContributorDateValidator(dto.BirthDate, dto.DeathDate);
 		if (!dateValidation.IsValid) return ServiceResult<ContributorDto>.Fail(dateValidation.ErrorMessage!);

@@ -71,13 +71,8 @@ public static class Messages
 	public const string AuthorNotFound = "Author not found.";
 	public const string NotAvailableRemovedAuthor = "No removed authors found.";
 
-
-
 	// Duplicate
 	public const string DuplicateAuthorsNotAllowed = "Duplicate authors are not allowed. Please enter each author only once.";
-	public const string DuplicateAuthorsNotAllowedByNationalCode = "An author with the same national code already exists.";
-	public const string DuplicateAuthorsNotAllowedByEmail = "An author with the same email already exists.";
-	public const string DuplicateAuthorsNotAllowedByPhoneNumber = "An author with the same phone number already exists.";
 
 
 
@@ -87,8 +82,7 @@ public static class Messages
 	public const string TranslatorAddedSuccessfully = "Translator added successfully.";
 	public const string AllTranslatorsAssigned = "All available translators are already assigned to this book.";
 	public const string AddTranslatorInAdd = "\nNo translators found. Do you want to create a new translator now (Optional)";
-
-
+	
 	// Update
 	public const string TranslatorUpdatedSuccessfully = "Translator updated successfully.";
 	public const string TranslatorUpdateFailed = "Failed to update translator.";
@@ -107,13 +101,8 @@ public static class Messages
 	public const string TranslatorNotFound = "Translator not found.";
 	public const string NotAvailableRemovedTranslator = "No removed translators found.";
 
-
-
 	// Duplicate
 	public const string DuplicateTranslatorsNotAllowed = "Duplicate translators are not allowed. Please enter each translator only once.";
-	public const string DuplicateTranslatorsNotAllowedByNationalCode = "A translator with the same national code already exists.";
-	public const string DuplicateTranslatorsNotAllowedByEmail = "A translator with the same email already exists.";
-	public const string DuplicateTranslatorsNotAllowedByPhoneNumber = "A translator with the same phone number already exists.";
 
 
 
@@ -157,6 +146,16 @@ public static class Messages
 	public const string InvalidIdSelection = "ID {0} is not in the available list. Please select from the list above.";
 
 
+
+
+	// 7. PERSON (Member/Admin/Manager/Author/Translator) MESSAGES ────────────────────────────────────────────────────────────
+	// Duplicate
+	public const string DuplicateNationalCodeMessage = "A person with this national code already exists.";
+	public const string DuplicateEmailMessage = "A person with this email already exists.";
+	public const string DuplicatePhoneNumberMessage = "A person with this phone number already exists.";
+
+
+
 	// 7. USER (Member/Admin/Manager) MESSAGES ────────────────────────────────────────────────────────────
 	// Add
 	public const string UserAddedSuccessfully = "User added successfully.";
@@ -186,10 +185,6 @@ public static class Messages
 	public const string NotUserMatched = "No users matched your search.";
 	public const string UserNotFound = "User not found.";
 
-	// Duplicate
-	public const string DuplicateUsersNotAllowedByNationalCode = "A user with the same national code already exists.";
-	public const string DuplicateUsersNotAllowedByEmail = "A user with the same email already exists.";
-	public const string DuplicateUsersNotAllowedByPhoneNumber = "A user with the same phone number already exists.";
 
 	// Membership
 	public const string MembershipExpired = "Membership expired. Please renew your membership.";

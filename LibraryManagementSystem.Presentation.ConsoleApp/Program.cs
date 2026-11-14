@@ -113,6 +113,7 @@ public static class Program
 		services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
 		// ── Repositories ──────────────────────────────────────────────────────
+		services.AddScoped<IPersonRepository, PersonRepository>();
 		services.AddScoped<IRoleRepository, RoleRepository>();
 		services.AddScoped<IAuthorRepository, AuthorRepository>();
 		services.AddScoped<ITranslatorRepository, TranslatorRepository>();

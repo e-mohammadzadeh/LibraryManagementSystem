@@ -18,11 +18,13 @@ public class AuthenticationService
 	private readonly IPasswordHasher _passwordHasher;
 	private readonly ICurrentUserSession _currentUserSession;
 	private readonly IAuditLogManagementService _auditLog;
+	protected readonly PersonUniquenessChecker UniquenessChecker;
+
 
 
 	public AuthenticationService(IUserRepository userRepository, IUserManagementService userService,
 		IRoleRepository roleRepository, IPasswordHasher passwordHasher, ICurrentUserSession currentUserSession,
-		IAuditLogManagementService auditLog)
+		IAuditLogManagementService auditLog, PersonUniquenessChecker uniquenessChecker)
 	{
 		_userRepository = userRepository;
 		_userService = userService;
@@ -30,6 +32,7 @@ public class AuthenticationService
 		_passwordHasher = passwordHasher;
 		_currentUserSession = currentUserSession;
 		_auditLog = auditLog;
+		UniquenessChecker = uniquenessChecker;
 	}
 
 
@@ -82,14 +85,18 @@ public class AuthenticationService
 
 	public ServiceResult<AuthUserDto> Register(UserDto dto)
 	{
-		if (_userRepository.Exists(u => u.NationalCode == dto.NationalCode))
-			return ServiceResult<AuthUserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
-
-		if (_userRepository.Exists(u => u.Email == dto.Email))
-			return ServiceResult<AuthUserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
-
-		if (_userRepository.Exists(u => u.PhoneNumber == dto.PhoneNumber))
-			return ServiceResult<AuthUserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
+		var duplicate = UniquenessChecker.Check(dto.NationalCode, dto.Email, dto.PhoneNumber);
+		switch (duplicate)
+		{
+			case DuplicateField.NationalCode:
+				return ServiceResult<AuthUserDto>.Fail(Messages.DuplicateNationalCodeMessage);
+			case DuplicateField.Email:
+				return ServiceResult<AuthUserDto>.Fail(Messages.DuplicateEmailMessage);
+			case DuplicateField.PhoneNumber:
+				return ServiceResult<AuthUserDto>.Fail(Messages.DuplicatePhoneNumberMessage);
+			case DuplicateField.None:
+				throw new ArgumentOutOfRangeException();
+		}
 
 		var role = _roleRepository.GetByName(LibraryUserRole.Member);
 

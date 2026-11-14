@@ -18,7 +18,8 @@ public class AuthorManagementService : ContributorManagementService<Author>
 
 
 	public AuthorManagementService(IAuthorRepository authorRepository, IAuthorizationService authorization,
-		IAuditLogManagementService auditLog) : base(authorRepository, authorization)
+		IAuditLogManagementService auditLog, PersonUniquenessChecker uniquenessChecker) : base(authorRepository,
+		authorization, uniquenessChecker)
 	{
 		_auditLog = auditLog;
 	}
@@ -28,9 +29,9 @@ public class AuthorManagementService : ContributorManagementService<Author>
 	{
 		var result = AddContributor(
 			dto,
-			Messages.DuplicateAuthorsNotAllowedByNationalCode,
-			Messages.DuplicateAuthorsNotAllowedByEmail,
-			Messages.DuplicateAuthorsNotAllowedByPhoneNumber,
+			Messages.DuplicateNationalCodeMessage,
+			Messages.DuplicateEmailMessage,
+			Messages.DuplicatePhoneNumberMessage,
 			Messages.AuthorAddedSuccessfully);
 
 		if (result.IsSuccess) _auditLog.Record(AuditAction.AuthorCreated, "Author", result.Data!.Id, "Author created.");
@@ -44,9 +45,9 @@ public class AuthorManagementService : ContributorManagementService<Author>
 			dto,
 			updatedBy,
 			Messages.AuthorUpdateFailed,
-			Messages.DuplicateAuthorsNotAllowedByNationalCode,
-			Messages.DuplicateAuthorsNotAllowedByEmail,
-			Messages.DuplicateAuthorsNotAllowedByPhoneNumber,
+			Messages.DuplicateNationalCodeMessage,
+			Messages.DuplicateEmailMessage,
+			Messages.DuplicatePhoneNumberMessage,
 			Messages.AuthorUpdatedSuccessfully,
 			out var auditDetails);
 

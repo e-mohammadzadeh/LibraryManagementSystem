@@ -23,5 +23,10 @@ public class PersonConfiguration : IEntityTypeConfiguration<Person>
 			.HasValue<Author>("Author")
 			.HasValue<Translator>("Translator")
 			.HasValue<User>("User");
+
+
+		builder.HasIndex(p => p.NationalCode).IsUnique();
+		builder.HasIndex(p => p.Email).IsUnique();
+		builder.HasIndex(p => p.PhoneNumber).IsUnique();
 	}
 }

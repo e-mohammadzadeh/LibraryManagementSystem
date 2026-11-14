@@ -25,11 +25,12 @@ public class UserManagementService : IUserManagementService
 	private readonly IPasswordHasher _passwordHasher;
 	private readonly IAuthorizationService _authorization;
 	private readonly IAuditLogManagementService _auditLog;
+	protected readonly PersonUniquenessChecker UniquenessChecker;
 
 
 	public UserManagementService(IUserRepository userRepository, IRoleRepository roleRepository,
 		ILoanRepository loanRepository, IFineRepository fineRepository, IPasswordHasher passwordHasher,
-		IAuthorizationService authorization, IAuditLogManagementService auditLog)
+		IAuthorizationService authorization, IAuditLogManagementService auditLog, PersonUniquenessChecker uniquenessChecker)
 	{
 		_userRepository = userRepository;
 		_roleRepository = roleRepository;
@@ -38,6 +39,7 @@ public class UserManagementService : IUserManagementService
 		_passwordHasher = passwordHasher;
 		_authorization = authorization;
 		_auditLog = auditLog;
+		UniquenessChecker = uniquenessChecker;
 	}
 
 
@@ -46,14 +48,18 @@ public class UserManagementService : IUserManagementService
 		if (!_authorization.HasPermission(Permission.AddUser))
 			return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
 
-		if (_userRepository.Exists(u => u.NationalCode == dto.NationalCode))
-			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
-
-		if (_userRepository.Exists(u => u.Email == dto.Email))
-			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
-
-		if (_userRepository.Exists(u => u.PhoneNumber == dto.PhoneNumber))
-			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
+		var duplicate = UniquenessChecker.Check(dto.NationalCode, dto.Email, dto.PhoneNumber);
+		switch (duplicate)
+		{
+			case DuplicateField.NationalCode:
+				return ServiceResult<UserDto>.Fail(Messages.DuplicateNationalCodeMessage);
+			case DuplicateField.Email:
+				return ServiceResult<UserDto>.Fail(Messages.DuplicateEmailMessage);
+			case DuplicateField.PhoneNumber:
+				return ServiceResult<UserDto>.Fail(Messages.DuplicatePhoneNumberMessage);
+			case DuplicateField.None:
+				throw new ArgumentOutOfRangeException();
+		}
 
 		var dateValidation = Validator.UserBirthDateValidator(dto.BirthDate);
 
@@ -95,14 +101,18 @@ public class UserManagementService : IUserManagementService
 
 		if (IsNoOpUpdateUser(user, dto)) return ServiceResult<UserDto>.Fail(Messages.NoChangesDetected);
 
-		if (_userRepository.Exists(u => u.NationalCode == dto.NationalCode, dto.Id))
-			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
-
-		if (_userRepository.Exists(u => u.Email == dto.Email, dto.Id))
-			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
-
-		if (_userRepository.Exists(u => u.PhoneNumber == dto.PhoneNumber, dto.Id))
-			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
+		var duplicate = UniquenessChecker.Check(dto.NationalCode, dto.Email, dto.PhoneNumber);
+		switch (duplicate)
+		{
+			case DuplicateField.NationalCode:
+				return ServiceResult<UserDto>.Fail(Messages.DuplicateNationalCodeMessage);
+			case DuplicateField.Email:
+				return ServiceResult<UserDto>.Fail(Messages.DuplicateEmailMessage);
+			case DuplicateField.PhoneNumber:
+				return ServiceResult<UserDto>.Fail(Messages.DuplicatePhoneNumberMessage);
+			case DuplicateField.None:
+				throw new ArgumentOutOfRangeException();
+		}
 
 		if (!CanAssignRole(dto.RoleName)) return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
 

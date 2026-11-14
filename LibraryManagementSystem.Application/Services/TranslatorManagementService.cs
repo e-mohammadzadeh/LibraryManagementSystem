@@ -18,7 +18,8 @@ public class TranslatorManagementService : ContributorManagementService<Translat
 
 
 	public TranslatorManagementService(ITranslatorRepository translatorRepository, IAuthorizationService authorization,
-		IAuditLogManagementService auditLog) : base(translatorRepository, authorization)
+		IAuditLogManagementService auditLog, PersonUniquenessChecker uniquenessChecker) : base(translatorRepository,
+		authorization, uniquenessChecker)
 	{
 		_auditLog = auditLog;
 	}
@@ -28,9 +29,9 @@ public class TranslatorManagementService : ContributorManagementService<Translat
 	{
 		var result = AddContributor(
 			dto,
-			Messages.DuplicateTranslatorsNotAllowedByNationalCode,
-			Messages.DuplicateTranslatorsNotAllowedByEmail,
-			Messages.DuplicateTranslatorsNotAllowedByPhoneNumber,
+			Messages.DuplicateNationalCodeMessage,
+			Messages.DuplicateEmailMessage,
+			Messages.DuplicatePhoneNumberMessage,
 			Messages.TranslatorAddedSuccessfully);
 
 		if (result.IsSuccess)
@@ -45,9 +46,9 @@ public class TranslatorManagementService : ContributorManagementService<Translat
 			dto,
 			updatedBy,
 			Messages.TranslatorUpdateFailed,
-			Messages.DuplicateTranslatorsNotAllowedByNationalCode,
-			Messages.DuplicateTranslatorsNotAllowedByEmail,
-			Messages.DuplicateTranslatorsNotAllowedByPhoneNumber,
+			Messages.DuplicateNationalCodeMessage,
+			Messages.DuplicateEmailMessage,
+			Messages.DuplicatePhoneNumberMessage,
 			Messages.TranslatorUpdatedSuccessfully,
 			out var auditDetails);
 
