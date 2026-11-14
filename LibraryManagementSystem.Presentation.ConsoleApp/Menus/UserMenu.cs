@@ -716,8 +716,15 @@ public static class UserMenu
 				isOwn = targetUserId == session.CurrentUser.Id;
 				break;
 			}
-			default:
+			case "users.change-password.back":
+			{
+				ConsoleHelper.ShowInfo(Messages.BackToUserMenu);
 				return;
+			}
+			default:
+			{
+				return;
+			}
 		}
 
 		string? currentPassword = null;

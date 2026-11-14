@@ -87,10 +87,9 @@ public static class LoanMenu
 	}
 
 
-
 	private static string? LoanMenuList(IMenuService menuService)
 	{
-		var items = menuService.GetChildren("loans");
+		var items = menuService.GetChildren("loans").Where(c => c.Id != "loans.filter").ToList();
 		return MenuHelper.DisplayMenu("LOAN MENU", items);
 	}
 

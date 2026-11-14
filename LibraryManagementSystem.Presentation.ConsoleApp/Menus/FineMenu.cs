@@ -66,7 +66,7 @@ public static class FineMenu
 
 	private static string? FineMenuList(IMenuService menuService)
 	{
-		var items = menuService.GetChildren("fines");
+		var items = menuService.GetChildren("fines").Where(c => c.Id != "fines.filter").ToList();
 		return MenuHelper.DisplayMenu("FINE MENU", items);
 	}
 

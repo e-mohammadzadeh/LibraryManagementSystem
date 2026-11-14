@@ -25,7 +25,7 @@ public static class AuditLogMenu
 				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
 			switch (AuditLogMenuList(menuService))
 			{
-				case "audit-log.view":
+				case "auditLog.view":
 				{
 					if (!authorization.HasPermission(Permission.ViewAuditLog))
 						break;
@@ -35,7 +35,7 @@ public static class AuditLogMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case "audit-log.back":
+				case "auditLog.back":
 				{
 					ConsoleHelper.ShowInfo(Messages.BackToMainMenu);
 					return;
@@ -47,6 +47,6 @@ public static class AuditLogMenu
 
 	private static string? AuditLogMenuList(IMenuService menuService)
 	{
-		return MenuHelper.DisplayMenu("AUDIT LOG MENU", menuService.GetChildren("audit-log"));
+		return MenuHelper.DisplayMenu("AUDIT LOG MENU", menuService.GetChildren("auditLog"));
 	}
 }

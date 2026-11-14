@@ -514,6 +514,10 @@
 									"id": "books.sort.availablecopies",
 									"label": "Available Copies",
 									"permissions": [ "FullSortBook" ]
+								},
+								{
+									"id": "books.sort.back",
+									"label": "Back"
 								}
 							]
 						},
@@ -676,6 +680,10 @@
 								{
 									"id": "users.sort.last-login",
 									"label": "Last Login Date"
+								},
+								{
+									"id": "users.sort.back",
+									"label": "Back"
 								}
 							]
 						},
@@ -718,13 +726,17 @@
 							"label": "Change Password",
 							"children": [
 								{
-									"id": "users.change-password.mypassword",
+									"id": "users.change-password.own",
 									"label": "Change My Password"
 								},
 								{
-									"id": "users.change-password.otheruser",
+									"id": "users.change-password.other",
 									"label": "Reset Another User's Password",
 									"permissions": [ "ChangePassword" ]
+								},
+								{
+									"id": "users.change-password.back",
+									"label": "Back"
 								}
 							]
 						},
