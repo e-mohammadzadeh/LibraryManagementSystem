@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Application.Validators;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.Enums;
@@ -34,21 +35,23 @@ public abstract class ContributorMenu
 		var phoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter phone number");
 		if (phoneNumber is null) return null;
 
-		var birthDate = ConsoleHelper.GetValidBirthDate($"Enter {label}birth date");
+		var birthDate = personKind is PersonInputKind.User
+			? ConsoleHelper.GetValidUserBirthDate($"Enter {label}birth date")
+			: ConsoleHelper.GetValidContributorBirthDate($"Enter {label}birth date");
 		if (birthDate is null) return null;
 
-		if (personKind is PersonInputKind.User)
-			return new ContributorDto
-			{
-				FirstName = firstName,
-				LastName = lastName,
-				NationalCode = nationalCode,
-				Email = Email.Create(email),
-				PhoneNumber = PhoneNumber.Create(phoneNumber),
-				BirthDate = birthDate.Value
-			};
+		DateOnly? deathDate = null;
+		if ((personKind is PersonInputKind.Author or PersonInputKind.Translator) &&
+		    Validator.IsOlderThan130(birthDate.Value))
+		{
+			deathDate = ConsoleHelper.GetValidDeathDate($"Enter {label}death date", birthDate.Value);
+			if (deathDate is null) return null;
+		}
 
-		var biography = ConsoleHelper.ReadString("You can add a biography (Optional)", true);
+		var biography = personKind is PersonInputKind.Author or PersonInputKind.Translator
+			? ConsoleHelper.ReadString("You can add a biography (Optional)", true)
+			: null;
+
 		return new ContributorDto
 		{
 			FirstName = firstName,
@@ -57,6 +60,7 @@ public abstract class ContributorMenu
 			Email = Email.Create(email),
 			PhoneNumber = PhoneNumber.Create(phoneNumber),
 			BirthDate = birthDate.Value,
+			DeathDate = deathDate,
 			Biography = biography
 		};
 	}

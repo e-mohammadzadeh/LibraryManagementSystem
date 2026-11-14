@@ -111,7 +111,7 @@ public class AuthorMenu
 	private static void AddAuthor(AuthorManagementService authorManagementService)
 	{
 		Console.WriteLine(new string('=', 36) + " ADDING AUTHOR MENU " + new string('=', 36));
-		var authorDto = ContributorMenu.PromptForContributorDto("author");
+		var authorDto = ContributorMenu.PromptForContributorDto(PersonInputKind.Author);
 		if (authorDto is null) return;
 
 		var result = authorManagementService.AddAuthor(authorDto);

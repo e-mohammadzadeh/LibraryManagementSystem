@@ -1,4 +1,6 @@
-﻿namespace LibraryManagementSystem.Infrastructure.Common;
+﻿using static System.Runtime.InteropServices.JavaScript.JSType;
+
+namespace LibraryManagementSystem.Infrastructure.Common;
 
 public static class Messages
 {
@@ -25,6 +27,12 @@ public static class Messages
 	public const string InvalidCharacters = "The name can only contain letters, numbers, spaces, and basic punctuation.";
 	public const string ConsecutiveSpacesNotAllowed = "The name cannot contain consecutive spaces.";
 	public const string InvalidOptionSelection = "Please select at least one option.";
+	public const string InvalidUserBirthDate = "User's age must be between 2 and 130 years.";
+	public const string InvalidContributorBirthDate = "Author's or translator's age must be at least 7 years.";
+	public const string DeathDateCannotBeInFuture = "Death date cannot be in the future.";
+	public const string DeathDateBeforeBirthDate = "Death date cannot be earlier than birth date.";
+	public const string MinimumLifespanNotMet = "The lifespan must be at least 7 years.";
+	public const string MaximumLifespanExceeded = "The lifespan cannot exceed 130 years.";
 
 
 

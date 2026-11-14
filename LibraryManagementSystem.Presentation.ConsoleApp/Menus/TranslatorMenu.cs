@@ -102,7 +102,7 @@ public class TranslatorMenu
 	private static void AddTranslator(TranslatorManagementService translatorManagementService)
 	{
 		Console.WriteLine(new string('=', 36) + " ADDING TRANSLATOR MENU " + new string('=', 36));
-		var translatorDto = ContributorMenu.PromptForContributorDto("translator");
+		var translatorDto = ContributorMenu.PromptForContributorDto(PersonInputKind.Translator);
 		if (translatorDto is null) return;
 
 		var result = translatorManagementService.AddTranslator(translatorDto);

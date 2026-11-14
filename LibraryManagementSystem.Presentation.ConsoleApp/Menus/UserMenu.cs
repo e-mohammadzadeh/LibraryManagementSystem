@@ -135,7 +135,7 @@ public static class UserMenu
 	private static UserDto? PromptForUserDto(UserManagementService userManagementService,
 		RoleManagementService roleManagementService)
 	{
-		var fields = ContributorMenu.PromptForContributorDto("user", false);
+		var fields = ContributorMenu.PromptForContributorDto(PersonInputKind.User);
 		if (fields is null) return null;
 
 		var availableRoles = GetAssignableRoles(userManagementService, roleManagementService);
@@ -325,7 +325,7 @@ public static class UserMenu
 				}
 				case "Birth Date":
 				{
-					var newBirthDate = ConsoleHelper.GetValidBirthDate("\nEnter new birth date");
+					var newBirthDate = ConsoleHelper.GetValidUserBirthDate("\nEnter new birth date");
 					if (newBirthDate is not null)
 					{
 						desiredUser.BirthDate = newBirthDate.Value;
