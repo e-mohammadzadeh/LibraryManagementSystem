@@ -326,9 +326,20 @@ public static class ConsoleHelper
 	}
 
 
-	public static DateOnly? GetValidBirthDate(string prompt)
+	public static DateOnly? GetValidUserBirthDate(string prompt)
 	{
-		return GetValidDateOnly(prompt, Validator.BirthDateValidator);
+		return GetValidDateOnly(prompt, Validator.UserBirthDateValidator);
+	}
+
+	public static DateOnly? GetValidContributorBirthDate(string prompt)
+	{
+		return GetValidDateOnly(prompt, Validator.ContributorBirthDateValidator);
+	}
+
+
+	public static DateOnly? GetValidDeathDate(string prompt, DateOnly birthDate)
+	{
+		return GetValidDateOnly(prompt, deathDate => Validator.ContributorDeathDateValidator(birthDate, deathDate));
 	}
 
 

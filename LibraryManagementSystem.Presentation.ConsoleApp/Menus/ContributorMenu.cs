@@ -13,9 +13,9 @@ namespace LibraryManagementSystem.Presentation.ConsoleApp.Menus;
 
 public abstract class ContributorMenu
 {
-	public static ContributorDto? PromptForContributorDto(string contributorType, bool hasBio = true)
+	public static ContributorDto? PromptForContributorDto(PersonInputKind personKind)
 	{
-		var label = string.IsNullOrWhiteSpace(contributorType) ? "" : $"{contributorType}'s ";
+		var label = string.IsNullOrWhiteSpace(personKind.ToString()) ? "" : $"{personKind}'s ";
 
 		var firstName = ConsoleHelper.GetValidName($"Enter {label}first name", ValidationConstants.MinNameLength,
 			ValidationConstants.MaxNameLength);
@@ -37,7 +37,7 @@ public abstract class ContributorMenu
 		var birthDate = ConsoleHelper.GetValidBirthDate($"Enter {label}birth date");
 		if (birthDate is null) return null;
 
-		if (!hasBio)
+		if (personKind is PersonInputKind.User)
 			return new ContributorDto
 			{
 				FirstName = firstName,

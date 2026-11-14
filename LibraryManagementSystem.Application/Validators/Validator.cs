@@ -41,12 +41,54 @@ public static class Validator
 	}
 
 
-	public static ValidationResult BirthDateValidator(DateOnly birthDate)
+	public static ValidationResult UserBirthDateValidator(DateOnly birthDate)
 	{
 		var today = DateOnly.FromDateTime(DateTime.Today);
-		return birthDate <= today && birthDate >= today.AddYears(-120)
+
+		var minimumBirthDate = today.AddYears(-130);
+		var maximumBirthDate = today.AddYears(-2);
+
+		return birthDate >= minimumBirthDate && birthDate <= maximumBirthDate
 			? ValidationResult.Success()
-			: ValidationResult.Fail(Messages.InvalidBirthDate);
+			: ValidationResult.Fail(Messages.InvalidUserBirthDate);
+	}
+
+
+	public static ValidationResult ContributorBirthDateValidator(DateOnly birthDate) 
+	{
+		var today = DateOnly.FromDateTime(DateTime.Today);
+
+		return birthDate <= today.AddYears(-7)
+			? ValidationResult.Success()
+			: ValidationResult.Fail(Messages.InvalidContributorBirthDate);
+	}
+
+
+	public static ValidationResult ContributorDeathDateValidator(DateOnly birthDate, DateOnly deathDate)
+	{
+		var today = DateOnly.FromDateTime(DateTime.Today);
+
+		if (deathDate > today)
+			return ValidationResult.Fail(Messages.DeathDateCannotBeInFuture);
+
+		if (deathDate < birthDate)
+			return ValidationResult.Fail(Messages.DeathDateBeforeBirthDate);
+
+		if (deathDate < birthDate.AddYears(7))
+			return ValidationResult.Fail(Messages.MinimumLifespanNotMet);
+
+		if (deathDate > birthDate.AddYears(130))
+			return ValidationResult.Fail(Messages.MaximumLifespanExceeded);
+
+		return ValidationResult.Success();
+	}
+
+
+	public static bool IsOlderThan130(DateOnly birthDate)
+	{
+		var today = DateOnly.FromDateTime(DateTime.Today);
+
+		return birthDate < today.AddYears(-130);
 	}
 
 
