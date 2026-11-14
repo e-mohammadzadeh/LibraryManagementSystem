@@ -26,15 +26,16 @@ public class AuditLogManagementService : IAuditLogManagementService
 
 	public void Record(AuditAction action, string entityType, Guid entityId, string? details = null)
 	{
-		var auditLog = new AuditLog
-		{
-			PerformedByUserId = details?.Contains("registered") == true ? entityId : _currentUserSession.CurrentUser.Id,
-			Action = action,
-			EntityType = entityType,
-			EntityId = entityId,
-			Details = details
-		};
-		_auditLogRepository.Add(auditLog);
+		if (!_currentUserSession.IsAuthenticated)
+			throw new InvalidOperationException("An authenticated user is required to record this action.");
+
+		CreateAuditLog(_currentUserSession.CurrentUser.Id, action, entityType, entityId, details);
+	}
+
+
+	public void RecordSystemEvent(AuditAction action, string entityType, Guid entityId, string? details = null)
+	{
+		CreateAuditLog(null, action, entityType, entityId, details);
 	}
 
 
@@ -53,17 +54,35 @@ public class AuditLogManagementService : IAuditLogManagementService
 	}
 
 
+	private void CreateAuditLog(Guid? performedByUserId, AuditAction action, string entityType, Guid entityId,
+		string? details)
+	{
+		var auditLog = new AuditLog
+		{
+			PerformedByUserId = performedByUserId,
+			Action = action,
+			EntityType = entityType,
+			EntityId = entityId,
+			Details = details
+		};
+
+		_auditLogRepository.Add(auditLog);
+	}
+
+
 	private IReadOnlyList<AuditLogDto> MapToDto(IReadOnlyList<AuditLog> auditLogs)
 	{
 		return
 		[
 			.. auditLogs.OrderByDescending(a => a.OccurredAt).Select(auditLog =>
 			{
-				var user = _userRepository.GetById(auditLog.PerformedByUserId, EntityFilter.All);
+				var user = auditLog.PerformedByUserId.HasValue
+					? _userRepository.GetById(auditLog.PerformedByUserId.Value, EntityFilter.All)
+					: null;
 
 				var performedByName = user is not null
 					? $"{user.FirstName} {user.LastName}"
-					: "Unknown User";
+					: "System";
 
 				return auditLog.ToDto(performedByName);
 			})

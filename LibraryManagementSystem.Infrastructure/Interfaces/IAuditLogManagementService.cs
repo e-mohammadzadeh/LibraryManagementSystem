@@ -6,6 +6,7 @@ namespace LibraryManagementSystem.Infrastructure.Interfaces;
 public interface IAuditLogManagementService
 {
 	void Record(AuditAction action, string entityType, Guid entityId, string? details = null);
+	void RecordSystemEvent(AuditAction action, string entityType, Guid entityId, string? details = null);
 	IReadOnlyList<AuditLogDto> GetAll();
 	IReadOnlyList<AuditLogDto> GetByPerformedByUserId(Guid userId);
 	IReadOnlyList<AuditLogDto> GetByEntity(string entityType, Guid entityId);

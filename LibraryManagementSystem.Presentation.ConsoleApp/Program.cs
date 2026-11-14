@@ -1,19 +1,20 @@
 ﻿using LibraryManagementSystem.Application.Authentication;
 using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Application.Menu;
+using LibraryManagementSystem.Application.Repositories.EFCore;
 using LibraryManagementSystem.Application.Security;
+using LibraryManagementSystem.Application.Seeders;
 using LibraryManagementSystem.Application.Services;
+using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Domain.Persistence;
 using LibraryManagementSystem.Infrastructure.Interfaces;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 using LibraryManagementSystem.Presentation.ConsoleApp.Menus;
-using System.Text;
-using LibraryManagementSystem.Application.Menu;
-using LibraryManagementSystem.Application.Repositories.EFCore;
-using LibraryManagementSystem.Domain.Interfaces;
-using LibraryManagementSystem.Domain.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Text;
 
 
 namespace LibraryManagementSystem.Presentation.ConsoleApp;
@@ -36,6 +37,12 @@ public static class Program
 
 			Console.WriteLine("Database ready!");
 			Console.Title = "Library Management System";
+
+			using (var bootstrapScope = provider.CreateScope())
+			{
+				var userService = bootstrapScope.ServiceProvider.GetRequiredService<UserManagementService>();
+				AdminSeeder.EnsureAdmin(userService);
+			}
 
 			while (true)
 			{

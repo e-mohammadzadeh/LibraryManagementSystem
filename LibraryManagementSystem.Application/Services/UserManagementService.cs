@@ -2,6 +2,7 @@
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Exceptions;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Users;
@@ -341,13 +342,19 @@ public class UserManagementService : IUserManagementService
 
 	public void SetPasswordHash(Guid userId, byte[] passwordHash, byte[] passwordSalt)
 	{
-		if (passwordHash is null || passwordHash.Length == 0) throw new ArgumentNullException(nameof(passwordHash));
-		if (passwordSalt is null || passwordSalt.Length == 0) throw new ArgumentNullException(nameof(passwordSalt));
+		ArgumentNullException.ThrowIfNull(passwordHash);
+		ArgumentNullException.ThrowIfNull(passwordSalt);
 
-		var user = _userRepository.GetById(userId, EntityFilter.Active);
-		if (user == null) return;
+		if (passwordHash.Length == 0) throw new ArgumentException("Password hash cannot be empty.");
+
+		if (passwordSalt.Length == 0) throw new ArgumentException("Password salt cannot be empty.");
+
+		var user = _userRepository.GetById(userId, EntityFilter.Active) ?? throw new UserNotFoundException(userId);
+
 		user.PasswordHash = passwordHash;
 		user.PasswordSalt = passwordSalt;
+
+		_userRepository.Update(user);
 	}
 
 
@@ -377,5 +384,30 @@ public class UserManagementService : IUserManagementService
 			LibraryUserRole.Admin => _authorization.HasPermission(Permission.AssignAdminRole),
 			_ => false
 		};
+	}
+
+
+	internal ServiceResult<User> CreateInitialAdmin(User user, string initialPassword)
+	{
+		ArgumentNullException.ThrowIfNull(user);
+		if (string.IsNullOrWhiteSpace(initialPassword))
+			throw new ArgumentException("Initial password cannot be empty.", nameof(initialPassword));
+
+		var role = _roleRepository.GetByName(LibraryUserRole.Admin) ??
+		           throw new InvalidOperationException("Admin role is missing. Did the migration run?");
+
+		var adminExists = _userRepository.Exists(u => u.RoleId == role.Id);
+		if (adminExists) return ServiceResult<User>.Ok(user, "An active administrator already exists.");
+
+		user.RoleId = role.Id;
+		var passwordResult = _passwordHasher.CreatePasswordHash(initialPassword);
+		user.PasswordHash = passwordResult.Hash;
+		user.PasswordSalt = passwordResult.Salt;
+
+		_userRepository.Add(user);
+		_auditLog.RecordSystemEvent(AuditAction.UserCreated, "User", user.Id,
+			"Initial administrator created by the system.");
+
+		return ServiceResult<User>.Ok(user, Messages.UserAddedSuccessfully);
 	}
 }

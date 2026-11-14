@@ -9,7 +9,7 @@ public class AuditLogConfiguration : IEntityTypeConfiguration<AuditLog>
 	public void Configure(EntityTypeBuilder<AuditLog> builder)
 	{
 		builder.HasKey(a => a.Id);
-		builder.Property(a => a.PerformedByUserId).IsRequired();
+		builder.Property(a => a.PerformedByUserId).IsRequired(false);
 		builder.Property(a => a.OccurredAt).IsRequired();
 		builder.Property(a => a.Action).IsRequired();
 		builder.Property(a => a.EntityType).IsRequired().HasMaxLength(100);
@@ -21,5 +21,9 @@ public class AuditLogConfiguration : IEntityTypeConfiguration<AuditLog>
 			a.EntityType,
 			a.EntityId
 		});
+		builder.HasOne<User>()
+			.WithMany()
+			.HasForeignKey(a => a.PerformedByUserId)
+			.OnDelete(DeleteBehavior.SetNull);
 	}
 }

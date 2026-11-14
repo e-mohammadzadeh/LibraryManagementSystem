@@ -276,6 +276,10 @@
 									"id": "translators.sort.bookcount",
 									"label": "Book Count",
 									"permissions": [ "FullSortContributor" ]
+								},
+								{
+									"id": "translators.sort.back",
+									"label": "Back"
 								}
 							]
 						},
