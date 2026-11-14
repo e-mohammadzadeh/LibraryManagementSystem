@@ -56,8 +56,7 @@ public static class RegisterMenu
 		else
 			ConsoleHelper.ShowSuccess(result.Message ?? Messages.UserRegistrationSuccessfully);
 
-		ConsoleHelper.ShowSuccess(
-			$"\nWelcome, {result.Data.FullName}! Your account was created and you are now logged in.");
+		ConsoleHelper.ShowSuccess(string.Format(Messages.RegistrationSuccessLoginPrompt, result.Data.FullName));
 		return result.Data;
 	}
 }

@@ -21,7 +21,6 @@ public static class Messages
 	public const string InvalidNationalCode = "Invalid national code. Please enter exactly 10 digits without dashes or spaces.";
 	public const string InvalidEmail = "Invalid email address. Please enter a valid email (e.g., name@domain.com).";
 	public const string InvalidPhoneNumber = "Invalid phone number. Please enter exactly 11 digits.";
-	public const string InvalidBirthDate = "Invalid birth date. Please enter a past date that is no more than 120 years ago.";
 	public const string InvalidCharacters = "The name can only contain letters, numbers, spaces, and basic punctuation.";
 	public const string ConsecutiveSpacesNotAllowed = "The name cannot contain consecutive spaces.";
 	public const string InvalidOptionSelection = "Please select at least one option.";
@@ -272,16 +271,13 @@ public static class Messages
 	public const string AuthenticationRequired = "Access denied. You must be logged in.";
 	public const string AdminRoleRequired = "Access denied. Admin role required.";
 	public const string LibrarianRoleRequired = "Access denied. Librarian role required.";
-	public const string MemberRoleRequired = "Access denied. Member role required.";
 	public const string AdminOrLibrarianRoleRequired = "Access denied. Admin or Librarian role required.";
 	public const string LibraryStatisticsAccessDenied = "Access denied. Only Admin or Librarian can view library statistics.";
 	public const string NoUserLoggedIn = "No user is currently logged in.";
 	public const string BorrowBookForYourself = "You can only borrow books for yourself.";
 	public const string ReturnOwnLoans = "You can only return your own loans.";
 	public const string RenewOwnLoans = "You can only renew your own loans.";
-	public const string ViewOwnLoans = "You can only view your own loans.";
-	public const string NotAuthorized = "You are not authorized to access this menu.\n";
-	public const string RegistrationSuccessLoginPrompt = "Account created successfully! You can now log in.";
+	public const string RegistrationSuccessLoginPrompt = "\nWelcome, {0}! Account created successfully! You can now log in.";
 
 
 
@@ -298,11 +294,9 @@ public static class Messages
 	public const string SelectBookQuestion = "Enter the number of the book you wish";
 	public const string SelectMemberQuestion = "Enter the number of the member you wish";
 	public const string EditContinuesQuestion = "\nDo you want to edit another field";
-	public const string PasswordPrompt = "Enter a password for the user's login account";
 	public const string SelectReplacementTranslators = "Select the new translator(s) for this book";
 	public const string SearchMenuQuestion = "Select a search field by entering its number";
 	public const string TranslatorSelectionForRemove = "Select the translator you want to remove";
-	public const string SubMenuPrompt = "\nWhat do you want to do?";
 	public const string EnterEmailPrompt = "Enter your email address";
 	public const string EnterPasswordPrompt = "Enter your {0} password";
 	public const string PasswordConfirmation = "Confirm new password";
