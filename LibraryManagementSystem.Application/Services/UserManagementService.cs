@@ -44,13 +44,13 @@ public class UserManagementService : IUserManagementService
 		if (!_authorization.HasPermission(Permission.AddUser))
 			return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
 
-		if (_userRepository.Exists(dto.NationalCode, u => u.NationalCode))
+		if (_userRepository.Exists(u => u.NationalCode == dto.NationalCode))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
 
-		if (_userRepository.Exists(dto.Email, u => u.Email))
+		if (_userRepository.Exists(u => u.Email == dto.Email))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
 
-		if (_userRepository.Exists(dto.PhoneNumber, u => u.PhoneNumber))
+		if (_userRepository.Exists(u => u.PhoneNumber == dto.PhoneNumber))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
 
 		if (!CanAssignRole(dto.RoleName)) return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
@@ -88,13 +88,13 @@ public class UserManagementService : IUserManagementService
 
 		if (IsNoOpUpdateUser(user, dto)) return ServiceResult<UserDto>.Fail(Messages.NoChangesDetected);
 
-		if (_userRepository.Exists(dto.NationalCode, u => u.NationalCode, dto.Id))
+		if (_userRepository.Exists(u => u.NationalCode == dto.NationalCode, dto.Id))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
 
-		if (_userRepository.Exists(dto.Email, u => u.Email, dto.Id))
+		if (_userRepository.Exists(u => u.Email == dto.Email, dto.Id))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
 
-		if (_userRepository.Exists(dto.PhoneNumber, u => u.PhoneNumber, dto.Id))
+		if (_userRepository.Exists(u => u.PhoneNumber == dto.PhoneNumber, dto.Id))
 			return ServiceResult<UserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
 
 		if (!CanAssignRole(dto.RoleName)) return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);

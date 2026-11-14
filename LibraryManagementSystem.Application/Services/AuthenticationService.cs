@@ -82,13 +82,13 @@ public class AuthenticationService
 
 	public ServiceResult<AuthUserDto> Register(UserDto dto)
 	{
-		if (_userRepository.Exists(dto.NationalCode, u => u.NationalCode))
+		if (_userRepository.Exists(u => u.NationalCode == dto.NationalCode))
 			return ServiceResult<AuthUserDto>.Fail(Messages.DuplicateUsersNotAllowedByNationalCode);
 
-		if (_userRepository.Exists(dto.Email, u => u.Email))
+		if (_userRepository.Exists(u => u.Email == dto.Email))
 			return ServiceResult<AuthUserDto>.Fail(Messages.DuplicateUsersNotAllowedByEmail);
 
-		if (_userRepository.Exists(dto.PhoneNumber, u => u.PhoneNumber))
+		if (_userRepository.Exists(u => u.PhoneNumber == dto.PhoneNumber))
 			return ServiceResult<AuthUserDto>.Fail(Messages.DuplicateUsersNotAllowedByPhoneNumber);
 
 		var role = _roleRepository.GetByName(LibraryUserRole.Member);

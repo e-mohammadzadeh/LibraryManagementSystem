@@ -5,6 +5,7 @@ using LibraryManagementSystem.Domain.Persistence;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.ValueObjects;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace LibraryManagementSystem.Application.Repositories.EFCore;
 
@@ -25,10 +26,20 @@ public class UserRepository : IUserRepository
 	{
 		ArgumentNullException.ThrowIfNull(user);
 
-		user.Role = null;
+		if (user.RoleId == Guid.Empty && user.Role is not null)
+			user.RoleId = user.Role.Id;
+
+		var role = user.Role;
+		user.Role = null!;
+
+		user.Id = Guid.CreateVersion7();
+		user.CreatedAt = DateTime.UtcNow;
 
 		Context.Users.Add(user);
 		Context.SaveChanges();
+		Context.Entry(user).State = EntityState.Detached;
+
+		user.Role = role;
 	}
 
 
@@ -48,17 +59,15 @@ public class UserRepository : IUserRepository
 		Query(filter).FirstOrDefault(u => u.Email == email);
 
 
-	public bool Exists<TValue>(TValue value, Func<User, TValue> selector, Guid? excludeId)
+	public bool Exists(Expression<Func<User, bool>> predicate, Guid? excludeId = null)
 	{
-		ArgumentNullException.ThrowIfNull(selector);
+		ArgumentNullException.ThrowIfNull(predicate);
 
 		return Context.Users
 			.AsNoTracking()
 			.Where(u => !u.IsRemoved)
-			.AsEnumerable()
-			.Any(u =>
-				(excludeId == null || u.Id != excludeId) &&
-				EqualityComparer<TValue>.Default.Equals(selector(u), value));
+			.Where(predicate)
+			.Any(u => excludeId == null || u.Id != excludeId);
 	}
 
 
@@ -66,10 +75,12 @@ public class UserRepository : IUserRepository
 	{
 		ArgumentNullException.ThrowIfNull(user);
 
-		if (user.IsRemoved) return;
 		var tracked = Context.Users.FirstOrDefault(u => u.Id == user.Id) ?? throw CreateNotFoundException(user.Id);
+		if (tracked.IsRemoved) return;
+
 		tracked.IsRemoved = true;
 		tracked.UpdatedAt = DateTime.UtcNow;
+		tracked.UpdatedByUserId = user.UpdatedByUserId;
 
 		Context.SaveChanges();
 	}
@@ -107,7 +118,7 @@ public class UserRepository : IUserRepository
 	}
 
 
-	protected Exception CreateNotFoundException(Guid id) => new UserNotFoundException(id);
+	private static Exception CreateNotFoundException(Guid id) => new UserNotFoundException(id);
 
 
 	private static IQueryable<User> ApplyFilter(IQueryable<User> query, EntityFilter filter)
