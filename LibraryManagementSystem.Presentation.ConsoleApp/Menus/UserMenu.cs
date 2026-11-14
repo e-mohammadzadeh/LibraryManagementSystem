@@ -684,7 +684,7 @@ public static class UserMenu
 		var selectedItem = MenuHelper.DisplayMenu("CHANGE PASSWORD", menuService.GetChildren("users.change-password"));
 		if (selectedItem is null) return;
 		Guid targetUserId;
-		var isOwn = false;
+		bool isOwn;
 
 		switch (selectedItem)
 		{

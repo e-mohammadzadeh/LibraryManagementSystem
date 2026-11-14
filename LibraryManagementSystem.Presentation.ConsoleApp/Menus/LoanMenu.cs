@@ -334,7 +334,7 @@ public static class LoanMenu
 				case "loans.view.full":
 					Console.Clear();
 					DisplayLoans(loanManagementService.GetAllLoans(session, LoanFilter.All),
-						Messages.NotAvailableLoan);
+						Messages.NotAvailableLoanHistory);
 					break;
 				case "loans.view.back":
 					ConsoleHelper.ShowInfo(Messages.BackToLoanMenu);

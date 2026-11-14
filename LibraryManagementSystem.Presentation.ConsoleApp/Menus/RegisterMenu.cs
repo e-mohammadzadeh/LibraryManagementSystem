@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Application.Services;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Users;
+using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.ValueObjects;
 using LibraryManagementSystem.Presentation.ConsoleApp.Helpers;
 
@@ -13,7 +14,7 @@ public static class RegisterMenu
 		Console.Clear();
 		Console.WriteLine(new string('=', 30) + " CREATE ACCOUNT " + new string('=', 30));
 
-		var fields = ContributorMenu.PromptForContributorDto("user", false);
+		var fields = ContributorMenu.PromptForContributorDto(PersonInputKind.User);
 		if (fields is null)
 		{
 			ConsoleHelper.ShowInfo(Messages.RegistrationCancelled);

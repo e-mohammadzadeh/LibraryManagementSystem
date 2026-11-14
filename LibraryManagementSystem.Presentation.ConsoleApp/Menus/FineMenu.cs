@@ -218,7 +218,7 @@ public static class FineMenu
 		if (filter is null) return;
 
 		Console.Clear();
-		DisplayFines(fineManagementService.GetAll(session, filter.Value), Messages.FineNotFound);
+		DisplayFines(fineManagementService.GetAll(session, filter.Value), Messages.NotAvailableFineHistory);
 	}
 
 

@@ -74,11 +74,10 @@ public class UserManagementService : IUserManagementService
 			PhoneNumber = dto.PhoneNumber,
 			BirthDate = dto.BirthDate,
 			Role = role!,
-			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today)
+			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today),
+			PasswordHash = result.Hash,
+			PasswordSalt = result.Salt
 		};
-
-		newUser.PasswordHash = result.Hash;
-		newUser.PasswordSalt = result.Salt;
 
 		_userRepository.Add(newUser);
 		_auditLog.Record(AuditAction.UserCreated, "User", newUser.Id, "New user created.");
@@ -246,7 +245,7 @@ public class UserManagementService : IUserManagementService
 	}
 
 
-	public ServiceResult<string> ChangePassword(Guid userId, string currentPassword, string newPassword,
+	public ServiceResult<string> ChangePassword(Guid userId, string? currentPassword, string newPassword,
 		ICurrentUserSession session)
 	{
 		var isOwn = session.CurrentUser.Id == userId;

@@ -16,7 +16,9 @@ public abstract class ContributorMenu
 {
 	public static ContributorDto? PromptForContributorDto(PersonInputKind personKind)
 	{
-		var label = string.IsNullOrWhiteSpace(personKind.ToString()) ? "" : $"{personKind}'s ";
+		var isUser = personKind is PersonInputKind.User;
+		var isContributor = personKind is PersonInputKind.Author or PersonInputKind.Translator;
+		var label = $"{personKind.ToString().ToLowerInvariant()}'s ";
 
 		var firstName = ConsoleHelper.GetValidName($"Enter {label}first name", ValidationConstants.MinNameLength,
 			ValidationConstants.MaxNameLength);
@@ -35,27 +37,32 @@ public abstract class ContributorMenu
 		var phoneNumber = ConsoleHelper.GetValidPhoneNumber("Enter phone number");
 		if (phoneNumber is null) return null;
 
-		var birthDate = personKind is PersonInputKind.User
+		var birthDate = isUser
 			? ConsoleHelper.GetValidUserBirthDate($"Enter {label}birth date")
 			: ConsoleHelper.GetValidContributorBirthDate($"Enter {label}birth date");
 		if (birthDate is null) return null;
 
 		DateOnly? deathDate = null;
-		var isDeceased = ConsoleHelper.ReadYesNo("Is this contributor deceased?");
-
-		if (isDeceased)
+		if (isContributor)
 		{
-			if ((personKind is PersonInputKind.Author or PersonInputKind.Translator) &&
-			    Validator.IsOlderThan130(birthDate.Value))
+			var isOlderThan130 = Validator.IsOlderThan130(birthDate.Value);
+			var isDeceased = ConsoleHelper.ReadYesNo("Is this contributor deceased?");
+			if (isDeceased is null) return null;
+			if (isOlderThan130 && !isDeceased.Value)
+			{
+				ConsoleHelper.ShowError(Messages.DeathDateRequired);
+				return null;
+			}
+
+			if (isDeceased.Value)
 			{
 				deathDate = ConsoleHelper.GetValidDeathDate($"Enter {label}death date", birthDate.Value);
-				if (deathDate is null)
-					return null;
+				if (deathDate is null) return null;
 			}
 		}
 
-		var biography = personKind is PersonInputKind.Author or PersonInputKind.Translator
-			? ConsoleHelper.ReadString("You can add a biography (Optional)", true)
+		var biography = isContributor
+			? ConsoleHelper.ReadString("You can add a biography (Optional)", allowEmpty: true)
 			: null;
 
 		return new ContributorDto

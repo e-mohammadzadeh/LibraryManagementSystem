@@ -1,6 +1,4 @@
-﻿using static System.Runtime.InteropServices.JavaScript.JSType;
-
-namespace LibraryManagementSystem.Infrastructure.Common;
+﻿namespace LibraryManagementSystem.Infrastructure.Common;
 
 public static class Messages
 {
@@ -46,7 +44,6 @@ public static class Messages
 	public const string NotEmptyPassword = "Password cannot be empty.";
 	public const string PasswordChangedSuccessfully = "\nPassword changed successfully.";
 	public const string PasswordChangeFailed = "Failed to change password. Please check your current password and try again.";
-	public const string CanChangeOwnPassword = "You can only change your own password.";
 	public const string PasswordMatchedFailed = "\nNew password and confirmation do not match.";
 	public const string SelectDifferentNewPassword = "New password must be different from the current password.";
 	public const string PasswordResetSuccessfully = "Password was reset successfully.";
@@ -57,7 +54,6 @@ public static class Messages
 	// 4. AUTHOR MESSAGES ────────────────────────────────────────────────────────────
 	// Add
 	public const string AuthorAddedSuccessfully = "Author added successfully.";
-	public const string DuplicateAuthorNameWarning = "An author with the same name already exists (ID: {0}).";
 
 	// Update
 	public const string AuthorUpdatedSuccessfully = "Author updated successfully.";
@@ -92,7 +88,6 @@ public static class Messages
 	public const string TranslatorAddedSuccessfully = "Translator added successfully.";
 	public const string AllTranslatorsAssigned = "All available translators are already assigned to this book.";
 	public const string AddTranslatorInAdd = "\nNo translators found. Do you want to create a new translator now (Optional)";
-	public const string DuplicateTranslatorNameWarning = "A translator with the same name already exists (ID: {0}).";
 
 
 	// Update
@@ -167,8 +162,8 @@ public static class Messages
 	// Add
 	public const string UserAddedSuccessfully = "User added successfully.";
 	public const string UserRegistrationSuccessfully = "Registration successful.";
-	public const string DuplicateUserNameWarning = "A user with the same name already exists (ID: {0}).";
 	public const string UserRegistrationFailed =  "Registration failed. Please try again.";
+	public const string DeathDateRequired = "This contributor is older than 130 years. Please provide a death date.";
 
 	// Update
 	public const string UserUpdatedSuccessfully = "User updated successfully.";
@@ -196,7 +191,6 @@ public static class Messages
 	public const string DuplicateUsersNotAllowedByNationalCode = "A user with the same national code already exists.";
 	public const string DuplicateUsersNotAllowedByEmail = "A user with the same email already exists.";
 	public const string DuplicateUsersNotAllowedByPhoneNumber = "A user with the same phone number already exists.";
-	public const string DuplicateUsersNotAllowedByRole = "This user already has this role.";
 
 	// Membership
 	public const string MembershipExpired = "Membership expired. Please renew your membership.";
@@ -208,11 +202,8 @@ public static class Messages
 	public const string RenewInactiveMembership = "Only an administrator can renew the membership of an inactive user.";
 
 	// Role
-	public const string FailureDuplicateRolesSelected = "Duplicate roles selected.";
 	public const string NotRoleMatched = "No roles matched your search.";
 	public const string SelectRolePrompt = "Select a role for this user:";
-	public const string NotAvailableRoles = "One or more selected roles do not exist.";
-	public const string AdminCanChangeRole = "Only Admin can change user roles.";
 	public const string NoRolesToAssign = "No roles available to assign.";
 	public const string CanOnlyAssignAllowedRoles = "You are not allowed to assign one or more of the selected roles.";
 
@@ -236,7 +227,6 @@ public static class Messages
 	public const string NoInactiveLoans = "No inactive loans found.";
 	public const string NoOverdueLoans = "No overdue loans at the moment.";
 	public const string NotAvailableActionLoan = "No actionable loans found.";
-	public const string LoansRetrievedSuccessfully = "Loans retrieved successfully.";
 	public const string NotAvailableLoanHistory = "No loan history records found.";
 
 	// User‑specific Loan Errors
@@ -244,7 +234,6 @@ public static class Messages
 	public const string BookAlreadyBorrowed = "This user has already borrowed this book. Please return it before borrowing another copy.";
 	public const string ActiveLoanNotFound = "No active loan found for the selected user and book.";
 	public const string UserHasNoBorrowedBooks = "This user has no borrowed books.";
-	public const string NoLoanHistoryForUser = "This user has no loan history.";
 	public const string NoLoanHistoryForBook = "\nThis book has no loan history.";
 	public const string UserHasUnpaidFines = "You cannot renew a loan while you have unpaid fines. Please pay your fines first.";
 	public const string BorrowBlockedDueToOverdue = "You have overdue loans. Please return all overdue books before borrowing more.";
