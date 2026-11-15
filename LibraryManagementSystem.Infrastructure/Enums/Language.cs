@@ -10,7 +10,7 @@ public enum Language
 	Spanish = 6,
 	Italian = 7,
 	Russian = 8,
-	Chinese = 10,
-	Japanese = 11,
+	Chinese = 9,
+	Japanese = 10,
 	Other = 99
 }

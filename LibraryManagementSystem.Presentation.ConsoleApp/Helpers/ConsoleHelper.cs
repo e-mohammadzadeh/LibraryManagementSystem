@@ -88,15 +88,6 @@ public static class ConsoleHelper
 	}
 
 
-	public static Genre? ReadGenre(string prompt)
-	{
-		DisplayGenres();
-		var genreId = ConsoleHelper.ReadInt(prompt, 1, Enum.GetValues<Genre>().Length);
-		if (genreId is null) return null;
-		return (Genre)(genreId.Value - 1);
-	}
-
-
 	public static bool? ReadYesNo(string prompt)
 	{
 		while (true)
@@ -263,19 +254,27 @@ public static class ConsoleHelper
 	}
 
 
-	public static TEnum? ReadEnum<TEnum>(string prompt) where TEnum : struct, Enum
+	private static TEnum? ReadEnum<TEnum>(string prompt) where TEnum : struct, Enum
 	{
 		var values = Enum.GetValues<TEnum>();
-
-		Console.WriteLine(prompt);
-		for (var i = 0; i < values.Length; i++) Console.WriteLine($"\t{i + 1}. {values[i]}");
-
-		var choice = ReadInt("Enter the number of your choice", 1, values.Length);
+		var choice = ReadInt(prompt, 1, values.Length);
 		return choice is null ? null : values[choice.Value - 1];
 	}
 
 
-	public static Language? ReadLanguage(string prompt) { return ReadEnum<Language>(prompt); }
+
+	public static Language? ReadLanguage(string prompt)
+	{
+		DisplayLanguages();
+		return ReadEnum<Language>(prompt);
+	}
+
+
+	public static Genre? ReadGenre(string prompt)
+	{
+		DisplayGenres();
+		return ReadEnum<Genre>(prompt);
+	}
 
 
 	private static string? GetValidString(string prompt, Func<string, ValidationResult> validator)

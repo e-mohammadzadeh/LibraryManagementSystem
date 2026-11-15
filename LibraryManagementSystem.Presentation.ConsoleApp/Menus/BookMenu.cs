@@ -131,22 +131,19 @@ public static class BookMenu
 		if (totalCopies is null) return;
 
 		var genre = ConsoleHelper.ReadGenre("Select your desired genre by entering its ID");
-		if (genre is null) return;
+		if (genre is null)
+			return;
 
-		ConsoleHelper.DisplayLanguages();
-		var originalLanguageId = ConsoleHelper.ReadInt("Select original language of book by entering its ID", 1,
-			Enum.GetValues<Language>().Length);
-		if (originalLanguageId is null) return;
-		var originalLanguage = (Language)originalLanguageId.Value;
+		var originalLanguage = ConsoleHelper.ReadLanguage("Select original language of book by entering its ID");
+		if (originalLanguage is null)
+			return;
 
 		Language? translatedLanguage = null;
 		if (translatorIds.Count > 0)
 		{
-			ConsoleHelper.DisplayLanguages();
-			var translatedLanguageId = ConsoleHelper.ReadInt("Select translated language of book by entering its ID", 1,
-				Enum.GetValues<Language>().Length);
-			if (translatedLanguageId is null) return;
-			translatedLanguage = (Language)translatedLanguageId.Value;
+			translatedLanguage = ConsoleHelper.ReadLanguage("Select translated language of book by entering its ID");
+			if (translatedLanguage is null)
+				return;
 		}
 
 		var publisher = ConsoleHelper.GetValidName("Enter the publisher for this book",
@@ -155,7 +152,7 @@ public static class BookMenu
 
 		var description = ConsoleHelper.ReadString("You can add any descriptions about this book (Optional)", true);
 
-		var result = bookManagementService.AddBook(new BookDto
+		var x = new BookDto
 		{
 			Title = bookName,
 			ISBN = ISBN.Create(isbn),
@@ -164,11 +161,13 @@ public static class BookMenu
 			PublishDate = publishDate.Value,
 			Genre = BookGenre.Create(genre.Value),
 			Publisher = publisher,
-			OriginalLanguage = originalLanguage,
+			OriginalLanguage = originalLanguage.Value,
 			TotalCopies = totalCopies.Value,
 			Description = description,
 			TranslatedLanguage = translatedLanguage!.Value
-		});
+		};
+
+		var result = bookManagementService.AddBook(x);
 
 		ConsoleHelper.ShowResult(result);
 	}
