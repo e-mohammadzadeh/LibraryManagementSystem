@@ -77,14 +77,18 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 		if (IsNoOpUpdate(contributor, dto))
 			return ServiceResult<ContributorDto>.Warning(contributor.ToDto(), Messages.NoChangesDetected);
 
-		if (Repository.Exists(c => c.NationalCode == dto.NationalCode, dto.Id))
-			return ServiceResult<ContributorDto>.Fail(duplicateNationalCodeMessage);
-
-		if (Repository.Exists(c => c.Email == dto.Email, dto.Id))
-			return ServiceResult<ContributorDto>.Fail(duplicateEmailMessage);
-
-		if (Repository.Exists(c => c.PhoneNumber == dto.PhoneNumber, dto.Id))
-			return ServiceResult<ContributorDto>.Fail(duplicatePhoneNumberMessage);
+		var duplicate = UniquenessChecker.Check(dto.NationalCode, dto.Email, dto.PhoneNumber);
+		switch (duplicate)
+		{
+			case DuplicateField.NationalCode:
+				return ServiceResult<ContributorDto>.Fail(duplicateNationalCodeMessage);
+			case DuplicateField.Email:
+				return ServiceResult<ContributorDto>.Fail(duplicateEmailMessage);
+			case DuplicateField.PhoneNumber:
+				return ServiceResult<ContributorDto>.Fail(duplicatePhoneNumberMessage);
+			case DuplicateField.None:
+				throw new ArgumentOutOfRangeException();
+		}
 
 		auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(contributor, dto);
 

@@ -128,6 +128,8 @@ public static class Program
 		services.AddScoped<IAuthorizationService, AuthorizationService>();
 
 		// ── Application services (interface + concrete share one instance) ──────
+		services.AddScoped<PersonUniquenessChecker>();
+
 		services.AddScoped<AuditLogManagementService>();
 		services.AddScoped<IAuditLogManagementService>(sp => sp.GetRequiredService<AuditLogManagementService>());
 

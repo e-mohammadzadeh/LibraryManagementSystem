@@ -30,7 +30,8 @@ public class UserManagementService : IUserManagementService
 
 	public UserManagementService(IUserRepository userRepository, IRoleRepository roleRepository,
 		ILoanRepository loanRepository, IFineRepository fineRepository, IPasswordHasher passwordHasher,
-		IAuthorizationService authorization, IAuditLogManagementService auditLog, PersonUniquenessChecker uniquenessChecker)
+		IAuthorizationService authorization, IAuditLogManagementService auditLog,
+		PersonUniquenessChecker uniquenessChecker)
 	{
 		_userRepository = userRepository;
 		_roleRepository = roleRepository;
@@ -412,8 +413,13 @@ public class UserManagementService : IUserManagementService
 		var role = _roleRepository.GetByName(LibraryUserRole.Admin) ??
 		           throw new InvalidOperationException("Admin role is missing. Did the migration run?");
 
-		var adminExists = _userRepository.Exists(u => u.RoleId == role.Id);
-		if (adminExists) return ServiceResult<User>.Ok(user, "An active administrator already exists.");
+		if (_userRepository.HasUserWithRole(role.Id))
+			return ServiceResult<User>.Ok(user, "An active administrator already exists.");
+
+		var duplicate = UniquenessChecker.Check(user.NationalCode, user.Email, user.PhoneNumber);
+		if (duplicate != DuplicateField.None)
+			return ServiceResult<User>.Fail(
+				"The initial administrator's national code, email, or phone number is already in use.");
 
 		user.RoleId = role.Id;
 		var passwordResult = _passwordHasher.CreatePasswordHash(initialPassword);

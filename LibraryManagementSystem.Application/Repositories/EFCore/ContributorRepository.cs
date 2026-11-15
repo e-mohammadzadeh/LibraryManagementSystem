@@ -44,21 +44,6 @@ public abstract class ContributorRepository<T> : IContributorRepository<T> where
 	];
 
 
-
-	public bool Exists(Expression<Func<T, bool>> predicate, Guid? excludeId = null)
-	{
-		ArgumentNullException.ThrowIfNull(predicate);
-
-		var query = DbSet
-			.AsNoTracking()
-			.Where(c => !c.IsRemoved)
-			.Where(predicate);
-
-		if (excludeId.HasValue) query = query.Where(c => c.Id != excludeId.Value);
-		return query.Any();
-	}
-
-
 	public void Remove(T entity)
 	{
 		ArgumentNullException.ThrowIfNull(entity);

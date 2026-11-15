@@ -59,16 +59,8 @@ public class UserRepository : IUserRepository
 		Query(filter).FirstOrDefault(u => u.Email == email);
 
 
-	public bool Exists(Expression<Func<User, bool>> predicate, Guid? excludeId = null)
-	{
-		ArgumentNullException.ThrowIfNull(predicate);
-
-		return Context.Users
-			.AsNoTracking()
-			.Where(u => !u.IsRemoved)
-			.Where(predicate)
-			.Any(u => excludeId == null || u.Id != excludeId);
-	}
+	public bool HasUserWithRole(Guid roleId) =>
+		Context.Users.AsNoTracking().Any(u => !u.IsRemoved && u.RoleId == roleId);
 
 
 	public void Remove(User user)

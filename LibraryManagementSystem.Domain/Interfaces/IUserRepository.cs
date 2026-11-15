@@ -12,7 +12,7 @@ public interface IUserRepository
 	User? GetByName(string firstName, string lastName, EntityFilter filter);
 	User? GetByEmail(Email email, EntityFilter filter);
 	IReadOnlyList<User> GetAll(EntityFilter filter);
-	bool Exists(Expression<Func<User, bool>> predicate, Guid? excludeId = null);
+	bool HasUserWithRole(Guid roleId); 
 	void Remove(User user);
 	void Update(User user);
 }
