@@ -42,8 +42,6 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 				return ServiceResult<ContributorDto>.Fail(duplicateEmailMessage);
 			case DuplicateField.PhoneNumber:
 				return ServiceResult<ContributorDto>.Fail(duplicatePhoneNumberMessage);
-			case DuplicateField.None:
-				throw new ArgumentOutOfRangeException();
 		}
 
 		var dateValidation = Validator.ContributorDateValidator(dto.BirthDate, dto.DeathDate);
@@ -86,8 +84,6 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 				return ServiceResult<ContributorDto>.Fail(duplicateEmailMessage);
 			case DuplicateField.PhoneNumber:
 				return ServiceResult<ContributorDto>.Fail(duplicatePhoneNumberMessage);
-			case DuplicateField.None:
-				throw new ArgumentOutOfRangeException();
 		}
 
 		auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(contributor, dto);

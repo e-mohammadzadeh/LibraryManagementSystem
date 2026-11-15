@@ -94,8 +94,6 @@ public class AuthenticationService
 				return ServiceResult<AuthUserDto>.Fail(Messages.DuplicateEmailMessage);
 			case DuplicateField.PhoneNumber:
 				return ServiceResult<AuthUserDto>.Fail(Messages.DuplicatePhoneNumberMessage);
-			case DuplicateField.None:
-				throw new ArgumentOutOfRangeException();
 		}
 
 		var role = _roleRepository.GetByName(LibraryUserRole.Member);

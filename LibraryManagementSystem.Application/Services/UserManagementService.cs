@@ -58,8 +58,6 @@ public class UserManagementService : IUserManagementService
 				return ServiceResult<UserDto>.Fail(Messages.DuplicateEmailMessage);
 			case DuplicateField.PhoneNumber:
 				return ServiceResult<UserDto>.Fail(Messages.DuplicatePhoneNumberMessage);
-			case DuplicateField.None:
-				throw new ArgumentOutOfRangeException();
 		}
 
 		var dateValidation = Validator.UserBirthDateValidator(dto.BirthDate);
@@ -111,8 +109,6 @@ public class UserManagementService : IUserManagementService
 				return ServiceResult<UserDto>.Fail(Messages.DuplicateEmailMessage);
 			case DuplicateField.PhoneNumber:
 				return ServiceResult<UserDto>.Fail(Messages.DuplicatePhoneNumberMessage);
-			case DuplicateField.None:
-				throw new ArgumentOutOfRangeException();
 		}
 
 		if (!CanAssignRole(dto.RoleName)) return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);

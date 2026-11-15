@@ -130,7 +130,6 @@ public static class BookMenu
 			ValidationConstants.MinBookCopies, ValidationConstants.MaxBookCopies);
 		if (totalCopies is null) return;
 
-		ConsoleHelper.DisplayGenres();
 		var genre = ConsoleHelper.ReadGenre("Select your desired genre by entering its ID");
 		if (genre is null) return;
 
@@ -179,7 +178,7 @@ public static class BookMenu
 	{
 		var availableAuthors = authorManagementService.GetAllAuthors();
 		if (availableAuthors.Count != 0)
-			return ConsoleHelper.ReadAuthorDtos("Select author(s) for this book", availableAuthors);
+			return ConsoleHelper.SelectAuthors("Select author(s) for this book", availableAuthors);
 
 		var choice = ConsoleHelper.ReadYesNo(Messages.NotAvailableAuthor);
 		if (choice is not true)
@@ -219,7 +218,7 @@ public static class BookMenu
 	{
 		var availableTranslators = translatorManagementService.GetAllTranslators();
 		if (availableTranslators.Count != 0)
-			return ConsoleHelper.ReadTranslatorDtos("Select one or more translators (optional)", availableTranslators);
+			return ConsoleHelper.SelectTranslators("Select one or more translators (optional)", availableTranslators);
 
 		var choice = ConsoleHelper.ReadYesNo(Messages.AddTranslatorInAdd);
 		if (choice != true) return [];
@@ -432,7 +431,7 @@ public static class BookMenu
 					break;
 				}
 
-				var newlySelected = ConsoleHelper.ReadAuthorDtos("\nSelect author(s) for this book", availableToAdd);
+				var newlySelected = ConsoleHelper.SelectAuthors("\nSelect author(s) for this book", availableToAdd);
 				if (newlySelected is null || newlySelected.Count == 0) return null;
 
 				// New list = existing author IDs + newly selected IDs
@@ -446,7 +445,7 @@ public static class BookMenu
 					break;
 				}
 
-				var selectedForRemoval = ConsoleHelper.ReadAuthorDtos(Messages.AuthorSelectionForRemove,
+				var selectedForRemoval = ConsoleHelper.SelectAuthors(Messages.AuthorSelectionForRemove,
 					currentBook.Authors, false);
 				if (selectedForRemoval is null || selectedForRemoval.Count == 0) break;
 
@@ -462,7 +461,7 @@ public static class BookMenu
 					break;
 				}
 
-				var newAuthors = ConsoleHelper.ReadAuthorDtos("\nSelect the new author(s) for this book", allAuthors);
+				var newAuthors = ConsoleHelper.SelectAuthors("\nSelect the new author(s) for this book", allAuthors);
 				if (newAuthors is null || newAuthors.Count == 0) break;
 				return newAuthors;
 			}
@@ -513,7 +512,7 @@ public static class BookMenu
 					break;
 				}
 
-				var newlySelected = ConsoleHelper.ReadTranslatorDtos("\nSelect translator(s) to add", availableToAdd);
+				var newlySelected = ConsoleHelper.SelectTranslators("\nSelect translator(s) to add", availableToAdd);
 				if (newlySelected is null || newlySelected.Count == 0) break;
 
 				Language language;
@@ -538,7 +537,7 @@ public static class BookMenu
 					break;
 				}
 
-				var selectedForRemoval = ConsoleHelper.ReadTranslatorDtos(Messages.TranslatorSelectionForRemove,
+				var selectedForRemoval = ConsoleHelper.SelectTranslators(Messages.TranslatorSelectionForRemove,
 					currentBook.Translators, false, false);
 				if (selectedForRemoval is null || selectedForRemoval.Count == 0) break;
 
@@ -555,7 +554,7 @@ public static class BookMenu
 				}
 
 				var newTranslators =
-					ConsoleHelper.ReadTranslatorDtos(Messages.SelectReplacementTranslators, allTranslators);
+					ConsoleHelper.SelectTranslators(Messages.SelectReplacementTranslators, allTranslators);
 				if (newTranslators is null || newTranslators.Count == 0) break;
 
 				var language = ConsoleHelper.ReadLanguage(Messages.SelectTranslationLanguage);

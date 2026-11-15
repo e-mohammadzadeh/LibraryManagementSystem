@@ -218,17 +218,19 @@ public static class ConsoleHelper
 	private static (bool isValid, List<Guid>? SelectedIds, string? error) ParseMultiSelect(string input,
 		List<OptionItem> validOptions, bool allowMultiple)
 	{
-		var parts = input.Split(',', StringSplitOptions.RemoveEmptyEntries);
+		var parts = input.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 		var result = new List<Guid>();
 
 		if (!allowMultiple && parts.Length > 1) return (false, null, Messages.NotAllowedMultiSelections);
 
 		foreach (var part in parts)
 		{
-			var cleaned = part.Trim();
-			if (!Guid.TryParse(cleaned, out var id)) return (false, null, $"{cleaned} is not a valid GUID.");
-			if (validOptions.All(o => o.Id != id)) return (false, null, string.Format(Messages.InvalidIdSelection, id));
-			result.Add(id);
+			if (!int.TryParse(part, out var number)) return (false, null, $"{part} is not a valid GUID.");
+			var index = number - 1;
+			if (index < 0 || index >= validOptions.Count)
+				return (false, null,
+					$"Number {number} is out of range. Please choose between 1 and {validOptions.Count}.");
+			result.Add(validOptions[index].Id);
 		}
 
 		if (result.Count == 0) return (false, null, Messages.InvalidOptionSelection);
@@ -236,7 +238,7 @@ public static class ConsoleHelper
 	}
 
 
-	public static List<ContributorDto>? ReadAuthorDtos(string prompt, IReadOnlyList<ContributorDto> authors,
+	public static List<ContributorDto>? SelectAuthors(string prompt, IReadOnlyList<ContributorDto> authors,
 		bool allowMultiple = true, bool allowEmpty = false)
 	{
 		return ReadMultiSelect(prompt, authors, idSelector: a => a.Id,
@@ -245,7 +247,7 @@ public static class ConsoleHelper
 	}
 
 
-	public static List<ContributorDto>? ReadTranslatorDtos(string prompt,
+	public static List<ContributorDto>? SelectTranslators(string prompt,
 		IReadOnlyList<ContributorDto> translators, bool allowMultiple = true, bool allowEmpty = true)
 	{
 		return ReadMultiSelect(prompt, translators, idSelector: t => t.Id,
