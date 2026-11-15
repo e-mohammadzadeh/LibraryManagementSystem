@@ -80,7 +80,7 @@ public static class Program
 		catch (Exception ex)
 		{
 			ConsoleHelper.ShowError("\n" + new string('=', 50) + "\nFATAL ERROR DURING STARTUP OR EXECUTION:\n" +
-			                        ex.Message + "\n" + new string('=', 50));
+			                        ex.Message + "\n" + ex + "\n" + new string('=', 50));
 			ConsoleHelper.Pause();
 		}
 	}

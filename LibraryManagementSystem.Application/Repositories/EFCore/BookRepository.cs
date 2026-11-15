@@ -20,7 +20,7 @@ public class BookRepository : IBookRepository
 	{
 		ArgumentNullException.ThrowIfNull(book);
 
-		book.Id = Guid.CreateVersion7();
+		if (book.Id == Guid.Empty) book.Id = Guid.CreateVersion7();
 		book.AvailableCopies = book.TotalCopies;
 		book.CreatedAt = DateTime.UtcNow;
 		book.IsRemoved = false;

@@ -76,6 +76,7 @@ public class BookManagementService : IBookManagementService
 
 		var newBook = new Book
 		{
+			Id = Guid.CreateVersion7(),
 			Title = dto.Title,
 			ISBN = dto.ISBN,
 			PublishDate = dto.PublishDate,
@@ -432,13 +433,11 @@ public class BookManagementService : IBookManagementService
 		if (book.BookAuthors.Any(ba => ba.AuthorId == author.Id)) return;
 		var ba = new BookAuthor
 		{
+			Id = Guid.CreateVersion7(),
 			BookId = book.Id,
-			Book = book,
 			AuthorId = author.Id,
-			Author = author
 		};
 		book.BookAuthors.Add(ba);
-		author.BookAuthors.Add(ba);
 	}
 
 
@@ -447,14 +446,12 @@ public class BookManagementService : IBookManagementService
 		if (book.BookTranslators.Any(bt => bt.TranslatorId == translator.Id)) return;
 		var bt = new BookTranslator
 		{
+			Id = Guid.CreateVersion7(),
 			BookId = book.Id,
-			Book = book,
 			TranslatorId = translator.Id,
-			Translator = translator,
 			TranslationLanguage = language
 		};
 
 		book.BookTranslators.Add(bt);
-		translator.BookTranslators.Add(bt);
 	}
 }
