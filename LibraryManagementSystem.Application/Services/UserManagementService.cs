@@ -100,7 +100,7 @@ public class UserManagementService : IUserManagementService
 
 		if (IsNoOpUpdateUser(user, dto)) return ServiceResult<UserDto>.Fail(Messages.NoChangesDetected);
 
-		var duplicate = UniquenessChecker.Check(dto.NationalCode, dto.Email, dto.PhoneNumber);
+		var duplicate = UniquenessChecker.Check(user, dto.NationalCode, dto.Email, dto.PhoneNumber);
 		switch (duplicate)
 		{
 			case DuplicateField.NationalCode:

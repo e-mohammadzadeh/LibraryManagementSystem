@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Mapping;
+using LibraryManagementSystem.Application.Validators;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Common;
@@ -18,7 +19,7 @@ public class AuthenticationService
 	private readonly IPasswordHasher _passwordHasher;
 	private readonly ICurrentUserSession _currentUserSession;
 	private readonly IAuditLogManagementService _auditLog;
-	protected readonly PersonUniquenessChecker UniquenessChecker;
+	private readonly PersonUniquenessChecker _uniquenessChecker;
 
 
 
@@ -32,7 +33,7 @@ public class AuthenticationService
 		_passwordHasher = passwordHasher;
 		_currentUserSession = currentUserSession;
 		_auditLog = auditLog;
-		UniquenessChecker = uniquenessChecker;
+		_uniquenessChecker = uniquenessChecker;
 	}
 
 
@@ -85,7 +86,7 @@ public class AuthenticationService
 
 	public ServiceResult<AuthUserDto> Register(UserDto dto)
 	{
-		var duplicate = UniquenessChecker.Check(dto.NationalCode, dto.Email, dto.PhoneNumber);
+		var duplicate = _uniquenessChecker.Check(dto.NationalCode, dto.Email, dto.PhoneNumber);
 		switch (duplicate)
 		{
 			case DuplicateField.NationalCode:

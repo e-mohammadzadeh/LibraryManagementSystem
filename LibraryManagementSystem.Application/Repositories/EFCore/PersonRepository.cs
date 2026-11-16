@@ -8,17 +8,17 @@ namespace LibraryManagementSystem.Application.Repositories.EFCore;
 
 public class PersonRepository : IPersonRepository
 {
-	private readonly LibraryDbContext Context;
+	private readonly LibraryDbContext _context;
 
 
-	public PersonRepository(LibraryDbContext context) => Context = context;
+	public PersonRepository(LibraryDbContext context) => _context = context;
 
 
 	public bool Exists(Expression<Func<Person, bool>> predicate, Guid? excludeId = null)
 	{
 		ArgumentNullException.ThrowIfNull(predicate);
 
-		return Context.Set<Person>()
+		return _context.Set<Person>()
 			.AsNoTracking()
 			.Where(p => !p.IsRemoved)
 			.Where(predicate)

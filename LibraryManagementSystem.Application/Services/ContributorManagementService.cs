@@ -18,7 +18,7 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 {
 	protected readonly IContributorRepository<TEntity> Repository;
 	protected readonly IAuthorizationService Authorization;
-	protected readonly PersonUniquenessChecker UniquenessChecker;
+	protected readonly PersonUniquenessChecker PersonUniquenessChecker;
 
 
 	protected ContributorManagementService(IContributorRepository<TEntity> repository,
@@ -26,14 +26,14 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 	{
 		Repository = repository;
 		Authorization = authorization;
-		UniquenessChecker = uniquenessChecker;
+		PersonUniquenessChecker = uniquenessChecker;
 	}
 
 
 	protected ServiceResult<ContributorDto> AddContributor(ContributorDto dto, string duplicateNationalCodeMessage,
 		string duplicateEmailMessage, string duplicatePhoneNumberMessage, string successMessage)
 	{
-		var duplicate = UniquenessChecker.Check(dto.NationalCode, dto.Email, dto.PhoneNumber);
+		var duplicate = PersonUniquenessChecker.Check(dto.NationalCode, dto.Email, dto.PhoneNumber);
 		switch (duplicate)
 		{
 			case DuplicateField.NationalCode:
@@ -75,7 +75,7 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 		if (IsNoOpUpdate(contributor, dto))
 			return ServiceResult<ContributorDto>.Warning(contributor.ToDto(), Messages.NoChangesDetected);
 
-		var duplicate = UniquenessChecker.Check(dto.NationalCode, dto.Email, dto.PhoneNumber);
+		var duplicate = PersonUniquenessChecker.Check(contributor, dto.NationalCode, dto.Email, dto.PhoneNumber);
 		switch (duplicate)
 		{
 			case DuplicateField.NationalCode:
@@ -94,6 +94,7 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 		contributor.Email = dto.Email;
 		contributor.PhoneNumber = dto.PhoneNumber;
 		contributor.BirthDate = dto.BirthDate;
+		contributor.DeathDate = dto.DeathDate;
 		contributor.Biography = dto.Biography;
 		contributor.UpdatedByUserId = updatedBy;
 
@@ -191,5 +192,6 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 		dto.Email == entity.Email &&
 		dto.PhoneNumber == entity.PhoneNumber &&
 		dto.BirthDate == entity.BirthDate &&
+		dto.DeathDate == entity.DeathDate &&
 		(dto.Biography is null || dto.Biography == entity.Biography);
 }
