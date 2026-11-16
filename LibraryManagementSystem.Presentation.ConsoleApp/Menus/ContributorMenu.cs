@@ -100,6 +100,7 @@ public abstract class ContributorMenu
 					return;
 			}
 
+			var editedContributor = contributor.Clone();
 			var updated = true;
 			switch (selectedItem)
 			{
@@ -109,7 +110,7 @@ public abstract class ContributorMenu
 						ValidationConstants.MaxNameLength);
 
 					if (value != null)
-						contributor.FirstName = value;
+						editedContributor.FirstName = value;
 					else
 						updated = false;
 
@@ -121,7 +122,7 @@ public abstract class ContributorMenu
 						ValidationConstants.MaxNameLength);
 
 					if (value != null)
-						contributor.LastName = value;
+						editedContributor.LastName = value;
 					else
 						updated = false;
 
@@ -132,7 +133,7 @@ public abstract class ContributorMenu
 					var value = ConsoleHelper.GetValidNationalCode("\nEnter new national code");
 
 					if (value != null)
-						contributor.NationalCode = value;
+						editedContributor.NationalCode = value;
 					else
 						updated = false;
 
@@ -143,7 +144,7 @@ public abstract class ContributorMenu
 					var value = ConsoleHelper.GetValidEmail("\nEnter new email");
 
 					if (value != null)
-						contributor.Email = Email.Create(value);
+						editedContributor.Email = Email.Create(value);
 					else
 						updated = false;
 
@@ -155,7 +156,7 @@ public abstract class ContributorMenu
 					var value = ConsoleHelper.GetValidPhoneNumber("\nEnter new phone number");
 
 					if (value != null)
-						contributor.PhoneNumber = PhoneNumber.Create(value);
+						editedContributor.PhoneNumber = PhoneNumber.Create(value);
 					else
 						updated = false;
 
@@ -167,7 +168,7 @@ public abstract class ContributorMenu
 					var value = ConsoleHelper.GetValidContributorBirthDate("\nEnter new birth date");
 
 					if (value != null)
-						contributor.BirthDate = value.Value;
+						editedContributor.BirthDate = value.Value;
 					else
 						updated = false;
 
@@ -179,7 +180,7 @@ public abstract class ContributorMenu
 					var value = ConsoleHelper.ReadString("\nEnter new biography");
 
 					if (value != null)
-						contributor.Biography = value;
+						editedContributor.Biography = value;
 					else
 						updated = false;
 
@@ -195,8 +196,9 @@ public abstract class ContributorMenu
 
 			if (updated)
 			{
-				var result = updateContributor(contributor, updatedBy);
+				var result = updateContributor(editedContributor, updatedBy);
 				ConsoleHelper.ShowResult(result);
+				if (result is { IsSuccess: true, Data: not null }) contributor = result.Data;
 			}
 
 			var choice = ConsoleHelper.ReadYesNo(Messages.EditContinuesQuestion);

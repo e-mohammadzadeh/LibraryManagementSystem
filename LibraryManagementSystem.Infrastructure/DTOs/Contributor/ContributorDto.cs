@@ -15,4 +15,23 @@ public class ContributorDto
 	public string? Biography { get; set; }
 	public DateTime CreatedAt { get; init; }
 	public DateTime? UpdatedAt { get; init; }
+
+
+	public ContributorDto Clone()
+	{
+		return new ContributorDto
+		{
+			Id = this.Id,
+			FirstName = this.FirstName,
+			LastName = this.LastName,
+			NationalCode = this.NationalCode,
+			Email = this.Email,
+			PhoneNumber = this.PhoneNumber,
+			BirthDate = this.BirthDate,
+			DeathDate = this.DeathDate,
+			Biography = this.Biography,
+			CreatedAt = this.CreatedAt,
+			UpdatedAt = this.UpdatedAt
+		};
+	}
 }
