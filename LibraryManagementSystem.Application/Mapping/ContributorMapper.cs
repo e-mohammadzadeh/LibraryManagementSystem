@@ -7,6 +7,8 @@ public static class ContributorMapper
 {
 	public static ContributorDto ToDto<TEntity>(this TEntity entity) where TEntity : Contributor 
 	{
+		if (entity == null) return null;
+
 		return new ContributorDto
 		{
 			Id = entity.Id,
