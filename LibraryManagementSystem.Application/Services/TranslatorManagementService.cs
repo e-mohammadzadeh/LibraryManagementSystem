@@ -1,11 +1,13 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Mapping;
+using LibraryManagementSystem.Application.Repositories.EFCore;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Books;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.Enums;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
 using LibraryManagementSystem.Infrastructure.Interfaces;
@@ -15,13 +17,16 @@ namespace LibraryManagementSystem.Application.Services;
 public class TranslatorManagementService : ContributorManagementService<Translator>
 {
 	private readonly IAuditLogManagementService _auditLog;
+	private readonly IBookTranslatorRepository _bookTranslatorRepository;
 
 
 	public TranslatorManagementService(ITranslatorRepository translatorRepository, IAuthorizationService authorization,
-		IAuditLogManagementService auditLog, PersonUniquenessChecker uniquenessChecker) : base(translatorRepository,
+		IAuditLogManagementService auditLog, PersonUniquenessChecker uniquenessChecker,
+		IBookTranslatorRepository bookTranslatorRepository) : base(translatorRepository,
 		authorization, uniquenessChecker)
 	{
 		_auditLog = auditLog;
+		_bookTranslatorRepository = bookTranslatorRepository;
 	}
 
 
@@ -100,7 +105,9 @@ public class TranslatorManagementService : ContributorManagementService<Translat
 
 	public IReadOnlyList<BookDto> GetBooksByTranslator(Guid translatorId)
 	{
-		return GetBooksByContributor(translatorId, t => t.BookTranslators.Select(bt => bt.Book.ToDto()));
+		//return GetBooksByContributor(translatorId, t => t.BookTranslators.Select(bt => bt.Book.ToDto()));
+		return GetBooksByContributor(translatorId,
+			id => _bookTranslatorRepository.GetByTranslatorId(id, EntityFilter.Active).Select(bt => bt.Book.ToDto()));
 	}
 
 

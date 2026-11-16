@@ -5,7 +5,7 @@ namespace LibraryManagementSystem.Domain.Interfaces;
 
 public interface IBookAuthorRepository
 {
-	IReadOnlyList<BookAuthor>? GetByBookId(Guid id, EntityFilter filter);
-	IReadOnlyList<BookAuthor>? GetByAuthorId(Guid id, EntityFilter filter);
+	IReadOnlyList<BookAuthor> GetByBookId(Guid id, EntityFilter filter);
+	IReadOnlyList<BookAuthor> GetByAuthorId(Guid id, EntityFilter filter);
 
 }

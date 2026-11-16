@@ -17,7 +17,7 @@ public class BookTranslatorRepository : IBookTranslatorRepository
 	}
 
 
-	public IReadOnlyList<BookTranslator>? GetByBookId(Guid id, EntityFilter filter)
+	public IReadOnlyList<BookTranslator> GetByBookId(Guid id, EntityFilter filter)
 	{
 		var query = _context.Set<BookTranslator>()
 			.AsNoTracking()
@@ -36,11 +36,13 @@ public class BookTranslatorRepository : IBookTranslatorRepository
 	}
 
 
-	public IReadOnlyList<BookTranslator>? GetByTranslatorId(Guid id, EntityFilter filter)
+	public IReadOnlyList<BookTranslator> GetByTranslatorId(Guid id, EntityFilter filter)
 	{
 		var query = _context.Set<BookTranslator>()
 			.AsNoTracking()
-			.Include(bt => bt.Book)
+			.Include(bt => bt.Book).ThenInclude(b => b.BookAuthors).ThenInclude(x => x.Author)
+			.Include(bt => bt.Book).ThenInclude(b => b.BookTranslators).ThenInclude(x => x.Translator)
+			.AsSplitQuery()
 			.Where(bt => bt.TranslatorId == id);
 
 		query = filter switch

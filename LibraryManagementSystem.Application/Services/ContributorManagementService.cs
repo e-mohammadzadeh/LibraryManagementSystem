@@ -170,11 +170,10 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 
 
 	protected IReadOnlyList<BookDto> GetBooksByContributor(Guid contributorId,
-		Func<TEntity, IEnumerable<BookDto>> bookSelector)
+		Func<Guid, IEnumerable<BookDto>> bookSelector)
 	{
-		var contributor = Repository.GetById(contributorId, EntityFilter.Active);
-		if (contributor is null) return [];
-		return [.. bookSelector(contributor)];
+		if (Repository.GetById(contributorId, EntityFilter.Active) is null) return [];
+		return [.. bookSelector(contributorId)];
 	}
 
 

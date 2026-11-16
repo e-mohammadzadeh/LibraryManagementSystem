@@ -6,6 +6,7 @@ using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Books;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.Enums;
+using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
 using LibraryManagementSystem.Infrastructure.Interfaces;
@@ -15,13 +16,15 @@ namespace LibraryManagementSystem.Application.Services;
 public class AuthorManagementService : ContributorManagementService<Author>
 {
 	private readonly IAuditLogManagementService _auditLog;
+	private readonly IBookAuthorRepository _bookAuthorRepository;
 
 
 	public AuthorManagementService(IAuthorRepository authorRepository, IAuthorizationService authorization,
-		IAuditLogManagementService auditLog, PersonUniquenessChecker uniquenessChecker) : base(authorRepository,
-		authorization, uniquenessChecker)
+		IAuditLogManagementService auditLog, PersonUniquenessChecker uniquenessChecker,
+		IBookAuthorRepository bookAuthorRepository) : base(authorRepository, authorization, uniquenessChecker)
 	{
 		_auditLog = auditLog;
+		_bookAuthorRepository = bookAuthorRepository;
 	}
 
 
@@ -97,7 +100,9 @@ public class AuthorManagementService : ContributorManagementService<Author>
 
 	public IReadOnlyList<BookDto> GetBooksByAuthor(Guid authorId)
 	{
-		return GetBooksByContributor(authorId, a => a.BookAuthors.Select(ba => ba.Book.ToDto()));
+		//return GetBooksByContributor(authorId, a => a.BookAuthors.Select(ba => ba.Book.ToDto()));
+		return GetBooksByContributor(authorId,
+			id => _bookAuthorRepository.GetByAuthorId(id, EntityFilter.Active).Select(ba => ba.Book.ToDto()));
 	}
 
 
