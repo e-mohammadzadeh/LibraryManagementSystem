@@ -111,8 +111,7 @@ public class BookRepository : IBookRepository
 	}
 
 
-	private static Exception CreateNotFoundException(Guid id) => new BookNotFoundException(id);
-
+	private static BookNotFoundException CreateNotFoundException(Guid id) => new(id);
 
 	private static IQueryable<Book> ApplyFilter(IQueryable<Book> query, EntityFilter filter)
 	{
