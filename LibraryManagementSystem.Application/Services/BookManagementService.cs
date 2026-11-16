@@ -2,6 +2,7 @@
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Mapping;
 using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Exceptions;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Domain.Rules;
 using LibraryManagementSystem.Infrastructure.Common;
@@ -92,8 +93,9 @@ public class BookManagementService : IBookManagementService
 
 		_bookRepository.Add(newBook);
 		_auditLog.Record(AuditAction.BookCreated, "Book", newBook.Id, "Book created.");
+		var saved = _bookRepository.GetById(newBook.Id, EntityFilter.All) ?? throw new BookNotFoundException(newBook.Id);
 
-		return ServiceResult<BookDto>.Ok(newBook.ToDto(), Messages.BookAddedSuccessfully);
+		return ServiceResult<BookDto>.Ok(saved.ToDto(), Messages.BookAddedSuccessfully);
 	}
 
 

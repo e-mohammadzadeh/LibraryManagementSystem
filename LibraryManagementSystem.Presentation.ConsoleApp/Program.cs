@@ -118,6 +118,8 @@ public static class Program
 		services.AddScoped<IAuthorRepository, AuthorRepository>();
 		services.AddScoped<ITranslatorRepository, TranslatorRepository>();
 		services.AddScoped<IBookRepository, BookRepository>();
+		services.AddScoped<IBookAuthorRepository, BookAuthorRepository>();
+		services.AddScoped<IBookTranslatorRepository, BookTranslatorRepository>();
 		services.AddScoped<IUserRepository, UserRepository>();
 		services.AddScoped<ILoanRepository, LoanRepository>();
 		services.AddScoped<IFineRepository, FineRepository>();

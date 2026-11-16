@@ -48,10 +48,12 @@ public abstract class ContributorRepository<T> : IContributorRepository<T> where
 	{
 		ArgumentNullException.ThrowIfNull(entity);
 
-		if (entity.IsRemoved) return;
 		var tracked = DbSet.FirstOrDefault(c => c.Id == entity.Id) ?? throw CreateNotFoundException(entity.Id);
+		if (tracked.IsRemoved) return;
+
 		tracked.IsRemoved = true;
 		tracked.UpdatedAt = DateTime.UtcNow;
+		tracked.UpdatedByUserId = entity.UpdatedByUserId;
 
 		Context.SaveChanges();
 	}

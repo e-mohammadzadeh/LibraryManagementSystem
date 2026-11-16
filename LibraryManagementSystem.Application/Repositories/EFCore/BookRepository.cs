@@ -27,37 +27,27 @@ public class BookRepository : IBookRepository
 
 		Context.Books.Add(book);
 		Context.SaveChanges();
+		Context.ChangeTracker.Clear();
 	}
 
 
 	public Book? GetById(Guid id, EntityFilter filter = EntityFilter.Active) =>
-		ApplyFilter(Context.Books.AsNoTracking(), filter)
-			.FirstOrDefault(b => b.Id == id);
+		Query(filter).FirstOrDefault(b => b.Id == id);
 
 
 	public IReadOnlyList<Book> GetAll(EntityFilter filter = EntityFilter.Active) =>
-	[
-		.. ApplyFilter(Context.Books.AsNoTracking(), filter)
-			.OrderByDescending(b => b.CreatedAt)
-	];
+		[.. Query(filter).OrderByDescending(b => b.CreatedAt)];
 
 
 
 	public IReadOnlyList<Book> GetByAuthorId(Guid id, EntityFilter filter = EntityFilter.Active) =>
-	[
-		.. ApplyFilter(Context.Books.AsNoTracking(), filter)
-			.Where(b => b.BookAuthors
-				.Any(a => a.AuthorId == id))
-	];
+		[.. Query(filter).Where(b => b.BookAuthors.Any(a => a.AuthorId == id))];
 
 
 
 	public IReadOnlyList<Book> GetByTranslatorId(Guid id, EntityFilter filter = EntityFilter.Active) =>
 	[
-		.. ApplyFilter(Context.Books.AsNoTracking(), filter)
-			.Where(bt => bt.BookTranslators
-				.Any(t => t.TranslatorId == id)
-			)
+		.. Query(filter).Where(bt => bt.BookTranslators.Any(t => t.TranslatorId == id))
 	];
 
 
@@ -80,12 +70,15 @@ public class BookRepository : IBookRepository
 	{
 		ArgumentNullException.ThrowIfNull(book);
 
-		if (book.IsRemoved) return;
 		var tracked = Context.Books.FirstOrDefault(b => b.Id == book.Id) ?? throw CreateNotFoundException(book.Id);
+		if (tracked.IsRemoved) return;
+
 		tracked.IsRemoved = true;
 		tracked.UpdatedAt = DateTime.UtcNow;
+		tracked.UpdatedByUserId = book.UpdatedByUserId;
 
 		Context.SaveChanges();
+		Context.ChangeTracker.Clear();
 	}
 
 
@@ -114,10 +107,11 @@ public class BookRepository : IBookRepository
 		tracked.UpdatedByUserId = book.UpdatedByUserId;
 
 		Context.SaveChanges();
+		Context.ChangeTracker.Clear();
 	}
 
 
-	protected Exception CreateNotFoundException(Guid id) => new BookNotFoundException(id);
+	private static Exception CreateNotFoundException(Guid id) => new BookNotFoundException(id);
 
 
 	private static IQueryable<Book> ApplyFilter(IQueryable<Book> query, EntityFilter filter)
@@ -150,6 +144,7 @@ public class BookRepository : IBookRepository
 		{
 			tracked.BookAuthors.Add(new BookAuthor
 			{
+				Id = Guid.CreateVersion7(),
 				BookId = tracked.Id,
 				AuthorId = authorId
 			});
@@ -159,25 +154,37 @@ public class BookRepository : IBookRepository
 
 	private void UpdateTranslators(Book tracked, Book updated)
 	{
-		var incomingIds = updated.BookTranslators
-			.Select(bt => bt.TranslatorId)
-			.ToHashSet();
+		var incoming = updated.BookTranslators.ToDictionary(bt => bt.TranslatorId);
 
-		var existingIds = tracked.BookTranslators
-			.Select(bt => bt.TranslatorId)
-			.ToHashSet();
-
-		var toRemove = tracked.BookTranslators.Where(bt => !incomingIds.Contains(bt.TranslatorId)).ToList();
+		var toRemove = tracked.BookTranslators
+			.Where(bt => !incoming.ContainsKey(bt.TranslatorId))
+			.ToList();
 
 		Context.Set<BookTranslator>().RemoveRange(toRemove);
 
-		foreach (var translatorId in incomingIds.Except(existingIds))
+		foreach (var existing in tracked.BookTranslators.Where(bt => incoming.ContainsKey(bt.TranslatorId)))
+			existing.TranslationLanguage = incoming[existing.TranslatorId].TranslationLanguage;
+
+		var existingIds = tracked.BookTranslators.Select(bt => bt.TranslatorId).ToHashSet();
+		foreach (var (translatorId, link) in incoming.Where(kv => !existingIds.Contains(kv.Key)))
 		{
 			tracked.BookTranslators.Add(new BookTranslator
 			{
+				Id = Guid.CreateVersion7(),
 				BookId = tracked.Id,
-				TranslatorId = translatorId
+				TranslatorId = translatorId,
+				TranslationLanguage = link.TranslationLanguage
 			});
 		}
 	}
+
+
+	private IQueryable<Book> Query(EntityFilter filter) =>
+		ApplyFilter(Context.Books
+			.AsNoTracking()
+			.Include(b => b.BookAuthors)
+			.ThenInclude(ba => ba.Author)
+			.Include(b => b.BookTranslators)
+			.ThenInclude(bt => bt.Translator)
+			.AsSplitQuery(), filter);
 }
