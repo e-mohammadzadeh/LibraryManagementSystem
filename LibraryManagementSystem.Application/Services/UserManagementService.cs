@@ -226,7 +226,7 @@ public class UserManagementService : IUserManagementService
 			UserSortField.LastName => u => u.LastName,
 			UserSortField.FullName => u => u.FullName,
 			UserSortField.NationalCode => u => u.NationalCode,
-			UserSortField.Email => u => u.Email,
+			UserSortField.Email => u => u.Email.Value,
 			UserSortField.BirthDate => u => u.BirthDate,
 			UserSortField.Role => u => u.RoleName,
 			UserSortField.MembershipStartDate => u => u.MembershipStartDate,

@@ -142,8 +142,8 @@ public class AuthorMenu
 			author => MenuHelper.SelectAuthor(author, authorization),
 			Messages.NotAvailableAuthor);
 
-		ContributorMenu.RemoveContributor(desiredAuthor, desiredAuthor?.FirstName ?? "", desiredAuthor?.LastName ?? "",
-			x => ContributorPrinter.PrintDetails(x, "Remove"), () => authorManagementService.RemoveAuthor(desiredAuthor!.Id));
+		ContributorMenu.RemoveContributor(desiredAuthor, x => ContributorPrinter.PrintDetails(x, "Remove"),
+			() => authorManagementService.RemoveAuthor(desiredAuthor!.Id));
 	}
 
 

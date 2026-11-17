@@ -207,13 +207,13 @@ public abstract class ContributorMenu
 	}
 
 
-	public static void RemoveContributor<T>(T? contributor, string firstName, string lastName,
-		Action<T> printDetailsFn, Func<ServiceResult<T>> removeFn) where T : class
+	public static void RemoveContributor<T>(T? contributor, Action<T> printDetailsFn, Func<ServiceResult<T>> removeFn)
+		where T : class
 	{
 		if (contributor is null) return;
 
 		printDetailsFn(contributor);
-		var choice = ConsoleHelper.ReadYesNo($"Are you sure you want to remove {firstName} {lastName}");
+		var choice = ConsoleHelper.ReadYesNo("Are you sure you want to remove");
 
 		if (choice != true) return;
 

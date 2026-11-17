@@ -156,7 +156,7 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 			ContributorSortField.LastName => c => c.LastName,
 			ContributorSortField.FullName => c => $"{c.FirstName} {c.LastName}",
 			ContributorSortField.NationalCode => c => c.NationalCode,
-			ContributorSortField.Email => c => c.Email,
+			ContributorSortField.Email => c => c.Email.Value,
 			ContributorSortField.BirthDate => c => c.BirthDate,
 			ContributorSortField.BookCount => c => getBookCount(c.Id),
 			_ => throw new ArgumentOutOfRangeException(nameof(sortField))

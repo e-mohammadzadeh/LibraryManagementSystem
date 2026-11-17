@@ -206,7 +206,7 @@ public static class MenuHelper
 		{
 			Console.Clear();
 
-			var selectedId = MenuHelper.DisplayMenu(menuTitle, menuService.GetChildren(sortMenuId));
+			var selectedId = DisplayMenu(menuTitle, menuService.GetChildren(sortMenuId));
 			if (selectedId is null) return;
 			if (IsBack(selectedId, backMenuId, sortMenuId))
 			{
