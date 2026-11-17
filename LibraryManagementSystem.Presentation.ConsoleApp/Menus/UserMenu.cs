@@ -382,8 +382,7 @@ public static class UserMenu
 			return;
 		}
 
-		ContributorMenu.RemoveContributor(desiredUser, desiredUser.FirstName, desiredUser.LastName,
-			user => UserPrinter.PrintDetails(user),
+		ContributorMenu.RemoveContributor(desiredUser, user => UserPrinter.PrintDetails(user),
 			() => userManagementService.RemoveUser(desiredUser.Id, session));
 	}
 

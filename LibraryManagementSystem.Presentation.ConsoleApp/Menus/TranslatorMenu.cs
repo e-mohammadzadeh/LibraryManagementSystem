@@ -130,8 +130,7 @@ public class TranslatorMenu
 		var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
 			translator => MenuHelper.SelectTranslator(translator, authorization), Messages.NotAvailableTranslator);
 
-		ContributorMenu.RemoveContributor(desiredTranslator, desiredTranslator?.FirstName ?? "",
-			desiredTranslator?.LastName ?? "", x => ContributorPrinter.PrintDetails(x, "Remove"),
+		ContributorMenu.RemoveContributor(desiredTranslator, x => ContributorPrinter.PrintDetails(x, "Remove"),
 			() => translatorManagementService.RemoveTranslator(desiredTranslator!.Id));
 	}
 

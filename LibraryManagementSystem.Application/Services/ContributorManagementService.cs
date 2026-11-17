@@ -103,14 +103,14 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 	}
 
 
-	protected ServiceResult<ContributorDto> RemoveContributor(Guid id, Func<TEntity, bool> hasAssociatedBooks,
+	protected ServiceResult<ContributorDto> RemoveContributor(Guid id, Func<Guid, bool> hasAssociatedBooks,
 		string removeFailedMessage, string hasAssociatedBooksMessage, string successMessage)
 	{
 		var contributor = Repository.GetById(id, EntityFilter.Active);
 		if (contributor is null || contributor.IsRemoved)
 			return ServiceResult<ContributorDto>.Fail(removeFailedMessage);
 
-		if (hasAssociatedBooks(contributor)) return ServiceResult<ContributorDto>.Fail(hasAssociatedBooksMessage);
+		if (hasAssociatedBooks(id)) return ServiceResult<ContributorDto>.Fail(hasAssociatedBooksMessage);
 
 		Repository.Remove(contributor);
 		return ServiceResult<ContributorDto>.Ok(contributor.ToDto(), successMessage);

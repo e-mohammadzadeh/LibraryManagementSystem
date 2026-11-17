@@ -68,7 +68,7 @@ public class TranslatorManagementService : ContributorManagementService<Translat
 	{
 		var result = RemoveContributor(
 			id,
-			t => t.BookTranslators.Count != 0,
+			translatorId => _bookTranslatorRepository.GetByTranslatorId(translatorId, EntityFilter.Active).Count > 0,
 			Messages.TranslatorRemoveFailed,
 			Messages.TranslatorHasAssociatedBooks,
 			Messages.TranslatorRemovedSuccessfully);

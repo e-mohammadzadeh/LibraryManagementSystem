@@ -65,7 +65,7 @@ public class AuthorManagementService : ContributorManagementService<Author>
 	{
 		var result = RemoveContributor(
 			id,
-			a => a.BookAuthors.Count != 0,
+			authorId => _bookAuthorRepository.GetByAuthorId(authorId, EntityFilter.Active).Count > 0,
 			Messages.AuthorRemoveFailed,
 			Messages.AuthorHasAssociatedBooks,
 			Messages.AuthorRemovedSuccessfully);
