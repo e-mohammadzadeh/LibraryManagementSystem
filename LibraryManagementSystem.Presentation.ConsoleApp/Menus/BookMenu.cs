@@ -131,19 +131,16 @@ public static class BookMenu
 		if (totalCopies is null) return;
 
 		var genre = ConsoleHelper.ReadGenre("Select your desired genre by entering its ID");
-		if (genre is null)
-			return;
+		if (genre is null) return;
 
 		var originalLanguage = ConsoleHelper.ReadLanguage("Select original language of book by entering its ID");
-		if (originalLanguage is null)
-			return;
+		if (originalLanguage is null) return;
 
 		Language? translatedLanguage = null;
 		if (translatorIds.Count > 0)
 		{
 			translatedLanguage = ConsoleHelper.ReadLanguage("Select translated language of book by entering its ID");
-			if (translatedLanguage is null)
-				return;
+			if (translatedLanguage is null) return;
 		}
 
 		var publisher = ConsoleHelper.GetValidName("Enter the publisher for this book",
@@ -282,9 +279,21 @@ public static class BookMenu
 				{
 					var value = ConsoleHelper.ReadISBN("\nEnter the new ISBN");
 					if (value != null)
-						desiredBook.ISBN = ISBN.Create(value);
+					{
+						try
+						{
+							desiredBook.ISBN = ISBN.Create(value);
+						}
+						catch (ArgumentException)
+						{
+							ConsoleHelper.ShowError("Invalid ISBN. Please enter a valid ISBN.");
+							ConsoleHelper.Pause();
+							continue;
+						}
+					}
 					else
 						updated = false;
+
 					break;
 				}
 				case "books.edit.authors":

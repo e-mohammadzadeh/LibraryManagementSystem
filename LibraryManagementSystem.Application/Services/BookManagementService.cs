@@ -110,7 +110,7 @@ public class BookManagementService : IBookManagementService
 		if (_bookRepository.Exists(b => b.Title == dto.Title, dto.Id))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByName);
 
-		if (_bookRepository.Exists(b => b.ISBN == dto.ISBN, dto.Id))
+		if (_bookRepository.ExistsIncludingRemoved(b => b.ISBN == dto.ISBN, dto.Id))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByISBN);
 
 		if (!Enum.IsDefined(dto.Genre.Value)) return ServiceResult<BookDto>.Fail(Messages.InvalidGenre);
@@ -163,7 +163,6 @@ public class BookManagementService : IBookManagementService
 		book.Publisher = dto.Publisher;
 		book.OriginalLanguage = dto.OriginalLanguage;
 		book.TotalCopies = dto.TotalCopies;
-		book.AvailableCopies = dto.AvailableCopies;
 		book.Description = dto.Description;
 		book.UpdatedByUserId = updatedBy;
 
