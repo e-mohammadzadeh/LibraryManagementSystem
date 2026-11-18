@@ -66,6 +66,20 @@ public class BookRepository : IBookRepository
 	}
 
 
+	public bool ExistsIncludingRemoved(Expression<Func<Book, bool>> predicate, Guid? excludeId = null)
+	{
+		ArgumentNullException.ThrowIfNull(predicate);
+
+		var query = Context.Books
+			.AsNoTracking()
+			.Where(predicate);
+
+		if (excludeId.HasValue) query = query.Where(b => b.Id != excludeId.Value);
+
+		return query.Any();
+	}
+
+
 	public void Remove(Book book)
 	{
 		ArgumentNullException.ThrowIfNull(book);
@@ -112,6 +126,7 @@ public class BookRepository : IBookRepository
 
 
 	private static BookNotFoundException CreateNotFoundException(Guid id) => new(id);
+
 
 	private static IQueryable<Book> ApplyFilter(IQueryable<Book> query, EntityFilter filter)
 	{

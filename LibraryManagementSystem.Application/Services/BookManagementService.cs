@@ -43,7 +43,7 @@ public class BookManagementService : IBookManagementService
 		if (_bookRepository.Exists(b => b.Title == dto.Title))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByName);
 
-		if (_bookRepository.Exists(b => b.ISBN == dto.ISBN))
+		if (_bookRepository.ExistsIncludingRemoved(b => b.ISBN == dto.ISBN))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByISBN);
 
 		if (!Enum.IsDefined(dto.OriginalLanguage) || (!Enum.IsDefined(dto.TranslatedLanguage)))

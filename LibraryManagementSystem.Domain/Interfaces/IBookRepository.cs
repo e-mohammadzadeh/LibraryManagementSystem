@@ -12,6 +12,7 @@ public interface IBookRepository
 	IReadOnlyList<Book> GetByAuthorId(Guid authorId, EntityFilter filter);
 	IReadOnlyList<Book> GetByTranslatorId(Guid translatorId, EntityFilter filter);
 	bool Exists(Expression<Func<Book, bool>> predicate, Guid? excludeId = null);
+	bool ExistsIncludingRemoved(Expression<Func<Book, bool>> predicate, Guid? excludeId = null);
 	void Remove(Book book);
 	void Update(Book book);
 }
