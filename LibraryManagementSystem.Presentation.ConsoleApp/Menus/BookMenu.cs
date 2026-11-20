@@ -101,7 +101,7 @@ public static class BookMenu
 	private static string? BookMenuList(IMenuService menuService)
 	{
 		var items = menuService.GetChildren("books");
-		return MenuHelper.DisplayMenu("BOOK MENU", items, Messages.MainMenuQuestion);
+		return MenuHelper.DisplayMenu("BOOK MENU", items);
 	}
 
 
@@ -672,7 +672,7 @@ public static class BookMenu
 					ConsoleHelper.Pause();
 					break;
 				}
-				case "books.search.publishdate":
+				case "books.search.publish-date":
 				{
 					Console.Clear();
 					var results = SearchByPublishDate(bookManagementService, menuService);
@@ -836,7 +836,7 @@ public static class BookMenu
 			case "books.sort.publisher":
 				field = BookSortField.Publisher;
 				return true;
-			case "books.sort.availablecopies":
+			case "books.sort.available-copies":
 				field = BookSortField.AvailableCopies;
 				return true;
 			default:
@@ -905,7 +905,7 @@ public static class BookMenu
 	private static string? ViewBookMenuList(IMenuService menuService)
 	{
 		var items = menuService.GetChildren("books.view");
-		return MenuHelper.DisplayMenu("VIEW BOOK MENU", items, Messages.MainMenuQuestion);
+		return MenuHelper.DisplayMenu("VIEW BOOK MENU", items);
 	}
 
 

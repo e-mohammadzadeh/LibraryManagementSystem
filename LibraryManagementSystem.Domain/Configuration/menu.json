@@ -511,7 +511,7 @@
 									"label": "Publisher"
 								},
 								{
-									"id": "books.sort.availablecopies",
+									"id": "books.sort.available-copies",
 									"label": "Available Copies",
 									"permissions": [ "FullSortBook" ]
 								},

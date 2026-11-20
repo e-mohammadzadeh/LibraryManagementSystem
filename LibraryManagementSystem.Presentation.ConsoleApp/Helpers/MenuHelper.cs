@@ -148,7 +148,7 @@ public static class MenuHelper
 	}
 
 
-	public static string? DisplayMenu(string title, IReadOnlyList<MenuOptionDto> items, string prompt) //  = Messages.MainMenuQuestion
+	public static string? DisplayMenu(string title, IReadOnlyList<MenuOptionDto> items, string prompt = Messages.MainMenuQuestion)
 	{
 		if (items.Count == 0) return null;
 

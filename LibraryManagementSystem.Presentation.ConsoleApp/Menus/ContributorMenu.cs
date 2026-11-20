@@ -338,7 +338,7 @@ public abstract class ContributorMenu
 				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
 
 			var selectedItem = MenuHelper.DisplayMenu($"VIEW {contributorName.ToUpperInvariant()} MENU",
-				menuService.GetChildren($"{menuIdPrefix}.view"), Messages.MainMenuQuestion);
+				menuService.GetChildren($"{menuIdPrefix}.view"));
 
 			switch (selectedItem)
 			{

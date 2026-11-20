@@ -405,7 +405,7 @@ public static class UserMenu
 		while (true)
 		{
 			Console.Clear();
-			var selectedId = MenuHelper.DisplayMenu("SEARCHING USER MENU", menuService.GetChildren("users.search"));
+			var selectedId = MenuHelper.DisplayMenu("SEARCHING USER MENU", menuService.GetChildren("users.search"), Messages.SearchMenuQuestion);
 
 			if (selectedId is null) return;
 
