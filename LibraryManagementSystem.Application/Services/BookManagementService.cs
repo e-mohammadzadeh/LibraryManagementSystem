@@ -51,11 +51,11 @@ public class BookManagementService : IBookManagementService
 
 		var authorIds = dto.Authors.Select(a => a.Id).ToList();
 		if (authorIds.Count == 0) return ServiceResult<BookDto>.Fail(Messages.BookRequiresAtLeastOneAuthor);
-		if (authorIds.Count != authorIds.Distinct().Count())
+		if (dto.Authors.Count != dto.Authors.DistinctBy(a => a.Id).Count())
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateAuthorsNotAllowed);
 
 		var translatorIds = dto.Translators.Select(t => t.Id).ToList();
-		if (translatorIds.Count != translatorIds.Distinct().Count())
+		if (dto.Translators.Count != dto.Translators.DistinctBy(t => t.Id).Count())
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateTranslatorsNotAllowed);
 
 		if (dto.TotalCopies <= 0) return ServiceResult<BookDto>.Fail(Messages.WrongTotalCopies);
@@ -376,9 +376,9 @@ public class BookManagementService : IBookManagementService
 		if (authorList.Count == 0) throw new ArgumentException(Messages.BookRequiresAtLeastOneAuthor);
 
 		var incomingIds = authorList.Select(a => a.Id).ToHashSet();
-		var existingIds = book.BookAuthors.Select(ba => ba.AuthorId).ToHashSet();
+		var toRemove = book.BookAuthors.Where(ba => !incomingIds.Contains(ba.AuthorId)).ToList();
 
-		foreach (var authorId in existingIds.Except(incomingIds)) RemoveAuthor(book.Id, authorId);
+		foreach (var bookAuthor in toRemove) book.BookAuthors.Remove(bookAuthor);
 		foreach (var author in authorList) AddAuthor(book, author);
 	}
 
@@ -390,10 +390,19 @@ public class BookManagementService : IBookManagementService
 
 		var translatorList = translators.DistinctBy(t => t.Id).ToList();
 		var incomingIds = translatorList.Select(t => t.Id).ToHashSet();
-		var existingIds = book.BookTranslators.Select(bt => bt.TranslatorId).ToHashSet();
+		var toRemove = book.BookTranslators.Where(bt => !incomingIds.Contains(bt.TranslatorId)).ToList();
 
-		foreach (var translatorId in existingIds.Except(incomingIds)) RemoveTranslator(book.Id, translatorId);
-		foreach (var translator in translatorList) AddTranslator(book, translator, language);
+		foreach (var bookTranslator in toRemove) book.BookTranslators.Remove(bookTranslator);
+		foreach (var translator in translatorList)
+		{
+			var existing = book.BookTranslators.FirstOrDefault(bt => bt.TranslatorId == translator.Id);
+			if (existing is not null)
+			{
+				existing.TranslationLanguage = language;
+				continue;
+			}
+			AddTranslator(book, translator, language);
+		}
 	}
 
 

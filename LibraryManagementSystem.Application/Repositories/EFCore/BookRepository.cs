@@ -167,25 +167,32 @@ public class BookRepository : IBookRepository
 
 	private void UpdateTranslators(Book tracked, Book updated)
 	{
-		var incoming = updated.BookTranslators.ToDictionary(bt => bt.TranslatorId);
+		var incomingTranslators = updated.BookTranslators
+			.ToDictionary(bt => bt.TranslatorId);
 
-		var toRemove = tracked.BookTranslators
-			.Where(bt => !incoming.ContainsKey(bt.TranslatorId))
+		var relationshipsToRemove = tracked.BookTranslators
+			.Where(bt => !incomingTranslators.ContainsKey(bt.TranslatorId))
 			.ToList();
 
-		Context.Set<BookTranslator>().RemoveRange(toRemove);
+		Context.Set<BookTranslator>().RemoveRange(relationshipsToRemove);
 
-		foreach (var existing in tracked.BookTranslators.Where(bt => incoming.ContainsKey(bt.TranslatorId)))
-			existing.TranslationLanguage = incoming[existing.TranslatorId].TranslationLanguage;
+		foreach (var existing in tracked.BookTranslators)
+			if (incomingTranslators.TryGetValue(existing.TranslatorId, out var incoming))
+				existing.TranslationLanguage = incoming.TranslationLanguage;
 
-		var existingIds = tracked.BookTranslators.Select(bt => bt.TranslatorId).ToHashSet();
-		foreach (var (translatorId, link) in incoming.Where(kv => !existingIds.Contains(kv.Key)))
+		var existingIds = tracked.BookTranslators
+			.Select(bt => bt.TranslatorId)
+			.ToHashSet();
+
+		foreach (var incoming in incomingTranslators.Values)
 		{
+			if (existingIds.Contains(incoming.TranslatorId)) continue;
+
 			tracked.BookTranslators.Add(new BookTranslator
 			{
 				BookId = tracked.Id,
-				TranslatorId = translatorId,
-				TranslationLanguage = link.TranslationLanguage
+				TranslatorId = incoming.TranslatorId,
+				TranslationLanguage = incoming.TranslationLanguage
 			});
 		}
 	}
