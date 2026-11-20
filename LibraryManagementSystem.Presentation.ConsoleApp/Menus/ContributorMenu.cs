@@ -88,7 +88,7 @@ public abstract class ContributorMenu
 			Console.Clear();
 			ContributorPrinter.PrintDetails(contributor, menuTitle);
 
-			var selectedItem = MenuHelper.DisplayMenu(menuTitle, menuService.GetChildren($"{menuIdPrefix}.edit"));
+			var selectedItem = MenuHelper.DisplayMenu(menuTitle, menuService.GetChildren($"{menuIdPrefix}.edit"), Messages.EditMenuQuestion);
 			switch (selectedItem)
 			{
 				case null:
@@ -245,7 +245,7 @@ public abstract class ContributorMenu
 			Console.Clear();
 
 			var selectedItem = MenuHelper.DisplayMenu($"SEARCHING {contributorName.ToUpper()} MENU",
-				menuService.GetChildren($"{menuIdPrefix}.search"));
+				menuService.GetChildren($"{menuIdPrefix}.search"), Messages.SearchMenuQuestion);
 
 			switch (selectedItem)
 			{
@@ -338,7 +338,7 @@ public abstract class ContributorMenu
 				MenuHelper.PrintCurrentUserOnly(session.CurrentUser);
 
 			var selectedItem = MenuHelper.DisplayMenu($"VIEW {contributorName.ToUpperInvariant()} MENU",
-				menuService.GetChildren($"{menuIdPrefix}.view"));
+				menuService.GetChildren($"{menuIdPrefix}.view"), Messages.MainMenuQuestion);
 
 			switch (selectedItem)
 			{

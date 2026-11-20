@@ -185,7 +185,7 @@ public static class LoanMenu
 		while (true)
 		{
 			Console.Clear();
-			var selectedId = MenuHelper.DisplayMenu("SEARCHING LOAN MENU", menuService.GetChildren("loans.search"));
+			var selectedId = MenuHelper.DisplayMenu("SEARCHING LOAN MENU", menuService.GetChildren("loans.search"), Messages.SearchMenuQuestion);
 			if (selectedId is null) return;
 
 			if (selectedId.Equals("loans.search.back", StringComparison.OrdinalIgnoreCase))

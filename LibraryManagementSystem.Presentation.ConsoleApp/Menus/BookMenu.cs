@@ -731,7 +731,7 @@ public static class BookMenu
 			Console.Clear();
 
 			var selectedId = MenuHelper.DisplayMenu("SEARCH BY PUBLISH DATE",
-				menuService.GetChildren("books.search.publish-date"));
+				menuService.GetChildren("books.search.publish-date"), Messages.SearchMenuQuestion);
 			if (selectedId is null) return null;
 
 			if (selectedId.Equals("books.search.publish-date.back", StringComparison.OrdinalIgnoreCase)) return null;
@@ -905,7 +905,7 @@ public static class BookMenu
 	private static string? ViewBookMenuList(IMenuService menuService)
 	{
 		var items = menuService.GetChildren("books.view");
-		return MenuHelper.DisplayMenu("VIEW BOOK MENU", items);
+		return MenuHelper.DisplayMenu("VIEW BOOK MENU", items, Messages.MainMenuQuestion);
 	}
 
 
