@@ -16,7 +16,7 @@ partial class LibraryDbContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261115203103_AddIdToBookTranslator";
+    public override string LastMigrationId => "20261120162511_CompositeKeyBookAssociations";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -127,22 +127,15 @@ partial class LibraryDbContextModelSnapshot : ModelSnapshot
 
         modelBuilder.Entity("LibraryManagementSystem.Domain.Entities.BookAuthor", b =>
             {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
+                b.Property<Guid>("BookId")
                     .HasColumnType("uniqueidentifier");
 
                 b.Property<Guid>("AuthorId")
                     .HasColumnType("uniqueidentifier");
 
-                b.Property<Guid>("BookId")
-                    .HasColumnType("uniqueidentifier");
-
-                b.HasKey("Id");
+                b.HasKey("BookId", "AuthorId");
 
                 b.HasIndex("AuthorId");
-
-                b.HasIndex("BookId", "AuthorId")
-                    .IsUnique();
 
                 b.ToTable("BookAuthors");
             });
@@ -153,9 +146,6 @@ partial class LibraryDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uniqueidentifier");
 
                 b.Property<Guid>("TranslatorId")
-                    .HasColumnType("uniqueidentifier");
-
-                b.Property<Guid>("Id")
                     .HasColumnType("uniqueidentifier");
 
                 b.Property<int?>("TranslationLanguage")
