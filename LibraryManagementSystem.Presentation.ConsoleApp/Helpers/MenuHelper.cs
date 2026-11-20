@@ -148,7 +148,7 @@ public static class MenuHelper
 	}
 
 
-	public static string? DisplayMenu(string title, IReadOnlyList<MenuOptionDto> items)
+	public static string? DisplayMenu(string title, IReadOnlyList<MenuOptionDto> items, string prompt)
 	{
 		if (items.Count == 0) return null;
 
@@ -158,7 +158,7 @@ public static class MenuHelper
 
 		Console.WriteLine(new string('=', 82));
 
-		var choice = ConsoleHelper.ReadInt(Messages.EditMenuQuestion, 1, items.Count);
+		var choice = ConsoleHelper.ReadInt(prompt, 1, items.Count);
 
 		return choice is null ? null : items[choice.Value - 1].Id;
 	}
@@ -206,7 +206,7 @@ public static class MenuHelper
 		{
 			Console.Clear();
 
-			var selectedId = DisplayMenu(menuTitle, menuService.GetChildren(sortMenuId));
+			var selectedId = DisplayMenu(menuTitle, menuService.GetChildren(sortMenuId), Messages.SortFieldQuestion);
 			if (selectedId is null) return;
 			if (IsBack(selectedId, backMenuId, sortMenuId))
 			{

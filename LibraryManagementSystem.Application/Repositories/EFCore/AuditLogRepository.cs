@@ -27,7 +27,7 @@ public class AuditLogRepository : IAuditLogRepository
 
 
 	public IReadOnlyList<AuditLog> GetAll() =>
-		[.. Context.AuditLogs.AsNoTracking().OrderByDescending(a => a.OccurredAt)];
+		[.. Context.AuditLogs.AsNoTracking().OrderBy(a => a.OccurredAt)];
 
 
 	public IReadOnlyList<AuditLog> GetByPerformedByUserId(Guid userId) =>

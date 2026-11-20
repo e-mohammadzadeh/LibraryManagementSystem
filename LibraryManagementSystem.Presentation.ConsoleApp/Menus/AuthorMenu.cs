@@ -103,7 +103,7 @@ public class AuthorMenu
 	private static string? AuthorMenuList(IMenuService menuService)
 	{
 		var items = menuService.GetChildren("authors");
-		return MenuHelper.DisplayMenu("AUTHOR MENU", items);
+		return MenuHelper.DisplayMenu("AUTHOR MENU", items, Messages.MainMenuQuestion);
 	}
 
 

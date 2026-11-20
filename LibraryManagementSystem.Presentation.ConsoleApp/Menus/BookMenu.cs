@@ -101,7 +101,7 @@ public static class BookMenu
 	private static string? BookMenuList(IMenuService menuService)
 	{
 		var items = menuService.GetChildren("books");
-		return MenuHelper.DisplayMenu("BOOK MENU", items);
+		return MenuHelper.DisplayMenu("BOOK MENU", items, Messages.MainMenuQuestion);
 	}
 
 
@@ -251,7 +251,7 @@ public static class BookMenu
 		{
 			ConsoleHelper.ClearConsole();
 			BookPrinter.PrintDetails(desiredBook);
-			var selectedItem = MenuHelper.DisplayMenu("EDIT BOOK MENU", menuService.GetChildren("books.edit"));
+			var selectedItem = MenuHelper.DisplayMenu("EDIT BOOK MENU", menuService.GetChildren("books.edit"), Messages.EditMenuQuestion);
 			switch (selectedItem)
 			{
 				case null:
@@ -417,7 +417,7 @@ public static class BookMenu
 		var currentAuthors = currentBook.Authors;
 
 		var items = menuService.GetChildren("books.edit.authors");
-		var selectedItem = MenuHelper.DisplayMenu("AUTHOR MENU", items);
+		var selectedItem = MenuHelper.DisplayMenu("AUTHOR MENU", items, Messages.EditMenuQuestion);
 		if (selectedItem is null) return null;
 
 		switch (selectedItem)
@@ -498,7 +498,7 @@ public static class BookMenu
 		var currentTranslators = currentBook.Translators;
 
 		var items = menuService.GetChildren("books.edit.translator");
-		var selectedItem = MenuHelper.DisplayMenu("TRANSLATOR MENU", items);
+		var selectedItem = MenuHelper.DisplayMenu("TRANSLATOR MENU", items, Messages.EditMenuQuestion);
 		if (selectedItem is null) return null;
 
 		switch (selectedItem)
@@ -621,7 +621,7 @@ public static class BookMenu
 		while (true)
 		{
 			Console.Clear();
-			var selectedId = MenuHelper.DisplayMenu("SEARCHING BOOK MENU", menuService.GetChildren("books.search"));
+			var selectedId = MenuHelper.DisplayMenu("SEARCHING BOOK MENU", menuService.GetChildren("books.search"), Messages.SearchMenuQuestion);
 			if (selectedId is null) return;
 
 			if (selectedId.Equals("books.search.back", StringComparison.OrdinalIgnoreCase))
@@ -629,9 +629,6 @@ public static class BookMenu
 				ConsoleHelper.ShowInfo(string.Format(Messages.SearchCancelled, "Book"));
 				return;
 			}
-
-			var searchMenuChoice = ConsoleHelper.ReadInt(Messages.SearchMenuQuestion, 1, 8);
-			if (searchMenuChoice == null) return;
 
 			switch (selectedId.ToLowerInvariant())
 			{

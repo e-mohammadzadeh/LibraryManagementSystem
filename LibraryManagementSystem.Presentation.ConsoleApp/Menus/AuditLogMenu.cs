@@ -47,6 +47,6 @@ public static class AuditLogMenu
 
 	private static string? AuditLogMenuList(IMenuService menuService)
 	{
-		return MenuHelper.DisplayMenu("AUDIT LOG MENU", menuService.GetChildren("auditLog"));
+		return MenuHelper.DisplayMenu("AUDIT LOG MENU", menuService.GetChildren("auditLog"), Messages.MainMenuQuestion);
 	}
 }
