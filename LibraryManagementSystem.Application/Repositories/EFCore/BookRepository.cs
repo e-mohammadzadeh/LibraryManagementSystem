@@ -158,7 +158,6 @@ public class BookRepository : IBookRepository
 		{
 			tracked.BookAuthors.Add(new BookAuthor
 			{
-				Id = Guid.CreateVersion7(),
 				BookId = tracked.Id,
 				AuthorId = authorId
 			});
@@ -184,7 +183,6 @@ public class BookRepository : IBookRepository
 		{
 			tracked.BookTranslators.Add(new BookTranslator
 			{
-				Id = Guid.CreateVersion7(),
 				BookId = tracked.Id,
 				TranslatorId = translatorId,
 				TranslationLanguage = link.TranslationLanguage

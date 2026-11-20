@@ -434,7 +434,6 @@ public class BookManagementService : IBookManagementService
 		if (book.BookAuthors.Any(ba => ba.AuthorId == author.Id)) return;
 		var ba = new BookAuthor
 		{
-			Id = Guid.CreateVersion7(),
 			BookId = book.Id,
 			AuthorId = author.Id,
 		};
@@ -447,7 +446,6 @@ public class BookManagementService : IBookManagementService
 		if (book.BookTranslators.Any(bt => bt.TranslatorId == translator.Id)) return;
 		var bt = new BookTranslator
 		{
-			Id = Guid.CreateVersion7(),
 			BookId = book.Id,
 			TranslatorId = translator.Id,
 			TranslationLanguage = language

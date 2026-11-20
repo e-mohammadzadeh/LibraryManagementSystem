@@ -8,11 +8,7 @@ public class BookTranslatorConfiguration : IEntityTypeConfiguration<BookTranslat
 {
 	public void Configure(EntityTypeBuilder<BookTranslator> builder)
 	{
-		builder.HasKey(bt => new
-		{
-			bt.BookId,
-			bt.TranslatorId
-		});
+		builder.HasKey(bt => new { bt.BookId, bt.TranslatorId });
 
 		builder.HasOne(bt => bt.Book)
 			.WithMany(b => b.BookTranslators)

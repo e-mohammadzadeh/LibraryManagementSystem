@@ -8,9 +8,7 @@ public class BookAuthorConfiguration :IEntityTypeConfiguration<BookAuthor>
 {
 	public void Configure(EntityTypeBuilder<BookAuthor> builder)
 	{
-		builder.HasKey(ba => ba.Id);
-
-		builder.HasIndex(ba => new { ba.BookId, ba.AuthorId }).IsUnique();
+		builder.HasKey(ba => new { ba.BookId, ba.AuthorId });
 
 		builder.HasOne(ba => ba.Book)
 			.WithMany(b => b.BookAuthors)
