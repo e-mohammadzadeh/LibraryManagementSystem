@@ -5,7 +5,6 @@ using LibraryManagementSystem.Domain.Persistence;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.ValueObjects;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace LibraryManagementSystem.Application.Repositories.EFCore;
 
@@ -34,6 +33,8 @@ public class UserRepository : IUserRepository
 
 		user.Id = Guid.CreateVersion7();
 		user.CreatedAt = DateTime.UtcNow;
+		user.MembershipExpiryDate = user.MembershipStartDate.AddYears(1);
+		user.IsActive = true;
 
 		Context.Users.Add(user);
 		Context.SaveChanges();

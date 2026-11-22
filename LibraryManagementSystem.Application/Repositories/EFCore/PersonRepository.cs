@@ -24,4 +24,19 @@ public class PersonRepository : IPersonRepository
 			.Where(predicate)
 			.Any(p => excludeId == null || p.Id != excludeId);
 	}
+
+
+	public bool ExistsIncludingRemoved(Expression<Func<Person, bool>> predicate, Guid? excludeId = null) 
+	{
+		ArgumentNullException.ThrowIfNull(predicate);
+
+		var query = _context.Set<Person>()
+			.AsNoTracking()
+			.Where(predicate);
+
+		if (excludeId.HasValue)
+			query = query.Where(p => p.Id != excludeId.Value);
+
+		return query.Any();
+	}
 }

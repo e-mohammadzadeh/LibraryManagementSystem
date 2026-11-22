@@ -15,11 +15,11 @@ public sealed class PersonUniquenessChecker
 
 	public DuplicateField Check(string nationalCode, Email email, PhoneNumber phoneNumber)
 	{
-		if (_persons.Exists(p => p.NationalCode == nationalCode))
+		if (_persons.ExistsIncludingRemoved(p => p.NationalCode == nationalCode))
 			return DuplicateField.NationalCode;
-		if (_persons.Exists(p => p.Email == email))
+		if (_persons.ExistsIncludingRemoved(p => p.Email == email))
 			return DuplicateField.Email;
-		if (_persons.Exists(p => p.PhoneNumber == phoneNumber))
+		if (_persons.ExistsIncludingRemoved(p => p.PhoneNumber == phoneNumber))
 			return DuplicateField.PhoneNumber;
 		return DuplicateField.None;
 	}
@@ -29,11 +29,11 @@ public sealed class PersonUniquenessChecker
 	{
 		ArgumentNullException.ThrowIfNull(person);
 
-		if (person.NationalCode != nationalCode && _persons.Exists(p => p.NationalCode == nationalCode, person.Id))
+		if (person.NationalCode != nationalCode && _persons.ExistsIncludingRemoved(p => p.NationalCode == nationalCode, person.Id))
 			return DuplicateField.NationalCode;
-		if (!Equals(person.Email, email) && _persons.Exists(p => p.Email == email, person.Id))
+		if (!Equals(person.Email, email) && _persons.ExistsIncludingRemoved(p => p.Email == email, person.Id))
 			return DuplicateField.Email;
-		if (!Equals(person.PhoneNumber, phoneNumber) && _persons.Exists(p => p.PhoneNumber == phoneNumber, person.Id))
+		if (!Equals(person.PhoneNumber, phoneNumber) && _persons.ExistsIncludingRemoved(p => p.PhoneNumber == phoneNumber, person.Id))
 			return DuplicateField.PhoneNumber;
 		return DuplicateField.None;
 	}
