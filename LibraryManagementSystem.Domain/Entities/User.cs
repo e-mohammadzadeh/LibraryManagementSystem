@@ -1,6 +1,6 @@
 ﻿namespace LibraryManagementSystem.Domain.Entities;
 
-public class User : Person
+public class User : PersonProfile
 {
 	public Guid RoleId { get; set; }
 	public Role Role { get; set; } = null!;

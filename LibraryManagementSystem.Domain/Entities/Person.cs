@@ -11,8 +11,12 @@ public abstract class Person
 	public Email Email { get; set; } = null!;
 	public PhoneNumber PhoneNumber { get; set; } = null!;
 	public DateOnly BirthDate { get; set; }
+
 	public DateTime CreatedAt { get; set; }
 	public DateTime? UpdatedAt { get; set; }
 	public Guid? UpdatedByUserId { get; set; }
-	public bool IsRemoved { get; set; }
+
+	public Author? Author { get; set; }
+	public Translator? Translator { get; set; }
+	public User? User { get; set; }
 }
