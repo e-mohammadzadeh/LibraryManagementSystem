@@ -18,7 +18,9 @@ public abstract class PersonRoleRepository<T> : IPersonRoleRepository<T> where T
 	{
 		ArgumentNullException.ThrowIfNull(entity);
 
-		var person = Context.Set<Person>().FirstOrDefault(p => p.Id == entity.PersonId);
+		if (entity.PersonId == Guid.Empty) throw new ArgumentException("PersonId cannot be empty", nameof(entity));
+
+		var person = Context.Set<Person>().Find(entity.PersonId);
 		if (person is null) throw new InvalidOperationException($"Person with ID '{entity.PersonId}' was not found.");
 
 		entity.Person = person;
@@ -32,9 +34,7 @@ public abstract class PersonRoleRepository<T> : IPersonRoleRepository<T> where T
 
 	public T? GetById(Guid id, EntityFilter filter = EntityFilter.Active)
 	{
-		return ApplyFilter(Context.Set<T>()
-				.AsNoTracking()
-				.Include("Person"), filter)
+		return ApplyFilter(Context.Set<T>().AsNoTracking(), filter)
 			.FirstOrDefault(e => e.Id == id);
 	}
 
@@ -43,9 +43,7 @@ public abstract class PersonRoleRepository<T> : IPersonRoleRepository<T> where T
 	{
 		return
 		[
-			.. ApplyFilter(Context.Set<T>()
-					.AsNoTracking()
-					.Include("Person"), filter)
+			.. ApplyFilter(Context.Set<T>().AsNoTracking(), filter)
 				.OrderByDescending(e => e.CreatedAt)
 		];
 	}
