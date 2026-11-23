@@ -25,5 +25,8 @@ public class TranslatorConfiguration : IEntityTypeConfiguration<Translator>
 
 		builder.Property(t => t.IsRemoved).IsRequired();
 		builder.Property(t => t.CreatedAt).IsRequired();
+
+		builder.Property(t => t.UpdatedAt).IsRequired(false);
+		builder.Property(t => t.UpdatedByUserId).IsRequired(false);
 	}
 }

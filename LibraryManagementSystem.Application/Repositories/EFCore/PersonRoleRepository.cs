@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Domain.Interfaces;
+﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Domain.Persistence;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using Microsoft.EntityFrameworkCore;
@@ -17,8 +18,10 @@ public abstract class PersonRoleRepository<T> : IPersonRoleRepository<T> where T
 	{
 		ArgumentNullException.ThrowIfNull(entity);
 
-		if (entity.PersonId == Guid.Empty) throw new ArgumentException("PersonId is required");
+		var person = Context.Set<Person>().FirstOrDefault(p => p.Id == entity.PersonId);
+		if (person is null) throw new InvalidOperationException($"Person with ID '{entity.PersonId}' was not found.");
 
+		entity.Person = person;
 		entity.Id = Guid.CreateVersion7();
 		entity.CreatedAt = DateTime.UtcNow;
 
@@ -54,7 +57,6 @@ public abstract class PersonRoleRepository<T> : IPersonRoleRepository<T> where T
 
 		var tracked = Context.Set<T>().FirstOrDefault(e => e.Id == entity.Id) ??
 		              throw CreateNotFoundException(entity.Id);
-
 		if (tracked.IsRemoved) return;
 
 		tracked.IsRemoved = true;

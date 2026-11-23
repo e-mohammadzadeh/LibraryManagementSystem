@@ -5,6 +5,6 @@ namespace LibraryManagementSystem.Domain.Interfaces;
 
 public interface IPersonRepository
 {
-	bool Exists(Expression<Func<Person, bool>> predicate, Guid? excludeId = null);
+	bool ExistsActive(Expression<Func<Person, bool>> predicate, Guid? excludeId = null);
 	bool ExistsIncludingRemoved(Expression<Func<Person, bool>> predicate, Guid? excludeId = null);
 }

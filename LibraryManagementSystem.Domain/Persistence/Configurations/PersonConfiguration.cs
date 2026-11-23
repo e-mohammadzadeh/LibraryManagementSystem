@@ -26,5 +26,8 @@ public class PersonConfiguration : IEntityTypeConfiguration<Person>
 		builder.HasIndex(p => p.NationalCode).IsUnique();
 		builder.HasIndex(p => p.Email).IsUnique();
 		builder.HasIndex(p => p.PhoneNumber).IsUnique();
+
+		builder.Property(p => p.UpdatedAt).IsRequired(false);
+		builder.Property(p => p.UpdatedByUserId).IsRequired(false);
 	}
 }

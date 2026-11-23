@@ -14,15 +14,21 @@ public class PersonRepository : IPersonRepository
 	public PersonRepository(LibraryDbContext context) => _context = context;
 
 
-	public bool Exists(Expression<Func<Person, bool>> predicate, Guid? excludeId = null)
+	public bool ExistsActive(Expression<Func<Person, bool>> predicate, Guid? excludeId = null)
 	{
 		ArgumentNullException.ThrowIfNull(predicate);
 
-		return _context.Set<Person>()
+		var query = _context.Set<Person>()
 			.AsNoTracking()
-			.Where(p => !p.IsRemoved)
 			.Where(predicate)
-			.Any(p => excludeId == null || p.Id != excludeId);
+			.Where(p =>
+				(p.Author != null && !p.Author.IsRemoved) ||
+				(p.Translator != null && !p.Translator.IsRemoved)||
+				(p.User != null && !p.User.IsRemoved));
+
+		if (excludeId.HasValue) query = query.Where(p => p.Id != excludeId.Value);
+
+		return query.Any();
 	}
 
 

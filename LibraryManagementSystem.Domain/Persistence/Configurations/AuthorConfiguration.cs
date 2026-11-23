@@ -25,5 +25,8 @@ public class AuthorConfiguration : IEntityTypeConfiguration<Author>
 
 		builder.Property(a => a.IsRemoved).IsRequired();
 		builder.Property(a => a.CreatedAt).IsRequired();
+
+		builder.Property(a => a.UpdatedAt).IsRequired(false);
+		builder.Property(a => a.UpdatedByUserId).IsRequired(false);
 	}
 }

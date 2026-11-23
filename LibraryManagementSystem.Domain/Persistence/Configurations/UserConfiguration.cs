@@ -32,5 +32,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 		builder.Property(u => u.ShouldRemove).IsRequired();
 
 		builder.Property(u => u.CreatedAt).IsRequired();
+
+		builder.Property(u => u.UpdatedAt).IsRequired(false);
+		builder.Property(u=> u.UpdatedByUserId).IsRequired(false);
 	}
 }
