@@ -2,6 +2,6 @@
 
 namespace LibraryManagementSystem.Domain.Interfaces;
 
-public interface IAuthorRepository : IContributorRepository<Author>
+public interface IAuthorRepository
 {
 }

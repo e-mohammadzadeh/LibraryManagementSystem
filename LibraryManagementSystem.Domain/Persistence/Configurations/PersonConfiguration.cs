@@ -12,6 +12,7 @@ public class PersonConfiguration : IEntityTypeConfiguration<Person>
 		builder.ToTable("People");
 
 		builder.HasKey(p => p.Id);
+		builder.Property(p => p.Id).ValueGeneratedNever();
 
 		builder.Property(p => p.FirstName).IsRequired().HasMaxLength(100);
 		builder.Property(p => p.LastName).IsRequired().HasMaxLength(100);
@@ -20,24 +21,10 @@ public class PersonConfiguration : IEntityTypeConfiguration<Person>
 		builder.Property(p => p.PhoneNumber).HasConversion(ph => ph.Value, value => PhoneNumber.Create(value))
 			.IsRequired().HasMaxLength(16);
 		builder.Property(p => p.BirthDate).IsRequired();
+		builder.Property(p => p.CreatedAt).IsRequired();
 
 		builder.HasIndex(p => p.NationalCode).IsUnique();
 		builder.HasIndex(p => p.Email).IsUnique();
 		builder.HasIndex(p => p.PhoneNumber).IsUnique();
-
-		builder.HasOne(p => p.Author)
-			.WithOne(a => a.Person)
-			.HasForeignKey<Author>(a => a.PersonId)
-			.OnDelete(DeleteBehavior.Restrict);
-
-		builder.HasOne(p => p.Translator)
-			.WithOne(t => t.Person)
-			.HasForeignKey<Translator>(t => t.PersonId)
-			.OnDelete(DeleteBehavior.Restrict);
-
-		builder.HasOne(p => p.User)
-			.WithOne(u => u.Person)
-			.HasForeignKey<User>(u => u.PersonId)
-			.OnDelete(DeleteBehavior.Restrict);
 	}
 }

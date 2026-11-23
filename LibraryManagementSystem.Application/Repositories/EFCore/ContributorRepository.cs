@@ -1,13 +1,11 @@
-﻿using LibraryManagementSystem.Domain.Entities;
-using LibraryManagementSystem.Domain.Interfaces;
+﻿using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Domain.Persistence;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace LibraryManagementSystem.Application.Repositories.EFCore;
 
-public abstract class ContributorRepository<T> : IContributorRepository<T> where T : Contributor
+public abstract class ContributorRepository<T> : IContributorRepository<T>
 {
 	protected readonly LibraryDbContext Context;
 	protected readonly DbSet<T> DbSet;

@@ -1,10 +1,9 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
-using System.Linq.Expressions;
 
 namespace LibraryManagementSystem.Domain.Interfaces;
 
-public interface IContributorRepository<T> where T : Contributor
+public interface IContributorRepository<T> where T : Person
 {
 	void Add(T entity);
 	T? GetById(Guid id, EntityFilter filter);

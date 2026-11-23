@@ -5,7 +5,7 @@ namespace LibraryManagementSystem.Application.Mapping;
 
 public static class ContributorMapper
 {
-	public static ContributorDto ToDto<TEntity>(this TEntity entity) where TEntity : Contributor 
+	public static ContributorDto ToDto<TEntity>(this TEntity entity)
 	{
 		if (entity == null) return null;
 

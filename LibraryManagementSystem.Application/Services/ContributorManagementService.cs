@@ -14,7 +14,7 @@ using LibraryManagementSystem.Infrastructure.Enums.Sort;
 
 namespace LibraryManagementSystem.Application.Services;
 
-public abstract class ContributorManagementService<TEntity> where TEntity : Contributor, new()
+public abstract class ContributorManagementService<TEntity>
 {
 	protected readonly IContributorRepository<TEntity> Repository;
 	protected readonly IAuthorizationService Authorization;
