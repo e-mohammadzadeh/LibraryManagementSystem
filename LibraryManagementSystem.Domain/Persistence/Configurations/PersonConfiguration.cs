@@ -24,5 +24,20 @@ public class PersonConfiguration : IEntityTypeConfiguration<Person>
 		builder.HasIndex(p => p.NationalCode).IsUnique();
 		builder.HasIndex(p => p.Email).IsUnique();
 		builder.HasIndex(p => p.PhoneNumber).IsUnique();
+
+		builder.HasOne(p => p.Author)
+			.WithOne(a => a.Person)
+			.HasForeignKey<Author>(a => a.Id)
+			.OnDelete(DeleteBehavior.Restrict);
+
+		builder.HasOne(p => p.Translator)
+			.WithOne(t => t.Person)
+			.HasForeignKey<Translator>(t => t.Id)
+			.OnDelete(DeleteBehavior.Restrict);
+
+		builder.HasOne(p => p.User)
+			.WithOne(u => u.Person)
+			.HasForeignKey<User>(u => u.Id)
+			.OnDelete(DeleteBehavior.Restrict);
 	}
 }

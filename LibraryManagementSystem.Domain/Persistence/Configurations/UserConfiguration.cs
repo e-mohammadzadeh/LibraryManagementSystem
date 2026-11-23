@@ -12,11 +12,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 		builder.HasKey(u => u.Id);
 		builder.Property(u => u.Id).ValueGeneratedNever();
 
-		builder.HasOne(u => u.Person)
-			.WithOne(p => p.User)
-			.HasForeignKey<User>(u => u.Id)
-			.OnDelete(DeleteBehavior.Restrict);
-
 		builder.HasOne(u => u.Role)
 			.WithMany()
 			.HasForeignKey(u => u.RoleId)

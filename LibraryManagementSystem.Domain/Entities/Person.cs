@@ -2,7 +2,7 @@
 
 namespace LibraryManagementSystem.Domain.Entities;
 
-public abstract class Person
+public class Person
 {
 	public Guid Id { get; set; }
 	public string FirstName { get; set; } = string.Empty;

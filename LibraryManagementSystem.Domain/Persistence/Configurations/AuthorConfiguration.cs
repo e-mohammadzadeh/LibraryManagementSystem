@@ -11,10 +11,5 @@ public class AuthorConfiguration : IEntityTypeConfiguration<Author>
 		builder.ToTable("Authors");
 		builder.HasKey(a => a.Id);
 		builder.Property(a => a.Id).ValueGeneratedNever();
-
-		builder.HasOne(a => a.Person)
-			.WithOne(p => p.Author)
-			.HasForeignKey<Author>(a => a.Id)
-			.OnDelete(DeleteBehavior.Restrict);
 	}
 }
