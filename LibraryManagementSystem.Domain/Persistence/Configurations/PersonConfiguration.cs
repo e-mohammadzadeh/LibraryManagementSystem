@@ -9,6 +9,8 @@ public class PersonConfiguration : IEntityTypeConfiguration<Person>
 {
 	public void Configure(EntityTypeBuilder<Person> builder)
 	{
+		builder.ToTable("People");
+
 		builder.HasKey(p => p.Id);
 
 		builder.Property(p => p.FirstName).IsRequired().HasMaxLength(100);
@@ -18,12 +20,6 @@ public class PersonConfiguration : IEntityTypeConfiguration<Person>
 		builder.Property(p => p.PhoneNumber).HasConversion(ph => ph.Value, value => PhoneNumber.Create(value))
 			.IsRequired().HasMaxLength(16);
 		builder.Property(p => p.BirthDate).IsRequired();
-
-		builder.HasDiscriminator<string>("PersonType")
-			.HasValue<Author>("Author")
-			.HasValue<Translator>("Translator")
-			.HasValue<User>("User");
-
 
 		builder.HasIndex(p => p.NationalCode).IsUnique();
 		builder.HasIndex(p => p.Email).IsUnique();

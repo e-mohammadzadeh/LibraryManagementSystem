@@ -6,6 +6,7 @@ namespace LibraryManagementSystem.Domain.Persistence;
 public class LibraryDbContext : DbContext
 {
 	public LibraryDbContext(DbContextOptions<LibraryDbContext> options) : base(options) { }
+	public DbSet<Person> People => Set<Person>();
 	public DbSet<Author> Authors => Set<Author>();
 	public DbSet<Translator> Translators => Set<Translator>();
 	public DbSet<Book> Books => Set<Book>();
