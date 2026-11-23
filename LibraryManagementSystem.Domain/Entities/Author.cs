@@ -1,6 +1,8 @@
-﻿namespace LibraryManagementSystem.Domain.Entities;
+﻿using LibraryManagementSystem.Domain.Interfaces;
 
-public class Author
+namespace LibraryManagementSystem.Domain.Entities;
+
+public class Author : IPersonRoleEntity
 {
 	public Guid Id { get; set; }
 

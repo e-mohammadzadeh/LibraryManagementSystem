@@ -1,6 +1,8 @@
-﻿namespace LibraryManagementSystem.Domain.Entities;
+﻿using LibraryManagementSystem.Domain.Interfaces;
 
-public class Translator
+namespace LibraryManagementSystem.Domain.Entities;
+
+public class Translator: IPersonRoleEntity 
 {
 	public Guid Id { get; set; }
 

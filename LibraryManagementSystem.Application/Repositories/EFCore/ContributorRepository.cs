@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManagementSystem.Application.Repositories.EFCore;
 
-public abstract class ContributorRepository<T> : IContributorRepository<T>
+public abstract class ContributorRepository<T> : IRole<T>
 {
 	protected readonly LibraryDbContext Context;
 	protected readonly DbSet<T> DbSet;
