@@ -21,5 +21,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 		builder.Property(u => u.MembershipStartDate).IsRequired();
 		builder.Property(u => u.MembershipExpiryDate).IsRequired();
 		builder.Property(u => u.ShouldRemove).IsRequired();
+
+
+		builder.HasIndex(a => a.PersonId).IsUnique();
 	}
 }

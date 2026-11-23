@@ -11,5 +11,7 @@ public class TranslatorConfiguration : IEntityTypeConfiguration<Translator>
 		builder.ToTable("Translators");
 		builder.HasKey(a => a.Id);
 		builder.Property(a => a.Id).ValueGeneratedNever();
+
+		builder.HasIndex(a => a.PersonId).IsUnique();
 	}
 }

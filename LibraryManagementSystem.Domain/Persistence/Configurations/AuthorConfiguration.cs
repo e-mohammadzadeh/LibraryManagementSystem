@@ -11,5 +11,7 @@ public class AuthorConfiguration : IEntityTypeConfiguration<Author>
 		builder.ToTable("Authors");
 		builder.HasKey(a => a.Id);
 		builder.Property(a => a.Id).ValueGeneratedNever();
+
+		builder.HasIndex(a => a.PersonId).IsUnique();
 	}
 }

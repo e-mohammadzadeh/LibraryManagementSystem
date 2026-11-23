@@ -27,17 +27,17 @@ public class PersonConfiguration : IEntityTypeConfiguration<Person>
 
 		builder.HasOne(p => p.Author)
 			.WithOne(a => a.Person)
-			.HasForeignKey<Author>(a => a.Id)
+			.HasForeignKey<Author>(a => a.PersonId)
 			.OnDelete(DeleteBehavior.Restrict);
 
 		builder.HasOne(p => p.Translator)
 			.WithOne(t => t.Person)
-			.HasForeignKey<Translator>(t => t.Id)
+			.HasForeignKey<Translator>(t => t.PersonId)
 			.OnDelete(DeleteBehavior.Restrict);
 
 		builder.HasOne(p => p.User)
 			.WithOne(u => u.Person)
-			.HasForeignKey<User>(u => u.Id)
+			.HasForeignKey<User>(u => u.PersonId)
 			.OnDelete(DeleteBehavior.Restrict);
 	}
 }
