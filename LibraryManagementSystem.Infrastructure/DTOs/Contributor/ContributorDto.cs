@@ -5,6 +5,7 @@ namespace LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 public class ContributorDto
 {
 	public Guid Id { get; init; }
+	public Guid PersonId { get; init; }
 	public string FirstName { get; set; } = null!;
 	public string LastName { get; set; } = null!;
 	public string NationalCode { get; set; } = null!;
@@ -21,17 +22,18 @@ public class ContributorDto
 	{
 		return new ContributorDto
 		{
-			Id = this.Id,
-			FirstName = this.FirstName,
-			LastName = this.LastName,
-			NationalCode = this.NationalCode,
-			Email = this.Email,
-			PhoneNumber = this.PhoneNumber,
-			BirthDate = this.BirthDate,
-			DeathDate = this.DeathDate,
-			Biography = this.Biography,
-			CreatedAt = this.CreatedAt,
-			UpdatedAt = this.UpdatedAt
+			Id = Id,
+			PersonId = PersonId,
+			FirstName = FirstName,
+			LastName = LastName,
+			NationalCode = NationalCode,
+			Email = Email,
+			PhoneNumber = PhoneNumber,
+			BirthDate = BirthDate,
+			DeathDate = DeathDate,
+			Biography = Biography,
+			CreatedAt = CreatedAt,
+			UpdatedAt = UpdatedAt
 		};
 	}
 }

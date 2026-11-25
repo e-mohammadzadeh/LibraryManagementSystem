@@ -14,16 +14,21 @@ using LibraryManagementSystem.Infrastructure.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
 
-public class AuthorManagementService : ContributorManagementService<Author>
+public class AuthorManagementService
 {
+	private readonly IAuthorRepository _authorRepository;
+	private readonly PersonManagementService _personService;
+	private readonly IAuthorizationService _authorization;
 	private readonly IAuditLogManagementService _auditLog;
 	private readonly IBookAuthorRepository _bookAuthorRepository;
 
 
-	public AuthorManagementService(IAuthorRepository authorRepository, IAuthorizationService authorization,
-		IAuditLogManagementService auditLog, PersonUniquenessChecker uniquenessChecker,
-		IBookAuthorRepository bookAuthorRepository) : base(authorRepository, authorization, uniquenessChecker)
+	public AuthorManagementService(IAuthorRepository authorRepository, PersonManagementService personService,
+		IAuthorizationService authorization, IAuditLogManagementService auditLog, IBookAuthorRepository bookAuthorRepository)
 	{
+		_authorRepository = authorRepository;
+		_personService = personService;
+		_authorization = authorization;
 		_auditLog = auditLog;
 		_bookAuthorRepository = bookAuthorRepository;
 	}
@@ -31,47 +36,89 @@ public class AuthorManagementService : ContributorManagementService<Author>
 
 	public ServiceResult<ContributorDto> AddAuthor(ContributorDto dto)
 	{
-		var result = AddContributor(
-			dto,
-			Messages.DuplicateNationalCodeMessage,
-			Messages.DuplicateEmailMessage,
-			Messages.DuplicatePhoneNumberMessage,
-			Messages.AuthorAddedSuccessfully);
+		ArgumentNullException.ThrowIfNull(dto);
 
-		if (result.IsSuccess) _auditLog.Record(AuditAction.AuthorCreated, "Author", result.Data!.Id, "Author created.");
-		return result;
+		var dateValidation = Validator.ContributorDateValidator(dto.BirthDate, dto.DeathDate);
+		if (!dateValidation.IsValid) return ServiceResult<ContributorDto>.Fail(dateValidation.ErrorMessage);
+
+		var person = _personService.ResolveOrCreatePerson(dto, out var errorMessage);
+		if (person is null) return ServiceResult<ContributorDto>.Fail(errorMessage);
+
+		var existingAuthor = _authorRepository.GetByPersonId(person.Data.Id, EntityFilter.All);
+		if (existingAuthor is not null)
+		{
+			if (!existingAuthor.IsRemoved)
+				return ServiceResult<ContributorDto>.Fail("This person already has an active author role.");
+
+			return ServiceResult<ContributorDto>.Fail(
+				"This Author role has been removed and requires admin restoration.");
+		}
+
+		var author = new Author
+		{
+			PersonId = person.Data.Id,
+			Person = person.Data,
+			DeathDate = dto.DeathDate,
+			Biography = dto.Biography
+		};
+
+		_authorRepository.Add(author);
+		_auditLog.Record(AuditAction.AuthorCreated, "Author", author.Id, "Author role created.");
+		return ServiceResult<ContributorDto>.Ok(author.ToDto(), Messages.AuthorAddedSuccessfully);
 	}
 
 
 	public ServiceResult<ContributorDto> UpdateAuthor(ContributorDto dto, Guid? updatedBy = null)
 	{
-		var result = UpdateContributor(
-			dto,
-			updatedBy,
-			Messages.AuthorUpdateFailed,
-			Messages.DuplicateNationalCodeMessage,
-			Messages.DuplicateEmailMessage,
-			Messages.DuplicatePhoneNumberMessage,
-			Messages.AuthorUpdatedSuccessfully,
-			out var auditDetails);
+		ArgumentNullException.ThrowIfNull(dto);
 
-		if (result.IsSuccess)
-			_auditLog.Record(AuditAction.AuthorUpdated, "Author", dto.Id, auditDetails ?? "Author updated.");
-		return result;
+		var author = _authorRepository.GetById(dto.Id, EntityFilter.Active);
+		if (author is null) return ServiceResult<ContributorDto>.Fail(Messages.AuthorUpdateFailed);
+
+		var person = author.Person;
+		var personChanged = person.FirstName != dto.FirstName ||
+		                    person.LastName != dto.LastName ||
+		                    person.NationalCode != dto.NationalCode ||
+		                    person.Email != dto.Email ||
+		                    person.PhoneNumber != dto.PhoneNumber ||
+		                    person.BirthDate != dto.BirthDate;
+
+		var authorChanged = author.DeathDate != dto.DeathDate ||
+		                     author.Biography != dto.Biography;
+
+		if (!personChanged && !authorChanged)
+			return ServiceResult<ContributorDto>.Warning(author.ToDto(), Messages.NoChangesDetected);
+
+		if (personChanged)
+		{
+			var personUpdateResult = _personService.UpdatePerson(person.Id, dto, updatedBy);
+			if (!personUpdateResult.IsSuccess) return ServiceResult<ContributorDto>.Fail(personUpdateResult.Message);
+		}
+
+		if (authorChanged)
+		{
+			author.DeathDate = dto.DeathDate;
+			author.Biography = dto.Biography;
+			author.UpdatedByUserId = updatedBy;
+			_authorRepository.Update(author);
+		}
+
+		_auditLog.Record(AuditAction.AuthorUpdated, "Author", author.Id, "Author and/or Person information updated.");
+		return ServiceResult<ContributorDto>.Ok(author.ToDto(), Messages.AuthorUpdatedSuccessfully);
 	}
 
 
 	public ServiceResult<ContributorDto> RemoveAuthor(Guid id)
 	{
-		var result = RemoveContributor(
-			id,
-			authorId => _bookAuthorRepository.GetByAuthorId(authorId, EntityFilter.Active).Count > 0,
-			Messages.AuthorRemoveFailed,
-			Messages.AuthorHasAssociatedBooks,
-			Messages.AuthorRemovedSuccessfully);
+		var author = _authorRepository.GetById(id, EntityFilter.Active);
+		if (author is null) return ServiceResult<ContributorDto>.Fail(Messages.AuthorRemoveFailed);
 
-		if (result.IsSuccess) _auditLog.Record(AuditAction.AuthorRemoved, "Author", id, "Author removed.");
-		return result;
+		var hasBooks = _bookAuthorRepository.GetByAuthorId(id, EntityFilter.Active).Count > 0;
+		if (hasBooks) return ServiceResult<ContributorDto>.Fail(Messages.AuthorHasAssociatedBooks);
+
+		_authorRepository.Remove(author);
+		_auditLog.Record(AuditAction.AuthorRemoved, "Author", id, "Author role removed.");
+		return ServiceResult<ContributorDto>.Ok(author.ToDto(), Messages.AuthorRemovedSuccessfully);
 	}
 
 

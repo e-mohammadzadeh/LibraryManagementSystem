@@ -14,53 +14,45 @@ using LibraryManagementSystem.Infrastructure.Enums.Sort;
 
 namespace LibraryManagementSystem.Application.Services;
 
-public abstract class ContributorManagementService<TEntity>
+public class PersonManagementService
 {
-	protected readonly IContributorRepository<TEntity> Repository;
-	protected readonly IAuthorizationService Authorization;
-	protected readonly PersonUniquenessChecker PersonUniquenessChecker;
+	private readonly IPersonRepository _personRepository;
 
 
-	protected ContributorManagementService(IContributorRepository<TEntity> repository,
-		IAuthorizationService authorization, PersonUniquenessChecker uniquenessChecker)
+	public PersonManagementService(IPersonRepository personRepository)
 	{
-		Repository = repository;
-		Authorization = authorization;
-		PersonUniquenessChecker = uniquenessChecker;
+		_personRepository = personRepository;
 	}
 
 
-	protected ServiceResult<ContributorDto> AddContributor(ContributorDto dto, string duplicateNationalCodeMessage,
-		string duplicateEmailMessage, string duplicatePhoneNumberMessage, string successMessage)
+	public ServiceResult<Person> ResolveOrCreatePerson(ContributorDto dto)
 	{
-		var duplicate = PersonUniquenessChecker.Check(dto.NationalCode, dto.Email, dto.PhoneNumber);
-		switch (duplicate)
+		ArgumentNullException.ThrowIfNull(dto);
+
+		var existingPerson = _personRepository.GetByNationalCode(dto.NationalCode, EntityFilter.All);
+		if (existingPerson is not null)
 		{
-			case DuplicateField.NationalCode:
-				return ServiceResult<ContributorDto>.Fail(duplicateNationalCodeMessage);
-			case DuplicateField.Email:
-				return ServiceResult<ContributorDto>.Fail(duplicateEmailMessage);
-			case DuplicateField.PhoneNumber:
-				return ServiceResult<ContributorDto>.Fail(duplicatePhoneNumberMessage);
+			return ServiceResult<Person>.Ok(existingPerson);
 		}
 
-		var dateValidation = Validator.ContributorDateValidator(dto.BirthDate, dto.DeathDate);
-		if (!dateValidation.IsValid) return ServiceResult<ContributorDto>.Fail(dateValidation.ErrorMessage!);
+		if (_personRepository.ExistsIncludingRemoved(p => p.Email == dto.Email))
+			return ServiceResult<Person>.Fail(Messages.DuplicateEmailMessage);
 
-		var contributor = new TEntity
+		if (_personRepository.ExistsIncludingRemoved(p => p.PhoneNumber == dto.PhoneNumber))
+			return ServiceResult<Person>.Fail(Messages.DuplicatePhoneNumberMessage);
+
+		var person = new Person
 		{
 			FirstName = dto.FirstName,
 			LastName = dto.LastName,
 			NationalCode = dto.NationalCode,
 			Email = dto.Email,
 			PhoneNumber = dto.PhoneNumber,
-			BirthDate = dto.BirthDate,
-			DeathDate = dto.DeathDate,
-			Biography = dto.Biography
+			BirthDate = dto.BirthDate
 		};
 
-		Repository.Add(contributor);
-		return ServiceResult<ContributorDto>.Ok(contributor.ToDto(), successMessage);
+		_personRepository.Add(person);
+		return ServiceResult<Person>.Ok(person, );
 	}
 
 

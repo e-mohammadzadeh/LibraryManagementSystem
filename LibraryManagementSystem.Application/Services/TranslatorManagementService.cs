@@ -14,7 +14,7 @@ using LibraryManagementSystem.Infrastructure.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
 
-public class TranslatorManagementService : ContributorManagementService<Translator>
+public class TranslatorManagementService : PersonManagementService<Translator>
 {
 	private readonly IAuditLogManagementService _auditLog;
 	private readonly IBookTranslatorRepository _bookTranslatorRepository;

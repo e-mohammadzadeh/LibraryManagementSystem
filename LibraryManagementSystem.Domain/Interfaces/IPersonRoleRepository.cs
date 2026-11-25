@@ -8,4 +8,5 @@ public interface IPersonRoleRepository<T> where T : class, IPersonRoleEntity
 	T? GetById(Guid id, EntityFilter filter = EntityFilter.Active);
 	IReadOnlyList<T> GetAll(EntityFilter filter = EntityFilter.Active);
 	void Remove(T entity);
+	void Restore(T entity, Guid? updatedByUserId = null);
 }
