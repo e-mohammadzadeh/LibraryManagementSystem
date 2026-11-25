@@ -1,7 +1,4 @@
-﻿using LibraryManagementSystem.Application.Authorization;
-using LibraryManagementSystem.Application.Common;
-using LibraryManagementSystem.Application.Mapping;
-using LibraryManagementSystem.Application.Validators;
+﻿using LibraryManagementSystem.Application.Validators;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Common;
@@ -17,11 +14,13 @@ namespace LibraryManagementSystem.Application.Services;
 public class PersonManagementService
 {
 	private readonly IPersonRepository _personRepository;
+	private readonly PersonUniquenessChecker _uniquenessChecker;
 
 
-	public PersonManagementService(IPersonRepository personRepository)
+	public PersonManagementService(IPersonRepository personRepository, PersonUniquenessChecker uniquenessChecker)
 	{
 		_personRepository = personRepository;
+		_uniquenessChecker = uniquenessChecker;
 	}
 
 
@@ -30,16 +29,19 @@ public class PersonManagementService
 		ArgumentNullException.ThrowIfNull(dto);
 
 		var existingPerson = _personRepository.GetByNationalCode(dto.NationalCode, EntityFilter.All);
-		if (existingPerson is not null)
+		if (existingPerson is not null) return ServiceResult<Person>.Ok(existingPerson);
+
+		var duplicate = _uniquenessChecker.Check(dto.NationalCode, dto.Email, dto.PhoneNumber);
+
+		var duplicateMessage = duplicate switch
 		{
-			return ServiceResult<Person>.Ok(existingPerson);
-		}
+			DuplicateField.NationalCode => Messages.DuplicateNationalCodeMessage,
+			DuplicateField.Email => Messages.DuplicateEmailMessage,
+			DuplicateField.PhoneNumber => Messages.DuplicatePhoneNumberMessage,
+			_ => null
+		};
 
-		if (_personRepository.ExistsIncludingRemoved(p => p.Email == dto.Email))
-			return ServiceResult<Person>.Fail(Messages.DuplicateEmailMessage);
-
-		if (_personRepository.ExistsIncludingRemoved(p => p.PhoneNumber == dto.PhoneNumber))
-			return ServiceResult<Person>.Fail(Messages.DuplicatePhoneNumberMessage);
+		if (duplicateMessage is not null) return ServiceResult<Person>.Fail(duplicateMessage);
 
 		var person = new Person
 		{
@@ -52,46 +54,48 @@ public class PersonManagementService
 		};
 
 		_personRepository.Add(person);
-		return ServiceResult<Person>.Ok(person, );
+		return ServiceResult<Person>.Ok(person, "Person was created successfully.");
 	}
 
 
-	protected ServiceResult<ContributorDto> UpdateContributor(ContributorDto dto, Guid? updatedBy,
-		string notFoundMessage, string duplicateNationalCodeMessage, string duplicateEmailMessage,
-		string duplicatePhoneNumberMessage, string successMessage, out string? auditDetails)
+	public ServiceResult<Person> UpdatePerson(Guid personId, ContributorDto dto, Guid? updatedBy = null)
 	{
-		auditDetails = null;
-		var contributor = Repository.GetById(dto.Id, EntityFilter.Active);
-		if (contributor is null || contributor.IsRemoved) return ServiceResult<ContributorDto>.Fail(notFoundMessage);
+		ArgumentNullException.ThrowIfNull(dto);
 
-		if (IsNoOpUpdate(contributor, dto))
-			return ServiceResult<ContributorDto>.Warning(contributor.ToDto(), Messages.NoChangesDetected);
+		var person = _personRepository.GetById(personId);
+		if (person is null) return ServiceResult<Person>.Fail("Person was not found.");
 
-		var duplicate = PersonUniquenessChecker.Check(contributor, dto.NationalCode, dto.Email, dto.PhoneNumber);
-		switch (duplicate)
+		var duplicate = PersonUniquenessChecker.Check(person, dto.NationalCode, dto.Email, dto.PhoneNumber);
+		var duplicateMessage = duplicate switch
 		{
-			case DuplicateField.NationalCode:
-				return ServiceResult<ContributorDto>.Fail(duplicateNationalCodeMessage);
-			case DuplicateField.Email:
-				return ServiceResult<ContributorDto>.Fail(duplicateEmailMessage);
-			case DuplicateField.PhoneNumber:
-				return ServiceResult<ContributorDto>.Fail(duplicatePhoneNumberMessage);
-		}
+			DuplicateField.NationalCode => Messages.DuplicateNationalCodeMessage,
+			DuplicateField.Email => Messages.DuplicateEmailMessage,
+			DuplicateField.PhoneNumber => Messages.DuplicatePhoneNumberMessage,
+			_ => null
+		};
 
-		auditDetails = PersonUpdateAuditDetailsBuilder.BuildPersonUpdateAuditDetails(contributor, dto);
+		if (duplicateMessage is not null) return ServiceResult<Person>.Fail(duplicateMessage);
 
-		contributor.FirstName = dto.FirstName;
-		contributor.LastName = dto.LastName;
-		contributor.NationalCode = dto.NationalCode;
-		contributor.Email = dto.Email;
-		contributor.PhoneNumber = dto.PhoneNumber;
-		contributor.BirthDate = dto.BirthDate;
-		contributor.DeathDate = dto.DeathDate;
-		contributor.Biography = dto.Biography;
-		contributor.UpdatedByUserId = updatedBy;
+		var noChanges =
+			person.FirstName == dto.FirstName &&
+			person.LastName == dto.LastName &&
+			person.NationalCode == dto.NationalCode &&
+			person.Email == dto.Email &&
+			person.PhoneNumber == dto.PhoneNumber &&
+			person.BirthDate == dto.BirthDate;
 
-		Repository.Update(contributor);
-		return ServiceResult<ContributorDto>.Ok(contributor.ToDto(), successMessage);
+		if (noChanges) return ServiceResult<Person>.Warning(person, Messages.NoChangesDetected);
+
+		person.FirstName = dto.FirstName;
+		person.LastName = dto.LastName;
+		person.NationalCode = dto.NationalCode;
+		person.Email = dto.Email;
+		person.PhoneNumber = dto.PhoneNumber;
+		person.BirthDate = dto.BirthDate;
+		person.UpdatedByUserId = updatedBy;
+
+		_personRepository.Update(person);
+		return ServiceResult<Person>.Ok(person);
 	}
 
 

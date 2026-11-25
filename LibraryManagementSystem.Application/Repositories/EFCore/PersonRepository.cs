@@ -39,6 +39,8 @@ public class PersonRepository : IPersonRepository
 
 	public Person? GetByNationalCode(string nationalCode, EntityFilter filter = EntityFilter.All)
 	{
+		ArgumentException.ThrowIfNullOrWhiteSpace(nationalCode);
+
 		var query = _context.Set<Person>()
 			.Include(p => p.Author)
 			.Include(p => p.Translator)
@@ -84,8 +86,7 @@ public class PersonRepository : IPersonRepository
 		ArgumentNullException.ThrowIfNull(person);
 
 		var tracked = _context.Set<Person>()
-			              .FirstOrDefault(p => p.Id == person.Id) ??
-		              throw new InvalidOperationException($"Person with id '{person.Id}' was not found.");
+			.Find(person.Id) ?? throw new InvalidOperationException($"Person with id '{person.Id}' was not found.");
 
 		tracked.FirstName = person.FirstName;
 		tracked.LastName = person.LastName;
@@ -93,6 +94,7 @@ public class PersonRepository : IPersonRepository
 		tracked.Email = person.Email;
 		tracked.PhoneNumber = person.PhoneNumber;
 		tracked.BirthDate = person.BirthDate;
+
 		tracked.UpdatedAt = DateTime.UtcNow;
 		tracked.UpdatedByUserId = person.UpdatedByUserId;
 

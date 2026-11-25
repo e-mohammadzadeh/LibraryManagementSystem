@@ -39,12 +39,13 @@ public class AuthorManagementService
 		ArgumentNullException.ThrowIfNull(dto);
 
 		var dateValidation = Validator.ContributorDateValidator(dto.BirthDate, dto.DeathDate);
-		if (!dateValidation.IsValid) return ServiceResult<ContributorDto>.Fail(dateValidation.ErrorMessage);
+		if (!dateValidation.IsValid) return ServiceResult<ContributorDto>.Fail(dateValidation.ErrorMessage!);
 
-		var person = _personService.ResolveOrCreatePerson(dto, out var errorMessage);
-		if (person is null) return ServiceResult<ContributorDto>.Fail(errorMessage);
+		var personResult = _personService.ResolveOrCreatePerson(dto);
+		if (!personResult.IsSuccess) return ServiceResult<ContributorDto>.Fail(personResult.Message!);
+		var person = personResult.Data!;
 
-		var existingAuthor = _authorRepository.GetByPersonId(person.Data.Id, EntityFilter.All);
+		var existingAuthor = _authorRepository.GetByPersonId(person.Id, EntityFilter.All);
 		if (existingAuthor is not null)
 		{
 			if (!existingAuthor.IsRemoved)
@@ -56,8 +57,8 @@ public class AuthorManagementService
 
 		var author = new Author
 		{
-			PersonId = person.Data.Id,
-			Person = person.Data,
+			PersonId = person.Id,
+			Person = person,
 			DeathDate = dto.DeathDate,
 			Biography = dto.Biography
 		};
@@ -91,8 +92,8 @@ public class AuthorManagementService
 
 		if (personChanged)
 		{
-			var personUpdateResult = _personService.UpdatePerson(person.Id, dto, updatedBy);
-			if (!personUpdateResult.IsSuccess) return ServiceResult<ContributorDto>.Fail(personUpdateResult.Message);
+			var personResult = _personService.UpdatePerson(person.Id, dto, updatedBy);
+			if (!personResult.IsSuccess) return ServiceResult<ContributorDto>.Fail(personResult.Message);
 		}
 
 		if (authorChanged)

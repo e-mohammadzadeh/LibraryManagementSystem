@@ -4,19 +4,18 @@ namespace LibraryManagementSystem.Infrastructure.Common;
 
 public class ServiceResult<T> where T : class
 {
-	private ServiceResult(bool success, T? data, string? message, ResultStatus status)
+	private ServiceResult(T? data, string? message, ResultStatus status)
 	{
-		Success = success;
 		Data = data;
 		Message = message;
 		Status = status;
 	}
 
 
-	public bool Success { get; init; }
 	public string? Message { get; init; }
 	public T? Data { get; init; }
 	public ResultStatus Status { get; init; }
+
 	public bool IsSuccess => Status == ResultStatus.Success;
 	public bool IsFailure => Status == ResultStatus.Failure;
 	public bool IsWarning => Status == ResultStatus.Warning;
@@ -24,18 +23,19 @@ public class ServiceResult<T> where T : class
 
 	public static ServiceResult<T> Ok(T data, string message)
 	{
-		return new ServiceResult<T>(true, data, message, ResultStatus.Success);
+		ArgumentNullException.ThrowIfNull(data);
+		return new ServiceResult<T>(data, message, ResultStatus.Success);
 	}
 
 
 	public static ServiceResult<T> Fail(string message)
 	{
-		return new ServiceResult<T>(false, null, message, ResultStatus.Failure);
+		return new ServiceResult<T>(null, message, ResultStatus.Failure);
 	}
 
 
 	public static ServiceResult<T> Warning(T data, string message)
 	{
-		return new ServiceResult<T>(true, data, message, ResultStatus.Warning);
+		return new ServiceResult<T>(data, message, ResultStatus.Warning);
 	}
 }
