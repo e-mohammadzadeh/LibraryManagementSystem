@@ -45,50 +45,81 @@ public class TranslatorManagementService
 		if (!personResult.IsSuccess) return ServiceResult<ContributorDto>.Fail(personResult.Message!);
 		var person = personResult.Data!;
 
-		var existingTranslator = _translatorRepository.
-		var result = AddContributor(
-			dto,
-			Messages.DuplicateNationalCodeMessage,
-			Messages.DuplicateEmailMessage,
-			Messages.DuplicatePhoneNumberMessage,
-			Messages.TranslatorAddedSuccessfully);
+		var existingTranslator = _translatorRepository.GetByPersonId(person.Id, EntityFilter.All);
+		if (existingTranslator is not null)
+		{
+			if (!existingTranslator.IsRemoved)
+				return ServiceResult<ContributorDto>.Fail("This person already has an active translator role.");
 
-		if (result.IsSuccess)
-			_auditLog.Record(AuditAction.TranslatorCreated, "Translator", result.Data!.Id, "Translator created.");
-		return result;
+			return ServiceResult<ContributorDto>.Fail(
+				"This translator role has been removed and requires admin restoration.");
+		}
+
+		var translator = new Translator
+		{
+			PersonId = person.Id,
+			Person = person,
+			DeathDate = dto.DeathDate,
+			Biography = dto.Biography
+		};
+
+		_translatorRepository.Add(translator);
+		_auditLog.Record(AuditAction.TranslatorCreated, "Translator", translator.Id, "Translator role created.");
+		return ServiceResult<ContributorDto>.Ok(translator.ToDto(), Messages.TranslatorAddedSuccessfully);
 	}
 
 
 	public ServiceResult<ContributorDto> UpdateTranslator(ContributorDto dto, Guid? updatedBy = null)
 	{
-		var result = UpdateContributor(
-			dto,
-			updatedBy,
-			Messages.TranslatorUpdateFailed,
-			Messages.DuplicateNationalCodeMessage,
-			Messages.DuplicateEmailMessage,
-			Messages.DuplicatePhoneNumberMessage,
-			Messages.TranslatorUpdatedSuccessfully,
-			out var auditDetails);
+		ArgumentNullException.ThrowIfNull(dto);
 
-		if (result.IsSuccess)
-			_auditLog.Record(AuditAction.TranslatorUpdated, "Translator", dto.Id,
-				auditDetails ?? "Translator updated.");
-		return result;
+		var translator = _translatorRepository.GetById(dto.Id, EntityFilter.Active);
+		if (translator is null) return ServiceResult<ContributorDto>.Fail(Messages.TranslatorUpdateFailed);
+
+		var person = translator.Person;
+		var personChanged = person.FirstName != dto.FirstName ||
+		                    person.LastName != dto.LastName ||
+		                    person.NationalCode != dto.NationalCode ||
+		                    person.Email != dto.Email ||
+		                    person.PhoneNumber != dto.PhoneNumber ||
+		                    person.BirthDate != dto.BirthDate;
+
+		var translatorChanged = translator.DeathDate != dto.DeathDate ||
+		                        translator.Biography != dto.Biography;
+
+		if (!personChanged && !translatorChanged)
+			return ServiceResult<ContributorDto>.Warning(translator.ToDto(), Messages.NoChangesDetected);
+
+		if (personChanged)
+		{
+			var personResult = _personService.UpdatePerson(person.Id, dto, updatedBy);
+			if (!personResult.IsSuccess) return ServiceResult<ContributorDto>.Fail(personResult.Message!);
+		}
+
+		if (translatorChanged)
+		{
+			translator.DeathDate = dto.DeathDate;
+			translator.Biography = dto.Biography;
+			translator.UpdatedByUserId = updatedBy;
+			_translatorRepository.Update(translator);
+		}
+
+		_auditLog.Record(AuditAction.TranslatorUpdated, "Translator", dto.Id, "Translator and/or Person information updated.");
+		return ServiceResult<ContributorDto>.Ok(translator.ToDto(), Messages.TranslatorUpdatedSuccessfully);
 	}
 
 
 	public ServiceResult<ContributorDto> RemoveTranslator(Guid id)
 	{
-		var result = RemoveContributor(
-			id,
-			translatorId => _bookTranslatorRepository.GetByTranslatorId(translatorId, EntityFilter.Active).Count > 0,
-			Messages.TranslatorRemoveFailed,
-			Messages.TranslatorHasAssociatedBooks,
-			Messages.TranslatorRemovedSuccessfully);
+		var translator = _translatorRepository.GetById(id, EntityFilter.Active);
+		if (translator is null) return ServiceResult<ContributorDto>.Fail(Messages.TranslatorRemoveFailed);
 
-		if (result.IsSuccess) _auditLog.Record(AuditAction.TranslatorRemoved, "Translator", id, "Translator removed.");
-		return result;
+		var hasBooks = _bookTranslatorRepository.GetByTranslatorId(id, EntityFilter.Active).Count > 0;
+		if (hasBooks) return ServiceResult<ContributorDto>.Fail(Messages.TranslatorHasAssociatedBooks);
+
+		_translatorRepository.Remove(translator);
+		_auditLog.Record(AuditAction.TranslatorRemoved, "Translator", id, "Translator role removed.");
+		return ServiceResult<ContributorDto>.Ok(translator.ToDto(), Messages.TranslatorRemovedSuccessfully);
 	}
 
 
@@ -96,24 +127,58 @@ public class TranslatorManagementService
 	{
 		if (string.IsNullOrWhiteSpace(searchItem)) return [];
 
-		Func<Translator, string?> selector = field switch
+		var requiredPermissions = field switch
 		{
-			ContributorSearchField.Name => t => $"{t.FirstName} {t.LastName}",
-			ContributorSearchField.NationalCode => t => t.NationalCode,
-			ContributorSearchField.Email => t => t.Email,
-			ContributorSearchField.PhoneNumber => t => t.PhoneNumber,
+			ContributorSearchField.Name => new[] { Permission.SearchForMember, Permission.FullSearchContributor },
+			ContributorSearchField.Email => new[] { Permission.SearchForMember, Permission.FullSearchContributor },
+			ContributorSearchField.NationalCode => new[] { Permission.FullSearchContributor },
+			ContributorSearchField.PhoneNumber => new[] { Permission.FullSearchContributor },
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};
+		if (!_authorization.HasAnyPermission(requiredPermissions)) return [];
 
-		return SearchContributor(searchItem, field, selector);
+		var translators = _translatorRepository.GetAll(EntityFilter.Active);
+
+		return translators
+			.Where(translator =>
+			{
+				var value = field switch
+				{
+					ContributorSearchField.Name => $"{translator.Person.FirstName} {translator.Person.LastName}",
+					ContributorSearchField.NationalCode => translator.Person.NationalCode,
+					ContributorSearchField.Email => translator.Person.Email,
+					ContributorSearchField.PhoneNumber => translator.Person.PhoneNumber,
+					_ => throw new ArgumentOutOfRangeException(nameof(field))
+				};
+
+				return value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
+			})
+			.Select(translator => translator.ToDto())
+			.ToList();
 	}
 
 
-	public IReadOnlyList<ContributorDto> GetAllTranslators(
-		ContributorSortField sortField = ContributorSortField.FullName,
-		SortDirection sortDirection = SortDirection.Ascending)
+	public IReadOnlyList<ContributorDto> GetAllTranslators(ContributorSortField sortField = ContributorSortField.FullName, SortDirection sortDirection = SortDirection.Ascending)
 	{
-		return GetAllContributors(sortField, sortDirection, id => GetBooksByTranslator(id).Count);
+		var translators = _translatorRepository.GetAll(EntityFilter.Active).Select(translator => translator.ToDto());
+
+		Func<ContributorDto, object> keySelector = sortField switch
+		{
+			ContributorSortField.FirstName => dto => dto.FirstName,
+			ContributorSortField.LastName => dto => dto.LastName,
+			ContributorSortField.FullName => dto => $"{dto.FirstName} {dto.LastName}",
+			ContributorSortField.NationalCode => dto => dto.NationalCode,
+			ContributorSortField.Email => dto => dto.Email,
+			ContributorSortField.BirthDate => dto => dto.BirthDate,
+			ContributorSortField.BookCount => dto => GetBooksByTranslator(dto.Id).Count,
+			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
+		};
+
+		var sorted = sortDirection == SortDirection.Ascending
+			? translators.OrderBy(keySelector)
+			: translators.OrderByDescending(keySelector);
+
+		return sorted.ToList();
 	}
 
 
@@ -125,5 +190,13 @@ public class TranslatorManagementService
 	}
 
 
-	public IReadOnlyList<ContributorDto> GetRemovedTranslators() => GetRemovedContributors();
+	public IReadOnlyList<ContributorDto> GetRemovedTranslators()
+	{
+		if (!_authorization.HasPermission(Permission.ViewRemovedContributors)) return [];
+
+		return _translatorRepository
+			.GetAll(EntityFilter.Removed)
+			.Select(translator => translator.ToDto())
+			.ToList();
+	}
 }

@@ -52,7 +52,7 @@ public class AuthorManagementService
 				return ServiceResult<ContributorDto>.Fail("This person already has an active author role.");
 
 			return ServiceResult<ContributorDto>.Fail(
-				"This Author role has been removed and requires admin restoration.");
+				"This author role has been removed and requires admin restoration.");
 		}
 
 		var author = new Author
@@ -93,7 +93,7 @@ public class AuthorManagementService
 		if (personChanged)
 		{
 			var personResult = _personService.UpdatePerson(person.Id, dto, updatedBy);
-			if (!personResult.IsSuccess) return ServiceResult<ContributorDto>.Fail(personResult.Message);
+			if (!personResult.IsSuccess) return ServiceResult<ContributorDto>.Fail(personResult.Message!);
 		}
 
 		if (authorChanged)
