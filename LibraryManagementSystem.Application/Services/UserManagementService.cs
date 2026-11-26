@@ -18,6 +18,7 @@ namespace LibraryManagementSystem.Application.Services;
 
 public class UserManagementService : IUserManagementService
 {
+	private readonly PersonManagementService _personService;
 	private readonly IUserRepository _userRepository;
 	private readonly IRoleRepository _roleRepository;
 	private readonly ILoanRepository _loanRepository;
@@ -28,11 +29,13 @@ public class UserManagementService : IUserManagementService
 	protected readonly PersonUniquenessChecker UniquenessChecker;
 
 
-	public UserManagementService(IUserRepository userRepository, IRoleRepository roleRepository,
+	public UserManagementService(PersonManagementService personService, IUserRepository userRepository,
+		IRoleRepository roleRepository,
 		ILoanRepository loanRepository, IFineRepository fineRepository, IPasswordHasher passwordHasher,
 		IAuthorizationService authorization, IAuditLogManagementService auditLog,
 		PersonUniquenessChecker uniquenessChecker)
 	{
+		_personService = personService;
 		_userRepository = userRepository;
 		_roleRepository = roleRepository;
 		_loanRepository = loanRepository;
@@ -46,46 +49,48 @@ public class UserManagementService : IUserManagementService
 
 	public ServiceResult<UserDto> AddUser(UserDto dto)
 	{
+		ArgumentNullException.ThrowIfNull(dto);
+
 		if (!_authorization.HasPermission(Permission.AddUser))
 			return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
 
-		var duplicate = UniquenessChecker.Check(dto.NationalCode, dto.Email, dto.PhoneNumber);
-		switch (duplicate)
-		{
-			case DuplicateField.NationalCode:
-				return ServiceResult<UserDto>.Fail(Messages.DuplicateNationalCodeMessage);
-			case DuplicateField.Email:
-				return ServiceResult<UserDto>.Fail(Messages.DuplicateEmailMessage);
-			case DuplicateField.PhoneNumber:
-				return ServiceResult<UserDto>.Fail(Messages.DuplicatePhoneNumberMessage);
-		}
-
 		var dateValidation = Validator.UserBirthDateValidator(dto.BirthDate);
-
 		if (!dateValidation.IsValid) return ServiceResult<UserDto>.Fail(dateValidation.ErrorMessage!);
 
 		if (!CanAssignRole(dto.RoleName)) return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
 
 		var role = _roleRepository.GetByName(dto.RoleName);
+		if (role is null) return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
 
-		var result = _passwordHasher.CreatePasswordHash(dto.Password);
+		var personDto = ToContributorDto(dto);
+		var personResult = _personService.ResolveOrCreatePerson(personDto);
+		if (!personResult.IsSuccess) return ServiceResult<UserDto>.Fail(personResult.Message!);
+		var person = personResult.Data!;
+
+		var existingUser = _userRepository.GetAll(EntityFilter.All).FirstOrDefault(user => user.PersonId == person.Id);
+		if (existingUser is not null)
+		{
+			if (!existingUser.IsRemoved) return ServiceResult<UserDto>.Fail("This person already has a user account");
+
+			return ServiceResult<UserDto>.Fail("This user account has been removed and requires admin restoration.");
+		}
+
+		var passwordResult = _passwordHasher.CreatePasswordHash(dto.Password);
 
 		var newUser = new User
 		{
-			FirstName = dto.FirstName,
-			LastName = dto.LastName,
-			NationalCode = dto.NationalCode,
-			Email = dto.Email,
-			PhoneNumber = dto.PhoneNumber,
-			BirthDate = dto.BirthDate,
-			Role = role!,
+			PersonId = person.Id,
+			Person = person,
+			RoleId = role.Id,
+			Role = role,
+			IsActive = true,
 			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today),
-			PasswordHash = result.Hash,
-			PasswordSalt = result.Salt
+			PasswordHash = passwordResult.Hash,
+			PasswordSalt = passwordResult.Salt
 		};
 
 		_userRepository.Add(newUser);
-		_auditLog.Record(AuditAction.UserCreated, "User", newUser.Id, "New user created.");
+		_auditLog.Record(AuditAction.UserCreated, "User", newUser.Id, "New user role created.");
 
 		return ServiceResult<UserDto>.Ok(newUser.ToDto(), Messages.UserAddedSuccessfully);
 	}
@@ -93,38 +98,42 @@ public class UserManagementService : IUserManagementService
 
 	public ServiceResult<UserDto> UpdateUser(UserDto dto, ICurrentUserSession session, Guid? updatedBy = null)
 	{
-		var auditBuilder = new UserUpdateAuditDetailsBuilder(_roleRepository);
+		ArgumentNullException.ThrowIfNull(dto);
+		ArgumentNullException.ThrowIfNull(session);
 
 		var user = _userRepository.GetById(dto.Id, EntityFilter.Active);
 		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserUpdateFailed);
 
 		if (IsNoOpUpdateUser(user, dto)) return ServiceResult<UserDto>.Fail(Messages.NoChangesDetected);
 
-		var duplicate = UniquenessChecker.Check(user, dto.NationalCode, dto.Email, dto.PhoneNumber);
-		switch (duplicate)
+		var roleChanged = user.Role.Name != dto.RoleName;
+		Role? requestedRole = null;
+		if (roleChanged)
 		{
-			case DuplicateField.NationalCode:
-				return ServiceResult<UserDto>.Fail(Messages.DuplicateNationalCodeMessage);
-			case DuplicateField.Email:
-				return ServiceResult<UserDto>.Fail(Messages.DuplicateEmailMessage);
-			case DuplicateField.PhoneNumber:
-				return ServiceResult<UserDto>.Fail(Messages.DuplicatePhoneNumberMessage);
+			if (!CanAssignRole(dto.RoleName)) return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
+
+			requestedRole = _roleRepository.GetByName(dto.RoleName);
+			if (requestedRole is null) return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
 		}
 
-		if (!CanAssignRole(dto.RoleName)) return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
+		var auditBuilder = new UserUpdateAuditDetailsBuilder(_roleRepository);
+		var auditDetails = auditBuilder.BuildUserUpdateAuditDetails(user, dto);
 
+		var personDto = ToContributorDto(dto);
 
-		user.FirstName = dto.FirstName;
-		user.LastName = dto.LastName;
-		user.NationalCode = dto.NationalCode;
-		user.Email = dto.Email;
-		user.PhoneNumber = dto.PhoneNumber;
-		user.BirthDate = dto.BirthDate;
-		user.Role.Name = dto.RoleName;
+		var personResult = _personService.UpdatePerson(user.PersonId, personDto, updatedBy);
+		if (!personResult.IsSuccess) return ServiceResult<UserDto>.Fail(personResult.Message);
+
+		if (roleChanged)
+		{
+			user.RoleId = requestedRole!.Id;
+			user.Role = requestedRole;
+		}
+
 		user.UpdatedByUserId = updatedBy;
 
-		var auditDetails = auditBuilder.BuildUserUpdateAuditDetails(user, dto);
 		_userRepository.Update(user);
+
 		if (session.CurrentUser.Id == dto.Id) session.UpdateCurrentUser(user.ToAuthUserDto());
 		_auditLog.Record(AuditAction.UserUpdated, "User", dto.Id, auditDetails ?? "User updated.");
 		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.UserUpdatedSuccessfully);
@@ -133,12 +142,14 @@ public class UserManagementService : IUserManagementService
 
 	private static bool IsNoOpUpdateUser(User user, UserDto dto)
 	{
-		return (dto.FirstName == user.FirstName) &&
-		       (dto.LastName == user.LastName) &&
-		       (dto.NationalCode == user.NationalCode) &&
-		       (dto.Email == user.Email) &&
-		       (dto.PhoneNumber == user.PhoneNumber) &&
-		       (dto.BirthDate == user.BirthDate) &&
+		var person = user.Person;
+
+		return (dto.FirstName == person.FirstName) &&
+		       (dto.LastName == person.LastName) &&
+		       (dto.NationalCode == person.NationalCode) &&
+		       (dto.Email == person.Email) &&
+		       (dto.PhoneNumber == person.PhoneNumber) &&
+		       (dto.BirthDate == person.BirthDate) &&
 		       (dto.RoleName == user.Role.Name);
 	}
 

@@ -24,7 +24,8 @@ public class AuthorManagementService
 
 
 	public AuthorManagementService(IAuthorRepository authorRepository, PersonManagementService personService,
-		IAuthorizationService authorization, IAuditLogManagementService auditLog, IBookAuthorRepository bookAuthorRepository)
+		IAuthorizationService authorization, IAuditLogManagementService auditLog,
+		IBookAuthorRepository bookAuthorRepository)
 	{
 		_authorRepository = authorRepository;
 		_personService = personService;
@@ -85,7 +86,7 @@ public class AuthorManagementService
 		                    person.BirthDate != dto.BirthDate;
 
 		var authorChanged = author.DeathDate != dto.DeathDate ||
-		                     author.Biography != dto.Biography;
+		                    author.Biography != dto.Biography;
 
 		if (!personChanged && !authorChanged)
 			return ServiceResult<ContributorDto>.Warning(author.ToDto(), Messages.NoChangesDetected);
@@ -114,7 +115,7 @@ public class AuthorManagementService
 		var author = _authorRepository.GetById(id, EntityFilter.Active);
 		if (author is null) return ServiceResult<ContributorDto>.Fail(Messages.AuthorRemoveFailed);
 
-		var hasBooks = _bookAuthorRepository.GetByAuthorId(id, EntityFilter.Active).Count > 0;
+		var hasBooks = _bookAuthorRepository.GetByAuthorId(id, EntityFilter.Active).Any();
 		if (hasBooks) return ServiceResult<ContributorDto>.Fail(Messages.AuthorHasAssociatedBooks);
 
 		_authorRepository.Remove(author);
@@ -185,9 +186,10 @@ public class AuthorManagementService
 
 	public IReadOnlyList<BookDto> GetBooksByAuthor(Guid authorId)
 	{
-		//return GetBooksByContributor(authorId, a => a.BookAuthors.Select(ba => ba.Book.ToDto()));
-		return GetBooksByContributor(authorId,
-			id => _bookAuthorRepository.GetByAuthorId(id, EntityFilter.Active).Select(ba => ba.Book.ToDto()));
+		return _bookAuthorRepository
+			.GetByAuthorId(authorId, EntityFilter.Active)
+			.Select(bookAuthor => bookAuthor.Book.ToDto())
+			.ToList();
 	}
 
 
