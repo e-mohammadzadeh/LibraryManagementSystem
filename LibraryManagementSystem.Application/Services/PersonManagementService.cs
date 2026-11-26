@@ -29,18 +29,17 @@ public class PersonManagementService
 		ArgumentNullException.ThrowIfNull(dto);
 
 		var existingPerson = _personRepository.GetByNationalCode(dto.NationalCode, EntityFilter.All);
-		if (existingPerson is not null) return ServiceResult<Person>.Ok(existingPerson);
+		if (existingPerson is not null)
+		{
+			if (!HasActiveRole(existingPerson))
+				return ServiceResult<Person>.Fail("This Person has been removed. Admin restoration is required.");
+
+			return ServiceResult<Person>.Ok(existingPerson, "Existing Person was found.");
+		}
 
 		var duplicate = _uniquenessChecker.Check(dto.NationalCode, dto.Email, dto.PhoneNumber);
 
-		var duplicateMessage = duplicate switch
-		{
-			DuplicateField.NationalCode => Messages.DuplicateNationalCodeMessage,
-			DuplicateField.Email => Messages.DuplicateEmailMessage,
-			DuplicateField.PhoneNumber => Messages.DuplicatePhoneNumberMessage,
-			_ => null
-		};
-
+		var duplicateMessage = GetDuplicateMessage(duplicate);
 		if (duplicateMessage is not null) return ServiceResult<Person>.Fail(duplicateMessage);
 
 		var person = new Person
@@ -66,14 +65,7 @@ public class PersonManagementService
 		if (person is null) return ServiceResult<Person>.Fail("Person was not found.");
 
 		var duplicate = PersonUniquenessChecker.Check(person, dto.NationalCode, dto.Email, dto.PhoneNumber);
-		var duplicateMessage = duplicate switch
-		{
-			DuplicateField.NationalCode => Messages.DuplicateNationalCodeMessage,
-			DuplicateField.Email => Messages.DuplicateEmailMessage,
-			DuplicateField.PhoneNumber => Messages.DuplicatePhoneNumberMessage,
-			_ => null
-		};
-
+		var duplicateMessage = GetDuplicateMessage(duplicate);
 		if (duplicateMessage is not null) return ServiceResult<Person>.Fail(duplicateMessage);
 
 		var noChanges =
@@ -95,7 +87,7 @@ public class PersonManagementService
 		person.UpdatedByUserId = updatedBy;
 
 		_personRepository.Update(person);
-		return ServiceResult<Person>.Ok(person);
+		return ServiceResult<Person>.Ok(person, "Person information was updated successfully.");
 	}
 
 
@@ -190,4 +182,27 @@ public class PersonManagementService
 		dto.BirthDate == entity.BirthDate &&
 		dto.DeathDate == entity.DeathDate &&
 		(dto.Biography is null || dto.Biography == entity.Biography);
+
+
+	private static bool HasActiveRole(Person person)
+	{
+		return
+			(person.Author is not null && !person.Author.IsRemoved) ||
+			(person.Translator is not null && !person.Translator.IsRemoved) ||
+			(person.User is not null && !person.User.IsRemoved);
+	}
+
+
+	private static string? GetDuplicateMessage(DuplicateField duplicate)
+	{
+		return duplicate switch
+		{
+
+			DuplicateField.NationalCode => Messages.DuplicateNationalCodeMessage,
+			DuplicateField.Email => Messages.DuplicateEmailMessage,
+			DuplicateField.PhoneNumber => Messages.DuplicatePhoneNumberMessage,
+			DuplicateField.None => null,
+			_ => throw new ArgumentOutOfRangeException(nameof(duplicate))
+		};
+	}
 }

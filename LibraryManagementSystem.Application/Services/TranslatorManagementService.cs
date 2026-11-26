@@ -14,17 +14,21 @@ using LibraryManagementSystem.Infrastructure.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
 
-public class TranslatorManagementService : PersonManagementService<Translator>
+public class TranslatorManagementService
 {
+	private readonly ITranslatorRepository _translatorRepository;
+	private readonly PersonManagementService _personService;
+	private readonly IAuthorizationService _authorization;
 	private readonly IAuditLogManagementService _auditLog;
 	private readonly IBookTranslatorRepository _bookTranslatorRepository;
 
 
-	public TranslatorManagementService(ITranslatorRepository translatorRepository, IAuthorizationService authorization,
-		IAuditLogManagementService auditLog, PersonUniquenessChecker uniquenessChecker,
-		IBookTranslatorRepository bookTranslatorRepository) : base(translatorRepository,
-		authorization, uniquenessChecker)
+	public TranslatorManagementService(ITranslatorRepository translatorRepository, PersonManagementService personService, IAuthorizationService authorization,
+		IAuditLogManagementService auditLog, IBookTranslatorRepository bookTranslatorRepository)
 	{
+		_translatorRepository = translatorRepository;
+		_personService = personService;
+		_authorization = authorization;
 		_auditLog = auditLog;
 		_bookTranslatorRepository = bookTranslatorRepository;
 	}
@@ -32,6 +36,16 @@ public class TranslatorManagementService : PersonManagementService<Translator>
 
 	public ServiceResult<ContributorDto> AddTranslator(ContributorDto dto)
 	{
+		ArgumentNullException.ThrowIfNull(dto);
+
+		var dateValidation = Validator.ContributorDateValidator(dto.BirthDate, dto.DeathDate);
+		if (!dateValidation.IsValid) return ServiceResult<ContributorDto>.Fail(dateValidation.ErrorMessage!);
+
+		var personResult = _personService.ResolveOrCreatePerson(dto);
+		if (!personResult.IsSuccess) return ServiceResult<ContributorDto>.Fail(personResult.Message!);
+		var person = personResult.Data!;
+
+		var existingTranslator = _translatorRepository.
 		var result = AddContributor(
 			dto,
 			Messages.DuplicateNationalCodeMessage,
