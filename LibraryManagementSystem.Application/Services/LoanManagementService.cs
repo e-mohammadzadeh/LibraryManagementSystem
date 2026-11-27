@@ -103,7 +103,7 @@ public class LoanManagementService
 		_auditLog.Record(AuditAction.LoanReturned, "Loan", loanId, "Loan returned.");
 
 		var fineResult = _fineManagementService.CreateFineForLoan(loanId);
-		if (!fineResult.Success && fineResult.Message != Messages.NoFine)
+		if (!fineResult.IsSuccess && fineResult.Message != Messages.NoFine)
 			return ServiceResult<LoanDto>.Warning(loan.ToDto(),
 				$"{Messages.ReturnedSuccessfully} - Note: {fineResult.Message}");
 

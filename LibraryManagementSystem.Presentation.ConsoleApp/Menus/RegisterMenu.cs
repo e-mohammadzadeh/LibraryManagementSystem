@@ -45,7 +45,7 @@ public static class RegisterMenu
 
 		var result = authenticationService.Register(dto);
 
-		if (!result.Success || result.Data is null)
+		if (!result.IsSuccess || result.Data is null)
 		{
 			ConsoleHelper.ShowError(result.Message ?? Messages.UserRegistrationFailed);
 			return null;

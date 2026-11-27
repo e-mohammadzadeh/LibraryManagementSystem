@@ -118,7 +118,7 @@ public static class LoanMenu
 		}
 
 		var eligibilityResult = authorization.CheckBorrowEligibility(user!);
-		if (!eligibilityResult.Success)
+		if (!eligibilityResult.IsSuccess)
 		{
 			ConsoleHelper.ShowError(eligibilityResult.Message!);
 			return;

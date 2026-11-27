@@ -96,7 +96,7 @@ public class FineManagementService : IFineManagementService
 
 			var removalResult = _userAutoRemovalService.TryAutoRemove(fine.UserId);
 			var message = Messages.FinePaidSuccessfully;
-			if (removalResult.Success) message = $"{message} | {removalResult.Message}";
+			if (removalResult.IsSuccess) message = $"{message} | {removalResult.Message}";
 			return ServiceResult<FineDto>.Ok(fine.ToDto(), message);
 		}
 		catch (InvalidOperationException ex)
@@ -125,7 +125,7 @@ public class FineManagementService : IFineManagementService
 
 			var removalResult = _userAutoRemovalService.TryAutoRemove(fine.UserId);
 			var message = Messages.FineWaivedSuccessfully;
-			if (removalResult.Success) message = $"{message} | {removalResult.Message}";
+			if (removalResult.IsSuccess) message = $"{message} | {removalResult.Message}";
 
 			return ServiceResult<FineDto>.Ok(fine.ToDto(), message);
 		}

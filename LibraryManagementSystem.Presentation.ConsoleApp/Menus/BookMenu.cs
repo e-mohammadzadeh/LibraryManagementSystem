@@ -195,7 +195,7 @@ public static class BookMenu
 
 			var addResult = authorManagementService.AddAuthor(authorDto);
 			ConsoleHelper.ShowResult(addResult);
-			if (addResult is { Success: true, Data: not null })
+			if (addResult is { IsSuccess: true, Data: not null })
 				createdAuthors.Add(addResult.Data);
 			else
 				ConsoleHelper.ShowError(Messages.AuthorCreationFailed);
@@ -227,7 +227,7 @@ public static class BookMenu
 			var addResult = translatorManagementService.AddTranslator(translatorDto);
 			ConsoleHelper.ShowResult(addResult);
 
-			if (addResult is { Success: true, Data: not null })
+			if (addResult is { IsSuccess: true, Data: not null })
 				createdIds.Add(addResult.Data);
 			else
 				ConsoleHelper.ShowError(Messages.NotAvailableTranslator);

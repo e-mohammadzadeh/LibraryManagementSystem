@@ -81,7 +81,7 @@ public class AuditLogManagementService : IAuditLogManagementService
 					: null;
 
 				var performedByName = user is not null
-					? $"{user.FirstName} {user.LastName}"
+					? $"{user.Person.FirstName} {user.Person.LastName}"
 					: "System";
 
 				return auditLog.ToDto(performedByName);
