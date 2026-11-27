@@ -33,25 +33,16 @@ public abstract class PersonRoleRepository<T> : IPersonRoleRepository<T> where T
 	}
 
 
-	public virtual T? GetById(Guid id, EntityFilter filter = EntityFilter.Active)
-	{
-		return ApplyFilter(Context.Set<T>()
-				.AsNoTracking()
-				.Include(e => e.Person), filter)
-			.FirstOrDefault(e => e.Id == id);
-	}
+	public virtual T? GetById(Guid id, EntityFilter filter = EntityFilter.Active) =>
+		Query(filter).FirstOrDefault(e => e.Id == id);
 
 
-	public virtual IReadOnlyList<T> GetAll(EntityFilter filter = EntityFilter.Active)
-	{
-		return
-		[
-			.. ApplyFilter(Context.Set<T>()
-					.AsNoTracking()
-					.Include(e => e.Person), filter)
-				.OrderByDescending(e => e.CreatedAt)
-		];
-	}
+	public T? GetByPersonId(Guid personId, EntityFilter filter = EntityFilter.All) =>
+		Query(filter).FirstOrDefault(e => e.PersonId == personId);
+
+
+	public virtual IReadOnlyList<T> GetAll(EntityFilter filter = EntityFilter.Active) =>
+		[.. Query(filter).OrderByDescending(e => e.CreatedAt)];
 
 
 	public void Remove(T entity)
@@ -82,6 +73,11 @@ public abstract class PersonRoleRepository<T> : IPersonRoleRepository<T> where T
 
 		Context.SaveChanges();
 	}
+
+
+	protected virtual IQueryable<T> Query(EntityFilter filter) =>
+		ApplyFilter(Context.Set<T>().AsNoTracking().Include(e => e.Person), filter);
+
 
 
 	protected T GetTrackedById(Guid id)
