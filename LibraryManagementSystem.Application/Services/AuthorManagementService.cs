@@ -53,6 +53,10 @@ public class AuthorManagementService : ContributorManagementService<Author>
 		SearchContributors(searchItem, field);
 
 
+	public ServiceResult<ContributorDto> RestoreAuthor(Guid id, Guid? restoredBy = null) =>
+		RestoreContributor(id, restoredBy);
+
+
 	public IReadOnlyList<ContributorDto> GetAllAuthors(ContributorSortField sortField = ContributorSortField.FullName,
 		SortDirection sortDirection = SortDirection.Ascending) =>
 		GetAllContributors(sortField, sortDirection);

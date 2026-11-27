@@ -28,5 +28,7 @@ public class AuthorConfiguration : IEntityTypeConfiguration<Author>
 
 		builder.Property(a => a.UpdatedAt).IsRequired(false);
 		builder.Property(a => a.UpdatedByUserId).IsRequired(false);
+
+		builder.Property(u => u.DeathDate).HasColumnType("date");
 	}
 }

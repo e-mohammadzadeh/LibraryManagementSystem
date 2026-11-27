@@ -20,10 +20,4 @@ public abstract class ContributorRepository<T> : PersonRoleRepository<T>, IContr
 
 		SaveRoleUpdate(tracked, contributor);
 	}
-
-
-
-
-	
-
 }

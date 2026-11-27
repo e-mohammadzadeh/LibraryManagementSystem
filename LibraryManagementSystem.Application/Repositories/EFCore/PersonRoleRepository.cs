@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Domain.Entities;
+﻿using System.Linq.Expressions;
+using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Domain.Persistence;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
@@ -75,6 +76,36 @@ public abstract class PersonRoleRepository<T> : IPersonRoleRepository<T> where T
 
 		Context.SaveChanges();
 		Context.ChangeTracker.Clear();
+	}
+
+
+	public bool Exists(Expression<Func<T, bool>> predicate, Guid? excludeId = null) 
+	{
+		ArgumentNullException.ThrowIfNull(predicate);
+
+		var query = Context.Set<T>()
+			.AsNoTracking()
+			.Where(e => !e.IsRemoved)
+			.Where(predicate);
+
+		if (excludeId.HasValue)
+			query = query.Where(e => e.Id != excludeId.Value);
+
+		return query.Any();
+	}
+
+	public bool ExistsIncludingRemoved(Expression<Func<T, bool>> predicate, Guid? excludeId = null)
+	{
+		ArgumentNullException.ThrowIfNull(predicate);
+
+		var query = Context.Set<T>()
+			.AsNoTracking()
+			.Where(predicate);
+
+		if (excludeId.HasValue)
+			query = query.Where(e => e.Id != excludeId.Value);
+
+		return query.Any();
 	}
 
 

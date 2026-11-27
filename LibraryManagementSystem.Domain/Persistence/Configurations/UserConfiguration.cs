@@ -30,10 +30,15 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 		builder.Property(u => u.MembershipStartDate).IsRequired();
 		builder.Property(u => u.MembershipExpiryDate).IsRequired();
 		builder.Property(u => u.ShouldRemove).IsRequired();
-
+		builder.Property(u => u.PasswordHash).IsRequired(false);
+		builder.Property(u => u.PasswordSalt).IsRequired(false);
+		builder.Property(u => u.LastLoginDate).IsRequired(false);
+		builder.Property(u => u.PreviousLoginDate).IsRequired(false);
 		builder.Property(u => u.CreatedAt).IsRequired();
-
 		builder.Property(u => u.UpdatedAt).IsRequired(false);
 		builder.Property(u=> u.UpdatedByUserId).IsRequired(false);
+
+		builder.Property(u => u.MembershipStartDate).HasColumnType("date");
+		builder.Property(u => u.MembershipExpiryDate).HasColumnType("date");
 	}
 }

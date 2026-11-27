@@ -55,6 +55,10 @@ public class TranslatorManagementService : ContributorManagementService<Translat
 		SearchContributors(searchItem, field);
 
 
+	public ServiceResult<ContributorDto> RestoreTranslator(Guid id, Guid? restoredBy = null) =>
+		RestoreContributor(id, restoredBy);
+
+
 	public IReadOnlyList<ContributorDto> GetAllTranslators(
 		ContributorSortField sortField = ContributorSortField.FullName,
 		SortDirection sortDirection = SortDirection.Ascending) =>

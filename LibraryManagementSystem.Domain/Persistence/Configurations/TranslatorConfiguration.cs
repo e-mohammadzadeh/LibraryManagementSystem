@@ -28,5 +28,7 @@ public class TranslatorConfiguration : IEntityTypeConfiguration<Translator>
 
 		builder.Property(t => t.UpdatedAt).IsRequired(false);
 		builder.Property(t => t.UpdatedByUserId).IsRequired(false);
+
+		builder.Property(u => u.DeathDate).HasColumnType("date");
 	}
 }
