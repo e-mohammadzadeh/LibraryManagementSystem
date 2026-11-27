@@ -27,16 +27,9 @@ public class PersonManagementService
 		ArgumentNullException.ThrowIfNull(dto);
 
 		var existingPerson = _personRepository.GetByNationalCode(dto.NationalCode, EntityFilter.All);
-		if (existingPerson is not null)
-		{
-			if (!HasActiveRole(existingPerson))
-				return ServiceResult<Person>.Fail("This Person has been removed. Admin restoration is required.");
-
-			return ServiceResult<Person>.Ok(existingPerson, "Existing Person was found.");
-		}
-
+		if (existingPerson is not null) return ServiceResult<Person>.Ok(existingPerson, "Existing Person was found.");
+		
 		var duplicate = _uniquenessChecker.Check(dto.NationalCode, dto.Email, dto.PhoneNumber);
-
 		var duplicateMessage = GetDuplicateMessage(duplicate);
 		if (duplicateMessage is not null) return ServiceResult<Person>.Fail(duplicateMessage);
 

@@ -159,6 +159,7 @@ public static class Messages
 	// 7. USER (Member/Admin/Manager) MESSAGES ────────────────────────────────────────────────────────────
 	// Add
 	public const string UserAddedSuccessfully = "User added successfully.";
+	public const string UserAddFailed = "User added faild.";
 	public const string UserRegistrationSuccessfully = "Registration successful.";
 	public const string UserRegistrationFailed =  "Registration failed. Please try again.";
 	public const string DeathDateRequired = "This contributor is older than 130 years. Please provide a death date.";

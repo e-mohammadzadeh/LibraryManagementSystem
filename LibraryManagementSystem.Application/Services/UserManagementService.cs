@@ -68,7 +68,7 @@ public class UserManagementService : IUserManagementService
 		if (!personResult.IsSuccess) return ServiceResult<UserDto>.Fail(personResult.Message!);
 		var person = personResult.Data!;
 
-		var existingUser = _userRepository.GetAll(EntityFilter.All).FirstOrDefault(user => user.PersonId == person.Id);
+		var existingUser = _userRepository.GetByPersonId(person.Id, EntityFilter.All);
 		if (existingUser is not null)
 		{
 			if (!existingUser.IsRemoved) return ServiceResult<UserDto>.Fail("This person already has a user account");
@@ -77,6 +77,8 @@ public class UserManagementService : IUserManagementService
 		}
 
 		var passwordResult = _passwordHasher.CreatePasswordHash(dto.Password);
+		var membershipStartDate = DateOnly.FromDateTime(DateTime.UtcNow);
+		var membershipExpiryDate = membershipStartDate.AddYears(ValidationConstants.MembershipPeriod);
 
 		var newUser = new User
 		{
@@ -85,15 +87,17 @@ public class UserManagementService : IUserManagementService
 			RoleId = role.Id,
 			Role = role,
 			IsActive = true,
-			MembershipStartDate = DateOnly.FromDateTime(DateTime.Today),
+			MembershipStartDate = membershipStartDate,
+			MembershipExpiryDate = membershipExpiryDate,
 			PasswordHash = passwordResult.Hash,
 			PasswordSalt = passwordResult.Salt
 		};
 
 		_userRepository.Add(newUser);
-		_auditLog.Record(AuditAction.UserCreated, "User", newUser.Id, "New user role created.");
-
-		return ServiceResult<UserDto>.Ok(newUser.ToDto(), Messages.UserAddedSuccessfully);
+		var savedUser = _userRepository.GetById(newUser.Id, EntityFilter.Active);
+		if (savedUser is null) return ServiceResult<UserDto>.Fail(Messages.UserAddFailed);
+		_auditLog.Record(AuditAction.UserCreated, "User", savedUser.Id, "New user role created.");
+		return ServiceResult<UserDto>.Ok(savedUser.ToDto(), Messages.UserAddedSuccessfully);
 	}
 
 
@@ -105,9 +109,11 @@ public class UserManagementService : IUserManagementService
 		var user = _userRepository.GetById(dto.Id, EntityFilter.Active);
 		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserUpdateFailed);
 
-		if (IsNoOpUpdateUser(user, dto)) return ServiceResult<UserDto>.Fail(Messages.NoChangesDetected);
-
+		var personChanged = HasPersonChanges(user, dto);
 		var roleChanged = user.Role.Name != dto.RoleName;
+		if (!personChanged && !roleChanged)
+			return ServiceResult<UserDto>.Warning(user.ToDto(), Messages.NoChangesDetected);
+
 		Role? requestedRole = null;
 		if (roleChanged)
 		{
@@ -120,10 +126,12 @@ public class UserManagementService : IUserManagementService
 		var auditBuilder = new UserUpdateAuditDetailsBuilder(_roleRepository);
 		var auditDetails = auditBuilder.BuildUserUpdateAuditDetails(user, dto);
 
-		var personDto = ToContributorDto(dto);
-
-		var personResult = _personService.UpdatePerson(user.PersonId, personDto, updatedBy);
-		if (!personResult.IsSuccess) return ServiceResult<UserDto>.Fail(personResult.Message!);
+		if (personChanged)
+		{
+			var personDto = ToContributorDto(dto);
+			var personResult = _personService.UpdatePerson(user.PersonId, personDto, updatedBy);
+			if (personResult.IsFailure) return ServiceResult<UserDto>.Fail(personResult.Message!);
+		}
 
 		if (roleChanged)
 		{
@@ -132,8 +140,9 @@ public class UserManagementService : IUserManagementService
 		}
 
 		user.UpdatedByUserId = updatedBy;
-
 		_userRepository.Update(user);
+		var updatedUser = _userRepository.GetById(dto.Id, EntityFilter.Active);
+		if (updatedUser is null) return ServiceResult<UserDto>.Fail(Messages.UserUpdateFailed);
 
 		if (session.CurrentUser.Id == dto.Id) session.UpdateCurrentUser(user.ToAuthUserDto());
 		_auditLog.Record(AuditAction.UserUpdated, "User", dto.Id, auditDetails ?? "User updated.");
@@ -345,19 +354,6 @@ public class UserManagementService : IUserManagementService
 	}
 
 
-	private static void RenewMembership(User user, int years = 1)
-	{
-		var today = DateOnly.FromDateTime(DateTime.Today);
-		var renewalBase = user.MembershipExpiryDate > today
-			? user.MembershipExpiryDate // extend from current expiry if not yet expired
-			: today; // restart from today if already expired
-
-		user.MembershipExpiryDate = renewalBase.AddYears(years);
-		user.IsActive = true;
-		user.UpdatedAt = DateTime.UtcNow;
-	}
-
-
 	public void FlagForRemoval(Guid userId)
 	{
 		var user = _userRepository.GetById(userId, EntityFilter.Active);
@@ -468,6 +464,20 @@ public class UserManagementService : IUserManagementService
 	}
 
 
+	private static void RenewMembership(User user, int years = 1)
+	{
+		var today = DateOnly.FromDateTime(DateTime.Today);
+		var renewalBase = user.MembershipExpiryDate > today
+			? user.MembershipExpiryDate // extend from current expiry if not yet expired
+			: today; // restart from today if already expired
+
+		user.MembershipExpiryDate = renewalBase.AddYears(years);
+		user.IsActive = true;
+		user.UpdatedAt = DateTime.UtcNow;
+	}
+
+
+
 	private static ContributorDto ToContributorDto(UserDto dto)
 	{
 		return new ContributorDto
@@ -480,5 +490,19 @@ public class UserManagementService : IUserManagementService
 			PhoneNumber = dto.PhoneNumber,
 			BirthDate = dto.BirthDate
 		};
+	}
+
+
+	private static bool HasPersonChanges(User user, UserDto dto)
+	{
+		var person = user.Person;
+
+		return
+			dto.FirstName != person.FirstName ||
+			dto.LastName != person.LastName ||
+			dto.NationalCode != person.NationalCode ||
+			dto.Email != person.Email ||
+			dto.PhoneNumber != person.PhoneNumber ||
+			dto.BirthDate != person.BirthDate;
 	}
 }
