@@ -65,6 +65,5 @@ public class UserRepository : PersonRoleRepository<User>, IUserRepository
 	}
 
 
-
 	protected override Exception CreateNotFoundException(Guid id) => new UserNotFoundException(id);
 }

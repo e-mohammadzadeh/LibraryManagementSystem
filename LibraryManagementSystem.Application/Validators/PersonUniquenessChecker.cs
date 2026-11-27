@@ -25,7 +25,7 @@ public sealed class PersonUniquenessChecker
 	}
 
 
-	public static DuplicateField Check(Person person, string nationalCode, Email email, PhoneNumber phoneNumber)
+	public DuplicateField Check(Person person, string nationalCode, Email email, PhoneNumber phoneNumber)
 	{
 		ArgumentNullException.ThrowIfNull(person);
 

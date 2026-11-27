@@ -62,7 +62,7 @@ public class PersonManagementService
 		var person = _personRepository.GetById(personId);
 		if (person is null) return ServiceResult<Person>.Fail("Person was not found.");
 
-		var duplicate = PersonUniquenessChecker.Check(person, dto.NationalCode, dto.Email, dto.PhoneNumber);
+		var duplicate = _uniquenessChecker.Check(person, dto.NationalCode, dto.Email, dto.PhoneNumber);
 		var duplicateMessage = GetDuplicateMessage(duplicate);
 		if (duplicateMessage is not null) return ServiceResult<Person>.Fail(duplicateMessage);
 

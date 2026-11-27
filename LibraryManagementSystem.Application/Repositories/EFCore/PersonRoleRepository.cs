@@ -9,18 +9,23 @@ namespace LibraryManagementSystem.Application.Repositories.EFCore;
 public abstract class PersonRoleRepository<T> : IPersonRoleRepository<T> where T : class, IPersonRoleEntity
 {
 	protected readonly LibraryDbContext Context;
+	protected readonly DbSet<T> DbSet;
 
 
-	protected PersonRoleRepository(LibraryDbContext context) { Context = context; }
+	protected PersonRoleRepository(LibraryDbContext context)
+	{
+		Context = context;
+		DbSet = context.Set<T>();
+	}
 
 
-	public void Add(T entity)
+	public virtual void Add(T entity)
 	{
 		ArgumentNullException.ThrowIfNull(entity);
 
 		if (entity.PersonId == Guid.Empty) throw new ArgumentException("PersonId cannot be empty", nameof(entity));
 
-		var person = Context.Set<Person>().Find(entity.PersonId);
+		var person = DbSet.Find(entity.PersonId);
 		if (person is null) throw new InvalidOperationException($"Person with ID '{entity.PersonId}' was not found.");
 
 		entity.Person = person;
@@ -28,25 +33,25 @@ public abstract class PersonRoleRepository<T> : IPersonRoleRepository<T> where T
 		entity.CreatedAt = DateTime.UtcNow;
 		entity.IsRemoved = false;
 
-		Context.Set<T>().Add(entity);
+		DbSet.Add(entity);
 		Context.SaveChanges();
 	}
 
 
-	public T? GetById(Guid id, EntityFilter filter = EntityFilter.Active)
+	public virtual T? GetById(Guid id, EntityFilter filter = EntityFilter.Active)
 	{
-		return ApplyFilter(Context.Set<T>()
+		return ApplyFilter(DbSet
 				.AsNoTracking()
 				.Include(e => e.Person), filter)
 			.FirstOrDefault(e => e.Id == id);
 	}
 
 
-	public IReadOnlyList<T> GetAll(EntityFilter filter = EntityFilter.Active)
+	public virtual IReadOnlyList<T> GetAll(EntityFilter filter = EntityFilter.Active)
 	{
 		return
 		[
-			.. ApplyFilter(Context.Set<T>()
+			.. ApplyFilter(DbSet
 					.AsNoTracking()
 					.Include(e => e.Person), filter)
 				.OrderByDescending(e => e.CreatedAt)
@@ -86,7 +91,7 @@ public abstract class PersonRoleRepository<T> : IPersonRoleRepository<T> where T
 
 	protected T GetTrackedById(Guid id)
 	{
-		return Context.Set<T>().FirstOrDefault(e => e.Id == id) ?? throw CreateNotFoundException(id);
+		return DbSet.FirstOrDefault(e => e.Id == id) ?? throw CreateNotFoundException(id);
 	}
 
 
@@ -102,7 +107,7 @@ public abstract class PersonRoleRepository<T> : IPersonRoleRepository<T> where T
 	protected abstract Exception CreateNotFoundException(Guid id);
 
 
-	private static IQueryable<T> ApplyFilter(IQueryable<T> query, EntityFilter filter)
+	protected static IQueryable<T> ApplyFilter(IQueryable<T> query, EntityFilter filter)
 	{
 		return filter switch
 		{

@@ -201,6 +201,9 @@ public static class Messages
 	public const string NoRolesToAssign = "No roles available to assign.";
 	public const string CanOnlyAssignAllowedRoles = "You are not allowed to assign one or more of the selected roles.";
 
+	// Restore
+	public const string UserRestoredSuccessfully = "User restored successfully.";
+	public const string UserRestoreFailed = "User restore failed. No removed user was found with the given ID.";
 
 
 

@@ -27,7 +27,7 @@ public class UserManagementService : IUserManagementService
 	private readonly IPasswordHasher _passwordHasher;
 	private readonly IAuthorizationService _authorization;
 	private readonly IAuditLogManagementService _auditLog;
-	protected readonly PersonUniquenessChecker UniquenessChecker;
+	protected readonly PersonUniquenessChecker _uniquenessChecker;
 
 
 	public UserManagementService(PersonManagementService personService, IUserRepository userRepository,
@@ -44,7 +44,7 @@ public class UserManagementService : IUserManagementService
 		_passwordHasher = passwordHasher;
 		_authorization = authorization;
 		_auditLog = auditLog;
-		UniquenessChecker = uniquenessChecker;
+		_uniquenessChecker = uniquenessChecker;
 	}
 
 
@@ -426,7 +426,8 @@ public class UserManagementService : IUserManagementService
 		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserRestoreFailed);
 
 		_userRepository.Restore(user, updatedByUserId);
-		_auditLog.Record(AuditAction.userr);
+		_auditLog.Record(AuditAction.UserRestored, "User", userId, "User restored.");
+		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.UserRestoredSuccessfully);
 	}
 
 
@@ -448,7 +449,7 @@ public class UserManagementService : IUserManagementService
 		if (adminAlreadyExists) return ServiceResult<User>.Ok(user, "An active administrator already exists.");
 
 		var person = user.Person;
-		var duplicate = PersonUniquenessChecker.Check(person, person.NationalCode, person.Email, person.PhoneNumber);
+		var duplicate = _uniquenessChecker.Check(person, person.NationalCode, person.Email, person.PhoneNumber);
 		if (duplicate != DuplicateField.None)
 			return ServiceResult<User>.Fail(
 				"The initial administrator's national code, email, or phone number is already in use.");
