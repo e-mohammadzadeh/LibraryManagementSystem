@@ -30,6 +30,7 @@ public abstract class PersonRoleRepository<T> : IPersonRoleRepository<T> where T
 
 		Context.Set<T>().Add(entity);
 		Context.SaveChanges();
+		Context.ChangeTracker.Clear();
 	}
 
 
@@ -57,6 +58,7 @@ public abstract class PersonRoleRepository<T> : IPersonRoleRepository<T> where T
 		tracked.UpdatedByUserId = entity.UpdatedByUserId;
 
 		Context.SaveChanges();
+		Context.ChangeTracker.Clear();
 	}
 
 
@@ -72,6 +74,7 @@ public abstract class PersonRoleRepository<T> : IPersonRoleRepository<T> where T
 		tracked.UpdatedByUserId = updatedByUserId;
 
 		Context.SaveChanges();
+		Context.ChangeTracker.Clear();
 	}
 
 
@@ -92,6 +95,7 @@ public abstract class PersonRoleRepository<T> : IPersonRoleRepository<T> where T
 		tracked.UpdatedByUserId = updated.UpdatedByUserId;
 
 		Context.SaveChanges();
+		Context.ChangeTracker.Clear();
 	}
 
 

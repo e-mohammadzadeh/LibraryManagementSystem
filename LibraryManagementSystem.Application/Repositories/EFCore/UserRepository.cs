@@ -44,15 +44,6 @@ public class UserRepository : PersonRoleRepository<User>, IUserRepository
 	}
 
 
-	public override User? GetById(Guid id, EntityFilter filter = EntityFilter.Active) =>
-		Query(filter).FirstOrDefault(u => u.Id == id);
-
-
-
-	public override IReadOnlyList<User> GetAll(EntityFilter filter = EntityFilter.Active) =>
-		[.. Query(filter).OrderByDescending(u => u.CreatedAt)];
-
-
 	public User? GetByEmail(Email email, EntityFilter filter = EntityFilter.Active) =>
 		Query(filter).FirstOrDefault(u => u.Person.Email == email);
 
@@ -64,7 +55,7 @@ public class UserRepository : PersonRoleRepository<User>, IUserRepository
 	protected override Exception CreateNotFoundException(Guid id) => new UserNotFoundException(id);
 
 
-	private IQueryable<User> Query(EntityFilter filter) =>
+	protected override IQueryable<User> Query(EntityFilter filter) =>
 		ApplyFilter(Context.Set<User>()
 			.AsNoTracking()
 			.Include(u => u.Person)
