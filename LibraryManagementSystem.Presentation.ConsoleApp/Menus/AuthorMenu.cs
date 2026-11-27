@@ -60,7 +60,7 @@ public class AuthorMenu
 				{
 					if (!authorization.HasPermission(Permission.RemoveContributor)) break;
 					Console.Clear();
-					RemoveAuthor(authorManagementService, authorization);
+					RemoveAuthor(authorManagementService, authorization, session);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -135,7 +135,7 @@ public class AuthorMenu
 
 
 	private static void RemoveAuthor(AuthorManagementService authorManagementService,
-		IAuthorizationService authorization)
+		IAuthorizationService authorization, ICurrentUserSession session)
 	{
 		Console.WriteLine(new string('=', 36) + " REMOVING AUTHOR MENU " + new string('=', 36));
 		var desiredAuthor = MenuHelper.SelectExisting(authorManagementService.GetAllAuthors(),
@@ -143,7 +143,7 @@ public class AuthorMenu
 			Messages.NotAvailableAuthor);
 
 		ContributorMenu.RemoveContributor(desiredAuthor, x => ContributorPrinter.PrintDetails(x, "Remove"),
-			() => authorManagementService.RemoveAuthor(desiredAuthor!.Id));
+			() => authorManagementService.RemoveAuthor(desiredAuthor!.Id, session.CurrentUser.Id));
 	}
 
 

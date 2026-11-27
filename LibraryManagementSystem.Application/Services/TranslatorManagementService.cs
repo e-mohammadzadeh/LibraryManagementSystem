@@ -1,78 +1,66 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Mapping;
+using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
+using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Books;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
+using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
+using LibraryManagementSystem.Infrastructure.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
 
-public class TranslatorManagementService
+public class TranslatorManagementService : ContributorManagementService<Translator>
 {
-	private readonly ITranslatorRepository _translatorRepository;
-	private readonly IAuthorizationService _authorization;
 	private readonly IBookTranslatorRepository _bookTranslatorRepository;
 
 
 	public TranslatorManagementService(ITranslatorRepository translatorRepository,
-		IAuthorizationService authorization,
-		 IBookTranslatorRepository bookTranslatorRepository)
+		PersonManagementService personService,
+		IAuthorizationService authorization, IAuditLogManagementService auditLog,
+		IBookTranslatorRepository bookTranslatorRepository)
+		: base(translatorRepository, personService, authorization, auditLog,
+			new ContributorMessages(
+				Messages.TranslatorAddedSuccessfully, Messages.TranslatorUpdateFailed,
+				Messages.TranslatorUpdatedSuccessfully,
+				Messages.TranslatorRemoveFailed, Messages.TranslatorHasAssociatedBooks,
+				Messages.TranslatorRemovedSuccessfully,
+				"This person already has an active translator role.",
+				"This translator role has been removed and requires admin restoration."),
+			new ContributorAudit("Translator", AuditAction.TranslatorCreated, AuditAction.TranslatorUpdated,
+				AuditAction.TranslatorRemoved))
 	{
-		_translatorRepository = translatorRepository;
-		_authorization = authorization;
 		_bookTranslatorRepository = bookTranslatorRepository;
 	}
 
 
-
-	public IReadOnlyList<ContributorDto> GetAllTranslators(
-		ContributorSortField sortField = ContributorSortField.FullName,
-		SortDirection sortDirection = SortDirection.Ascending)
-	{
-		var translators = _translatorRepository.GetAll(EntityFilter.Active).Select(translator => translator.ToDto());
-
-		Func<ContributorDto, object> keySelector = sortField switch
-		{
-			ContributorSortField.FirstName => dto => dto.FirstName,
-			ContributorSortField.LastName => dto => dto.LastName,
-			ContributorSortField.FullName => dto => $"{dto.FirstName} {dto.LastName}",
-			ContributorSortField.NationalCode => dto => dto.NationalCode,
-			ContributorSortField.Email => dto => dto.Email,
-			ContributorSortField.BirthDate => dto => dto.BirthDate,
-			ContributorSortField.BookCount => dto => GetBooksByTranslator(dto.Id).Count,
-			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
-		};
-
-		var sorted = sortDirection == SortDirection.Ascending
-			? translators.OrderBy(keySelector)
-			: translators.OrderByDescending(keySelector);
-
-		return [.. sorted];
-	}
+	protected override IEnumerable<BookDto> GetBooks(Guid translatorId) =>
+		_bookTranslatorRepository.GetByTranslatorId(translatorId, EntityFilter.Active).Select(ba => ba.Book.ToDto());
 
 
-	public IReadOnlyList<BookDto> GetBooksByTranslator(Guid translatorId)
-	{
-		return
-		[
-			.._bookTranslatorRepository
-				.GetByTranslatorId(translatorId, EntityFilter.Active)
-				.Select(bookAuthor => bookAuthor.Book.ToDto())
-		];
-	}
+	public ServiceResult<ContributorDto> AddTranslator(ContributorDto dto) => AddContributor(dto);
 
 
-	public IReadOnlyList<ContributorDto> GetRemovedTranslators()
-	{
-		if (!_authorization.HasPermission(Permission.ViewRemovedContributors)) return [];
+	public ServiceResult<ContributorDto> UpdateTranslator(ContributorDto dto, Guid? updatedBy = null) =>
+		UpdateContributor(dto, updatedBy);
 
-		return
-		[
-			.._translatorRepository
-				.GetAll(EntityFilter.Removed)
-				.Select(translator => translator.ToDto())
-		];
-	}
+
+	public ServiceResult<ContributorDto> RemoveTranslator(Guid id, Guid? removedBy = null) =>
+		RemoveContributor(id, removedBy);
+
+
+	public IReadOnlyList<ContributorDto> SearchTranslator(string searchItem, ContributorSearchField field) =>
+		SearchContributors(searchItem, field);
+
+
+	public IReadOnlyList<ContributorDto> GetAllTranslators(ContributorSortField sortField = ContributorSortField.FullName,
+		SortDirection sortDirection = SortDirection.Ascending) =>
+		GetAllContributors(sortField, sortDirection);
+
+
+	public IReadOnlyList<BookDto> GetBooksByTranslator(Guid translatorId) => GetBooksOf(translatorId);
+	public IReadOnlyList<ContributorDto> GetRemovedTranslators() => GetRemovedContributors();
 }

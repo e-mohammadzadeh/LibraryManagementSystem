@@ -9,6 +9,7 @@ using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using LibraryManagementSystem.Infrastructure.Enums.Search;
+using LibraryManagementSystem.Infrastructure.Enums.Sort;
 using LibraryManagementSystem.Infrastructure.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
@@ -88,7 +89,7 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 	}
 
 
-	protected ServiceResult<ContributorDto> UpdatedContributor(ContributorDto dto, Guid? updatedBy)
+	protected ServiceResult<ContributorDto> UpdateContributor(ContributorDto dto, Guid? updatedBy)
 	{
 		ArgumentNullException.ThrowIfNull(dto);
 
@@ -130,7 +131,7 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 	}
 
 
-	protected ServiceResult<ContributorDto> RemoveContributor(Guid id, Guid removedBy)
+	protected ServiceResult<ContributorDto> RemoveContributor(Guid id, Guid? removedBy)
 	{
 		var entity = _repository.GetById(id, EntityFilter.Active);
 		if (entity is null) return ServiceResult<ContributorDto>.Fail(_messages.RemoveFailed);
@@ -177,4 +178,41 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 				.Select(c => c.ToDto())
 		];
 	}
+
+
+	protected IReadOnlyList<ContributorDto> GetAllContributors(
+		ContributorSortField sortField = ContributorSortField.FullName,
+		SortDirection sortDirection = SortDirection.Ascending)
+	{
+		var items = _repository.GetAll(EntityFilter.Active).Select(c => c.ToDto());
+
+		Func<ContributorDto, object> keySelector = sortField switch
+		{
+			ContributorSortField.FirstName => dto => dto.FirstName,
+			ContributorSortField.LastName => dto => dto.LastName,
+			ContributorSortField.FullName => dto => $"{dto.FirstName} {dto.LastName}",
+			ContributorSortField.NationalCode => dto => dto.NationalCode,
+			ContributorSortField.Email => dto => dto.Email,
+			ContributorSortField.BirthDate => dto => dto.BirthDate,
+			ContributorSortField.BookCount => dto => GetBooks(dto.Id).Count(),
+			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
+		};
+
+		return
+		[
+			.. sortDirection == SortDirection.Ascending
+				? items.OrderBy(keySelector)
+				: items.OrderByDescending(keySelector)
+		];
+	}
+
+
+	protected IReadOnlyList<ContributorDto> GetRemovedContributors()
+	{
+		if (!_authorization.HasPermission(Permission.ViewRemovedContributors)) return [];
+		return [.._repository.GetAll(EntityFilter.Removed).Select(c => c.ToDto())];
+	}
+
+
+	protected IReadOnlyList<BookDto> GetBooksOf(Guid contributorId) => [.. GetBooks(contributorId)];
 }

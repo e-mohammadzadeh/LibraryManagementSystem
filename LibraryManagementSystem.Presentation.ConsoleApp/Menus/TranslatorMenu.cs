@@ -56,7 +56,7 @@ public class TranslatorMenu
 				{
 					if (!authorization.HasPermission(Permission.RemoveContributor)) break;
 					Console.Clear();
-					RemoveTranslator(translatorManagementService, authorization);
+					RemoveTranslator(translatorManagementService, authorization, session);
 					ConsoleHelper.Pause();
 					break;
 				}
@@ -124,14 +124,14 @@ public class TranslatorMenu
 
 
 	private static void RemoveTranslator(TranslatorManagementService translatorManagementService,
-		IAuthorizationService authorization)
+		IAuthorizationService authorization, ICurrentUserSession session)
 	{
 		Console.WriteLine(new string('=', 36) + " REMOVING TRANSLATOR MENU " + new string('=', 36));
 		var desiredTranslator = MenuHelper.SelectExisting(translatorManagementService.GetAllTranslators(),
 			translator => MenuHelper.SelectTranslator(translator, authorization), Messages.NotAvailableTranslator);
 
 		ContributorMenu.RemoveContributor(desiredTranslator, x => ContributorPrinter.PrintDetails(x, "Remove"),
-			() => translatorManagementService.RemoveTranslator(desiredTranslator!.Id));
+			() => translatorManagementService.RemoveTranslator(desiredTranslator!.Id, session.CurrentUser.Id));
 	}
 
 
