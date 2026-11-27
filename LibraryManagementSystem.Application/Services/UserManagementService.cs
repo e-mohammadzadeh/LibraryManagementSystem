@@ -6,6 +6,7 @@ using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Exceptions;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Common;
+using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.DTOs.Users;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
@@ -159,10 +160,11 @@ public class UserManagementService : IUserManagementService
 		var user = _userRepository.GetById(userId, EntityFilter.Active);
 		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserRemoveFailed);
 
-		if (session != null && session.CurrentUser.Id == userId)
+		if (session is not null && session.CurrentUser.Id == userId)
 			return ServiceResult<UserDto>.Fail(Messages.CannotRemoveYourself);
 
-		if (session != null && !CanRemoveUser(session, user)) return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
+		if (session is not null && !CanRemoveUser(session, user))
+			return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
 
 		if (_loanRepository.GetByUserId(userId, LoanFilter.Active).Count > 0)
 			return ServiceResult<UserDto>.Fail(Messages.UserRemovalFailedByActiveLoans);
@@ -170,7 +172,9 @@ public class UserManagementService : IUserManagementService
 		if (_finesRepository.HasFines(userId, FineFilter.Unpaid))
 			return ServiceResult<UserDto>.Fail(Messages.UserRemovalFailedByUnpaidFines);
 
+		var userDto = user.ToDto();
 		_userRepository.Remove(user);
+
 		_auditLog.Record(AuditAction.UserRemoved, "User", userId, "User removed.");
 		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.UserRemovedSuccessfully);
 	}
@@ -192,11 +196,11 @@ public class UserManagementService : IUserManagementService
 
 		Func<User, string?> selector = field switch
 		{
-			UserSearchField.FullName => u => $"{u.FirstName} {u.LastName}",
-			UserSearchField.NationalCode => u => u.NationalCode,
-			UserSearchField.Email => u => u.Email,
-			UserSearchField.PhoneNumber => u => u.PhoneNumber,
-			UserSearchField.Role => u => u.Role.Name.ToString(),
+			UserSearchField.FullName => user => $"{user.Person.FirstName} {user.Person.LastName}",
+			UserSearchField.NationalCode => user => user.Person.NationalCode,
+			UserSearchField.Email => user => user.Person.Email,
+			UserSearchField.PhoneNumber => user => user.Person.PhoneNumber,
+			UserSearchField.Role => user => user.Role.Name.ToString(),
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};
 
@@ -218,7 +222,9 @@ public class UserManagementService : IUserManagementService
 	{
 		return
 		[
-			.. _userRepository.GetAll(EntityFilter.Active).Where(user => user.Role.Id == roleId)
+			.. _userRepository
+				.GetAll(EntityFilter.Active)
+				.Where(user => user.Role.Id == roleId)
 				.Select(user => user.ToDto())
 		];
 	}
@@ -266,13 +272,12 @@ public class UserManagementService : IUserManagementService
 	public ServiceResult<string> ChangePassword(Guid userId, string? currentPassword, string newPassword,
 		ICurrentUserSession session)
 	{
+		ArgumentNullException.ThrowIfNull(session);
+
 		var isOwn = session.CurrentUser.Id == userId;
 
-		switch (isOwn)
-		{
-			case false when !_authorization.HasPermission(Permission.ChangePassword):
-				return ServiceResult<string>.Fail(Messages.OnlyAdminCanResetPassword);
-		}
+		if (!isOwn && !_authorization.HasPermission(Permission.ChangePassword))
+			return ServiceResult<string>.Fail(Messages.OnlyAdminCanResetPassword);
 
 		var user = _userRepository.GetById(userId, EntityFilter.Active);
 		if (user is null || user.IsRemoved) return ServiceResult<string>.Fail(Messages.UserNotFound);
@@ -297,7 +302,7 @@ public class UserManagementService : IUserManagementService
 
 		var message = isOwn ? Messages.PasswordChangedSuccessfully : Messages.PasswordResetSuccessfully;
 		_auditLog.Record(AuditAction.UserPasswordChanged, "User", userId, "User password changed.");
-		return ServiceResult<string>.Ok(user.Email, message);
+		return ServiceResult<string>.Ok(user.Person.Email, message);
 	}
 
 
@@ -308,17 +313,15 @@ public class UserManagementService : IUserManagementService
 
 		if (user.ShouldRemove)
 			return ServiceResult<UserDto>.Fail(string.Format(Messages.UserMarkedForRemoval,
-				$"{user.FirstName} {user.LastName}"));
+				$"{user.Person.FirstName} {user.Person.LastName}"));
 
 		if (years <= 0) return ServiceResult<UserDto>.Fail(Messages.InvalidMembershipRenewalPeriod);
-
-		var targetRole = _roleRepository.GetById(userId)?.Name;
 
 		if (!_authorization.HasPermission(Permission.RenewInactiveMembership) && !user.IsActive)
 			return ServiceResult<UserDto>.Fail(Messages.RenewInactiveMembership);
 
 
-		switch (targetRole)
+		switch (user.Role.Name)
 		{
 			case LibraryUserRole.Librarian:
 			{
@@ -337,6 +340,7 @@ public class UserManagementService : IUserManagementService
 		}
 
 		RenewMembership(user, years);
+		_userRepository.Update(user);
 		_auditLog.Record(AuditAction.MembershipRenewed, "User", userId, "User membership renewed.");
 		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.MembershipRenewedSuccessfully);
 	}
@@ -350,7 +354,7 @@ public class UserManagementService : IUserManagementService
 			: today; // restart from today if already expired
 
 		user.MembershipExpiryDate = renewalBase.AddYears(years);
-		if (!user.IsActive) user.IsActive = true;
+		user.IsActive = true;
 		user.UpdatedAt = DateTime.UtcNow;
 	}
 
@@ -388,13 +392,16 @@ public class UserManagementService : IUserManagementService
 		if (user == null) return;
 		user.LastLoginDate = user.PreviousLoginDate;
 		user.PreviousLoginDate = DateTime.Now;
+		_userRepository.Update(user);
 	}
 
 
 	public void UpdateLastLoginInLogout(Guid userId)
 	{
 		var user = _userRepository.GetById(userId, EntityFilter.Active);
-		user?.LastLoginDate = user.PreviousLoginDate;
+		if (user is null) return;
+		user.LastLoginDate = user.PreviousLoginDate;
+		_userRepository.Update(user);
 	}
 
 
@@ -414,21 +421,29 @@ public class UserManagementService : IUserManagementService
 	internal ServiceResult<User> CreateInitialAdmin(User user, string initialPassword)
 	{
 		ArgumentNullException.ThrowIfNull(user);
+
+		if (user.Person is null)
+			return ServiceResult<User>.Fail("The initial administrator must have Person information.");
+
 		if (string.IsNullOrWhiteSpace(initialPassword))
 			throw new ArgumentException("Initial password cannot be empty.", nameof(initialPassword));
 
 		var role = _roleRepository.GetByName(LibraryUserRole.Admin) ??
 		           throw new InvalidOperationException("Admin role is missing. Did the migration run?");
 
-		if (_userRepository.HasUserWithRole(role.Id))
-			return ServiceResult<User>.Ok(user, "An active administrator already exists.");
+		var adminAlreadyExists = _userRepository.GetAll(EntityFilter.Active)
+			.Any(existingUser => existingUser.RoleId == role.Id);
+		if (adminAlreadyExists) return ServiceResult<User>.Ok(user, "An active administrator already exists.");
 
-		var duplicate = UniquenessChecker.Check(user.NationalCode, user.Email, user.PhoneNumber);
+		var person = user.Person;
+		var duplicate = PersonUniquenessChecker.Check(person, person.NationalCode, person.Email, person.PhoneNumber);
 		if (duplicate != DuplicateField.None)
 			return ServiceResult<User>.Fail(
 				"The initial administrator's national code, email, or phone number is already in use.");
 
 		user.RoleId = role.Id;
+		user.Role = role;
+
 		var passwordResult = _passwordHasher.CreatePasswordHash(initialPassword);
 		user.PasswordHash = passwordResult.Hash;
 		user.PasswordSalt = passwordResult.Salt;
@@ -438,5 +453,20 @@ public class UserManagementService : IUserManagementService
 			"Initial administrator created by the system.");
 
 		return ServiceResult<User>.Ok(user, Messages.UserAddedSuccessfully);
+	}
+
+
+	private static ContributorDto ToContributorDto(UserDto dto)
+	{
+		return new ContributorDto
+		{
+			Id = dto.Id,
+			FirstName = dto.FirstName,
+			LastName = dto.LastName,
+			NationalCode = dto.NationalCode,
+			Email = dto.Email,
+			PhoneNumber = dto.PhoneNumber,
+			BirthDate = dto.BirthDate
+		};
 	}
 }

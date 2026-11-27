@@ -140,22 +140,24 @@ public class AuthorManagementService
 
 		var authors = _authorRepository.GetAll(EntityFilter.Active);
 
-		return authors
-			.Where(author =>
-			{
-				var value = field switch
+		return
+		[
+			.. authors
+				.Where(author =>
 				{
-					ContributorSearchField.Name => $"{author.Person.FirstName} {author.Person.LastName}",
-					ContributorSearchField.NationalCode => author.Person.NationalCode,
-					ContributorSearchField.Email => author.Person.Email,
-					ContributorSearchField.PhoneNumber => author.Person.PhoneNumber,
-					_ => throw new ArgumentOutOfRangeException(nameof(field))
-				};
+					var value = field switch
+					{
+						ContributorSearchField.Name => $"{author.Person.FirstName} {author.Person.LastName}",
+						ContributorSearchField.NationalCode => author.Person.NationalCode,
+						ContributorSearchField.Email => author.Person.Email,
+						ContributorSearchField.PhoneNumber => author.Person.PhoneNumber,
+						_ => throw new ArgumentOutOfRangeException(nameof(field))
+					};
 
-				return value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
-			})
-			.Select(author => author.ToDto())
-			.ToList();
+					return value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
+				})
+				.Select(author => author.ToDto())
+		];
 	}
 
 
@@ -180,7 +182,7 @@ public class AuthorManagementService
 			? authors.OrderBy(keySelector)
 			: authors.OrderByDescending(keySelector);
 
-		return sorted.ToList();
+		return [.. sorted];
 	}
 
 

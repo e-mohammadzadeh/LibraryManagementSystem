@@ -142,22 +142,24 @@ public class TranslatorManagementService
 
 		var translators = _translatorRepository.GetAll(EntityFilter.Active);
 
-		return translators
-			.Where(translator =>
-			{
-				var value = field switch
+		return
+		[
+			.. translators
+				.Where(translator =>
 				{
-					ContributorSearchField.Name => $"{translator.Person.FirstName} {translator.Person.LastName}",
-					ContributorSearchField.NationalCode => translator.Person.NationalCode,
-					ContributorSearchField.Email => translator.Person.Email,
-					ContributorSearchField.PhoneNumber => translator.Person.PhoneNumber,
-					_ => throw new ArgumentOutOfRangeException(nameof(field))
-				};
+					var value = field switch
+					{
+						ContributorSearchField.Name => $"{translator.Person.FirstName} {translator.Person.LastName}",
+						ContributorSearchField.NationalCode => translator.Person.NationalCode,
+						ContributorSearchField.Email => translator.Person.Email,
+						ContributorSearchField.PhoneNumber => translator.Person.PhoneNumber,
+						_ => throw new ArgumentOutOfRangeException(nameof(field))
+					};
 
-				return value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
-			})
-			.Select(translator => translator.ToDto())
-			.ToList();
+					return value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
+				})
+				.Select(translator => translator.ToDto())
+		];
 	}
 
 
@@ -183,7 +185,7 @@ public class TranslatorManagementService
 			? translators.OrderBy(keySelector)
 			: translators.OrderByDescending(keySelector);
 
-		return sorted.ToList();
+		return [.. sorted];
 	}
 
 
