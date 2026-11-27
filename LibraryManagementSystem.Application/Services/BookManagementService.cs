@@ -238,29 +238,25 @@ public class BookManagementService : IBookManagementService
 	}
 
 
-
-	public ServiceResult<BookDto> ReacquireBook(BookDto dto, Guid? restoredBy = null) {
+	public ServiceResult<BookDto> ReacquireBook(BookDto dto, Guid? restoredBy = null)
+	{
 		if (!_authorization.HasPermission(Permission.ReacquireBook))
 			return ServiceResult<BookDto>.Fail(Messages.AccessDenied);
 
 		var removed = _bookRepository.GetByISBN(dto.ISBN, EntityFilter.Removed);
-		if (removed is null)
-			return ServiceResult<BookDto>.Fail(Messages.NoRemovedBookWithISBN);
+		if (removed is null) return ServiceResult<BookDto>.Fail(Messages.NoRemovedBookWithISBN);
 
-		if (!Enum.IsDefined(dto.Genre.Value))
-			return ServiceResult<BookDto>.Fail(Messages.InvalidGenre);
+		if (!Enum.IsDefined(dto.Genre.Value)) return ServiceResult<BookDto>.Fail(Messages.InvalidGenre);
 
 		if (!Enum.IsDefined(dto.OriginalLanguage) && !Enum.IsDefined(dto.TranslatedLanguage))
 			return ServiceResult<BookDto>.Fail(Messages.InvalidLanguage);
 
-		if (dto.TotalCopies <= 0)
-			return ServiceResult<BookDto>.Fail(Messages.WrongTotalCopies);
+		if (dto.TotalCopies <= 0) return ServiceResult<BookDto>.Fail(Messages.WrongTotalCopies);
 
 		if (_bookRepository.Exists(b => b.Title == dto.Title, removed.Id))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByName);
 
-		if (dto.Authors.Count == 0)
-			return ServiceResult<BookDto>.Fail(Messages.BookRequiresAtLeastOneAuthor);
+		if (dto.Authors.Count == 0) return ServiceResult<BookDto>.Fail(Messages.BookRequiresAtLeastOneAuthor);
 
 		if (dto.Authors.Count != dto.Authors.DistinctBy(a => a.Id).Count())
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateAuthorsNotAllowed);
@@ -288,7 +284,7 @@ public class BookManagementService : IBookManagementService
 
 		using var tx = _unitOfWork.Begin();
 
-		_bookRepository.Restore(removed, restoredBy); 
+		_bookRepository.Restore(removed, restoredBy);
 
 		removed.Title = dto.Title;
 		removed.PublishDate = dto.PublishDate;
@@ -305,11 +301,10 @@ public class BookManagementService : IBookManagementService
 
 		_bookRepository.Update(removed);
 
-		_auditLog.Record(AuditAction.BookReacquired, "Book", removed.Id,
-			$"Book reacquired. ISBN: {dto.ISBN.Value}");
+		_auditLog.Record(AuditAction.BookReacquired, "Book", removed.Id, $"Book reacquired. ISBN: {dto.ISBN.Value}");
 
 		var restored = _bookRepository.GetById(removed.Id, EntityFilter.Active)
-					   ?? throw new BookNotFoundException(removed.Id);
+		               ?? throw new BookNotFoundException(removed.Id);
 
 		tx.Commit();
 		return ServiceResult<BookDto>.Ok(restored.ToDto(), Messages.BookReacquiredSuccessfully);
@@ -424,45 +419,66 @@ public class BookManagementService : IBookManagementService
 
 	public IReadOnlyList<BookDto> GetRemovedBooks()
 	{
-		if (!_authorization.HasPermission(Permission.ViewRemovedContributors)) return [];
+		if (!_authorization.HasPermission(Permission.ViewRemovedBooks)) return [];
 		return [.. _bookRepository.GetAll(EntityFilter.Removed).Select(a => a.ToDto())];
 	}
 
 
 
-	public void RemoveAuthor(Guid bookId, Guid authorId)
+	public void RemoveAuthor(Guid bookId, Guid authorId, Guid? updatedBy = null) =>
+		RemoveContributorFromBook(bookId, contributorId: authorId, updatedBy, isAuthor: true);
+
+
+	public void RemoveTranslator(Guid bookId, Guid translatorId, Guid? updatedBy = null) =>
+		RemoveContributorFromBook(bookId, contributorId: translatorId, updatedBy, isAuthor: false);
+
+
+	private ServiceResult<BookDto> RemoveContributorFromBook(Guid bookId, Guid contributorId, Guid? updatedBy, bool isAuthor)
 	{
 		var book = _bookRepository.GetById(bookId, EntityFilter.Active);
-		if (book is null || book.IsRemoved) return;
+		if (book is null || book.IsRemoved) return ServiceResult<BookDto>.Fail(Messages.NotAvailableBook);
 
-		if (book.BookAuthors.Count <= 1) throw new InvalidOperationException(Messages.BookRequiresAtLeastOneAuthor);
+		if (isAuthor)
+		{
+			if (book.BookAuthors.Count <= 1) return ServiceResult<BookDto>.Fail(Messages.BookRequiresAtLeastOneAuthor);
 
-		var author = _authorRepository.GetById(authorId, EntityFilter.Active);
-		if (author is null || author.IsRemoved) return;
+			var author = _authorRepository.GetById(contributorId, EntityFilter.Active);
+			if (author is null || author.IsRemoved)
+				return ServiceResult<BookDto>.Fail(string.Format(Messages.AuthorNotFoundFormat, contributorId));
 
-		var bookAuthor = book.BookAuthors.FirstOrDefault(ba => ba.AuthorId == authorId);
-		if (bookAuthor is null) return;
+			var bookAuthor = book.BookAuthors.FirstOrDefault(ba => ba.AuthorId == contributorId);
+			if (bookAuthor is null) return ServiceResult<BookDto>.Fail(Messages.AuthorNotOnBook);
 
-		book.BookAuthors.Remove(bookAuthor);
-		author.BookAuthors.Remove(bookAuthor);
-		book.UpdatedAt = DateTime.UtcNow;
-	}
+			book.BookAuthors.Remove(bookAuthor);
+		}
+		else
+		{
+			var translator = _translatorRepository.GetById(contributorId, EntityFilter.Active);
+			if (translator is null || translator.IsRemoved)
+				return ServiceResult<BookDto>.Fail(string.Format(Messages.TranslatorNotFoundFormat, contributorId));
 
+			var bookTranslator = book.BookTranslators.FirstOrDefault(bt => bt.TranslatorId == contributorId);
+			if (bookTranslator is null) return ServiceResult<BookDto>.Fail(Messages.TranslatorNotOnBook);
 
-	public void RemoveTranslator(Guid bookId, Guid translatorId)
-	{
-		var book = _bookRepository.GetById(bookId, EntityFilter.Active);
-		if (book is null || book.IsRemoved) return;
+			book.BookTranslators.Remove(bookTranslator);
+		}
 
-		var translator = _translatorRepository.GetById(translatorId, EntityFilter.Active);
-		if (translator is null || translator.IsRemoved) return;
+		book.UpdatedByUserId = updatedBy;
 
-		var bookTranslator = book.BookTranslators.FirstOrDefault(bt => bt.TranslatorId == translatorId);
-		if (bookTranslator is null) return;
+		using var tx = _unitOfWork.Begin();
+		_bookRepository.Update(book);
+		_auditLog.Record(
+			isAuthor ? AuditAction.BookAuthorRemoved : AuditAction.BookTranslatorRemoved,
+			"Book", bookId,
+			isAuthor
+				? $"Author {contributorId} detached from book."
+				: $"Translator {contributorId} detached from book.");
+		tx.Commit();
 
-		book.BookTranslators.Remove(bookTranslator);
-		translator.BookTranslators.Remove(bookTranslator);
-		book.UpdatedAt = DateTime.UtcNow;
+		var refreshed = _bookRepository.GetById(bookId, EntityFilter.Active)
+		                ?? throw new BookNotFoundException(bookId);
+		return ServiceResult<BookDto>.Ok(refreshed.ToDto(),
+			isAuthor ? Messages.AuthorRemovedFromBook : Messages.TranslatorRemovedFromBook);
 	}
 
 

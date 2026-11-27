@@ -59,12 +59,14 @@ public static class Messages
 	// Update
 	public const string AuthorUpdatedSuccessfully = "Author updated successfully.";
 	public const string AuthorUpdateFailed = "Failed to update author.";
+	public const string AuthorNotOnBook = "The specified author is not associated with this book.";
 
 	// Remove
 	public const string AuthorRemovedSuccessfully = "Author removed successfully.";
 	public const string AuthorRemoveFailed = "Failed to remove author.";
 	public const string CannotRemoveLastAuthor = "Cannot remove the only author. A book must have at least one author.";
 	public const string AuthorHasAssociatedBooks = "This author cannot be removed because they have associated books.";
+	public const string AuthorRemovedFromBook = "Author removed from book successfully.";
 
 	// Search
 	public const string NotAvailableAuthor = "No authors found. Please add a new author first.";
@@ -90,6 +92,7 @@ public static class Messages
 	// Update
 	public const string TranslatorUpdatedSuccessfully = "Translator updated successfully.";
 	public const string TranslatorUpdateFailed = "Failed to update translator.";
+	public const string TranslatorNotOnBook = "The specified translator is not associated with this book.";
 
 	// Remove
 	public const string TranslatorRemovedSuccessfully = "Translator removed successfully.";
@@ -97,6 +100,7 @@ public static class Messages
 	public const string NoTranslatorToRemove = "This book has no translators to remove.";
 	public const string RemoveAllTranslators = "Are you sure you want to remove ALL translators from this book";
 	public const string TranslatorHasAssociatedBooks = "This translator cannot be removed because they have associated books.";
+	public const string TranslatorRemovedFromBook = "Translator removed from book successfully.";
 
 	// Search
 	public const string NotAvailableTranslator = "No translators found. Please add a new translator first.";
@@ -116,6 +120,8 @@ public static class Messages
 	public const string NotEnoughAuthors = "All available authors are already assigned to this book.";
 	public const string AuthorCreationFailed = "Failed to retrieve the newly created author.";
 	public const string BookRequiresAtLeastOneAuthor = "A book must have at least one author.";
+	public const string NoRemovedBookWithISBN = "No removed book was found with this ISBN. Use Add Book to create a new record.";
+	public const string BookReacquiredSuccessfully = "Book reacquired successfully.";
 
 	// Update
 	public const string BookUpdatedSuccessfully = "Book updated successfully.";
