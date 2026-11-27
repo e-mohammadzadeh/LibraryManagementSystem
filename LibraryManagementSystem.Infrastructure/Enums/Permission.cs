@@ -13,13 +13,15 @@ public enum Permission
 	ViewAllContributors,
 	ViewRemovedContributors,
 	ViewContributorBooks,
+	RestoreContributor,
 
 
-	
+
 	// Books
 	AddBook,
 	EditBook,
 	RemoveBook,
+	ReacquireBook,
 	SearchBook,
 	FullSortBook,
 	ViewBookDetails,

@@ -5,6 +5,7 @@ using LibraryManagementSystem.Domain.Persistence;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using LibraryManagementSystem.Infrastructure.ValueObjects;
 
 namespace LibraryManagementSystem.Application.Repositories.EFCore;
 
@@ -33,6 +34,10 @@ public class BookRepository : IBookRepository
 
 	public Book? GetById(Guid id, EntityFilter filter = EntityFilter.Active) =>
 		Query(filter).FirstOrDefault(b => b.Id == id);
+
+
+	public Book? GetByISBN(ISBN isbn, EntityFilter filter = EntityFilter.Active) =>
+		Query(filter).FirstOrDefault(b => b.ISBN == isbn);
 
 
 	public IReadOnlyList<Book> GetAll(EntityFilter filter = EntityFilter.Active) =>

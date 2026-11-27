@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Mapping;
+using LibraryManagementSystem.Application.Repositories.EFCore;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Exceptions;
 using LibraryManagementSystem.Domain.Interfaces;
@@ -23,11 +24,12 @@ public class BookManagementService : IBookManagementService
 	private readonly ILoanRepository _loanRepository;
 	private readonly IAuditLogManagementService _auditLog;
 	private readonly IAuthorizationService _authorization;
+	private readonly IUnitOfWork _unitOfWork;
 
 
 	public BookManagementService(IAuthorRepository authorRepository, ITranslatorRepository translatorRepository,
 		IBookRepository bookRepository, ILoanRepository loanRepository, IAuditLogManagementService auditLog,
-		IAuthorizationService authorizationService)
+		IAuthorizationService authorizationService, IUnitOfWork unitOfWork)
 	{
 		_authorRepository = authorRepository;
 		_translatorRepository = translatorRepository;
@@ -35,6 +37,7 @@ public class BookManagementService : IBookManagementService
 		_loanRepository = loanRepository;
 		_auditLog = auditLog;
 		_authorization = authorizationService;
+		_unitOfWork = unitOfWork;
 	}
 
 
@@ -45,6 +48,8 @@ public class BookManagementService : IBookManagementService
 
 		if (_bookRepository.ExistsIncludingRemoved(b => b.ISBN == dto.ISBN))
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByISBN);
+
+		if (!Enum.IsDefined(dto.Genre.Value)) return ServiceResult<BookDto>.Fail(Messages.InvalidGenre);
 
 		if (!Enum.IsDefined(dto.OriginalLanguage) || (!Enum.IsDefined(dto.TranslatedLanguage)))
 			return ServiceResult<BookDto>.Fail(Messages.InvalidLanguage);
@@ -69,11 +74,15 @@ public class BookManagementService : IBookManagementService
 		}
 
 		var translators = new List<Translator>();
-		foreach (var translator in translatorIds.Select(id => _translatorRepository.GetById(id, EntityFilter.Active)))
+		foreach (var id in translatorIds)
 		{
-			if (translator is null) return ServiceResult<BookDto>.Fail(Messages.NotTranslatorMatched);
+			var translator = _translatorRepository.GetById(id, EntityFilter.Active);
+			if (translator is null)
+				return ServiceResult<BookDto>.Fail(string.Format(Messages.TranslatorNotFoundFormat, id));
 			translators.Add(translator);
 		}
+
+		using var tx = _unitOfWork.Begin();
 
 		var newBook = new Book
 		{
@@ -93,8 +102,10 @@ public class BookManagementService : IBookManagementService
 
 		_bookRepository.Add(newBook);
 		_auditLog.Record(AuditAction.BookCreated, "Book", newBook.Id, "Book created.");
-		var saved = _bookRepository.GetById(newBook.Id, EntityFilter.All) ?? throw new BookNotFoundException(newBook.Id);
+		var saved = _bookRepository.GetById(newBook.Id, EntityFilter.All) ??
+		            throw new BookNotFoundException(newBook.Id);
 
+		tx.Commit();
 		return ServiceResult<BookDto>.Ok(saved.ToDto(), Messages.BookAddedSuccessfully);
 	}
 
@@ -115,11 +126,16 @@ public class BookManagementService : IBookManagementService
 
 		if (!Enum.IsDefined(dto.Genre.Value)) return ServiceResult<BookDto>.Fail(Messages.InvalidGenre);
 
+		if (!Enum.IsDefined(dto.TranslatedLanguage)) return ServiceResult<BookDto>.Fail(Messages.InvalidLanguage);
+
 		if (dto.TotalCopies <= 0) return ServiceResult<BookDto>.Fail(Messages.WrongTotalCopies);
+
+		if (!BookInventoryRules.CanChangeTotalCopies(book.TotalCopies, book.AvailableCopies, dto.TotalCopies))
+			return ServiceResult<BookDto>.Fail(Messages.TotalCopiesUpdateInvalid);
 
 		if (dto.Authors.Count == 0) return ServiceResult<BookDto>.Fail(Messages.BookRequiresAtLeastOneAuthor);
 
-		if (dto.Authors.Count != dto.Authors.Distinct().Count())
+		if (dto.Authors.Count != dto.Authors.DistinctBy(a => a.Id).Count())
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateAuthorsNotAllowed);
 
 		List<Author> resolvedAuthors = [];
@@ -127,11 +143,11 @@ public class BookManagementService : IBookManagementService
 		{
 			var author = _authorRepository.GetById(contributor.Id, EntityFilter.Active);
 			if (author is null)
-				return ServiceResult<BookDto>.Fail(string.Format(Messages.AuthorNotFoundFormat, contributor));
+				return ServiceResult<BookDto>.Fail(string.Format(Messages.AuthorNotFoundFormat, contributor.Id));
 			resolvedAuthors.Add(author);
 		}
 
-		if (dto.Translators.Count != dto.Translators.Distinct().Count())
+		if (dto.Translators.Count != dto.Translators.DistinctBy(t => t.Id).Count())
 			return ServiceResult<BookDto>.Fail(Messages.DuplicateTranslatorsNotAllowed);
 
 		List<Translator> resolvedTranslators = [];
@@ -139,22 +155,18 @@ public class BookManagementService : IBookManagementService
 		{
 			var translator = _translatorRepository.GetById(contributor.Id, EntityFilter.Active);
 			if (translator is null)
-				return ServiceResult<BookDto>.Fail(string.Format(Messages.TranslatorNotFoundFormat, contributor));
+				return ServiceResult<BookDto>.Fail(string.Format(Messages.TranslatorNotFoundFormat, contributor.Id));
 			resolvedTranslators.Add(translator);
 		}
 
 		var auditDetails =
 			BookUpdateAuditDetailsBuilder.BuildBookUpdateAuditDetails(book, dto, resolvedAuthors, resolvedTranslators);
 
-		if (dto.TotalCopies > 0)
-		{
-			var newTotalCopies = dto.TotalCopies;
-			if (!BookInventoryRules.CanChangeTotalCopies(book.TotalCopies, book.AvailableCopies, newTotalCopies))
-				return ServiceResult<BookDto>.Fail(Messages.TotalCopiesUpdateInvalid);
-			var difference = newTotalCopies - book.TotalCopies;
-			book.TotalCopies = newTotalCopies;
-			book.AvailableCopies += difference;
-		}
+		using var tx = _unitOfWork.Begin();
+
+		var copyDifference = dto.TotalCopies - book.TotalCopies;
+		book.TotalCopies = dto.TotalCopies;
+		book.AvailableCopies += copyDifference;
 
 		book.Title = dto.Title;
 		book.ISBN = dto.ISBN;
@@ -162,7 +174,6 @@ public class BookManagementService : IBookManagementService
 		book.Genre = dto.Genre;
 		book.Publisher = dto.Publisher;
 		book.OriginalLanguage = dto.OriginalLanguage;
-		book.TotalCopies = dto.TotalCopies;
 		book.Description = dto.Description;
 		book.UpdatedByUserId = updatedBy;
 
@@ -171,6 +182,8 @@ public class BookManagementService : IBookManagementService
 
 		_bookRepository.Update(book);
 		_auditLog.Record(AuditAction.BookUpdated, "Book", dto.Id, auditDetails ?? "Book updated.");
+
+		tx.Commit();
 		return ServiceResult<BookDto>.Ok(book.ToDto(), Messages.BookUpdatedSuccessfully);
 	}
 
@@ -197,7 +210,7 @@ public class BookManagementService : IBookManagementService
 	}
 
 
-	public ServiceResult<BookDto> RemoveBook(Guid bookId)
+	public ServiceResult<BookDto> RemoveBook(Guid bookId, Guid? removedBy = null)
 	{
 		var book = _bookRepository.GetById(bookId, EntityFilter.Active);
 		if (book is null || book.IsRemoved) return ServiceResult<BookDto>.Fail(Messages.BookRemoveFailed);
@@ -211,11 +224,97 @@ public class BookManagementService : IBookManagementService
 
 		if (book.TotalCopies != book.AvailableCopies) return ServiceResult<BookDto>.Fail(Messages.BookRemoveFailed);
 
+		using var tx = _unitOfWork.Begin();
+
+		book.UpdatedByUserId = removedBy;
 		_bookRepository.Remove(book);
+
+		var removed = _bookRepository.GetById(bookId, EntityFilter.Removed);
+		if (removed is null) return ServiceResult<BookDto>.Fail(Messages.BookRemoveFailed);
 		_auditLog.Record(AuditAction.BookRemoved, "Book", bookId, "Book removed.");
 
-		return ServiceResult<BookDto>.Ok(book.ToDto(), Messages.BookRemovedSuccessfully);
+		tx.Commit();
+		return ServiceResult<BookDto>.Ok(removed.ToDto(), Messages.BookRemovedSuccessfully);
 	}
+
+
+
+	public ServiceResult<BookDto> ReacquireBook(BookDto dto, Guid? restoredBy = null) {
+		if (!_authorization.HasPermission(Permission.ReacquireBook))
+			return ServiceResult<BookDto>.Fail(Messages.AccessDenied);
+
+		var removed = _bookRepository.GetByISBN(dto.ISBN, EntityFilter.Removed);
+		if (removed is null)
+			return ServiceResult<BookDto>.Fail(Messages.NoRemovedBookWithISBN);
+
+		if (!Enum.IsDefined(dto.Genre.Value))
+			return ServiceResult<BookDto>.Fail(Messages.InvalidGenre);
+
+		if (!Enum.IsDefined(dto.OriginalLanguage) && !Enum.IsDefined(dto.TranslatedLanguage))
+			return ServiceResult<BookDto>.Fail(Messages.InvalidLanguage);
+
+		if (dto.TotalCopies <= 0)
+			return ServiceResult<BookDto>.Fail(Messages.WrongTotalCopies);
+
+		if (_bookRepository.Exists(b => b.Title == dto.Title, removed.Id))
+			return ServiceResult<BookDto>.Fail(Messages.DuplicateBooksNotAllowedByName);
+
+		if (dto.Authors.Count == 0)
+			return ServiceResult<BookDto>.Fail(Messages.BookRequiresAtLeastOneAuthor);
+
+		if (dto.Authors.Count != dto.Authors.DistinctBy(a => a.Id).Count())
+			return ServiceResult<BookDto>.Fail(Messages.DuplicateAuthorsNotAllowed);
+
+		List<Author> resolvedAuthors = [];
+		foreach (var contributor in dto.Authors)
+		{
+			var author = _authorRepository.GetById(contributor.Id, EntityFilter.Active);
+			if (author is null)
+				return ServiceResult<BookDto>.Fail(string.Format(Messages.AuthorNotFoundFormat, contributor.Id));
+			resolvedAuthors.Add(author);
+		}
+
+		if (dto.Translators.Count != dto.Translators.DistinctBy(t => t.Id).Count())
+			return ServiceResult<BookDto>.Fail(Messages.DuplicateTranslatorsNotAllowed);
+
+		List<Translator> resolvedTranslators = [];
+		foreach (var contributor in dto.Translators)
+		{
+			var translator = _translatorRepository.GetById(contributor.Id, EntityFilter.Active);
+			if (translator is null)
+				return ServiceResult<BookDto>.Fail(string.Format(Messages.TranslatorNotFoundFormat, contributor.Id));
+			resolvedTranslators.Add(translator);
+		}
+
+		using var tx = _unitOfWork.Begin();
+
+		_bookRepository.Restore(removed, restoredBy); 
+
+		removed.Title = dto.Title;
+		removed.PublishDate = dto.PublishDate;
+		removed.Genre = dto.Genre;
+		removed.Publisher = dto.Publisher;
+		removed.OriginalLanguage = dto.OriginalLanguage;
+		removed.TotalCopies = dto.TotalCopies;
+		removed.AvailableCopies = dto.TotalCopies;
+		removed.Description = dto.Description;
+		removed.UpdatedByUserId = restoredBy;
+
+		ReplaceAuthors(removed, resolvedAuthors);
+		ReplaceTranslators(removed, resolvedTranslators, dto.TranslatedLanguage);
+
+		_bookRepository.Update(removed);
+
+		_auditLog.Record(AuditAction.BookReacquired, "Book", removed.Id,
+			$"Book reacquired. ISBN: {dto.ISBN.Value}");
+
+		var restored = _bookRepository.GetById(removed.Id, EntityFilter.Active)
+					   ?? throw new BookNotFoundException(removed.Id);
+
+		tx.Commit();
+		return ServiceResult<BookDto>.Ok(restored.ToDto(), Messages.BookReacquiredSuccessfully);
+	}
+
 
 
 	public IReadOnlyList<BookDto> SearchBooks(string searchTerm, BookSearchField field)
@@ -401,6 +500,7 @@ public class BookManagementService : IBookManagementService
 				existing.TranslationLanguage = language;
 				continue;
 			}
+
 			AddTranslator(book, translator, language);
 		}
 	}

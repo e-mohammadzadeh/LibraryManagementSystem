@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
+using LibraryManagementSystem.Infrastructure.ValueObjects;
 using System.Linq.Expressions;
 
 namespace LibraryManagementSystem.Domain.Interfaces;
@@ -8,6 +9,7 @@ public interface IBookRepository
 {
 	void Add(Book book);
 	Book? GetById(Guid id, EntityFilter filter);
+	Book? GetByISBN(ISBN isbn, EntityFilter filter = EntityFilter.Active);
 	IReadOnlyList<Book> GetAll(EntityFilter filter);
 	IReadOnlyList<Book> GetByAuthorId(Guid authorId, EntityFilter filter);
 	IReadOnlyList<Book> GetByTranslatorId(Guid translatorId, EntityFilter filter);

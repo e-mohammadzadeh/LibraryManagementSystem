@@ -53,6 +53,8 @@ public static class Messages
 	// 4. AUTHOR MESSAGES ────────────────────────────────────────────────────────────
 	// Add
 	public const string AuthorAddedSuccessfully = "Author added successfully.";
+	public const string AuthorRestoredSuccessfully = "Author restored successfully.";
+	public const string AuthorRestoreFailed = "Author restore failed. No removed author was found with the given ID.";
 
 	// Update
 	public const string AuthorUpdatedSuccessfully = "Author updated successfully.";
@@ -82,7 +84,9 @@ public static class Messages
 	public const string TranslatorAddedSuccessfully = "Translator added successfully.";
 	public const string AllTranslatorsAssigned = "All available translators are already assigned to this book.";
 	public const string AddTranslatorInAdd = "\nNo translators found. Do you want to create a new translator now (Optional)";
-	
+	public const string TranslatorRestoredSuccessfully = "Translator restored successfully.";
+	public const string TranslatorRestoreFailed = "Translator restore failed. No removed translator was found with the given ID.";
+
 	// Update
 	public const string TranslatorUpdatedSuccessfully = "Translator updated successfully.";
 	public const string TranslatorUpdateFailed = "Failed to update translator.";

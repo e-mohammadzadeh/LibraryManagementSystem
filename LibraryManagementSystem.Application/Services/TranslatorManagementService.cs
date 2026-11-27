@@ -26,8 +26,9 @@ public class TranslatorManagementService : ContributorManagementService<Translat
 			new ContributorMessages(
 				Messages.TranslatorAddedSuccessfully, Messages.TranslatorUpdateFailed,
 				Messages.TranslatorUpdatedSuccessfully, Messages.TranslatorRemoveFailed,
-				Messages.UserRestoredSuccessfully, Messages.UserRestoreFailed, Messages.TranslatorHasAssociatedBooks,
-				Messages.TranslatorRemovedSuccessfully, "This person already has an active translator role.",
+				Messages.TranslatorRestoredSuccessfully, Messages.TranslatorRestoreFailed,
+				Messages.TranslatorHasAssociatedBooks, Messages.TranslatorRemovedSuccessfully,
+				"This person already has an active translator role.",
 				"This translator role has been removed and requires admin restoration."),
 			new ContributorAudit("Translator", AuditAction.TranslatorCreated, AuditAction.TranslatorUpdated,
 				AuditAction.TranslatorRemoved, AuditAction.TranslatorRestored), unitOfWork)

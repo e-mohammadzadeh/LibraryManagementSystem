@@ -102,6 +102,9 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 	{
 		ArgumentNullException.ThrowIfNull(dto);
 
+		var dateValidation = Validator.ContributorDateValidator(dto.BirthDate, dto.DeathDate);
+		if (!dateValidation.IsValid) return ServiceResult<ContributorDto>.Fail(dateValidation.ErrorMessage!);
+
 		var entity = _repository.GetByPersonId(dto.Id, EntityFilter.Active);
 		if (entity is null) return ServiceResult<ContributorDto>.Fail(_messages.UpdateFailed);
 
@@ -168,6 +171,9 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 
 	protected ServiceResult<ContributorDto> RestoreContributor(Guid id, Guid? restoredBy)
 	{
+		if (!_authorization.HasPermission(Permission.RestoreContributor))
+			return ServiceResult<ContributorDto>.Fail(Messages.AccessDenied);
+
 		var entity = _repository.GetById(id, EntityFilter.Removed);
 		if (entity is null) return ServiceResult<ContributorDto>.Fail(_messages.RestoreFailed);
 
@@ -209,7 +215,7 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 					{
 						ContributorSearchField.Name => $"{c.Person.FirstName} {c.Person.LastName}",
 						ContributorSearchField.NationalCode => c.Person.NationalCode,
-						ContributorSearchField.Email => c.Person.Email,
+						ContributorSearchField.Email => c.Person.Email, // c.Person.Email.Value
 						ContributorSearchField.PhoneNumber => c.Person.PhoneNumber,
 						_ => throw new ArgumentOutOfRangeException(nameof(field))
 					};

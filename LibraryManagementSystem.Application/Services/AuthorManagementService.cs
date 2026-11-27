@@ -23,7 +23,7 @@ public class AuthorManagementService : ContributorManagementService<Author>
 		IBookAuthorRepository bookAuthorRepository, IUnitOfWork unitOfWork)
 		: base(authorRepository, personService, authorization, auditLog, new ContributorMessages(
 				Messages.AuthorAddedSuccessfully, Messages.AuthorUpdateFailed, Messages.AuthorUpdatedSuccessfully,
-				Messages.AuthorRemoveFailed, Messages.UserRestoredSuccessfully, Messages.UserRestoreFailed,
+				Messages.AuthorRemoveFailed, Messages.AuthorRestoredSuccessfully, Messages.AuthorRestoreFailed,
 				Messages.AuthorHasAssociatedBooks, Messages.AuthorRemovedSuccessfully,
 				"This person already has an active author role.",
 				"This author role has been removed and requires admin restoration."),
