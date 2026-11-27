@@ -1,6 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Mapping;
-using LibraryManagementSystem.Application.Repositories.EFCore;
 using LibraryManagementSystem.Application.Validators;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
@@ -33,82 +32,6 @@ public class TranslatorManagementService
 		_authorization = authorization;
 		_auditLog = auditLog;
 		_bookTranslatorRepository = bookTranslatorRepository;
-	}
-
-
-	public ServiceResult<ContributorDto> AddTranslator(ContributorDto dto)
-	{
-		ArgumentNullException.ThrowIfNull(dto);
-
-		var dateValidation = Validator.ContributorDateValidator(dto.BirthDate, dto.DeathDate);
-		if (!dateValidation.IsValid) return ServiceResult<ContributorDto>.Fail(dateValidation.ErrorMessage!);
-
-		var personResult = _personService.ResolveOrCreatePerson(dto);
-		if (!personResult.IsSuccess) return ServiceResult<ContributorDto>.Fail(personResult.Message!);
-		var person = personResult.Data!;
-
-		var existingTranslator = _translatorRepository.GetByPersonId(person.Id, EntityFilter.All);
-		if (existingTranslator is not null)
-		{
-			if (!existingTranslator.IsRemoved)
-				return ServiceResult<ContributorDto>.Fail("This person already has an active translator role.");
-
-			return ServiceResult<ContributorDto>.Fail(
-				"This translator role has been removed and requires admin restoration.");
-		}
-
-		var translator = new Translator
-		{
-			PersonId = person.Id,
-			Person = person,
-			DeathDate = dto.DeathDate,
-			Biography = dto.Biography
-		};
-
-		_translatorRepository.Add(translator);
-		_auditLog.Record(AuditAction.TranslatorCreated, "Translator", translator.Id, "Translator role created.");
-		return ServiceResult<ContributorDto>.Ok(translator.ToDto(), Messages.TranslatorAddedSuccessfully);
-	}
-
-
-	public ServiceResult<ContributorDto> UpdateTranslator(ContributorDto dto, Guid? updatedBy = null)
-	{
-		ArgumentNullException.ThrowIfNull(dto);
-
-		var translator = _translatorRepository.GetById(dto.Id, EntityFilter.Active);
-		if (translator is null) return ServiceResult<ContributorDto>.Fail(Messages.TranslatorUpdateFailed);
-
-		var person = translator.Person;
-		var personChanged = person.FirstName != dto.FirstName ||
-		                    person.LastName != dto.LastName ||
-		                    person.NationalCode != dto.NationalCode ||
-		                    person.Email != dto.Email ||
-		                    person.PhoneNumber != dto.PhoneNumber ||
-		                    person.BirthDate != dto.BirthDate;
-
-		var translatorChanged = translator.DeathDate != dto.DeathDate ||
-		                        translator.Biography != dto.Biography;
-
-		if (!personChanged && !translatorChanged)
-			return ServiceResult<ContributorDto>.Warning(translator.ToDto(), Messages.NoChangesDetected);
-
-		if (personChanged)
-		{
-			var personResult = _personService.UpdatePerson(person.Id, dto, updatedBy);
-			if (!personResult.IsSuccess) return ServiceResult<ContributorDto>.Fail(personResult.Message!);
-		}
-
-		if (translatorChanged)
-		{
-			translator.DeathDate = dto.DeathDate;
-			translator.Biography = dto.Biography;
-			translator.UpdatedByUserId = updatedBy;
-			_translatorRepository.Update(translator);
-		}
-
-		_auditLog.Record(AuditAction.TranslatorUpdated, "Translator", dto.Id,
-			"Translator and/or Person information updated.");
-		return ServiceResult<ContributorDto>.Ok(translator.ToDto(), Messages.TranslatorUpdatedSuccessfully);
 	}
 
 
