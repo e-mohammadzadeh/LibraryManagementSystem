@@ -5,6 +5,7 @@ public enum AuditAction
 	UserCreated,
 	UserUpdated,
 	UserRemoved,
+	UserRestored,
 	UserPasswordChanged,
 	MembershipRenewed,
 

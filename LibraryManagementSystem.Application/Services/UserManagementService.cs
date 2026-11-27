@@ -418,6 +418,18 @@ public class UserManagementService : IUserManagementService
 	}
 
 
+	public ServiceResult<UserDto> RestoreUser(Guid userId, ICurrentUserSession session, Guid? updatedByUserId = null)
+	{
+		if (!session.IsAdmin) return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
+
+		var user = _userRepository.GetById(userId, EntityFilter.Removed);
+		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserRestoreFailed);
+
+		_userRepository.Restore(user, updatedByUserId);
+		_auditLog.Record(AuditAction.userr);
+	}
+
+
 	internal ServiceResult<User> CreateInitialAdmin(User user, string initialPassword)
 	{
 		ArgumentNullException.ThrowIfNull(user);

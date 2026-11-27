@@ -11,7 +11,7 @@ public abstract class PersonRoleRepository<T> : IPersonRoleRepository<T> where T
 	protected readonly LibraryDbContext Context;
 
 
-	public PersonRoleRepository(LibraryDbContext context) { Context = context; }
+	protected PersonRoleRepository(LibraryDbContext context) { Context = context; }
 
 
 	public void Add(T entity)
@@ -26,6 +26,7 @@ public abstract class PersonRoleRepository<T> : IPersonRoleRepository<T> where T
 		entity.Person = person;
 		entity.Id = Guid.CreateVersion7();
 		entity.CreatedAt = DateTime.UtcNow;
+		entity.IsRemoved = false;
 
 		Context.Set<T>().Add(entity);
 		Context.SaveChanges();
@@ -34,7 +35,9 @@ public abstract class PersonRoleRepository<T> : IPersonRoleRepository<T> where T
 
 	public T? GetById(Guid id, EntityFilter filter = EntityFilter.Active)
 	{
-		return ApplyFilter(Context.Set<T>().AsNoTracking(), filter)
+		return ApplyFilter(Context.Set<T>()
+				.AsNoTracking()
+				.Include(e => e.Person), filter)
 			.FirstOrDefault(e => e.Id == id);
 	}
 
@@ -43,7 +46,9 @@ public abstract class PersonRoleRepository<T> : IPersonRoleRepository<T> where T
 	{
 		return
 		[
-			.. ApplyFilter(Context.Set<T>().AsNoTracking(), filter)
+			.. ApplyFilter(Context.Set<T>()
+					.AsNoTracking()
+					.Include(e => e.Person), filter)
 				.OrderByDescending(e => e.CreatedAt)
 		];
 	}
@@ -53,13 +58,27 @@ public abstract class PersonRoleRepository<T> : IPersonRoleRepository<T> where T
 	{
 		ArgumentNullException.ThrowIfNull(entity);
 
-		var tracked = Context.Set<T>().FirstOrDefault(e => e.Id == entity.Id) ??
-		              throw CreateNotFoundException(entity.Id);
+		var tracked = GetTrackedById(entity.Id);
 		if (tracked.IsRemoved) return;
 
 		tracked.IsRemoved = true;
 		tracked.UpdatedAt = DateTime.UtcNow;
 		tracked.UpdatedByUserId = entity.UpdatedByUserId;
+
+		Context.SaveChanges();
+	}
+
+
+	public virtual void Restore(T entity, Guid? updatedByUserId = null)
+	{
+		ArgumentNullException.ThrowIfNull(entity);
+
+		var tracked = GetTrackedById(entity.Id);
+		if (!tracked.IsRemoved) return;
+
+		tracked.IsRemoved = false;
+		tracked.UpdatedAt = DateTime.UtcNow;
+		tracked.UpdatedByUserId = updatedByUserId;
 
 		Context.SaveChanges();
 	}

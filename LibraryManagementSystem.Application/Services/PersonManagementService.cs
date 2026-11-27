@@ -2,12 +2,10 @@
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Infrastructure.Common;
-using LibraryManagementSystem.Infrastructure.DTOs.Books;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
-using LibraryManagementSystem.Infrastructure.Enums.Search;
-using LibraryManagementSystem.Infrastructure.Enums.Sort;
+
 
 namespace LibraryManagementSystem.Application.Services;
 
@@ -91,98 +89,6 @@ public class PersonManagementService
 	}
 
 
-	protected ServiceResult<ContributorDto> RemoveContributor(Guid id, Func<Guid, bool> hasAssociatedBooks,
-		string removeFailedMessage, string hasAssociatedBooksMessage, string successMessage)
-	{
-		var contributor = Repository.GetById(id, EntityFilter.Active);
-		if (contributor is null || contributor.IsRemoved)
-			return ServiceResult<ContributorDto>.Fail(removeFailedMessage);
-
-		if (hasAssociatedBooks(id)) return ServiceResult<ContributorDto>.Fail(hasAssociatedBooksMessage);
-
-		Repository.Remove(contributor);
-		return ServiceResult<ContributorDto>.Ok(contributor.ToDto(), successMessage);
-	}
-
-
-	protected IReadOnlyList<ContributorDto> SearchContributor(string searchItem, ContributorSearchField field,
-		Func<TEntity, string?> selector)
-	{
-		var requiredPermission = field switch
-		{
-			ContributorSearchField.Name => [Permission.SearchForMember, Permission.FullSearchContributor],
-			ContributorSearchField.NationalCode => [Permission.FullSearchContributor],
-			ContributorSearchField.Email => [Permission.SearchForMember, Permission.FullSearchContributor],
-			ContributorSearchField.PhoneNumber => new[] { Permission.FullSearchContributor },
-			_ => throw new ArgumentOutOfRangeException(nameof(field))
-		};
-
-		if (!Authorization.HasAnyPermission(requiredPermission)) return [];
-
-		return
-		[
-			..
-			Repository.GetAll(EntityFilter.Active)
-				.Where(contributor =>
-				{
-					var value = selector(contributor);
-					return value is not null && value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
-				})
-				.Select(contributor => contributor.ToDto())
-		];
-	}
-
-
-	protected IReadOnlyList<ContributorDto> GetAllContributors(ContributorSortField sortField,
-		SortDirection sortDirection, Func<Guid, int> getBookCount)
-	{
-		var contributors = Repository.GetAll(EntityFilter.Active).Select(c => c.ToDto());
-
-		Func<ContributorDto, object> keySelector = sortField switch
-		{
-			ContributorSortField.FirstName => c => c.FirstName,
-			ContributorSortField.LastName => c => c.LastName,
-			ContributorSortField.FullName => c => $"{c.FirstName} {c.LastName}",
-			ContributorSortField.NationalCode => c => c.NationalCode,
-			ContributorSortField.Email => c => c.Email.Value,
-			ContributorSortField.BirthDate => c => c.BirthDate,
-			ContributorSortField.BookCount => c => getBookCount(c.Id),
-			_ => throw new ArgumentOutOfRangeException(nameof(sortField))
-		};
-
-		var sorted = sortDirection == SortDirection.Ascending
-			? contributors.OrderBy(keySelector)
-			: contributors.OrderByDescending(keySelector);
-
-		return [.. sorted];
-	}
-
-
-	protected IReadOnlyList<BookDto> GetBooksByContributor(Guid contributorId,
-		Func<Guid, IEnumerable<BookDto>> bookSelector)
-	{
-		if (Repository.GetById(contributorId, EntityFilter.Active) is null) return [];
-		return [.. bookSelector(contributorId)];
-	}
-
-
-	protected IReadOnlyList<ContributorDto> GetRemovedContributors()
-	{
-		if (!Authorization.HasPermission(Permission.ViewRemovedContributors)) return [];
-		return [.. Repository.GetAll(EntityFilter.Removed).Select(contributor => contributor.ToDto())];
-	}
-
-
-	private static bool IsNoOpUpdate(TEntity entity, ContributorDto dto) =>
-		dto.FirstName == entity.FirstName &&
-		dto.LastName == entity.LastName &&
-		dto.NationalCode == entity.NationalCode &&
-		dto.Email == entity.Email &&
-		dto.PhoneNumber == entity.PhoneNumber &&
-		dto.BirthDate == entity.BirthDate &&
-		dto.DeathDate == entity.DeathDate &&
-		(dto.Biography is null || dto.Biography == entity.Biography);
-
 
 	private static bool HasActiveRole(Person person)
 	{
@@ -197,7 +103,6 @@ public class PersonManagementService
 	{
 		return duplicate switch
 		{
-
 			DuplicateField.NationalCode => Messages.DuplicateNationalCodeMessage,
 			DuplicateField.Email => Messages.DuplicateEmailMessage,
 			DuplicateField.PhoneNumber => Messages.DuplicatePhoneNumberMessage,
