@@ -181,10 +181,15 @@ public class UserManagementService : IUserManagementService
 		if (_finesRepository.HasFines(userId, FineFilter.Unpaid))
 			return ServiceResult<UserDto>.Fail(Messages.UserRemovalFailedByUnpaidFines);
 
+		user.UpdatedByUserId = session?.CurrentUser.Id;
+
 		_userRepository.Remove(user);
 
+		var removedUser = _userRepository.GetById(userId, EntityFilter.Removed);
+		if (removedUser is null) return ServiceResult<UserDto>.Fail(Messages.UserRemoveFailed);
+
 		_auditLog.Record(AuditAction.UserRemoved, "User", userId, "User removed.");
-		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.UserRemovedSuccessfully);
+		return ServiceResult<UserDto>.Ok(removedUser.ToDto(), Messages.UserRemovedSuccessfully);
 	}
 
 
@@ -360,6 +365,7 @@ public class UserManagementService : IUserManagementService
 		if (user == null) return;
 		user.ShouldRemove = true;
 		user.UpdatedAt = DateTime.UtcNow;
+		_userRepository.Update(user);
 	}
 
 
@@ -386,7 +392,7 @@ public class UserManagementService : IUserManagementService
 		var user = _userRepository.GetById(userId, EntityFilter.Active);
 		if (user == null) return;
 		user.LastLoginDate = user.PreviousLoginDate;
-		user.PreviousLoginDate = DateTime.Now;
+		user.PreviousLoginDate = DateTime.UtcNow;
 		_userRepository.Update(user);
 	}
 
@@ -421,6 +427,10 @@ public class UserManagementService : IUserManagementService
 		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserRestoreFailed);
 
 		_userRepository.Restore(user, updatedByUserId);
+
+		var restoredUser = _userRepository.GetById(userId, EntityFilter.Active);
+		if (restoredUser is null) return ServiceResult<UserDto>.Fail(Messages.UserRemoveFailed);
+
 		_auditLog.Record(AuditAction.UserRestored, "User", userId, "User restored.");
 		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.UserRestoredSuccessfully);
 	}
@@ -439,28 +449,49 @@ public class UserManagementService : IUserManagementService
 		var role = _roleRepository.GetByName(LibraryUserRole.Admin) ??
 		           throw new InvalidOperationException("Admin role is missing. Did the migration run?");
 
-		var adminAlreadyExists = _userRepository.GetAll(EntityFilter.Active)
-			.Any(existingUser => existingUser.RoleId == role.Id);
-		if (adminAlreadyExists) return ServiceResult<User>.Ok(user, "An active administrator already exists.");
+		if (_userRepository.HasUserWithRole(role.Id))
+			return ServiceResult<User>.Ok(user, "An active administrator already exists.");
 
 		var person = user.Person;
-		var duplicate = _uniquenessChecker.Check(person, person.NationalCode, person.Email, person.PhoneNumber);
-		if (duplicate != DuplicateField.None)
-			return ServiceResult<User>.Fail(
-				"The initial administrator's national code, email, or phone number is already in use.");
+		var personDto = new ContributorDto
+		{
+			FirstName = person.FirstName,
+			LastName = person.LastName,
+			NationalCode = person.NationalCode,
+			Email = person.Email,
+			PhoneNumber = person.PhoneNumber,
+			BirthDate = person.BirthDate
+		};
 
+		var personResult = _personService.ResolveOrCreatePerson(personDto);
+		if (personResult.IsFailure) return ServiceResult<User>.Fail(personResult.Message!);
+
+		var resolvedPerson = personResult.Data!;
+
+		user.PersonId = resolvedPerson.Id;
+		user.Person = resolvedPerson;
 		user.RoleId = role.Id;
 		user.Role = role;
+		user.IsActive = true;
 
 		var passwordResult = _passwordHasher.CreatePasswordHash(initialPassword);
 		user.PasswordHash = passwordResult.Hash;
 		user.PasswordSalt = passwordResult.Salt;
 
+		var membershipStartDate = DateOnly.FromDateTime(DateTime.UtcNow);
+		user.MembershipStartDate = membershipStartDate;
+		user.MembershipExpiryDate = membershipStartDate.AddYears(ValidationConstants.AdminMembershipPeriod);
+
 		_userRepository.Add(user);
-		_auditLog.RecordSystemEvent(AuditAction.UserCreated, "User", user.Id,
+
+		var savedUser = _userRepository.GetById(user.Id, EntityFilter.Active);
+		if (savedUser is null)
+			return ServiceResult<User>.Fail("Initial administrator could not be retrieved after creation.");
+
+		_auditLog.RecordSystemEvent(AuditAction.UserCreated, "User", savedUser.Id,
 			"Initial administrator created by the system.");
 
-		return ServiceResult<User>.Ok(user, Messages.UserAddedSuccessfully);
+		return ServiceResult<User>.Ok(savedUser, Messages.UserAddedSuccessfully);
 	}
 
 

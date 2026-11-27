@@ -23,6 +23,7 @@ public static class ValidationConstants
 	public const int MinRenewMembershipYear = 1;
 	public const int MaxRenewMembershipYear = 3;
 	public const int MembershipPeriod = 1;
+	public const int AdminMembershipPeriod = 50;
 	public const int DescriptionWrapWidthInTable = 28;
 	public const int BookNameWrapWidthInTable = 30;
 	public const int MinPasswordLength = 8;

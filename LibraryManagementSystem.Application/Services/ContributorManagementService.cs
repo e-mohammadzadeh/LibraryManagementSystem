@@ -140,6 +140,10 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 
 		entity.UpdatedByUserId = removedBy;
 		_repository.Remove(entity);
+
+		var removed = _repository.GetById(id, EntityFilter.Removed);
+		if (removed is null) return ServiceResult<ContributorDto>.Fail(_messages.RemoveFailed);
+
 		_auditLog.Record(_audit.Removed, _audit.EntityName, id, $"{_audit.EntityName} role removed.");
 		return ServiceResult<ContributorDto>.Ok(entity.ToDto(), _messages.RemovedSuccessfully);
 	}
