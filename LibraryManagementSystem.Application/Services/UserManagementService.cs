@@ -28,13 +28,13 @@ public class UserManagementService : IUserManagementService
 	private readonly IAuthorizationService _authorization;
 	private readonly IAuditLogManagementService _auditLog;
 	protected readonly PersonUniquenessChecker _uniquenessChecker;
+	private readonly IUnitOfWork _unitOfWork;
 
 
 	public UserManagementService(PersonManagementService personService, IUserRepository userRepository,
-		IRoleRepository roleRepository,
-		ILoanRepository loanRepository, IFineRepository fineRepository, IPasswordHasher passwordHasher,
-		IAuthorizationService authorization, IAuditLogManagementService auditLog,
-		PersonUniquenessChecker uniquenessChecker)
+		IRoleRepository roleRepository, ILoanRepository loanRepository, IFineRepository fineRepository,
+		IPasswordHasher passwordHasher, IAuthorizationService authorization, IAuditLogManagementService auditLog,
+		PersonUniquenessChecker uniquenessChecker, IUnitOfWork unitOfWork)
 	{
 		_personService = personService;
 		_userRepository = userRepository;
@@ -45,6 +45,7 @@ public class UserManagementService : IUserManagementService
 		_authorization = authorization;
 		_auditLog = auditLog;
 		_uniquenessChecker = uniquenessChecker;
+		_unitOfWork = unitOfWork;
 	}
 
 
@@ -62,6 +63,8 @@ public class UserManagementService : IUserManagementService
 
 		var role = _roleRepository.GetByName(dto.RoleName);
 		if (role is null) return ServiceResult<UserDto>.Fail(Messages.CanOnlyAssignAllowedRoles);
+
+		using var tx = _unitOfWork.Begin();
 
 		var personDto = ToContributorDto(dto);
 		var personResult = _personService.ResolveOrCreatePerson(personDto);
@@ -97,6 +100,8 @@ public class UserManagementService : IUserManagementService
 		var savedUser = _userRepository.GetById(newUser.Id, EntityFilter.Active);
 		if (savedUser is null) return ServiceResult<UserDto>.Fail(Messages.UserAddFailed);
 		_auditLog.Record(AuditAction.UserCreated, "User", savedUser.Id, "New user role created.");
+
+		tx.Commit();
 		return ServiceResult<UserDto>.Ok(savedUser.ToDto(), Messages.UserAddedSuccessfully);
 	}
 
@@ -126,10 +131,11 @@ public class UserManagementService : IUserManagementService
 		var auditBuilder = new UserUpdateAuditDetailsBuilder(_roleRepository);
 		var auditDetails = auditBuilder.BuildUserUpdateAuditDetails(user, dto);
 
+		using var tx = _unitOfWork.Begin();
+
 		if (personChanged)
 		{
-			var personDto = ToContributorDto(dto);
-			var personResult = _personService.UpdatePerson(user.PersonId, personDto, updatedBy);
+			var personResult = _personService.UpdatePerson(user.PersonId, ToContributorDto(dto), updatedBy);
 			if (personResult.IsFailure) return ServiceResult<UserDto>.Fail(personResult.Message!);
 		}
 
@@ -141,26 +147,14 @@ public class UserManagementService : IUserManagementService
 
 		user.UpdatedByUserId = updatedBy;
 		_userRepository.Update(user);
+
 		var updatedUser = _userRepository.GetById(dto.Id, EntityFilter.Active);
 		if (updatedUser is null) return ServiceResult<UserDto>.Fail(Messages.UserUpdateFailed);
-
-		if (session.CurrentUser.Id == dto.Id) session.UpdateCurrentUser(user.ToAuthUserDto());
 		_auditLog.Record(AuditAction.UserUpdated, "User", dto.Id, auditDetails ?? "User updated.");
-		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.UserUpdatedSuccessfully);
-	}
+		tx.Commit();
 
-
-	private static bool IsNoOpUpdateUser(User user, UserDto dto)
-	{
-		var person = user.Person;
-
-		return (dto.FirstName == person.FirstName) &&
-		       (dto.LastName == person.LastName) &&
-		       (dto.NationalCode == person.NationalCode) &&
-		       (dto.Email == person.Email) &&
-		       (dto.PhoneNumber == person.PhoneNumber) &&
-		       (dto.BirthDate == person.BirthDate) &&
-		       (dto.RoleName == user.Role.Name);
+		if (session.CurrentUser.Id == dto.Id) session.UpdateCurrentUser(updatedUser.ToAuthUserDto());
+		return ServiceResult<UserDto>.Ok(updatedUser.ToDto(), Messages.UserUpdatedSuccessfully);
 	}
 
 
@@ -183,12 +177,16 @@ public class UserManagementService : IUserManagementService
 
 		user.UpdatedByUserId = session?.CurrentUser.Id;
 
+		using var tx = _unitOfWork.Begin();
+
 		_userRepository.Remove(user);
 
 		var removedUser = _userRepository.GetById(userId, EntityFilter.Removed);
 		if (removedUser is null) return ServiceResult<UserDto>.Fail(Messages.UserRemoveFailed);
 
 		_auditLog.Record(AuditAction.UserRemoved, "User", userId, "User removed.");
+
+		tx.Commit();
 		return ServiceResult<UserDto>.Ok(removedUser.ToDto(), Messages.UserRemovedSuccessfully);
 	}
 
@@ -310,11 +308,15 @@ public class UserManagementService : IUserManagementService
 		if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < ValidationConstants.MinPasswordLength)
 			return ServiceResult<string>.Fail(Messages.MinimumPasswordLength);
 
+		using var tx = _unitOfWork.Begin();
+
 		var hashResult = _passwordHasher.CreatePasswordHash(newPassword);
 		SetPasswordHash(userId, hashResult.Hash, hashResult.Salt);
 
 		var message = isOwn ? Messages.PasswordChangedSuccessfully : Messages.PasswordResetSuccessfully;
 		_auditLog.Record(AuditAction.UserPasswordChanged, "User", userId, "User password changed.");
+
+		tx.Commit();
 		return ServiceResult<string>.Ok(user.Person.Email, message);
 	}
 
@@ -352,9 +354,13 @@ public class UserManagementService : IUserManagementService
 				return ServiceResult<UserDto>.Fail(Messages.AccessDenied);
 		}
 
+		using var tx = _unitOfWork.Begin();
+
 		RenewMembership(user, years);
 		_userRepository.Update(user);
 		_auditLog.Record(AuditAction.MembershipRenewed, "User", userId, "User membership renewed.");
+
+		tx.Commit();
 		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.MembershipRenewedSuccessfully);
 	}
 
@@ -426,13 +432,17 @@ public class UserManagementService : IUserManagementService
 		var user = _userRepository.GetById(userId, EntityFilter.Removed);
 		if (user is null) return ServiceResult<UserDto>.Fail(Messages.UserRestoreFailed);
 
+		using var tx = _unitOfWork.Begin();
+
 		_userRepository.Restore(user, updatedByUserId);
 
 		var restoredUser = _userRepository.GetById(userId, EntityFilter.Active);
-		if (restoredUser is null) return ServiceResult<UserDto>.Fail(Messages.UserRemoveFailed);
+		if (restoredUser is null) return ServiceResult<UserDto>.Fail(Messages.UserRestoreFailed);
 
 		_auditLog.Record(AuditAction.UserRestored, "User", userId, "User restored.");
-		return ServiceResult<UserDto>.Ok(user.ToDto(), Messages.UserRestoredSuccessfully);
+
+		tx.Commit();
+		return ServiceResult<UserDto>.Ok(restoredUser.ToDto(), Messages.UserRestoredSuccessfully);
 	}
 
 
@@ -467,6 +477,9 @@ public class UserManagementService : IUserManagementService
 		if (personResult.IsFailure) return ServiceResult<User>.Fail(personResult.Message!);
 
 		var resolvedPerson = personResult.Data!;
+
+		if (_userRepository.GetByPersonId(resolvedPerson.Id, EntityFilter.All) is not null)
+			return ServiceResult<User>.Fail("This person already has a user account.");
 
 		user.PersonId = resolvedPerson.Id;
 		user.Person = resolvedPerson;
@@ -532,8 +545,8 @@ public class UserManagementService : IUserManagementService
 			dto.FirstName != person.FirstName ||
 			dto.LastName != person.LastName ||
 			dto.NationalCode != person.NationalCode ||
-			dto.Email != person.Email ||
-			dto.PhoneNumber != person.PhoneNumber ||
+			!Equals(dto.Email, person.Email) ||
+			!Equals(dto.PhoneNumber, person.PhoneNumber) ||
 			dto.BirthDate != person.BirthDate;
 	}
 }

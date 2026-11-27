@@ -158,6 +158,8 @@ public static class Program
 		services.AddScoped<LibraryStatisticsService>();
 		services.AddScoped<RoleManagementService>();
 
+		services.AddScoped<IUnitOfWork, EfUnitOfWork>();
+
 		return services.BuildServiceProvider(new ServiceProviderOptions
 		{
 			ValidateScopes = true,

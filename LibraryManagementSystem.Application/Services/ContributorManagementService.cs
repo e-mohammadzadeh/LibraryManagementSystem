@@ -19,6 +19,8 @@ public sealed record ContributorMessages(
 	string UpdateFailed,
 	string UpdatedSuccessfully,
 	string RemoveFailed,
+	string RestoredSuccessfully,
+	string RestoreFailed,
 	string HasAssociatedBooks,
 	string RemovedSuccessfully,
 	string AlreadyActive,
@@ -29,7 +31,8 @@ public sealed record ContributorAudit(
 	string EntityName,
 	AuditAction Created,
 	AuditAction Updated,
-	AuditAction Removed);
+	AuditAction Removed,
+	AuditAction Restored);
 
 
 public abstract class ContributorManagementService<TEntity> where TEntity : Contributor, new()
@@ -40,11 +43,12 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 	private readonly IAuditLogManagementService _auditLog;
 	private readonly ContributorMessages _messages;
 	private readonly ContributorAudit _audit;
+	private readonly IUnitOfWork _unitOfWork;
 
 
 	public ContributorManagementService(IContributorRepository<TEntity> repository,
 		PersonManagementService personService, IAuthorizationService authorization, IAuditLogManagementService auditLog,
-		ContributorMessages messages, ContributorAudit audit)
+		ContributorMessages messages, ContributorAudit audit, IUnitOfWork unitOfWork)
 	{
 		_repository = repository;
 		_personService = personService;
@@ -52,6 +56,7 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 		_auditLog = auditLog;
 		_messages = messages;
 		_audit = audit;
+		_unitOfWork = unitOfWork;
 	}
 
 
@@ -64,6 +69,8 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 
 		var dateValidation = Validator.ContributorDateValidator(dto.BirthDate, dto.DeathDate);
 		if (!dateValidation.IsValid) return ServiceResult<ContributorDto>.Fail(dateValidation.ErrorMessage!);
+
+		using var tx = _unitOfWork.Begin();
 
 		var personResult = _personService.ResolveOrCreatePerson(dto);
 		if (!personResult.IsSuccess) return ServiceResult<ContributorDto>.Fail(personResult.Message!);
@@ -85,6 +92,8 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 
 		_repository.Add(entity);
 		_auditLog.Record(_audit.Created, _audit.EntityName, entity.Id, $"{_audit.EntityName} role created.");
+
+		tx.Commit();
 		return ServiceResult<ContributorDto>.Ok(entity.ToDto(), _messages.AddedSuccessfully);
 	}
 
@@ -110,6 +119,8 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 		if (!personChanged && !roleChanged)
 			return ServiceResult<ContributorDto>.Warning(entity.ToDto(), Messages.NoChangesDetected);
 
+		using var tx = _unitOfWork.Begin();
+
 		if (personChanged)
 		{
 			var personResult = _personService.UpdatePerson(person.Id, dto, updatedBy);
@@ -127,6 +138,8 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 		_auditLog.Record(_audit.Updated, _audit.EntityName, entity.Id,
 			$"{_audit.EntityName} and/or Person information updated.");
 		var refreshed = _repository.GetById(dto.Id, EntityFilter.Active) ?? entity;
+
+		tx.Commit();
 		return ServiceResult<ContributorDto>.Ok(refreshed.ToDto(), _messages.UpdatedSuccessfully);
 	}
 
@@ -138,6 +151,8 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 
 		if (GetBooks(id).Any()) return ServiceResult<ContributorDto>.Fail(_messages.HasAssociatedBooks);
 
+		using var tx = _unitOfWork.Begin();
+
 		entity.UpdatedByUserId = removedBy;
 		_repository.Remove(entity);
 
@@ -145,8 +160,30 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 		if (removed is null) return ServiceResult<ContributorDto>.Fail(_messages.RemoveFailed);
 
 		_auditLog.Record(_audit.Removed, _audit.EntityName, id, $"{_audit.EntityName} role removed.");
-		return ServiceResult<ContributorDto>.Ok(entity.ToDto(), _messages.RemovedSuccessfully);
+
+		tx.Commit();
+		return ServiceResult<ContributorDto>.Ok(removed.ToDto(), _messages.RemovedSuccessfully);
 	}
+
+
+	protected ServiceResult<ContributorDto> RestoreContributor(Guid id, Guid? restoredBy)
+	{
+		var entity = _repository.GetById(id, EntityFilter.Removed);
+		if (entity is null) return ServiceResult<ContributorDto>.Fail(_messages.RestoreFailed);
+
+		using var tx = _unitOfWork.Begin();
+
+		_repository.Restore(entity, restoredBy);
+
+		var restored = _repository.GetById(id, EntityFilter.Active);
+		if (restored is null) return ServiceResult<ContributorDto>.Fail(_messages.RestoreFailed);
+
+		_auditLog.Record(_audit.Restored, _audit.EntityName, id, $"{_audit.EntityName} role restored.");
+
+		tx.Commit();
+		return ServiceResult<ContributorDto>.Ok(restored.ToDto(), _messages.RestoredSuccessfully);
+	}
+
 
 
 	protected IReadOnlyList<ContributorDto> SearchContributors(string searchItem, ContributorSearchField field)

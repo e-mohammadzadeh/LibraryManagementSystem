@@ -20,14 +20,15 @@ public class AuthorManagementService : ContributorManagementService<Author>
 
 	public AuthorManagementService(IAuthorRepository authorRepository, PersonManagementService personService,
 		IAuthorizationService authorization, IAuditLogManagementService auditLog,
-		IBookAuthorRepository bookAuthorRepository)
+		IBookAuthorRepository bookAuthorRepository, IUnitOfWork unitOfWork)
 		: base(authorRepository, personService, authorization, auditLog, new ContributorMessages(
 				Messages.AuthorAddedSuccessfully, Messages.AuthorUpdateFailed, Messages.AuthorUpdatedSuccessfully,
-				Messages.AuthorRemoveFailed, Messages.AuthorHasAssociatedBooks, Messages.AuthorRemovedSuccessfully,
+				Messages.AuthorRemoveFailed, Messages.UserRestoredSuccessfully, Messages.UserRestoreFailed,
+				Messages.AuthorHasAssociatedBooks, Messages.AuthorRemovedSuccessfully,
 				"This person already has an active author role.",
 				"This author role has been removed and requires admin restoration."),
 			new ContributorAudit("Author", AuditAction.AuthorCreated, AuditAction.AuthorUpdated,
-				AuditAction.AuthorRemoved))
+				AuditAction.AuthorRemoved, AuditAction.AuthorRestored), unitOfWork)
 	{
 		_bookAuthorRepository = bookAuthorRepository;
 	}

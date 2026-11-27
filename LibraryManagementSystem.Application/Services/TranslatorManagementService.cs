@@ -21,17 +21,16 @@ public class TranslatorManagementService : ContributorManagementService<Translat
 	public TranslatorManagementService(ITranslatorRepository translatorRepository,
 		PersonManagementService personService,
 		IAuthorizationService authorization, IAuditLogManagementService auditLog,
-		IBookTranslatorRepository bookTranslatorRepository)
+		IBookTranslatorRepository bookTranslatorRepository, IUnitOfWork unitOfWork)
 		: base(translatorRepository, personService, authorization, auditLog,
 			new ContributorMessages(
 				Messages.TranslatorAddedSuccessfully, Messages.TranslatorUpdateFailed,
-				Messages.TranslatorUpdatedSuccessfully,
-				Messages.TranslatorRemoveFailed, Messages.TranslatorHasAssociatedBooks,
-				Messages.TranslatorRemovedSuccessfully,
-				"This person already has an active translator role.",
+				Messages.TranslatorUpdatedSuccessfully, Messages.TranslatorRemoveFailed,
+				Messages.UserRestoredSuccessfully, Messages.UserRestoreFailed, Messages.TranslatorHasAssociatedBooks,
+				Messages.TranslatorRemovedSuccessfully, "This person already has an active translator role.",
 				"This translator role has been removed and requires admin restoration."),
 			new ContributorAudit("Translator", AuditAction.TranslatorCreated, AuditAction.TranslatorUpdated,
-				AuditAction.TranslatorRemoved))
+				AuditAction.TranslatorRemoved, AuditAction.TranslatorRestored), unitOfWork)
 	{
 		_bookTranslatorRepository = bookTranslatorRepository;
 	}
@@ -56,7 +55,8 @@ public class TranslatorManagementService : ContributorManagementService<Translat
 		SearchContributors(searchItem, field);
 
 
-	public IReadOnlyList<ContributorDto> GetAllTranslators(ContributorSortField sortField = ContributorSortField.FullName,
+	public IReadOnlyList<ContributorDto> GetAllTranslators(
+		ContributorSortField sortField = ContributorSortField.FullName,
 		SortDirection sortDirection = SortDirection.Ascending) =>
 		GetAllContributors(sortField, sortDirection);
 

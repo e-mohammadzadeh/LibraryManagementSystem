@@ -12,10 +12,12 @@ public enum AuditAction
 	AuthorCreated,
 	AuthorUpdated,
 	AuthorRemoved,
+	AuthorRestored,
 
 	TranslatorCreated,
 	TranslatorUpdated,
 	TranslatorRemoved,
+	TranslatorRestored,
 
 	BookCreated,
 	BookUpdated,
