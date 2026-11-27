@@ -1,6 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Mapping;
-using LibraryManagementSystem.Application.Repositories.EFCore;
 using LibraryManagementSystem.Application.Validators;
 using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
@@ -9,6 +8,7 @@ using LibraryManagementSystem.Infrastructure.DTOs.Books;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
+using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
@@ -123,8 +123,58 @@ public abstract class ContributorManagementService<TEntity> where TEntity : Cont
 			_repository.Update(entity);
 		}
 
-		_auditLog.Record(_audit.Updated, _audit.EntityName, entity.Id, $"{_audit.EntityName} and/or Person information updated.");
+		_auditLog.Record(_audit.Updated, _audit.EntityName, entity.Id,
+			$"{_audit.EntityName} and/or Person information updated.");
 		var refreshed = _repository.GetById(dto.Id, EntityFilter.Active) ?? entity;
 		return ServiceResult<ContributorDto>.Ok(refreshed.ToDto(), _messages.UpdatedSuccessfully);
+	}
+
+
+	protected ServiceResult<ContributorDto> RemoveContributor(Guid id, Guid removedBy)
+	{
+		var entity = _repository.GetById(id, EntityFilter.Active);
+		if (entity is null) return ServiceResult<ContributorDto>.Fail(_messages.RemoveFailed);
+
+		if (GetBooks(id).Any()) return ServiceResult<ContributorDto>.Fail(_messages.HasAssociatedBooks);
+
+		entity.UpdatedByUserId = removedBy;
+		_repository.Remove(entity);
+		_auditLog.Record(_audit.Removed, _audit.EntityName, id, $"{_audit.EntityName} role removed.");
+		return ServiceResult<ContributorDto>.Ok(entity.ToDto(), _messages.RemovedSuccessfully);
+	}
+
+
+	protected IReadOnlyList<ContributorDto> SearchContributors(string searchItem, ContributorSearchField field)
+	{
+		if (string.IsNullOrWhiteSpace(searchItem)) return [];
+
+		var requiredPermissions = field switch
+		{
+			ContributorSearchField.Name => [Permission.SearchForMember, Permission.FullSearchContributor],
+			ContributorSearchField.Email => [Permission.SearchForMember, Permission.FullSearchContributor],
+			ContributorSearchField.NationalCode => [Permission.FullSearchContributor],
+			ContributorSearchField.PhoneNumber => new[] { Permission.FullSearchContributor },
+			_ => throw new ArgumentOutOfRangeException(nameof(field))
+		};
+		if (!_authorization.HasAnyPermission(requiredPermissions)) return [];
+
+		return
+		[
+			.. _repository.GetAll(EntityFilter.Active)
+				.Where(c =>
+				{
+					var value = field switch
+					{
+						ContributorSearchField.Name => $"{c.Person.FirstName} {c.Person.LastName}",
+						ContributorSearchField.NationalCode => c.Person.NationalCode,
+						ContributorSearchField.Email => c.Person.Email,
+						ContributorSearchField.PhoneNumber => c.Person.PhoneNumber,
+						_ => throw new ArgumentOutOfRangeException(nameof(field))
+					};
+
+					return value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
+				})
+				.Select(c => c.ToDto())
+		];
 	}
 }

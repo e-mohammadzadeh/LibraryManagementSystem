@@ -1,90 +1,28 @@
 ﻿using LibraryManagementSystem.Application.Authorization;
 using LibraryManagementSystem.Application.Mapping;
-using LibraryManagementSystem.Application.Validators;
-using LibraryManagementSystem.Domain.Entities;
 using LibraryManagementSystem.Domain.Interfaces;
-using LibraryManagementSystem.Infrastructure.Common;
 using LibraryManagementSystem.Infrastructure.DTOs.Books;
 using LibraryManagementSystem.Infrastructure.DTOs.Contributor;
 using LibraryManagementSystem.Infrastructure.Enums;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
-using LibraryManagementSystem.Infrastructure.Enums.Search;
 using LibraryManagementSystem.Infrastructure.Enums.Sort;
-using LibraryManagementSystem.Infrastructure.Interfaces;
 
 namespace LibraryManagementSystem.Application.Services;
 
 public class AuthorManagementService
 {
 	private readonly IAuthorRepository _authorRepository;
-	private readonly PersonManagementService _personService;
 	private readonly IAuthorizationService _authorization;
-	private readonly IAuditLogManagementService _auditLog;
 	private readonly IBookAuthorRepository _bookAuthorRepository;
 
 
-	public AuthorManagementService(IAuthorRepository authorRepository, PersonManagementService personService,
-		IAuthorizationService authorization, IAuditLogManagementService auditLog,
+	public AuthorManagementService(IAuthorRepository authorRepository, 
+		IAuthorizationService authorization, 
 		IBookAuthorRepository bookAuthorRepository)
 	{
 		_authorRepository = authorRepository;
-		_personService = personService;
 		_authorization = authorization;
-		_auditLog = auditLog;
 		_bookAuthorRepository = bookAuthorRepository;
-	}
-
-
-
-
-	public ServiceResult<ContributorDto> RemoveAuthor(Guid id)
-	{
-		var author = _authorRepository.GetById(id, EntityFilter.Active);
-		if (author is null) return ServiceResult<ContributorDto>.Fail(Messages.AuthorRemoveFailed);
-
-		var hasBooks = _bookAuthorRepository.GetByAuthorId(id, EntityFilter.Active).Count > 0;
-		if (hasBooks) return ServiceResult<ContributorDto>.Fail(Messages.AuthorHasAssociatedBooks);
-
-		_authorRepository.Remove(author);
-		_auditLog.Record(AuditAction.AuthorRemoved, "Author", id, "Author role removed.");
-		return ServiceResult<ContributorDto>.Ok(author.ToDto(), Messages.AuthorRemovedSuccessfully);
-	}
-
-
-	public IReadOnlyList<ContributorDto> SearchAuthor(string searchItem, ContributorSearchField field)
-	{
-		if (string.IsNullOrWhiteSpace(searchItem)) return [];
-
-		var requiredPermissions = field switch
-		{
-			ContributorSearchField.Name => [Permission.SearchForMember, Permission.FullSearchContributor],
-			ContributorSearchField.Email => [Permission.SearchForMember, Permission.FullSearchContributor],
-			ContributorSearchField.NationalCode => [Permission.FullSearchContributor],
-			ContributorSearchField.PhoneNumber => new[] { Permission.FullSearchContributor },
-			_ => throw new ArgumentOutOfRangeException(nameof(field))
-		};
-		if (!_authorization.HasAnyPermission(requiredPermissions)) return [];
-
-		var authors = _authorRepository.GetAll(EntityFilter.Active);
-
-		return
-		[
-			.. authors
-				.Where(author =>
-				{
-					var value = field switch
-					{
-						ContributorSearchField.Name => $"{author.Person.FirstName} {author.Person.LastName}",
-						ContributorSearchField.NationalCode => author.Person.NationalCode,
-						ContributorSearchField.Email => author.Person.Email,
-						ContributorSearchField.PhoneNumber => author.Person.PhoneNumber,
-						_ => throw new ArgumentOutOfRangeException(nameof(field))
-					};
-
-					return value.Contains(searchItem, StringComparison.OrdinalIgnoreCase);
-				})
-				.Select(author => author.ToDto())
-		];
 	}
 
 
