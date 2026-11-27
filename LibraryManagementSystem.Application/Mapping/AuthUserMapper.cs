@@ -8,15 +8,16 @@ public static class AuthUserMapper
 {
 	public static AuthUserDto ToAuthUserDto(this User user)
 	{
-		var permissions = RolePermissionMap.GetPermissions(user.Role.Name).ToHashSet();
+		ArgumentNullException.ThrowIfNull(user);
+		var person = user.Person ?? throw new InvalidOperationException("User.Person was not loaded. Include(Person) is required.");
 
 		return new AuthUserDto
 		{
 			Id = user.Id,
-			FullName = $"{user.FirstName} {user.LastName}",
-			Email = user.Email,
+			FullName = $"{person.FirstName} {person.LastName}",
+			Email = person.Email,
 			RoleName = user.Role.Name,
-			Permissions = permissions,
+			Permissions = RolePermissionMap.GetPermissions(user.Role.Name).ToHashSet(),
 			IsActive = user.IsActive,
 			MembershipExpiryDate = user.MembershipExpiryDate,
 			ShouldRemove = user.ShouldRemove,

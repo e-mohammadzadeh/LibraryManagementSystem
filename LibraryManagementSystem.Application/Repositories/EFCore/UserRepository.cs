@@ -52,6 +52,10 @@ public class UserRepository : PersonRoleRepository<User>, IUserRepository
 		Query(filter).FirstOrDefault(u => u.Person.FirstName == firstName && u.Person.LastName == lastName);
 
 
+	public bool HasUserWithRole(Guid roleId) =>
+		Context.Set<User>().AsNoTracking().Any(u => !u.IsRemoved && u.RoleId == roleId);
+
+
 	protected override Exception CreateNotFoundException(Guid id) => new UserNotFoundException(id);
 
 

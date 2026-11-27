@@ -7,15 +7,22 @@ public static class UserMapper
 {
 	public static UserDto ToDto(this User user)
 	{
+		ArgumentNullException.ThrowIfNull(user);
+
+		var person = user.Person ??
+		             throw new InvalidOperationException("User.Person was not loaded. Include(Person) is required.");
+
+
 		return new UserDto
 		{
 			Id = user.Id,
-			FirstName = user.FirstName,
-			LastName = user.LastName,
-			NationalCode = user.NationalCode,
-			Email = user.Email,
-			PhoneNumber = user.PhoneNumber,
-			BirthDate = user.BirthDate,
+			PersonId = user.PersonId,
+			FirstName = person.FirstName,
+			LastName = person.LastName,
+			NationalCode = person.NationalCode,
+			Email = person.Email,
+			PhoneNumber = person.PhoneNumber,
+			BirthDate = person.BirthDate,
 			RoleName = user.Role.Name,
 			MembershipStartDate = user.MembershipStartDate,
 			MembershipExpiryDate = user.MembershipExpiryDate,
