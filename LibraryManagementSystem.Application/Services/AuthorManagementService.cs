@@ -115,7 +115,7 @@ public class AuthorManagementService
 		var author = _authorRepository.GetById(id, EntityFilter.Active);
 		if (author is null) return ServiceResult<ContributorDto>.Fail(Messages.AuthorRemoveFailed);
 
-		var hasBooks = _bookAuthorRepository.GetByAuthorId(id, EntityFilter.Active).Any();
+		var hasBooks = _bookAuthorRepository.GetByAuthorId(id, EntityFilter.Active).Count > 0;
 		if (hasBooks) return ServiceResult<ContributorDto>.Fail(Messages.AuthorHasAssociatedBooks);
 
 		_authorRepository.Remove(author);
@@ -130,9 +130,9 @@ public class AuthorManagementService
 
 		var requiredPermissions = field switch
 		{
-			ContributorSearchField.Name => new[] { Permission.SearchForMember, Permission.FullSearchContributor },
-			ContributorSearchField.Email => new[] { Permission.SearchForMember, Permission.FullSearchContributor },
-			ContributorSearchField.NationalCode => new[] { Permission.FullSearchContributor },
+			ContributorSearchField.Name => [Permission.SearchForMember, Permission.FullSearchContributor],
+			ContributorSearchField.Email => [Permission.SearchForMember, Permission.FullSearchContributor],
+			ContributorSearchField.NationalCode => [Permission.FullSearchContributor],
 			ContributorSearchField.PhoneNumber => new[] { Permission.FullSearchContributor },
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};
@@ -188,10 +188,12 @@ public class AuthorManagementService
 
 	public IReadOnlyList<BookDto> GetBooksByAuthor(Guid authorId)
 	{
-		return _bookAuthorRepository
-			.GetByAuthorId(authorId, EntityFilter.Active)
-			.Select(bookAuthor => bookAuthor.Book.ToDto())
-			.ToList();
+		return
+		[
+			.. _bookAuthorRepository
+				.GetByAuthorId(authorId, EntityFilter.Active)
+				.Select(bookAuthor => bookAuthor.Book.ToDto())
+		];
 	}
 
 
@@ -199,9 +201,11 @@ public class AuthorManagementService
 	{
 		if (!_authorization.HasPermission(Permission.ViewRemovedContributors)) return [];
 
-		return _authorRepository
-			.GetAll(EntityFilter.Removed)
-			.Select(author => author.ToDto())
-			.ToList();
+		return
+		[
+			.._authorRepository
+				.GetAll(EntityFilter.Removed)
+				.Select(author => author.ToDto())
+		];
 	}
 }

@@ -117,7 +117,7 @@ public class TranslatorManagementService
 		var translator = _translatorRepository.GetById(id, EntityFilter.Active);
 		if (translator is null) return ServiceResult<ContributorDto>.Fail(Messages.TranslatorRemoveFailed);
 
-		var hasBooks = _bookTranslatorRepository.GetByTranslatorId(id, EntityFilter.Active).Any();
+		var hasBooks = _bookTranslatorRepository.GetByTranslatorId(id, EntityFilter.Active).Count > 0;
 		if (hasBooks) return ServiceResult<ContributorDto>.Fail(Messages.TranslatorHasAssociatedBooks);
 
 		_translatorRepository.Remove(translator);
@@ -132,9 +132,9 @@ public class TranslatorManagementService
 
 		var requiredPermissions = field switch
 		{
-			ContributorSearchField.Name => new[] { Permission.SearchForMember, Permission.FullSearchContributor },
-			ContributorSearchField.Email => new[] { Permission.SearchForMember, Permission.FullSearchContributor },
-			ContributorSearchField.NationalCode => new[] { Permission.FullSearchContributor },
+			ContributorSearchField.Name => [Permission.SearchForMember, Permission.FullSearchContributor],
+			ContributorSearchField.Email => [Permission.SearchForMember, Permission.FullSearchContributor],
+			ContributorSearchField.NationalCode => [Permission.FullSearchContributor],
 			ContributorSearchField.PhoneNumber => new[] { Permission.FullSearchContributor },
 			_ => throw new ArgumentOutOfRangeException(nameof(field))
 		};
@@ -191,10 +191,12 @@ public class TranslatorManagementService
 
 	public IReadOnlyList<BookDto> GetBooksByTranslator(Guid translatorId)
 	{
-		return _bookTranslatorRepository
-			.GetByTranslatorId(translatorId, EntityFilter.Active)
-			.Select(bookAuthor => bookAuthor.Book.ToDto())
-			.ToList();
+		return
+		[
+			.._bookTranslatorRepository
+				.GetByTranslatorId(translatorId, EntityFilter.Active)
+				.Select(bookAuthor => bookAuthor.Book.ToDto())
+		];
 	}
 
 
@@ -202,9 +204,11 @@ public class TranslatorManagementService
 	{
 		if (!_authorization.HasPermission(Permission.ViewRemovedContributors)) return [];
 
-		return _translatorRepository
-			.GetAll(EntityFilter.Removed)
-			.Select(translator => translator.ToDto())
-			.ToList();
+		return
+		[
+			.._translatorRepository
+				.GetAll(EntityFilter.Removed)
+				.Select(translator => translator.ToDto())
+		];
 	}
 }

@@ -123,7 +123,7 @@ public class UserManagementService : IUserManagementService
 		var personDto = ToContributorDto(dto);
 
 		var personResult = _personService.UpdatePerson(user.PersonId, personDto, updatedBy);
-		if (!personResult.IsSuccess) return ServiceResult<UserDto>.Fail(personResult.Message);
+		if (!personResult.IsSuccess) return ServiceResult<UserDto>.Fail(personResult.Message!);
 
 		if (roleChanged)
 		{
@@ -172,7 +172,6 @@ public class UserManagementService : IUserManagementService
 		if (_finesRepository.HasFines(userId, FineFilter.Unpaid))
 			return ServiceResult<UserDto>.Fail(Messages.UserRemovalFailedByUnpaidFines);
 
-		var userDto = user.ToDto();
 		_userRepository.Remove(user);
 
 		_auditLog.Record(AuditAction.UserRemoved, "User", userId, "User removed.");

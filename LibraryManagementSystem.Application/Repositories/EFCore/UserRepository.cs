@@ -18,8 +18,8 @@ public class UserRepository : PersonRoleRepository<User>, IUserRepository
 
 		if (user.RoleId == Guid.Empty) throw new ArgumentException("RoleId cannot be empty.", nameof(user));
 
-		var role = Context.Set<Role>().Find(user.RoleId);
-		if (role is null) throw new InvalidOperationException($"Role with Id '{user.RoleId}' was not found.");
+		var role = Context.Set<Role>().Find(user.RoleId) ??
+		           throw new InvalidOperationException($"Role with Id '{user.RoleId}' was not found.");
 
 		user.Role = role;
 		base.Add(user);
