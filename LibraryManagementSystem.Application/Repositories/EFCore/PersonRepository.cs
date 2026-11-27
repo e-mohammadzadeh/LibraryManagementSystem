@@ -1,9 +1,10 @@
-﻿using System.Linq.Expressions;
-using LibraryManagementSystem.Domain.Entities;
+﻿using LibraryManagementSystem.Domain.Entities;
+using LibraryManagementSystem.Domain.Exceptions;
 using LibraryManagementSystem.Domain.Interfaces;
 using LibraryManagementSystem.Domain.Persistence;
 using LibraryManagementSystem.Infrastructure.Enums.Filters;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace LibraryManagementSystem.Application.Repositories.EFCore;
 
@@ -24,12 +25,14 @@ public class PersonRepository : IPersonRepository
 
 		_context.Set<Person>().Add(person);
 		_context.SaveChanges();
+		_context.ChangeTracker.Clear();
 	}
 
 
 	public Person? GetById(Guid id)
 	{
 		return _context.Set<Person>()
+			.AsNoTracking()
 			.Include(p => p.Author)
 			.Include(p => p.Translator)
 			.Include(p => p.User)
@@ -41,11 +44,11 @@ public class PersonRepository : IPersonRepository
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(nationalCode);
 
-		var query = _context.Set<Person>()
+		IQueryable<Person> query = _context.Set<Person>()
+			.AsNoTracking()
 			.Include(p => p.Author)
 			.Include(p => p.Translator)
-			.Include(p => p.User)
-			.AsQueryable();
+			.Include(p => p.User);
 
 		query = ApplyPersonFilter(query, filter);
 		return query.FirstOrDefault(p => p.NationalCode == nationalCode);
@@ -86,7 +89,7 @@ public class PersonRepository : IPersonRepository
 		ArgumentNullException.ThrowIfNull(person);
 
 		var tracked = _context.Set<Person>()
-			.Find(person.Id) ?? throw new InvalidOperationException($"Person with id '{person.Id}' was not found.");
+			.Find(person.Id) ?? throw new PersonNotFoundException(person.Id);
 
 		tracked.FirstName = person.FirstName;
 		tracked.LastName = person.LastName;

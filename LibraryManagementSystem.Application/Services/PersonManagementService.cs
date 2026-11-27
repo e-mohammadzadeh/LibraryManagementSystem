@@ -89,7 +89,6 @@ public class PersonManagementService
 	}
 
 
-
 	private static bool HasActiveRole(Person person)
 	{
 		return
